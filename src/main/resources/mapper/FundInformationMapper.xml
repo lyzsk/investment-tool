@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.mapper.FundInformationMapper">
+    <resultMap id="resultMap" type="cn.sichu.entity.FundInformation">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="shortName" column="short_name"/>
+        <result property="fullName" column="full_name"/>
+        <result property="companyName" column="company_name"/>
+    </resultMap>
+
+    <select id="selectAllFundInformation" resultType="cn.sichu.entity.FundInformation" resultMap="resultMap">
+        select code, short_name, full_name, company_name
+        from fund_information
+    </select>
+
+    <select id="selectFundInformationByCode" resultType="cn.sichu.entity.FundInformation" resultMap="resultMap">
+        select code, short_name, full_name, company_name
+        from fund_information
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+        </where>
+    </select>
+</mapper>

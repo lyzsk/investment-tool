@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.mapper.FundTransactionMapper">
+    <resultMap id="resultMap" type="cn.sichu.entity.FundTransaction">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="shortName" column="short_name"/>
+        <result property="applicationDate" column="application_date"/>
+        <result property="confirmationDate" column="confirmation_date"/>
+        <result property="settlementDate" column="settlement_date"/>
+        <result property="fee" column="fee"/>
+        <result property="share" column="share"/>
+        <result property="nav" column="nav"/>
+        <result property="amount" column="amount"/>
+        <result property="type" column="type"/>
+        <result property="tradingPlatform" column="trading_platform"/>
+    </resultMap>
+
+    <insert id="insertFundTransaction" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO fund_transaction
+        (code, short_name, application_date, confirmation_date, settlement_date, fee, share, nav, amount, type,
+        trading_platform)
+        VALUES(#{code}, #{shortName}, #{applicationDate}, #{confirmationDate}, #{settlementDate}, #{fee},
+        #{share}, #{nav}, #{amount}, #{type}, #{tradingPlatform})
+    </insert>
+
+
+    <select id="selectAllFundTransaction" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
+        select
+        code, short_name, application_date, confirmation_date, settlement_date,
+        fee, share, nav, amount, type, trading_platform
+        from fund_transaction
+    </select>
+</mapper>
