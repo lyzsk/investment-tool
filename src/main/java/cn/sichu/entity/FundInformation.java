@@ -13,13 +13,14 @@ public class FundInformation {
     private Integer purchaseConfirmationProcess;
     private Integer redemptionConfirmationProcess;
     private Integer redemptionSettlementProcess;
+    private String purchaseFeeRate;
 
     public FundInformation() {
     }
 
     public FundInformation(Long id, String code, String shortName, String fullName, String companyName,
-        Integer purchaseConfirmationProcess, Integer redemptionConfirmationProcess,
-        Integer redemptionSettlementProcess) {
+        Integer purchaseConfirmationProcess, Integer redemptionConfirmationProcess, Integer redemptionSettlementProcess,
+        String purchaseFeeRate) {
         this.id = id;
         this.code = code;
         this.shortName = shortName;
@@ -28,6 +29,15 @@ public class FundInformation {
         this.purchaseConfirmationProcess = purchaseConfirmationProcess;
         this.redemptionConfirmationProcess = redemptionConfirmationProcess;
         this.redemptionSettlementProcess = redemptionSettlementProcess;
+        this.purchaseFeeRate = purchaseFeeRate;
+    }
+
+    public String getPurchaseFeeRate() {
+        return purchaseFeeRate;
+    }
+
+    public void setPurchaseFeeRate(String purchaseFeeRate) {
+        this.purchaseFeeRate = purchaseFeeRate;
     }
 
     @Override
@@ -35,7 +45,8 @@ public class FundInformation {
         return "FundInformation{" + "id=" + id + ", code='" + code + '\'' + ", shortName='" + shortName + '\''
             + ", fullName='" + fullName + '\'' + ", companyName='" + companyName + '\''
             + ", purchaseConfirmationProcess=" + purchaseConfirmationProcess + ", redemptionConfirmationProcess="
-            + redemptionConfirmationProcess + ", redemptionSettlementProcess=" + redemptionSettlementProcess + '}';
+            + redemptionConfirmationProcess + ", redemptionSettlementProcess=" + redemptionSettlementProcess
+            + ", purchaseFeeRate='" + purchaseFeeRate + '\'' + '}';
     }
 
     public Integer getPurchaseConfirmationProcess() {
