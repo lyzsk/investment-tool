@@ -138,7 +138,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             }
             String fullName = "";
             String companyName = "";
-            List<FundInformation> fundInformations = fundInformationService.selectFundInformationByCode(code);
+            List<FundInformation> fundInformations = fundInformationService.selectFundShortNameByCode(code);
             for (FundInformation fundInformation : fundInformations) {
                 if (code.equals(fundInformation.getCode())) {
                     fullName = fundInformation.getFullName();

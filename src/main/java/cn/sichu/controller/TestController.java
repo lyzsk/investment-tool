@@ -1,16 +1,15 @@
 package cn.sichu.controller;
 
-import cn.sichu.entity.FundInformation;
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.service.IFundInformationService;
 import cn.sichu.service.IFundTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -46,22 +45,8 @@ public class TestController {
 
     @PostMapping("/02")
     public void test02(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
-        @RequestParam("amount") String amount, @RequestParam("type") String type,
-        @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException {
-        String shorName = "";
-        List<FundInformation> fundInformations = fundInformationService.selectFundInformationByCode(code);
-        for (FundInformation fundInformation : fundInformations) {
-            shorName = fundInformation.getShortName();
-        }
-        FundTransaction transaction = new FundTransaction();
-        transaction.setCode(code);
-        transaction.setShortName(shorName);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = sdf.parse(applicationDate);
-        transaction.setApplicationDate(date);
-        transaction.setAmount(amount);
-        transaction.setType(Integer.valueOf(type));
-        transaction.setTradingPlatform(tradingPlatform);
-        fundTransactionService.insertFundTransaction(transaction);
+        @RequestParam("amount") String amount, @RequestParam("type") Integer type,
+        @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException, IOException {
+        fundTransactionService.insertFundTransactionByConditions(code, applicationDate, amount, type, tradingPlatform);
     }
 }

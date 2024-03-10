@@ -1,14 +1,14 @@
 **简体中文 | [English](README.md)**
 
 <p align="center">
-    <a href="https://github.com/lyzsk/full-stack-demos/blob/master/LICENSE">
-        <img src="https://img.shields.io/github/license/lyzsk/full-stack-demos.svg?style=plastic&logo=github" />
+    <a href="https://github.com/lyzsk/investment-tool/blob/master/LICENSE">
+        <img src="https://img.shields.io/github/license/lyzsk/investment-tool.svg?style=plastic&logo=github" />
     </a>
-    <a href="https://github.com/lyzsk/full-stack-demos/members">
-        <img src="https://img.shields.io/github/forks/lyzsk/full-stack-demos.svg?style=plastic&logo=github" />
+    <a href="https://github.com/lyzsk/investment-tool/members">
+        <img src="https://img.shields.io/github/forks/lyzsk/investment-tool.svg?style=plastic&logo=github" />
     </a>
-    <a href="https://github.com/lyzsk/full-stack-demos/stargazers">
-        <img src="https://img.shields.io/github/stars/lyzsk/full-stack-demos.svg?style=plastic&logo=github" />
+    <a href="https://github.com/lyzsk/investment-tool/stargazers">
+        <img src="https://img.shields.io/github/stars/lyzsk/investment-tool.svg?style=plastic&logo=github" />
     </a>
 </p>
 
