@@ -18,6 +18,7 @@
         <result property="tradingPlatform" column="trading_platform"/>
     </resultMap>
 
+    <!--  TODO: 传全参+<if test>  -->
     <insert id="insertFundTransaction" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO fund_transaction
         (code, short_name, application_date, confirmation_date, settlement_date, fee, share, nav, amount, type,

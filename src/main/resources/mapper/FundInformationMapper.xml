@@ -9,15 +9,23 @@
         <result property="shortName" column="short_name"/>
         <result property="fullName" column="full_name"/>
         <result property="companyName" column="company_name"/>
+        <result property="purchaseConfirmationProcess" column="purchase_confirmation_process"/>
+        <result property="redemptionConfirmationProcess" column="redemption_confirmation_process"/>
+        <result property="redemptionSettlementProcess" column="redemption_settlement_process"/>
     </resultMap>
 
-    <select id="selectAllFundInformation" resultType="cn.sichu.entity.FundInformation" resultMap="resultMap">
-        select code, short_name, full_name, company_name
+
+    <select id="selectFundShortNameByCode" resultType="cn.sichu.entity.FundInformation"
+            resultMap="resultMap">
+        select code, short_name
         from fund_information
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+        </where>
     </select>
 
-    <select id="selectFundInformationByCode" resultType="cn.sichu.entity.FundInformation" resultMap="resultMap">
-        select code, short_name, full_name, company_name
+    <select id="selectFundTransactionProcessByCode" resultType="cn.sichu.entity.FundInformation" resultMap="resultMap">
+        select code, purchase_confirmation_process, redemption_confirmation_process, redemption_settlement_process
         from fund_information
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>

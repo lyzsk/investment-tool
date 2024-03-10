@@ -12,7 +12,8 @@ import java.util.List;
 @Mapper
 public interface FundInformationMapper {
 
-    public List<FundInformation> selectAllFundInformation();
+    public List<FundInformation> selectFundShortNameByCode(String code);
 
-    public List<FundInformation> selectFundInformationByCode(String code);
+    public List<FundInformation> selectFundTransactionProcessByCode(String code);
+
 }
