@@ -38,4 +38,15 @@ public class FundInformationServiceImpl implements IFundInformationService {
     public List<FundInformation> selectFundShortNameByCode(String code) {
         return fundInformationMapper.selectFundShortNameByCode(code);
     }
+
+    /**
+     * @param code 基金编码
+     * @return java.util.List<cn.sichu.entity.FundInformation>
+     * @author sichu huang
+     * @date 2024/03/10
+     **/
+    @Override
+    public List<FundInformation> selectFundPurchaseFeeRateByCode(String code) {
+        return fundInformationMapper.selectFundPurchaseFeeRateByCode(code);
+    }
 }

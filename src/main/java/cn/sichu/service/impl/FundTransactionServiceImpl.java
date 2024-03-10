@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -102,10 +104,32 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             transaction.setConfirmationDate(parsedApplicationDate);
             transaction.setSettlementDate(parsedApplicationDate);
         }
+        List<FundInformation> purchaseFeeInformations = fundInformationService.selectFundPurchaseFeeRateByCode(code);
+        for (FundInformation information : purchaseFeeInformations) {
+            String rate = information.getPurchaseFeeRate();
+            transaction.setFee(calculateFeeByRate(amount, rate));
+        }
         transaction.setAmount(amount);
         transaction.setType(type);
         transaction.setTradingPlatform(tradingPlatform);
 
         insertFundTransaction(transaction);
+    }
+
+    /**
+     * @param amount
+     * @param rate
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/10
+     **/
+    private String calculateFeeByRate(String amount, String rate) {
+        double v = Double.parseDouble(amount);
+        String substring = rate.substring(0, rate.length() - 1);
+        double r = Double.parseDouble(substring);
+        double fee = v * r * 0.01;
+        DecimalFormat df = new DecimalFormat("0.00");
+        df.setRoundingMode(RoundingMode.HALF_UP);
+        return df.format(fee);
     }
 }
