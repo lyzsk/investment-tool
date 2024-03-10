@@ -4,17 +4,20 @@ import cn.sichu.entity.FundInformation;
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.mapper.FundTransactionMapper;
 import cn.sichu.service.IFundTransactionService;
+import cn.sichu.utils.JsoupUtil;
 import cn.sichu.utils.TransactionDayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author sichu huang
@@ -68,7 +71,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         }
         transaction.setShortName(shortName);
 
-        Date parsedApplicationDate = new SimpleDateFormat("yyyy-MM-dd").parse(applicationDate);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date parsedApplicationDate = sdf.parse(applicationDate);
         if (TransactionDayUtil.isTransactionDate(parsedApplicationDate)) {
             transaction.setApplicationDate(parsedApplicationDate);
         } else {
@@ -104,10 +108,23 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             transaction.setConfirmationDate(parsedApplicationDate);
             transaction.setSettlementDate(parsedApplicationDate);
         }
+
+        String fee = "";
         List<FundInformation> purchaseFeeInformations = fundInformationService.selectFundPurchaseFeeRateByCode(code);
         for (FundInformation information : purchaseFeeInformations) {
             String rate = information.getPurchaseFeeRate();
-            transaction.setFee(calculateFeeByRate(amount, rate));
+            fee = calculateFeeByRate(amount, rate);
+            transaction.setFee(fee);
+        }
+        Map<String, String> transactionDateNavMap = JsoupUtil.getTransactionDateNavMap(code);
+        String formatedParsedApplicationDate = sdf.format(parsedApplicationDate);
+        // TODO: nav, share 应该在update时by code, by date更新
+        String nav = transactionDateNavMap.get(formatedParsedApplicationDate);
+        String share = "";
+        if (nav != null && !nav.equals("")) {
+            transaction.setNav(nav);
+            share = calculateShare(amount, fee, nav);
+            transaction.setShare(share);
         }
         transaction.setAmount(amount);
         transaction.setType(type);
@@ -131,5 +148,22 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         DecimalFormat df = new DecimalFormat("0.00");
         df.setRoundingMode(RoundingMode.HALF_UP);
         return df.format(fee);
+    }
+
+    /**
+     * @param amount
+     * @param fee
+     * @param nav
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/10
+     **/
+    private String calculateShare(String amount, String fee, String nav) {
+        BigDecimal amountDecimal = new BigDecimal(amount);
+        BigDecimal feeDecimal = new BigDecimal(fee);
+        BigDecimal navDecimal = new BigDecimal(nav);
+        BigDecimal shareDecimal = amountDecimal.subtract(feeDecimal).divide(navDecimal, 4, BigDecimal.ROUND_HALF_UP);
+        shareDecimal = shareDecimal.setScale(2, BigDecimal.ROUND_HALF_UP);
+        return shareDecimal.toString();
     }
 }
