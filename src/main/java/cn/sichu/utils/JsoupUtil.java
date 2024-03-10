@@ -9,6 +9,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,11 +66,12 @@ public class JsoupUtil {
         String startDate = "2023-01-01";
         String endDate = "2024-03-08";
 
-        for (int pageIndex = 0; pageIndex < 15; pageIndex++) {
+        for (int pageIndex = 0; pageIndex < 16; pageIndex++) {
             String url =
                 "https://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023012608503785392_1710072348365&fundCode="
                     + code + "&pageIndex=" + pageIndex + "&pageSize=20&startDate=" + startDate + "&endDate=" + endDate
-                    + "&_=1710079537101";
+                    + "&_=" + new Date().getTime();
+            // + "&_=1710079537101";
 
             Connection.Response response =
                 Jsoup.connect(url).ignoreContentType(true).header("Host", host).userAgent(userAgent).referrer(referer)
