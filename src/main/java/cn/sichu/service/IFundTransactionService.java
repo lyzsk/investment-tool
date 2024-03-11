@@ -13,6 +13,17 @@ import java.util.List;
  **/
 public interface IFundTransactionService {
     /**
+     * @param code
+     * @param applicationDate
+     * @param share
+     * @param type
+     * @author sichu huang
+     * @date 2024/03/11
+     **/
+    public void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, String share,
+        Integer type) throws IOException;
+
+    /**
      * @return java.util.List<cn.sichu.entity.FundTransaction>
      * @author sichu huang
      * @date 2024/03/09
