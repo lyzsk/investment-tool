@@ -4,6 +4,7 @@ import cn.sichu.entity.FundTransaction;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,6 +35,6 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/10
      **/
-    public void insertFundTransactionByConditions(String code, String applicationDate, String amount, Integer type,
-        String tradingPlatform) throws ParseException, IOException;
+    public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, String amount,
+        Integer type, String tradingPlatform) throws ParseException, IOException;
 }

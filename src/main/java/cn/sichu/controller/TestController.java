@@ -1,6 +1,7 @@
 package cn.sichu.controller;
 
 import cn.sichu.entity.FundTransaction;
+import cn.sichu.service.IFundHistoryNavService;
 import cn.sichu.service.IFundInformationService;
 import cn.sichu.service.IFundTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,6 +25,8 @@ public class TestController {
     private IFundTransactionService fundTransactionService;
     @Autowired
     private IFundInformationService fundInformationService;
+    @Autowired
+    private IFundHistoryNavService fundHistoryNavService;
 
     @GetMapping("/01")
     public void test01() {
@@ -47,6 +51,16 @@ public class TestController {
     public void test02(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
         @RequestParam("amount") String amount, @RequestParam("type") Integer type,
         @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException, IOException {
-        fundTransactionService.insertFundTransactionByConditions(code, applicationDate, amount, type, tradingPlatform);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date parseApplicationDate = sdf.parse(applicationDate);
+        fundTransactionService.insertFundPurchaseTransactionByConditions(code, parseApplicationDate, amount, type,
+            tradingPlatform);
+    }
+
+    @PostMapping("/03")
+    public void test03(@RequestParam("code") String code, @RequestParam("startDate") String startDate,
+        @RequestParam("endDate") String endDate, @RequestParam("callback") String callback)
+        throws ParseException, IOException {
+        fundHistoryNavService.insertFundHistoryNavInformation(code, startDate, endDate, callback);
     }
 }
