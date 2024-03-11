@@ -33,13 +33,11 @@ public class TransactionDayUtil {
      * @date 2024/03/10
      **/
     public static Date getNextTransactionDate(Date date) throws IOException {
-        while (true) {
-            date.setTime(date.getTime() + 24 * 60 * 60 * 1000L);
-            if (isTransactionDate(date)) {
-                break;
-            }
-        }
-        return date;
+        Date newDate = new Date(date.getTime());
+        do {
+            newDate.setTime(newDate.getTime() + 24 * 60 * 60 * 1000L);
+        } while (!isTransactionDate(newDate));
+        return newDate;
     }
 
     /**
@@ -50,13 +48,14 @@ public class TransactionDayUtil {
      * @date 2024/03/10
      **/
     public static Date getNextNTransactionDate(Date date, Integer n) throws IOException {
+        Date newDate = new Date(date.getTime());
         int count = 0;
         while (count < n) {
-            date.setTime(date.getTime() + 24 * 60 * 60 * 1000L);
-            if (isTransactionDate(date)) {
+            newDate.setTime(newDate.getTime() + 24 * 60 * 60 * 1000L);
+            if (isTransactionDate(newDate)) {
                 ++count;
             }
         }
-        return date;
+        return newDate;
     }
 }

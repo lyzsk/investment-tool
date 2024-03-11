@@ -9,6 +9,7 @@ import java.util.List;
  * @date 2024/03/09
  **/
 public interface IFundInformationService {
+
     /**
      * @param code 基金编码
      * @return java.util.List<cn.sichu.entity.FundInformation>

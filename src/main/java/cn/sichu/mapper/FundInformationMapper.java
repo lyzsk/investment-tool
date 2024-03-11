@@ -17,4 +17,5 @@ public interface FundInformationMapper {
     public List<FundInformation> selectFundTransactionProcessByCode(String code);
 
     public List<FundInformation> selectFundPurchaseFeeRateByCode(String code);
+
 }

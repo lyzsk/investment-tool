@@ -4,7 +4,6 @@ import cn.sichu.entity.FundInformation;
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.mapper.FundTransactionMapper;
 import cn.sichu.service.IFundTransactionService;
-import cn.sichu.utils.JsoupUtil;
 import cn.sichu.utils.TransactionDayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,11 +12,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author sichu huang
@@ -60,8 +56,11 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      * @date 2024/03/10
      **/
     @Override
-    public void insertFundTransactionByConditions(String code, String applicationDate, String amount, Integer type,
-        String tradingPlatform) throws ParseException, IOException {
+    public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, String amount,
+        Integer type, String tradingPlatform) throws IOException {
+        if (type != 0) {
+            return;
+        }
         FundTransaction transaction = new FundTransaction();
         transaction.setCode(code);
         String shortName = "";
@@ -70,44 +69,39 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             shortName = fundInformation.getShortName();
         }
         transaction.setShortName(shortName);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date parsedApplicationDate = sdf.parse(applicationDate);
-        if (TransactionDayUtil.isTransactionDate(parsedApplicationDate)) {
-            transaction.setApplicationDate(parsedApplicationDate);
+        // TODO: applicationDate 和 transactionDate 区分, 而不是强转, 需要加入 transactionDate 字段
+        if (TransactionDayUtil.isTransactionDate(applicationDate)) {
+            transaction.setApplicationDate(applicationDate);
         } else {
-            parsedApplicationDate = TransactionDayUtil.getNextTransactionDate(parsedApplicationDate);
-            transaction.setApplicationDate(parsedApplicationDate);
+            applicationDate = TransactionDayUtil.getNextTransactionDate(applicationDate);
+            transaction.setApplicationDate(applicationDate);
         }
-        /* parsedApplicationDate = T日 */
-        if (type == 0 && TransactionDayUtil.isTransactionDate(parsedApplicationDate)) {
-            transaction.setConfirmationDate(parsedApplicationDate);
-            List<FundInformation> purchaseInformations =
-                fundInformationService.selectFundTransactionProcessByCode(code);
-            for (FundInformation information : purchaseInformations) {
-                Integer n = information.getPurchaseConfirmationProcess();
-                Date settlementDate = new Date(parsedApplicationDate.getTime());
-                transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, n));
-            }
+        transaction.setConfirmationDate(applicationDate);
+        List<FundInformation> purchaseInformations = fundInformationService.selectFundTransactionProcessByCode(code);
+        for (FundInformation information : purchaseInformations) {
+            Integer n = information.getPurchaseConfirmationProcess();
+            Date settlementDate = new Date(applicationDate.getTime());
+            transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, n));
         }
-        if (type == 1 && TransactionDayUtil.isTransactionDate(parsedApplicationDate)) {
-            List<FundInformation> redemptionInformations =
-                fundInformationService.selectFundTransactionProcessByCode(code);
-            for (FundInformation information : redemptionInformations) {
-                Integer confirmationN = information.getRedemptionConfirmationProcess();
-                Integer settlementN = information.getRedemptionSettlementProcess();
-                Date confirmationDate = new Date(parsedApplicationDate.getTime());
-                Date settlementDate = new Date(parsedApplicationDate.getTime());
-                transaction.setConfirmationDate(
-                    TransactionDayUtil.getNextNTransactionDate(confirmationDate, confirmationN));
-                transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, settlementN));
-            }
 
-        }
-        if (type == 2 && TransactionDayUtil.isTransactionDate(parsedApplicationDate)) {
-            transaction.setConfirmationDate(parsedApplicationDate);
-            transaction.setSettlementDate(parsedApplicationDate);
-        }
+        // if (type == 1 && TransactionDayUtil.isTransactionDate(applicationDate)) {
+        //     List<FundInformation> redemptionInformations =
+        //         fundInformationService.selectFundTransactionProcessByCode(code);
+        //     for (FundInformation information : redemptionInformations) {
+        //         Integer confirmationN = information.getRedemptionConfirmationProcess();
+        //         Integer settlementN = information.getRedemptionSettlementProcess();
+        //         Date confirmationDate = new Date(applicationDate.getTime());
+        //         Date settlementDate = new Date(applicationDate.getTime());
+        //         transaction.setConfirmationDate(
+        //             TransactionDayUtil.getNextNTransactionDate(confirmationDate, confirmationN));
+        //         transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, settlementN));
+        //     }
+        //
+        // }
+        // if (type == 2 && TransactionDayUtil.isTransactionDate(applicationDate)) {
+        //     transaction.setConfirmationDate(applicationDate);
+        //     transaction.setSettlementDate(applicationDate);
+        // }
 
         String fee = "";
         List<FundInformation> purchaseFeeInformations = fundInformationService.selectFundPurchaseFeeRateByCode(code);
@@ -116,16 +110,16 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             fee = calculateFeeByRate(amount, rate);
             transaction.setFee(fee);
         }
-        Map<String, String> transactionDateNavMap = JsoupUtil.getTransactionDateNavMap(code);
-        String formatedParsedApplicationDate = sdf.format(parsedApplicationDate);
+        // Map<String, String> transactionDateNavMap = JsoupUtil.getTransactionDateNavMap(code);
+        // String formatedParsedApplicationDate = sdf.format(applicationDate);
         // TODO: nav, share 应该在update时by code, by date更新
-        String nav = transactionDateNavMap.get(formatedParsedApplicationDate);
-        String share = "";
-        if (nav != null && !nav.equals("")) {
-            transaction.setNav(nav);
-            share = calculateShare(amount, fee, nav);
-            transaction.setShare(share);
-        }
+        // String nav = transactionDateNavMap.get(formatedParsedApplicationDate);
+        // String share = "";
+        // if (nav != null && !nav.equals("")) {
+        //     transaction.setNav(nav);
+        //     share = calculateShare(amount, fee, nav);
+        //     transaction.setShare(share);
+        // }
         transaction.setAmount(amount);
         transaction.setType(type);
         transaction.setTradingPlatform(tradingPlatform);

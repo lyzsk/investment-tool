@@ -15,7 +15,6 @@
         <result property="purchaseFeeRate" column="purchase_fee_rate"/>
     </resultMap>
 
-
     <select id="selectFundShortNameByCode" resultType="cn.sichu.entity.FundInformation"
             resultMap="resultMap">
         select code, short_name
