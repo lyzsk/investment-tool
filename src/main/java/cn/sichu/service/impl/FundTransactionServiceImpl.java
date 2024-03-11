@@ -27,6 +27,57 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     private FundInformationServiceImpl fundInformationService;
 
     /**
+     * @param code
+     * @param applicationDate
+     * @param share
+     * @param type
+     * @author sichu huang
+     * @date 2024/03/11
+     **/
+    @Override
+    public void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, String share,
+        Integer type) throws IOException {
+        if (type != 1) {
+            return;
+        }
+        FundTransaction transaction = new FundTransaction();
+        transaction.setCode(code);
+        String shortName = "";
+        List<FundInformation> fundInformations = fundInformationService.selectFundShortNameByCode(code);
+        for (FundInformation fundInformation : fundInformations) {
+            shortName = fundInformation.getShortName();
+        }
+        transaction.setShortName(shortName);
+        // TODO: applicationDate 和 transactionDate 区分, 而不是强转, 需要加入 transactionDate 字段
+        if (TransactionDayUtil.isTransactionDate(applicationDate)) {
+            transaction.setApplicationDate(applicationDate);
+        } else {
+            applicationDate = TransactionDayUtil.getNextTransactionDate(applicationDate);
+            transaction.setApplicationDate(applicationDate);
+        }
+        List<FundInformation> redemptionInformations = fundInformationService.selectFundTransactionProcessByCode(code);
+        for (FundInformation information : redemptionInformations) {
+            Integer confirmationN = information.getRedemptionConfirmationProcess();
+            Integer settlementN = information.getRedemptionSettlementProcess();
+            Date confirmationDate = new Date(applicationDate.getTime());
+            Date settlementDate = new Date(applicationDate.getTime());
+            transaction.setConfirmationDate(
+                TransactionDayUtil.getNextNTransactionDate(confirmationDate, confirmationN));
+            transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, settlementN));
+        }
+        // TODO: 先select到nav, 再计算fee
+        String fee = "";
+        List<FundInformation> redemptionFeeInformations =
+            fundInformationService.selectFundRedemptionFeeRateByCode(code);
+        for (FundInformation information : redemptionFeeInformations) {
+            String rate = information.getRedemptionFeeRate();
+            fee = calculateRedemptionFeeByRate(share, nav, rate);
+            transaction.setFee(fee);
+        }
+        insertFundTransaction(transaction);
+    }
+
+    /**
      * @return java.util.List<cn.sichu.entity.FundTransaction>
      * @author sichu huang
      * @date 2024/03/09
@@ -85,17 +136,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         }
 
         // if (type == 1 && TransactionDayUtil.isTransactionDate(applicationDate)) {
-        //     List<FundInformation> redemptionInformations =
-        //         fundInformationService.selectFundTransactionProcessByCode(code);
-        //     for (FundInformation information : redemptionInformations) {
-        //         Integer confirmationN = information.getRedemptionConfirmationProcess();
-        //         Integer settlementN = information.getRedemptionSettlementProcess();
-        //         Date confirmationDate = new Date(applicationDate.getTime());
-        //         Date settlementDate = new Date(applicationDate.getTime());
-        //         transaction.setConfirmationDate(
-        //             TransactionDayUtil.getNextNTransactionDate(confirmationDate, confirmationN));
-        //         transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, settlementN));
-        //     }
+
         //
         // }
         // if (type == 2 && TransactionDayUtil.isTransactionDate(applicationDate)) {
@@ -107,7 +148,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         List<FundInformation> purchaseFeeInformations = fundInformationService.selectFundPurchaseFeeRateByCode(code);
         for (FundInformation information : purchaseFeeInformations) {
             String rate = information.getPurchaseFeeRate();
-            fee = calculateFeeByRate(amount, rate);
+            fee = calculatePurchaseFeeByRate(amount, rate);
             transaction.setFee(fee);
         }
         // Map<String, String> transactionDateNavMap = JsoupUtil.getTransactionDateNavMap(code);
@@ -134,7 +175,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/10
      **/
-    private String calculateFeeByRate(String amount, String rate) {
+    private String calculatePurchaseFeeByRate(String amount, String rate) {
         double v = Double.parseDouble(amount);
         String substring = rate.substring(0, rate.length() - 1);
         double r = Double.parseDouble(substring);
