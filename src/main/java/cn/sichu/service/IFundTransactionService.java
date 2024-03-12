@@ -20,8 +20,8 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/11
      **/
-    public void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, String share,
-        Integer type) throws IOException;
+    // public void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, String share,
+    //     Integer type) throws IOException;
 
     /**
      * @return java.util.List<cn.sichu.entity.FundTransaction>
