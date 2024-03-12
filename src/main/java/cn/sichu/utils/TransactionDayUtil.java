@@ -3,8 +3,10 @@ package cn.sichu.utils;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author sichu huang
@@ -57,5 +59,47 @@ public class TransactionDayUtil {
             }
         }
         return newDate;
+    }
+
+    /**
+     * @param startDate
+     * @param endDate
+     * @return java.lang.Long
+     * @author sichu huang
+     * @date 2024/03/12
+     **/
+    public static Long getHeldDays(Date startDate, Date endDate) {
+        long diff = startDate.getTime() - endDate.getTime();
+        return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * @param startDate
+     * @param endDate
+     * @return java.lang.Long
+     * @author sichu huang
+     * @date 2024/03/12
+     **/
+    public static Long getHeldTransactionDays(Date startDate, Date endDate) throws IOException {
+        long heldTransactionDays = 0;
+        long startTime = startDate.getTime();
+        long endTime = endDate.getTime();
+        while (startTime < endTime) {
+            long tempTime = startTime + 24 * 60 * 60 * 1000L;
+            Date tempDate = new Date(tempTime);
+            if (isTransactionDate(tempDate)) {
+                ++heldTransactionDays;
+            }
+            startTime = tempTime;
+        }
+        return heldTransactionDays;
+    }
+
+    public static void main(String[] args) throws ParseException, IOException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date1 = sdf.parse("2024-03-08");
+        Date date2 = sdf.parse("2024-03-12");
+        System.out.println(getHeldTransactionDays(date1, date2));
+
     }
 }

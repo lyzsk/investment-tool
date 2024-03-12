@@ -34,48 +34,48 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/11
      **/
-    @Override
-    public void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, String share,
-        Integer type) throws IOException {
-        if (type != 1) {
-            return;
-        }
-        FundTransaction transaction = new FundTransaction();
-        transaction.setCode(code);
-        String shortName = "";
-        List<FundInformation> fundInformations = fundInformationService.selectFundShortNameByCode(code);
-        for (FundInformation fundInformation : fundInformations) {
-            shortName = fundInformation.getShortName();
-        }
-        transaction.setShortName(shortName);
-        // TODO: applicationDate 和 transactionDate 区分, 而不是强转, 需要加入 transactionDate 字段
-        if (TransactionDayUtil.isTransactionDate(applicationDate)) {
-            transaction.setApplicationDate(applicationDate);
-        } else {
-            applicationDate = TransactionDayUtil.getNextTransactionDate(applicationDate);
-            transaction.setApplicationDate(applicationDate);
-        }
-        List<FundInformation> redemptionInformations = fundInformationService.selectFundTransactionProcessByCode(code);
-        for (FundInformation information : redemptionInformations) {
-            Integer confirmationN = information.getRedemptionConfirmationProcess();
-            Integer settlementN = information.getRedemptionSettlementProcess();
-            Date confirmationDate = new Date(applicationDate.getTime());
-            Date settlementDate = new Date(applicationDate.getTime());
-            transaction.setConfirmationDate(
-                TransactionDayUtil.getNextNTransactionDate(confirmationDate, confirmationN));
-            transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, settlementN));
-        }
-        // TODO: 先select到nav, 再计算fee
-        String fee = "";
-        List<FundInformation> redemptionFeeInformations =
-            fundInformationService.selectFundRedemptionFeeRateByCode(code);
-        for (FundInformation information : redemptionFeeInformations) {
-            String rate = information.getRedemptionFeeRate();
-            fee = calculateRedemptionFeeByRate(share, nav, rate);
-            transaction.setFee(fee);
-        }
-        insertFundTransaction(transaction);
-    }
+    // @Override
+    // public void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, String share,
+    //     Integer type) throws IOException {
+    //     if (type != 1) {
+    //         return;
+    //     }
+    //     FundTransaction transaction = new FundTransaction();
+    //     transaction.setCode(code);
+    //     String shortName = "";
+    //     List<FundInformation> fundInformations = fundInformationService.selectFundShortNameByCode(code);
+    //     for (FundInformation fundInformation : fundInformations) {
+    //         shortName = fundInformation.getShortName();
+    //     }
+    //     transaction.setShortName(shortName);
+    //     // TODO: applicationDate 和 transactionDate 区分, 而不是强转, 需要加入 transactionDate 字段
+    //     if (TransactionDayUtil.isTransactionDate(applicationDate)) {
+    //         transaction.setApplicationDate(applicationDate);
+    //     } else {
+    //         applicationDate = TransactionDayUtil.getNextTransactionDate(applicationDate);
+    //         transaction.setApplicationDate(applicationDate);
+    //     }
+    //     List<FundInformation> redemptionInformations = fundInformationService.selectFundTransactionProcessByCode(code);
+    //     for (FundInformation information : redemptionInformations) {
+    //         Integer confirmationN = information.getRedemptionConfirmationProcess();
+    //         Integer settlementN = information.getRedemptionSettlementProcess();
+    //         Date confirmationDate = new Date(applicationDate.getTime());
+    //         Date settlementDate = new Date(applicationDate.getTime());
+    //         transaction.setConfirmationDate(
+    //             TransactionDayUtil.getNextNTransactionDate(confirmationDate, confirmationN));
+    //         transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, settlementN));
+    //     }
+    //     // TODO: 先select到nav, 再计算fee
+    //     String fee = "";
+    //     List<FundInformation> redemptionFeeInformations =
+    //         fundInformationService.selectFundRedemptionFeeRateByCode(code);
+    //     for (FundInformation information : redemptionFeeInformations) {
+    //         String rate = information.getRedemptionFeeRate();
+    //         fee = calculateRedemptionFeeByRate(share, nav, rate);
+    //         transaction.setFee(fee);
+    //     }
+    //     insertFundTransaction(transaction);
+    // }
 
     /**
      * @return java.util.List<cn.sichu.entity.FundTransaction>
