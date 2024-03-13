@@ -8,6 +8,7 @@
         <result property="code" column="code"/>
         <result property="shortName" column="short_name"/>
         <result property="applicationDate" column="application_date"/>
+        <result property="transactionDate" column="transaction_date"/>
         <result property="confirmationDate" column="confirmation_date"/>
         <result property="settlementDate" column="settlement_date"/>
         <result property="fee" column="fee"/>
@@ -21,16 +22,16 @@
     <!--  TODO: 传全参+<if test>  -->
     <insert id="insertFundTransaction" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO fund_transaction
-        (code, short_name, application_date, confirmation_date, settlement_date, fee, share, nav, amount, type,
-        trading_platform)
-        VALUES(#{code}, #{shortName}, #{applicationDate}, #{confirmationDate}, #{settlementDate}, #{fee},
-        #{share}, #{nav}, #{amount}, #{type}, #{tradingPlatform})
+        (code, short_name, application_date, transaction_date, confirmation_date, settlement_date, fee, share, nav,
+        amount, type, trading_platform)
+        VALUES(#{code}, #{shortName}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate},
+        #{fee}, #{share}, #{nav}, #{amount}, #{type}, #{tradingPlatform})
     </insert>
 
 
     <select id="selectAllFundTransaction" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select
-        code, short_name, application_date, confirmation_date, settlement_date,
+        code, short_name, application_date, transaction_date, confirmation_date, settlement_date,
         fee, share, nav, amount, type, trading_platform
         from fund_transaction
         order by application_date, code asc

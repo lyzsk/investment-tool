@@ -7,17 +7,16 @@ package cn.sichu.entity;
  * @date 2024/03/12
  **/
 public class FundRedemptionFeeRate {
-
     private Long id;
     private String code;
-    private String feeRateChangeDays;
+    private Integer feeRateChangeDays;
     private String feeRate;
     private String tradingPlatform;
 
     public FundRedemptionFeeRate() {
     }
 
-    public FundRedemptionFeeRate(Long id, String code, String feeRateChangeDays, String feeRate,
+    public FundRedemptionFeeRate(Long id, String code, Integer feeRateChangeDays, String feeRate,
         String tradingPlatform) {
         this.id = id;
         this.code = code;
@@ -28,9 +27,8 @@ public class FundRedemptionFeeRate {
 
     @Override
     public String toString() {
-        return "FundRedemptionFeeRate{" + "id=" + id + ", code='" + code + '\'' + ", feeRateChangeDays='"
-            + feeRateChangeDays + '\'' + ", feeRate='" + feeRate + '\'' + ", tradingPlatform='" + tradingPlatform + '\''
-            + '}';
+        return "FundRedemptionFeeRate{" + "id=" + id + ", code='" + code + '\'' + ", feeRateChangeDays="
+            + feeRateChangeDays + ", feeRate='" + feeRate + '\'' + ", tradingPlatform='" + tradingPlatform + '\'' + '}';
     }
 
     public Long getId() {
@@ -49,11 +47,11 @@ public class FundRedemptionFeeRate {
         this.code = code;
     }
 
-    public String getFeeRateChangeDays() {
+    public Integer getFeeRateChangeDays() {
         return feeRateChangeDays;
     }
 
-    public void setFeeRateChangeDays(String feeRateChangeDays) {
+    public void setFeeRateChangeDays(Integer feeRateChangeDays) {
         this.feeRateChangeDays = feeRateChangeDays;
     }
 

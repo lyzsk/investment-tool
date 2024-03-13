@@ -7,20 +7,26 @@ package cn.sichu.entity;
 public class FundPurchaseFeeRate {
     private Long id;
     private String code;
-    private String feeRateChangeAmount;
+    private Long feeRateChangeAmount;
     private String feeRate;
     private String tradingPlatform;
 
     public FundPurchaseFeeRate() {
     }
 
-    public FundPurchaseFeeRate(Long id, String code, String feeRateChangeAmount, String feeRate,
-        String tradingPlatform) {
+    public FundPurchaseFeeRate(Long id, String code, Long feeRateChangeAmount, String feeRate, String tradingPlatform) {
         this.id = id;
         this.code = code;
         this.feeRateChangeAmount = feeRateChangeAmount;
         this.feeRate = feeRate;
         this.tradingPlatform = tradingPlatform;
+    }
+
+    @Override
+    public String toString() {
+        return "FundPurchaseFeeRate{" + "id=" + id + ", code='" + code + '\'' + ", feeRateChangeAmount="
+            + feeRateChangeAmount + ", feeRate='" + feeRate + '\'' + ", tradingPlatform='" + tradingPlatform + '\''
+            + '}';
     }
 
     public Long getId() {
@@ -39,11 +45,11 @@ public class FundPurchaseFeeRate {
         this.code = code;
     }
 
-    public String getFeeRateChangeAmount() {
+    public Long getFeeRateChangeAmount() {
         return feeRateChangeAmount;
     }
 
-    public void setFeeRateChangeAmount(String feeRateChangeAmount) {
+    public void setFeeRateChangeAmount(Long feeRateChangeAmount) {
         this.feeRateChangeAmount = feeRateChangeAmount;
     }
 
@@ -61,12 +67,5 @@ public class FundPurchaseFeeRate {
 
     public void setTradingPlatform(String tradingPlatform) {
         this.tradingPlatform = tradingPlatform;
-    }
-
-    @Override
-    public String toString() {
-        return "FundPurchaseFeeRate{" + "id=" + id + ", code='" + code + '\'' + ", feeRateChangeAmount='"
-            + feeRateChangeAmount + '\'' + ", feeRate='" + feeRate + '\'' + ", tradingPlatform='" + tradingPlatform
-            + '\'' + '}';
     }
 }

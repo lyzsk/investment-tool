@@ -13,8 +13,24 @@
     <insert id="insertFundHistoryNavInformation" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO fund_history_nav
         (code, nav_date, nav)
-        VALUES(#{code}, #{navDate}, #{nav})
+        select #{code}, #{navDate}, #{nav}
+        from dual
+        where not exists (
+        select nav_date
+        from fund_history_nav
+        where code = #{code} and nav_date = #{navDate}
+        )
     </insert>
+
+    <select id="selectFundHistoryNavByConditions" resultType="cn.sichu.entity.FundHistoryNav" resultMap="resultMap">
+        select code, nav_date, nav
+        from fund_history_nav
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+            <if test="navDate != null">and nav_date = #{navDate}</if>
+        </where>
+        order by nav_date desc
+    </select>
 
 
 </mapper>

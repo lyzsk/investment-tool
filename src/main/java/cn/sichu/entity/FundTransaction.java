@@ -13,6 +13,7 @@ public class FundTransaction {
     private String code;
     private String shortName;
     private Date applicationDate;
+    private Date transactionDate;
     private Date confirmationDate;
     private Date settlementDate;
     private String fee;
@@ -25,13 +26,14 @@ public class FundTransaction {
     public FundTransaction() {
     }
 
-    public FundTransaction(Long id, String code, String shortName, Date applicationDate, Date confirmationDate,
-        Date settlementDate, String fee, String share, String nav, String amount, Integer type,
+    public FundTransaction(Long id, String code, String shortName, Date applicationDate, Date transactionDate,
+        Date confirmationDate, Date settlementDate, String fee, String share, String nav, String amount, Integer type,
         String tradingPlatform) {
         this.id = id;
         this.code = code;
         this.shortName = shortName;
         this.applicationDate = applicationDate;
+        this.transactionDate = transactionDate;
         this.confirmationDate = confirmationDate;
         this.settlementDate = settlementDate;
         this.fee = fee;
@@ -45,9 +47,10 @@ public class FundTransaction {
     @Override
     public String toString() {
         return "FundTransaction{" + "id=" + id + ", code='" + code + '\'' + ", shortName='" + shortName + '\''
-            + ", applicationDate=" + applicationDate + ", confirmationDate=" + confirmationDate + ", settlementDate="
-            + settlementDate + ", fee='" + fee + '\'' + ", share='" + share + '\'' + ", nav='" + nav + '\''
-            + ", amount='" + amount + '\'' + ", type=" + type + ", tradingPlatform='" + tradingPlatform + '\'' + '}';
+            + ", applicationDate=" + applicationDate + ", transactionDate=" + transactionDate + ", confirmationDate="
+            + confirmationDate + ", settlementDate=" + settlementDate + ", fee='" + fee + '\'' + ", share='" + share
+            + '\'' + ", nav='" + nav + '\'' + ", amount='" + amount + '\'' + ", type=" + type + ", tradingPlatform='"
+            + tradingPlatform + '\'' + '}';
     }
 
     public Long getId() {
@@ -80,6 +83,14 @@ public class FundTransaction {
 
     public void setApplicationDate(Date applicationDate) {
         this.applicationDate = applicationDate;
+    }
+
+    public Date getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(Date transactionDate) {
+        this.transactionDate = transactionDate;
     }
 
     public Date getConfirmationDate() {
@@ -145,4 +156,5 @@ public class FundTransaction {
     public void setTradingPlatform(String tradingPlatform) {
         this.tradingPlatform = tradingPlatform;
     }
+
 }

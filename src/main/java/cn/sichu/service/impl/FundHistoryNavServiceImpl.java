@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +25,8 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     private FundHistoryNavMapper fundHistoryNavMapper;
 
     /**
+     * 插入历史净值, 如果净值日期在表中已存在不会重复插入
+     *
      * @param code
      * @param startDate
      * @param endDate
@@ -44,5 +49,39 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
             fundHistoryNav.setNav(nav);
             fundHistoryNavMapper.insertFundHistoryNavInformation(fundHistoryNav);
         }
+    }
+
+    /**
+     * @param code
+     * @param date
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/13
+     **/
+    @Override
+    public String selectFundHistoryNavByConditions(String code, String date) throws ParseException {
+        String nav = "";
+        FundHistoryNav fundHistoryNav = new FundHistoryNav();
+        fundHistoryNav.setCode(code);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date parsedDate = sdf.parse(date);
+        fundHistoryNav.setNavDate(parsedDate);
+        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(fundHistoryNav);
+        for (FundHistoryNav historyNav : fundHistoryNavs) {
+            if (isSameDate(historyNav.getNavDate(), parsedDate)) {
+                nav = historyNav.getNav();
+                return nav;
+            }
+        }
+        return "";
+    }
+
+    private boolean isSameDate(Date dbDate, Date date) {
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(dbDate);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(date);
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.MONTH) == cal2.get(
+            Calendar.MONTH) && cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH);
     }
 }
