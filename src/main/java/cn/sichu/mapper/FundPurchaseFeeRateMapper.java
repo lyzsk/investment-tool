@@ -1,6 +1,9 @@
 package cn.sichu.mapper;
 
+import cn.sichu.entity.FundPurchaseFeeRate;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * @author sichu huang
@@ -8,4 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  **/
 @Mapper
 public interface FundPurchaseFeeRateMapper {
+    public List<FundPurchaseFeeRate> selectFundPurchaseFeeRateByConditions(FundPurchaseFeeRate fundPurchaseFeeRate);
 }

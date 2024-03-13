@@ -18,4 +18,13 @@ public interface IFundHistoryNavService {
      **/
     public void insertFundHistoryNavInformation(String code, String startDate, String endDate, String callback)
         throws ParseException, IOException;
+
+    /**
+     * @param code
+     * @param date
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/13
+     **/
+    public String selectFundHistoryNavByConditions(String code, String date) throws ParseException;
 }
