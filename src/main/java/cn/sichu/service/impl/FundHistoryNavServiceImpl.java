@@ -3,7 +3,7 @@ package cn.sichu.service.impl;
 import cn.sichu.entity.FundHistoryNav;
 import cn.sichu.mapper.FundHistoryNavMapper;
 import cn.sichu.service.IFundHistoryNavService;
-import cn.sichu.utils.JsoupUtil;
+import cn.sichu.utils.ScrapingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +37,7 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     @Override
     public void insertFundHistoryNavInformation(String code, String startDate, String endDate, String callback)
         throws ParseException, IOException {
-        Map<String, String> map = JsoupUtil.getDailyNavMapBetweenDates(code, startDate, endDate, callback);
+        Map<String, String> map = ScrapingUtil.getDailyNavMapBetweenDates(code, startDate, endDate, callback);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (Map.Entry<String, String> entry : map.entrySet()) {
             String navDateStr = entry.getKey();

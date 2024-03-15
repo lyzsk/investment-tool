@@ -105,6 +105,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     }
 
     /**
+     * TODO: 对每一步set操作进行判空, 直接抛出自定义异常
+     *
      * @param code
      * @param applicationDate
      * @param amount
@@ -120,7 +122,9 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             return;
         }
         FundTransaction transaction = new FundTransaction();
+        /* set code, applicationDate, amount, type, tradingPlatform */
         transaction.setCode(code);
+        transaction.setApplicationDate(applicationDate);
         transaction.setAmount(amount);
         transaction.setType(type);
         transaction.setTradingPlatform(tradingPlatform);
@@ -130,8 +134,6 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             String shortName = fundInformations.get(0).getShortName();
             transaction.setShortName(shortName);
         }
-        /* set applicationDate*/
-        transaction.setApplicationDate(applicationDate);
         /* set transactionDate */
         Date transactionDate = TransactionDayUtil.isTransactionDate(applicationDate) ? applicationDate :
             TransactionDayUtil.getNextTransactionDate(applicationDate);
@@ -147,27 +149,22 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             Date settlementDate = new Date(confirmationDate.getTime());
             transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, n));
         }
-
-        /* set nav, fee, share */
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String nav = fundHistoryNavService.selectFundHistoryNavByConditions(code, sdf.format(transactionDate));
-        if (nav != null && !nav.equals("")) {
-            transaction.setNav(nav);
-            List<FundPurchaseFeeRate> fundPurchaseFeeRates =
-                fundPurchaseFeeRateService.selectFundPurchaseFeeRateByConditions(code, tradingPlatform);
+        /* set fee */
+        String fee;
+        List<FundPurchaseFeeRate> fundPurchaseFeeRates =
+            fundPurchaseFeeRateService.selectFundPurchaseFeeRateByConditions(code, tradingPlatform);
+        if (!fundPurchaseFeeRates.isEmpty()) {
             BigDecimal amountDecimal = new BigDecimal(amount);
             for (int i = 0; i < fundPurchaseFeeRates.size(); i++) {
                 FundPurchaseFeeRate fundPurchaseFeeRate = fundPurchaseFeeRates.get(i);
-                if (i == 0
-                    && amountDecimal.compareTo(new BigDecimal(fundPurchaseFeeRates.get(i).getFeeRateChangeAmount()))
-                    < 0) {
-                    processTransaction(transaction, fundPurchaseFeeRate);
+                String feeRate = fundPurchaseFeeRate.getFeeRate();
+                if (!feeRate.endsWith("%")) {
+                    transaction.setFee(feeRate);
                     break;
                 }
-                if (i > 0 && i == fundPurchaseFeeRates.size() - 1) {
-                    String fee = fundPurchaseFeeRates.get(fundPurchaseFeeRates.size() - 1).getFeeRate();
+                if (amountDecimal.compareTo(new BigDecimal(fundPurchaseFeeRate.getFeeRateChangeAmount())) < 0) {
+                    fee = FinancialCalculationUtil.calculatePurchaseFee(amount, feeRate);
                     transaction.setFee(fee);
-                    transaction.setShare(FinancialCalculationUtil.calculateShare(amount, fee, nav));
                     break;
                 }
                 if (i > 0
@@ -175,33 +172,21 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                     >= 0
                     && amountDecimal.compareTo(new BigDecimal(fundPurchaseFeeRates.get(i).getFeeRateChangeAmount()))
                     < 0) {
-                    processTransaction(transaction, fundPurchaseFeeRate);
+                    fee = FinancialCalculationUtil.calculatePurchaseFee(amount, feeRate);
+                    transaction.setFee(fee);
                     break;
                 }
             }
         }
+        /* set nav, share */
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String nav = fundHistoryNavService.selectFundHistoryNavByConditions(code, sdf.format(transactionDate));
+        if (nav != null && !nav.equals("")) {
+            transaction.setNav(nav);
+            String share = FinancialCalculationUtil.calculateShare(amount, transaction.getFee(), nav);
+            transaction.setShare(share);
+        }
 
         insertFundTransaction(transaction);
     }
-
-    private void processTransaction(FundTransaction transaction, FundPurchaseFeeRate fundPurchaseFeeRate) {
-        String amount = transaction.getAmount();
-        String rate = fundPurchaseFeeRate.getFeeRate();
-        String fee = FinancialCalculationUtil.calculatePurchaseFee(amount, rate);
-        transaction.setFee(fee);
-        String share = FinancialCalculationUtil.calculateShare(amount, fee, transaction.getNav());
-        transaction.setShare(share);
-    }
-
-    private boolean shouldProcessTransaction(int i, String amount, List<FundPurchaseFeeRate> fundPurchaseFeeRates) {
-        BigDecimal amountDecimal = new BigDecimal(amount);
-        if (i == 0
-            && amountDecimal.compareTo(new BigDecimal(fundPurchaseFeeRates.get(i).getFeeRateChangeAmount())) < 0) {
-            return true;
-        }
-        return i > 0
-            && amountDecimal.compareTo(new BigDecimal(fundPurchaseFeeRates.get(i - 1).getFeeRateChangeAmount())) >= 0
-            && amountDecimal.compareTo(new BigDecimal(fundPurchaseFeeRates.get(i).getFeeRateChangeAmount())) < 0;
-    }
-
 }

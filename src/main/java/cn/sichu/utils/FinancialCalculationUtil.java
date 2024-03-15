@@ -18,15 +18,8 @@ public class FinancialCalculationUtil {
      **/
     public static String calculatePurchaseFee(String amount, String feeRate) {
         BigDecimal v = new BigDecimal(amount);
-        BigDecimal r;
-
-        if (feeRate.endsWith("%")) {
-            String rate = feeRate.replace("%", "");
-            r = new BigDecimal(rate).divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
-        } else {
-            r = new BigDecimal(feeRate);
-        }
-
+        String rate = feeRate.replace("%", "");
+        BigDecimal r = new BigDecimal(rate).divide(new BigDecimal("100"), 4, RoundingMode.CEILING);
         BigDecimal fee = v.multiply(r).setScale(2, RoundingMode.CEILING);
         return fee.toString();
     }
