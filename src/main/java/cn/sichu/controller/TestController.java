@@ -66,6 +66,15 @@ public class TestController {
 
     @PostMapping("/04")
     public void test04(@RequestParam("date") String date) throws ParseException {
-        fundTransactionService.updateNavAndShareForFundPurchaseTransaction(date);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date parsedDate = sdf.parse(date);
+        fundTransactionService.updateNavAndShareForFundPurchaseTransaction(parsedDate);
+    }
+
+    @PostMapping("/05")
+    public void test05(@RequestParam("date") String date) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date parsedDate = sdf.parse(date);
+        fundTransactionService.updateStatusForFundPurchaseTransactions(parsedDate);
     }
 }

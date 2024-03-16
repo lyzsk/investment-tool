@@ -76,6 +76,29 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         return "";
     }
 
+    /**
+     * @param code
+     * @param date
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/16
+     **/
+    @Override
+    public String selectFundHistoryNavByConditions(String code, Date date) throws ParseException {
+        String nav = "";
+        FundHistoryNav fundHistoryNav = new FundHistoryNav();
+        fundHistoryNav.setCode(code);
+        fundHistoryNav.setNavDate(date);
+        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(fundHistoryNav);
+        for (FundHistoryNav historyNav : fundHistoryNavs) {
+            if (isSameDate(historyNav.getNavDate(), date)) {
+                nav = historyNav.getNav();
+                return nav;
+            }
+        }
+        return "";
+    }
+
     private boolean isSameDate(Date dbDate, Date date) {
         Calendar cal1 = Calendar.getInstance();
         cal1.setTime(dbDate);
