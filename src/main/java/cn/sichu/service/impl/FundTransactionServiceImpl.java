@@ -3,6 +3,8 @@ package cn.sichu.service.impl;
 import cn.sichu.entity.FundInformation;
 import cn.sichu.entity.FundPurchaseFeeRate;
 import cn.sichu.entity.FundTransaction;
+import cn.sichu.enums.FundTransactionStatus;
+import cn.sichu.enums.FundTransactionType;
 import cn.sichu.mapper.FundTransactionMapper;
 import cn.sichu.service.IFundHistoryNavService;
 import cn.sichu.service.IFundTransactionService;
@@ -17,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author sichu huang
@@ -118,7 +121,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     @Override
     public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, String amount,
         Integer type, String tradingPlatform) throws IOException, ParseException {
-        if (type != 0) {
+        if (!Objects.equals(type, FundTransactionType.PURCHASE.getCode())) {
             return;
         }
         FundTransaction transaction = new FundTransaction();
@@ -150,9 +153,9 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             transaction.setSettlementDate(settlementDate);
             /* set status */
             if (new Date().getTime() < settlementDate.getTime()) {
-                transaction.setStatus(0);
+                transaction.setStatus(FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode());
             } else {
-                transaction.setStatus(1);
+                transaction.setStatus(FundTransactionStatus.HELD.getCode());
             }
         }
         /* set fee */
@@ -201,22 +204,21 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      * @date 2024/03/16
      **/
     @Override
-    public void updateNavAndShareForFundPurchaseTransaction(String date) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date parsedDate = sdf.parse(date);
+    public void updateNavAndShareForFundPurchaseTransaction(Date date) throws ParseException {
+        // TODO: 改成 selectAllFundPurchaseTransactions, 然后 getType != 0 break
         List<FundTransaction> fundTransactions = fundTransactionMapper.selectAllFundTransactions();
         for (FundTransaction transaction : fundTransactions) {
-            if (transaction.getType() != 0) {
+            if (!Objects.equals(transaction.getType(), FundTransactionType.PURCHASE.getCode())) {
                 continue;
             }
-            if (parsedDate.getTime() < transaction.getSettlementDate().getTime()) {
+            if (date.getTime() < transaction.getSettlementDate().getTime()) {
                 continue;
             }
             if (transaction.getNav() == null || transaction.getNav().equals("") || transaction.getShare() == null
                 || transaction.getShare().equals("")) {
                 String code = transaction.getCode();
-                String nav = fundHistoryNavService.selectFundHistoryNavByConditions(code,
-                    sdf.format(transaction.getTransactionDate()));
+                String nav =
+                    fundHistoryNavService.selectFundHistoryNavByConditions(code, transaction.getTransactionDate());
                 if (nav != null && !nav.equals("")) {
                     String amount = transaction.getAmount();
                     String fee = transaction.getFee();
@@ -225,6 +227,31 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                     transaction.setShare(share);
                     fundTransactionMapper.updateNavAndShareForFundPurchaseTransaction(transaction);
                 }
+            }
+        }
+    }
+
+    /**
+     * @param date
+     * @author sichu huang
+     * @date 2024/03/16
+     **/
+    @Override
+    public void updateStatusForFundPurchaseTransactions(Date date) {
+        List<FundTransaction> fundTransactions = fundTransactionMapper.selectAllFundTransactions();
+        for (FundTransaction transaction : fundTransactions) {
+            Integer type = transaction.getType();
+            if (!Objects.equals(type, FundTransactionType.PURCHASE.getCode())) {
+                return;
+            }
+            Date settlementDate = transaction.getSettlementDate();
+            if (transaction.getStatus() == null) {
+                if (date.getTime() < settlementDate.getTime()) {
+                    transaction.setStatus(FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode());
+                } else {
+                    transaction.setStatus(FundTransactionStatus.HELD.getCode());
+                }
+                fundTransactionMapper.updateStatusForFundPurchaseTransactions(transaction);
             }
         }
     }

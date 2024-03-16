@@ -45,4 +45,12 @@
         </set>
         where code = #{code} and transaction_date = #{transactionDate}
     </update>
+
+    <update id="updateStatusForFundPurchaseTransactions">
+        update fund_transaction
+        <set>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate}
+    </update>
 </mapper>

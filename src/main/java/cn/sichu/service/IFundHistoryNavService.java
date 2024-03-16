@@ -2,6 +2,7 @@ package cn.sichu.service;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 
 /**
  * @author sichu huang
@@ -27,4 +28,13 @@ public interface IFundHistoryNavService {
      * @date 2024/03/13
      **/
     public String selectFundHistoryNavByConditions(String code, String date) throws ParseException;
+
+    /**
+     * @param code
+     * @param date
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/16
+     **/
+    public String selectFundHistoryNavByConditions(String code, Date date) throws ParseException;
 }
