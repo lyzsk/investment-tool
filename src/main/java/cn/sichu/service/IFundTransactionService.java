@@ -28,7 +28,7 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/09
      **/
-    public List<FundTransaction> selectAllFundTransaction();
+    public List<FundTransaction> selectAllFundTransactions();
 
     /**
      * @param fundTransaction
@@ -48,4 +48,11 @@ public interface IFundTransactionService {
      **/
     public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, String amount,
         Integer type, String tradingPlatform) throws ParseException, IOException;
+
+    /**
+     * @param date
+     * @author sichu huang
+     * @date 2024/03/16
+     **/
+    public void updateNavAndShareForFundPurchaseTransaction(String date) throws ParseException;
 }

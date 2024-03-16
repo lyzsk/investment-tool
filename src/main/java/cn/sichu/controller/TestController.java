@@ -30,7 +30,7 @@ public class TestController {
 
     @GetMapping("/01")
     public void test01() {
-        List<FundTransaction> fundTransactions = fundTransactionService.selectAllFundTransaction();
+        List<FundTransaction> fundTransactions = fundTransactionService.selectAllFundTransactions();
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         for (FundTransaction fundTransaction : fundTransactions) {
             System.err.println(fundTransaction.getCode());
@@ -62,5 +62,10 @@ public class TestController {
         @RequestParam("endDate") String endDate, @RequestParam("callback") String callback)
         throws ParseException, IOException {
         fundHistoryNavService.insertFundHistoryNavInformation(code, startDate, endDate, callback);
+    }
+
+    @PostMapping("/04")
+    public void test04(@RequestParam("date") String date) throws ParseException {
+        fundTransactionService.updateNavAndShareForFundPurchaseTransaction(date);
     }
 }

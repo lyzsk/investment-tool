@@ -22,13 +22,14 @@ public class FundTransaction {
     private String amount;
     private Integer type;
     private String tradingPlatform;
+    private Integer status;
 
     public FundTransaction() {
     }
 
     public FundTransaction(Long id, String code, String shortName, Date applicationDate, Date transactionDate,
         Date confirmationDate, Date settlementDate, String fee, String share, String nav, String amount, Integer type,
-        String tradingPlatform) {
+        String tradingPlatform, Integer status) {
         this.id = id;
         this.code = code;
         this.shortName = shortName;
@@ -42,6 +43,7 @@ public class FundTransaction {
         this.amount = amount;
         this.type = type;
         this.tradingPlatform = tradingPlatform;
+        this.status = status;
     }
 
     @Override
@@ -50,7 +52,7 @@ public class FundTransaction {
             + ", applicationDate=" + applicationDate + ", transactionDate=" + transactionDate + ", confirmationDate="
             + confirmationDate + ", settlementDate=" + settlementDate + ", fee='" + fee + '\'' + ", share='" + share
             + '\'' + ", nav='" + nav + '\'' + ", amount='" + amount + '\'' + ", type=" + type + ", tradingPlatform='"
-            + tradingPlatform + '\'' + '}';
+            + tradingPlatform + '\'' + ", status=" + status + '}';
     }
 
     public Long getId() {
@@ -157,4 +159,11 @@ public class FundTransaction {
         this.tradingPlatform = tradingPlatform;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 }
