@@ -12,8 +12,9 @@ import java.util.List;
 @Mapper
 public interface FundTransactionMapper {
 
-    public List<FundTransaction> selectAllFundTransaction();
+    public List<FundTransaction> selectAllFundTransactions();
 
     public void insertFundTransaction(FundTransaction fundTransaction);
 
+    public void updateNavAndShareForFundPurchaseTransaction(FundTransaction fundTransaction);
 }

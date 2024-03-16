@@ -90,8 +90,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      * @date 2024/03/09
      **/
     @Override
-    public List<FundTransaction> selectAllFundTransaction() {
-        return fundTransactionMapper.selectAllFundTransaction();
+    public List<FundTransaction> selectAllFundTransactions() {
+        return fundTransactionMapper.selectAllFundTransactions();
     }
 
     /**
@@ -122,6 +122,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             return;
         }
         FundTransaction transaction = new FundTransaction();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         /* set code, applicationDate, amount, type, tradingPlatform */
         transaction.setCode(code);
         transaction.setApplicationDate(applicationDate);
@@ -139,15 +140,20 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             TransactionDayUtil.getNextTransactionDate(applicationDate);
         transaction.setTransactionDate(transactionDate);
         /* set confirmationDate  */
-        Date confirmationDate = transactionDate;
-        transaction.setConfirmationDate(confirmationDate);
+        transaction.setConfirmationDate(transactionDate);
         /* set settlementDate */
-        List<FundInformation> purchaseInformations = fundInformationService.selectFundTransactionProcessByCode(code);
-        if (!purchaseInformations.isEmpty()) {
-            FundInformation information = purchaseInformations.get(0);
+        List<FundInformation> purchaseProcess = fundInformationService.selectFundTransactionProcessByCode(code);
+        if (!purchaseProcess.isEmpty()) {
+            FundInformation information = purchaseProcess.get(0);
             Integer n = information.getPurchaseConfirmationProcess();
-            Date settlementDate = new Date(confirmationDate.getTime());
-            transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, n));
+            Date settlementDate = TransactionDayUtil.getNextNTransactionDate(new Date(transactionDate.getTime()), n);
+            transaction.setSettlementDate(settlementDate);
+            /* set status */
+            if (new Date().getTime() < settlementDate.getTime()) {
+                transaction.setStatus(0);
+            } else {
+                transaction.setStatus(1);
+            }
         }
         /* set fee */
         String fee;
@@ -179,7 +185,6 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             }
         }
         /* set nav, share */
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String nav = fundHistoryNavService.selectFundHistoryNavByConditions(code, sdf.format(transactionDate));
         if (nav != null && !nav.equals("")) {
             transaction.setNav(nav);
@@ -188,5 +193,39 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         }
 
         insertFundTransaction(transaction);
+    }
+
+    /**
+     * @param date
+     * @author sichu huang
+     * @date 2024/03/16
+     **/
+    @Override
+    public void updateNavAndShareForFundPurchaseTransaction(String date) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date parsedDate = sdf.parse(date);
+        List<FundTransaction> fundTransactions = fundTransactionMapper.selectAllFundTransactions();
+        for (FundTransaction transaction : fundTransactions) {
+            if (transaction.getType() != 0) {
+                continue;
+            }
+            if (parsedDate.getTime() < transaction.getSettlementDate().getTime()) {
+                continue;
+            }
+            if (transaction.getNav() == null || transaction.getNav().equals("") || transaction.getShare() == null
+                || transaction.getShare().equals("")) {
+                String code = transaction.getCode();
+                String nav = fundHistoryNavService.selectFundHistoryNavByConditions(code,
+                    sdf.format(transaction.getTransactionDate()));
+                if (nav != null && !nav.equals("")) {
+                    String amount = transaction.getAmount();
+                    String fee = transaction.getFee();
+                    String share = FinancialCalculationUtil.calculateShare(amount, fee, nav);
+                    transaction.setNav(nav);
+                    transaction.setShare(share);
+                    fundTransactionMapper.updateNavAndShareForFundPurchaseTransaction(transaction);
+                }
+            }
+        }
     }
 }

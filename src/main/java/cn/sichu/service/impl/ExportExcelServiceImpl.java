@@ -73,7 +73,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         List<FundTransactionReportSheet> fundTransactionReportSheetDataList = new ArrayList<>();
         List<GoldTransactionStatementSheet> goldTransactionStatementSheetDataList = new ArrayList<>();
 
-        List<FundTransaction> fundTransactions = fundTransactionService.selectAllFundTransaction();
+        List<FundTransaction> fundTransactions = fundTransactionService.selectAllFundTransactions();
         fundTransactionStatementSheetDataList = initFundTransactionStatementSheet(fundTransactions);
 
         for (int i = 0; i < 10; i++) {
