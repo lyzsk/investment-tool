@@ -11,6 +11,7 @@ import java.util.Date;
 public class FundPosition {
     private Long id;
     private String code;
+    private Date transactionDate;
     private Date initiationDate;
     private String totalAmount;
     private String totalPurchaseFee;
@@ -19,13 +20,11 @@ public class FundPosition {
     private Integer heldDays;
     private Date updateDate;
 
-    public FundPosition() {
-    }
-
-    public FundPosition(Long id, String code, Date initiationDate, String totalAmount, String totalPurchaseFee,
-        String holdingAmount, String heldShare, Integer heldDays, Date updateDate) {
+    public FundPosition(Long id, String code, Date transactionDate, Date initiationDate, String totalAmount,
+        String totalPurchaseFee, String holdingAmount, String heldShare, Integer heldDays, Date updateDate) {
         this.id = id;
         this.code = code;
+        this.transactionDate = transactionDate;
         this.initiationDate = initiationDate;
         this.totalAmount = totalAmount;
         this.totalPurchaseFee = totalPurchaseFee;
@@ -35,12 +34,15 @@ public class FundPosition {
         this.updateDate = updateDate;
     }
 
+    public FundPosition() {
+    }
+
     @Override
     public String toString() {
-        return "FundPosition{" + "id=" + id + ", code='" + code + '\'' + ", initiationDate=" + initiationDate
-            + ", totalAmount='" + totalAmount + '\'' + ", totalPurchaseFee='" + totalPurchaseFee + '\''
-            + ", holdingAmount='" + holdingAmount + '\'' + ", heldShare='" + heldShare + '\'' + ", heldDays=" + heldDays
-            + ", updateDate=" + updateDate + '}';
+        return "FundPosition{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate
+            + ", initiationDate=" + initiationDate + ", totalAmount='" + totalAmount + '\'' + ", totalPurchaseFee='"
+            + totalPurchaseFee + '\'' + ", holdingAmount='" + holdingAmount + '\'' + ", heldShare='" + heldShare + '\''
+            + ", heldDays=" + heldDays + ", updateDate=" + updateDate + '}';
     }
 
     public Long getId() {
@@ -57,6 +59,14 @@ public class FundPosition {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Date getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(Date transactionDate) {
+        this.transactionDate = transactionDate;
     }
 
     public Date getInitiationDate() {
@@ -115,3 +125,4 @@ public class FundPosition {
         this.updateDate = updateDate;
     }
 }
+

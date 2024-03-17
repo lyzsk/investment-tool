@@ -6,6 +6,7 @@
     <resultMap id="resultMap" type="cn.sichu.entity.FundPosition">
         <id property="id" column="id"/>
         <result property="code" column="code"/>
+        <result property="transactionDate" column="transaction_date"/>
         <result property="initiationDate" column="initiation_date"/>
         <result property="totalAmount" column="total_amount"/>
         <result property="totalPurchaseFee" column="total_purchase_fee"/>

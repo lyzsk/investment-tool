@@ -2,7 +2,6 @@ package cn.sichu.controller;
 
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.service.IFundHistoryNavService;
-import cn.sichu.service.IFundInformationService;
 import cn.sichu.service.IFundTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +21,9 @@ import java.util.List;
 @RequestMapping("/test")
 public class TestController {
     @Autowired
-    private IFundTransactionService fundTransactionService;
+    IFundTransactionService fundTransactionService;
     @Autowired
-    private IFundInformationService fundInformationService;
-    @Autowired
-    private IFundHistoryNavService fundHistoryNavService;
+    IFundHistoryNavService fundHistoryNavService;
 
     @GetMapping("/01")
     public void test01() {
@@ -76,5 +73,10 @@ public class TestController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date parsedDate = sdf.parse(date);
         fundTransactionService.updateStatusForFundPurchaseTransactions(parsedDate);
+    }
+
+    @PostMapping("/06")
+    public void test06() {
+        fundTransactionService.insertFundPurchaseTransaction();
     }
 }
