@@ -2,6 +2,7 @@ package cn.sichu.controller;
 
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.service.IFundHistoryNavService;
+import cn.sichu.service.IFundPositionService;
 import cn.sichu.service.IFundTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,8 @@ public class TestController {
     IFundTransactionService fundTransactionService;
     @Autowired
     IFundHistoryNavService fundHistoryNavService;
+    @Autowired
+    IFundPositionService fundPositionService;
 
     @GetMapping("/01")
     public void test01() {
@@ -78,5 +81,10 @@ public class TestController {
     @PostMapping("/06")
     public void test06() {
         fundTransactionService.insertFundPurchaseTransaction();
+    }
+
+    @PostMapping("/07")
+    public void test07() throws ParseException {
+        fundPositionService.insertFundPosition();
     }
 }

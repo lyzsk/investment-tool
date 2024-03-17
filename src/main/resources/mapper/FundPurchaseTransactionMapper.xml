@@ -19,6 +19,15 @@
         <result property="mark" column="mark"/>
     </resultMap>
 
+    <select id="selectAllFundPurchaseTransactions" resultType="cn.sichu.entity.FundPurchaseTransaction"
+            resultMap="resultMap">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, fee, share, nav, amount,
+        trading_platform, status, mark
+        from fund_purchase_transaction
+        order by code, settlement_date
+    </select>
+
     <insert id="insertFundPurchaseTransaction" useGeneratedKeys="true" keyProperty="id">
         insert into fund_purchase_transaction
         (code, application_date, transaction_date, confirmation_date, settlement_date, fee, share, nav, amount,
@@ -27,4 +36,5 @@
         (#{code}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate}, #{fee}, #{share},
         #{nav}, #{amount}, #{tradingPlatform}, #{status})
     </insert>
+
 </mapper>

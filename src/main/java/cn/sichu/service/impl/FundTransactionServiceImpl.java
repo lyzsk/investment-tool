@@ -288,4 +288,14 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             fundPurchaseTransactionMapper.insertFundPurchaseTransaction(purchaseTransaction);
         }
     }
+
+    /**
+     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
+     * @author sichu huang
+     * @date 2024/03/17
+     **/
+    @Override
+    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactions() {
+        return fundPurchaseTransactionMapper.selectAllFundPurchaseTransactions();
+    }
 }

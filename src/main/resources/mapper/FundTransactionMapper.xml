@@ -30,10 +30,11 @@
 
     <!--  TODO: 传全参+<if test>  -->
     <insert id="insertFundTransaction" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO fund_transaction
+        insert into fund_transaction
         (code, short_name, application_date, transaction_date, confirmation_date, settlement_date, fee, share, nav,
         amount, type, trading_platform, status)
-        VALUES(#{code}, #{shortName}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate},
+        values
+        (#{code}, #{shortName}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate},
         #{fee}, #{share}, #{nav}, #{amount}, #{type}, #{tradingPlatform}, #{status})
     </insert>
 
