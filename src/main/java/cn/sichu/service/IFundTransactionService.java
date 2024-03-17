@@ -1,5 +1,6 @@
 package cn.sichu.service;
 
+import cn.sichu.entity.FundPurchaseTransaction;
 import cn.sichu.entity.FundTransaction;
 
 import java.io.IOException;
@@ -70,4 +71,11 @@ public interface IFundTransactionService {
      * @date 2024/03/17
      **/
     public void insertFundPurchaseTransaction();
+
+    /**
+     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
+     * @author sichu huang
+     * @date 2024/03/17
+     **/
+    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactions();
 }

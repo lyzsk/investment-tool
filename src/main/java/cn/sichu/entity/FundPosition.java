@@ -15,34 +15,32 @@ public class FundPosition {
     private Date initiationDate;
     private String totalAmount;
     private String totalPurchaseFee;
-    private String holdingAmount;
     private String heldShare;
     private Integer heldDays;
     private Date updateDate;
 
+    public FundPosition() {
+    }
+
     public FundPosition(Long id, String code, Date transactionDate, Date initiationDate, String totalAmount,
-        String totalPurchaseFee, String holdingAmount, String heldShare, Integer heldDays, Date updateDate) {
+        String totalPurchaseFee, String heldShare, Integer heldDays, Date updateDate) {
         this.id = id;
         this.code = code;
         this.transactionDate = transactionDate;
         this.initiationDate = initiationDate;
         this.totalAmount = totalAmount;
         this.totalPurchaseFee = totalPurchaseFee;
-        this.holdingAmount = holdingAmount;
         this.heldShare = heldShare;
         this.heldDays = heldDays;
         this.updateDate = updateDate;
-    }
-
-    public FundPosition() {
     }
 
     @Override
     public String toString() {
         return "FundPosition{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate
             + ", initiationDate=" + initiationDate + ", totalAmount='" + totalAmount + '\'' + ", totalPurchaseFee='"
-            + totalPurchaseFee + '\'' + ", holdingAmount='" + holdingAmount + '\'' + ", heldShare='" + heldShare + '\''
-            + ", heldDays=" + heldDays + ", updateDate=" + updateDate + '}';
+            + totalPurchaseFee + '\'' + ", heldShare='" + heldShare + '\'' + ", heldDays=" + heldDays + ", updateDate="
+            + updateDate + '}';
     }
 
     public Long getId() {
@@ -91,14 +89,6 @@ public class FundPosition {
 
     public void setTotalPurchaseFee(String totalPurchaseFee) {
         this.totalPurchaseFee = totalPurchaseFee;
-    }
-
-    public String getHoldingAmount() {
-        return holdingAmount;
-    }
-
-    public void setHoldingAmount(String holdingAmount) {
-        this.holdingAmount = holdingAmount;
     }
 
     public String getHeldShare() {

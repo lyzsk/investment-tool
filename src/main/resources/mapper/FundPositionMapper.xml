@@ -10,9 +10,16 @@
         <result property="initiationDate" column="initiation_date"/>
         <result property="totalAmount" column="total_amount"/>
         <result property="totalPurchaseFee" column="total_purchase_fee"/>
-        <result property="holdingAmount" column="holding_amount"/>
         <result property="heldShare" column="held_share"/>
         <result property="heldDays" column="held_days"/>
         <result property="updateDate" column="update_date"/>
     </resultMap>
+
+    <insert id="insertFundPosition" useGeneratedKeys="true" keyProperty="id">
+        insert into fund_position
+        (code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date)
+        values
+        (#{code}, #{transactionDate}, #{initiationDate}, #{totalAmount}, #{totalPurchaseFee}, #{heldShare}, #{heldDays},
+        #{updateDate})
+    </insert>
 </mapper>

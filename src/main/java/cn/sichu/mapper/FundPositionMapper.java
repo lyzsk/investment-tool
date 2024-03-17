@@ -1,5 +1,6 @@
 package cn.sichu.mapper;
 
+import cn.sichu.entity.FundPosition;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -8,4 +9,6 @@ import org.apache.ibatis.annotations.Mapper;
  **/
 @Mapper
 public interface FundPositionMapper {
+
+    public void insertFundPosition(FundPosition fundPosition);
 }
