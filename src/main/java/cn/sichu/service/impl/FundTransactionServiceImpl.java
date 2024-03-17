@@ -2,9 +2,11 @@ package cn.sichu.service.impl;
 
 import cn.sichu.entity.FundInformation;
 import cn.sichu.entity.FundPurchaseFeeRate;
+import cn.sichu.entity.FundPurchaseTransaction;
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.enums.FundTransactionStatus;
 import cn.sichu.enums.FundTransactionType;
+import cn.sichu.mapper.FundPurchaseTransactionMapper;
 import cn.sichu.mapper.FundTransactionMapper;
 import cn.sichu.service.IFundHistoryNavService;
 import cn.sichu.service.IFundTransactionService;
@@ -28,13 +30,15 @@ import java.util.Objects;
 @Service
 public class FundTransactionServiceImpl implements IFundTransactionService {
     @Autowired
-    private FundTransactionMapper fundTransactionMapper;
+    FundTransactionMapper fundTransactionMapper;
     @Autowired
-    private FundInformationServiceImpl fundInformationService;
+    FundInformationServiceImpl fundInformationService;
     @Autowired
-    private IFundPurchaseFeeRateServiceImpl fundPurchaseFeeRateService;
+    IFundPurchaseFeeRateServiceImpl fundPurchaseFeeRateService;
     @Autowired
-    private IFundHistoryNavService fundHistoryNavService;
+    IFundHistoryNavService fundHistoryNavService;
+    @Autowired
+    FundPurchaseTransactionMapper fundPurchaseTransactionMapper;
 
     /**
      * @param code
@@ -98,7 +102,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     }
 
     /**
-     * @param fundTransaction
+     * @param fundTransaction fundTransaction
      * @author sichu huang
      * @date 2024/03/09
      **/
@@ -110,11 +114,11 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     /**
      * TODO: 对每一步set操作进行判空, 直接抛出自定义异常
      *
-     * @param code
-     * @param applicationDate
-     * @param amount
-     * @param type
-     * @param tradingPlatform
+     * @param code            code
+     * @param applicationDate applicationDate
+     * @param amount          amount
+     * @param type            type
+     * @param tradingPlatform tradingPlatform
      * @author sichu huang
      * @date 2024/03/10
      **/
@@ -199,7 +203,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     }
 
     /**
-     * @param date
+     * @param date date
      * @author sichu huang
      * @date 2024/03/16
      **/
@@ -232,7 +236,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     }
 
     /**
-     * @param date
+     * @param date date
      * @author sichu huang
      * @date 2024/03/16
      **/
@@ -253,6 +257,35 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 }
                 fundTransactionMapper.updateStatusForFundPurchaseTransactions(transaction);
             }
+        }
+    }
+
+    /**
+     * 根据 fund_transaction 总表, 插入 fund_purchase_transaction 表
+     *
+     * @author sichu huang
+     * @date 2024/03/17
+     **/
+    @Override
+    public void insertFundPurchaseTransaction() {
+        List<FundTransaction> fundTransactions = fundTransactionMapper.selectAllFundTransactions();
+        for (FundTransaction transaction : fundTransactions) {
+            if (!Objects.equals(transaction.getType(), FundTransactionType.PURCHASE.getCode())) {
+                continue;
+            }
+            FundPurchaseTransaction purchaseTransaction = new FundPurchaseTransaction();
+            purchaseTransaction.setCode(transaction.getCode());
+            purchaseTransaction.setApplicationDate(transaction.getApplicationDate());
+            purchaseTransaction.setTransactionDate(transaction.getTransactionDate());
+            purchaseTransaction.setConfirmationDate(transaction.getConfirmationDate());
+            purchaseTransaction.setSettlementDate(transaction.getSettlementDate());
+            purchaseTransaction.setFee(transaction.getFee());
+            purchaseTransaction.setShare(transaction.getShare());
+            purchaseTransaction.setNav(transaction.getNav());
+            purchaseTransaction.setAmount(transaction.getAmount());
+            purchaseTransaction.setTradingPlatform(transaction.getTradingPlatform());
+            purchaseTransaction.setStatus(transaction.getStatus());
+            fundPurchaseTransactionMapper.insertFundPurchaseTransaction(purchaseTransaction);
         }
     }
 }
