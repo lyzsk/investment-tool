@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.mapper.FundPositionHistoryMapper">
+    <resultMap id="resultMap" type="cn.sichu.entity.FundPositionHistory">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="transactionDate" column="transaction_date"/>
+        <result property="initiationDate" column="initiation_date"/>
+        <result property="redemptionDate" column="redemption_date"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="totalPurchaseFee" column="total_purchase_fee"/>
+        <result property="totalRedemptionFee" column="total_redemption_fee"/>
+        <result property="heldShare" column="held_share"/>
+        <result property="heldDays" column="held_days"/>
+        <result property="mark" column="mark"/>
+    </resultMap>
+
+</mapper>

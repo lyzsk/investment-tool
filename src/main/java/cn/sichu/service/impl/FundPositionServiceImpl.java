@@ -59,11 +59,23 @@ public class FundPositionServiceImpl implements IFundPositionService {
             fundPosition.setTotalAmount(String.valueOf(totalAmount));
             fundPosition.setTotalPurchaseFee(String.valueOf(totalPurchaseFee));
             fundPosition.setHeldShare(String.valueOf(heldShare));
-            long heldDays = TransactionDayUtil.getHeldDays(new Date(), transaction.getTransactionDate());
+            Date currentDate = new Date();
+            long heldDays = TransactionDayUtil.getHeldDays(currentDate, transaction.getTransactionDate());
             fundPosition.setHeldDays((int)heldDays);
-            fundPosition.setUpdateDate(sdf.parse(sdf.format(new Date())));
+            fundPosition.setUpdateDate(sdf.parse(sdf.format(currentDate)));
             map.put(code, fundPosition);
             fundPositionMapper.insertFundPosition(fundPosition);
+
+            // Date settlementDate = transaction.getSettlementDate();
+            // long settledDays = TransactionDayUtil.getHeldDays(currentDate, settlementDate);
+            // while (settledDays > 0) {
+            //     --heldDays;
+            //     currentDate = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000L);
+            //     fundPosition.setHeldDays((int)heldDays);
+            //     fundPosition.setUpdateDate(currentDate);
+            //     fundPositionMapper.insertFundPosition(fundPosition);
+            //     --settledDays;
+            // }
         }
     }
 }
