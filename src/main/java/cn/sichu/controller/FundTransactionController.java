@@ -4,6 +4,7 @@ import cn.sichu.service.IFundHistoryNavService;
 import cn.sichu.service.IFundPositionService;
 import cn.sichu.service.IFundTransactionService;
 import cn.sichu.utils.DateUtil;
+import cn.sichu.utils.TransactionDayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,9 +35,9 @@ public class FundTransactionController {
         @RequestParam("amount") String amount, @RequestParam("tradingPlatform") String tradingPlatform)
         throws ParseException, IOException {
         Date date = DateUtil.strToDate(applicationDate);
-        // TODO: 写getCallback
-        fundHistoryNavService.insertFundHistoryNavInformation(code, "2023-08-01", applicationDate,
-            "183041139850161655356_1710586846891");
+        String callback = fundHistoryNavService.selectCallbackByCode(code);
+        String startDate = DateUtil.dateToStr(TransactionDayUtil.getLastNTransactionDate(date, 3));
+        fundHistoryNavService.insertFundHistoryNavInformation(code, startDate, applicationDate, callback);
         fundTransactionService.insertFundPurchaseTransactionByConditions(code, date, new BigDecimal(amount),
             tradingPlatform);
         fundTransactionService.updateNavAndShareForFundPurchaseTransaction(date);

@@ -9,6 +9,7 @@ import java.util.Date;
  * @date 2024/03/11
  **/
 public interface IFundHistoryNavService {
+
     /**
      * @param code
      * @param startDate
@@ -37,4 +38,12 @@ public interface IFundHistoryNavService {
      * @date 2024/03/16
      **/
     public String selectFundHistoryNavByConditions(String code, Date date);
+
+    /**
+     * @param code code
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/18
+     **/
+    public String selectCallbackByCode(String code);
 }

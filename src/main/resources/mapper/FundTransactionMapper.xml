@@ -28,7 +28,16 @@
         order by code, transaction_date
     </select>
 
-    <!--  TODO: 传全参+<if test>  -->
+    <select id="selectPurchaseTransactionsFromFundTransactions" resultType="cn.sichu.entity.FundTransaction"
+            resultMap="resultMap">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark, type
+        from fund_transaction
+        where type = 0
+        order by code, transaction_date
+    </select>
+
     <insert id="insertFundTransaction" useGeneratedKeys="true" keyProperty="id">
         insert into fund_transaction
         (code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav,
