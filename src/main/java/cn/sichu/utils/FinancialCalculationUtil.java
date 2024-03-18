@@ -25,6 +25,20 @@ public class FinancialCalculationUtil {
     }
 
     /**
+     * @param amount  买入金额
+     * @param feeRate 申购费率
+     * @return java.math.BigDecimal
+     * @author sichu huang
+     * @date 2024/03/18
+     **/
+    public static BigDecimal calculatePurchaseFee(BigDecimal amount, String feeRate) {
+        BigDecimal v = new BigDecimal(String.valueOf(amount));
+        String rate = feeRate.replace("%", "");
+        BigDecimal r = new BigDecimal(rate).divide(new BigDecimal("100"), 4, RoundingMode.CEILING);
+        return v.multiply(r).setScale(2, RoundingMode.CEILING);
+    }
+
+    /**
      * TODO: 赎回手续费逻辑: 先进先出, 从最早的一笔交易开始计算, 计算持有天数包含周末节假日, 每笔分别计算含金额的收益后, 费率向下取整, 2位小数
      *
      * @param share
@@ -62,9 +76,18 @@ public class FinancialCalculationUtil {
         return shareDecimal.toString();
     }
 
-    public static void main(String[] args) {
-        System.out.println(calculatePurchaseFee("1000", "0.15%"));
-        // 25.70
-        System.err.println(calculateRedemptionFee("4193.84", "1.2252", "0.50%"));
+    /**
+     * @param amount
+     * @param fee
+     * @param nav
+     * @return java.math.BigDecimal
+     * @author sichu huang
+     * @date 2024/03/18
+     **/
+    public static BigDecimal calculateShare(BigDecimal amount, BigDecimal fee, String nav) {
+        BigDecimal v = new BigDecimal(String.valueOf(amount));
+        BigDecimal f = new BigDecimal(String.valueOf(fee));
+        BigDecimal n = new BigDecimal(nav);
+        return v.subtract(f).divide(n, 2, RoundingMode.CEILING);
     }
 }

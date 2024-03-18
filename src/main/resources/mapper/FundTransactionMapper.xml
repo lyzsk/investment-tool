@@ -6,48 +6,48 @@
     <resultMap id="resultMap" type="cn.sichu.entity.FundTransaction">
         <id property="id" column="id"/>
         <result property="code" column="code"/>
-        <result property="shortName" column="short_name"/>
         <result property="applicationDate" column="application_date"/>
         <result property="transactionDate" column="transaction_date"/>
         <result property="confirmationDate" column="confirmation_date"/>
         <result property="settlementDate" column="settlement_date"/>
-        <result property="fee" column="fee"/>
-        <result property="share" column="share"/>
-        <result property="nav" column="nav"/>
         <result property="amount" column="amount"/>
-        <result property="type" column="type"/>
+        <result property="fee" column="fee"/>
+        <result property="nav" column="nav"/>
+        <result property="share" column="share"/>
         <result property="tradingPlatform" column="trading_platform"/>
         <result property="status" column="status"/>
+        <result property="mark" column="mark"/>
+        <result property="type" column="type"/>
     </resultMap>
 
     <select id="selectAllFundTransactions" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select
-        code, short_name, application_date, transaction_date, confirmation_date, settlement_date,
-        fee, share, nav, amount, type, trading_platform, status
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark, type
         from fund_transaction
-        order by transaction_date
+        order by code, transaction_date
     </select>
 
     <!--  TODO: 传全参+<if test>  -->
     <insert id="insertFundTransaction" useGeneratedKeys="true" keyProperty="id">
         insert into fund_transaction
-        (code, short_name, application_date, transaction_date, confirmation_date, settlement_date, fee, share, nav,
-        amount, type, trading_platform, status)
+        (code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav,
+        share, trading_platform, status, mark, type)
         values
-        (#{code}, #{shortName}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate},
-        #{fee}, #{share}, #{nav}, #{amount}, #{type}, #{tradingPlatform}, #{status})
+        (#{code}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate},
+        #{amount}, #{fee}, #{nav}, #{share}, #{tradingPlatform}, #{status}, #{mark}, #{type})
     </insert>
 
-    <update id="updateNavAndShareForFundPurchaseTransaction">
+    <update id="updateNavAndShareForFundTransaction">
         update fund_transaction
         <set>
-            <if test="share != null and share != ''">share = #{share},</if>
-            <if test="nav != null and nav != ''">nav = #{nav},</if>
+            <if test="nav != null">nav = #{nav},</if>
+            <if test="share != null">share = #{share},</if>
         </set>
         where code = #{code} and transaction_date = #{transactionDate}
     </update>
 
-    <update id="updateStatusForFundPurchaseTransactions">
+    <update id="updateStatusForFundTransaction">
         update fund_transaction
         <set>
             <if test="status != null">status = #{status},</if>

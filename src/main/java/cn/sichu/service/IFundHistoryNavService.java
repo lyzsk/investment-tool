@@ -36,5 +36,5 @@ public interface IFundHistoryNavService {
      * @author sichu huang
      * @date 2024/03/16
      **/
-    public String selectFundHistoryNavByConditions(String code, Date date) throws ParseException;
+    public String selectFundHistoryNavByConditions(String code, Date date);
 }

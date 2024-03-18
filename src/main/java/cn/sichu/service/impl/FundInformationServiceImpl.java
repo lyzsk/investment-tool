@@ -15,10 +15,10 @@ import java.util.List;
 @Service
 public class FundInformationServiceImpl implements IFundInformationService {
     @Autowired
-    private FundInformationMapper fundInformationMapper;
+    FundInformationMapper fundInformationMapper;
 
     /**
-     * @param code 基金编码
+     * @param code 基金代码
      * @return java.util.List<cn.sichu.entity.FundInformation>
      * @author sichu huang
      * @date 2024/03/09
@@ -29,7 +29,7 @@ public class FundInformationServiceImpl implements IFundInformationService {
     }
 
     /**
-     * @param code 基金编码
+     * @param code 基金代码
      * @return java.util.List<cn.sichu.entity.FundInformation>
      * @author sichu huang
      * @date 2024/03/09
@@ -40,7 +40,7 @@ public class FundInformationServiceImpl implements IFundInformationService {
     }
 
     /**
-     * @param code 基金编码
+     * @param code 基金代码
      * @return java.util.List<cn.sichu.entity.FundInformation>
      * @author sichu huang
      * @date 2024/03/10

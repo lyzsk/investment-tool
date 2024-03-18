@@ -1,5 +1,6 @@
 package cn.sichu.entity;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -12,10 +13,10 @@ public class FundPositionHistory {
     private Date transactionDate;
     private Date initiationDate;
     private Date redemptionDate;
-    private String totalAmount;
-    private String totalPurchaseFee;
-    private String totalRedemptionFee;
-    private String heldShare;
+    private BigDecimal totalAmount;
+    private BigDecimal totalPurchaseFee;
+    private BigDecimal totalRedemptionFee;
+    private BigDecimal heldShare;
     private Integer heldDays;
     private String mark;
 
@@ -23,8 +24,8 @@ public class FundPositionHistory {
     }
 
     public FundPositionHistory(Long id, String code, Date transactionDate, Date initiationDate, Date redemptionDate,
-        String totalAmount, String totalPurchaseFee, String totalRedemptionFee, String heldShare, Integer heldDays,
-        String mark) {
+        BigDecimal totalAmount, BigDecimal totalPurchaseFee, BigDecimal totalRedemptionFee, BigDecimal heldShare,
+        Integer heldDays, String mark) {
         this.id = id;
         this.code = code;
         this.transactionDate = transactionDate;
@@ -41,10 +42,9 @@ public class FundPositionHistory {
     @Override
     public String toString() {
         return "FundPositionHistory{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate
-            + ", initiationDate=" + initiationDate + ", redemptionDate=" + redemptionDate + ", totalAmount='"
-            + totalAmount + '\'' + ", totalPurchaseFee='" + totalPurchaseFee + '\'' + ", totalRedemptionFee='"
-            + totalRedemptionFee + '\'' + ", heldShare='" + heldShare + '\'' + ", heldDays=" + heldDays + ", mark='"
-            + mark + '\'' + '}';
+            + ", initiationDate=" + initiationDate + ", redemptionDate=" + redemptionDate + ", totalAmount="
+            + totalAmount + ", totalPurchaseFee=" + totalPurchaseFee + ", totalRedemptionFee=" + totalRedemptionFee
+            + ", heldShare=" + heldShare + ", heldDays=" + heldDays + ", mark='" + mark + '\'' + '}';
     }
 
     public Long getId() {
@@ -87,35 +87,35 @@ public class FundPositionHistory {
         this.redemptionDate = redemptionDate;
     }
 
-    public String getTotalAmount() {
+    public BigDecimal getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(String totalAmount) {
+    public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
     }
 
-    public String getTotalPurchaseFee() {
+    public BigDecimal getTotalPurchaseFee() {
         return totalPurchaseFee;
     }
 
-    public void setTotalPurchaseFee(String totalPurchaseFee) {
+    public void setTotalPurchaseFee(BigDecimal totalPurchaseFee) {
         this.totalPurchaseFee = totalPurchaseFee;
     }
 
-    public String getTotalRedemptionFee() {
+    public BigDecimal getTotalRedemptionFee() {
         return totalRedemptionFee;
     }
 
-    public void setTotalRedemptionFee(String totalRedemptionFee) {
+    public void setTotalRedemptionFee(BigDecimal totalRedemptionFee) {
         this.totalRedemptionFee = totalRedemptionFee;
     }
 
-    public String getHeldShare() {
+    public BigDecimal getHeldShare() {
         return heldShare;
     }
 
-    public void setHeldShare(String heldShare) {
+    public void setHeldShare(BigDecimal heldShare) {
         this.heldShare = heldShare;
     }
 

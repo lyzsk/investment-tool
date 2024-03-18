@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -41,57 +40,6 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     FundPurchaseTransactionMapper fundPurchaseTransactionMapper;
 
     /**
-     * @param code
-     * @param applicationDate
-     * @param share
-     * @param type
-     * @author sichu huang
-     * @date 2024/03/11
-     **/
-    // @Override
-    // public void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, String share,
-    //     Integer type) throws IOException {
-    //     if (type != 1) {
-    //         return;
-    //     }
-    //     FundTransaction transaction = new FundTransaction();
-    //     transaction.setCode(code);
-    //     String shortName = "";
-    //     List<FundInformation> fundInformations = fundInformationService.selectFundShortNameByCode(code);
-    //     for (FundInformation fundInformation : fundInformations) {
-    //         shortName = fundInformation.getShortName();
-    //     }
-    //     transaction.setShortName(shortName);
-    //     // TODO: applicationDate 和 transactionDate 区分, 而不是强转, 需要加入 transactionDate 字段
-    //     if (TransactionDayUtil.isTransactionDate(applicationDate)) {
-    //         transaction.setApplicationDate(applicationDate);
-    //     } else {
-    //         applicationDate = TransactionDayUtil.getNextTransactionDate(applicationDate);
-    //         transaction.setApplicationDate(applicationDate);
-    //     }
-    //     List<FundInformation> redemptionInformations = fundInformationService.selectFundTransactionProcessByCode(code);
-    //     for (FundInformation information : redemptionInformations) {
-    //         Integer confirmationN = information.getRedemptionConfirmationProcess();
-    //         Integer settlementN = information.getRedemptionSettlementProcess();
-    //         Date confirmationDate = new Date(applicationDate.getTime());
-    //         Date settlementDate = new Date(applicationDate.getTime());
-    //         transaction.setConfirmationDate(
-    //             TransactionDayUtil.getNextNTransactionDate(confirmationDate, confirmationN));
-    //         transaction.setSettlementDate(TransactionDayUtil.getNextNTransactionDate(settlementDate, settlementN));
-    //     }
-    //     // TODO: 先select到nav, 再计算fee
-    //     String fee = "";
-    //     List<FundInformation> redemptionFeeInformations =
-    //         fundInformationService.selectFundRedemptionFeeRateByCode(code);
-    //     for (FundInformation information : redemptionFeeInformations) {
-    //         String rate = information.getRedemptionFeeRate();
-    //         fee = calculateRedemptionFeeByRate(share, nav, rate);
-    //         transaction.setFee(fee);
-    //     }
-    //     insertFundTransaction(transaction);
-    // }
-
-    /**
      * @return java.util.List<cn.sichu.entity.FundTransaction>
      * @author sichu huang
      * @date 2024/03/09
@@ -99,6 +47,16 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     @Override
     public List<FundTransaction> selectAllFundTransactions() {
         return fundTransactionMapper.selectAllFundTransactions();
+    }
+
+    /**
+     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
+     * @author sichu huang
+     * @date 2024/03/17
+     **/
+    @Override
+    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactions() {
+        return fundPurchaseTransactionMapper.selectAllFundPurchaseTransactions();
     }
 
     /**
@@ -112,36 +70,49 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     }
 
     /**
+     * @param purchaseTransaction purchaseTransaction
+     * @author sichu huang
+     * @date 2024/03/18
+     **/
+    @Override
+    public void insertFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction) {
+        fundPurchaseTransactionMapper.insertFundPurchaseTransaction(purchaseTransaction);
+        /* 插入交易表后, 插入总表 */
+        FundTransaction fundTransaction = new FundTransaction();
+        fundTransaction.setCode(purchaseTransaction.getCode());
+        fundTransaction.setApplicationDate(purchaseTransaction.getApplicationDate());
+        fundTransaction.setTransactionDate(purchaseTransaction.getTransactionDate());
+        fundTransaction.setConfirmationDate(purchaseTransaction.getConfirmationDate());
+        fundTransaction.setSettlementDate(purchaseTransaction.getSettlementDate());
+        fundTransaction.setAmount(purchaseTransaction.getAmount());
+        fundTransaction.setFee(purchaseTransaction.getFee());
+        fundTransaction.setNav(purchaseTransaction.getNav());
+        fundTransaction.setShare(purchaseTransaction.getShare());
+        fundTransaction.setTradingPlatform(purchaseTransaction.getTradingPlatform());
+        fundTransaction.setStatus(purchaseTransaction.getStatus());
+        fundTransaction.setType(FundTransactionType.PURCHASE.getCode());
+        insertFundTransaction(fundTransaction);
+    }
+
+    /**
      * TODO: 对每一步set操作进行判空, 直接抛出自定义异常
      *
      * @param code            code
      * @param applicationDate applicationDate
      * @param amount          amount
-     * @param type            type
      * @param tradingPlatform tradingPlatform
      * @author sichu huang
      * @date 2024/03/10
      **/
     @Override
-    public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, String amount,
-        Integer type, String tradingPlatform) throws IOException, ParseException {
-        if (!Objects.equals(type, FundTransactionType.PURCHASE.getCode())) {
-            return;
-        }
-        FundTransaction transaction = new FundTransaction();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, BigDecimal amount,
+        String tradingPlatform) throws IOException, ParseException {
+        FundPurchaseTransaction transaction = new FundPurchaseTransaction();
         /* set code, applicationDate, amount, type, tradingPlatform */
         transaction.setCode(code);
         transaction.setApplicationDate(applicationDate);
         transaction.setAmount(amount);
-        transaction.setType(type);
         transaction.setTradingPlatform(tradingPlatform);
-        /* set shortName */
-        List<FundInformation> fundInformations = fundInformationService.selectFundShortNameByCode(code);
-        if (!fundInformations.isEmpty()) {
-            String shortName = fundInformations.get(0).getShortName();
-            transaction.setShortName(shortName);
-        }
         /* set transactionDate */
         Date transactionDate = TransactionDayUtil.isTransactionDate(applicationDate) ? applicationDate :
             TransactionDayUtil.getNextTransactionDate(applicationDate);
@@ -153,7 +124,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         if (!purchaseProcess.isEmpty()) {
             FundInformation information = purchaseProcess.get(0);
             Integer n = information.getPurchaseConfirmationProcess();
-            Date settlementDate = TransactionDayUtil.getNextNTransactionDate(new Date(transactionDate.getTime()), n);
+            Date settlementDate = TransactionDayUtil.getNextNTransactionDate(transactionDate, n);
             transaction.setSettlementDate(settlementDate);
             /* set status */
             if (new Date().getTime() < settlementDate.getTime()) {
@@ -163,43 +134,36 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             }
         }
         /* set fee */
-        String fee;
         List<FundPurchaseFeeRate> fundPurchaseFeeRates =
             fundPurchaseFeeRateService.selectFundPurchaseFeeRateByConditions(code, tradingPlatform);
         if (!fundPurchaseFeeRates.isEmpty()) {
-            BigDecimal amountDecimal = new BigDecimal(amount);
             for (int i = 0; i < fundPurchaseFeeRates.size(); i++) {
                 FundPurchaseFeeRate fundPurchaseFeeRate = fundPurchaseFeeRates.get(i);
                 String feeRate = fundPurchaseFeeRate.getFeeRate();
                 if (!feeRate.endsWith("%")) {
-                    transaction.setFee(feeRate);
+                    transaction.setFee(new BigDecimal(feeRate));
                     break;
                 }
-                if (amountDecimal.compareTo(new BigDecimal(fundPurchaseFeeRate.getFeeRateChangeAmount())) < 0) {
-                    fee = FinancialCalculationUtil.calculatePurchaseFee(amount, feeRate);
-                    transaction.setFee(fee);
+                if (amount.compareTo(new BigDecimal(fundPurchaseFeeRate.getFeeRateChangeAmount())) < 0) {
+                    transaction.setFee(FinancialCalculationUtil.calculatePurchaseFee(amount, feeRate));
                     break;
                 }
                 if (i > 0
-                    && amountDecimal.compareTo(new BigDecimal(fundPurchaseFeeRates.get(i - 1).getFeeRateChangeAmount()))
-                    >= 0
-                    && amountDecimal.compareTo(new BigDecimal(fundPurchaseFeeRates.get(i).getFeeRateChangeAmount()))
-                    < 0) {
-                    fee = FinancialCalculationUtil.calculatePurchaseFee(amount, feeRate);
-                    transaction.setFee(fee);
+                    && amount.compareTo(new BigDecimal(fundPurchaseFeeRates.get(i - 1).getFeeRateChangeAmount())) >= 0
+                    && amount.compareTo(new BigDecimal(fundPurchaseFeeRates.get(i).getFeeRateChangeAmount())) < 0) {
+                    transaction.setFee(FinancialCalculationUtil.calculatePurchaseFee(amount, feeRate));
                     break;
                 }
             }
         }
         /* set nav, share */
-        String nav = fundHistoryNavService.selectFundHistoryNavByConditions(code, sdf.format(transactionDate));
-        if (nav != null && !nav.equals("")) {
-            transaction.setNav(nav);
-            String share = FinancialCalculationUtil.calculateShare(amount, transaction.getFee(), nav);
-            transaction.setShare(share);
+        String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
+        if (navStr != null && !navStr.equals("")) {
+            transaction.setNav(new BigDecimal(navStr));
+            transaction.setShare(FinancialCalculationUtil.calculateShare(amount, transaction.getFee(), navStr));
         }
 
-        insertFundTransaction(transaction);
+        insertFundPurchaseTransaction(transaction);
     }
 
     /**
@@ -208,28 +172,56 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      * @date 2024/03/16
      **/
     @Override
-    public void updateNavAndShareForFundPurchaseTransaction(Date date) throws ParseException {
-        // TODO: 改成 selectAllFundPurchaseTransactions, 然后 getType != 0 break
-        List<FundTransaction> fundTransactions = fundTransactionMapper.selectAllFundTransactions();
-        for (FundTransaction transaction : fundTransactions) {
+    public void updateNavAndShareForFundPurchaseTransaction(Date date) {
+        List<FundPurchaseTransaction> transactions = fundPurchaseTransactionMapper.selectAllFundPurchaseTransactions();
+        for (FundPurchaseTransaction transaction : transactions) {
+            if (date.getTime() < transaction.getSettlementDate().getTime()) {
+                continue;
+            }
+            if (transaction.getNav() == null || transaction.getShare() == null) {
+                String code = transaction.getCode();
+                String navStr =
+                    fundHistoryNavService.selectFundHistoryNavByConditions(code, transaction.getTransactionDate());
+                if (navStr != null && !navStr.equals("")) {
+                    BigDecimal amount = transaction.getAmount();
+                    BigDecimal fee = transaction.getFee();
+                    BigDecimal share = FinancialCalculationUtil.calculateShare(amount, fee, navStr);
+                    transaction.setNav(new BigDecimal(navStr));
+                    transaction.setShare(share);
+                    fundPurchaseTransactionMapper.updateNavAndShareForFundPurchaseTransaction(transaction);
+                    updateNavAndShareForFundTransaction(date);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param date date
+     * @author sichu huang
+     * @date 2024/03/18
+     **/
+    @Override
+    public void updateNavAndShareForFundTransaction(Date date) {
+        // TODO: selectAllFundTransactions改成selectPurchaseTransactionsFromFundTransactions
+        List<FundTransaction> transactions = fundTransactionMapper.selectAllFundTransactions();
+        for (FundTransaction transaction : transactions) {
             if (!Objects.equals(transaction.getType(), FundTransactionType.PURCHASE.getCode())) {
                 continue;
             }
             if (date.getTime() < transaction.getSettlementDate().getTime()) {
                 continue;
             }
-            if (transaction.getNav() == null || transaction.getNav().equals("") || transaction.getShare() == null
-                || transaction.getShare().equals("")) {
+            if (transaction.getNav() == null || transaction.getShare() == null) {
                 String code = transaction.getCode();
-                String nav =
+                String navStr =
                     fundHistoryNavService.selectFundHistoryNavByConditions(code, transaction.getTransactionDate());
-                if (nav != null && !nav.equals("")) {
-                    String amount = transaction.getAmount();
-                    String fee = transaction.getFee();
-                    String share = FinancialCalculationUtil.calculateShare(amount, fee, nav);
-                    transaction.setNav(nav);
+                if (navStr != null && !navStr.equals("")) {
+                    BigDecimal amount = transaction.getAmount();
+                    BigDecimal fee = transaction.getFee();
+                    BigDecimal share = FinancialCalculationUtil.calculateShare(amount, fee, navStr);
+                    transaction.setNav(new BigDecimal(navStr));
                     transaction.setShare(share);
-                    fundTransactionMapper.updateNavAndShareForFundPurchaseTransaction(transaction);
+                    fundTransactionMapper.updateNavAndShareForFundTransaction(transaction);
                 }
             }
         }
@@ -241,11 +233,10 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      * @date 2024/03/16
      **/
     @Override
-    public void updateStatusForFundPurchaseTransactions(Date date) {
-        List<FundTransaction> fundTransactions = fundTransactionMapper.selectAllFundTransactions();
-        for (FundTransaction transaction : fundTransactions) {
-            Integer type = transaction.getType();
-            if (!Objects.equals(type, FundTransactionType.PURCHASE.getCode())) {
+    public void updateStatusForFundTransaction(Date date) {
+        List<FundTransaction> transactions = fundTransactionMapper.selectAllFundTransactions();
+        for (FundTransaction transaction : transactions) {
+            if (!Objects.equals(transaction.getType(), FundTransactionType.PURCHASE.getCode())) {
                 return;
             }
             Date settlementDate = transaction.getSettlementDate();
@@ -255,47 +246,30 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 } else {
                     transaction.setStatus(FundTransactionStatus.HELD.getCode());
                 }
-                fundTransactionMapper.updateStatusForFundPurchaseTransactions(transaction);
+                fundTransactionMapper.updateStatusForFundTransaction(transaction);
             }
         }
     }
 
     /**
-     * 根据 fund_transaction 总表, 插入 fund_purchase_transaction 表
-     *
+     * @param date date
      * @author sichu huang
-     * @date 2024/03/17
+     * @date 2024/03/18
      **/
     @Override
-    public void insertFundPurchaseTransaction() {
-        List<FundTransaction> fundTransactions = fundTransactionMapper.selectAllFundTransactions();
-        for (FundTransaction transaction : fundTransactions) {
-            if (!Objects.equals(transaction.getType(), FundTransactionType.PURCHASE.getCode())) {
-                continue;
+    public void updateStatusForFundPurchaseTransaction(Date date) {
+        List<FundPurchaseTransaction> transactions = fundPurchaseTransactionMapper.selectAllFundPurchaseTransactions();
+        for (FundPurchaseTransaction transaction : transactions) {
+            Date settlementDate = transaction.getSettlementDate();
+            if (transaction.getStatus() == null) {
+                if (date.getTime() < settlementDate.getTime()) {
+                    transaction.setStatus(FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode());
+                } else {
+                    transaction.setStatus(FundTransactionStatus.HELD.getCode());
+                }
+                fundPurchaseTransactionMapper.updateStatusForFundPurchaseTransaction(transaction);
             }
-            FundPurchaseTransaction purchaseTransaction = new FundPurchaseTransaction();
-            purchaseTransaction.setCode(transaction.getCode());
-            purchaseTransaction.setApplicationDate(transaction.getApplicationDate());
-            purchaseTransaction.setTransactionDate(transaction.getTransactionDate());
-            purchaseTransaction.setConfirmationDate(transaction.getConfirmationDate());
-            purchaseTransaction.setSettlementDate(transaction.getSettlementDate());
-            purchaseTransaction.setFee(transaction.getFee());
-            purchaseTransaction.setShare(transaction.getShare());
-            purchaseTransaction.setNav(transaction.getNav());
-            purchaseTransaction.setAmount(transaction.getAmount());
-            purchaseTransaction.setTradingPlatform(transaction.getTradingPlatform());
-            purchaseTransaction.setStatus(transaction.getStatus());
-            fundPurchaseTransactionMapper.insertFundPurchaseTransaction(purchaseTransaction);
         }
     }
 
-    /**
-     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
-     * @author sichu huang
-     * @date 2024/03/17
-     **/
-    @Override
-    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactions() {
-        return fundPurchaseTransactionMapper.selectAllFundPurchaseTransactions();
-    }
 }
