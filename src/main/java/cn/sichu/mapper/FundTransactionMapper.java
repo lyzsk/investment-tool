@@ -14,9 +14,12 @@ public interface FundTransactionMapper {
 
     public List<FundTransaction> selectAllFundTransactions();
 
+    public List<FundTransaction> selectPurchaseTransactionsFromFundTransactions();
+
     public void insertFundTransaction(FundTransaction fundTransaction);
 
     public void updateNavAndShareForFundTransaction(FundTransaction fundTransaction);
 
     public void updateStatusForFundTransaction(FundTransaction fundTransaction);
+
 }

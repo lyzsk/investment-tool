@@ -62,6 +62,25 @@ public class TransactionDayUtil {
     }
 
     /**
+     * @param date
+     * @param n
+     * @return java.util.Date
+     * @author sichu huang
+     * @date 2024/03/18
+     **/
+    public static Date getLastNTransactionDate(Date date, Integer n) throws IOException {
+        Date newDate = new Date(date.getTime());
+        int count = 0;
+        while (count < n) {
+            newDate.setTime(newDate.getTime() - 24 * 60 * 60 * 1000L);
+            if (isTransactionDate(newDate)) {
+                ++count;
+            }
+        }
+        return newDate;
+    }
+
+    /**
      * @param startDate
      * @param endDate
      * @return java.lang.Long

@@ -202,12 +202,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      **/
     @Override
     public void updateNavAndShareForFundTransaction(Date date) {
-        // TODO: selectAllFundTransactions改成selectPurchaseTransactionsFromFundTransactions
-        List<FundTransaction> transactions = fundTransactionMapper.selectAllFundTransactions();
+        List<FundTransaction> transactions = fundTransactionMapper.selectPurchaseTransactionsFromFundTransactions();
         for (FundTransaction transaction : transactions) {
-            if (!Objects.equals(transaction.getType(), FundTransactionType.PURCHASE.getCode())) {
-                continue;
-            }
             if (date.getTime() < transaction.getSettlementDate().getTime()) {
                 continue;
             }

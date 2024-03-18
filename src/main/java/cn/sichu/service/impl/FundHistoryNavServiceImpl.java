@@ -1,6 +1,8 @@
 package cn.sichu.service.impl;
 
+import cn.sichu.entity.FundEastmoneyJjjz;
 import cn.sichu.entity.FundHistoryNav;
+import cn.sichu.mapper.FundEastmoneyJjjzMapper;
 import cn.sichu.mapper.FundHistoryNavMapper;
 import cn.sichu.service.IFundHistoryNavService;
 import cn.sichu.utils.ScrapingUtil;
@@ -22,7 +24,9 @@ import java.util.Map;
 @Service
 public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     @Autowired
-    private FundHistoryNavMapper fundHistoryNavMapper;
+    FundHistoryNavMapper fundHistoryNavMapper;
+    @Autowired
+    FundEastmoneyJjjzMapper fundEastmoneyJjjzMapper;
 
     /**
      * 插入历史净值, 如果净值日期在表中已存在不会重复插入
@@ -97,6 +101,18 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
             }
         }
         return "";
+    }
+
+    /**
+     * @param code code
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/18
+     **/
+    @Override
+    public String selectCallbackByCode(String code) {
+        List<FundEastmoneyJjjz> list = fundEastmoneyJjjzMapper.selectCallbackByCode(code);
+        return list.get(0).getCallback();
     }
 
     private boolean isSameDate(Date dbDate, Date date) {
