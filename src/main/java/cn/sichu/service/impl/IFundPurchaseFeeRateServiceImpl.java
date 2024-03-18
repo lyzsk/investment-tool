@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class IFundPurchaseFeeRateServiceImpl implements IFundPurchaseFeeRateService {
     @Autowired
-    private FundPurchaseFeeRateMapper fundPurchaseFeeRateMapper;
+    FundPurchaseFeeRateMapper fundPurchaseFeeRateMapper;
 
     /**
      * @param code

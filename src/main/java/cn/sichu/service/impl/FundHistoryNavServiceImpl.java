@@ -84,8 +84,8 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
      * @date 2024/03/16
      **/
     @Override
-    public String selectFundHistoryNavByConditions(String code, Date date) throws ParseException {
-        String nav = "";
+    public String selectFundHistoryNavByConditions(String code, Date date) {
+        String nav;
         FundHistoryNav fundHistoryNav = new FundHistoryNav();
         fundHistoryNav.setCode(code);
         fundHistoryNav.setNavDate(date);

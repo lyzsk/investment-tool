@@ -15,4 +15,9 @@ public interface FundPurchaseTransactionMapper {
     public List<FundPurchaseTransaction> selectAllFundPurchaseTransactions();
 
     public void insertFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
+
+    public void updateNavAndShareForFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
+
+    public void updateStatusForFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
+
 }

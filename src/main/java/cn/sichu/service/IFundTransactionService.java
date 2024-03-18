@@ -4,6 +4,7 @@ import cn.sichu.entity.FundPurchaseTransaction;
 import cn.sichu.entity.FundTransaction;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -13,16 +14,6 @@ import java.util.List;
  * @date 2024/03/09
  **/
 public interface IFundTransactionService {
-    /**
-     * @param code
-     * @param applicationDate
-     * @param share
-     * @param type
-     * @author sichu huang
-     * @date 2024/03/11
-     **/
-    // public void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, String share,
-    //     Integer type) throws IOException;
 
     /**
      * @return java.util.List<cn.sichu.entity.FundTransaction>
@@ -32,6 +23,13 @@ public interface IFundTransactionService {
     public List<FundTransaction> selectAllFundTransactions();
 
     /**
+     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
+     * @author sichu huang
+     * @date 2024/03/17
+     **/
+    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactions();
+
+    /**
      * @param fundTransaction fundTransaction
      * @author sichu huang
      * @date 2024/03/09
@@ -39,43 +37,48 @@ public interface IFundTransactionService {
     public void insertFundTransaction(FundTransaction fundTransaction);
 
     /**
+     * @param purchaseTransaction purchaseTransaction
+     * @author sichu huang
+     * @date 2024/03/18
+     **/
+    public void insertFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction);
+
+    /**
      * @param code            code
      * @param applicationDate applicationDate
      * @param amount          amount
-     * @param type            type
      * @param tradingPlatform tradingPlatform
      * @author sichu huang
      * @date 2024/03/10
      **/
-    public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, String amount,
-        Integer type, String tradingPlatform) throws ParseException, IOException;
+    public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, BigDecimal amount,
+        String tradingPlatform) throws ParseException, IOException;
 
     /**
      * @param date date
      * @author sichu huang
      * @date 2024/03/16
      **/
-    public void updateNavAndShareForFundPurchaseTransaction(Date date) throws ParseException;
+    public void updateNavAndShareForFundPurchaseTransaction(Date date);
+
+    /**
+     * @param date date
+     * @author sichu huang
+     * @date 2024/03/18
+     **/
+    public void updateNavAndShareForFundTransaction(Date date);
 
     /**
      * @param date date
      * @author sichu huang
      * @date 2024/03/16
      **/
-    public void updateStatusForFundPurchaseTransactions(Date date);
+    public void updateStatusForFundTransaction(Date date);
 
     /**
-     * 根据 fund_transaction 总表, 插入 fund_purchase_transaction 表
-     *
+     * @param date date
      * @author sichu huang
-     * @date 2024/03/17
+     * @date 2024/03/18
      **/
-    public void insertFundPurchaseTransaction();
-
-    /**
-     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
-     * @author sichu huang
-     * @date 2024/03/17
-     **/
-    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactions();
+    public void updateStatusForFundPurchaseTransaction(Date date);
 }

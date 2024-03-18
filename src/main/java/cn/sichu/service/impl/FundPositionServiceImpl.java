@@ -43,22 +43,22 @@ public class FundPositionServiceImpl implements IFundPositionService {
             if (fundPosition == null) {
                 fundPosition = new FundPosition();
                 fundPosition.setCode(code);
-                fundPosition.setTotalAmount(String.valueOf(new BigDecimal("0.00")));
-                fundPosition.setTotalPurchaseFee(String.valueOf(new BigDecimal("0.00")));
-                fundPosition.setHeldShare(String.valueOf(new BigDecimal("0.00")));
+                fundPosition.setTotalAmount(new BigDecimal("0.00"));
+                fundPosition.setTotalPurchaseFee(new BigDecimal("0.00"));
+                fundPosition.setHeldShare(new BigDecimal("0.00"));
                 map.put(code, fundPosition);
             }
             fundPosition.setTransactionDate(transaction.getTransactionDate());
             fundPosition.setInitiationDate(transaction.getSettlementDate());
-            BigDecimal totalAmount = new BigDecimal(fundPosition.getTotalAmount());
-            BigDecimal totalPurchaseFee = new BigDecimal(fundPosition.getTotalPurchaseFee());
-            BigDecimal heldShare = new BigDecimal(fundPosition.getHeldShare());
-            totalAmount = totalAmount.add(new BigDecimal(transaction.getAmount()));
-            totalPurchaseFee = totalPurchaseFee.add(new BigDecimal(transaction.getFee()));
-            heldShare = heldShare.add(new BigDecimal(transaction.getShare()));
-            fundPosition.setTotalAmount(String.valueOf(totalAmount));
-            fundPosition.setTotalPurchaseFee(String.valueOf(totalPurchaseFee));
-            fundPosition.setHeldShare(String.valueOf(heldShare));
+            BigDecimal totalAmount = fundPosition.getTotalAmount();
+            BigDecimal totalPurchaseFee = fundPosition.getTotalPurchaseFee();
+            BigDecimal heldShare = fundPosition.getHeldShare();
+            totalAmount = totalAmount.add(transaction.getAmount());
+            totalPurchaseFee = totalPurchaseFee.add(transaction.getFee());
+            heldShare = heldShare.add(transaction.getShare());
+            fundPosition.setTotalAmount(totalAmount);
+            fundPosition.setTotalPurchaseFee(totalPurchaseFee);
+            fundPosition.setHeldShare(heldShare);
             Date currentDate = new Date();
             long heldDays = TransactionDayUtil.getHeldDays(currentDate, transaction.getTransactionDate());
             fundPosition.setHeldDays((int)heldDays);

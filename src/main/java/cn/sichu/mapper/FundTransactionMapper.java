@@ -16,7 +16,7 @@ public interface FundTransactionMapper {
 
     public void insertFundTransaction(FundTransaction fundTransaction);
 
-    public void updateNavAndShareForFundPurchaseTransaction(FundTransaction fundTransaction);
+    public void updateNavAndShareForFundTransaction(FundTransaction fundTransaction);
 
-    public void updateStatusForFundPurchaseTransactions(FundTransaction fundTransaction);
+    public void updateStatusForFundTransaction(FundTransaction fundTransaction);
 }

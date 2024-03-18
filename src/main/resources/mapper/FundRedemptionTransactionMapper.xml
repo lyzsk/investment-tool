@@ -10,10 +10,10 @@
         <result property="transactionDate" column="transaction_date"/>
         <result property="confirmationDate" column="confirmation_date"/>
         <result property="settlementDate" column="settlement_date"/>
-        <result property="fee" column="fee"/>
-        <result property="share" column="share"/>
-        <result property="nav" column="nav"/>
         <result property="amount" column="amount"/>
+        <result property="fee" column="fee"/>
+        <result property="nav" column="nav"/>
+        <result property="share" column="share"/>
         <result property="tradingPlatform" column="trading_platform"/>
         <result property="status" column="status"/>
         <result property="mark" column="mark"/>

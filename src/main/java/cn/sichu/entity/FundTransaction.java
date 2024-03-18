@@ -1,5 +1,6 @@
 package cn.sichu.entity;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -11,48 +12,48 @@ import java.util.Date;
 public class FundTransaction {
     private Long id;
     private String code;
-    private String shortName;
     private Date applicationDate;
     private Date transactionDate;
     private Date confirmationDate;
     private Date settlementDate;
-    private String fee;
-    private String share;
-    private String nav;
-    private String amount;
-    private Integer type;
+    private BigDecimal amount;
+    private BigDecimal fee;
+    private BigDecimal nav;
+    private BigDecimal share;
     private String tradingPlatform;
     private Integer status;
+    private String mark;
+    private Integer type;
 
     public FundTransaction() {
     }
 
-    public FundTransaction(Long id, String code, String shortName, Date applicationDate, Date transactionDate,
-        Date confirmationDate, Date settlementDate, String fee, String share, String nav, String amount, Integer type,
-        String tradingPlatform, Integer status) {
+    public FundTransaction(Long id, String code, Date applicationDate, Date transactionDate, Date confirmationDate,
+        Date settlementDate, BigDecimal amount, BigDecimal fee, BigDecimal nav, BigDecimal share,
+        String tradingPlatform, Integer status, String mark, Integer type) {
         this.id = id;
         this.code = code;
-        this.shortName = shortName;
         this.applicationDate = applicationDate;
         this.transactionDate = transactionDate;
         this.confirmationDate = confirmationDate;
         this.settlementDate = settlementDate;
-        this.fee = fee;
-        this.share = share;
-        this.nav = nav;
         this.amount = amount;
-        this.type = type;
+        this.fee = fee;
+        this.nav = nav;
+        this.share = share;
         this.tradingPlatform = tradingPlatform;
         this.status = status;
+        this.mark = mark;
+        this.type = type;
     }
 
     @Override
     public String toString() {
-        return "FundTransaction{" + "id=" + id + ", code='" + code + '\'' + ", shortName='" + shortName + '\''
-            + ", applicationDate=" + applicationDate + ", transactionDate=" + transactionDate + ", confirmationDate="
-            + confirmationDate + ", settlementDate=" + settlementDate + ", fee='" + fee + '\'' + ", share='" + share
-            + '\'' + ", nav='" + nav + '\'' + ", amount='" + amount + '\'' + ", type=" + type + ", tradingPlatform='"
-            + tradingPlatform + '\'' + ", status=" + status + '}';
+        return "FundTransaction{" + "id=" + id + ", code='" + code + '\'' + ", applicationDate=" + applicationDate
+            + ", transactionDate=" + transactionDate + ", confirmationDate=" + confirmationDate + ", settlementDate="
+            + settlementDate + ", amount=" + amount + ", fee=" + fee + ", nav=" + nav + ", share=" + share
+            + ", tradingPlatform='" + tradingPlatform + '\'' + ", status=" + status + ", mark='" + mark + '\''
+            + ", type=" + type + '}';
     }
 
     public Long getId() {
@@ -69,14 +70,6 @@ public class FundTransaction {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
     }
 
     public Date getApplicationDate() {
@@ -111,44 +104,36 @@ public class FundTransaction {
         this.settlementDate = settlementDate;
     }
 
-    public String getFee() {
-        return fee;
-    }
-
-    public void setFee(String fee) {
-        this.fee = fee;
-    }
-
-    public String getShare() {
-        return share;
-    }
-
-    public void setShare(String share) {
-        this.share = share;
-    }
-
-    public String getNav() {
-        return nav;
-    }
-
-    public void setNav(String nav) {
-        this.nav = nav;
-    }
-
-    public String getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public Integer getType() {
-        return type;
+    public BigDecimal getFee() {
+        return fee;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
+    public void setFee(BigDecimal fee) {
+        this.fee = fee;
+    }
+
+    public BigDecimal getNav() {
+        return nav;
+    }
+
+    public void setNav(BigDecimal nav) {
+        this.nav = nav;
+    }
+
+    public BigDecimal getShare() {
+        return share;
+    }
+
+    public void setShare(BigDecimal share) {
+        this.share = share;
     }
 
     public String getTradingPlatform() {
@@ -165,5 +150,21 @@ public class FundTransaction {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getMark() {
+        return mark;
+    }
+
+    public void setMark(String mark) {
+        this.mark = mark;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

@@ -3,7 +3,6 @@ package cn.sichu.service.impl;
 import cn.sichu.domain.FundTransactionReportSheet;
 import cn.sichu.domain.FundTransactionStatementSheet;
 import cn.sichu.domain.GoldTransactionStatementSheet;
-import cn.sichu.entity.FundInformation;
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.service.IExportExcelService;
 import com.alibaba.excel.EasyExcel;
@@ -119,41 +118,41 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         List<FundTransactionStatementSheet> list = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 
-        for (FundTransaction transaction : fundTransactions) {
-            String code = transaction.getCode();
-            String shortName = transaction.getShortName();
-            String applicationDate = sdf.format(transaction.getApplicationDate());
-            String confirmationDate = sdf.format(transaction.getConfirmationDate());
-            String settlementDate = sdf.format(transaction.getSettlementDate());
-            String fee = transaction.getFee();
-            String share = transaction.getShare();
-            String nav = transaction.getNav();
-            String amount = transaction.getAmount();
-            String type = "";
-            Integer rawType = transaction.getType();
-            if (rawType == 0) {
-                type = "purchase";
-            } else if (rawType == 1) {
-                type = "redemption";
-            } else if (rawType == 2) {
-                type = "dividend";
-            }
-            String fullName = "";
-            String companyName = "";
-            List<FundInformation> fundInformations = fundInformationService.selectFundShortNameByCode(code);
-            for (FundInformation fundInformation : fundInformations) {
-                if (code.equals(fundInformation.getCode())) {
-                    fullName = fundInformation.getFullName();
-                    companyName = fundInformation.getCompanyName();
-                }
-            }
-            String tradingPlatform = transaction.getTradingPlatform();
-
-            FundTransactionStatementSheet fundTransactionStatementSheet =
-                new FundTransactionStatementSheet(code, shortName, applicationDate, confirmationDate, settlementDate,
-                    fee, "", share, "", nav, "", "", amount, "", type, fullName, companyName, tradingPlatform);
-            list.add(fundTransactionStatementSheet);
-        }
+        // for (FundTransaction transaction : fundTransactions) {
+        //     String code = transaction.getCode();
+        //     String shortName = transaction.getShortName();
+        //     String applicationDate = sdf.format(transaction.getApplicationDate());
+        //     String confirmationDate = sdf.format(transaction.getConfirmationDate());
+        //     String settlementDate = sdf.format(transaction.getSettlementDate());
+        //     String fee = transaction.getFee();
+        //     String share = transaction.getShare();
+        //     String nav = transaction.getNav();
+        //     String amount = transaction.getAmount();
+        //     String type = "";
+        //     Integer rawType = transaction.getType();
+        //     if (rawType == 0) {
+        //         type = "purchase";
+        //     } else if (rawType == 1) {
+        //         type = "redemption";
+        //     } else if (rawType == 2) {
+        //         type = "dividend";
+        //     }
+        //     String fullName = "";
+        //     String companyName = "";
+        //     List<FundInformation> fundInformations = fundInformationService.selectFundShortNameByCode(code);
+        //     for (FundInformation fundInformation : fundInformations) {
+        //         if (code.equals(fundInformation.getCode())) {
+        //             fullName = fundInformation.getFullName();
+        //             companyName = fundInformation.getCompanyName();
+        //         }
+        //     }
+        //     String tradingPlatform = transaction.getTradingPlatform();
+        //
+        //     FundTransactionStatementSheet fundTransactionStatementSheet =
+        //         new FundTransactionStatementSheet(code, shortName, applicationDate, confirmationDate, settlementDate,
+        //             fee, "", share, "", nav, "", "", amount, "", type, fullName, companyName, tradingPlatform);
+        //     list.add(fundTransactionStatementSheet);
+        // }
         return list;
     }
 }
