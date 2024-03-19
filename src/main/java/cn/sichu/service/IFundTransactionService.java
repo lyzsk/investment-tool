@@ -20,28 +20,45 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/09
      **/
-    public List<FundTransaction> selectAllFundTransactions();
+    List<FundTransaction> selectAllFundTransactions();
 
     /**
      * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
      * @author sichu huang
      * @date 2024/03/17
      **/
-    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactions();
+    List<FundPurchaseTransaction> selectAllFundPurchaseTransactions();
+
+    /**
+     * @param code   code
+     * @param status status
+     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
+     * @author sichu huang
+     * @date 2024/03/19
+     **/
+    List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByConditions(String code, Integer status);
+
+    /**
+     * @param status status
+     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
+     * @author sichu huang
+     * @date 2024/03/19
+     **/
+    List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByStatus(Integer status);
 
     /**
      * @param fundTransaction fundTransaction
      * @author sichu huang
      * @date 2024/03/09
      **/
-    public void insertFundTransaction(FundTransaction fundTransaction);
+    void insertFundTransaction(FundTransaction fundTransaction);
 
     /**
      * @param purchaseTransaction purchaseTransaction
      * @author sichu huang
      * @date 2024/03/18
      **/
-    public void insertFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction);
+    void insertFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction) throws ParseException;
 
     /**
      * @param code            code
@@ -51,7 +68,7 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/10
      **/
-    public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, BigDecimal amount,
+    void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, BigDecimal amount,
         String tradingPlatform) throws ParseException, IOException;
 
     /**
@@ -59,26 +76,27 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/16
      **/
-    public void updateNavAndShareForFundPurchaseTransaction(Date date);
+    void updateNavAndShareForFundPurchaseTransaction(Date date);
 
     /**
      * @param date date
      * @author sichu huang
      * @date 2024/03/18
      **/
-    public void updateNavAndShareForFundTransaction(Date date);
+    void updateNavAndShareForFundTransaction(Date date);
 
     /**
      * @param date date
      * @author sichu huang
      * @date 2024/03/16
      **/
-    public void updateStatusForFundTransaction(Date date);
+    void updateStatusForFundTransaction(Date date);
 
     /**
      * @param date date
      * @author sichu huang
      * @date 2024/03/18
      **/
-    public void updateStatusForFundPurchaseTransaction(Date date);
+    void updateStatusForFundPurchaseTransaction(Date date);
+
 }

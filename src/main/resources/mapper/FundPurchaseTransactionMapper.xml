@@ -28,6 +28,27 @@
         order by code, settlement_date
     </select>
 
+    <select id="selectAllFundPurchaseTransactionsByConditions"
+            resultType="cn.sichu.entity.FundPurchaseTransaction" resultMap="resultMap">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark
+        from fund_purchase_transaction
+        where code = #{code} and status = #{status}
+        order by code, settlement_date
+    </select>
+
+    <select id="selectAllFundPurchaseTransactionsByStatus"
+            resultType="cn.sichu.entity.FundPurchaseTransaction" resultMap="resultMap">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark
+        from fund_purchase_transaction
+        where status = #{status}
+        order by code, settlement_date
+    </select>
+
+
     <insert id="insertFundPurchaseTransaction" useGeneratedKeys="true" keyProperty="id">
         insert into fund_purchase_transaction
         (code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,

@@ -81,6 +81,19 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     }
 
     /**
+     * @param code code
+     * @return java.util.List<cn.sichu.entity.FundHistoryNav>
+     * @author sichu huang
+     * @date 2024/03/19
+     **/
+    @Override
+    public List<FundHistoryNav> selectLastFundHistoryNavDateByConditions(String code) {
+        FundHistoryNav historyNav = new FundHistoryNav();
+        historyNav.setCode(code);
+        return fundHistoryNavMapper.selectLastFundHistoryNavDateByConditions(historyNav);
+    }
+
+    /**
      * @param code
      * @param date
      * @return java.lang.String

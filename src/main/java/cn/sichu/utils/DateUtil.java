@@ -11,12 +11,34 @@ import java.util.Date;
 public class DateUtil {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
+    /**
+     * @param date date
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/19
+     **/
     public static String dateToStr(Date date) {
         Date newDate = new Date(date.getTime());
         return sdf.format(newDate);
     }
 
+    /**
+     * @param date date
+     * @return java.util.Date
+     * @author sichu huang
+     * @date 2024/03/19
+     **/
     public static Date strToDate(String date) throws ParseException {
         return sdf.parse(date);
+    }
+
+    /**
+     * @param date date
+     * @return java.util.Date
+     * @author sichu huang
+     * @date 2024/03/19
+     **/
+    public static Date formatDate(Date date) throws ParseException {
+        return sdf.parse(sdf.format(date));
     }
 }

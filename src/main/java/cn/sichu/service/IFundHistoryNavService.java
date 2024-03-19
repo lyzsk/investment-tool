@@ -1,8 +1,11 @@
 package cn.sichu.service;
 
+import cn.sichu.entity.FundHistoryNav;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author sichu huang
@@ -29,6 +32,14 @@ public interface IFundHistoryNavService {
      * @date 2024/03/13
      **/
     public String selectFundHistoryNavByConditions(String code, String date) throws ParseException;
+
+    /**
+     * @param code code
+     * @return java.util.List<cn.sichu.entity.FundHistoryNav>
+     * @author sichu huang
+     * @date 2024/03/19
+     **/
+    public List<FundHistoryNav> selectLastFundHistoryNavDateByConditions(String code);
 
     /**
      * @param code

@@ -15,11 +15,36 @@
         <result property="updateDate" column="update_date"/>
     </resultMap>
 
+
+    <select id="selectAllFundPositionByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days,
+        update_date
+        from fund_position
+        where code = #{code}
+    </select>
+
     <insert id="insertFundPosition" useGeneratedKeys="true" keyProperty="id">
         insert into fund_position
         (code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date)
-        values
-        (#{code}, #{transactionDate}, #{initiationDate}, #{totalAmount}, #{totalPurchaseFee}, #{heldShare}, #{heldDays},
-        #{updateDate})
+        select
+        #{code}, #{transactionDate}, #{initiationDate}, #{totalAmount}, #{totalPurchaseFee}, #{heldShare},
+        #{heldDays}, #{updateDate}
+        from dual
+        where not exists (
+        select total_amount, total_purchase_fee, held_share
+        from fund_position
+        where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and
+        total_amount = #{totalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare}
+        )
     </insert>
+
+    <update id="updateHeldDaysAndUpdateDateForFundPosition">
+        update fund_position
+        <set>
+            <if test="heldDays != null">held_days = #{heldDays},</if>
+            <if test="updateDate != null">update_date = #{updateDate},</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and
+        total_amount = #{totalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare}
+    </update>
 </mapper>
