@@ -1,17 +1,17 @@
 package cn.sichu.service.impl;
 
-import cn.sichu.entity.FundInformation;
-import cn.sichu.entity.FundPurchaseFeeRate;
-import cn.sichu.entity.FundPurchaseTransaction;
-import cn.sichu.entity.FundTransaction;
+import cn.sichu.entity.*;
 import cn.sichu.enums.FundTransactionStatus;
 import cn.sichu.enums.FundTransactionType;
 import cn.sichu.mapper.FundPurchaseTransactionMapper;
 import cn.sichu.mapper.FundTransactionMapper;
 import cn.sichu.service.IFundHistoryNavService;
 import cn.sichu.service.IFundTransactionService;
+import cn.sichu.utils.DateUtil;
 import cn.sichu.utils.FinancialCalculationUtil;
 import cn.sichu.utils.TransactionDayUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +38,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     IFundHistoryNavService fundHistoryNavService;
     @Autowired
     FundPurchaseTransactionMapper fundPurchaseTransactionMapper;
+    @Autowired
+    FundPositionServiceImpl fundPositionService;
 
     /**
      * @return java.util.List<cn.sichu.entity.FundTransaction>
@@ -60,6 +62,23 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     }
 
     /**
+     * @param code   code
+     * @param status status
+     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
+     * @author sichu huang
+     * @date 2024/03/19
+     **/
+    @Override
+    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByConditions(String code, Integer status) {
+        return fundPurchaseTransactionMapper.selectAllFundPurchaseTransactionsByConditions(code, status);
+    }
+
+    @Override
+    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByStatus(Integer status) {
+        return fundPurchaseTransactionMapper.selectAllFundPurchaseTransactionsByStatus(status);
+    }
+
+    /**
      * @param fundTransaction fundTransaction
      * @author sichu huang
      * @date 2024/03/09
@@ -75,7 +94,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      * @date 2024/03/18
      **/
     @Override
-    public void insertFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction) {
+    public void insertFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction) throws ParseException {
         fundPurchaseTransactionMapper.insertFundPurchaseTransaction(purchaseTransaction);
         /* 插入交易表后, 插入总表 */
         FundTransaction fundTransaction = new FundTransaction();
@@ -92,6 +111,13 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         fundTransaction.setStatus(purchaseTransaction.getStatus());
         fundTransaction.setType(FundTransactionType.PURCHASE.getCode());
         insertFundTransaction(fundTransaction);
+        /* 更新持仓表 */
+        if (Objects.equals(purchaseTransaction.getStatus(), FundTransactionStatus.HELD.getCode())) {
+            List<FundPurchaseTransaction> purchaseTransactions =
+                selectAllFundPurchaseTransactionsByStatus(FundTransactionStatus.HELD.getCode());
+            fundPositionService.insertFundPosition(purchaseTransactions);
+        }
+        fundPositionService.updateHeldDaysAndUpdateDateForFundPosition(purchaseTransaction);
     }
 
     /**
@@ -107,6 +133,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     @Override
     public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, BigDecimal amount,
         String tradingPlatform) throws IOException, ParseException {
+        Date currentDate = new Date();
         FundPurchaseTransaction transaction = new FundPurchaseTransaction();
         /* set code, applicationDate, amount, type, tradingPlatform */
         transaction.setCode(code);
@@ -127,7 +154,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             Date settlementDate = TransactionDayUtil.getNextNTransactionDate(transactionDate, n);
             transaction.setSettlementDate(settlementDate);
             /* set status */
-            if (new Date().getTime() < settlementDate.getTime()) {
+            if (currentDate.getTime() < settlementDate.getTime()) {
                 transaction.setStatus(FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode());
             } else {
                 transaction.setStatus(FundTransactionStatus.HELD.getCode());
@@ -158,6 +185,41 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         }
         /* set nav, share */
         String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
+        while (navStr == null || navStr.equals("")) {
+            List<FundHistoryNav> fundHistoryNavs = fundHistoryNavService.selectLastFundHistoryNavDateByConditions(code);
+            Date lastNavDate = fundHistoryNavs.get(0).getNavDate();
+            String callback = fundHistoryNavService.selectCallbackByCode(code);
+            /* 更新净值表后再查表 */
+            if (transaction.getTransactionDate().getTime() > lastNavDate.getTime()) {
+                fundHistoryNavService.insertFundHistoryNavInformation(code, DateUtil.dateToStr(lastNavDate),
+                    DateUtil.dateToStr(transactionDate), callback);
+                navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
+                break;
+            } else {
+                int tryCount = 4;
+                for (int i = 0; i < tryCount; i++) {
+                    if (i == 0) {
+                        Date date = TransactionDayUtil.getLastNTransactionDate(lastNavDate, 3);
+                        fundHistoryNavService.insertFundHistoryNavInformation(code, DateUtil.dateToStr(date),
+                            DateUtil.dateToStr(transactionDate), callback);
+                        navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
+                    } else if (i == 1) {
+                        Date date = TransactionDayUtil.getLastNTransactionDate(lastNavDate, 7);
+                        fundHistoryNavService.insertFundHistoryNavInformation(code, DateUtil.dateToStr(date),
+                            DateUtil.dateToStr(transactionDate), callback);
+                        navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
+                    } else if (i == 2) {
+                        Date date = TransactionDayUtil.getLastNTransactionDate(lastNavDate, 30);
+                        fundHistoryNavService.insertFundHistoryNavInformation(code, DateUtil.dateToStr(date),
+                            DateUtil.dateToStr(transactionDate), callback);
+                        navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
+                    } else {
+                        Logger logger = LoggerFactory.getLogger(FundTransactionServiceImpl.class);
+                        logger.info("==========需要手动初始化: insertFundHistoryNavInformation==========");
+                    }
+                }
+            }
+        }
         if (navStr != null && !navStr.equals("")) {
             transaction.setNav(new BigDecimal(navStr));
             transaction.setShare(FinancialCalculationUtil.calculateShare(amount, transaction.getFee(), navStr));

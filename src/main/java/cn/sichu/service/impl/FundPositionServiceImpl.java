@@ -2,17 +2,19 @@ package cn.sichu.service.impl;
 
 import cn.sichu.entity.FundPosition;
 import cn.sichu.entity.FundPurchaseTransaction;
-import cn.sichu.enums.FundTransactionStatus;
 import cn.sichu.mapper.FundPositionMapper;
 import cn.sichu.service.IFundPositionService;
+import cn.sichu.utils.DateUtil;
 import cn.sichu.utils.TransactionDayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author sichu huang
@@ -22,22 +24,16 @@ import java.util.*;
 public class FundPositionServiceImpl implements IFundPositionService {
     @Autowired
     FundPositionMapper fundPositionMapper;
-    @Autowired
-    FundTransactionServiceImpl fundTransactionService;
 
     /**
+     * @param purchaseTransactions purchaseTransactions
      * @author sichu huang
-     * @date 2024/03/17
+     * @date 2024/03/19
      **/
     @Override
-    public void insertFundPosition() throws ParseException {
-        List<FundPurchaseTransaction> purchaseTransactions = fundTransactionService.selectAllFundPurchaseTransactions();
+    public void insertFundPosition(List<FundPurchaseTransaction> purchaseTransactions) throws ParseException {
         Map<String, FundPosition> map = new HashMap<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (FundPurchaseTransaction transaction : purchaseTransactions) {
-            if (!Objects.equals(transaction.getStatus(), FundTransactionStatus.HELD.getCode())) {
-                continue;
-            }
             String code = transaction.getCode();
             FundPosition fundPosition = map.get(code);
             if (fundPosition == null) {
@@ -62,7 +58,7 @@ public class FundPositionServiceImpl implements IFundPositionService {
             Date currentDate = new Date();
             long heldDays = TransactionDayUtil.getHeldDays(currentDate, transaction.getTransactionDate());
             fundPosition.setHeldDays((int)heldDays);
-            fundPosition.setUpdateDate(sdf.parse(sdf.format(currentDate)));
+            fundPosition.setUpdateDate(DateUtil.formatDate(currentDate));
             map.put(code, fundPosition);
             fundPositionMapper.insertFundPosition(fundPosition);
 
@@ -76,6 +72,28 @@ public class FundPositionServiceImpl implements IFundPositionService {
             //     fundPositionMapper.insertFundPosition(fundPosition);
             //     --settledDays;
             // }
+        }
+    }
+
+    /**
+     * @param purchaseTransaction purchaseTransaction
+     * @author sichu huang
+     * @date 2024/03/19
+     **/
+    @Override
+    public void updateHeldDaysAndUpdateDateForFundPosition(FundPurchaseTransaction purchaseTransaction)
+        throws ParseException {
+        String code = purchaseTransaction.getCode();
+        List<FundPosition> fundPositions = fundPositionMapper.selectAllFundPositionByCode(code);
+        if (fundPositions.isEmpty()) {
+            return;
+        }
+        Date currentDate = new Date();
+        for (FundPosition fundPosition : fundPositions) {
+            long heldDays = TransactionDayUtil.getHeldDays(currentDate, fundPosition.getTransactionDate());
+            fundPosition.setHeldDays((int)heldDays);
+            fundPosition.setUpdateDate(DateUtil.formatDate(currentDate));
+            fundPositionMapper.updateHeldDaysAndUpdateDateForFundPosition(fundPosition);
         }
     }
 }

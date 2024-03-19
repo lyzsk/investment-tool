@@ -20,4 +20,7 @@ public interface FundPurchaseTransactionMapper {
 
     public void updateStatusForFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
 
+    List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByConditions(String code, Integer status);
+
+    List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByStatus(Integer status);
 }

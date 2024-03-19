@@ -14,4 +14,6 @@ public interface FundHistoryNavMapper {
     public void insertFundHistoryNavInformation(FundHistoryNav fundHistoryNav);
 
     public List<FundHistoryNav> selectFundHistoryNavByConditions(FundHistoryNav fundHistoryNav);
+
+    public List<FundHistoryNav> selectLastFundHistoryNavDateByConditions(FundHistoryNav fundHistoryNav);
 }
