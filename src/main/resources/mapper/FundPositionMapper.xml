@@ -23,6 +23,23 @@
         where code = #{code}
     </select>
 
+    <select id="selectLastFunPositionByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select code, total_amount, total_purchase_fee, held_share
+        from (
+        select code, total_amount, total_purchase_fee, held_share,
+        row_number() over (partition by code order by held_share desc) as rn
+        from fund_position
+        where code = #{code}
+        ) tmp
+        where rn = 1
+    </select>
+
+    <select id="selectallFundPosition" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days,
+        update_date
+        from fund_position
+    </select>
+
     <insert id="insertFundPosition" useGeneratedKeys="true" keyProperty="id">
         insert into fund_position
         (code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date)

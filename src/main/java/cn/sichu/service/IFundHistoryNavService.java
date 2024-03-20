@@ -14,24 +14,33 @@ import java.util.List;
 public interface IFundHistoryNavService {
 
     /**
-     * @param code
-     * @param startDate
-     * @param endDate
-     * @param callback
+     * @param code      code
+     * @param startDate startDate
+     * @param endDate   endDate
+     * @param callback  callback
      * @author sichu huang
      * @date 2024/03/11
      **/
-    public void insertFundHistoryNavInformation(String code, String startDate, String endDate, String callback)
+    void insertFundHistoryNavInformation(String code, String startDate, String endDate, String callback)
         throws ParseException, IOException;
 
     /**
-     * @param code
-     * @param date
+     * @param code code
+     * @param date date
      * @return java.lang.String
      * @author sichu huang
      * @date 2024/03/13
      **/
-    public String selectFundHistoryNavByConditions(String code, String date) throws ParseException;
+    String selectFundHistoryNavByConditions(String code, String date) throws ParseException;
+
+    /**
+     * @param code code
+     * @param date date
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/16
+     **/
+    String selectFundHistoryNavByConditions(String code, Date date);
 
     /**
      * @param code code
@@ -39,16 +48,7 @@ public interface IFundHistoryNavService {
      * @author sichu huang
      * @date 2024/03/19
      **/
-    public List<FundHistoryNav> selectLastFundHistoryNavDateByConditions(String code);
-
-    /**
-     * @param code
-     * @param date
-     * @return java.lang.String
-     * @author sichu huang
-     * @date 2024/03/16
-     **/
-    public String selectFundHistoryNavByConditions(String code, Date date);
+    List<FundHistoryNav> selectLastFundHistoryNavDateByConditions(String code);
 
     /**
      * @param code code
@@ -56,5 +56,12 @@ public interface IFundHistoryNavService {
      * @author sichu huang
      * @date 2024/03/18
      **/
-    public String selectCallbackByCode(String code);
+    String selectCallbackByCode(String code);
+
+    /**
+     * @param date date
+     * @author sichu huang
+     * @date 2024/03/20
+     **/
+    void updateHistoryNavByDate(Date date) throws ParseException, IOException;
 }

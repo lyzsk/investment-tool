@@ -5,13 +5,13 @@ import cn.sichu.entity.FundHistoryNav;
 import cn.sichu.mapper.FundEastmoneyJjjzMapper;
 import cn.sichu.mapper.FundHistoryNavMapper;
 import cn.sichu.service.IFundHistoryNavService;
+import cn.sichu.utils.DateUtil;
 import cn.sichu.utils.ScrapingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -31,10 +31,10 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     /**
      * 插入历史净值, 如果净值日期在表中已存在不会重复插入
      *
-     * @param code
-     * @param startDate
-     * @param endDate
-     * @param callback
+     * @param code      code
+     * @param startDate startDate
+     * @param endDate   endDate
+     * @param callback  callback
      * @author sichu huang
      * @date 2024/03/11
      **/
@@ -42,10 +42,8 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     public void insertFundHistoryNavInformation(String code, String startDate, String endDate, String callback)
         throws ParseException, IOException {
         Map<String, String> map = ScrapingUtil.getDailyNavMapBetweenDates(code, startDate, endDate, callback);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (Map.Entry<String, String> entry : map.entrySet()) {
-            String navDateStr = entry.getKey();
-            java.sql.Date navDate = new java.sql.Date(sdf.parse(navDateStr).getTime());
+            Date navDate = DateUtil.strToDate(entry.getKey());
             String nav = entry.getValue();
             FundHistoryNav fundHistoryNav = new FundHistoryNav();
             fundHistoryNav.setCode(code);
@@ -56,28 +54,41 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     }
 
     /**
-     * @param code
-     * @param date
+     * @param code code
+     * @param date date
      * @return java.lang.String
      * @author sichu huang
      * @date 2024/03/13
      **/
     @Override
     public String selectFundHistoryNavByConditions(String code, String date) throws ParseException {
-        String nav = "";
         FundHistoryNav fundHistoryNav = new FundHistoryNav();
         fundHistoryNav.setCode(code);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date parsedDate = sdf.parse(date);
-        fundHistoryNav.setNavDate(parsedDate);
+        fundHistoryNav.setNavDate(DateUtil.strToDate(date));
         List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(fundHistoryNav);
-        for (FundHistoryNav historyNav : fundHistoryNavs) {
-            if (isSameDate(historyNav.getNavDate(), parsedDate)) {
-                nav = historyNav.getNav();
-                return nav;
-            }
+        if (fundHistoryNavs.isEmpty()) {
+            return "";
         }
-        return "";
+        return fundHistoryNavs.get(0).getNav();
+    }
+
+    /**
+     * @param code code
+     * @param date date
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/03/16
+     **/
+    @Override
+    public String selectFundHistoryNavByConditions(String code, Date date) {
+        FundHistoryNav fundHistoryNav = new FundHistoryNav();
+        fundHistoryNav.setCode(code);
+        fundHistoryNav.setNavDate(date);
+        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(fundHistoryNav);
+        if (fundHistoryNavs.isEmpty()) {
+            return "";
+        }
+        return fundHistoryNavs.get(0).getNav();
     }
 
     /**
@@ -94,29 +105,6 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     }
 
     /**
-     * @param code
-     * @param date
-     * @return java.lang.String
-     * @author sichu huang
-     * @date 2024/03/16
-     **/
-    @Override
-    public String selectFundHistoryNavByConditions(String code, Date date) {
-        String nav;
-        FundHistoryNav fundHistoryNav = new FundHistoryNav();
-        fundHistoryNav.setCode(code);
-        fundHistoryNav.setNavDate(date);
-        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(fundHistoryNav);
-        for (FundHistoryNav historyNav : fundHistoryNavs) {
-            if (isSameDate(historyNav.getNavDate(), date)) {
-                nav = historyNav.getNav();
-                return nav;
-            }
-        }
-        return "";
-    }
-
-    /**
      * @param code code
      * @return java.lang.String
      * @author sichu huang
@@ -128,6 +116,25 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         return list.get(0).getCallback();
     }
 
+    /**
+     * @param date date
+     * @author sichu huang
+     * @date 2024/03/20
+     **/
+    @Override
+    public void updateHistoryNavByDate(Date date) throws ParseException, IOException {
+        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectLastFundHistoryNavDates();
+        for (FundHistoryNav fundHistoryNav : fundHistoryNavs) {
+            String code = fundHistoryNav.getCode();
+            String callback = selectCallbackByCode(code);
+            Date lastNavDate = fundHistoryNav.getNavDate();
+            if (date.getTime() >= lastNavDate.getTime()) {
+                insertFundHistoryNavInformation(code, DateUtil.dateToStr(lastNavDate), DateUtil.dateToStr(date),
+                    callback);
+            }
+        }
+    }
+
     private boolean isSameDate(Date dbDate, Date date) {
         Calendar cal1 = Calendar.getInstance();
         cal1.setTime(dbDate);
@@ -136,4 +143,5 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.MONTH) == cal2.get(
             Calendar.MONTH) && cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH);
     }
+
 }

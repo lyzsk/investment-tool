@@ -17,4 +17,8 @@ public interface FundPositionMapper {
     void insertFundPosition(FundPosition fundPosition);
 
     void updateHeldDaysAndUpdateDateForFundPosition(FundPosition fundPosition);
+
+    List<FundPosition> selectLastFunPositionByCode(String code);
+
+    List<FundPosition> selectallFundPosition();
 }
