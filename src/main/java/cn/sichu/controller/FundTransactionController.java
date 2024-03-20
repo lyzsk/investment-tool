@@ -4,6 +4,7 @@ import cn.sichu.service.IFundHistoryNavService;
 import cn.sichu.service.IFundTransactionService;
 import cn.sichu.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,6 +35,7 @@ public class FundTransactionController {
             new BigDecimal(amount), tradingPlatform);
     }
 
+    @Scheduled(cron = "0 0 20-23 * * *")
     @PostMapping("/update-nav-and-share")
     public void updateNavAndShare() throws ParseException, IOException {
         Date date = new Date();
@@ -41,6 +43,7 @@ public class FundTransactionController {
         fundTransactionService.updateNavAndShareForFundPurchaseTransaction(date);
     }
 
+    @Scheduled(cron = "0 0 0 * * *")
     @PostMapping("/update-status")
     public void updateStatusForTrabsactionInTransit() throws ParseException {
         Date date = new Date();
