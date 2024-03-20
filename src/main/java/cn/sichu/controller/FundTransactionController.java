@@ -1,7 +1,6 @@
 package cn.sichu.controller;
 
 import cn.sichu.service.IFundHistoryNavService;
-import cn.sichu.service.IFundPositionService;
 import cn.sichu.service.IFundTransactionService;
 import cn.sichu.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +25,35 @@ public class FundTransactionController {
     IFundTransactionService fundTransactionService;
     @Autowired
     IFundHistoryNavService fundHistoryNavService;
-    @Autowired
-    IFundPositionService fundPositionService;
 
     @PostMapping("/purchase")
     public void purchaseFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
         @RequestParam("amount") String amount, @RequestParam("tradingPlatform") String tradingPlatform)
         throws ParseException, IOException {
-        Date date = DateUtil.strToDate(applicationDate);
-        fundTransactionService.insertFundPurchaseTransactionByConditions(code, date, new BigDecimal(amount),
-            tradingPlatform);
+        fundTransactionService.insertFundPurchaseTransactionByConditions(code, DateUtil.strToDate(applicationDate),
+            new BigDecimal(amount), tradingPlatform);
     }
+
+    @PostMapping("/update-nav-and-share")
+    public void updateNavAndShare() throws ParseException, IOException {
+        Date date = new Date();
+        fundHistoryNavService.updateHistoryNavByDate(date);
+        fundTransactionService.updateNavAndShareForFundPurchaseTransaction(date);
+    }
+
+    @PostMapping("/update-status")
+    public void updateStatusForTrabsactionInTransit() throws ParseException {
+        Date date = new Date();
+        fundTransactionService.updateStatusForTransactionInTransit(date);
+        fundTransactionService.updateHeldDaysAndUpdateDateForFundPosition(date);
+    }
+
+    // @PostMapping("/redemption")
+    // public void redemptionFund(@RequestParam("code") String code,
+    //     @RequestParam("applicationDate") String applicationDate, @RequestParam("share") String share,
+    //     @RequestParam("tradingPlatform") String tradingPlatform) {
+    //     fundTransactionService.insertFunRedemptionTransactionByConditions(code, DateUtil.strToDate(applicationDate),
+    //         new BigDecimal(share), tradingPlatform);
+    // }
+
 }

@@ -11,7 +11,7 @@
     </resultMap>
 
     <insert id="insertFundHistoryNavInformation" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO fund_history_nav
+        insert into fund_history_nav
         (code, nav_date, nav)
         select #{code}, #{navDate}, #{nav}
         from dual
@@ -31,6 +31,7 @@
         </where>
         order by nav_date desc
     </select>
+
     <select id="selectLastFundHistoryNavDateByConditions" resultType="cn.sichu.entity.FundHistoryNav"
             resultMap="resultMap">
         select code, nav_date, nav
@@ -42,5 +43,17 @@
         limit 1
     </select>
 
+    <select id="selectLastFundHistoryNavDates" resultType="cn.sichu.entity.FundHistoryNav" resultMap="resultMap">
+        select t1.code, t2.nav_date, t1.nav
+        from fund_history_nav t1
+        inner join
+        (
+        select code, max(nav_date) as nav_date
+        from fund_history_nav
+        group by code
+        order by nav_date
+        ) t2
+        on t1.code = t2.code and t1.nav_date = t2.nav_date
+    </select>
 
 </mapper>

@@ -1,7 +1,6 @@
 package cn.sichu.controller;
 
 import cn.sichu.service.IFundHistoryNavService;
-import cn.sichu.service.IFundPositionService;
 import cn.sichu.service.IFundTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +17,6 @@ public class TestController {
     IFundTransactionService fundTransactionService;
     @Autowired
     IFundHistoryNavService fundHistoryNavService;
-    @Autowired
-    IFundPositionService fundPositionService;
 
     // @GetMapping("/01")
     // public void test01() {

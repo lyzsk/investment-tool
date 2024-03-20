@@ -68,7 +68,7 @@ public class ScrapingUtil {
         String referer = urlPrefix + code + urlSuffix;
         int pageIndex = 1;
         int pageSize = 20;
-        int totalCount = 0;
+        int totalCount;
         Map<String, String> map = new HashMap<>();
         do {
             String url = "https://api.fund.eastmoney.com/f10/lsjz?callback=jQuery" + callback + "&fundCode=" + code

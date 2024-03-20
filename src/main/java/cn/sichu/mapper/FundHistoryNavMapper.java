@@ -11,9 +11,11 @@ import java.util.List;
  **/
 @Mapper
 public interface FundHistoryNavMapper {
-    public void insertFundHistoryNavInformation(FundHistoryNav fundHistoryNav);
+    void insertFundHistoryNavInformation(FundHistoryNav fundHistoryNav);
 
-    public List<FundHistoryNav> selectFundHistoryNavByConditions(FundHistoryNav fundHistoryNav);
+    List<FundHistoryNav> selectFundHistoryNavByConditions(FundHistoryNav fundHistoryNav);
 
-    public List<FundHistoryNav> selectLastFundHistoryNavDateByConditions(FundHistoryNav fundHistoryNav);
+    List<FundHistoryNav> selectLastFundHistoryNavDateByConditions(FundHistoryNav fundHistoryNav);
+
+    List<FundHistoryNav> selectLastFundHistoryNavDates();
 }
