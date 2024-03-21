@@ -43,42 +43,26 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     FundPositionMapper fundPositionMapper;
 
     /**
-     * @param fundTransaction fundTransaction
+     * @param fundPurchaseTransaction fundPurchaseTransaction
      * @author sichu huang
-     * @date 2024/03/09
+     * @date 2024/03/21
      **/
     @Override
-    public void insertFundTransaction(FundTransaction fundTransaction) {
-        fundTransactionMapper.insertFundTransaction(fundTransaction);
-    }
-
-    /**
-     * @param purchaseTransaction purchaseTransaction
-     * @author sichu huang
-     * @date 2024/03/18
-     **/
-    @Override
-    public void insertFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction) throws ParseException {
-        /* 插入交易表后, 插入总表 */
+    public void insertFundTransactionByFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction) {
         FundTransaction fundTransaction = new FundTransaction();
-        fundTransaction.setCode(purchaseTransaction.getCode());
-        fundTransaction.setApplicationDate(purchaseTransaction.getApplicationDate());
-        fundTransaction.setTransactionDate(purchaseTransaction.getTransactionDate());
-        fundTransaction.setConfirmationDate(purchaseTransaction.getConfirmationDate());
-        fundTransaction.setSettlementDate(purchaseTransaction.getSettlementDate());
-        fundTransaction.setAmount(purchaseTransaction.getAmount());
-        fundTransaction.setFee(purchaseTransaction.getFee());
-        fundTransaction.setNav(purchaseTransaction.getNav());
-        fundTransaction.setShare(purchaseTransaction.getShare());
-        fundTransaction.setTradingPlatform(purchaseTransaction.getTradingPlatform());
-        fundTransaction.setStatus(purchaseTransaction.getStatus());
+        fundTransaction.setCode(fundPurchaseTransaction.getCode());
+        fundTransaction.setApplicationDate(fundPurchaseTransaction.getApplicationDate());
+        fundTransaction.setTransactionDate(fundPurchaseTransaction.getTransactionDate());
+        fundTransaction.setConfirmationDate(fundPurchaseTransaction.getConfirmationDate());
+        fundTransaction.setSettlementDate(fundPurchaseTransaction.getSettlementDate());
+        fundTransaction.setAmount(fundPurchaseTransaction.getAmount());
+        fundTransaction.setFee(fundPurchaseTransaction.getFee());
+        fundTransaction.setNav(fundPurchaseTransaction.getNav());
+        fundTransaction.setShare(fundPurchaseTransaction.getShare());
+        fundTransaction.setTradingPlatform(fundPurchaseTransaction.getTradingPlatform());
+        fundTransaction.setStatus(fundPurchaseTransaction.getStatus());
         fundTransaction.setType(FundTransactionType.PURCHASE.getCode());
-        insertFundTransaction(fundTransaction);
-        /* 更新持仓表 */
-        if (Objects.equals(purchaseTransaction.getStatus(), FundTransactionStatus.HELD.getCode())) {
-            insertFundPositionByFundPurchaseTransaction(purchaseTransaction);
-        }
-        updateHeldDaysAndUpdateDateForFundPosition(purchaseTransaction);
+        fundTransactionMapper.insertFundTransaction(fundTransaction);
     }
 
     /**
@@ -152,7 +136,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             String callback = fundHistoryNavService.selectCallbackByCode(code);
             /* 更新净值表后再查表 */
             if (transaction.getTransactionDate().getTime() >= lastNavDate.getTime()) {
-                fundHistoryNavService.insertFundHistoryNavInformation(code, DateUtil.dateToStr(lastNavDate),
+                fundHistoryNavService.insertFundHistoryNav(code, DateUtil.dateToStr(lastNavDate),
                     DateUtil.dateToStr(transactionDate), callback);
                 navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
                 break;
@@ -173,7 +157,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                             continue; // Skip the rest of the loop body and continue with the next iteration
                         }
                     }
-                    fundHistoryNavService.insertFundHistoryNavInformation(code, DateUtil.dateToStr(date),
+                    fundHistoryNavService.insertFundHistoryNav(code, DateUtil.dateToStr(date),
                         DateUtil.dateToStr(transactionDate), callback);
                     navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
                 }
@@ -184,8 +168,14 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             transaction.setShare(FinancialCalculationUtil.calculateShare(amount, transaction.getFee(), navStr));
         }
 
+        /* insert fund_purchase_transaction table */
         fundPurchaseTransactionMapper.insertFundPurchaseTransaction(transaction);
-        insertFundPurchaseTransaction(transaction);
+        /* insert fund_transaction table */
+        insertFundTransactionByFundPurchaseTransaction(transaction);
+        /* insert fund_position table */
+        if (Objects.equals(transaction.getStatus(), FundTransactionStatus.HELD.getCode())) {
+            insertFundPositionByFundPurchaseTransaction(transaction);
+        }
     }
 
     /**
@@ -201,21 +191,45 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         fundPosition.setCode(code);
         fundPosition.setTransactionDate(purchaseTransaction.getTransactionDate());
         fundPosition.setInitiationDate(purchaseTransaction.getSettlementDate());
-        List<FundPosition> prevPosition = fundPositionMapper.selectLastFunPositionByCode(code);
-        if (prevPosition.isEmpty()) {
-            fundPosition.setTotalAmount(purchaseTransaction.getAmount());
-            fundPosition.setTotalPurchaseFee(purchaseTransaction.getFee());
-            fundPosition.setHeldShare(purchaseTransaction.getShare());
-        } else {
-            fundPosition.setTotalAmount(prevPosition.get(0).getTotalAmount().add(purchaseTransaction.getAmount()));
-            fundPosition.setTotalPurchaseFee(
-                prevPosition.get(0).getTotalPurchaseFee().add(purchaseTransaction.getFee()));
-            fundPosition.setHeldShare(prevPosition.get(0).getHeldShare().add(purchaseTransaction.getShare()));
-        }
         Date currentDate = new Date();
         long heldDays = TransactionDayUtil.getHeldDays(currentDate, purchaseTransaction.getTransactionDate());
         fundPosition.setHeldDays((int)heldDays);
         fundPosition.setUpdateDate(DateUtil.formatDate(currentDate));
+        // 获取按交易日期排序的持仓数据
+        List<FundPosition> fundPositions = fundPositionMapper.selectAllFundPositionByCodeOrderByTransactionDate(code);
+        // 标志变量，用于指示是否已执行插入操作
+        // TODO: 正着插, 反着插都没问题, 往中间插和同一天插有BUG
+        // 遍历持仓数据
+        for (FundPosition position : fundPositions) {
+            if (purchaseTransaction.getTransactionDate().before(position.getTransactionDate())) {
+                // 如果新数据日期早于持仓日期，插入新数据并更新之后的数据
+                fundPosition.setTotalAmount(purchaseTransaction.getAmount());
+                fundPosition.setTotalPurchaseFee(purchaseTransaction.getFee());
+                fundPosition.setHeldShare(purchaseTransaction.getShare());
+                fundPositionMapper.insertFundPosition(fundPosition);
+                // 更新之后的数据
+                List<FundPosition> temps =
+                    fundPositionMapper.selectFundPositionByCodeAndAfterTransactionDate(fundPosition);
+                for (FundPosition temp : temps) {
+                    temp.setTotalAmount(temp.getTotalAmount().add(purchaseTransaction.getAmount()));
+                    temp.setTotalPurchaseFee(temp.getTotalPurchaseFee().add(purchaseTransaction.getFee()));
+                    temp.setHeldShare(temp.getHeldShare().add(purchaseTransaction.getShare()));
+                    fundPositionMapper.updateTotalAmountAndTotalPurchaseFeeAndHeldShareForFundPosition(temp);
+                }
+                return;
+            }
+        }
+        // 如果新数据日期晚于所有持仓日期或没有持仓数据，插入新数据并以最后一个持仓数据的值累加计算
+        if (!fundPositions.isEmpty()) {
+            FundPosition lastPosition = fundPositionMapper.selectLastFunPositionByCode(code).get(0);
+            fundPosition.setTotalAmount(lastPosition.getTotalAmount().add(purchaseTransaction.getAmount()));
+            fundPosition.setTotalPurchaseFee(lastPosition.getTotalPurchaseFee().add(purchaseTransaction.getFee()));
+            fundPosition.setHeldShare(lastPosition.getHeldShare().add(purchaseTransaction.getShare()));
+        } else {
+            fundPosition.setTotalAmount(purchaseTransaction.getAmount());
+            fundPosition.setTotalPurchaseFee(purchaseTransaction.getFee());
+            fundPosition.setHeldShare(purchaseTransaction.getShare());
+        }
         fundPositionMapper.insertFundPosition(fundPosition);
     }
 
@@ -230,46 +244,14 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     }
 
     /**
-     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
-     * @author sichu huang
-     * @date 2024/03/17
-     **/
-    @Override
-    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactions() {
-        return fundPurchaseTransactionMapper.selectAllFundPurchaseTransactions();
-    }
-
-    /**
-     * @param code   code
-     * @param status status
-     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
-     * @author sichu huang
-     * @date 2024/03/19
-     **/
-    @Override
-    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByConditions(String code, Integer status) {
-        return fundPurchaseTransactionMapper.selectAllFundPurchaseTransactionsByConditions(code, status);
-    }
-
-    @Override
-    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByStatus(Integer status) {
-        return fundPurchaseTransactionMapper.selectAllFundPurchaseTransactionsByStatus(status);
-    }
-
-    /**
-     * TODO: 完善逻辑
-     *
-     * @param date date
      * @author sichu huang
      * @date 2024/03/16
      **/
     @Override
-    public void updateNavAndShareForFundPurchaseTransaction(Date date) {
-        List<FundPurchaseTransaction> transactions = fundPurchaseTransactionMapper.selectAllFundPurchaseTransactions();
+    public void updateNavAndShareForFundPurchaseTransaction() {
+        List<FundPurchaseTransaction> transactions =
+            fundPurchaseTransactionMapper.selectAllFundPuchaseTransactionWithNullNavAndShare();
         for (FundPurchaseTransaction transaction : transactions) {
-            if (date.getTime() < transaction.getSettlementDate().getTime()) {
-                continue;
-            }
             if (transaction.getNav() == null || transaction.getShare() == null) {
                 String code = transaction.getCode();
                 String navStr =
@@ -281,26 +263,20 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                     transaction.setNav(new BigDecimal(navStr));
                     transaction.setShare(share);
                     fundPurchaseTransactionMapper.updateNavAndShareForFundPurchaseTransaction(transaction);
-                    updateNavAndShareForFundTransaction(date);
+                    updateNavAndShareForFundTransaction();
                 }
             }
         }
     }
 
     /**
-     * TODO: 完善逻辑
-     *
-     * @param date date
      * @author sichu huang
      * @date 2024/03/18
      **/
     @Override
-    public void updateNavAndShareForFundTransaction(Date date) {
-        List<FundTransaction> transactions = fundTransactionMapper.selectPurchaseTransactionsFromFundTransactions();
+    public void updateNavAndShareForFundTransaction() {
+        List<FundTransaction> transactions = fundTransactionMapper.selectAllFundTransactionWithNullNavAndShare();
         for (FundTransaction transaction : transactions) {
-            if (date.getTime() < transaction.getSettlementDate().getTime()) {
-                continue;
-            }
             if (transaction.getNav() == null || transaction.getShare() == null) {
                 String code = transaction.getCode();
                 String navStr =
@@ -320,78 +296,11 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     /**
      * @param date date
      * @author sichu huang
-     * @date 2024/03/16
-     **/
-    @Override
-    public void updateStatusForFundTransaction(Date date) {
-        List<FundTransaction> transactions = fundTransactionMapper.selectAllFundTransactions();
-        for (FundTransaction transaction : transactions) {
-            if (!Objects.equals(transaction.getType(), FundTransactionType.PURCHASE.getCode())) {
-                return;
-            }
-            Date settlementDate = transaction.getSettlementDate();
-            if (transaction.getStatus() == null) {
-                if (date.getTime() < settlementDate.getTime()) {
-                    transaction.setStatus(FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode());
-                } else {
-                    transaction.setStatus(FundTransactionStatus.HELD.getCode());
-                }
-                fundTransactionMapper.updateStatusForFundTransaction(transaction);
-            }
-        }
-    }
-
-    /**
-     * @param date date
-     * @author sichu huang
-     * @date 2024/03/18
-     **/
-    @Override
-    public void updateStatusForFundPurchaseTransaction(Date date) {
-        List<FundPurchaseTransaction> transactions = fundPurchaseTransactionMapper.selectAllFundPurchaseTransactions();
-        for (FundPurchaseTransaction transaction : transactions) {
-            Date settlementDate = transaction.getSettlementDate();
-            if (transaction.getStatus() == null) {
-                if (date.getTime() < settlementDate.getTime()) {
-                    transaction.setStatus(FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode());
-                } else {
-                    transaction.setStatus(FundTransactionStatus.HELD.getCode());
-                }
-                fundPurchaseTransactionMapper.updateStatusForFundPurchaseTransaction(transaction);
-            }
-        }
-    }
-
-    /**
-     * @param purchaseTransaction purchaseTransaction
-     * @author sichu huang
-     * @date 2024/03/19
-     **/
-    @Override
-    public void updateHeldDaysAndUpdateDateForFundPosition(FundPurchaseTransaction purchaseTransaction)
-        throws ParseException {
-        String code = purchaseTransaction.getCode();
-        List<FundPosition> fundPositions = fundPositionMapper.selectAllFundPositionByCode(code);
-        if (fundPositions.isEmpty()) {
-            return;
-        }
-        Date currentDate = new Date();
-        for (FundPosition fundPosition : fundPositions) {
-            long heldDays = TransactionDayUtil.getHeldDays(currentDate, fundPosition.getTransactionDate());
-            fundPosition.setHeldDays((int)heldDays);
-            fundPosition.setUpdateDate(DateUtil.formatDate(currentDate));
-            fundPositionMapper.updateHeldDaysAndUpdateDateForFundPosition(fundPosition);
-        }
-    }
-
-    /**
-     * @param date date
-     * @author sichu huang
      * @date 2024/03/20
      **/
     @Override
     public void updateHeldDaysAndUpdateDateForFundPosition(Date date) throws ParseException {
-        List<FundPosition> fundPositions = fundPositionMapper.selectallFundPosition();
+        List<FundPosition> fundPositions = fundPositionMapper.selectAllFundPosition();
         for (FundPosition fundPosition : fundPositions) {
             long heldDays = TransactionDayUtil.getHeldDays(date, fundPosition.getTransactionDate());
             fundPosition.setHeldDays((int)heldDays);
@@ -414,9 +323,10 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         for (FundPurchaseTransaction transaction : fundPurchaseTransactions) {
             if (date.getTime() >= transaction.getSettlementDate().getTime()) {
                 transaction.setStatus(FundTransactionStatus.HELD.getCode());
+                /* insert new held transaction into fund_position table */
                 insertFundPositionByFundPurchaseTransaction(transaction);
+                fundPurchaseTransactionMapper.updateStatusForFundPurchaseTransaction(transaction);
             }
-            fundPurchaseTransactionMapper.updateStatusForFundPurchaseTransaction(transaction);
         }
         // TODO: update table fund_redemption_transaction
         /* update table fund_transaction */
@@ -425,12 +335,13 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             if (date.getTime() >= transaction.getSettlementDate().getTime()) {
                 if (Objects.equals(transaction.getStatus(), FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode())) {
                     transaction.setStatus(FundTransactionStatus.HELD.getCode());
+                    fundTransactionMapper.updateStatusForFundTransaction(transaction);
                 }
                 if (Objects.equals(transaction.getStatus(), FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode())) {
                     transaction.setStatus(FundTransactionStatus.REDEEMED.getCode());
+                    fundTransactionMapper.updateStatusForFundTransaction(transaction);
                 }
             }
-            fundTransactionMapper.updateStatusForFundTransaction(transaction);
         }
     }
 }

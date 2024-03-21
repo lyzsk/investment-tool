@@ -16,18 +16,11 @@ import java.util.List;
 public interface IFundTransactionService {
 
     /**
-     * @param fundTransaction fundTransaction
+     * @param fundPurchaseTransaction fundPurchaseTransaction
      * @author sichu huang
-     * @date 2024/03/09
+     * @date 2024/03/21
      **/
-    void insertFundTransaction(FundTransaction fundTransaction);
-
-    /**
-     * @param purchaseTransaction purchaseTransaction
-     * @author sichu huang
-     * @date 2024/03/18
-     **/
-    void insertFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction) throws ParseException;
+    void insertFundTransactionByFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
 
     /**
      * @param code            code
@@ -55,63 +48,16 @@ public interface IFundTransactionService {
     List<FundTransaction> selectAllFundTransactions();
 
     /**
-     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
-     * @author sichu huang
-     * @date 2024/03/17
-     **/
-    List<FundPurchaseTransaction> selectAllFundPurchaseTransactions();
-
-    /**
-     * @param code   code
-     * @param status status
-     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
-     * @author sichu huang
-     * @date 2024/03/19
-     **/
-    List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByConditions(String code, Integer status);
-
-    /**
-     * @param status status
-     * @return java.util.List<cn.sichu.entity.FundPurchaseTransaction>
-     * @author sichu huang
-     * @date 2024/03/19
-     **/
-    List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByStatus(Integer status);
-
-    /**
-     * @param date date
      * @author sichu huang
      * @date 2024/03/16
      **/
-    void updateNavAndShareForFundPurchaseTransaction(Date date);
+    void updateNavAndShareForFundPurchaseTransaction();
 
     /**
-     * @param date date
      * @author sichu huang
      * @date 2024/03/18
      **/
-    void updateNavAndShareForFundTransaction(Date date);
-
-    /**
-     * @param date date
-     * @author sichu huang
-     * @date 2024/03/16
-     **/
-    void updateStatusForFundTransaction(Date date);
-
-    /**
-     * @param date date
-     * @author sichu huang
-     * @date 2024/03/18
-     **/
-    void updateStatusForFundPurchaseTransaction(Date date);
-
-    /**
-     * @param purchaseTransaction purchaseTransaction
-     * @author sichu huang
-     * @date 2024/03/19
-     **/
-    void updateHeldDaysAndUpdateDateForFundPosition(FundPurchaseTransaction purchaseTransaction) throws ParseException;
+    void updateNavAndShareForFundTransaction();
 
     /**
      * @param date date

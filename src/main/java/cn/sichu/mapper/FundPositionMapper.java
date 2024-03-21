@@ -12,13 +12,24 @@ import java.util.List;
 @Mapper
 public interface FundPositionMapper {
 
-    List<FundPosition> selectAllFundPositionByCode(String code);
-
     void insertFundPosition(FundPosition fundPosition);
 
-    void updateHeldDaysAndUpdateDateForFundPosition(FundPosition fundPosition);
+    List<FundPosition> selectAllFundPosition();
+
+    List<FundPosition> selectAllFundPositionByCode(String code);
+
+    List<FundPosition> selectAllFundPositionByCodeOrderByTransactionDate(String code);
+
+    List<FundPosition> selectFundPositionByCodeAndAfterTransactionDate(FundPosition fundPosition);
+
+    List<FundPosition> selectFirstFundPositionByCode(String code);
 
     List<FundPosition> selectLastFunPositionByCode(String code);
 
-    List<FundPosition> selectallFundPosition();
+    List<FundPosition> selectAllFundPositionByCodeExcludeFirstOne(String code);
+
+    void updateHeldDaysAndUpdateDateForFundPosition(FundPosition fundPosition);
+
+    void updateTotalAmountAndTotalPurchaseFeeAndHeldShareForFundPosition(FundPosition fundPosition);
+
 }

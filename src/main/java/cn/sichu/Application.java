@@ -4,6 +4,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @author sichu huang
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.ComponentScan;
  **/
 // @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @SpringBootApplication
+@EnableScheduling
 @ComponentScan({"cn.sichu.*"})
 @MapperScan("cn.sichu.mapper")
 public class Application {
