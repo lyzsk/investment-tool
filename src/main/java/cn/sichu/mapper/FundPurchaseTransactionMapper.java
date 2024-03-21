@@ -12,15 +12,14 @@ import java.util.List;
 @Mapper
 public interface FundPurchaseTransactionMapper {
 
-    public List<FundPurchaseTransaction> selectAllFundPurchaseTransactions();
-
-    public void insertFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
-
-    public void updateNavAndShareForFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
-
-    public void updateStatusForFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
-
-    List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByConditions(String code, Integer status);
+    void insertFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
 
     List<FundPurchaseTransaction> selectAllFundPurchaseTransactionsByStatus(Integer status);
+
+    List<FundPurchaseTransaction> selectAllFundPuchaseTransactionWithNullNavAndShare();
+
+    void updateStatusForFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
+
+    void updateNavAndShareForFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
+
 }

@@ -35,20 +35,20 @@ public class FundTransactionController {
             new BigDecimal(amount), tradingPlatform);
     }
 
-    @Scheduled(cron = "0 0 20-23 * * *")
-    @PostMapping("/update-nav-and-share")
-    public void updateNavAndShare() throws ParseException, IOException {
-        Date date = new Date();
-        fundHistoryNavService.updateHistoryNavByDate(date);
-        fundTransactionService.updateNavAndShareForFundPurchaseTransaction(date);
-    }
-
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 30 9 * * *")
     @PostMapping("/update-status")
     public void updateStatusForTrabsactionInTransit() throws ParseException {
         Date date = new Date();
         fundTransactionService.updateStatusForTransactionInTransit(date);
         fundTransactionService.updateHeldDaysAndUpdateDateForFundPosition(date);
+    }
+
+    @Scheduled(cron = "0 0 20-23 * * *")
+    @PostMapping("/update-nav-and-share")
+    public void updateNavAndShare() throws ParseException, IOException {
+        Date date = new Date();
+        fundHistoryNavService.updateHistoryNavByDate(date);
+        fundTransactionService.updateNavAndShareForFundPurchaseTransaction();
     }
 
     // @PostMapping("/redemption")

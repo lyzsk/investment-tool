@@ -19,24 +19,14 @@
         <result property="mark" column="mark"/>
     </resultMap>
 
-    <select id="selectAllFundPurchaseTransactions" resultType="cn.sichu.entity.FundPurchaseTransaction"
-            resultMap="resultMap">
-        select
-        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
-        trading_platform, status, mark
-        from fund_purchase_transaction
-        order by code, settlement_date
-    </select>
-
-    <select id="selectAllFundPurchaseTransactionsByConditions"
-            resultType="cn.sichu.entity.FundPurchaseTransaction" resultMap="resultMap">
-        select
-        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
-        trading_platform, status, mark
-        from fund_purchase_transaction
-        where code = #{code} and status = #{status}
-        order by code, settlement_date
-    </select>
+    <insert id="insertFundPurchaseTransaction" useGeneratedKeys="true" keyProperty="id">
+        insert into fund_purchase_transaction
+        (code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark)
+        values
+        (#{code}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate}, #{amount}, #{fee},
+        #{nav}, #{share}, #{tradingPlatform}, #{status}, #{mark})
+    </insert>
 
     <select id="selectAllFundPurchaseTransactionsByStatus"
             resultType="cn.sichu.entity.FundPurchaseTransaction" resultMap="resultMap">
@@ -48,29 +38,28 @@
         order by code, settlement_date
     </select>
 
+    <select id="selectAllFundPuchaseTransactionWithNullNavAndShare"
+            resultType="cn.sichu.entity.FundPurchaseTransaction" resultMap="resultMap">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark
+        from fund_purchase_transaction
+        where nav is null or share is null
+    </select>
 
-    <insert id="insertFundPurchaseTransaction" useGeneratedKeys="true" keyProperty="id">
-        insert into fund_purchase_transaction
-        (code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
-        trading_platform, status, mark)
-        values
-        (#{code}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate}, #{amount}, #{fee},
-        #{nav}, #{share}, #{tradingPlatform}, #{status}, #{mark})
-    </insert>
+    <update id="updateStatusForFundPurchaseTransaction">
+        update fund_purchase_transaction
+        <set>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate}
+    </update>
 
     <update id="updateNavAndShareForFundPurchaseTransaction">
         update fund_purchase_transaction
         <set>
             <if test="nav != null">nav = #{nav},</if>
             <if test="share != null">share = #{share},</if>
-        </set>
-        where code = #{code} and transaction_date = #{transactionDate}
-    </update>
-
-    <update id="updateStatusForFundPurchaseTransaction">
-        update fund_purchase_transaction
-        <set>
-            <if test="status != null">status = #{status},</if>
         </set>
         where code = #{code} and transaction_date = #{transactionDate}
     </update>

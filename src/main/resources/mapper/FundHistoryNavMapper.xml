@@ -10,7 +10,7 @@
         <result property="nav" column="nav"/>
     </resultMap>
 
-    <insert id="insertFundHistoryNavInformation" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertFundHistoryNav" useGeneratedKeys="true" keyProperty="id">
         insert into fund_history_nav
         (code, nav_date, nav)
         select #{code}, #{navDate}, #{nav}

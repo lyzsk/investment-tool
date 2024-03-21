@@ -20,6 +20,15 @@
         <result property="type" column="type"/>
     </resultMap>
 
+    <insert id="insertFundTransaction" useGeneratedKeys="true" keyProperty="id">
+        insert into fund_transaction
+        (code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav,
+        share, trading_platform, status, mark, type)
+        values
+        (#{code}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate},
+        #{amount}, #{fee}, #{nav}, #{share}, #{tradingPlatform}, #{status}, #{mark}, #{type})
+    </insert>
+
     <select id="selectAllFundTransactions" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
@@ -28,15 +37,6 @@
         order by code, transaction_date
     </select>
 
-    <select id="selectPurchaseTransactionsFromFundTransactions" resultType="cn.sichu.entity.FundTransaction"
-            resultMap="resultMap">
-        select
-        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
-        trading_platform, status, mark, type
-        from fund_transaction
-        where type = 0
-        order by code, transaction_date
-    </select>
 
     <select id="selectAllFundTransactionsInTransit" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select
@@ -46,14 +46,22 @@
         where status = 0 or status = 2
     </select>
 
-    <insert id="insertFundTransaction" useGeneratedKeys="true" keyProperty="id">
-        insert into fund_transaction
-        (code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav,
-        share, trading_platform, status, mark, type)
-        values
-        (#{code}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate},
-        #{amount}, #{fee}, #{nav}, #{share}, #{tradingPlatform}, #{status}, #{mark}, #{type})
-    </insert>
+    <select id="selectAllFundTransactionWithNullNavAndShare" resultType="cn.sichu.entity.FundTransaction"
+            resultMap="resultMap">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark, type
+        from fund_transaction
+        where nav is null or share is null
+    </select>
+
+    <update id="updateStatusForFundTransaction">
+        update fund_transaction
+        <set>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate}
+    </update>
 
     <update id="updateNavAndShareForFundTransaction">
         update fund_transaction
@@ -64,11 +72,4 @@
         where code = #{code} and transaction_date = #{transactionDate}
     </update>
 
-    <update id="updateStatusForFundTransaction">
-        update fund_transaction
-        <set>
-            <if test="status != null">status = #{status},</if>
-        </set>
-        where code = #{code} and transaction_date = #{transactionDate}
-    </update>
 </mapper>

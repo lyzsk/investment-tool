@@ -21,17 +21,8 @@ public interface IFundHistoryNavService {
      * @author sichu huang
      * @date 2024/03/11
      **/
-    void insertFundHistoryNavInformation(String code, String startDate, String endDate, String callback)
+    void insertFundHistoryNav(String code, String startDate, String endDate, String callback)
         throws ParseException, IOException;
-
-    /**
-     * @param code code
-     * @param date date
-     * @return java.lang.String
-     * @author sichu huang
-     * @date 2024/03/13
-     **/
-    String selectFundHistoryNavByConditions(String code, String date) throws ParseException;
 
     /**
      * @param code code
