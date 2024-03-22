@@ -3,8 +3,6 @@ package cn.sichu.utils;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -23,8 +21,8 @@ public class TransactionDayUtil {
      * "https://github.com/Dreace/ChinaHolidayAPI?tab=readme-ov-file"
      **/
     public static boolean isTransactionDate(Date date) throws IOException {
-        String formatedDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
-        JSONObject json = JsonUtil.readJsonFromUrl("https://holiday.dreace.top?date=" + formatedDate);
+        String dateStr = DateUtil.dateToStr(date);
+        JSONObject json = JsonUtil.readJsonFromUrl("https://holiday.dreace.top?date=" + dateStr);
         return json.get("note").equals("普通工作日");
     }
 
@@ -112,13 +110,5 @@ public class TransactionDayUtil {
             startTime = tempTime;
         }
         return heldTransactionDays;
-    }
-
-    public static void main(String[] args) throws ParseException, IOException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date date1 = sdf.parse("2024-03-08");
-        Date date2 = sdf.parse("2024-03-12");
-        System.out.println(getHeldTransactionDays(date1, date2));
-
     }
 }

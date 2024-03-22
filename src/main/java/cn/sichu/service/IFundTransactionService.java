@@ -30,15 +30,15 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/10
      **/
-    void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, BigDecimal amount,
-        String tradingPlatform) throws ParseException, IOException;
+    void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, BigDecimal amount, String tradingPlatform)
+        throws ParseException, IOException;
 
     /**
      * @param purchaseTransaction purchaseTransaction
      * @author sichu huang
      * @date 2024/03/20
      **/
-    void insertFundPositionByFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction) throws ParseException;
+    void insertFundPositionByFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction) throws ParseException, IOException;
 
     /**
      * @return java.util.List<cn.sichu.entity.FundTransaction>
@@ -71,6 +71,6 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/20
      **/
-    void updateStatusForTransactionInTransit(Date date) throws ParseException;
+    void updateStatusForTransactionInTransit(Date date) throws ParseException, IOException;
 
 }
