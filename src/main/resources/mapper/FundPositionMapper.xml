@@ -36,69 +36,76 @@
         from fund_position
     </select>
 
-    <select id="selectAllFundPositionByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
-        select
-        code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
-        from fund_position
-        where code = #{code}
-    </select>
-
-    <select id="selectAllFundPositionByCodeOrderByTransactionDate" resultType="cn.sichu.entity.FundPosition"
-            resultMap="resultMap">
-        select
-        code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
-        from fund_position
-        where code = #{code}
-        order by transaction_date asc
-    </select>
-
-    <select id="selectFundPositionByCodeAndAfterTransactionDate" resultType="cn.sichu.entity.FundPosition"
-            resultMap="resultMap">
+    <select id="selectAllFundPositionByCodeOrderByTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
         code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
         from fund_position
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
-            <if test="transactionDate != null">and transaction_date >= #{transactionDate}</if>
-            <if test="heldShare != null">and held_share != #{heldShare}</if>
         </where>
         order by transaction_date asc
     </select>
 
-    <select id="selectFirstFundPositionByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
-        select code, transaction_date, total_amount, total_purchase_fee, held_share
-        from
-        (
-        select code, transaction_date, total_amount, total_purchase_fee, held_share,
-        row_number() over (partition by code order by transaction_date asc) as rn
+    <select id="selectFundPositionByCodeAndAfterTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select
+        code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
         from fund_position
-        where code = #{code}
-        ) tmp
-        where rn = 1
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+            <if test="transactionDate != null">and transaction_date &gt; #{transactionDate}</if>
+        </where>
+        order by transaction_date asc
     </select>
 
-    <select id="selectLastFunPositionByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+    <select id="selectAllPrevFundPositionByCodeAndTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select code, total_amount, total_purchase_fee, held_share
         from (
         select code, total_amount, total_purchase_fee, held_share,
         row_number() over (partition by code order by held_share desc) as rn
         from fund_position
-        where code = #{code}
+        where code = #{code} and transaction_date &lt; #{transactionDate}
+        ) tmp
+        where rn >= 1
+    </select>
+
+    <select id="selectAllPostFundPositionByCodeAndTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select code, total_amount, total_purchase_fee, held_share
+        from (
+        select code, total_amount, total_purchase_fee, held_share,
+        row_number() over (partition by code order by held_share desc) as rn
+        from fund_position
+        where code = #{code} and transaction_date &gt; #{transactionDate}
+        ) tmp
+        where rn >= 1
+    </select>
+
+    <select id="selectLastFundPositionInDifferentDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select code, total_amount, total_purchase_fee, held_share
+        from (
+        select code, total_amount, total_purchase_fee, held_share,
+        row_number() over (partition by code order by held_share desc) as rn
+        from fund_position
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+            <if test="transactionDate != null">and transaction_date &lt; #{transactionDate}</if>
+        </where>
         ) tmp
         where rn = 1
     </select>
 
-    <select id="selectAllFundPositionByCodeExcludeFirstOne" resultType="cn.sichu.entity.FundPosition"
-            resultMap="resultMap">
-        select code, transaction_date, total_amount, total_purchase_fee, held_share
-        from
-        (
-        select code, transaction_date, total_amount, total_purchase_fee, held_share,
-        row_number() over (partition by code order by held_share asc) as rn
+    <select id="selectLastFundPositionInSameDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select code, total_amount, total_purchase_fee, held_share
+        from (
+        select code, total_amount, total_purchase_fee, held_share,
+        row_number() over (partition by code order by held_share desc) as rn
         from fund_position
-        where code = #{code}
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+            <if test="transactionDate != null">and transaction_date = #{transactionDate}
+            </if>
+        </where>
         ) tmp
-        where rn > 1
+        where rn = 1
     </select>
 
     <update id="updateHeldDaysAndUpdateDateForFundPosition">
