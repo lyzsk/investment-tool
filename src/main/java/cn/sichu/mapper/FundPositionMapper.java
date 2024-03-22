@@ -20,10 +20,6 @@ public interface FundPositionMapper {
 
     List<FundPosition> selectFundPositionByCodeAndAfterTransactionDate(FundPosition fundPosition);
 
-    List<FundPosition> selectAllPrevFundPositionByCodeAndTransactionDate(FundPosition fundPosition);
-
-    List<FundPosition> selectAllPostFundPositionByCodeAndTransactionDate(FundPosition fundPosition);
-
     List<FundPosition> selectLastFundPositionInDifferentDate(FundPosition fundPosition);
 
     List<FundPosition> selectLastFundPositionInSameDate(FundPosition fundPosition);

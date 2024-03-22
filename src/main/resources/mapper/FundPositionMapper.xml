@@ -57,28 +57,6 @@
         order by transaction_date asc
     </select>
 
-    <select id="selectAllPrevFundPositionByCodeAndTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
-        select code, total_amount, total_purchase_fee, held_share
-        from (
-        select code, total_amount, total_purchase_fee, held_share,
-        row_number() over (partition by code order by held_share desc) as rn
-        from fund_position
-        where code = #{code} and transaction_date &lt; #{transactionDate}
-        ) tmp
-        where rn >= 1
-    </select>
-
-    <select id="selectAllPostFundPositionByCodeAndTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
-        select code, total_amount, total_purchase_fee, held_share
-        from (
-        select code, total_amount, total_purchase_fee, held_share,
-        row_number() over (partition by code order by held_share desc) as rn
-        from fund_position
-        where code = #{code} and transaction_date &gt; #{transactionDate}
-        ) tmp
-        where rn >= 1
-    </select>
-
     <select id="selectLastFundPositionInDifferentDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select code, total_amount, total_purchase_fee, held_share
         from (

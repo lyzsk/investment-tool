@@ -29,15 +29,14 @@ public class FundTransactionController {
 
     @PostMapping("/purchase")
     public void purchaseFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
-        @RequestParam("amount") String amount, @RequestParam("tradingPlatform") String tradingPlatform)
-        throws ParseException, IOException {
-        fundTransactionService.insertFundPurchaseTransactionByConditions(code, DateUtil.strToDate(applicationDate),
-            new BigDecimal(amount), tradingPlatform);
+        @RequestParam("amount") String amount, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException, IOException {
+        fundTransactionService.insertFundPurchaseTransactionByConditions(code, DateUtil.strToDate(applicationDate), new BigDecimal(amount),
+            tradingPlatform);
     }
 
     @Scheduled(cron = "0 30 9 * * *")
     @PostMapping("/update-status")
-    public void updateStatusForTrabsactionInTransit() throws ParseException {
+    public void updateStatusForTrabsactionInTransit() throws ParseException, IOException {
         Date date = new Date();
         fundTransactionService.updateStatusForTransactionInTransit(date);
         fundTransactionService.updateHeldDaysAndUpdateDateForFundPosition(date);
