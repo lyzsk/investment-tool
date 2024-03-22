@@ -16,17 +16,17 @@ public interface FundPositionMapper {
 
     List<FundPosition> selectAllFundPosition();
 
-    List<FundPosition> selectAllFundPositionByCode(String code);
-
     List<FundPosition> selectAllFundPositionByCodeOrderByTransactionDate(String code);
 
     List<FundPosition> selectFundPositionByCodeAndAfterTransactionDate(FundPosition fundPosition);
 
-    List<FundPosition> selectFirstFundPositionByCode(String code);
+    List<FundPosition> selectAllPrevFundPositionByCodeAndTransactionDate(FundPosition fundPosition);
 
-    List<FundPosition> selectLastFunPositionByCode(String code);
+    List<FundPosition> selectAllPostFundPositionByCodeAndTransactionDate(FundPosition fundPosition);
 
-    List<FundPosition> selectAllFundPositionByCodeExcludeFirstOne(String code);
+    List<FundPosition> selectLastFundPositionInDifferentDate(FundPosition fundPosition);
+
+    List<FundPosition> selectLastFundPositionInSameDate(FundPosition fundPosition);
 
     void updateHeldDaysAndUpdateDateForFundPosition(FundPosition fundPosition);
 
