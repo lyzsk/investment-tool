@@ -2,6 +2,7 @@ package cn.sichu.mapper;
 
 import cn.sichu.entity.FundPurchaseFeeRate;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -11,5 +12,6 @@ import java.util.List;
  **/
 @Mapper
 public interface FundPurchaseFeeRateMapper {
-    public List<FundPurchaseFeeRate> selectFundPurchaseFeeRateByConditions(FundPurchaseFeeRate fundPurchaseFeeRate);
+    public List<FundPurchaseFeeRate> selectFundPurchaseFeeRateByConditions(@Param("code") String code,
+        @Param("tradingPlatform") String tradingPlatform);
 }

@@ -38,8 +38,7 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
      * @date 2024/03/11
      **/
     @Override
-    public void insertFundHistoryNav(String code, String startDate, String endDate, String callback)
-        throws ParseException, IOException {
+    public void insertFundHistoryNav(String code, String startDate, String endDate, String callback) throws ParseException, IOException {
         Map<String, String> map = ScrapingUtil.getDailyNavMapBetweenDates(code, startDate, endDate, callback);
         for (Map.Entry<String, String> entry : map.entrySet()) {
             Date navDate = DateUtil.strToDate(entry.getKey());
@@ -53,18 +52,15 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     }
 
     /**
-     * @param code code
-     * @param date date
+     * @param code    code
+     * @param navDate navDate
      * @return java.lang.String
      * @author sichu huang
      * @date 2024/03/16
      **/
     @Override
-    public String selectFundHistoryNavByConditions(String code, Date date) {
-        FundHistoryNav fundHistoryNav = new FundHistoryNav();
-        fundHistoryNav.setCode(code);
-        fundHistoryNav.setNavDate(date);
-        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(fundHistoryNav);
+    public String selectFundHistoryNavOrderByConditions(String code, Date navDate) {
+        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
         if (fundHistoryNavs.isEmpty()) {
             return "";
         }
@@ -78,10 +74,8 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
      * @date 2024/03/19
      **/
     @Override
-    public List<FundHistoryNav> selectLastFundHistoryNavDateByConditions(String code) {
-        FundHistoryNav historyNav = new FundHistoryNav();
-        historyNav.setCode(code);
-        return fundHistoryNavMapper.selectLastFundHistoryNavDateByConditions(historyNav);
+    public List<FundHistoryNav> selectLastFundHistoryNavDateByCode(String code) {
+        return fundHistoryNavMapper.selectLastFundHistoryNavDateByCode(code);
     }
 
     /**

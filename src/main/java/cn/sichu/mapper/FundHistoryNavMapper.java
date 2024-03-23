@@ -2,7 +2,9 @@ package cn.sichu.mapper;
 
 import cn.sichu.entity.FundHistoryNav;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -13,9 +15,9 @@ import java.util.List;
 public interface FundHistoryNavMapper {
     void insertFundHistoryNav(FundHistoryNav fundHistoryNav);
 
-    List<FundHistoryNav> selectFundHistoryNavByConditions(FundHistoryNav fundHistoryNav);
+    List<FundHistoryNav> selectFundHistoryNavByConditions(@Param("code") String code, @Param("navDate") Date navDate);
 
-    List<FundHistoryNav> selectLastFundHistoryNavDateByConditions(FundHistoryNav fundHistoryNav);
+    List<FundHistoryNav> selectLastFundHistoryNavDateByCode(String code);
 
     List<FundHistoryNav> selectLastFundHistoryNavDates();
 }

@@ -4,6 +4,7 @@ import cn.sichu.entity.*;
 import cn.sichu.enums.FundTransactionStatus;
 import cn.sichu.enums.FundTransactionType;
 import cn.sichu.mapper.FundPositionMapper;
+import cn.sichu.mapper.FundPurchaseFeeRateMapper;
 import cn.sichu.mapper.FundPurchaseTransactionMapper;
 import cn.sichu.mapper.FundTransactionMapper;
 import cn.sichu.service.IFundHistoryNavService;
@@ -28,17 +29,17 @@ import java.util.Objects;
 @Service
 public class FundTransactionServiceImpl implements IFundTransactionService {
     @Autowired
-    FundTransactionMapper fundTransactionMapper;
-    @Autowired
     FundInformationServiceImpl fundInformationService;
     @Autowired
-    IFundPurchaseFeeRateServiceImpl fundPurchaseFeeRateService;
-    @Autowired
     IFundHistoryNavService fundHistoryNavService;
+    @Autowired
+    FundTransactionMapper fundTransactionMapper;
     @Autowired
     FundPurchaseTransactionMapper fundPurchaseTransactionMapper;
     @Autowired
     FundPositionMapper fundPositionMapper;
+    @Autowired
+    FundPurchaseFeeRateMapper fundPurchaseFeeRateMapper;
 
     /**
      * @param fundPurchaseTransaction fundPurchaseTransaction
@@ -104,7 +105,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             }
         }
         /* set fee */
-        List<FundPurchaseFeeRate> fundPurchaseFeeRates = fundPurchaseFeeRateService.selectFundPurchaseFeeRateByConditions(code, tradingPlatform);
+        List<FundPurchaseFeeRate> fundPurchaseFeeRates = fundPurchaseFeeRateMapper.selectFundPurchaseFeeRateByConditions(code, tradingPlatform);
         if (!fundPurchaseFeeRates.isEmpty()) {
             for (int i = 0; i < fundPurchaseFeeRates.size(); i++) {
                 FundPurchaseFeeRate fundPurchaseFeeRate = fundPurchaseFeeRates.get(i);
@@ -125,15 +126,15 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             }
         }
         /* set nav, share */
-        String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
+        String navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transactionDate);
         if (navStr == null || navStr.equals("")) {
-            List<FundHistoryNav> fundHistoryNavs = fundHistoryNavService.selectLastFundHistoryNavDateByConditions(code);
+            List<FundHistoryNav> fundHistoryNavs = fundHistoryNavService.selectLastFundHistoryNavDateByCode(code);
             Date lastNavDate = fundHistoryNavs.get(0).getNavDate();
             String callback = fundHistoryNavService.selectCallbackByCode(code);
             /* 更新净值表后再查表 */
             if (transaction.getTransactionDate().getTime() >= lastNavDate.getTime()) {
                 fundHistoryNavService.insertFundHistoryNav(code, DateUtil.dateToStr(lastNavDate), DateUtil.dateToStr(transactionDate), callback);
-                navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
+                navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transactionDate);
             } else {
                 int tryCount = 3;
                 for (int i = 0; i <= tryCount; i++) {
@@ -148,7 +149,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                         default -> date = DateUtil.strToDate("2023-08-01");
                     }
                     fundHistoryNavService.insertFundHistoryNav(code, DateUtil.dateToStr(date), DateUtil.dateToStr(transactionDate), callback);
-                    navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
+                    navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transactionDate);
                 }
             }
         }
@@ -215,7 +216,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         for (FundPurchaseTransaction transaction : transactions) {
             if (transaction.getNav() == null || transaction.getShare() == null) {
                 String code = transaction.getCode();
-                String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transaction.getTransactionDate());
+                String navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transaction.getTransactionDate());
                 if (navStr != null && !navStr.equals("")) {
                     BigDecimal amount = transaction.getAmount();
                     BigDecimal fee = transaction.getFee();
@@ -239,7 +240,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         for (FundTransaction transaction : transactions) {
             if (transaction.getNav() == null || transaction.getShare() == null) {
                 String code = transaction.getCode();
-                String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transaction.getTransactionDate());
+                String navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transaction.getTransactionDate());
                 if (navStr != null && !navStr.equals("")) {
                     BigDecimal amount = transaction.getAmount();
                     BigDecimal fee = transaction.getFee();
