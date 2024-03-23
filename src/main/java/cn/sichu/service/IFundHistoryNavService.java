@@ -21,17 +21,16 @@ public interface IFundHistoryNavService {
      * @author sichu huang
      * @date 2024/03/11
      **/
-    void insertFundHistoryNav(String code, String startDate, String endDate, String callback)
-        throws ParseException, IOException;
+    void insertFundHistoryNav(String code, String startDate, String endDate, String callback) throws ParseException, IOException;
 
     /**
-     * @param code code
-     * @param date date
+     * @param code    code
+     * @param navDate navDate
      * @return java.lang.String
      * @author sichu huang
      * @date 2024/03/16
      **/
-    String selectFundHistoryNavByConditions(String code, Date date);
+    String selectFundHistoryNavOrderByConditions(String code, Date navDate);
 
     /**
      * @param code code
@@ -39,7 +38,7 @@ public interface IFundHistoryNavService {
      * @author sichu huang
      * @date 2024/03/19
      **/
-    List<FundHistoryNav> selectLastFundHistoryNavDateByConditions(String code);
+    List<FundHistoryNav> selectLastFundHistoryNavDateByCode(String code);
 
     /**
      * @param code code
