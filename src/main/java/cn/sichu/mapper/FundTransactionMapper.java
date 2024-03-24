@@ -20,8 +20,8 @@ public interface FundTransactionMapper {
 
     List<FundTransaction> selectAllFundTransactionWithNullNavAndShare();
 
-    void updateStatusForFundTransaction(FundTransaction fundTransaction);
+    void updateStatus(FundTransaction fundTransaction);
 
-    void updateNavAndShareForFundTransaction(FundTransaction fundTransaction);
+    void updateNavAndShare(FundTransaction fundTransaction);
 
 }

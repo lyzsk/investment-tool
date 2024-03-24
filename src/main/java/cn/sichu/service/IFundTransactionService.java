@@ -1,6 +1,7 @@
 package cn.sichu.service;
 
 import cn.sichu.entity.FundPurchaseTransaction;
+import cn.sichu.entity.FundRedemptionTransaction;
 import cn.sichu.entity.FundTransaction;
 
 import java.io.IOException;
@@ -23,6 +24,13 @@ public interface IFundTransactionService {
     void insertFundTransactionByFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
 
     /**
+     * @param fundRedemptionTransaction fundRedemptionTransaction
+     * @author sichu huang
+     * @date 2024/03/24
+     **/
+    void insertFundTransactionByFundRedemptionTransaction(FundRedemptionTransaction fundRedemptionTransaction);
+
+    /**
      * @param code            code
      * @param applicationDate applicationDate
      * @param amount          amount
@@ -31,6 +39,17 @@ public interface IFundTransactionService {
      * @date 2024/03/10
      **/
     void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, BigDecimal amount, String tradingPlatform)
+        throws ParseException, IOException;
+
+    /**
+     * @param code            code
+     * @param applicationDate applicationDate
+     * @param share           share
+     * @param tradingPlatform tradingPlatform
+     * @author sichu huang
+     * @date 2024/03/24
+     **/
+    void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, BigDecimal share, String tradingPlatform)
         throws ParseException, IOException;
 
     /**

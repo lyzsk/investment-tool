@@ -12,7 +12,6 @@
         <result property="purchaseConfirmationProcess" column="purchase_confirmation_process"/>
         <result property="redemptionConfirmationProcess" column="redemption_confirmation_process"/>
         <result property="redemptionSettlementProcess" column="redemption_settlement_process"/>
-        <result property="purchaseFeeRate" column="purchase_fee_rate"/>
     </resultMap>
 
     <select id="selectFundShortNameByCode" resultType="cn.sichu.entity.FundInformation"
@@ -24,20 +23,20 @@
         </where>
     </select>
 
-    <select id="selectFundTransactionProcessByCode" resultType="cn.sichu.entity.FundInformation" resultMap="resultMap">
-        select code, purchase_confirmation_process, redemption_confirmation_process, redemption_settlement_process
+    <select id="selectFundPurchaseTransactionProcessByCode" resultType="cn.sichu.entity.FundInformation" resultMap="resultMap">
+        select code, purchase_confirmation_process
         from fund_information
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
         </where>
     </select>
 
-    <select id="selectFundPurchaseFeeRateByCode" resultType="cn.sichu.entity.FundInformation" resultMap="resultMap">
-        select
-        code, purchase_fee_rate
+    <select id="selectFundRedemptionTransactionProcessByCode" resultType="cn.sichu.entity.FundInformation" resultMap="resultMap">
+        select code, redemption_confirmation_process, redemption_settlement_process
         from fund_information
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
         </where>
     </select>
+
 </mapper>

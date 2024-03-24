@@ -12,10 +12,9 @@ import java.util.List;
 @Mapper
 public interface FundInformationMapper {
 
-    public List<FundInformation> selectFundShortNameByCode(String code);
+    List<FundInformation> selectFundShortNameByCode(String code);
 
-    public List<FundInformation> selectFundTransactionProcessByCode(String code);
+    List<FundInformation> selectFundPurchaseTransactionProcessByCode(String code);
 
-    public List<FundInformation> selectFundPurchaseFeeRateByCode(String code);
-
+    List<FundInformation> selectFundRedemptionTransactionProcessByCode(String code);
 }

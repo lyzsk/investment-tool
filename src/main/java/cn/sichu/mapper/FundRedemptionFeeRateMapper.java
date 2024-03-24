@@ -1,6 +1,10 @@
 package cn.sichu.mapper;
 
+import cn.sichu.entity.FundRedemptionFeeRate;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author sichu huang
@@ -8,5 +12,6 @@ import org.apache.ibatis.annotations.Mapper;
  **/
 @Mapper
 public interface FundRedemptionFeeRateMapper {
-
+    public List<FundRedemptionFeeRate> selectRedemptionFeeRateByConditions(@Param("code") String code,
+        @Param("tradingPlatform") String tradingPlatform);
 }

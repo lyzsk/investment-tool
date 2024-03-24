@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.sichu.mapper.FundPositionHistoryMapper">
-    <resultMap id="resultMap" type="cn.sichu.entity.FundPositionHistory">
+<mapper namespace="cn.sichu.mapper.FundHistoryPositionMapper">
+    <resultMap id="resultMap" type="cn.sichu.entity.FundHistoryPosition">
         <id property="id" column="id"/>
         <result property="code" column="code"/>
         <result property="transactionDate" column="transaction_date"/>
@@ -16,5 +16,14 @@
         <result property="heldDays" column="held_days"/>
         <result property="mark" column="mark"/>
     </resultMap>
+
+    <insert id="insertFundHistoryPosition" useGeneratedKeys="true" keyProperty="id">
+        insert into fund_history_position
+        (code, transaction_date, initiation_date, redemption_date, total_amount, total_purchase_fee, total_redemption_fee, held_share,
+        held_days, mark)
+        values
+        (#{code}, #{transactionDate}, #{initiationDate}, #{redemptionDate}, #{totalAmount}, #{totalPurchaseFee}, #{totalRedemptionFee},
+        #{heldShare}, #{heldDays}, #{mark})
+    </insert>
 
 </mapper>

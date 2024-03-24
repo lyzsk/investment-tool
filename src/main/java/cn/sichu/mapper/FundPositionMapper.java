@@ -24,8 +24,8 @@ public interface FundPositionMapper {
 
     List<FundPosition> selectLastFundPositionInSameDate(FundPosition fundPosition);
 
-    void updateHeldDaysAndUpdateDateForFundPosition(FundPosition fundPosition);
+    void updateHeldDaysAndUpdateDate(FundPosition fundPosition);
 
-    void updateTotalAmountAndTotalPurchaseFeeAndHeldShareForFundPosition(FundPosition fundPosition);
+    void updateTotalAmountAndTotalPurchaseFeeAndHeldShare(FundPosition fundPosition);
 
 }
