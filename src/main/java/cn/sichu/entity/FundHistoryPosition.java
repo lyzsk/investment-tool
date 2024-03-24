@@ -7,7 +7,7 @@ import java.util.Date;
  * @author sichu huang
  * @date 2024/03/17
  **/
-public class FundPositionHistory {
+public class FundHistoryPosition {
     private Long id;
     private String code;
     private Date transactionDate;
@@ -20,12 +20,11 @@ public class FundPositionHistory {
     private Integer heldDays;
     private String mark;
 
-    public FundPositionHistory() {
+    public FundHistoryPosition() {
     }
 
-    public FundPositionHistory(Long id, String code, Date transactionDate, Date initiationDate, Date redemptionDate,
-        BigDecimal totalAmount, BigDecimal totalPurchaseFee, BigDecimal totalRedemptionFee, BigDecimal heldShare,
-        Integer heldDays, String mark) {
+    public FundHistoryPosition(Long id, String code, Date transactionDate, Date initiationDate, Date redemptionDate, BigDecimal totalAmount,
+        BigDecimal totalPurchaseFee, BigDecimal totalRedemptionFee, BigDecimal heldShare, Integer heldDays, String mark) {
         this.id = id;
         this.code = code;
         this.transactionDate = transactionDate;
@@ -41,10 +40,10 @@ public class FundPositionHistory {
 
     @Override
     public String toString() {
-        return "FundPositionHistory{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate
-            + ", initiationDate=" + initiationDate + ", redemptionDate=" + redemptionDate + ", totalAmount="
-            + totalAmount + ", totalPurchaseFee=" + totalPurchaseFee + ", totalRedemptionFee=" + totalRedemptionFee
-            + ", heldShare=" + heldShare + ", heldDays=" + heldDays + ", mark='" + mark + '\'' + '}';
+        return "FundPositionHistory{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate + ", initiationDate="
+            + initiationDate + ", redemptionDate=" + redemptionDate + ", totalAmount=" + totalAmount + ", totalPurchaseFee=" + totalPurchaseFee
+            + ", totalRedemptionFee=" + totalRedemptionFee + ", heldShare=" + heldShare + ", heldDays=" + heldDays + ", mark='" + mark + '\''
+            + '}';
     }
 
     public Long getId() {

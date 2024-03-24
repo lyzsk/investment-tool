@@ -86,7 +86,7 @@
         where rn = 1
     </select>
 
-    <update id="updateHeldDaysAndUpdateDateForFundPosition">
+    <update id="updateHeldDaysAndUpdateDate">
         update fund_position
         <set>
             <if test="heldDays != null">held_days = #{heldDays},</if>
@@ -96,7 +96,7 @@
         total_amount = #{totalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare}
     </update>
 
-    <update id="updateTotalAmountAndTotalPurchaseFeeAndHeldShareForFundPosition">
+    <update id="updateTotalAmountAndTotalPurchaseFeeAndHeldShare">
         update fund_position
         <set>
             <if test="totalAmount != null">total_amount = #{totalAmount},</if>

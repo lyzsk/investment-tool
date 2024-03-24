@@ -18,4 +18,15 @@
         <result property="status" column="status"/>
         <result property="mark" column="mark"/>
     </resultMap>
+
+    <insert id="insertFundRedemptionTransaction" useGeneratedKeys="true" keyProperty="id">
+        insert into fund_redemption_transaction
+        (code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark)
+        values
+        (#{code}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate}, #{amount}, #{fee},
+        #{nav}, #{share}, #{tradingPlatform}, #{status}, #{mark})
+    </insert>
+
+
 </mapper>

@@ -24,8 +24,8 @@ public class FundInformationServiceImpl implements IFundInformationService {
      * @date 2024/03/09
      **/
     @Override
-    public List<FundInformation> selectFundTransactionProcessByCode(String code) {
-        return fundInformationMapper.selectFundTransactionProcessByCode(code);
+    public List<FundInformation> selectFundShortNameByCode(String code) {
+        return fundInformationMapper.selectFundShortNameByCode(code);
     }
 
     /**
@@ -35,18 +35,19 @@ public class FundInformationServiceImpl implements IFundInformationService {
      * @date 2024/03/09
      **/
     @Override
-    public List<FundInformation> selectFundShortNameByCode(String code) {
-        return fundInformationMapper.selectFundShortNameByCode(code);
+    public List<FundInformation> selectFundPurchaseTransactionProcessByCode(String code) {
+        return fundInformationMapper.selectFundPurchaseTransactionProcessByCode(code);
     }
 
     /**
      * @param code 基金代码
      * @return java.util.List<cn.sichu.entity.FundInformation>
      * @author sichu huang
-     * @date 2024/03/10
+     * @date 2024/03/24
      **/
     @Override
-    public List<FundInformation> selectFundPurchaseFeeRateByCode(String code) {
-        return fundInformationMapper.selectFundPurchaseFeeRateByCode(code);
+    public List<FundInformation> selectFundRedemptionTransactionProcessByCode(String code) {
+        return fundInformationMapper.selectFundRedemptionTransactionProcessByCode(code);
     }
+
 }

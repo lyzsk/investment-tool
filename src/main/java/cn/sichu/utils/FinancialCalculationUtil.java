@@ -39,25 +39,20 @@ public class FinancialCalculationUtil {
     }
 
     /**
-     * TODO: 赎回手续费逻辑: 先进先出, 从最早的一笔交易开始计算, 计算持有天数包含周末节假日, 每笔分别计算含金额的收益后, 费率向下取整, 2位小数
-     *
      * @param share
      * @param nav
      * @param feeRate
-     * @return java.lang.String
+     * @return java.math.BigDecimal
      * @author sichu huang
      * @date 2024/03/12
      **/
-    public static String calculateRedemptionFee(String share, String nav, String feeRate) {
-        BigDecimal s = new BigDecimal(share);
+    public static BigDecimal calculateRedemptionFee(BigDecimal share, String nav, String feeRate) {
+        BigDecimal s = new BigDecimal(String.valueOf(share));
         BigDecimal n = new BigDecimal(nav);
         String rate = feeRate.replace("%", "");
         BigDecimal r = new BigDecimal(rate);
-        // 5138.29
         BigDecimal amount = s.multiply(n).setScale(2, RoundingMode.CEILING);
-        // 15.64
-        BigDecimal fee = amount.multiply(r).multiply(new BigDecimal("0.01")).setScale(2, RoundingMode.CEILING);
-        return fee.toString();
+        return amount.multiply(r).multiply(new BigDecimal("0.01")).setScale(2, RoundingMode.CEILING);
     }
 
     /**

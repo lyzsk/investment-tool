@@ -16,7 +16,7 @@ public interface IFundInformationService {
      * @author sichu huang
      * @date 2024/03/09
      **/
-    public List<FundInformation> selectFundTransactionProcessByCode(String code);
+    List<FundInformation> selectFundShortNameByCode(String code);
 
     /**
      * @param code 基金代码
@@ -24,13 +24,13 @@ public interface IFundInformationService {
      * @author sichu huang
      * @date 2024/03/09
      **/
-    public List<FundInformation> selectFundShortNameByCode(String code);
+    List<FundInformation> selectFundPurchaseTransactionProcessByCode(String code);
 
     /**
      * @param code 基金代码
      * @return java.util.List<cn.sichu.entity.FundInformation>
      * @author sichu huang
-     * @date 2024/03/10
+     * @date 2024/03/24
      **/
-    public List<FundInformation> selectFundPurchaseFeeRateByCode(String code);
+    List<FundInformation> selectFundRedemptionTransactionProcessByCode(String code);
 }

@@ -3,4 +3,21 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.sichu.mapper.FundRedemptionFeeRateMapper">
+    <resultMap id="resultMap" type="cn.sichu.entity.FundRedemptionFeeRate">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="feeRateChangeDays" column="redemption_fee_rate_change_days"/>
+        <result property="feeRate" column="redemption_fee_rate"/>
+        <result property="tradingPlatform" column="trading_platform"/>
+    </resultMap>
+
+    <select id="selectRedemptionFeeRateByConditions" resultType="cn.sichu.entity.FundRedemptionFeeRate" resultMap="resultMap">
+        select code, redemption_fee_rate_change_days, redemption_fee_rate, trading_platform
+        from fund_redemption_fee_rate
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+            <if test="tradingPlatform != null and tradingPlatform != ''">and trading_platform = #{tradingPlatform}</if>
+        </where>
+        order by redemption_fee_rate_change_days
+    </select>
 </mapper>

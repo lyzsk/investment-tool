@@ -1,5 +1,6 @@
 package cn.sichu.mapper;
 
+import cn.sichu.entity.FundRedemptionTransaction;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -8,4 +9,5 @@ import org.apache.ibatis.annotations.Mapper;
  **/
 @Mapper
 public interface FundRedemptionTransactionMapper {
+    void insertFundRedemptionTransaction(FundRedemptionTransaction fundRedemptionTransaction);
 }

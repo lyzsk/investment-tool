@@ -13,14 +13,12 @@ public class FundInformation {
     private Integer purchaseConfirmationProcess;
     private Integer redemptionConfirmationProcess;
     private Integer redemptionSettlementProcess;
-    private String purchaseFeeRate;
 
     public FundInformation() {
     }
 
-    public FundInformation(Long id, String code, String shortName, String fullName, String companyName,
-        Integer purchaseConfirmationProcess, Integer redemptionConfirmationProcess, Integer redemptionSettlementProcess,
-        String purchaseFeeRate) {
+    public FundInformation(Long id, String code, String shortName, String fullName, String companyName, Integer purchaseConfirmationProcess,
+        Integer redemptionConfirmationProcess, Integer redemptionSettlementProcess) {
         this.id = id;
         this.code = code;
         this.shortName = shortName;
@@ -29,48 +27,14 @@ public class FundInformation {
         this.purchaseConfirmationProcess = purchaseConfirmationProcess;
         this.redemptionConfirmationProcess = redemptionConfirmationProcess;
         this.redemptionSettlementProcess = redemptionSettlementProcess;
-        this.purchaseFeeRate = purchaseFeeRate;
-    }
-
-    public String getPurchaseFeeRate() {
-        return purchaseFeeRate;
-    }
-
-    public void setPurchaseFeeRate(String purchaseFeeRate) {
-        this.purchaseFeeRate = purchaseFeeRate;
     }
 
     @Override
     public String toString() {
-        return "FundInformation{" + "id=" + id + ", code='" + code + '\'' + ", shortName='" + shortName + '\''
-            + ", fullName='" + fullName + '\'' + ", companyName='" + companyName + '\''
-            + ", purchaseConfirmationProcess=" + purchaseConfirmationProcess + ", redemptionConfirmationProcess="
-            + redemptionConfirmationProcess + ", redemptionSettlementProcess=" + redemptionSettlementProcess
-            + ", purchaseFeeRate='" + purchaseFeeRate + '\'' + '}';
-    }
-
-    public Integer getPurchaseConfirmationProcess() {
-        return purchaseConfirmationProcess;
-    }
-
-    public void setPurchaseConfirmationProcess(Integer purchaseConfirmationProcess) {
-        this.purchaseConfirmationProcess = purchaseConfirmationProcess;
-    }
-
-    public Integer getRedemptionConfirmationProcess() {
-        return redemptionConfirmationProcess;
-    }
-
-    public void setRedemptionConfirmationProcess(Integer redemptionConfirmationProcess) {
-        this.redemptionConfirmationProcess = redemptionConfirmationProcess;
-    }
-
-    public Integer getRedemptionSettlementProcess() {
-        return redemptionSettlementProcess;
-    }
-
-    public void setRedemptionSettlementProcess(Integer redemptionSettlementProcess) {
-        this.redemptionSettlementProcess = redemptionSettlementProcess;
+        return "FundInformation{" + "id=" + id + ", code='" + code + '\'' + ", shortName='" + shortName + '\'' + ", fullName='" + fullName + '\''
+            + ", companyName='" + companyName + '\'' + ", purchaseConfirmationProcess=" + purchaseConfirmationProcess
+            + ", redemptionConfirmationProcess=" + redemptionConfirmationProcess + ", redemptionSettlementProcess=" + redemptionSettlementProcess
+            + '}';
     }
 
     public Long getId() {
@@ -111,5 +75,29 @@ public class FundInformation {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public Integer getPurchaseConfirmationProcess() {
+        return purchaseConfirmationProcess;
+    }
+
+    public void setPurchaseConfirmationProcess(Integer purchaseConfirmationProcess) {
+        this.purchaseConfirmationProcess = purchaseConfirmationProcess;
+    }
+
+    public Integer getRedemptionConfirmationProcess() {
+        return redemptionConfirmationProcess;
+    }
+
+    public void setRedemptionConfirmationProcess(Integer redemptionConfirmationProcess) {
+        this.redemptionConfirmationProcess = redemptionConfirmationProcess;
+    }
+
+    public Integer getRedemptionSettlementProcess() {
+        return redemptionSettlementProcess;
+    }
+
+    public void setRedemptionSettlementProcess(Integer redemptionSettlementProcess) {
+        this.redemptionSettlementProcess = redemptionSettlementProcess;
     }
 }
