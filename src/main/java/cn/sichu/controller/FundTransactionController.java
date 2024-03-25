@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author sichu huang
@@ -34,6 +35,13 @@ public class FundTransactionController {
             tradingPlatform);
     }
 
+    @PostMapping("/redemption")
+    public void RedemptionFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
+        @RequestParam("share") String share, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException, IOException {
+        fundTransactionService.insertFundRedemptionTransactionByConditions(code, DateUtil.strToDate(applicationDate), new BigDecimal(share),
+            tradingPlatform);
+    }
+
     @Scheduled(cron = "0 30 9 * * *")
     @PostMapping("/update-status")
     public void updateStatusForTrabsactionInTransit() throws ParseException, IOException {
@@ -46,8 +54,12 @@ public class FundTransactionController {
     @PostMapping("/update-nav-and-share")
     public void updateNavAndShare() throws ParseException, IOException {
         Date date = new Date();
-        fundHistoryNavService.updateHistoryNavByDate(date);
+        List<String> codes = fundHistoryNavService.selectAllCode();
+        for (String code : codes) {
+            fundHistoryNavService.updateHistoryNavByCodeAndDate(code, date);
+        }
         fundTransactionService.updateNavAndShareForFundPurchaseTransaction();
+        fundTransactionService.updateNavAndFeeAndAmountForFundRedemptionTransaction();
     }
 
     // @PostMapping("/redemption")

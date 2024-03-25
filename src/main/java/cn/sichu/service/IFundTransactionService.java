@@ -74,9 +74,9 @@ public interface IFundTransactionService {
 
     /**
      * @author sichu huang
-     * @date 2024/03/18
+     * @date 2024/03/25
      **/
-    void updateNavAndShareForFundTransaction();
+    void updateNavAndFeeAndAmountForFundRedemptionTransaction() throws ParseException;
 
     /**
      * @param date date

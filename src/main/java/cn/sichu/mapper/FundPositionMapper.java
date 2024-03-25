@@ -14,6 +14,8 @@ public interface FundPositionMapper {
 
     void insertFundPosition(FundPosition fundPosition);
 
+    void deleteFundPosition(Long id);
+
     List<FundPosition> selectAllFundPosition();
 
     List<FundPosition> selectAllFundPositionByCodeOrderByTransactionDate(String code);

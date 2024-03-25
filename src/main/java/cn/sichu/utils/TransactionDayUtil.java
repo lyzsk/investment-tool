@@ -3,6 +3,7 @@ package cn.sichu.utils;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -88,6 +89,19 @@ public class TransactionDayUtil {
     public static Long getHeldDays(Date startDate, Date endDate) {
         long diff = startDate.getTime() - endDate.getTime();
         return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * @param mark mark
+     * @return java.lang.Long
+     * @author sichu huang
+     * @date 2024/03/25
+     **/
+    public static Long getHeldDays(String mark) throws ParseException {
+        String[] dates = mark.split("->");
+        Date startDate = DateUtil.strToDate(dates[0]);
+        Date endDate = DateUtil.strToDate(dates[1]);
+        return getHeldDays(startDate, endDate);
     }
 
     /**

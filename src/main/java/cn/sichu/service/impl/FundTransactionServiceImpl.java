@@ -228,83 +228,94 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         Date settlementDate = TransactionDayUtil.getNextNTransactionDate(transactionDate, m);
         transaction.setSettlementDate(settlementDate);
 
-        BigDecimal totalRedemptionFee = null;
         List<FundPosition> fundPositions = fundPositionMapper.selectAllFundPositionByCodeOrderByTransactionDate(code);
-        for (FundPosition fundPosition : fundPositions) {
+        for (int i = 0; i < fundPositions.size(); i++) {
+            FundPosition fundPosition = fundPositions.get(i);
+            Long id = fundPosition.getId();
             if (share.compareTo(fundPosition.getHeldShare()) < 0) {
                 throw new FundTransactionException(999, "赎回份额超过持仓份额");
+            }
+            /* set mark */
+            String mark = DateUtil.dateToStr(fundPosition.getTransactionDate()) + "->" + DateUtil.dateToStr(transactionDate);
+            if (i == fundPositions.size() - 1) {
+                transaction.setMark(mark);
             }
             /* set status */
             if (currentDate.before(settlementDate)) {
                 transaction.setStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode());
             } else {
                 transaction.setStatus(FundTransactionStatus.REDEEMED.getCode());
-
-            }
-            /* set mark */
-            transaction.setMark(DateUtil.dateToStr(fundPosition.getTransactionDate()) + "->" + DateUtil.dateToStr(transactionDate));
-            /* set nav, fee */
-            String navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transactionDate);
-            if (navStr != null && !navStr.equals("")) {
-                /* set nav */
-                transaction.setNav(new BigDecimal(navStr));
-            }
-            List<FundRedemptionFeeRate> fundRedemptionFeeRates =
-                fundRedemptionFeeRateMapper.selectRedemptionFeeRateByConditions(code, tradingPlatform);
-            if (fundRedemptionFeeRates.isEmpty()) {
-                throw new FundTransactionException(999, "未查到赎回费率信息");
-            }
-            for (int j = 0; j < fundRedemptionFeeRates.size(); j++) {
-                FundRedemptionFeeRate fundRedemptionFeeRate = fundRedemptionFeeRates.get(j);
-                String feeRate;
-                // TODO: 累加计算赎回手续费
-                if (heldDays < fundRedemptionFeeRate.getFeeRateChangeDays()) {
-                    feeRate = fundRedemptionFeeRate.getFeeRate();
-                    BigDecimal redemptionFee = FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate);
-                    fee.add(redemptionFee);
-                    fundHistoryPosition.setTotalRedemptionFee(redemptionFee);
-                    break;
+                /* if redeemed, 插入历史持仓表数据, 删除持仓表数据, 根据历史持仓表数据配置赎回交易表 */
+                FundHistoryPosition fundHistoryPosition = new FundHistoryPosition();
+                setFundHistoryPositionData(fundHistoryPosition, fundPosition, transactionDate, mark);
+                /* set totalRedemptionFee, 从持仓表查询累计份额, 查询历史净值, 计算累计金额, 计算赎回费用, 获得最终累计金额 */
+                String navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transactionDate);
+                if (navStr == null || navStr.equals("")) {
+                    fundHistoryNavService.updateHistoryNavByCodeAndDate(code, transactionDate);
+                    navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transactionDate);
                 }
-                if (j > 0 && heldDays >= fundRedemptionFeeRates.get(j - 1).getFeeRateChangeDays()
-                    && heldDays < fundRedemptionFeeRate.getFeeRateChangeDays()) {
-                    feeRate = fundRedemptionFeeRate.getFeeRate();
-                    BigDecimal redemptionFee = FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate);
-                    fee.add(redemptionFee);
-                    fundHistoryPosition.setTotalRedemptionFee(redemptionFee);
-                    break;
+                if (navStr == null || navStr.equals("")) {
+                    throw new FundTransactionException(999, "更新净值表后仍无净值");
                 }
-                if (j == fundRedemptionFeeRates.size() - 1 && heldDays > fundRedemptionFeeRate.getFeeRateChangeDays()) {
-                    feeRate = "0.00%";
-                    BigDecimal redemptionFee = FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate);
-                    fee.add(redemptionFee);
-                    fundHistoryPosition.setTotalRedemptionFee(redemptionFee);
-                    break;
+                if (i == fundPositions.size() - 1) {
+                    transaction.setNav(new BigDecimal(navStr));
                 }
+                List<FundRedemptionFeeRate> fundRedemptionFeeRates =
+                    fundRedemptionFeeRateMapper.selectRedemptionFeeRateByConditions(code, tradingPlatform);
+                if (fundRedemptionFeeRates.isEmpty()) {
+                    throw new FundTransactionException(999, "未查到赎回费率");
+                }
+                for (int j = 0; j < fundRedemptionFeeRates.size(); j++) {
+                    FundRedemptionFeeRate fundRedemptionFeeRate = fundRedemptionFeeRates.get(j);
+                    String feeRate;
+                    if (fundPosition.getHeldDays() < fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                        feeRate = fundRedemptionFeeRate.getFeeRate();
+                        BigDecimal redemptionFee = FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate);
+                        fundHistoryPosition.setTotalRedemptionFee(redemptionFee);
+                        fundHistoryPosition.setTotalAmount(
+                            FinancialCalculationUtil.calculateRedemptionAmount(fundPosition.getHeldShare(), navStr, redemptionFee));
+                        if (i == fundPositions.size() - 1) {
+                            transaction.setFee(redemptionFee);
+                            transaction.setAmount(fundHistoryPosition.getTotalAmount());
+                        }
+                        break;
+                    }
+                    if (j > 0 && fundPosition.getHeldDays() >= fundRedemptionFeeRates.get(j - 1).getFeeRateChangeDays()
+                        && fundPosition.getHeldDays() < fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                        feeRate = fundRedemptionFeeRate.getFeeRate();
+                        BigDecimal redemptionFee = FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate);
+                        fundHistoryPosition.setTotalRedemptionFee(redemptionFee);
+                        fundHistoryPosition.setTotalAmount(
+                            FinancialCalculationUtil.calculateRedemptionAmount(fundPosition.getHeldShare(), navStr, redemptionFee));
+                        if (i == fundPositions.size() - 1) {
+                            transaction.setFee(redemptionFee);
+                            transaction.setAmount(fundHistoryPosition.getTotalAmount());
+                        }
+                        break;
+                    }
+                    if (j == fundRedemptionFeeRates.size() - 1 && fundPosition.getHeldDays() > fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                        feeRate = "0.00%";
+                        BigDecimal redemptionFee = FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate);
+                        fundHistoryPosition.setTotalRedemptionFee(redemptionFee);
+                        fundHistoryPosition.setTotalAmount(
+                            FinancialCalculationUtil.calculateRedemptionAmount(fundPosition.getHeldShare(), navStr, redemptionFee));
+                        if (i == fundPositions.size() - 1) {
+                            transaction.setFee(redemptionFee);
+                            transaction.setAmount(fundHistoryPosition.getTotalAmount());
+                        }
+                        break;
+                    }
+                }
+                /* insert fund_history_position table */
+                fundHistoryPositionMapper.insertFundHistoryPosition(fundHistoryPosition);
+                /* delete fund_position table */
+                fundPositionMapper.deleteFundPosition(id);
             }
-
         }
         /* insert fund_redemption_transaction table */
         fundRedemptionTransactionMapper.insertFundRedemptionTransaction(transaction);
         /* insert fund_transaction table */
         insertFundTransactionByFundRedemptionTransaction(transaction);
-    }
-
-    /**
-     * @param fundHistoryPosition fundHistoryPosition
-     * @param fundPosition        fundPosition
-     * @param transactionDate     transactionDate
-     * @author sichu huang
-     * @date 2024/03/24
-     **/
-    private void setFundHistoryPositionData(FundHistoryPosition fundHistoryPosition, FundPosition fundPosition, Date transactionDate) {
-        fundHistoryPosition.setCode(fundPosition.getCode());
-        fundHistoryPosition.setTransactionDate(fundPosition.getTransactionDate());
-        fundHistoryPosition.setInitiationDate(fundPosition.getInitiationDate());
-        fundHistoryPosition.setRedemptionDate(transactionDate);
-        fundHistoryPosition.setTotalAmount(fundPosition.getTotalAmount());
-        fundHistoryPosition.setTotalPurchaseFee(fundPosition.getTotalPurchaseFee());
-        fundHistoryPosition.setHeldShare(fundPosition.getHeldShare());
-        fundHistoryPosition.setHeldDays(fundPosition.getHeldDays());
     }
 
     /**
@@ -372,22 +383,53 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
 
     /**
      * @author sichu huang
-     * @date 2024/03/18
+     * @date 2024/03/25
      **/
     @Override
-    public void updateNavAndShareForFundTransaction() {
-        List<FundTransaction> transactions = fundTransactionMapper.selectAllFundTransactionWithNullNavAndShare();
-        for (FundTransaction transaction : transactions) {
-            if (transaction.getNav() == null || transaction.getShare() == null) {
+    public void updateNavAndFeeAndAmountForFundRedemptionTransaction() throws ParseException {
+        List<FundRedemptionTransaction> transactions = fundRedemptionTransactionMapper.selectAllFundRedemptionTransactionWithNullNavAndAmount();
+        for (FundRedemptionTransaction transaction : transactions) {
+            if (transaction.getNav() == null || transaction.getAmount() == null) {
                 String code = transaction.getCode();
                 String navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transaction.getTransactionDate());
                 if (navStr != null && !navStr.equals("")) {
-                    BigDecimal amount = transaction.getAmount();
-                    BigDecimal fee = transaction.getFee();
-                    BigDecimal share = FinancialCalculationUtil.calculateShare(amount, fee, navStr);
+                    BigDecimal share = transaction.getShare();
+                    long heldDays = TransactionDayUtil.getHeldDays(transaction.getMark());
+                    List<FundRedemptionFeeRate> fundRedemptionFeeRates =
+                        fundRedemptionFeeRateMapper.selectRedemptionFeeRateByConditions(code, transaction.getTradingPlatform());
+                    if (fundRedemptionFeeRates.isEmpty()) {
+                        throw new FundTransactionException(999, "未查到赎回费率");
+                    }
+                    BigDecimal fee = null;
+                    BigDecimal amount = null;
+                    for (int i = 0; i < fundRedemptionFeeRates.size(); i++) {
+                        FundRedemptionFeeRate fundRedemptionFeeRate = fundRedemptionFeeRates.get(i);
+                        String feeRate;
+                        if (heldDays < fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                            feeRate = fundRedemptionFeeRate.getFeeRate();
+                            fee = FinancialCalculationUtil.calculateRedemptionFee(share, navStr, feeRate);
+                            amount = FinancialCalculationUtil.calculateRedemptionAmount(share, navStr, fee);
+                            break;
+                        }
+                        if (i > 0 && heldDays >= fundRedemptionFeeRates.get(i - 1).getFeeRateChangeDays()
+                            && heldDays < fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                            feeRate = fundRedemptionFeeRate.getFeeRate();
+                            fee = FinancialCalculationUtil.calculateRedemptionFee(share, navStr, feeRate);
+                            amount = FinancialCalculationUtil.calculateRedemptionAmount(share, navStr, fee);
+                            break;
+                        }
+                        if (i == fundRedemptionFeeRates.size() - 1 && heldDays > fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                            feeRate = "0.00%";
+                            fee = FinancialCalculationUtil.calculateRedemptionFee(share, navStr, feeRate);
+                            amount = FinancialCalculationUtil.calculateRedemptionAmount(share, navStr, fee);
+                            break;
+                        }
+                    }
                     transaction.setNav(new BigDecimal(navStr));
-                    transaction.setShare(share);
-                    fundTransactionMapper.updateNavAndShare(transaction);
+                    transaction.setFee(fee);
+                    transaction.setAmount(amount);
+                    fundRedemptionTransactionMapper.updateNavAndAmount(transaction);
+                    updateNavAndFeeAndAmountForFundTransaction();
                 }
             }
         }
@@ -427,7 +469,15 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 fundPurchaseTransactionMapper.updateStatusForFundPurchaseTransaction(transaction);
             }
         }
-        // TODO: update table fund_redemption_transaction
+        /* update table fund_redemption_transaction */
+        List<FundRedemptionTransaction> fundRedemptionTransactions =
+            fundRedemptionTransactionMapper.selectAllFundRedemptionTransactionByStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode());
+        for (FundRedemptionTransaction transaction : fundRedemptionTransactions) {
+            if (date.getTime() >= transaction.getSettlementDate().getTime()) {
+                transaction.setStatus(FundTransactionStatus.REDEEMED.getCode());
+                fundRedemptionTransactionMapper.updateStatus(transaction);
+            }
+        }
         /* update table fund_transaction */
         List<FundTransaction> fundTransactions = fundTransactionMapper.selectAllFundTransactionsInTransit();
         for (FundTransaction transaction : fundTransactions) {
@@ -557,4 +607,97 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         }
     }
 
+    /**
+     * @param fundHistoryPosition fundHistoryPosition
+     * @param fundPosition        fundPosition
+     * @param transactionDate     transactionDate
+     * @param mark                mark
+     * @author sichu huang
+     * @date 2024/03/24
+     **/
+    private void setFundHistoryPositionData(FundHistoryPosition fundHistoryPosition, FundPosition fundPosition, Date transactionDate,
+        String mark) {
+        fundHistoryPosition.setCode(fundPosition.getCode());
+        fundHistoryPosition.setTransactionDate(fundPosition.getTransactionDate());
+        fundHistoryPosition.setInitiationDate(fundPosition.getInitiationDate());
+        fundHistoryPosition.setRedemptionDate(transactionDate);
+        fundHistoryPosition.setTotalPurchaseFee(fundPosition.getTotalPurchaseFee());
+        fundHistoryPosition.setHeldShare(fundPosition.getHeldShare());
+        fundHistoryPosition.setHeldDays(fundPosition.getHeldDays());
+        fundHistoryPosition.setMark(mark);
+    }
+
+    /**
+     * @author sichu huang
+     * @date 2024/03/18
+     **/
+    private void updateNavAndShareForFundTransaction() {
+        List<FundTransaction> transactions = fundTransactionMapper.selectAllFundTransactionWithNullNavAndShareForPurchaseType();
+        for (FundTransaction transaction : transactions) {
+            if (transaction.getNav() == null || transaction.getShare() == null) {
+                String code = transaction.getCode();
+                String navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transaction.getTransactionDate());
+                if (navStr != null && !navStr.equals("")) {
+                    BigDecimal amount = transaction.getAmount();
+                    BigDecimal fee = transaction.getFee();
+                    BigDecimal share = FinancialCalculationUtil.calculateShare(amount, fee, navStr);
+                    transaction.setNav(new BigDecimal(navStr));
+                    transaction.setShare(share);
+                    fundTransactionMapper.updateNavAndShare(transaction);
+                }
+            }
+        }
+    }
+
+    /**
+     * @author sichu huang
+     * @date 2024/03/25
+     **/
+    private void updateNavAndFeeAndAmountForFundTransaction() throws ParseException {
+        List<FundTransaction> transactions = fundTransactionMapper.selectAllFundTransactionWithNullNavAndFeeAndAmountForRedemptionType();
+        for (FundTransaction transaction : transactions) {
+            if (transaction.getNav() == null || transaction.getFee() == null || transaction.getAmount() == null) {
+                String code = transaction.getCode();
+                String navStr = fundHistoryNavService.selectFundHistoryNavOrderByConditions(code, transaction.getTransactionDate());
+                if (navStr != null && !navStr.equals("")) {
+                    BigDecimal share = transaction.getShare();
+                    long heldDays = TransactionDayUtil.getHeldDays(transaction.getMark());
+                    List<FundRedemptionFeeRate> fundRedemptionFeeRates =
+                        fundRedemptionFeeRateMapper.selectRedemptionFeeRateByConditions(code, transaction.getTradingPlatform());
+                    if (fundRedemptionFeeRates.isEmpty()) {
+                        throw new FundTransactionException(999, "未查到赎回费率");
+                    }
+                    BigDecimal fee = null;
+                    BigDecimal amount = null;
+                    for (int i = 0; i < fundRedemptionFeeRates.size(); i++) {
+                        FundRedemptionFeeRate fundRedemptionFeeRate = fundRedemptionFeeRates.get(i);
+                        String feeRate;
+                        if (heldDays < fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                            feeRate = fundRedemptionFeeRate.getFeeRate();
+                            fee = FinancialCalculationUtil.calculateRedemptionFee(share, navStr, feeRate);
+                            amount = FinancialCalculationUtil.calculateRedemptionAmount(share, navStr, fee);
+                            break;
+                        }
+                        if (i > 0 && heldDays >= fundRedemptionFeeRates.get(i - 1).getFeeRateChangeDays()
+                            && heldDays < fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                            feeRate = fundRedemptionFeeRate.getFeeRate();
+                            fee = FinancialCalculationUtil.calculateRedemptionFee(share, navStr, feeRate);
+                            amount = FinancialCalculationUtil.calculateRedemptionAmount(share, navStr, fee);
+                            break;
+                        }
+                        if (i == fundRedemptionFeeRates.size() - 1 && heldDays > fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                            feeRate = "0.00%";
+                            fee = FinancialCalculationUtil.calculateRedemptionFee(share, navStr, feeRate);
+                            amount = FinancialCalculationUtil.calculateRedemptionAmount(share, navStr, fee);
+                            break;
+                        }
+                    }
+                    transaction.setNav(new BigDecimal(navStr));
+                    transaction.setFee(fee);
+                    transaction.setAmount(amount);
+                    fundTransactionMapper.updateNavAndAmount(transaction);
+                }
+            }
+        }
+    }
 }

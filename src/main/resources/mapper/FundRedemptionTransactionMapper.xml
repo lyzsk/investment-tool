@@ -28,5 +28,39 @@
         #{nav}, #{share}, #{tradingPlatform}, #{status}, #{mark})
     </insert>
 
+    <select id="selectAllFundRedemptionTransactionByStatus"
+            resultType="cn.sichu.entity.FundRedemptionTransaction" resultMap="resultMap">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark
+        from fund_redemption_transaction
+        where status = #{status}
+        order by code, settlement_date
+    </select>
 
+    <select id="selectAllFundRedemptionTransactionWithNullNavAndAmount"
+            resultType="cn.sichu.entity.FundRedemptionTransaction" resultMap="resultMap">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark
+        from fund_redemption_transaction
+        where nav is null or amount is null
+    </select>
+
+    <update id="updateStatus">
+        update fund_redemption_transaction
+        <set>
+            <if test="status != null">status = #{status}</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate}
+    </update>
+
+    <update id="updateNavAndAmount">
+        update fund_redemption_transaction
+        <set>
+            <if test="nav != null">nav = #{nav},</if>
+            <if test="amount != null">amount = #{amount},</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate}
+    </update>
 </mapper>

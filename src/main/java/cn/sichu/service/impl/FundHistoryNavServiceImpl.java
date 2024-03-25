@@ -91,20 +91,29 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     }
 
     /**
+     * @return java.util.List<java.lang.String>
+     * @author sichu huang
+     * @date 2024/03/25
+     **/
+    @Override
+    public List<String> selectAllCode() {
+        return fundHistoryNavMapper.selectAllCode();
+    }
+
+    /**
+     * @param code code
      * @param date date
      * @author sichu huang
      * @date 2024/03/20
      **/
     @Override
-    public void updateHistoryNavByDate(Date date) throws ParseException, IOException {
+    public void updateHistoryNavByCodeAndDate(String code, Date date) throws ParseException, IOException {
         List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectLastFundHistoryNavDates();
-        for (FundHistoryNav fundHistoryNav : fundHistoryNavs) {
-            String code = fundHistoryNav.getCode();
-            String callback = selectCallbackByCode(code);
-            Date lastNavDate = fundHistoryNav.getNavDate();
-            if (date.getTime() >= lastNavDate.getTime()) {
-                insertFundHistoryNav(code, DateUtil.dateToStr(lastNavDate), DateUtil.dateToStr(date), callback);
-            }
+        FundHistoryNav historyNav = fundHistoryNavs.get(0);
+        String callback = selectCallbackByCode(code);
+        Date lastNavDate = historyNav.getNavDate();
+        if (date.getTime() >= lastNavDate.getTime()) {
+            insertFundHistoryNav(code, DateUtil.dateToStr(lastNavDate), DateUtil.dateToStr(date), callback);
         }
     }
 }

@@ -30,6 +30,11 @@
         )
     </insert>
 
+    <delete id="deleteFundPosition">
+        delete from fund_position
+        where id = #{id}
+    </delete>
+
     <select id="selectAllFundPosition" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
         code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
@@ -38,7 +43,7 @@
 
     <select id="selectAllFundPositionByCodeOrderByTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
-        code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
+        id, code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
         from fund_position
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>

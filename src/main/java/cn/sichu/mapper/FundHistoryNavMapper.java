@@ -13,6 +13,7 @@ import java.util.List;
  **/
 @Mapper
 public interface FundHistoryNavMapper {
+
     void insertFundHistoryNav(FundHistoryNav fundHistoryNav);
 
     List<FundHistoryNav> selectFundHistoryNavByConditions(@Param("code") String code, @Param("navDate") Date navDate);
@@ -20,4 +21,6 @@ public interface FundHistoryNavMapper {
     List<FundHistoryNav> selectLastFundHistoryNavDateByCode(String code);
 
     List<FundHistoryNav> selectLastFundHistoryNavDates();
+
+    List<String> selectAllCode();
 }
