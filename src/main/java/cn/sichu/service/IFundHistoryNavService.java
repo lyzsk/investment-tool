@@ -49,9 +49,17 @@ public interface IFundHistoryNavService {
     String selectCallbackByCode(String code);
 
     /**
+     * @return java.util.List<java.lang.String>
+     * @author sichu huang
+     * @date 2024/03/25
+     **/
+    List<String> selectAllCode();
+
+    /**
+     * @param code code
      * @param date date
      * @author sichu huang
      * @date 2024/03/20
      **/
-    void updateHistoryNavByDate(Date date) throws ParseException, IOException;
+    void updateHistoryNavByCodeAndDate(String code, Date date) throws ParseException, IOException;
 }

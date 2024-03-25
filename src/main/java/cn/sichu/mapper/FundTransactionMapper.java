@@ -18,10 +18,13 @@ public interface FundTransactionMapper {
 
     List<FundTransaction> selectAllFundTransactionsInTransit();
 
-    List<FundTransaction> selectAllFundTransactionWithNullNavAndShare();
+    List<FundTransaction> selectAllFundTransactionWithNullNavAndShareForPurchaseType();
+
+    List<FundTransaction> selectAllFundTransactionWithNullNavAndFeeAndAmountForRedemptionType();
 
     void updateStatus(FundTransaction fundTransaction);
 
     void updateNavAndShare(FundTransaction fundTransaction);
 
+    void updateNavAndAmount(FundTransaction fundTransaction);
 }

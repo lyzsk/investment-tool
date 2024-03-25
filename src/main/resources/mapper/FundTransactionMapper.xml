@@ -46,13 +46,22 @@
         where status = 0 or status = 2
     </select>
 
-    <select id="selectAllFundTransactionWithNullNavAndShare" resultType="cn.sichu.entity.FundTransaction"
+    <select id="selectAllFundTransactionWithNullNavAndShareForPurchaseType" resultType="cn.sichu.entity.FundTransaction"
             resultMap="resultMap">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
         trading_platform, status, mark, type
         from fund_transaction
-        where nav is null or share is null
+        where (nav is null or share is null) and type = 0
+    </select>
+
+    <select id="selectAllFundTransactionWithNullNavAndFeeAndAmountForRedemptionType"
+            resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark, type
+        from fund_transaction
+        where (nav is null or fee is null or amount is null) and type = 1
     </select>
 
     <update id="updateStatus">
@@ -68,6 +77,16 @@
         <set>
             <if test="nav != null">nav = #{nav},</if>
             <if test="share != null">share = #{share},</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate}
+    </update>
+
+    <update id="updateNavAndAmount">
+        update fund_transaction
+        <set>
+            <if test="nav != null">nav = #{nav},</if>
+            <if test="fee != null">fee = #{fee},</if>
+            <if test="amount != null">amount = #{amount},</if>
         </set>
         where code = #{code} and transaction_date = #{transactionDate}
     </update>
