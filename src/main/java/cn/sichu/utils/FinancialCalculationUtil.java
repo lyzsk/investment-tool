@@ -18,7 +18,7 @@ public class FinancialCalculationUtil {
      **/
     public static BigDecimal calculatePurchaseFee(BigDecimal amount, String feeRate) {
         String rate = feeRate.replace("%", "");
-        BigDecimal r = new BigDecimal(rate).divide(new BigDecimal("100"), 4, RoundingMode.CEILING);
+        BigDecimal r = new BigDecimal(rate).divide(new BigDecimal("100"), 6, RoundingMode.CEILING);
         return amount.multiply(r).setScale(2, RoundingMode.CEILING);
     }
 
@@ -33,9 +33,9 @@ public class FinancialCalculationUtil {
     public static BigDecimal calculateRedemptionFee(BigDecimal share, String nav, String feeRate) {
         BigDecimal n = new BigDecimal(nav);
         String rate = feeRate.replace("%", "");
-        BigDecimal r = new BigDecimal(rate).divide(new BigDecimal("100"), 4, RoundingMode.CEILING);
+        BigDecimal r = new BigDecimal(rate).divide(new BigDecimal("100"), 6, RoundingMode.CEILING);
         BigDecimal amount = share.multiply(n).setScale(2, RoundingMode.CEILING);
-        return amount.multiply(r).setScale(2, RoundingMode.CEILING);
+        return amount.multiply(r).setScale(2, RoundingMode.HALF_DOWN);
     }
 
     /**
