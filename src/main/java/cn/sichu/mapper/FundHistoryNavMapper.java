@@ -22,5 +22,5 @@ public interface FundHistoryNavMapper {
 
     List<FundHistoryNav> selectLastFundHistoryNavDates();
 
-    List<String> selectAllCode();
+    List<FundHistoryNav> selectAllCode();
 }

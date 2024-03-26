@@ -238,8 +238,13 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             /* set mark */
             String mark = DateUtil.dateToStr(fundPosition.getTransactionDate()) + "->" + DateUtil.dateToStr(transactionDate);
             if (i == fundPositions.size() - 1) {
-                transaction.setMark(mark);
+                transaction.setMark(DateUtil.dateToStr(fundPositions.get(0).getTransactionDate()) + "->" + DateUtil.dateToStr(transactionDate));
             }
+            /* update held days for fundposition, and get held days */
+            long heldDays = TransactionDayUtil.getHeldDays(transactionDate, fundPosition.getTransactionDate());
+            fundPosition.setHeldDays((int)heldDays);
+            fundPosition.setUpdateDate(transactionDate);
+            fundPositionMapper.updateHeldDaysAndUpdateDate(fundPosition);
             /* set status */
             if (currentDate.before(settlementDate)) {
                 transaction.setStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode());
@@ -265,10 +270,11 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 if (fundRedemptionFeeRates.isEmpty()) {
                     throw new FundTransactionException(999, "未查到赎回费率");
                 }
+
                 for (int j = 0; j < fundRedemptionFeeRates.size(); j++) {
                     FundRedemptionFeeRate fundRedemptionFeeRate = fundRedemptionFeeRates.get(j);
                     String feeRate;
-                    if (fundPosition.getHeldDays() < fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                    if (heldDays < fundRedemptionFeeRate.getFeeRateChangeDays()) {
                         feeRate = fundRedemptionFeeRate.getFeeRate();
                         BigDecimal redemptionFee = FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate);
                         fundHistoryPosition.setTotalRedemptionFee(redemptionFee);
@@ -280,8 +286,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                         }
                         break;
                     }
-                    if (j > 0 && fundPosition.getHeldDays() >= fundRedemptionFeeRates.get(j - 1).getFeeRateChangeDays()
-                        && fundPosition.getHeldDays() < fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                    if (j > 0 && heldDays >= fundRedemptionFeeRates.get(j - 1).getFeeRateChangeDays()
+                        && heldDays < fundRedemptionFeeRate.getFeeRateChangeDays()) {
                         feeRate = fundRedemptionFeeRate.getFeeRate();
                         BigDecimal redemptionFee = FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate);
                         fundHistoryPosition.setTotalRedemptionFee(redemptionFee);
@@ -293,7 +299,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                         }
                         break;
                     }
-                    if (j == fundRedemptionFeeRates.size() - 1 && fundPosition.getHeldDays() > fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                    if (j == fundRedemptionFeeRates.size() - 1 && heldDays >= fundRedemptionFeeRate.getFeeRateChangeDays()) {
                         feeRate = "0.00%";
                         BigDecimal redemptionFee = FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate);
                         fundHistoryPosition.setTotalRedemptionFee(redemptionFee);

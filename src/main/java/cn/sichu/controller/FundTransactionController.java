@@ -51,7 +51,7 @@ public class FundTransactionController {
     }
 
     @Scheduled(cron = "0 0 20-23 * * *")
-    @PostMapping("/update-nav-and-share")
+    @PostMapping("/update-fund-transaction")
     public void updateNavAndShare() throws ParseException, IOException {
         Date date = new Date();
         List<String> codes = fundHistoryNavService.selectAllCode();
