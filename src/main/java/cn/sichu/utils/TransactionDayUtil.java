@@ -87,7 +87,7 @@ public class TransactionDayUtil {
      * @date 2024/03/12
      **/
     public static Long getHeldDays(Date startDate, Date endDate) {
-        long diff = startDate.getTime() - endDate.getTime();
+        long diff = endDate.getTime() - startDate.getTime();
         return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
     }
 

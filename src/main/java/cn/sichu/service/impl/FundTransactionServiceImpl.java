@@ -241,7 +241,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 transaction.setMark(DateUtil.dateToStr(fundPositions.get(0).getTransactionDate()) + "->" + DateUtil.dateToStr(transactionDate));
             }
             /* update held days for fundposition, and get held days */
-            long heldDays = TransactionDayUtil.getHeldDays(transactionDate, fundPosition.getTransactionDate());
+            long heldDays = TransactionDayUtil.getHeldDays(fundPosition.getTransactionDate(), transactionDate);
             fundPosition.setHeldDays((int)heldDays);
             fundPosition.setUpdateDate(transactionDate);
             fundPositionMapper.updateHeldDaysAndUpdateDate(fundPosition);
@@ -450,7 +450,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     public void updateHeldDaysAndUpdateDateForFundPosition(Date date) throws ParseException {
         List<FundPosition> fundPositions = fundPositionMapper.selectAllFundPosition();
         for (FundPosition fundPosition : fundPositions) {
-            long heldDays = TransactionDayUtil.getHeldDays(date, fundPosition.getTransactionDate());
+            long heldDays = TransactionDayUtil.getHeldDays(fundPosition.getTransactionDate(), date);
             fundPosition.setHeldDays((int)heldDays);
             fundPosition.setUpdateDate(DateUtil.formatDate(date));
             fundPositionMapper.updateHeldDaysAndUpdateDate(fundPosition);
