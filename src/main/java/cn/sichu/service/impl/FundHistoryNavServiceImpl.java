@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +98,12 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
      **/
     @Override
     public List<String> selectAllCode() {
-        return fundHistoryNavMapper.selectAllCode();
+        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectAllCode();
+        List<String> list = new ArrayList<>();
+        for (FundHistoryNav fundHistoryNav : fundHistoryNavs) {
+            list.add(fundHistoryNav.getCode());
+        }
+        return list;
     }
 
     /**
