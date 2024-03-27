@@ -1,7 +1,6 @@
 package cn.sichu.service;
 
 import cn.sichu.entity.FundPurchaseTransaction;
-import cn.sichu.entity.FundRedemptionTransaction;
 import cn.sichu.entity.FundTransaction;
 
 import java.io.IOException;
@@ -17,24 +16,14 @@ import java.util.List;
 public interface IFundTransactionService {
 
     /**
-     * @param fundPurchaseTransaction fundPurchaseTransaction
-     * @author sichu huang
-     * @date 2024/03/21
-     **/
-    void insertFundTransactionByFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
-
-    /**
-     * @param fundRedemptionTransaction fundRedemptionTransaction
-     * @author sichu huang
-     * @date 2024/03/24
-     **/
-    void insertFundTransactionByFundRedemptionTransaction(FundRedemptionTransaction fundRedemptionTransaction);
-
-    /**
-     * @param code            code
-     * @param applicationDate applicationDate
-     * @param amount          amount
-     * @param tradingPlatform tradingPlatform
+     * 1. 插入买入交易表, 如果满足条件: nav和share不为空, 并且status为持仓, 则插入持仓表;
+     * <br/>
+     * 2. 插入总交易表;
+     *
+     * @param code            基金代码 (6位)
+     * @param applicationDate 交易申请日
+     * @param amount          交易金额
+     * @param tradingPlatform 交易平台
      * @author sichu huang
      * @date 2024/03/10
      **/
@@ -70,13 +59,13 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/16
      **/
-    void updateNavAndShareForFundPurchaseTransaction();
+    void updateNavAndShareForFundPurchaseTransaction() throws ParseException, IOException;
 
     /**
      * @author sichu huang
      * @date 2024/03/25
      **/
-    void updateNavAndFeeAndAmountForFundRedemptionTransaction() throws ParseException;
+    void updateNavAndFeeAndAmountForFundRedemptionTransaction() throws ParseException, IOException;
 
     /**
      * @param date date
