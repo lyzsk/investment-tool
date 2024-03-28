@@ -44,7 +44,7 @@ public class FundTransactionController {
 
     @Scheduled(cron = "0 30 9 * * *")
     @PostMapping("/update-status")
-    public void updateStatusForTrabsactionInTransit() throws ParseException, IOException {
+    public void updateStatusForTransactionInTransit() throws ParseException, IOException {
         Date date = new Date();
         fundTransactionService.updateStatusForTransactionInTransit(date);
         fundTransactionService.updateHeldDaysAndUpdateDateForFundPosition(date);

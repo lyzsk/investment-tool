@@ -18,7 +18,7 @@ public interface FundPurchaseTransactionMapper {
 
     List<FundPurchaseTransaction> selectAllFundPuchaseTransactionWithNullNavAndShare();
 
-    void updateStatusForFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
+    void updateStatus(FundPurchaseTransaction fundPurchaseTransaction);
 
     void updateNavAndShareForFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
 

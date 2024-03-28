@@ -29,7 +29,7 @@
         #{amount}, #{fee}, #{nav}, #{share}, #{tradingPlatform}, #{status}, #{mark}, #{type})
     </insert>
 
-    <select id="selectAllFundTransactions" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
+    <select id="selectAllFundTransaction" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
         trading_platform, status, mark, type
@@ -38,7 +38,7 @@
     </select>
 
 
-    <select id="selectAllFundTransactionsInTransit" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
+    <select id="selectAllFundTransactionInTransit" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
         trading_platform, status, mark, type

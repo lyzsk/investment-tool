@@ -14,9 +14,9 @@ public interface FundTransactionMapper {
 
     void insertFundTransaction(FundTransaction fundTransaction);
 
-    List<FundTransaction> selectAllFundTransactions();
+    List<FundTransaction> selectAllFundTransaction();
 
-    List<FundTransaction> selectAllFundTransactionsInTransit();
+    List<FundTransaction> selectAllFundTransactionInTransit();
 
     List<FundTransaction> selectAllFundTransactionWithNullNavAndShareForPurchaseType();
 
