@@ -47,7 +47,7 @@
         where nav is null or share is null
     </select>
 
-    <update id="updateStatusForFundPurchaseTransaction">
+    <update id="updateStatus">
         update fund_purchase_transaction
         <set>
             <if test="status != null">status = #{status},</if>

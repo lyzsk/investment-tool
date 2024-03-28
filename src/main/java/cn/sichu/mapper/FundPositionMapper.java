@@ -2,7 +2,9 @@ package cn.sichu.mapper;
 
 import cn.sichu.entity.FundPosition;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +27,9 @@ public interface FundPositionMapper {
     List<FundPosition> selectLastFundPositionInDifferentDate(FundPosition fundPosition);
 
     List<FundPosition> selectLastFundPositionInSameDate(FundPosition fundPosition);
+
+    List<FundPosition> selectAllFundPositionByConditions(@Param("code") String code, @Param("startDate") Date startDate,
+        @Param("endDate") Date endDate);
 
     void updateHeldDaysAndUpdateDate(FundPosition fundPosition);
 
