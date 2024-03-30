@@ -19,8 +19,6 @@ import java.text.ParseException;
 import java.util.*;
 
 /**
- * TODO: 累加计算持仓时, 考虑滑动窗口算法, Map<idx, amount> 这种的计算累加值, 用left, right下标
- *
  * @author sichu huang
  * @date 2024/03/09
  **/
@@ -154,7 +152,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             if (transactionDate.before(fundPositions.get(fundPositions.size() - 1).getInitiationDate())) {
                 throw new FundTransactionException(999, "赎回操作应在开始持仓之后");
             }
-            if (share.compareTo(fundPosition.getHeldShare()) < 0) {
+            if (share.compareTo(fundPositions.get(fundPositions.size() - 1).getHeldShare()) > 0) {
                 throw new FundTransactionException(999, "赎回份额超过持仓份额");
             }
             /* update held days for fund_position, 防止定时任务之后启动导致 held_days, update_date 数据不准确 */
