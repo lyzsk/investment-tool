@@ -20,6 +20,6 @@ public interface FundPurchaseTransactionMapper {
 
     void updateStatus(FundPurchaseTransaction fundPurchaseTransaction);
 
-    void updateNavAndShareForFundPurchaseTransaction(FundPurchaseTransaction fundPurchaseTransaction);
+    void updateNavAndShare(FundPurchaseTransaction fundPurchaseTransaction);
 
 }

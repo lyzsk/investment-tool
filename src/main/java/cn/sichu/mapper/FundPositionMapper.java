@@ -28,7 +28,7 @@ public interface FundPositionMapper {
 
     List<FundPosition> selectLastFundPositionInSameDate(FundPosition fundPosition);
 
-    List<FundPosition> selectAllFundPositionByConditions(@Param("code") String code, @Param("startDate") Date startDate,
+    List<FundPosition> selectAllFundPositionByConditionsOrderByTransactionDate(@Param("code") String code, @Param("heldDays") Integer heldDays,
         @Param("endDate") Date endDate);
 
     void updateHeldDaysAndUpdateDate(FundPosition fundPosition);

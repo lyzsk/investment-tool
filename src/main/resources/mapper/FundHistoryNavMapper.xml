@@ -42,7 +42,7 @@
         limit 1
     </select>
 
-    <select id="selectLastFundHistoryNavDates" resultType="cn.sichu.entity.FundHistoryNav" resultMap="resultMap">
+    <select id="selectLastFundHistoryNavDateAndNav" resultType="cn.sichu.entity.FundHistoryNav" resultMap="resultMap">
         select t1.code, t2.nav_date, t1.nav
         from fund_history_nav t1
         inner join

@@ -55,12 +55,13 @@
         where code = #{code} and transaction_date = #{transactionDate}
     </update>
 
-    <update id="updateNavAndAmount">
+    <update id="updateNavAndFeeAndAmount">
         update fund_redemption_transaction
         <set>
             <if test="nav != null">nav = #{nav},</if>
+            <if test="fee != null">fee = #{fee},</if>
             <if test="amount != null">amount = #{amount},</if>
         </set>
-        where code = #{code} and transaction_date = #{transactionDate}
+        where code = #{code} and transaction_date = #{transactionDate} and share = #{share}
     </update>
 </mapper>

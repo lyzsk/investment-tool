@@ -20,7 +20,7 @@ public interface FundHistoryNavMapper {
 
     List<FundHistoryNav> selectLastFundHistoryNavDateByCode(String code);
 
-    List<FundHistoryNav> selectLastFundHistoryNavDates();
+    List<FundHistoryNav> selectLastFundHistoryNavDateAndNav();
 
     List<FundHistoryNav> selectAllCode();
 }

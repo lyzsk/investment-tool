@@ -61,5 +61,5 @@ public interface IFundHistoryNavService {
      * @author sichu huang
      * @date 2024/03/20
      **/
-    void updateHistoryNavByCodeAndDate(String code, Date date) throws ParseException, IOException;
+    void updateHistoryNavByConditions(String code, Date date) throws ParseException, IOException;
 }

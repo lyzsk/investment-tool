@@ -75,7 +75,7 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
             if (navStr == null || navStr.equals("")) {
                 throw new FundTransactionException(999, "更新历史净值失败");
             }
-            historyNavs = fundHistoryNavMapper.selectLastFundHistoryNavDates();
+            historyNavs = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
         }
         Date lastNavDate = historyNavs.get(0).getNavDate();
         if (navDate.getTime() >= lastNavDate.getTime()) {
@@ -141,15 +141,15 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
      * @date 2024/03/20
      **/
     @Override
-    public void updateHistoryNavByCodeAndDate(String code, Date date) throws ParseException, IOException {
-        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectLastFundHistoryNavDates();
+    public void updateHistoryNavByConditions(String code, Date date) throws ParseException, IOException {
+        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
         String callback = selectCallbackByCode(code);
         if (fundHistoryNavs.isEmpty()) {
             String navStr = retryUpdateHistoryNav(code, date);
             if (navStr == null || navStr.equals("")) {
                 throw new FundTransactionException(999, "更新历史净值失败");
             }
-            fundHistoryNavs = fundHistoryNavMapper.selectLastFundHistoryNavDates();
+            fundHistoryNavs = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
         }
         FundHistoryNav historyNav = fundHistoryNavs.get(0);
         Date lastNavDate = historyNav.getNavDate();
