@@ -30,7 +30,7 @@ public interface IFundHistoryNavService {
      * @author sichu huang
      * @date 2024/03/16
      **/
-    String selectFundHistoryNavOrderByConditions(String code, Date navDate) throws ParseException, IOException;
+    String selectFundHistoryNavByConditions(String code, Date navDate) throws ParseException, IOException;
 
     /**
      * @param code code

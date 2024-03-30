@@ -81,7 +81,7 @@
         where code = #{code} and transaction_date = #{transactionDate}
     </update>
 
-    <update id="updateNavAndAmount">
+    <update id="updateNavAndFeeAndAmount">
         update fund_transaction
         <set>
             <if test="nav != null">nav = #{nav},</if>
