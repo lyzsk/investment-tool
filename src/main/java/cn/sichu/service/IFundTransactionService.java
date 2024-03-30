@@ -31,6 +31,28 @@ public interface IFundTransactionService {
         throws ParseException, IOException;
 
     /**
+     * insert into `fund_redemption_transaction` with:
+     * <br/>
+     * 1.code, 2.application_date, 3.transaction_date, 4.confirmation_date, 5.settlement_date, <b>6.amount(optional),
+     * 7.fee(optional), 8.nav(optional),</b> 9.share, 10.trading_platform, 11.status, 12.mark
+     * <p/>
+     * insert into `fund_transaction` with:
+     * <br/>
+     * 1.code, 2.application_date, 3.transaction_date, 4.confirmation_date, 5.settlement_date, <b>6.amount(optional),
+     * 7.fee(optional), 8.nav(optional),</b> 9.share, 10.trading_platform, 11.status, 12.mark, 13.type
+     * <p/>
+     * if REDEEMED:
+     * <br/>
+     * insert into `fund_history_position` with:
+     * <br/>
+     * 1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_amount, 6.total_purchase_fee,
+     * 7.total_redemption_fee, 8.held_share, 9.held_days, 10.mark;
+     * <br/>
+     * delete from `fund_position`:
+     * <br/>
+     * 1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_amount, 6.total_purchase_fee,
+     * 7.total_redemption_fee, 8.held_share, 9.held_days, 10.mark;
+     *
      * @param code            code
      * @param applicationDate applicationDate
      * @param share           share

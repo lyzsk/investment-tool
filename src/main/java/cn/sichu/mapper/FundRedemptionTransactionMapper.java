@@ -19,5 +19,5 @@ public interface FundRedemptionTransactionMapper {
 
     void updateStatus(FundRedemptionTransaction fundRedemptionTransaction);
 
-    void updateNavAndAmount(FundRedemptionTransaction fundRedemptionTransaction);
+    void updateNavAndFeeAndAmount(FundRedemptionTransaction fundRedemptionTransaction);
 }

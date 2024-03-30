@@ -46,8 +46,8 @@ public class FundTransactionController {
     @PostMapping("/update-status")
     public void updateStatusForTransactionInTransit() throws ParseException, IOException {
         Date date = new Date();
-        fundTransactionService.updateStatusForTransactionInTransit(date);
         fundTransactionService.updateHeldDaysAndUpdateDateForFundPosition(date);
+        fundTransactionService.updateStatusForTransactionInTransit(date);
     }
 
     @Scheduled(cron = "0 0 20-23 * * *")
@@ -56,7 +56,7 @@ public class FundTransactionController {
         Date date = new Date();
         List<String> codes = fundHistoryNavService.selectAllCode();
         for (String code : codes) {
-            fundHistoryNavService.updateHistoryNavByCodeAndDate(code, date);
+            fundHistoryNavService.updateHistoryNavByConditions(code, date);
         }
         fundTransactionService.updateNavAndShareForFundPurchaseTransaction();
         fundTransactionService.updateNavAndFeeAndAmountForFundRedemptionTransaction();

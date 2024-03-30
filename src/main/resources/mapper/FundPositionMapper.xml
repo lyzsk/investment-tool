@@ -91,11 +91,11 @@
         where rn = 1
     </select>
 
-    <select id="selectAllFundPositionByConditions" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+    <select id="selectAllFundPositionByConditionsOrderByTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
-        code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
+        id, code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
         from fund_position
-        where code = #{code} and transaction_date <![CDATA[>=]]> #{startDate} and update_date <![CDATA[<=]]> #{endDate}
+        where code = #{code} and held_days <![CDATA[<=]]> #{heldDays} and initiation_date <![CDATA[<=]]> #{endDate}
         order by transaction_date asc
     </select>
 
