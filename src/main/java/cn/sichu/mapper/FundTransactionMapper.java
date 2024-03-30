@@ -26,5 +26,5 @@ public interface FundTransactionMapper {
 
     void updateNavAndShare(FundTransaction fundTransaction);
 
-    void updateNavAndAmount(FundTransaction fundTransaction);
+    void updateNavAndFeeAndAmount(FundTransaction fundTransaction);
 }

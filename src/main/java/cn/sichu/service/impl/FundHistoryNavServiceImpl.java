@@ -30,16 +30,6 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     @Autowired
     FundEastmoneyJjjzMapper fundEastmoneyJjjzMapper;
 
-    /**
-     * 插入历史净值, 如果净值日期在表中已存在不会重复插入
-     *
-     * @param code      code
-     * @param startDate startDate
-     * @param endDate   endDate
-     * @param callback  callback
-     * @author sichu huang
-     * @date 2024/03/11
-     **/
     @Override
     public void insertFundHistoryNav(String code, String startDate, String endDate, String callback) throws ParseException, IOException {
         Map<String, String> map = ScrapingUtil.getDailyNavMapBetweenDates(code, startDate, endDate, callback);
@@ -54,15 +44,8 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         }
     }
 
-    /**
-     * @param code    code
-     * @param navDate navDate
-     * @return java.lang.String
-     * @author sichu huang
-     * @date 2024/03/16
-     **/
     @Override
-    public String selectFundHistoryNavOrderByConditions(String code, Date navDate) throws ParseException, IOException {
+    public String selectFundHistoryNavByConditions(String code, Date navDate) throws ParseException, IOException {
         List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
         if (!fundHistoryNavs.isEmpty()) {
             return fundHistoryNavs.get(0).getNav();
@@ -96,34 +79,17 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         return navStr;
     }
 
-    /**
-     * @param code code
-     * @return java.util.List<cn.sichu.entity.FundHistoryNav>
-     * @author sichu huang
-     * @date 2024/03/19
-     **/
     @Override
     public List<FundHistoryNav> selectLastFundHistoryNavDateByCode(String code) {
         return fundHistoryNavMapper.selectLastFundHistoryNavDateByCode(code);
     }
 
-    /**
-     * @param code code
-     * @return java.lang.String
-     * @author sichu huang
-     * @date 2024/03/18
-     **/
     @Override
     public String selectCallbackByCode(String code) {
         List<FundEastmoneyJjjz> list = fundEastmoneyJjjzMapper.selectCallbackByCode(code);
         return list.get(0).getCallback();
     }
 
-    /**
-     * @return java.util.List<java.lang.String>
-     * @author sichu huang
-     * @date 2024/03/25
-     **/
     @Override
     public List<String> selectAllCode() {
         List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectAllCode();
@@ -134,12 +100,6 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         return list;
     }
 
-    /**
-     * @param code code
-     * @param date date
-     * @author sichu huang
-     * @date 2024/03/20
-     **/
     @Override
     public void updateHistoryNavByConditions(String code, Date date) throws ParseException, IOException {
         List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
