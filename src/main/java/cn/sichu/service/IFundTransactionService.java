@@ -44,13 +44,13 @@ public interface IFundTransactionService {
      * <br/>
      * insert into `fund_history_position` with:
      * <br/>
-     * 1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_amount, 6.total_purchase_fee,
-     * 7.total_redemption_fee, 8.held_share, 9.held_days, 10.mark;
+     * 1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_principal_amount,
+     * 6.total_amount, 7.total_purchase_fee, 8.total_redemption_fee, 9.held_share, 10.held_days, 11.mark;
      * <br/>
      * delete from `fund_position`:
      * <br/>
-     * 1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_amount, 6.total_purchase_fee,
-     * 7.total_redemption_fee, 8.held_share, 9.held_days, 10.mark;
+     * 1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_principal_amount,
+     * 6.total_amount, 7.total_purchase_fee, 8.total_redemption_fee, 9.held_share, 10.held_days, 11.mark;
      *
      * @param code            code
      * @param applicationDate applicationDate
