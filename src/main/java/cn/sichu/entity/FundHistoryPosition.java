@@ -13,6 +13,7 @@ public class FundHistoryPosition {
     private Date transactionDate;
     private Date initiationDate;
     private Date redemptionDate;
+    private BigDecimal totalPrincipalAmount;
     private BigDecimal totalAmount;
     private BigDecimal totalPurchaseFee;
     private BigDecimal totalRedemptionFee;
@@ -23,13 +24,15 @@ public class FundHistoryPosition {
     public FundHistoryPosition() {
     }
 
-    public FundHistoryPosition(Long id, String code, Date transactionDate, Date initiationDate, Date redemptionDate, BigDecimal totalAmount,
-        BigDecimal totalPurchaseFee, BigDecimal totalRedemptionFee, BigDecimal heldShare, Integer heldDays, String mark) {
+    public FundHistoryPosition(Long id, String code, Date transactionDate, Date initiationDate, Date redemptionDate,
+        BigDecimal totalPrincipalAmount, BigDecimal totalAmount, BigDecimal totalPurchaseFee, BigDecimal totalRedemptionFee,
+        BigDecimal heldShare, Integer heldDays, String mark) {
         this.id = id;
         this.code = code;
         this.transactionDate = transactionDate;
         this.initiationDate = initiationDate;
         this.redemptionDate = redemptionDate;
+        this.totalPrincipalAmount = totalPrincipalAmount;
         this.totalAmount = totalAmount;
         this.totalPurchaseFee = totalPurchaseFee;
         this.totalRedemptionFee = totalRedemptionFee;
@@ -40,10 +43,10 @@ public class FundHistoryPosition {
 
     @Override
     public String toString() {
-        return "FundPositionHistory{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate + ", initiationDate="
-            + initiationDate + ", redemptionDate=" + redemptionDate + ", totalAmount=" + totalAmount + ", totalPurchaseFee=" + totalPurchaseFee
-            + ", totalRedemptionFee=" + totalRedemptionFee + ", heldShare=" + heldShare + ", heldDays=" + heldDays + ", mark='" + mark + '\''
-            + '}';
+        return "FundHistoryPosition{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate + ", initiationDate="
+            + initiationDate + ", redemptionDate=" + redemptionDate + ", totalPrincipalAmount=" + totalPrincipalAmount + ", totalAmount="
+            + totalAmount + ", totalPurchaseFee=" + totalPurchaseFee + ", totalRedemptionFee=" + totalRedemptionFee + ", heldShare=" + heldShare
+            + ", heldDays=" + heldDays + ", mark='" + mark + '\'' + '}';
     }
 
     public Long getId() {
@@ -84,6 +87,14 @@ public class FundHistoryPosition {
 
     public void setRedemptionDate(Date redemptionDate) {
         this.redemptionDate = redemptionDate;
+    }
+
+    public BigDecimal getTotalPrincipalAmount() {
+        return totalPrincipalAmount;
+    }
+
+    public void setTotalPrincipalAmount(BigDecimal totalPrincipalAmount) {
+        this.totalPrincipalAmount = totalPrincipalAmount;
     }
 
     public BigDecimal getTotalAmount() {

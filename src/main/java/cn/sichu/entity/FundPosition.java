@@ -14,6 +14,7 @@ public class FundPosition {
     private String code;
     private Date transactionDate;
     private Date initiationDate;
+    private BigDecimal totalPrincipalAmount;
     private BigDecimal totalAmount;
     private BigDecimal totalPurchaseFee;
     private BigDecimal heldShare;
@@ -23,12 +24,13 @@ public class FundPosition {
     public FundPosition() {
     }
 
-    public FundPosition(Long id, String code, Date transactionDate, Date initiationDate, BigDecimal totalAmount,
+    public FundPosition(Long id, String code, Date transactionDate, Date initiationDate, BigDecimal totalPrincipalAmount, BigDecimal totalAmount,
         BigDecimal totalPurchaseFee, BigDecimal heldShare, Integer heldDays, Date updateDate) {
         this.id = id;
         this.code = code;
         this.transactionDate = transactionDate;
         this.initiationDate = initiationDate;
+        this.totalPrincipalAmount = totalPrincipalAmount;
         this.totalAmount = totalAmount;
         this.totalPurchaseFee = totalPurchaseFee;
         this.heldShare = heldShare;
@@ -38,10 +40,9 @@ public class FundPosition {
 
     @Override
     public String toString() {
-        return "FundPosition{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate
-            + ", initiationDate=" + initiationDate + ", totalAmount=" + totalAmount + ", totalPurchaseFee="
-            + totalPurchaseFee + ", heldShare=" + heldShare + ", heldDays=" + heldDays + ", updateDate=" + updateDate
-            + '}';
+        return "FundPosition{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate + ", initiationDate="
+            + initiationDate + ", totalPrincipalAmount=" + totalPrincipalAmount + ", totalAmount=" + totalAmount + ", totalPurchaseFee="
+            + totalPurchaseFee + ", heldShare=" + heldShare + ", heldDays=" + heldDays + ", updateDate=" + updateDate + '}';
     }
 
     public Long getId() {
@@ -74,6 +75,14 @@ public class FundPosition {
 
     public void setInitiationDate(Date initiationDate) {
         this.initiationDate = initiationDate;
+    }
+
+    public BigDecimal getTotalPrincipalAmount() {
+        return totalPrincipalAmount;
+    }
+
+    public void setTotalPrincipalAmount(BigDecimal totalPrincipalAmount) {
+        this.totalPrincipalAmount = totalPrincipalAmount;
     }
 
     public BigDecimal getTotalAmount() {

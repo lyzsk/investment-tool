@@ -9,6 +9,7 @@
         <result property="transactionDate" column="transaction_date"/>
         <result property="initiationDate" column="initiation_date"/>
         <result property="redemptionDate" column="redemption_date"/>
+        <result property="totalPrincipalAmount" column="total_principal_amount"/>
         <result property="totalAmount" column="total_amount"/>
         <result property="totalPurchaseFee" column="total_purchase_fee"/>
         <result property="totalRedemptionFee" column="total_redemption_fee"/>
@@ -17,13 +18,14 @@
         <result property="mark" column="mark"/>
     </resultMap>
 
+    <!--  TODO: 防止重复插入  -->
     <insert id="insertFundHistoryPosition" useGeneratedKeys="true" keyProperty="id">
         insert into fund_history_position
-        (code, transaction_date, initiation_date, redemption_date, total_amount, total_purchase_fee, total_redemption_fee, held_share,
-        held_days, mark)
+        (code, transaction_date, initiation_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee,
+        total_redemption_fee, held_share, held_days, mark)
         values
-        (#{code}, #{transactionDate}, #{initiationDate}, #{redemptionDate}, #{totalAmount}, #{totalPurchaseFee}, #{totalRedemptionFee},
-        #{heldShare}, #{heldDays}, #{mark})
+        (#{code}, #{transactionDate}, #{initiationDate}, #{redemptionDate}, #{totalPrincipalAmount}, #{totalAmount}, #{totalPurchaseFee},
+        #{totalRedemptionFee}, #{heldShare}, #{heldDays}, #{mark})
     </insert>
 
 </mapper>

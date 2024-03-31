@@ -89,4 +89,15 @@ public class FinancialCalculationUtil {
         return share.multiply(n).subtract(fee).setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * @param share share
+     * @param nav   nav
+     * @param fee   fee
+     * @return java.math.BigDecimal
+     * @author sichu huang
+     * @date 2024/03/31
+     **/
+    public static BigDecimal calculateAmount(BigDecimal share, String nav, BigDecimal fee) {
+        return share.multiply(new BigDecimal(nav)).subtract(fee).setScale(2, RoundingMode.HALF_UP);
+    }
 }

@@ -1,6 +1,5 @@
 package cn.sichu.service;
 
-import cn.sichu.entity.FundPurchaseTransaction;
 import cn.sichu.entity.FundTransaction;
 
 import java.io.IOException;
@@ -64,13 +63,6 @@ public interface IFundTransactionService {
         throws ParseException, IOException;
 
     /**
-     * @param purchaseTransaction purchaseTransaction
-     * @author sichu huang
-     * @date 2024/03/20
-     **/
-    void insertFundPositionByFundPurchaseTransaction(FundPurchaseTransaction purchaseTransaction) throws ParseException, IOException;
-
-    /**
      * @return java.util.List<cn.sichu.entity.FundTransaction>
      * @author sichu huang
      * @date 2024/03/09
@@ -90,11 +82,13 @@ public interface IFundTransactionService {
     void updateNavAndFeeAndAmountForFundRedemptionTransaction() throws ParseException, IOException;
 
     /**
+     * update 5.total_amount, 8.held_days, 9.update_date for `fund_position`
+     *
      * @param date date
      * @author sichu huang
      * @date 2024/03/20
      **/
-    void updateHeldDaysAndUpdateDateForFundPosition(Date date) throws ParseException;
+    void updateTotalAmountAndHeldDaysAndUpdateDateForFundPosition(Date date) throws ParseException, IOException;
 
     /**
      * @param date date
