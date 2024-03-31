@@ -229,6 +229,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         List<FundPosition> fundPositions = fundPositionMapper.selectAllFundPosition();
         for (FundPosition fundPosition : fundPositions) {
             Date formattedDate = DateUtil.formatDate(date);
+            // TODO: 由于没有QDII的判断规则, 需要改成while直到获取到nav
             Date lastNTransactionDate = TransactionDayUtil.getLastNTransactionDate(formattedDate, 1);
             String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(fundPosition.getCode(), lastNTransactionDate);
             if (navStr == null || navStr.equals("")) {
@@ -503,8 +504,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     /**
      * set <b>6.amount, 7.fee, 8.nav</b> for `fund_redemption_transaction`;
      * <br/>
-     * set <b>1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_amount, 6.total_purchase_fee,
-     * 7.total_redemption_fee, 8.held_share, 9.held_days, 10.mark</b> for `fund_history_position`;
+     * set <b>1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_principal_amount, 6.total_amount,
+     * 7.total_purchase_fee, 8.total_redemption_fee, 9.held_share, 10.held_days, 11.mark</b> for `fund_history_position`;
      * <br/>
      * if REDEEMED, insert data into `fund_history_position` and delete `fund_position` data
      *
@@ -519,7 +520,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         int i, String navStr) {
         FundPosition fundPosition = fundPositions.get(i);
         FundHistoryPosition fundHistoryPosition = new FundHistoryPosition();
-        /* set 1.code, 2.transactionDate, 3.initiationDate, 4.redemptionDate, 6.totalPurchaseFee, 8.heldShare, 9.heldDays, 10.mark */
+        /* set 1.code, 2.transactionDate, 3.initiationDate, 4.redemptionDate, 5.total_principal_amount, */
+        /* 7.totalPurchaseFee, 9.heldShare, 10.heldDays, 11.mark */
         setFundHistoryPositionData(fundHistoryPosition, fundPosition, transaction);
         /* set 7.total_redemption_fee, 5.total_amount */
         List<FundRedemptionFeeRate> fundRedemptionFeeRates =
@@ -544,8 +546,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     }
 
     /**
-     * set <b>1.code, 2.transactionDate, 3.initiationDate, 4.redemptionDate, 6.totalPurchaseFee,
-     * 8.heldShare, 9.heldDays, 10.mark</b> for `fund_history_position`
+     * set <b>1.code, 2.transactionDate, 3.initiationDate, 4.redemptionDate, 5.total_principal_amount,
+     * 7.totalPurchaseFee, 9.heldShare, 10.heldDays, 11.mark</b> for `fund_history_position`
      *
      * @param fundHistoryPosition FundHistoryPosition
      * @param fundPosition        FundPosition
@@ -559,6 +561,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         fundHistoryPosition.setTransactionDate(fundPosition.getTransactionDate());
         fundHistoryPosition.setInitiationDate(fundPosition.getInitiationDate());
         fundHistoryPosition.setRedemptionDate(transaction.getTransactionDate());
+        fundHistoryPosition.setTotalPrincipalAmount(fundPosition.getTotalPrincipalAmount());
         fundHistoryPosition.setTotalPurchaseFee(fundPosition.getTotalPurchaseFee());
         fundHistoryPosition.setHeldShare(fundPosition.getHeldShare());
         fundHistoryPosition.setHeldDays(fundPosition.getHeldDays());
@@ -671,7 +674,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             fundPositionMapper.selectAllFundPositionByConditionsOrderByTransactionDate(code, (int)heldDays, transactionDate);
         for (FundPosition fundPosition : fundPositions) {
             FundHistoryPosition fundHistoryPosition = new FundHistoryPosition();
-            /* set 1.code, 2.transactionDate, 3.initiationDate, 4.redemptionDate, 6.totalPurchaseFee, 8.heldShare, 9.heldDays, 10.mark */
+            /* set 1.code, 2.transactionDate, 3.initiationDate, 4.redemptionDate, 5.total_principal_amount, */
+            /* 6.totalPurchaseFee, 8.heldShare, 9.heldDays, 10.mark */
             setFundHistoryPositionData(fundHistoryPosition, fundPosition, transaction);
             /* set 7.total_redemption_fee, 5.total_amount */
             List<FundRedemptionFeeRate> fundRedemptionFeeRates =
