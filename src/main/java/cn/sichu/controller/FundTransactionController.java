@@ -46,7 +46,7 @@ public class FundTransactionController {
     @PostMapping("/update-status")
     public void updateStatusForTransactionInTransit() throws ParseException, IOException {
         Date date = new Date();
-        fundTransactionService.updateHeldDaysAndUpdateDateForFundPosition(date);
+        fundTransactionService.updateTotalAmountAndHeldDaysAndUpdateDateForFundPosition(date);
         fundTransactionService.updateStatusForTransactionInTransit(date);
     }
 
@@ -61,13 +61,5 @@ public class FundTransactionController {
         fundTransactionService.updateNavAndShareForFundPurchaseTransaction();
         fundTransactionService.updateNavAndFeeAndAmountForFundRedemptionTransaction();
     }
-
-    // @PostMapping("/redemption")
-    // public void redemptionFund(@RequestParam("code") String code,
-    //     @RequestParam("applicationDate") String applicationDate, @RequestParam("share") String share,
-    //     @RequestParam("tradingPlatform") String tradingPlatform) {
-    //     fundTransactionService.insertFunRedemptionTransactionByConditions(code, DateUtil.strToDate(applicationDate),
-    //         new BigDecimal(share), tradingPlatform);
-    // }
 
 }

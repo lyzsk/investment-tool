@@ -8,6 +8,7 @@
         <result property="code" column="code"/>
         <result property="transactionDate" column="transaction_date"/>
         <result property="initiationDate" column="initiation_date"/>
+        <result property="totalPrincipalAmount" column="total_principal_amount"/>
         <result property="totalAmount" column="total_amount"/>
         <result property="totalPurchaseFee" column="total_purchase_fee"/>
         <result property="heldShare" column="held_share"/>
@@ -17,16 +18,16 @@
 
     <insert id="insertFundPosition" useGeneratedKeys="true" keyProperty="id">
         insert into fund_position
-        (code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date)
+        (code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date)
         select
-        #{code}, #{transactionDate}, #{initiationDate}, #{totalAmount}, #{totalPurchaseFee}, #{heldShare},
+        #{code}, #{transactionDate}, #{initiationDate}, #{totalPrincipalAmount}, #{totalAmount}, #{totalPurchaseFee}, #{heldShare},
         #{heldDays}, #{updateDate}
         from dual
         where not exists (
-        select total_amount, total_purchase_fee, held_share
+        select total_principal_amount, total_amount, total_purchase_fee, held_share
         from fund_position
-        where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and
-        total_amount = #{totalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare}
+        where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and total_principal_amount =
+        #{totalPrincipalAmount} and total_amount = #{totalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare}
         )
     </insert>
 
@@ -37,13 +38,13 @@
 
     <select id="selectAllFundPosition" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
-        code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
+        code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date
         from fund_position
     </select>
 
     <select id="selectAllFundPositionByCodeOrderByTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
-        id, code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
+        id, code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date
         from fund_position
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
@@ -53,7 +54,7 @@
 
     <select id="selectFundPositionByCodeAndAfterTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
-        code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
+        code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date
         from fund_position
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
@@ -63,9 +64,9 @@
     </select>
 
     <select id="selectLastFundPositionInDifferentDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
-        select code, total_amount, total_purchase_fee, held_share
+        select code, total_principal_amount, total_amount, total_purchase_fee, held_share
         from (
-        select code, total_amount, total_purchase_fee, held_share,
+        select code, total_principal_amount, total_amount, total_purchase_fee, held_share,
         row_number() over (partition by code order by held_share desc) as rn
         from fund_position
         <where>
@@ -77,9 +78,9 @@
     </select>
 
     <select id="selectLastFundPositionInSameDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
-        select code, total_amount, total_purchase_fee, held_share
+        select code, total_principal_amount, total_amount, total_purchase_fee, held_share
         from (
-        select code, total_amount, total_purchase_fee, held_share,
+        select code, total_principal_amount, total_amount, total_purchase_fee, held_share,
         row_number() over (partition by code order by held_share desc) as rn
         from fund_position
         <where>
@@ -93,26 +94,27 @@
 
     <select id="selectAllFundPositionByConditionsOrderByTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
-        id, code, transaction_date, initiation_date, total_amount, total_purchase_fee, held_share, held_days, update_date
+        id, code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date
         from fund_position
         where code = #{code} and held_days <![CDATA[<=]]> #{heldDays} and initiation_date <![CDATA[<=]]> #{endDate}
         order by transaction_date asc
     </select>
 
-    <update id="updateHeldDaysAndUpdateDate">
+    <update id="updateTotalAmountAndHeldDaysAndUpdateDate">
         update fund_position
         <set>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
             <if test="heldDays != null">held_days = #{heldDays},</if>
             <if test="updateDate != null">update_date = #{updateDate},</if>
         </set>
         where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and
-        total_amount = #{totalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare}
+        total_principal_amount = #{totalPrincipalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare}
     </update>
 
-    <update id="updateTotalAmountAndTotalPurchaseFeeAndHeldShare">
+    <update id="updateTotalPrincipalAmountAndTotalPurchaseFeeAndHeldShare">
         update fund_position
         <set>
-            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="totalPrincipalAmount != null">total_principal_amount = #{totalPrincipalAmount},</if>
             <if test="totalPurchaseFee != null">total_purchase_fee = #{totalPurchaseFee},</if>
             <if test="heldShare != null">held_share = #{heldShare},</if>
         </set>
