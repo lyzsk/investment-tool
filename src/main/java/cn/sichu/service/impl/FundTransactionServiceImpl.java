@@ -229,11 +229,22 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         List<FundPosition> fundPositions = fundPositionMapper.selectAllFundPosition();
         for (FundPosition fundPosition : fundPositions) {
             Date formattedDate = DateUtil.formatDate(date);
-            // TODO: 由于没有QDII的判断规则, 需要改成while直到获取到nav
-            Date lastNTransactionDate = TransactionDayUtil.getLastNTransactionDate(formattedDate, 1);
-            String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(fundPosition.getCode(), lastNTransactionDate);
+            /* 缺少美股节假日, 暂时使用暴力解决 */
+            int n = 1;
+            String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(fundPosition.getCode(),
+                TransactionDayUtil.getLastNTransactionDate(formattedDate, n));
             if (navStr == null || navStr.equals("")) {
-                throw new FundTransactionException(999, "更新持仓信息失败, 净值未更新");
+                int tryCount = 7;
+                for (int i = 0; i <= tryCount; i++) {
+                    if (navStr != null && !navStr.equals("")) {
+                        break;
+                    }
+                    navStr = fundHistoryNavService.selectFundHistoryNavByConditions(fundPosition.getCode(),
+                        TransactionDayUtil.getLastNTransactionDate(formattedDate, ++n));
+                }
+                if (navStr == null || navStr.equals("")) {
+                    throw new FundTransactionException(999, "更新持仓信息失败, 净值未更新");
+                }
             }
             fundPosition.setTotalAmount(
                 FinancialCalculationUtil.calculateAmount(fundPosition.getHeldShare(), navStr, fundPosition.getTotalPurchaseFee()));

@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @date 2024/03/09
  **/
 public class FundTransactionStatementSheet {
-    /* 编号 */
+    /* 基金代码 */
     private String code;
 
     /* 基金简称 */
@@ -18,6 +18,9 @@ public class FundTransactionStatementSheet {
 
     /* 交易申请日 */
     private String applicationDate;
+
+    /* 交易所属日 */
+    private String transactionDate;
 
     /* 交易确认日 */
     private String confirmationDate;
@@ -55,25 +58,25 @@ public class FundTransactionStatementSheet {
     /* 交易类型: purchase, redemption, dividend */
     private String type;
 
+    /* 交易平台 */
+    private String tradingPlatform;
+
     /* 基金全称 */
     private String fullName;
 
     /* 基金公司 */
     private String companyName;
 
-    /* 交易平台 */
-    private String tradingPlatform;
-
     public FundTransactionStatementSheet() {
     }
 
-    public FundTransactionStatementSheet(String code, String shortName, String applicationDate, String confirmationDate,
-        String settlementDate, String fee, String totalFee, String share, String totalShare, String nav,
-        String dilutedNav, String avgNavPerShare, String amount, String totalAmount, String type, String fullName,
-        String companyName, String tradingPlatform) {
+    public FundTransactionStatementSheet(String code, String shortName, String applicationDate, String transactionDate, String confirmationDate,
+        String settlementDate, String fee, String totalFee, String share, String totalShare, String nav, String dilutedNav,
+        String avgNavPerShare, String amount, String totalAmount, String type, String tradingPlatform, String fullName, String companyName) {
         this.code = code;
         this.shortName = shortName;
         this.applicationDate = applicationDate;
+        this.transactionDate = transactionDate;
         this.confirmationDate = confirmationDate;
         this.settlementDate = settlementDate;
         this.fee = fee;
@@ -86,21 +89,20 @@ public class FundTransactionStatementSheet {
         this.amount = amount;
         this.totalAmount = totalAmount;
         this.type = type;
+        this.tradingPlatform = tradingPlatform;
         this.fullName = fullName;
         this.companyName = companyName;
-        this.tradingPlatform = tradingPlatform;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("code", getCode())
-            .append("shortName", getShortName()).append("applicationDate", getApplicationDate())
-            .append("confirmationDate", getConfirmationDate()).append("settlementDate", getSettlementDate())
-            .append("fee", getFee()).append("totalFee", getTotalFee()).append("share", getShare())
-            .append("totalShare", getTotalShare()).append("nav", getNav()).append("dilutedNav", getDilutedNav())
-            .append("avgNavPerShare", getAvgNavPerShare()).append("amount", getAmount())
-            .append("totalAmount", getTotalAmount()).append("type", getType()).append("fullName", getFullName())
-            .append("companyName", getCompanyName()).append("tradingPlatform", getTradingPlatform()).toString();
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("code", getCode()).append("shortName", getShortName())
+            .append("applicationDate", getApplicationDate()).append("transactionDate", getTransactionDate())
+            .append("confirmationDate", getConfirmationDate()).append("settlementDate", getSettlementDate()).append("fee", getFee())
+            .append("totalFee", getTotalFee()).append("share", getShare()).append("totalShare", getTotalShare()).append("nav", getNav())
+            .append("dilutedNav", getDilutedNav()).append("avgNavPerShare", getAvgNavPerShare()).append("amount", getAmount())
+            .append("totalAmount", getTotalAmount()).append("type", getType()).append("tradingPlatform", getTradingPlatform())
+            .append("fullName", getFullName()).append("companyName", getCompanyName()).toString();
     }
 
     public String getCode() {
@@ -125,6 +127,14 @@ public class FundTransactionStatementSheet {
 
     public void setApplicationDate(String applicationDate) {
         this.applicationDate = applicationDate;
+    }
+
+    public String getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(String transactionDate) {
+        this.transactionDate = transactionDate;
     }
 
     public String getConfirmationDate() {
@@ -223,6 +233,14 @@ public class FundTransactionStatementSheet {
         this.type = type;
     }
 
+    public String getTradingPlatform() {
+        return tradingPlatform;
+    }
+
+    public void setTradingPlatform(String tradingPlatform) {
+        this.tradingPlatform = tradingPlatform;
+    }
+
     public String getFullName() {
         return fullName;
     }
@@ -237,13 +255,5 @@ public class FundTransactionStatementSheet {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
-    }
-
-    public String getTradingPlatform() {
-        return tradingPlatform;
-    }
-
-    public void setTradingPlatform(String tradingPlatform) {
-        this.tradingPlatform = tradingPlatform;
     }
 }
