@@ -16,13 +16,13 @@ public class FundTransactionReportSheet {
     /* 基金简称 */
     private String shortName;
 
-    /* 购买交易申请日 */
-    private String purchaseApplicationDate;
+    /* 购买交易所属日 */
+    private String purchaseTransactionDate;
 
-    /* 赎回交易申请日 */
-    private String redemptionApplicationDate;
+    /* 赎回交易所属日 */
+    private String redemptionTransactionDate;
 
-    /* 分红交易日 */
+    /* 分红交易所属日 */
     private String dividendDate;
 
     /* 持有天数 */
@@ -34,38 +34,36 @@ public class FundTransactionReportSheet {
     /* 日均万份收益 */
     private String dailyNavYield;
 
-    /* 基金公司 */
-    private String companyName;
-
     /* 交易平台 */
     private String tradingPlatform;
+
+    /* 基金公司 */
+    private String companyName;
 
     public FundTransactionReportSheet() {
     }
 
-    public FundTransactionReportSheet(String code, String shortName, String purchaseApplicationDate,
-        String redemptionApplicationDate, String dividendDate, String heldDate, String profit, String dailyNavYield,
-        String companyName, String tradingPlatform) {
+    public FundTransactionReportSheet(String code, String shortName, String purchaseTransactionDate, String redemptionTransactionDate,
+        String dividendDate, String heldDate, String profit, String dailyNavYield, String tradingPlatform, String companyName) {
         this.code = code;
         this.shortName = shortName;
-        this.purchaseApplicationDate = purchaseApplicationDate;
-        this.redemptionApplicationDate = redemptionApplicationDate;
+        this.purchaseTransactionDate = purchaseTransactionDate;
+        this.redemptionTransactionDate = redemptionTransactionDate;
         this.dividendDate = dividendDate;
         this.heldDate = heldDate;
         this.profit = profit;
         this.dailyNavYield = dailyNavYield;
-        this.companyName = companyName;
         this.tradingPlatform = tradingPlatform;
+        this.companyName = companyName;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("code", getCode())
-            .append("shortName", getShortName()).append("purchaseApplicationDate", getPurchaseApplicationDate())
-            .append("redemptionApplicationDate", getRedemptionApplicationDate())
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("code", getCode()).append("shortName", getShortName())
+            .append("purchaseTransactionDate", getPurchaseTransactionDate()).append("redemptionTransactionDate", getRedemptionTransactionDate())
             .append("dividendDate", getDividendDate()).append("heldDate", getHeldDate()).append("profit", getProfit())
-            .append("dailyNavYield", getDailyNavYield()).append("companyName", getCompanyName())
-            .append("tradingPlatform", getTradingPlatform()).toString();
+            .append("dailyNavYield", getDailyNavYield()).append("tradingPlatform", getTradingPlatform()).append("companyName", getCompanyName())
+            .toString();
     }
 
     public String getCode() {
@@ -84,20 +82,20 @@ public class FundTransactionReportSheet {
         this.shortName = shortName;
     }
 
-    public String getPurchaseApplicationDate() {
-        return purchaseApplicationDate;
+    public String getPurchaseTransactionDate() {
+        return purchaseTransactionDate;
     }
 
-    public void setPurchaseApplicationDate(String purchaseApplicationDate) {
-        this.purchaseApplicationDate = purchaseApplicationDate;
+    public void setPurchaseTransactionDate(String purchaseTransactionDate) {
+        this.purchaseTransactionDate = purchaseTransactionDate;
     }
 
-    public String getRedemptionApplicationDate() {
-        return redemptionApplicationDate;
+    public String getRedemptionTransactionDate() {
+        return redemptionTransactionDate;
     }
 
-    public void setRedemptionApplicationDate(String redemptionApplicationDate) {
-        this.redemptionApplicationDate = redemptionApplicationDate;
+    public void setRedemptionTransactionDate(String redemptionTransactionDate) {
+        this.redemptionTransactionDate = redemptionTransactionDate;
     }
 
     public String getDividendDate() {
@@ -132,19 +130,19 @@ public class FundTransactionReportSheet {
         this.dailyNavYield = dailyNavYield;
     }
 
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
     public String getTradingPlatform() {
         return tradingPlatform;
     }
 
     public void setTradingPlatform(String tradingPlatform) {
         this.tradingPlatform = tradingPlatform;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 }

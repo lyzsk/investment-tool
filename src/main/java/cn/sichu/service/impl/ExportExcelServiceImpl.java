@@ -3,7 +3,11 @@ package cn.sichu.service.impl;
 import cn.sichu.domain.FundTransactionReportSheet;
 import cn.sichu.domain.FundTransactionStatementSheet;
 import cn.sichu.domain.GoldTransactionStatementSheet;
+import cn.sichu.entity.FundInformation;
 import cn.sichu.entity.FundTransaction;
+import cn.sichu.enums.FundTransactionType;
+import cn.sichu.exception.ExcelException;
+import cn.sichu.mapper.FundTransactionStatementSheetMapper;
 import cn.sichu.service.IExportExcelService;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
@@ -22,24 +26,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * TODO: full name, company name 填入
- *
  * @author sichu huang
  * @date 2024/03/09
  **/
 @Service
 public class ExportExcelServiceImpl implements IExportExcelService {
     @Autowired
-    private FundTransactionServiceImpl fundTransactionService;
-    @Autowired
-    private FundInformationServiceImpl fundInformationService;
+    FundTransactionStatementSheetMapper fundTransactionStatementSheetMapper;
 
     /**
      * 根据"resources/investment-template.xlsx"导出excel
@@ -55,8 +55,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         LocalDateTime localDateTime = LocalDateTime.now();
         String currentDateTime = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String fileName = URLEncoder.encode("-investment", StandardCharsets.UTF_8);
-        response.setHeader("Content-Disposition",
-            "attachment;filename*=UTF-8''" + currentDateTime + fileName + ".xlsx");
+        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + currentDateTime + fileName + ".xlsx");
 
         String templatePath = "templates/";
         String template = "investment-template.xlsx";
@@ -68,21 +67,18 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         workbook.setSheetName(1, "Fund Transaction Report");
         workbook.setSheetName(2, "Gold Transaction Statement");
 
-        List<FundTransactionStatementSheet> fundTransactionStatementSheetDataList;
+        List<FundTransaction> fundTransactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
+        List<FundTransactionStatementSheet> fundTransactionStatementSheetDataList = setFundTransactionStatementSheetData(fundTransactionList);
         List<FundTransactionReportSheet> fundTransactionReportSheetDataList = new ArrayList<>();
         List<GoldTransactionStatementSheet> goldTransactionStatementSheetDataList = new ArrayList<>();
 
-        List<FundTransaction> fundTransactions = fundTransactionService.selectAllFundTransactions();
-        fundTransactionStatementSheetDataList = initFundTransactionStatementSheet(fundTransactions);
-
         for (int i = 0; i < 10; i++) {
             FundTransactionReportSheet fundTransactionReportSheet =
-                new FundTransactionReportSheet("270023", "广发全球精选股票", "04/03/2024", "06/03/2024", "", "2", "", "",
-                    "广发基金管理有限公司", "中国银行");
+                new FundTransactionReportSheet("270023", "广发全球精选股票", "04/03/2024", "06/03/2024", "", "2", "", "", "中国银行", "广发基金管理有限公司");
             fundTransactionReportSheetDataList.add(fundTransactionReportSheet);
             GoldTransactionStatementSheet goldTransactionStatementSheet =
-                new GoldTransactionStatementSheet("积存金", "04/03/2024", "04/03/2024", "04/03/2024", "492.20", "492.20",
-                    "1.00", "1.00", "492.20", "492.20", "purchase", "中国银行");
+                new GoldTransactionStatementSheet("积存金", "04/03/2024", "04/03/2024", "04/03/2024", "492.20", "492.20", "1.00", "1.00", "492.20",
+                    "492.20", "purchase", "中国银行");
             goldTransactionStatementSheetDataList.add(goldTransactionStatementSheet);
         }
 
@@ -91,14 +87,11 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         byte[] bytes = outputStream.toByteArray();
         inputStream = new ByteArrayInputStream(bytes);
         ExcelWriter writer = EasyExcel.write(response.getOutputStream()).withTemplate(inputStream).build();
-        WriteSheet fundTransactionStatementSheetWriteSheet =
-            EasyExcel.writerSheet("Fund Transaction Statement").build();
+        WriteSheet fundTransactionStatementSheetWriteSheet = EasyExcel.writerSheet("Fund Transaction Statement").build();
         WriteSheet fundTransactionReportSheetWriteSheet = EasyExcel.writerSheet("Fund Transaction Report").build();
-        WriteSheet goldTransactionStatementSheetWriteSheet =
-            EasyExcel.writerSheet("Gold Transaction Statement").build();
+        WriteSheet goldTransactionStatementSheetWriteSheet = EasyExcel.writerSheet("Gold Transaction Statement").build();
 
-        FillConfig listFillConfig =
-            FillConfig.builder().forceNewRow(true).direction(WriteDirectionEnum.VERTICAL).build();
+        FillConfig listFillConfig = FillConfig.builder().forceNewRow(true).direction(WriteDirectionEnum.VERTICAL).build();
         writer.fill(fundTransactionStatementSheetDataList, listFillConfig, fundTransactionStatementSheetWriteSheet);
         writer.fill(fundTransactionReportSheetDataList, listFillConfig, fundTransactionReportSheetWriteSheet);
         writer.fill(goldTransactionStatementSheetDataList, listFillConfig, goldTransactionStatementSheetWriteSheet);
@@ -108,51 +101,76 @@ public class ExportExcelServiceImpl implements IExportExcelService {
     }
 
     /**
-     * @param fundTransactions fund_transaction 表中的全部数据List
+     * @param fundTransactions FundTransaction List
      * @return java.util.List<cn.sichu.domain.FundTransactionStatementSheet>
      * @author sichu huang
      * @date 2024/03/09
      **/
-    private List<FundTransactionStatementSheet> initFundTransactionStatementSheet(
-        List<FundTransaction> fundTransactions) {
+    private List<FundTransactionStatementSheet> setFundTransactionStatementSheetData(List<FundTransaction> fundTransactions) {
         List<FundTransactionStatementSheet> list = new ArrayList<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-
-        // for (FundTransaction transaction : fundTransactions) {
-        //     String code = transaction.getCode();
-        //     String shortName = transaction.getShortName();
-        //     String applicationDate = sdf.format(transaction.getApplicationDate());
-        //     String confirmationDate = sdf.format(transaction.getConfirmationDate());
-        //     String settlementDate = sdf.format(transaction.getSettlementDate());
-        //     String fee = transaction.getFee();
-        //     String share = transaction.getShare();
-        //     String nav = transaction.getNav();
-        //     String amount = transaction.getAmount();
-        //     String type = "";
-        //     Integer rawType = transaction.getType();
-        //     if (rawType == 0) {
-        //         type = "purchase";
-        //     } else if (rawType == 1) {
-        //         type = "redemption";
-        //     } else if (rawType == 2) {
-        //         type = "dividend";
-        //     }
-        //     String fullName = "";
-        //     String companyName = "";
-        //     List<FundInformation> fundInformations = fundInformationService.selectFundShortNameByCode(code);
-        //     for (FundInformation fundInformation : fundInformations) {
-        //         if (code.equals(fundInformation.getCode())) {
-        //             fullName = fundInformation.getFullName();
-        //             companyName = fundInformation.getCompanyName();
-        //         }
-        //     }
-        //     String tradingPlatform = transaction.getTradingPlatform();
-        //
-        //     FundTransactionStatementSheet fundTransactionStatementSheet =
-        //         new FundTransactionStatementSheet(code, shortName, applicationDate, confirmationDate, settlementDate,
-        //             fee, "", share, "", nav, "", "", amount, "", type, fullName, companyName, tradingPlatform);
-        //     list.add(fundTransactionStatementSheet);
-        // }
+        for (FundTransaction fundTransaction : fundTransactions) {
+            String code = fundTransaction.getCode();
+            Integer type = fundTransaction.getType();
+            List<FundInformation> fundInformationList = fundTransactionStatementSheetMapper.selectFundInformationByCode(code);
+            if (fundInformationList.isEmpty()) {
+                throw new ExcelException(999, "获取基金信息失败");
+            }
+            FundInformation fundInformation = fundInformationList.get(0);
+            FundTransactionStatementSheet fundTransactionStatementSheet = new FundTransactionStatementSheet();
+            handleFundTransactionStatementSheetData(fundTransactionStatementSheet, fundTransaction, fundInformation, type);
+            list.add(fundTransactionStatementSheet);
+        }
         return list;
+    }
+
+    /**
+     * set data into template sheet: A.code, B.shortName, C.applicationDate, D.transactionDate, E.confirmationDate, F.settlementDate, G.fee,
+     * <b>H.totalFee(optional),</b> I.share, <b>J.totalShare(optional),</b> K.nav, <b>L.dilutedNav(optional),</b> <b>M.avgNavPerShare(optional),</b>
+     * N.amount, <b>O.totalAmount(optional),</b> P.type, Q.tradingPlatform, R.fullName, S.companyName
+     * 合计 19 列
+     *
+     * @param sheet       FundTransactionStatementSheet
+     * @param transaction FundTransaction
+     * @param information FundInformation
+     * @param type        type
+     * @author sichu huang
+     * @date 2024/04/01
+     **/
+    private void handleFundTransactionStatementSheetData(FundTransactionStatementSheet sheet, FundTransaction transaction,
+        FundInformation information, Integer type) {
+        /* set A, B, C, D, E, F, G, I, K, N, Q, R, S (13列) */
+        sheet.setCode(transaction.getCode());
+        sheet.setShortName(information.getShortName());
+        sheet.setApplicationDate(String.valueOf(transaction.getApplicationDate()));
+        sheet.setTransactionDate(String.valueOf(transaction.getTransactionDate()));
+        sheet.setConfirmationDate(String.valueOf(transaction.getConfirmationDate()));
+        sheet.setSettlementDate(String.valueOf(transaction.getSettlementDate()));
+        sheet.setFee(String.valueOf(transaction.getFee()));
+        sheet.setShare(String.valueOf(transaction.getShare()));
+        sheet.setNav(String.valueOf(transaction.getNav()));
+        sheet.setAmount(String.valueOf(transaction.getAmount()));
+        sheet.setTradingPlatform(transaction.getTradingPlatform());
+        sheet.setFullName(information.getFullName());
+        sheet.setCompanyName(information.getCompanyName());
+        /* set P */
+        if (Objects.equals(type, FundTransactionType.PURCHASE.getCode())) {
+            sheet.setType(FundTransactionType.PURCHASE.getDescription());
+        } else if (Objects.equals(type, FundTransactionType.REDEMPTION.getCode())) {
+            /* if REDEMPTION, set H, J, L, M, O */
+            sheet.setType(FundTransactionType.REDEMPTION.getDescription());
+            sheet.setTotalFee(String.valueOf(transaction.getFee()));
+            sheet.setTotalShare(String.valueOf(transaction.getShare()));
+            sheet.setDilutedNav("N/A");
+            sheet.setAvgNavPerShare("N/A");
+            sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
+        } else if (Objects.equals(type, FundTransactionType.DIVIDEND.getCode())) {
+            /* if DIVIDEND, set H, J, L, M, O */
+            sheet.setType(FundTransactionType.DIVIDEND.getDescription());
+            sheet.setTotalFee(String.valueOf(transaction.getFee()));
+            sheet.setTotalShare(String.valueOf(transaction.getShare()));
+            sheet.setDilutedNav("N/A");
+            sheet.setAvgNavPerShare("N/A");
+            sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
+        }
     }
 }

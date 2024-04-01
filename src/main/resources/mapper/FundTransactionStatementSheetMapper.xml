@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.mapper.FundTransactionStatementSheetMapper">
+    <resultMap id="fundTransactionResultMap" type="cn.sichu.entity.FundTransaction">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="applicationDate" column="application_date"/>
+        <result property="transactionDate" column="transaction_date"/>
+        <result property="confirmationDate" column="confirmation_date"/>
+        <result property="settlementDate" column="settlement_date"/>
+        <result property="amount" column="amount"/>
+        <result property="fee" column="fee"/>
+        <result property="nav" column="nav"/>
+        <result property="share" column="share"/>
+        <result property="tradingPlatform" column="trading_platform"/>
+        <result property="status" column="status"/>
+        <result property="mark" column="mark"/>
+        <result property="type" column="type"/>
+    </resultMap>
+
+    <resultMap id="fundInformationResultMap" type="cn.sichu.entity.FundInformation">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="shortName" column="short_name"/>
+        <result property="fullName" column="full_name"/>
+        <result property="companyName" column="company_name"/>
+        <result property="purchaseConfirmationProcess" column="purchase_confirmation_process"/>
+        <result property="redemptionConfirmationProcess" column="redemption_confirmation_process"/>
+        <result property="redemptionSettlementProcess" column="redemption_settlement_process"/>
+    </resultMap>
+
+    <select id="selectAllFundTransaction" resultType="cn.sichu.entity.FundTransaction" resultMap="fundTransactionResultMap">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
+        trading_platform, status, mark, type
+        from fund_transaction
+        order by code, transaction_date
+    </select>
+
+    <select id="selectFundInformationByCode" resultType="cn.sichu.entity.FundInformation" resultMap="fundInformationResultMap">
+        select short_name, full_name, company_name
+        from fund_information
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+        </where>
+    </select>
+</mapper>

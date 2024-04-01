@@ -16,5 +16,5 @@ public interface IExportExcelService {
      * @author sichu huang
      * @date 2024/03/09
      **/
-    public void exportInvestmentExcel(HttpServletResponse response) throws IOException;
+    void exportInvestmentExcel(HttpServletResponse response) throws IOException;
 }

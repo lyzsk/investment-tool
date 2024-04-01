@@ -37,7 +37,6 @@
         order by code, transaction_date
     </select>
 
-
     <select id="selectAllFundTransactionInTransit" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
