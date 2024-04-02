@@ -3,12 +3,16 @@ package cn.sichu.service.impl;
 import cn.sichu.domain.FundTransactionReportSheet;
 import cn.sichu.domain.FundTransactionStatementSheet;
 import cn.sichu.domain.GoldTransactionStatementSheet;
+import cn.sichu.entity.FundHistoryPosition;
 import cn.sichu.entity.FundInformation;
+import cn.sichu.entity.FundPosition;
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.enums.FundTransactionType;
 import cn.sichu.exception.ExcelException;
 import cn.sichu.mapper.FundTransactionStatementSheetMapper;
 import cn.sichu.service.IExportExcelService;
+import cn.sichu.utils.DateUtil;
+import cn.sichu.utils.FinancialCalculationUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.enums.WriteDirectionEnum;
@@ -24,11 +28,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -139,12 +145,14 @@ public class ExportExcelServiceImpl implements IExportExcelService {
     private void handleFundTransactionStatementSheetData(FundTransactionStatementSheet sheet, FundTransaction transaction,
         FundInformation information, Integer type) {
         /* set A, B, C, D, E, F, G, I, K, N, Q, R, S (13列) */
-        sheet.setCode(transaction.getCode());
+        String code = transaction.getCode();
+        Date transactionDate = transaction.getTransactionDate();
+        sheet.setCode(code);
         sheet.setShortName(information.getShortName());
-        sheet.setApplicationDate(String.valueOf(transaction.getApplicationDate()));
-        sheet.setTransactionDate(String.valueOf(transaction.getTransactionDate()));
-        sheet.setConfirmationDate(String.valueOf(transaction.getConfirmationDate()));
-        sheet.setSettlementDate(String.valueOf(transaction.getSettlementDate()));
+        sheet.setApplicationDate(DateUtil.dateToStr(transaction.getApplicationDate()));
+        sheet.setTransactionDate(DateUtil.dateToStr(transactionDate));
+        sheet.setConfirmationDate(DateUtil.dateToStr(transaction.getConfirmationDate()));
+        sheet.setSettlementDate(DateUtil.dateToStr(transaction.getSettlementDate()));
         sheet.setFee(String.valueOf(transaction.getFee()));
         sheet.setShare(String.valueOf(transaction.getShare()));
         sheet.setNav(String.valueOf(transaction.getNav()));
@@ -155,6 +163,35 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         /* set P */
         if (Objects.equals(type, FundTransactionType.PURCHASE.getCode())) {
             sheet.setType(FundTransactionType.PURCHASE.getDescription());
+            /* set H, J, L, M, O */
+            List<FundPosition> fundPositionList = fundTransactionStatementSheetMapper.selectFundPositionByConditions(code, transactionDate);
+            if (!fundPositionList.isEmpty()) {
+                for (FundPosition position : fundPositionList) {
+                    BigDecimal totalFee = position.getTotalPurchaseFee();
+                    BigDecimal heldShare = position.getHeldShare();
+                    BigDecimal totalAmount = position.getTotalPrincipalAmount();
+                    sheet.setTotalFee(String.valueOf(totalFee));
+                    sheet.setTotalShare(String.valueOf(heldShare));
+                    sheet.setTotalAmount(String.valueOf(totalAmount));
+                    sheet.setDilutedNav(String.valueOf(FinancialCalculationUtil.calculateDilutedNav(totalAmount, totalFee, heldShare)));
+                    sheet.setAvgNavPerShare(String.valueOf(FinancialCalculationUtil.calculateAvgNavPerShare(totalAmount, heldShare)));
+                }
+            } else {
+                List<FundHistoryPosition> fundHistoryPositionList =
+                    fundTransactionStatementSheetMapper.selectFundHistoryPositionByConditions(code, transactionDate);
+                if (!fundHistoryPositionList.isEmpty()) {
+                    for (FundHistoryPosition position : fundHistoryPositionList) {
+                        BigDecimal totalFee = position.getTotalPurchaseFee();
+                        BigDecimal heldShare = position.getHeldShare();
+                        BigDecimal totalAmount = position.getTotalPrincipalAmount();
+                        sheet.setTotalFee(String.valueOf(totalFee));
+                        sheet.setTotalShare(String.valueOf(heldShare));
+                        sheet.setTotalAmount(String.valueOf(totalAmount));
+                        sheet.setDilutedNav(String.valueOf(FinancialCalculationUtil.calculateDilutedNav(totalAmount, totalFee, heldShare)));
+                        sheet.setAvgNavPerShare(String.valueOf(FinancialCalculationUtil.calculateAvgNavPerShare(totalAmount, heldShare)));
+                    }
+                }
+            }
         } else if (Objects.equals(type, FundTransactionType.REDEMPTION.getCode())) {
             /* if REDEMPTION, set H, J, L, M, O */
             sheet.setType(FundTransactionType.REDEMPTION.getDescription());
