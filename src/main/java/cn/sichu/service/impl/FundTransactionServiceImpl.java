@@ -246,8 +246,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                     throw new FundTransactionException(999, "更新持仓信息失败, 净值未更新");
                 }
             }
-            fundPosition.setTotalAmount(
-                FinancialCalculationUtil.calculateAmount(fundPosition.getHeldShare(), navStr, fundPosition.getTotalPurchaseFee()));
+            fundPosition.setTotalAmount(FinancialCalculationUtil.calculateTotalAmount(fundPosition.getHeldShare(), navStr));
             long heldDays = TransactionDayUtil.getHeldDays(fundPosition.getTransactionDate(), date);
             fundPosition.setHeldDays((int)heldDays);
             fundPosition.setUpdateDate(formattedDate);
@@ -422,7 +421,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         if (navStr == null || navStr.equals("")) {
             throw new FundTransactionException(999, "持仓开始前一交易日净值未更新");
         }
-        fundPosition.setTotalAmount(FinancialCalculationUtil.calculateAmount(share, navStr, fee));
+        fundPosition.setTotalAmount(FinancialCalculationUtil.calculateTotalAmount(share, navStr));
         fundPositionMapper.insertFundPosition(fundPosition);
     }
 
