@@ -31,6 +31,34 @@
         <result property="redemptionSettlementProcess" column="redemption_settlement_process"/>
     </resultMap>
 
+    <resultMap id="fundPositionResultMap" type="cn.sichu.entity.FundPosition">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="transactionDate" column="transaction_date"/>
+        <result property="initiationDate" column="initiation_date"/>
+        <result property="totalPrincipalAmount" column="total_principal_amount"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="totalPurchaseFee" column="total_purchase_fee"/>
+        <result property="heldShare" column="held_share"/>
+        <result property="heldDays" column="held_days"/>
+        <result property="updateDate" column="update_date"/>
+    </resultMap>
+
+    <resultMap id="fundHistoryPositionResultMap" type="cn.sichu.entity.FundHistoryPosition">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="transactionDate" column="transaction_date"/>
+        <result property="initiationDate" column="initiation_date"/>
+        <result property="redemptionDate" column="redemption_date"/>
+        <result property="totalPrincipalAmount" column="total_principal_amount"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="totalPurchaseFee" column="total_purchase_fee"/>
+        <result property="totalRedemptionFee" column="total_redemption_fee"/>
+        <result property="heldShare" column="held_share"/>
+        <result property="heldDays" column="held_days"/>
+        <result property="mark" column="mark"/>
+    </resultMap>
+
     <select id="selectAllFundTransaction" resultType="cn.sichu.entity.FundTransaction" resultMap="fundTransactionResultMap">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
@@ -44,6 +72,27 @@
         from fund_information
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
+        </where>
+    </select>
+
+    <select id="selectFundPositionByConditions" resultType="cn.sichu.entity.FundPosition" resultMap="fundPositionResultMap">
+        select
+        code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date
+        from fund_position
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+            <if test="transactionDate != null">and transaction_date = #{transactionDate}</if>
+        </where>
+    </select>
+
+    <select id="selectFundHistoryPositionByConditions" resultType="cn.sichu.entity.FundHistoryPosition" resultMap="fundHistoryPositionResultMap">
+        select
+        code, transaction_date, initiation_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee,
+        total_redemption_fee, held_share, held_days, mark
+        from fund_history_position
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+            <if test="transactionDate != null">and transaction_date = #{transactionDate}</if>
         </where>
     </select>
 </mapper>

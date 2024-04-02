@@ -717,7 +717,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      **/
     private Map<String, BigDecimal> calculateRedemptionFeeAndAmount(FundPosition fundPosition, String navStr,
         List<FundRedemptionFeeRate> fundRedemptionFeeRates) {
-        Map<String, BigDecimal> map = new HashMap<>();
+        Map<String, BigDecimal> map = new HashMap<>(2);
         for (int i = 0; i < fundRedemptionFeeRates.size(); i++) {
             FundRedemptionFeeRate fundRedemptionFeeRate = fundRedemptionFeeRates.get(i);
             String feeRate = fundRedemptionFeeRate.getFeeRate();

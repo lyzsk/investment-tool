@@ -18,14 +18,21 @@
         <result property="mark" column="mark"/>
     </resultMap>
 
-    <!--  TODO: 防止重复插入  -->
     <insert id="insertFundHistoryPosition" useGeneratedKeys="true" keyProperty="id">
         insert into fund_history_position
         (code, transaction_date, initiation_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee,
         total_redemption_fee, held_share, held_days, mark)
-        values
-        (#{code}, #{transactionDate}, #{initiationDate}, #{redemptionDate}, #{totalPrincipalAmount}, #{totalAmount}, #{totalPurchaseFee},
-        #{totalRedemptionFee}, #{heldShare}, #{heldDays}, #{mark})
+        select
+        #{code}, #{transactionDate}, #{initiationDate}, #{redemptionDate}, #{totalPrincipalAmount}, #{totalAmount}, #{totalPurchaseFee},
+        #{totalRedemptionFee}, #{heldShare}, #{heldDays}, #{mark}
+        from dual
+        where not exists (
+        select total_principal_amount, total_amount, total_purchase_fee, total_redemption_fee, held_share
+        from fund_history_position
+        where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and total_principal_amount =
+        #{totalPrincipalAmount} and total_amount = #{totalAmount} and total_purchase_fee = #{totalPurchaseFee} and total_redemption_fee =
+        #{totalRedemptionFee} and held_share = #{heldShare}
+        )
     </insert>
 
 </mapper>

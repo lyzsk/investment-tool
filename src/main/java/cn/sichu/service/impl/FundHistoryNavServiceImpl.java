@@ -135,13 +135,12 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
             if (navStr != null && !navStr.equals("")) {
                 break;
             }
-            Date date;
-            switch (i) {
-                case 0 -> date = TransactionDayUtil.getLastNTransactionDate(navDate, 7);
-                case 1 -> date = TransactionDayUtil.getLastNTransactionDate(navDate, 30);
-                case 2 -> date = TransactionDayUtil.getLastNTransactionDate(navDate, 90);
-                default -> date = DateUtil.strToDate("2023-08-01");
-            }
+            Date date = switch (i) {
+                case 0 -> TransactionDayUtil.getLastNTransactionDate(navDate, 7);
+                case 1 -> TransactionDayUtil.getLastNTransactionDate(navDate, 30);
+                case 2 -> TransactionDayUtil.getLastNTransactionDate(navDate, 90);
+                default -> DateUtil.strToDate("2023-08-01");
+            };
             insertFundHistoryNav(code, DateUtil.dateToStr(date), DateUtil.dateToStr(navDate), callback);
             navStr = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate).get(0).getNav();
         }

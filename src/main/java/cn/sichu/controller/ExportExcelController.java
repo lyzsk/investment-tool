@@ -19,6 +19,7 @@ public class ExportExcelController {
     @Autowired
     private IExportExcelService exportExcelService;
 
+    // @Scheduled(cron = "30 0 0 * * *")
     @GetMapping("/export")
     public void getInvestmentTransactionStatementsExcel(HttpServletResponse response) throws IOException {
         exportExcelService.exportInvestmentExcel(response);

@@ -100,4 +100,31 @@ public class FinancialCalculationUtil {
     public static BigDecimal calculateAmount(BigDecimal share, String nav, BigDecimal fee) {
         return share.multiply(new BigDecimal(nav)).subtract(fee).setScale(2, RoundingMode.HALF_UP);
     }
+
+    /**
+     * 摊薄单价 = (合计本金 - 合计买入手续费) / 合计份额
+     *
+     * @param amount 合计本金
+     * @param fee    合计买入手续费
+     * @param share  合计份额
+     * @return java.math.BigDecimal
+     * @author sichu huang
+     * @date 2024/04/02
+     **/
+    public static BigDecimal calculateDilutedNav(BigDecimal amount, BigDecimal fee, BigDecimal share) {
+        return amount.subtract(fee).divide(share, 4, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * 成本均价 = 合计本金 / 合计份额
+     *
+     * @param amount 合计本金
+     * @param share  合计份额
+     * @return java.math.BigDecimal
+     * @author sichu huang
+     * @date 2024/04/02
+     **/
+    public static BigDecimal calculateAvgNavPerShare(BigDecimal amount, BigDecimal share) {
+        return amount.divide(share, 4, RoundingMode.HALF_UP);
+    }
 }

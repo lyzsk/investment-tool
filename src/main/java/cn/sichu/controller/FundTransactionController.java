@@ -42,7 +42,7 @@ public class FundTransactionController {
             tradingPlatform);
     }
 
-    @Scheduled(cron = "0 30 9 * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     @PostMapping("/update-status")
     public void updateStatusForTransactionInTransit() throws ParseException, IOException {
         Date date = new Date();
