@@ -9,7 +9,6 @@ import cn.sichu.entity.FundPosition;
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.enums.FundTransactionType;
 import cn.sichu.exception.ExcelException;
-import cn.sichu.exception.FundTransactionException;
 import cn.sichu.mapper.FundTransactionStatementSheetMapper;
 import cn.sichu.service.IExportExcelService;
 import cn.sichu.utils.DateUtil;
@@ -49,6 +48,16 @@ public class ExportExcelServiceImpl implements IExportExcelService {
     FundTransactionStatementSheetMapper fundTransactionStatementSheetMapper;
     @Autowired
     FundHistoryNavServiceImpl fundHistoryNavService;
+
+    private PriorityQueue<FundTransactionStatementSheet> pq = new PriorityQueue<>((o1, o2) -> {
+        int cc = o1.getCode().compareTo(o2.getCode());
+        if (cc != 0) {
+            return o2.getTransactionDate().compareTo(o1.getTransactionDate());
+        }
+        return cc;
+    });
+    private Map<Integer, PriorityQueue<FundTransactionStatementSheet>> map = new HashMap<>();
+    private int index = 0;
 
     /**
      * 根据"resources/investment-template.xlsx"导出excel
@@ -193,6 +202,8 @@ public class ExportExcelServiceImpl implements IExportExcelService {
                     }
                 }
             }
+            pq.add(sheet);
+            map.put(index++, pq);
         } else if (Objects.equals(type, FundTransactionType.REDEMPTION.getCode())) {
             /* if REDEMPTION, set H, J, L, M, O */
             sheet.setType(FundTransactionType.REDEMPTION.getDescription());
@@ -201,6 +212,8 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             sheet.setDilutedNav("N/A");
             sheet.setAvgNavPerShare("N/A");
             sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
+            pq.add(sheet);
+            map.put(index++, pq);
         } else if (Objects.equals(type, FundTransactionType.DIVIDEND.getCode())) {
             /* if DIVIDEND, set H, J, L, M, O */
             sheet.setType(FundTransactionType.DIVIDEND.getDescription());
@@ -231,33 +244,36 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         for (FundTransactionStatementSheet lastTransaction : lastTransactionMap.values()) {
             FundTransactionReportSheet sheet = new FundTransactionReportSheet();
             String code = lastTransaction.getCode();
-            Date currentDate = DateUtil.formatDate(new Date());
+            Date formattedDate = DateUtil.formatDate(new Date());
             sheet.setCode(code);
             sheet.setShortName(lastTransaction.getShortName());
             String transactionDate = lastTransaction.getTransactionDate();
-            sheet.setPurchaseTransactionDate(transactionDate);
-            long heldDays = TransactionDayUtil.getHeldDays(DateUtil.strToDate(transactionDate), currentDate);
-            sheet.setHeldDays(String.valueOf(heldDays));
-            sheet.setTotalPrincipalAmount(lastTransaction.getTotalAmount());
-            BigDecimal share = new BigDecimal(lastTransaction.getTotalShare()).setScale(2, RoundingMode.HALF_UP);
-            /* 缺少美股节假日, 暂时使用暴力解决 */
-            int n = 1;
-            String navStr =
-                fundHistoryNavService.selectFundHistoryNavByConditions(code, TransactionDayUtil.getLastNTransactionDate(currentDate, n));
-            if (navStr == null || navStr.equals("")) {
-                int tryCount = 30;
-                for (int i = 0; i <= tryCount; i++) {
-                    if (navStr != null && !navStr.equals("")) {
-                        break;
-                    }
-                    navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code,
-                        TransactionDayUtil.getLastNTransactionDate(currentDate, ++n));
-                }
-                if (navStr == null || navStr.equals("")) {
-                    throw new FundTransactionException(999, "更新持仓信息失败, 净值未更新");
-                }
+            String redemptionDate = "N/A";
+            String dividendDate = "N/A";
+            Date firstPurchaseDate = getFirstPurchaseDate(code, statementSheetList);
+            if (firstPurchaseDate == null) {
+                throw new ExcelException(999, "未找到最早的购买交易日");
             }
+            long heldDays = TransactionDayUtil.getHeldDays(firstPurchaseDate, formattedDate);
+            sheet.setPurchaseTransactionDate(DateUtil.dateToStr(firstPurchaseDate));
+            String totalPrincipalAmount = lastTransaction.getTotalAmount();
+            String navStr = fundHistoryNavService.selectLastNotNullFundHistoryNavByConditions(code, formattedDate);
+            BigDecimal share = new BigDecimal(lastTransaction.getTotalShare()).setScale(2, RoundingMode.HALF_UP);
             BigDecimal totalAmount = FinancialCalculationUtil.calculateTotalAmount(share, navStr);
+            if (lastTransaction.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
+                redemptionDate = transactionDate;
+                heldDays = TransactionDayUtil.getHeldDays(firstPurchaseDate, DateUtil.strToDate(transactionDate));
+                totalPrincipalAmount = getLastPurchasePrincipalAmount(code, statementSheetList);
+                if (totalPrincipalAmount == null) {
+                    throw new ExcelException(999, "赎回前没有买入");
+                }
+                navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, DateUtil.strToDate(redemptionDate));
+                totalAmount = FinancialCalculationUtil.calculateRedemptionAmount(share, navStr, new BigDecimal(lastTransaction.getTotalFee()));
+            }
+            sheet.setRedemptionTransactionDate(redemptionDate);
+            sheet.setDividendDate(dividendDate);
+            sheet.setHeldDays(String.valueOf(heldDays));
+            sheet.setTotalPrincipalAmount(totalPrincipalAmount);
             sheet.setTotalAmount(String.valueOf(totalAmount));
             BigDecimal profit = totalAmount.subtract(new BigDecimal(sheet.getTotalPrincipalAmount()).setScale(2, RoundingMode.HALF_UP));
             sheet.setProfit(String.valueOf(profit));
@@ -269,4 +285,24 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         }
         return list;
     }
+
+    private String getLastPurchasePrincipalAmount(String code, List<FundTransactionStatementSheet> statementSheetList) {
+        for (int i = 0; i < statementSheetList.size(); i++) {
+            FundTransactionStatementSheet statementSheet = statementSheetList.get(i);
+            if (statementSheet.getCode().equals(code) && statementSheet.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
+                return statementSheetList.get(i - 1).getTotalAmount();
+            }
+        }
+        return null;
+    }
+
+    private Date getFirstPurchaseDate(String code, List<FundTransactionStatementSheet> statementSheetList) throws ParseException {
+        for (FundTransactionStatementSheet statementSheet : statementSheetList) {
+            if (statementSheet.getCode().equals(code) && statementSheet.getType().equals(FundTransactionType.PURCHASE.getDescription())) {
+                return DateUtil.strToDate(statementSheet.getTransactionDate());
+            }
+        }
+        return null;
+    }
+
 }

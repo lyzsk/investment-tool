@@ -80,6 +80,52 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     }
 
     @Override
+    public String selectLastNotNullFundHistoryNavByConditions(String code, Date navDate) throws ParseException, IOException {
+        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
+        if (!fundHistoryNavs.isEmpty()) {
+            return fundHistoryNavs.get(0).getNav();
+        }
+        String navStr;
+        String callback = selectCallbackByCode(code);
+        List<FundHistoryNav> historyNavs = selectLastFundHistoryNavDateByCode(code);
+        if (historyNavs.isEmpty()) {
+            navStr = retryUpdateHistoryNav(code, navDate);
+            if (navStr == null || navStr.equals("")) {
+                throw new FundTransactionException(999, "更新历史净值失败");
+            }
+            historyNavs = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
+        }
+        Date lastNavDate = historyNavs.get(0).getNavDate();
+        if (navDate.getTime() >= lastNavDate.getTime()) {
+            insertFundHistoryNav(code, DateUtil.dateToStr(lastNavDate), DateUtil.dateToStr(navDate), callback);
+            List<FundHistoryNav> updatedHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
+            if (updatedHistoryNavs.isEmpty()) {
+                /* 净值未更新, 缺少美股节假日, 暂时使用暴力解决 */
+                navStr = null;
+                int n = 1;
+                int tryCount = 30;
+                for (int i = 0; i <= tryCount; i++) {
+                    if (navStr != null) {
+                        return navStr;
+                    }
+                    navStr = selectFundHistoryNavByConditions(code, TransactionDayUtil.getLastNTransactionDate(navDate, ++n));
+                    if (navStr == null || navStr.equals("")) {
+                        throw new FundTransactionException(999, "暴力查净值失败");
+                    }
+                }
+            } else {
+                return updatedHistoryNavs.get(0).getNav();
+            }
+        } else {
+            navStr = retryUpdateHistoryNav(code, navDate);
+            if (navStr == null || navStr.equals("")) {
+                throw new FundTransactionException(999, "更新历史净值失败");
+            }
+        }
+        return navStr;
+    }
+
+    @Override
     public List<FundHistoryNav> selectLastFundHistoryNavDateByCode(String code) {
         return fundHistoryNavMapper.selectLastFundHistoryNavDateByCode(code);
     }

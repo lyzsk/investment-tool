@@ -109,6 +109,20 @@ public class TransactionDayUtil {
      * @param endDate
      * @return java.lang.Long
      * @author sichu huang
+     * @date 2024/04/04
+     **/
+    public static long getHeldDays(String startDate, String endDate) throws ParseException {
+        Date date1 = DateUtil.strToDate(startDate);
+        Date date2 = DateUtil.strToDate(endDate);
+        long diff = date2.getTime() - date1.getTime();
+        return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * @param startDate
+     * @param endDate
+     * @return java.lang.Long
+     * @author sichu huang
      * @date 2024/03/12
      **/
     public static Long getHeldTransactionDays(Date startDate, Date endDate) throws IOException {
@@ -125,4 +139,5 @@ public class TransactionDayUtil {
         }
         return heldTransactionDays;
     }
+
 }
