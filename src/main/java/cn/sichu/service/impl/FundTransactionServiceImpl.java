@@ -234,7 +234,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(fundPosition.getCode(),
                 TransactionDayUtil.getLastNTransactionDate(formattedDate, n));
             if (navStr == null || navStr.equals("")) {
-                int tryCount = 7;
+                int tryCount = 30;
                 for (int i = 0; i <= tryCount; i++) {
                     if (navStr != null && !navStr.equals("")) {
                         break;

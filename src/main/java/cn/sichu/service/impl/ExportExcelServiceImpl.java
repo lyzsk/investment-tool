@@ -9,10 +9,12 @@ import cn.sichu.entity.FundPosition;
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.enums.FundTransactionType;
 import cn.sichu.exception.ExcelException;
+import cn.sichu.exception.FundTransactionException;
 import cn.sichu.mapper.FundTransactionStatementSheetMapper;
 import cn.sichu.service.IExportExcelService;
 import cn.sichu.utils.DateUtil;
 import cn.sichu.utils.FinancialCalculationUtil;
+import cn.sichu.utils.TransactionDayUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.enums.WriteDirectionEnum;
@@ -29,14 +31,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author sichu huang
@@ -46,6 +47,8 @@ import java.util.Objects;
 public class ExportExcelServiceImpl implements IExportExcelService {
     @Autowired
     FundTransactionStatementSheetMapper fundTransactionStatementSheetMapper;
+    @Autowired
+    FundHistoryNavServiceImpl fundHistoryNavService;
 
     /**
      * 根据"resources/investment-template.xlsx"导出excel
@@ -55,7 +58,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
      * @date 2024/03/09
      **/
     @Override
-    public void exportInvestmentExcel(HttpServletResponse response) throws IOException {
+    public void exportInvestmentExcel(HttpServletResponse response) throws IOException, ParseException {
         response.setContentType("application/vnd.ms-excel; charset=UTF-8");
         response.setCharacterEncoding("utf-8");
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -75,13 +78,11 @@ public class ExportExcelServiceImpl implements IExportExcelService {
 
         List<FundTransaction> fundTransactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
         List<FundTransactionStatementSheet> fundTransactionStatementSheetDataList = setFundTransactionStatementSheetData(fundTransactionList);
-        List<FundTransactionReportSheet> fundTransactionReportSheetDataList = new ArrayList<>();
+        List<FundTransactionReportSheet> fundTransactionReportSheetDataList =
+            setfundTransactionReportSheetData(fundTransactionStatementSheetDataList);
         List<GoldTransactionStatementSheet> goldTransactionStatementSheetDataList = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            FundTransactionReportSheet fundTransactionReportSheet =
-                new FundTransactionReportSheet("270023", "广发全球精选股票", "04/03/2024", "06/03/2024", "", "2", "", "", "中国银行", "广发基金管理有限公司");
-            fundTransactionReportSheetDataList.add(fundTransactionReportSheet);
             GoldTransactionStatementSheet goldTransactionStatementSheet =
                 new GoldTransactionStatementSheet("积存金", "04/03/2024", "04/03/2024", "04/03/2024", "492.20", "492.20", "1.00", "1.00", "492.20",
                     "492.20", "purchase", "中国银行");
@@ -209,5 +210,63 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             sheet.setAvgNavPerShare("N/A");
             sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
         }
+    }
+
+    /**
+     * TODO: 实现了, 但是heldDays, 赎回交易待优化
+     *
+     * @param statementSheetList FundTransactionReportSheet List
+     * @return java.util.List<cn.sichu.domain.FundTransactionReportSheet>
+     * @author sichu huang
+     * @date 2024/04/03
+     **/
+    private List<FundTransactionReportSheet> setfundTransactionReportSheetData(List<FundTransactionStatementSheet> statementSheetList)
+        throws ParseException, IOException {
+        List<FundTransactionReportSheet> list = new ArrayList<>();
+        Map<String, FundTransactionStatementSheet> lastTransactionMap = new TreeMap<>(String::compareTo);
+        for (FundTransactionStatementSheet statementSheet : statementSheetList) {
+            String code = statementSheet.getCode();
+            lastTransactionMap.put(code, statementSheet);
+        }
+        for (FundTransactionStatementSheet lastTransaction : lastTransactionMap.values()) {
+            FundTransactionReportSheet sheet = new FundTransactionReportSheet();
+            String code = lastTransaction.getCode();
+            Date currentDate = DateUtil.formatDate(new Date());
+            sheet.setCode(code);
+            sheet.setShortName(lastTransaction.getShortName());
+            String transactionDate = lastTransaction.getTransactionDate();
+            sheet.setPurchaseTransactionDate(transactionDate);
+            long heldDays = TransactionDayUtil.getHeldDays(DateUtil.strToDate(transactionDate), currentDate);
+            sheet.setHeldDays(String.valueOf(heldDays));
+            sheet.setTotalPrincipalAmount(lastTransaction.getTotalAmount());
+            BigDecimal share = new BigDecimal(lastTransaction.getTotalShare()).setScale(2, RoundingMode.HALF_UP);
+            /* 缺少美股节假日, 暂时使用暴力解决 */
+            int n = 1;
+            String navStr =
+                fundHistoryNavService.selectFundHistoryNavByConditions(code, TransactionDayUtil.getLastNTransactionDate(currentDate, n));
+            if (navStr == null || navStr.equals("")) {
+                int tryCount = 30;
+                for (int i = 0; i <= tryCount; i++) {
+                    if (navStr != null && !navStr.equals("")) {
+                        break;
+                    }
+                    navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code,
+                        TransactionDayUtil.getLastNTransactionDate(currentDate, ++n));
+                }
+                if (navStr == null || navStr.equals("")) {
+                    throw new FundTransactionException(999, "更新持仓信息失败, 净值未更新");
+                }
+            }
+            BigDecimal totalAmount = FinancialCalculationUtil.calculateTotalAmount(share, navStr);
+            sheet.setTotalAmount(String.valueOf(totalAmount));
+            BigDecimal profit = totalAmount.subtract(new BigDecimal(sheet.getTotalPrincipalAmount()).setScale(2, RoundingMode.HALF_UP));
+            sheet.setProfit(String.valueOf(profit));
+            BigDecimal dailyNavYield = FinancialCalculationUtil.calculateDailyNavYield(profit, heldDays);
+            sheet.setDailyNavYield(String.valueOf(dailyNavYield));
+            sheet.setTradingPlatform(lastTransaction.getTradingPlatform());
+            sheet.setCompanyName(lastTransaction.getCompanyName());
+            list.add(sheet);
+        }
+        return list;
     }
 }
