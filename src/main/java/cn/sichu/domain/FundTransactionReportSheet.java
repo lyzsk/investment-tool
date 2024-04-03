@@ -26,7 +26,13 @@ public class FundTransactionReportSheet {
     private String dividendDate;
 
     /* 持有天数 */
-    private String heldDate;
+    private String heldDays;
+
+    /* 合计本金 */
+    private String totalPrincipalAmount;
+
+    /* 合计金额 */
+    private String totalAmount;
 
     /* 净收益 */
     private String profit;
@@ -44,13 +50,16 @@ public class FundTransactionReportSheet {
     }
 
     public FundTransactionReportSheet(String code, String shortName, String purchaseTransactionDate, String redemptionTransactionDate,
-        String dividendDate, String heldDate, String profit, String dailyNavYield, String tradingPlatform, String companyName) {
+        String dividendDate, String heldDays, String totalPrincipalAmount, String totalAmount, String profit, String dailyNavYield,
+        String tradingPlatform, String companyName) {
         this.code = code;
         this.shortName = shortName;
         this.purchaseTransactionDate = purchaseTransactionDate;
         this.redemptionTransactionDate = redemptionTransactionDate;
         this.dividendDate = dividendDate;
-        this.heldDate = heldDate;
+        this.heldDays = heldDays;
+        this.totalPrincipalAmount = totalPrincipalAmount;
+        this.totalAmount = totalAmount;
         this.profit = profit;
         this.dailyNavYield = dailyNavYield;
         this.tradingPlatform = tradingPlatform;
@@ -61,7 +70,8 @@ public class FundTransactionReportSheet {
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("code", getCode()).append("shortName", getShortName())
             .append("purchaseTransactionDate", getPurchaseTransactionDate()).append("redemptionTransactionDate", getRedemptionTransactionDate())
-            .append("dividendDate", getDividendDate()).append("heldDate", getHeldDate()).append("profit", getProfit())
+            .append("dividendDate", getDividendDate()).append("heldDays", getHeldDays())
+            .append("totalPrincipalAmount", getTotalPrincipalAmount()).append("totalAmount", getTotalAmount()).append("profit", getProfit())
             .append("dailyNavYield", getDailyNavYield()).append("tradingPlatform", getTradingPlatform()).append("companyName", getCompanyName())
             .toString();
     }
@@ -106,12 +116,28 @@ public class FundTransactionReportSheet {
         this.dividendDate = dividendDate;
     }
 
-    public String getHeldDate() {
-        return heldDate;
+    public String getHeldDays() {
+        return heldDays;
     }
 
-    public void setHeldDate(String heldDate) {
-        this.heldDate = heldDate;
+    public void setHeldDays(String heldDays) {
+        this.heldDays = heldDays;
+    }
+
+    public String getTotalPrincipalAmount() {
+        return totalPrincipalAmount;
+    }
+
+    public void setTotalPrincipalAmount(String totalPrincipalAmount) {
+        this.totalPrincipalAmount = totalPrincipalAmount;
+    }
+
+    public String getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(String totalAmount) {
+        this.totalAmount = totalAmount;
     }
 
     public String getProfit() {

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 /**
  * @author sichu huang
@@ -21,7 +22,7 @@ public class ExportExcelController {
 
     // @Scheduled(cron = "30 0 0 * * *")
     @GetMapping("/export")
-    public void getInvestmentTransactionStatementsExcel(HttpServletResponse response) throws IOException {
+    public void getInvestmentTransactionStatementsExcel(HttpServletResponse response) throws IOException, ParseException {
         exportExcelService.exportInvestmentExcel(response);
     }
 }

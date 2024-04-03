@@ -56,7 +56,7 @@ public class FinancialCalculationUtil {
     /**
      * 赎回费用 = 赎回当日基金单位净值 * 赎回份额 * 赎回费率
      * <br/>
-     * 赎回金额 = 赎回当日基金单位净值 * 赎回份额 -赎回费用
+     * 赎回金额 = 赎回当日基金单位净值 * 赎回份额 - 赎回费用
      *
      * @param share   share
      * @param nav     nav
@@ -125,5 +125,9 @@ public class FinancialCalculationUtil {
      **/
     public static BigDecimal calculateAvgNavPerShare(BigDecimal amount, BigDecimal share) {
         return amount.divide(share, 4, RoundingMode.HALF_UP);
+    }
+
+    public static BigDecimal calculateDailyNavYield(BigDecimal amount, long heldDays) {
+        return amount.divide(new BigDecimal(heldDays), 4, RoundingMode.HALF_UP);
     }
 }

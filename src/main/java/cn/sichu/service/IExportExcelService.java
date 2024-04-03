@@ -3,6 +3,7 @@ package cn.sichu.service;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 /**
  * @author sichu huang
@@ -16,5 +17,5 @@ public interface IExportExcelService {
      * @author sichu huang
      * @date 2024/03/09
      **/
-    void exportInvestmentExcel(HttpServletResponse response) throws IOException;
+    void exportInvestmentExcel(HttpServletResponse response) throws IOException, ParseException;
 }
