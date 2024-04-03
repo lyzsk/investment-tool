@@ -127,7 +127,14 @@ public class FinancialCalculationUtil {
         return amount.divide(share, 4, RoundingMode.HALF_UP);
     }
 
-    public static BigDecimal calculateDailyNavYield(BigDecimal amount, long heldDays) {
-        return amount.divide(new BigDecimal(heldDays), 4, RoundingMode.HALF_UP);
+    /**
+     * @param profit
+     * @param heldDays
+     * @return java.math.BigDecimal
+     * @author sichu huang
+     * @date 2024/04/04
+     **/
+    public static BigDecimal calculateDailyNavYield(BigDecimal profit, long heldDays) {
+        return profit.divide(new BigDecimal(heldDays), 4, RoundingMode.HALF_UP);
     }
 }

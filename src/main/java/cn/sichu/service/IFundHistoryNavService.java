@@ -33,6 +33,17 @@ public interface IFundHistoryNavService {
     String selectFundHistoryNavByConditions(String code, Date navDate) throws ParseException, IOException;
 
     /**
+     * 找到上一个非空的净值
+     *
+     * @param code    code
+     * @param navDate navDate
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/04/04
+     **/
+    String selectLastNotNullFundHistoryNavByConditions(String code, Date navDate) throws ParseException, IOException;
+
+    /**
      * @param code code
      * @return java.util.List<cn.sichu.entity.FundHistoryNav>
      * @author sichu huang

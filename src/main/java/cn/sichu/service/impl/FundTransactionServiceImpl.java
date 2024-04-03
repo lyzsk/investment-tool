@@ -229,23 +229,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         List<FundPosition> fundPositions = fundPositionMapper.selectAllFundPosition();
         for (FundPosition fundPosition : fundPositions) {
             Date formattedDate = DateUtil.formatDate(date);
-            /* 缺少美股节假日, 暂时使用暴力解决 */
-            int n = 1;
-            String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(fundPosition.getCode(),
-                TransactionDayUtil.getLastNTransactionDate(formattedDate, n));
-            if (navStr == null || navStr.equals("")) {
-                int tryCount = 30;
-                for (int i = 0; i <= tryCount; i++) {
-                    if (navStr != null && !navStr.equals("")) {
-                        break;
-                    }
-                    navStr = fundHistoryNavService.selectFundHistoryNavByConditions(fundPosition.getCode(),
-                        TransactionDayUtil.getLastNTransactionDate(formattedDate, ++n));
-                }
-                if (navStr == null || navStr.equals("")) {
-                    throw new FundTransactionException(999, "更新持仓信息失败, 净值未更新");
-                }
-            }
+            String navStr = fundHistoryNavService.selectLastNotNullFundHistoryNavByConditions(fundPosition.getCode(), formattedDate);
             fundPosition.setTotalAmount(FinancialCalculationUtil.calculateTotalAmount(fundPosition.getHeldShare(), navStr));
             long heldDays = TransactionDayUtil.getHeldDays(fundPosition.getTransactionDate(), date);
             fundPosition.setHeldDays((int)heldDays);
