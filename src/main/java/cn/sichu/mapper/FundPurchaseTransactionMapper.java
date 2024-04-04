@@ -2,7 +2,9 @@ package cn.sichu.mapper;
 
 import cn.sichu.entity.FundPurchaseTransaction;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,4 +24,6 @@ public interface FundPurchaseTransactionMapper {
 
     void updateNavAndShare(FundPurchaseTransaction fundPurchaseTransaction);
 
+    void updateMarkByConditions(@Param("code") String code, @Param("mark") String mark, @Param("startDate") Date startDate,
+        @Param("endDate") Date endDate);
 }

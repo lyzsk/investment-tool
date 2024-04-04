@@ -154,7 +154,11 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             fundPositionMapper.updateTotalAmountAndHeldDaysAndUpdateDate(fundPosition);
             /* set 12.mark for `fund_redemption_transaction` */
             if (i == fundPositions.size() - 1) {
-                transaction.setMark(DateUtil.dateToStr(fundPositions.get(0).getTransactionDate()) + "->" + DateUtil.dateToStr(transactionDate));
+                Date firstTransactionDate = fundPositions.get(0).getTransactionDate();
+                String mark = DateUtil.dateToStr(firstTransactionDate) + "->" + DateUtil.dateToStr(transactionDate);
+                transaction.setMark(mark);
+                fundPurchaseTransactionMapper.updateMarkByConditions(code, mark, firstTransactionDate, transactionDate);
+                fundTransactionMapper.updateMarkByConditions(code, mark, firstTransactionDate, transactionDate);
             }
             /* set 11.status for `fund_redemption_transaction` */
             if (currentDate.before(settlementDate)) {
