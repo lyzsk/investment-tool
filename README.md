@@ -18,24 +18,36 @@
 
 # environment
 
-JDK17 + SpringBoot3.2.3
+JDK17 + SpringBoot3.2.3 + MySQL 8.0.28
+
+# Disclaimer
+
+**The program code is provided for my personal learning and research purposes only. The author bears no legal responsibility for any other use (downloading and using it implies your agreement with the above statement). Users are not allowed to interfere with or disrupt the services of the data source website or the servers and networks connected to the service. Additionally, this program does not constitute any investment advice for you. Any actions taken based on it are at your own risk.**
 
 # Quick Start
 
-no ui design, just postman/browser visit controllers api.
+## step1
+
+create mysql table using: `/sql/tables.sql`
+
+## step2
+
+```cmd
+mvn clean install
+mvn package spring-boot:repackage
+```
+
+run `/start.bat`
+
+> Note: change `start.bat` `JAVA_HOME` to your local path
+
+## step3
+
+enjoy the shit code with no ui design, just postman/browser visit controllers api.
 
 # Features
 
--   [x] Automatically record purchase transactions:
-
-    based on input values(code, amount, application date, trading platform), automatically calculate the transaction date/trade confirmation date/settlement date/fees/net asset value/shares/trading status (date calculations only cover Chinese trading days, not involving QDII funds)
-
--   [x] Automatically update position data:
-
-    total amount/total fees/held share/holding days, update trading status at 09:30 every day, automatically crawl data to update historical net asset value every hour from 20:00 to 23:00 every day
-
--   [ ] Automatically record sale transactions
--   [ ] Automatically calculate profits from transactions, automatic analysis
--   [ ] Automatically export Excel based on a template:
-
-    including all transaction statements, transaction analysis
+-   [x] Automatic accounting for purchase/redemption transactions: Based on input values (purchase transaction: fund code, amount, transaction application date, trading platform; redemption transaction: fund code, shares, transaction application date, trading platform), automatically calculate the transaction date/trade confirmation date/funds arrival date/transaction fees/net asset value/shares/trading status/etc.
+-   [x] Automatic update of holding data: total amount/total fee/holding share/holding days, update trading status and corresponding data daily at 00:00, automatically crawl data to update net asset value every hour from 20:00 to 23:00 daily.
+-   [x] Automatically export Excel based on template: Trading statement workbook, trading analysis workbook.
+-   [ ] Automatically calculate profits for transactions, automatic analysis.
