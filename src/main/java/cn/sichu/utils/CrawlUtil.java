@@ -15,7 +15,7 @@ import java.util.Map;
  * @author sichu huang
  * @date 2024/03/10
  **/
-public class ScrapingUtil {
+public class CrawlUtil {
 
     /**
      * @param code

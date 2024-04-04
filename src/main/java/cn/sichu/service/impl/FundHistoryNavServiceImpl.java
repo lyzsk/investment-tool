@@ -6,8 +6,8 @@ import cn.sichu.exception.FundTransactionException;
 import cn.sichu.mapper.FundEastmoneyJjjzMapper;
 import cn.sichu.mapper.FundHistoryNavMapper;
 import cn.sichu.service.IFundHistoryNavService;
+import cn.sichu.utils.CrawlUtil;
 import cn.sichu.utils.DateUtil;
-import cn.sichu.utils.ScrapingUtil;
 import cn.sichu.utils.TransactionDayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
 
     @Override
     public void insertFundHistoryNav(String code, String startDate, String endDate, String callback) throws ParseException, IOException {
-        Map<String, String> map = ScrapingUtil.getDailyNavMapBetweenDates(code, startDate, endDate, callback);
+        Map<String, String> map = CrawlUtil.getDailyNavMapBetweenDates(code, startDate, endDate, callback);
         for (Map.Entry<String, String> entry : map.entrySet()) {
             Date navDate = DateUtil.strToDate(entry.getKey());
             String nav = entry.getValue();
