@@ -49,16 +49,6 @@ public class ExportExcelServiceImpl implements IExportExcelService {
     @Autowired
     FundHistoryNavServiceImpl fundHistoryNavService;
 
-    private PriorityQueue<FundTransactionStatementSheet> pq = new PriorityQueue<>((o1, o2) -> {
-        int cc = o1.getCode().compareTo(o2.getCode());
-        if (cc != 0) {
-            return o2.getTransactionDate().compareTo(o1.getTransactionDate());
-        }
-        return cc;
-    });
-    private Map<Integer, PriorityQueue<FundTransactionStatementSheet>> map = new HashMap<>();
-    private int index = 0;
-
     /**
      * 根据"resources/investment-template.xlsx"导出excel
      *
@@ -202,8 +192,6 @@ public class ExportExcelServiceImpl implements IExportExcelService {
                     }
                 }
             }
-            pq.add(sheet);
-            map.put(index++, pq);
         } else if (Objects.equals(type, FundTransactionType.REDEMPTION.getCode())) {
             /* if REDEMPTION, set H, J, L, M, O */
             sheet.setType(FundTransactionType.REDEMPTION.getDescription());
@@ -212,22 +200,19 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             sheet.setDilutedNav("N/A");
             sheet.setAvgNavPerShare("N/A");
             sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
-            pq.add(sheet);
-            map.put(index++, pq);
         } else if (Objects.equals(type, FundTransactionType.DIVIDEND.getCode())) {
             /* if DIVIDEND, set H, J, L, M, O */
             sheet.setType(FundTransactionType.DIVIDEND.getDescription());
-            sheet.setTotalFee(String.valueOf(transaction.getFee()));
+            sheet.setTotalFee("N/A");
             sheet.setTotalShare(String.valueOf(transaction.getShare()));
             sheet.setDilutedNav("N/A");
             sheet.setAvgNavPerShare("N/A");
+            sheet.setAmount("N/A");
             sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
         }
     }
 
     /**
-     * TODO: 实现了, 但是heldDays, 赎回交易待优化
-     *
      * @param statementSheetList FundTransactionReportSheet List
      * @return java.util.List<cn.sichu.domain.FundTransactionReportSheet>
      * @author sichu huang
@@ -237,11 +222,18 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         throws ParseException, IOException {
         List<FundTransactionReportSheet> list = new ArrayList<>();
         Map<String, FundTransactionStatementSheet> lastTransactionMap = new TreeMap<>(String::compareTo);
+        int index = 0;
         for (FundTransactionStatementSheet statementSheet : statementSheetList) {
             String code = statementSheet.getCode();
-            lastTransactionMap.put(code, statementSheet);
+            lastTransactionMap.put(code + "-" + index, statementSheet);
+            if (statementSheet.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
+                ++index;
+            }
         }
-        for (FundTransactionStatementSheet lastTransaction : lastTransactionMap.values()) {
+        for (Map.Entry<String, FundTransactionStatementSheet> entry : lastTransactionMap.entrySet()) {
+            String key = entry.getKey();
+            int idx = Integer.parseInt(key.split("-")[1]);
+            FundTransactionStatementSheet lastTransaction = entry.getValue();
             FundTransactionReportSheet sheet = new FundTransactionReportSheet();
             String code = lastTransaction.getCode();
             Date formattedDate = DateUtil.formatDate(new Date());
@@ -250,7 +242,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             String transactionDate = lastTransaction.getTransactionDate();
             String redemptionDate = "N/A";
             String dividendDate = "N/A";
-            Date firstPurchaseDate = getFirstPurchaseDate(code, statementSheetList);
+            Date firstPurchaseDate = getFirstPurchaseDate(code, statementSheetList, idx);
             if (firstPurchaseDate == null) {
                 throw new ExcelException(999, "未找到最早的购买交易日");
             }
@@ -263,7 +255,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             if (lastTransaction.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
                 redemptionDate = transactionDate;
                 heldDays = TransactionDayUtil.getHeldDays(firstPurchaseDate, DateUtil.strToDate(transactionDate));
-                totalPrincipalAmount = getLastPurchasePrincipalAmount(code, statementSheetList);
+                totalPrincipalAmount = getLastPurchasePrincipalAmount(code, statementSheetList, idx);
                 if (totalPrincipalAmount == null) {
                     throw new ExcelException(999, "赎回前没有买入");
                 }
@@ -286,20 +278,50 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         return list;
     }
 
-    private String getLastPurchasePrincipalAmount(String code, List<FundTransactionStatementSheet> statementSheetList) {
+    /**
+     * @param code               code
+     * @param statementSheetList FundTransactionStatementSheet List
+     * @param index              key: "code-index" 中的 int index
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/04/04
+     **/
+    private String getLastPurchasePrincipalAmount(String code, List<FundTransactionStatementSheet> statementSheetList, int index) {
+        int count = 0;
         for (int i = 0; i < statementSheetList.size(); i++) {
             FundTransactionStatementSheet statementSheet = statementSheetList.get(i);
             if (statementSheet.getCode().equals(code) && statementSheet.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
-                return statementSheetList.get(i - 1).getTotalAmount();
+                if (count == index) {
+                    int n = 1;
+                    while (i - n >= 0 && statementSheetList.get(i - n).getType().equals(FundTransactionType.DIVIDEND.getDescription())) {
+                        ++n;
+                    }
+                    if (i - n >= 0) {
+                        return statementSheetList.get(i - n).getTotalAmount();
+                    }
+                }
+                ++count;
             }
         }
         return null;
     }
 
-    private Date getFirstPurchaseDate(String code, List<FundTransactionStatementSheet> statementSheetList) throws ParseException {
+    /**
+     * @param code               code
+     * @param statementSheetList FundTransactionStatementSheet List
+     * @param index              key: "code-index" 中的 int index
+     * @return java.util.Date
+     * @author sichu huang
+     * @date 2024/04/04
+     **/
+    private Date getFirstPurchaseDate(String code, List<FundTransactionStatementSheet> statementSheetList, int index) throws ParseException {
+        int count = 0;
         for (FundTransactionStatementSheet statementSheet : statementSheetList) {
             if (statementSheet.getCode().equals(code) && statementSheet.getType().equals(FundTransactionType.PURCHASE.getDescription())) {
-                return DateUtil.strToDate(statementSheet.getTransactionDate());
+                if (count == index) {
+                    return DateUtil.strToDate(statementSheet.getTransactionDate());
+                }
+                ++count;
             }
         }
         return null;

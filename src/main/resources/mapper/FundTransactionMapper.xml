@@ -90,4 +90,12 @@
         where code = #{code} and transaction_date = #{transactionDate}
     </update>
 
+    <update id="updateMarkByConditions">
+        update fund_transaction
+        <set>
+            <if test="mark != null and mark != ''">mark = #{mark}</if>
+        </set>
+        where code = #{code} and transaction_date between #{startDate} and #{endDate} and confirmation_date &lt; #{endDate}
+    </update>
+
 </mapper>
