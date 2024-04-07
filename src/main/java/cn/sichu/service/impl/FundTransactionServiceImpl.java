@@ -42,6 +42,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     FundPositionMapper fundPositionMapper;
     @Autowired
     FundHistoryPositionMapper fundHistoryPositionMapper;
+    @Autowired
+    FundDividendTransactionMapper fundDividendTransactionMapper;
 
     @Override
     public void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, BigDecimal amount, String tradingPlatform)
@@ -176,6 +178,31 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         fundRedemptionTransactionMapper.insertFundRedemptionTransaction(transaction);
         /* insert `fund_transaction` */
         insertFundTransactionByFundRedemptionTransaction(transaction);
+    }
+
+    @Override
+    public void insertFundDividendTransactionByConditions(String code, Date applicationDate, BigDecimal dividendAmountPerShare,
+        String tradingPlatform) {
+        FundDividendTransaction transaction = new FundDividendTransaction();
+        transaction.setCode(code);
+        // TODO: 等遇到现金分红的时候看一下是当天公布当天分红还是隔一天, 还是要解析分红公告
+        transaction.setApplicationDate(applicationDate);
+        transaction.setTransactionDate(applicationDate);
+        transaction.setConfirmationDate(applicationDate);
+        transaction.setSettlementDate(applicationDate);
+        transaction.setDividendAmountPerShare(dividendAmountPerShare);
+        transaction.setStatus(FundTransactionStatus.CASH_DIVIDEND.getCode());
+        transaction.setTradingPlatform(tradingPlatform);
+        List<FundPosition> fundPositionList = fundPositionMapper.selectAllFundPositionByCodeOrderByTransactionDate(code);
+        if (fundPositionList.isEmpty()) {
+            throw new FundTransactionException(999, "分红时无持仓");
+        }
+        BigDecimal heldShare = fundPositionList.get(fundPositionList.size() - 1).getHeldShare();
+        transaction.setAmount(FinancialCalculationUtil.calculateDividendAmount(heldShare, dividendAmountPerShare));
+        /* insert `fund_dividend_transaction` */
+        fundDividendTransactionMapper.insertFundDividendTransaction(transaction);
+        /* insert `fund_transaction` */
+        insertFundTransactionByFundDividendTransaction(transaction);
     }
 
     @Override
@@ -337,6 +364,22 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         fundTransaction.setStatus(fundRedemptionTransaction.getStatus());
         fundTransaction.setMark(fundRedemptionTransaction.getMark());
         fundTransaction.setType(FundTransactionType.REDEMPTION.getCode());
+        fundTransactionMapper.insertFundTransaction(fundTransaction);
+    }
+
+    private void insertFundTransactionByFundDividendTransaction(FundDividendTransaction fundDividendTransaction) {
+        FundTransaction fundTransaction = new FundTransaction();
+        fundTransaction.setCode(fundDividendTransaction.getCode());
+        fundTransaction.setApplicationDate(fundDividendTransaction.getApplicationDate());
+        fundTransaction.setTransactionDate(fundDividendTransaction.getTransactionDate());
+        fundTransaction.setConfirmationDate(fundDividendTransaction.getConfirmationDate());
+        fundTransaction.setSettlementDate(fundDividendTransaction.getSettlementDate());
+        fundTransaction.setAmount(fundDividendTransaction.getAmount());
+        fundTransaction.setShare(fundDividendTransaction.getShare());
+        fundTransaction.setDividendAmountPerShare(fundDividendTransaction.getDividendAmountPerShare());
+        fundTransaction.setTradingPlatform(fundDividendTransaction.getTradingPlatform());
+        fundTransaction.setStatus(fundDividendTransaction.getStatus());
+        fundTransaction.setType(FundTransactionType.DIVIDEND.getCode());
         fundTransactionMapper.insertFundTransaction(fundTransaction);
     }
 

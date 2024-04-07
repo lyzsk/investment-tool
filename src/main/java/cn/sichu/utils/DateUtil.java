@@ -41,4 +41,14 @@ public class DateUtil {
     public static Date formatDate(Date date) throws ParseException {
         return sdf.parse(sdf.format(date));
     }
+
+    /**
+     * @param date date
+     * @return java.util.Date
+     * @author sichu huang
+     * @date 2024/04/07
+     **/
+    public static Date formatDate(String date) throws ParseException {
+        return sdf.parse(sdf.format(date));
+    }
 }

@@ -4,12 +4,12 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * `fund_transaction` 实体类
+ * `fund_dividend_transaction` 实体类
  *
  * @author sichu huang
- * @date 2024/03/09
+ * @date 2024/04/07
  **/
-public class FundTransaction {
+public class FundDividendTransaction {
     private Long id;
     private String code;
     private Date applicationDate;
@@ -17,21 +17,17 @@ public class FundTransaction {
     private Date confirmationDate;
     private Date settlementDate;
     private BigDecimal amount;
-    private BigDecimal fee;
-    private BigDecimal nav;
     private BigDecimal share;
     private BigDecimal dividendAmountPerShare;
     private String tradingPlatform;
     private Integer status;
     private String mark;
-    private Integer type;
 
-    public FundTransaction() {
+    public FundDividendTransaction() {
     }
 
-    public FundTransaction(Long id, String code, Date applicationDate, Date transactionDate, Date confirmationDate, Date settlementDate,
-        BigDecimal amount, BigDecimal fee, BigDecimal nav, BigDecimal share, BigDecimal dividendAmountPerShare, String tradingPlatform,
-        Integer status, String mark, Integer type) {
+    public FundDividendTransaction(Long id, String code, Date applicationDate, Date transactionDate, Date confirmationDate, Date settlementDate,
+        BigDecimal amount, BigDecimal share, BigDecimal dividendAmountPerShare, String tradingPlatform, Integer status, String mark) {
         this.id = id;
         this.code = code;
         this.applicationDate = applicationDate;
@@ -39,22 +35,19 @@ public class FundTransaction {
         this.confirmationDate = confirmationDate;
         this.settlementDate = settlementDate;
         this.amount = amount;
-        this.fee = fee;
-        this.nav = nav;
         this.share = share;
         this.dividendAmountPerShare = dividendAmountPerShare;
         this.tradingPlatform = tradingPlatform;
         this.status = status;
         this.mark = mark;
-        this.type = type;
     }
 
     @Override
     public String toString() {
-        return "FundTransaction{" + "id=" + id + ", code='" + code + '\'' + ", applicationDate=" + applicationDate + ", transactionDate="
-            + transactionDate + ", confirmationDate=" + confirmationDate + ", settlementDate=" + settlementDate + ", amount=" + amount + ", fee="
-            + fee + ", nav=" + nav + ", share=" + share + ", dividendAmountPerShare=" + dividendAmountPerShare + ", tradingPlatform='"
-            + tradingPlatform + '\'' + ", status=" + status + ", mark='" + mark + '\'' + ", type=" + type + '}';
+        return "FundDividendTransaction{" + "id=" + id + ", code='" + code + '\'' + ", applicationDate=" + applicationDate + ", transactionDate="
+            + transactionDate + ", confirmationDate=" + confirmationDate + ", settlementDate=" + settlementDate + ", amount=" + amount
+            + ", share=" + share + ", dividendAmountPerShare=" + dividendAmountPerShare + ", tradingPlatform='" + tradingPlatform + '\''
+            + ", status=" + status + ", mark='" + mark + '\'' + '}';
     }
 
     public Long getId() {
@@ -113,22 +106,6 @@ public class FundTransaction {
         this.amount = amount;
     }
 
-    public BigDecimal getFee() {
-        return fee;
-    }
-
-    public void setFee(BigDecimal fee) {
-        this.fee = fee;
-    }
-
-    public BigDecimal getNav() {
-        return nav;
-    }
-
-    public void setNav(BigDecimal nav) {
-        this.nav = nav;
-    }
-
     public BigDecimal getShare() {
         return share;
     }
@@ -167,13 +144,5 @@ public class FundTransaction {
 
     public void setMark(String mark) {
         this.mark = mark;
-    }
-
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
     }
 }
