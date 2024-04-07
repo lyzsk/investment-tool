@@ -14,6 +14,7 @@
         <result property="fee" column="fee"/>
         <result property="nav" column="nav"/>
         <result property="share" column="share"/>
+        <result property="dividendAmountPerShare" column="dividend_amount_per_share"/>
         <result property="tradingPlatform" column="trading_platform"/>
         <result property="status" column="status"/>
         <result property="mark" column="mark"/>
@@ -23,16 +24,16 @@
     <insert id="insertFundTransaction" useGeneratedKeys="true" keyProperty="id">
         insert into fund_transaction
         (code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav,
-        share, trading_platform, status, mark, type)
+        share, dividend_amount_per_share, trading_platform, status, mark, type)
         values
-        (#{code}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate},
-        #{amount}, #{fee}, #{nav}, #{share}, #{tradingPlatform}, #{status}, #{mark}, #{type})
+        (#{code}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate}, #{amount},
+        #{fee}, #{nav}, #{share}, #{dividendAmountPerShare} #{tradingPlatform}, #{status}, #{mark}, #{type})
     </insert>
 
     <select id="selectAllFundTransaction" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
-        trading_platform, status, mark, type
+        dividend_amount_per_share, trading_platform, status, mark, type
         from fund_transaction
         order by code, transaction_date
     </select>

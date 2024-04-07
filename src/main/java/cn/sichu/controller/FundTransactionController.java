@@ -31,15 +31,23 @@ public class FundTransactionController {
     @PostMapping("/purchase")
     public void purchaseFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
         @RequestParam("amount") String amount, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException, IOException {
-        fundTransactionService.insertFundPurchaseTransactionByConditions(code, DateUtil.strToDate(applicationDate), new BigDecimal(amount),
+        fundTransactionService.insertFundPurchaseTransactionByConditions(code, DateUtil.formatDate(applicationDate), new BigDecimal(amount),
             tradingPlatform);
     }
 
     @PostMapping("/redemption")
-    public void RedemptionFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
+    public void redemptionFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
         @RequestParam("share") String share, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException, IOException {
-        fundTransactionService.insertFundRedemptionTransactionByConditions(code, DateUtil.strToDate(applicationDate), new BigDecimal(share),
+        fundTransactionService.insertFundRedemptionTransactionByConditions(code, DateUtil.formatDate(applicationDate), new BigDecimal(share),
             tradingPlatform);
+    }
+
+    @PostMapping("/dividend")
+    public void dividendFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
+        @RequestParam("dividendAmountPerShare") String dividendAmountPerShare, @RequestParam("tradingPlatform") String tradingPlatform)
+        throws ParseException {
+        fundTransactionService.insertFundDividendTransactionByConditions(code, DateUtil.formatDate(applicationDate),
+            new BigDecimal(dividendAmountPerShare), tradingPlatform);
     }
 
     @Scheduled(cron = "0 0 0 * * *")

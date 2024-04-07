@@ -52,15 +52,25 @@ public interface IFundTransactionService {
      * 1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_principal_amount,
      * 6.total_amount, 7.total_purchase_fee, 8.total_redemption_fee, 9.held_share, 10.held_days, 11.mark;
      *
-     * @param code            code
-     * @param applicationDate applicationDate
-     * @param share           share
-     * @param tradingPlatform tradingPlatform
+     * @param code            基金代码 (6位)
+     * @param applicationDate 交易申请日
+     * @param share           交易份额
+     * @param tradingPlatform 交易平台
      * @author sichu huang
      * @date 2024/03/24
      **/
     void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, BigDecimal share, String tradingPlatform)
         throws ParseException, IOException;
+
+    /**
+     * @param code                   基金代码 (6位)
+     * @param applicationDate        交易申请日
+     * @param dividendAmountPerShare 每股现金分红金额
+     * @param tradingPlatform        交易平台
+     * @author sichu huang
+     * @date 2024/04/07
+     **/
+    void insertFundDividendTransactionByConditions(String code, Date applicationDate, BigDecimal dividendAmountPerShare, String tradingPlatform);
 
     /**
      * @return java.util.List<cn.sichu.entity.FundTransaction>

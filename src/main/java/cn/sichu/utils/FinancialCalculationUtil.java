@@ -128,13 +128,24 @@ public class FinancialCalculationUtil {
     }
 
     /**
-     * @param profit
-     * @param heldDays
+     * @param profit   净利润
+     * @param heldDays 持有天数(含节假日)
      * @return java.math.BigDecimal
      * @author sichu huang
      * @date 2024/04/04
      **/
     public static BigDecimal calculateDailyNavYield(BigDecimal profit, long heldDays) {
         return profit.divide(new BigDecimal(heldDays), 4, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * @param share                  份额
+     * @param dividendAmountPerShare 每股先进分红金额
+     * @return java.math.BigDecimal
+     * @author sichu huang
+     * @date 2024/04/07
+     **/
+    public static BigDecimal calculateDividendAmount(BigDecimal share, BigDecimal dividendAmountPerShare) {
+        return share.multiply(dividendAmountPerShare).setScale(2, RoundingMode.HALF_UP);
     }
 }
