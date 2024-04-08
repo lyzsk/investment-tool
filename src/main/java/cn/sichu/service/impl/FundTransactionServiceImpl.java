@@ -193,11 +193,11 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         transaction.setDividendAmountPerShare(dividendAmountPerShare);
         transaction.setStatus(FundTransactionStatus.CASH_DIVIDEND.getCode());
         transaction.setTradingPlatform(tradingPlatform);
-        List<FundPosition> fundPositionList = fundPositionMapper.selectAllFundPositionByCodeOrderByTransactionDate(code);
+        List<FundPosition> fundPositionList = fundPositionMapper.selectFundPositionWithMaxHeldShareByCode(code);
         if (fundPositionList.isEmpty()) {
             throw new FundTransactionException(999, "分红时无持仓");
         }
-        BigDecimal heldShare = fundPositionList.get(fundPositionList.size() - 1).getHeldShare();
+        BigDecimal heldShare = fundPositionList.get(0).getHeldShare();
         transaction.setAmount(FinancialCalculationUtil.calculateDividendAmount(heldShare, dividendAmountPerShare));
         /* insert `fund_dividend_transaction` */
         fundDividendTransactionMapper.insertFundDividendTransaction(transaction);

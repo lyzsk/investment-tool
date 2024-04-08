@@ -100,6 +100,14 @@
         order by transaction_date asc
     </select>
 
+    <select id="selectFundPositionWithMaxHeldShareByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select
+        id, code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee,
+        max(held_share) as held_share, held_days, update_date
+        from fund_position
+        where code = #{code}
+    </select>
+
     <update id="updateTotalAmountAndHeldDaysAndUpdateDate">
         update fund_position
         <set>

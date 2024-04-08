@@ -49,6 +49,6 @@ public class DateUtil {
      * @date 2024/04/07
      **/
     public static Date formatDate(String date) throws ParseException {
-        return sdf.parse(sdf.format(date));
+        return formatDate(strToDate(date));
     }
 }
