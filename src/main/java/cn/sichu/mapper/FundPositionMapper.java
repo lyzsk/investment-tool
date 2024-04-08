@@ -22,6 +22,8 @@ public interface FundPositionMapper {
 
     List<FundPosition> selectAllFundPositionByCodeOrderByTransactionDate(String code);
 
+    List<FundPosition> selectFundPositionWithMaxHeldShareByCode(String code);
+
     List<FundPosition> selectFundPositionByCodeAndAfterTransactionDate(FundPosition fundPosition);
 
     List<FundPosition> selectLastFundPositionInDifferentDate(FundPosition fundPosition);
