@@ -49,6 +49,9 @@ public class FundTransactionStatementSheet {
     /* 成本均价 */
     private String avgNavPerShare;
 
+    /* (每股)现金分红 */
+    private String dividendAmountPerShare;
+
     /* 交易金额 */
     private String amount;
 
@@ -72,7 +75,8 @@ public class FundTransactionStatementSheet {
 
     public FundTransactionStatementSheet(String code, String shortName, String applicationDate, String transactionDate, String confirmationDate,
         String settlementDate, String fee, String totalFee, String share, String totalShare, String nav, String dilutedNav,
-        String avgNavPerShare, String amount, String totalAmount, String type, String tradingPlatform, String fullName, String companyName) {
+        String avgNavPerShare, String dividendAmountPerShare, String amount, String totalAmount, String type, String tradingPlatform,
+        String fullName, String companyName) {
         this.code = code;
         this.shortName = shortName;
         this.applicationDate = applicationDate;
@@ -86,6 +90,7 @@ public class FundTransactionStatementSheet {
         this.nav = nav;
         this.dilutedNav = dilutedNav;
         this.avgNavPerShare = avgNavPerShare;
+        this.dividendAmountPerShare = dividendAmountPerShare;
         this.amount = amount;
         this.totalAmount = totalAmount;
         this.type = type;
@@ -100,9 +105,10 @@ public class FundTransactionStatementSheet {
             .append("applicationDate", getApplicationDate()).append("transactionDate", getTransactionDate())
             .append("confirmationDate", getConfirmationDate()).append("settlementDate", getSettlementDate()).append("fee", getFee())
             .append("totalFee", getTotalFee()).append("share", getShare()).append("totalShare", getTotalShare()).append("nav", getNav())
-            .append("dilutedNav", getDilutedNav()).append("avgNavPerShare", getAvgNavPerShare()).append("amount", getAmount())
-            .append("totalAmount", getTotalAmount()).append("type", getType()).append("tradingPlatform", getTradingPlatform())
-            .append("fullName", getFullName()).append("companyName", getCompanyName()).toString();
+            .append("dilutedNav", getDilutedNav()).append("avgNavPerShare", getAvgNavPerShare())
+            .append("dividendAmountPerShare", getDividendAmountPerShare()).append("amount", getAmount()).append("totalAmount", getTotalAmount())
+            .append("type", getType()).append("tradingPlatform", getTradingPlatform()).append("fullName", getFullName())
+            .append("companyName", getCompanyName()).toString();
     }
 
     public String getCode() {
@@ -207,6 +213,14 @@ public class FundTransactionStatementSheet {
 
     public void setAvgNavPerShare(String avgNavPerShare) {
         this.avgNavPerShare = avgNavPerShare;
+    }
+
+    public String getDividendAmountPerShare() {
+        return dividendAmountPerShare;
+    }
+
+    public void setDividendAmountPerShare(String dividendAmountPerShare) {
+        this.dividendAmountPerShare = dividendAmountPerShare;
     }
 
     public String getAmount() {
