@@ -18,10 +18,10 @@ import java.util.Map;
 public class CrawlUtil {
 
     /**
-     * @param code
-     * @param startDate
-     * @param endDate
-     * @param callback
+     * @param code      code
+     * @param startDate startDate
+     * @param endDate   endDate
+     * @param callback  callback
      * @return java.util.Map<java.lang.String, java.lang.String>
      * @author sichu huang
      * @date 2024/03/11
@@ -60,14 +60,6 @@ public class CrawlUtil {
             ++pageIndex;
         } while (pageIndex <= Math.ceil((double)totalCount / pageSize));
         return map;
-    }
-
-    public static void main(String[] args) throws IOException {
-        Map<String, String> map = getDailyNavMapBetweenDates("270023", "2024-01-01", "2024-03-11", "18309632015620644496_1710164287417");
-        System.err.println(map.entrySet().size());
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            System.out.println("FSRQ: " + entry.getKey() + ", DWJZ: " + entry.getValue());
-        }
     }
 }
 

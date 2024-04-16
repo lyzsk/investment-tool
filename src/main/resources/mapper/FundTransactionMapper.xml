@@ -27,7 +27,7 @@
         share, dividend_amount_per_share, trading_platform, status, mark, type)
         values
         (#{code}, #{applicationDate}, #{transactionDate}, #{confirmationDate}, #{settlementDate}, #{amount},
-        #{fee}, #{nav}, #{share}, #{dividendAmountPerShare} #{tradingPlatform}, #{status}, #{mark}, #{type})
+        #{fee}, #{nav}, #{share}, #{dividendAmountPerShare}, #{tradingPlatform}, #{status}, #{mark}, #{type})
     </insert>
 
     <select id="selectAllFundTransaction" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">

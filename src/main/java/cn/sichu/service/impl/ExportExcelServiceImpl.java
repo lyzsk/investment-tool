@@ -77,8 +77,8 @@ public class ExportExcelServiceImpl implements IExportExcelService {
 
         List<FundTransaction> fundTransactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
         List<FundTransactionStatementSheet> fundTransactionStatementSheetDataList = setFundTransactionStatementSheetData(fundTransactionList);
-        List<FundTransactionReportSheet> fundTransactionReportSheetDataList =
-            setfundTransactionReportSheetData(fundTransactionStatementSheetDataList);
+        // List<FundTransactionReportSheet> fundTransactionReportSheetDataList =
+        //     setFundTransactionReportSheetData(fundTransactionStatementSheetDataList);
         List<GoldTransactionStatementSheet> goldTransactionStatementSheetDataList = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
@@ -99,7 +99,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
 
         FillConfig listFillConfig = FillConfig.builder().forceNewRow(true).direction(WriteDirectionEnum.VERTICAL).build();
         writer.fill(fundTransactionStatementSheetDataList, listFillConfig, fundTransactionStatementSheetWriteSheet);
-        writer.fill(fundTransactionReportSheetDataList, listFillConfig, fundTransactionReportSheetWriteSheet);
+        // writer.fill(fundTransactionReportSheetDataList, listFillConfig, fundTransactionReportSheetWriteSheet);
         writer.fill(goldTransactionStatementSheetDataList, listFillConfig, goldTransactionStatementSheetWriteSheet);
 
         inputStream.close();
@@ -116,14 +116,13 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         List<FundTransactionStatementSheet> list = new ArrayList<>();
         for (FundTransaction fundTransaction : fundTransactions) {
             String code = fundTransaction.getCode();
-            Integer type = fundTransaction.getType();
             List<FundInformation> fundInformationList = fundTransactionStatementSheetMapper.selectFundInformationByCode(code);
             if (fundInformationList.isEmpty()) {
                 throw new ExcelException(999, "获取基金信息失败");
             }
             FundInformation fundInformation = fundInformationList.get(0);
             FundTransactionStatementSheet fundTransactionStatementSheet = new FundTransactionStatementSheet();
-            handleFundTransactionStatementSheetData(fundTransactionStatementSheet, fundTransaction, fundInformation, type);
+            handleFundTransactionStatementSheetData(fundTransactionStatementSheet, fundTransaction, fundInformation);
             list.add(fundTransactionStatementSheet);
         }
         return list;
@@ -132,19 +131,18 @@ public class ExportExcelServiceImpl implements IExportExcelService {
     /**
      * set data into template sheet: A.code, B.shortName, C.applicationDate, D.transactionDate, E.confirmationDate, F.settlementDate, G.fee,
      * <b>H.totalFee(optional),</b> I.share, <b>J.totalShare(optional),</b> K.nav, <b>L.dilutedNav(optional),</b> <b>M.avgNavPerShare(optional),</b>
-     * N.amount, <b>O.totalAmount(optional),</b> P.type, Q.tradingPlatform, R.fullName, S.companyName
+     * N.dividendAmountPerShare, O.amount, <b>P.totalAmount(optional),</b> Q.type, R.tradingPlatform, S.fullName, T.companyName
      * 合计 19 列
      *
      * @param sheet       FundTransactionStatementSheet
      * @param transaction FundTransaction
      * @param information FundInformation
-     * @param type        type
      * @author sichu huang
      * @date 2024/04/01
      **/
     private void handleFundTransactionStatementSheetData(FundTransactionStatementSheet sheet, FundTransaction transaction,
-        FundInformation information, Integer type) {
-        /* set A, B, C, D, E, F, G, I, K, N, Q, R, S (13列) */
+        FundInformation information) {
+        /* set A, B, C, D, E, F, G, I, K, O, Q, R, S, T (13列) */
         String code = transaction.getCode();
         Date transactionDate = transaction.getTransactionDate();
         sheet.setCode(code);
@@ -160,10 +158,10 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         sheet.setTradingPlatform(transaction.getTradingPlatform());
         sheet.setFullName(information.getFullName());
         sheet.setCompanyName(information.getCompanyName());
-        /* set P */
+        Integer type = transaction.getType();
+        /* set Q */
         if (Objects.equals(type, FundTransactionType.PURCHASE.getCode())) {
             sheet.setType(FundTransactionType.PURCHASE.getDescription());
-            /* set H, J, L, M, O */
             List<FundPosition> fundPositionList = fundTransactionStatementSheetMapper.selectFundPositionByConditions(code, transactionDate);
             if (!fundPositionList.isEmpty()) {
                 for (FundPosition position : fundPositionList) {
@@ -172,6 +170,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
                     BigDecimal totalAmount = position.getTotalPrincipalAmount();
                     sheet.setTotalFee(String.valueOf(totalFee));
                     sheet.setTotalShare(String.valueOf(heldShare));
+                    sheet.setDividendAmountPerShare("N/A");
                     sheet.setTotalAmount(String.valueOf(totalAmount));
                     sheet.setDilutedNav(String.valueOf(FinancialCalculationUtil.calculateDilutedNav(totalAmount, totalFee, heldShare)));
                     sheet.setAvgNavPerShare(String.valueOf(FinancialCalculationUtil.calculateAvgNavPerShare(totalAmount, heldShare)));
@@ -186,6 +185,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
                         BigDecimal totalAmount = position.getTotalPrincipalAmount();
                         sheet.setTotalFee(String.valueOf(totalFee));
                         sheet.setTotalShare(String.valueOf(heldShare));
+                        sheet.setDividendAmountPerShare("N/A");
                         sheet.setTotalAmount(String.valueOf(totalAmount));
                         sheet.setDilutedNav(String.valueOf(FinancialCalculationUtil.calculateDilutedNav(totalAmount, totalFee, heldShare)));
                         sheet.setAvgNavPerShare(String.valueOf(FinancialCalculationUtil.calculateAvgNavPerShare(totalAmount, heldShare)));
@@ -193,7 +193,6 @@ public class ExportExcelServiceImpl implements IExportExcelService {
                 }
             }
         } else if (Objects.equals(type, FundTransactionType.REDEMPTION.getCode())) {
-            /* if REDEMPTION, set H, J, L, M, O */
             sheet.setType(FundTransactionType.REDEMPTION.getDescription());
             sheet.setTotalFee(String.valueOf(transaction.getFee()));
             sheet.setTotalShare(String.valueOf(transaction.getShare()));
@@ -201,13 +200,13 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             sheet.setAvgNavPerShare("N/A");
             sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
         } else if (Objects.equals(type, FundTransactionType.DIVIDEND.getCode())) {
-            /* if DIVIDEND, set H, J, L, M, O */
             sheet.setType(FundTransactionType.DIVIDEND.getDescription());
             sheet.setTotalFee("N/A");
             sheet.setTotalShare(String.valueOf(transaction.getShare()));
             sheet.setDilutedNav("N/A");
             sheet.setAvgNavPerShare("N/A");
-            sheet.setAmount("N/A");
+            sheet.setDividendAmountPerShare(String.valueOf(transaction.getDividendAmountPerShare()));
+            sheet.setAmount(String.valueOf(transaction.getAmount()));
             sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
         }
     }
@@ -218,7 +217,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
      * @author sichu huang
      * @date 2024/04/03
      **/
-    private List<FundTransactionReportSheet> setfundTransactionReportSheetData(List<FundTransactionStatementSheet> statementSheetList)
+    private List<FundTransactionReportSheet> setFundTransactionReportSheetData(List<FundTransactionStatementSheet> statementSheetList)
         throws ParseException, IOException {
         List<FundTransactionReportSheet> list = new ArrayList<>();
         Map<String, FundTransactionStatementSheet> lastTransactionMap = new TreeMap<>(String::compareTo);
@@ -250,7 +249,8 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             sheet.setPurchaseTransactionDate(DateUtil.dateToStr(firstPurchaseDate));
             String totalPrincipalAmount = lastTransaction.getTotalAmount();
             String navStr = fundHistoryNavService.selectLastNotNullFundHistoryNavByConditions(code, formattedDate);
-            BigDecimal share = new BigDecimal(lastTransaction.getTotalShare()).setScale(2, RoundingMode.HALF_UP);
+            String lastShare = lastTransaction.getTotalShare();
+            BigDecimal share = new BigDecimal(lastShare).setScale(2, RoundingMode.HALF_UP);
             BigDecimal totalAmount = FinancialCalculationUtil.calculateTotalAmount(share, navStr);
             if (lastTransaction.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
                 redemptionDate = transactionDate;
@@ -267,10 +267,12 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             sheet.setHeldDays(String.valueOf(heldDays));
             sheet.setTotalPrincipalAmount(totalPrincipalAmount);
             sheet.setTotalAmount(String.valueOf(totalAmount));
-            BigDecimal profit = totalAmount.subtract(new BigDecimal(sheet.getTotalPrincipalAmount()).setScale(2, RoundingMode.HALF_UP));
-            sheet.setProfit(String.valueOf(profit));
-            BigDecimal dailyNavYield = FinancialCalculationUtil.calculateDailyNavYield(profit, heldDays);
-            sheet.setDailyNavYield(String.valueOf(dailyNavYield));
+            if (sheet.getTotalPrincipalAmount() != null) {
+                BigDecimal profit = totalAmount.subtract(new BigDecimal(sheet.getTotalPrincipalAmount()).setScale(2, RoundingMode.HALF_UP));
+                sheet.setProfit(String.valueOf(profit));
+                BigDecimal dailyNavYield = FinancialCalculationUtil.calculateDailyNavYield(profit, heldDays);
+                sheet.setDailyNavYield(String.valueOf(dailyNavYield));
+            }
             sheet.setTradingPlatform(lastTransaction.getTradingPlatform());
             sheet.setCompanyName(lastTransaction.getCompanyName());
             list.add(sheet);
@@ -315,16 +317,35 @@ public class ExportExcelServiceImpl implements IExportExcelService {
      * @date 2024/04/04
      **/
     private Date getFirstPurchaseDate(String code, List<FundTransactionStatementSheet> statementSheetList, int index) throws ParseException {
-        int count = 0;
+        int purchaseCount = 0;
+        Date firstPurchaseDate = null;
+
         for (FundTransactionStatementSheet statementSheet : statementSheetList) {
             if (statementSheet.getCode().equals(code) && statementSheet.getType().equals(FundTransactionType.PURCHASE.getDescription())) {
-                if (count == index) {
-                    return DateUtil.strToDate(statementSheet.getTransactionDate());
+                if (purchaseCount == index) {
+                    firstPurchaseDate = DateUtil.strToDate(statementSheet.getTransactionDate());
+                    break; // 找到第一个购买日期后退出循环
                 }
-                ++count;
+                purchaseCount++;
+            } else if (statementSheet.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
+                purchaseCount = 0; // 重置purchaseCount，开始新的周期
+                index++; // 更新周期索引
             }
         }
-        return null;
+
+        return firstPurchaseDate;
     }
+    // private Date getFirstPurchaseDate(String code, List<FundTransactionStatementSheet> statementSheetList, int index) throws ParseException {
+    //     int count = 0;
+    //     for (FundTransactionStatementSheet statementSheet : statementSheetList) {
+    //         if (statementSheet.getCode().equals(code) && statementSheet.getType().equals(FundTransactionType.PURCHASE.getDescription())) {
+    //             if (count == index) {
+    //                 return DateUtil.strToDate(statementSheet.getTransactionDate());
+    //             }
+    //             ++count;
+    //         }
+    //     }
+    //     return null;
+    // }
 
 }
