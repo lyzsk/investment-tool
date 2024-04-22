@@ -21,12 +21,11 @@ public interface IFundTransactionService {
      * 7.amount, 8.fee, 9.nav, 10.share, 11.dividend_amount_per_share, 12.trading_platform,
      * 13.status, 14.mark, 15.type
      * <p/>
-     * 对于purchase交易, <b>1.id</b> 通过mapper自增; <b>9.nav, 10.share, 14.mark</b> 可能为null, <b>11.dividend_amount_per_share</b> 必为null
+     * 对于purchase交易, <b>1.id</b> 通过mapper自增; <b>9.nav, 10.share</b> 可能为null, <b>11.dividend_amount_per_share, 14.mark</b> 必为null
      * <br/>
      * i. 当nav更新后, <b>9.nav, 10.share</b> 更新 (每日20:00-24:00, 每小时尝试更新一次)
      * <br/>
-     * ii. 当redemption后, <b>14.mark</b> 更新
-     * <br/>
+     * ii. 当purchase状态为HELD, 则 insert `fund_position`, 可以不按时间顺序, 但注意要以 redemption transaction(14.mark) 为分界
      *
      * @param code            基金代码 (6位)
      * @param applicationDate 交易申请日
@@ -38,27 +37,15 @@ public interface IFundTransactionService {
     void purchaseFund(String code, Date applicationDate, BigDecimal amount, String tradingPlatform) throws ParseException, IOException;
 
     /**
-     * insert into `fund_redemption_transaction` with:
-     * <br/>
-     * 1.code, 2.application_date, 3.transaction_date, 4.confirmation_date, 5.settlement_date, <b>6.amount(optional),
-     * 7.fee(optional), 8.nav(optional),</b> 9.share, 10.trading_platform, 11.status, 12.mark
-     * <p/>
      * insert into `fund_transaction` with:
      * <br/>
-     * 1.code, 2.application_date, 3.transaction_date, 4.confirmation_date, 5.settlement_date, <b>6.amount(optional),
-     * 7.fee(optional), 8.nav(optional),</b> 9.share, 10.trading_platform, 11.status, 12.mark, 13.type
+     * 1.id, 2.code, 3.application_date, 4.transaction_date, 5.confirmation_date, 6.settlement_date,
+     * 7.amount, 8.fee, 9.nav, 10.share, 11.dividend_amount_per_share, 12.trading_platform,
+     * 13.status, 14.mark, 15.type
      * <p/>
-     * if REDEEMED:
+     * 对于redemption交易, <b>1.id</b> 通过mapper自增; <b>7.amount, 8.fee, 9.nav</b> 可能为null, <b>11.dividend_amount_per_share</b> 必为null
      * <br/>
-     * insert into `fund_history_position` with:
-     * <br/>
-     * 1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_principal_amount,
-     * 6.total_amount, 7.total_purchase_fee, 8.total_redemption_fee, 9.held_share, 10.held_days, 11.mark;
-     * <br/>
-     * delete from `fund_position`:
-     * <br/>
-     * 1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_principal_amount,
-     * 6.total_amount, 7.total_purchase_fee, 8.total_redemption_fee, 9.held_share, 10.held_days, 11.mark;
+     * i. 当nav更新后, <b>7.amount, 8.fee, 9.nav</b> 更新 (每日20:00-24:00, 每小时尝试更新一次)
      *
      * @param code            基金代码 (6位)
      * @param applicationDate 交易申请日
@@ -67,8 +54,7 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/24
      **/
-    void insertFundRedemptionTransactionByConditions(String code, Date applicationDate, BigDecimal share, String tradingPlatform)
-        throws ParseException, IOException;
+    void redeemFund(String code, Date applicationDate, BigDecimal share, String tradingPlatform) throws ParseException, IOException;
 
     /**
      * @param code                   基金代码 (6位)
