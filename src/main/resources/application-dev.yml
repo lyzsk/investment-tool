@@ -1,11 +1,14 @@
 investment-tool:
   name: investment-tool
-  version: 1.0.1
+  version: 1.1.0
   copyright: Sichu Huang
 
 spring:
-  profiles:
-    active: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/investment-tool-dev?useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
 
 mybatis:
   typeAliasesPackage: cn.sichu.**.domain
@@ -13,7 +16,7 @@ mybatis:
   configLocation: classpath:/mybatis-config.xml
 
 server:
-  port: 8888
+  port: 8889
   servlet:
     context-path: /
     tomcat:
