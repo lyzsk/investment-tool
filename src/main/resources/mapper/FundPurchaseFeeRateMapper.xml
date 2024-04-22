@@ -13,7 +13,7 @@
 
     <select id="selectFundPurchaseFeeRateByConditions" resultType="cn.sichu.entity.FundPurchaseFeeRate"
             resultMap="resultMap">
-        select code, purchase_fee_rate_change_amount, purchase_fee_rate, trading_platform
+        select purchase_fee_rate_change_amount, purchase_fee_rate
         from fund_purchase_fee_rate
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>

@@ -35,6 +35,6 @@ public interface FundPositionMapper {
 
     void updateTotalAmountAndHeldDaysAndUpdateDate(FundPosition fundPosition);
 
-    void updateTotalPrincipalAmountAndTotalPurchaseFeeAndHeldShare(FundPosition fundPosition);
+    void updateTotalPrincipalAmountAndTotalPurchaseFeeAndHeldShareAndTotalAmount(FundPosition fundPosition);
 
 }

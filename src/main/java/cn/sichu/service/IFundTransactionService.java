@@ -15,9 +15,18 @@ import java.util.List;
 public interface IFundTransactionService {
 
     /**
-     * 1. 插入买入交易表, 如果满足条件: nav和share不为空, 并且status为持仓, 则插入持仓表;
+     * insert in to `fund_transaction` with:
      * <br/>
-     * 2. 插入总交易表;
+     * 1.id, 2.code, 3.application_date, 4.transaction_date, 5.confirmation_date, 6.settlement_date,
+     * 7.amount, 8.fee, 9.nav, 10.share, 11.dividend_amount_per_share, 12.trading_platform,
+     * 13.status, 14.mark, 15.type
+     * <p/>
+     * 对于purchase交易, <b>1.id</b> 通过mapper自增; <b>9.nav, 10.share, 14.mark</b> 可能为null, <b>11.dividend_amount_per_share</b> 必为null
+     * <br/>
+     * i. 当nav更新后, <b>9.nav, 10.share</b> 更新 (每日20:00-24:00, 每小时尝试更新一次)
+     * <br/>
+     * ii. 当redemption后, <b>14.mark</b> 更新
+     * <br/>
      *
      * @param code            基金代码 (6位)
      * @param applicationDate 交易申请日
@@ -26,8 +35,7 @@ public interface IFundTransactionService {
      * @author sichu huang
      * @date 2024/03/10
      **/
-    void insertFundPurchaseTransactionByConditions(String code, Date applicationDate, BigDecimal amount, String tradingPlatform)
-        throws ParseException, IOException;
+    void purchaseFund(String code, Date applicationDate, BigDecimal amount, String tradingPlatform) throws ParseException, IOException;
 
     /**
      * insert into `fund_redemption_transaction` with:

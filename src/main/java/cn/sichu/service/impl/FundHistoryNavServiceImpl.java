@@ -52,15 +52,15 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         }
         String navStr;
         String callback = selectCallbackByCode(code);
-        List<FundHistoryNav> historyNavs = selectLastFundHistoryNavDateByCode(code);
-        if (historyNavs.isEmpty()) {
+        List<FundHistoryNav> historyNavList = selectLastFundHistoryNavDateByCode(code);
+        if (historyNavList.isEmpty()) {
             navStr = retryUpdateHistoryNav(code, navDate);
             if (navStr == null || navStr.equals("")) {
-                throw new FundTransactionException(999, "更新历史净值失败");
+                throw new FundTransactionException(999, "update history nav failed  when there is no history nav for this code");
             }
-            historyNavs = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
+            historyNavList = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
         }
-        Date lastNavDate = historyNavs.get(0).getNavDate();
+        Date lastNavDate = historyNavList.get(0).getNavDate();
         if (navDate.getTime() >= lastNavDate.getTime()) {
             insertFundHistoryNav(code, DateUtil.dateToStr(lastNavDate), DateUtil.dateToStr(navDate), callback);
             List<FundHistoryNav> updatedHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
@@ -73,7 +73,7 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         } else {
             navStr = retryUpdateHistoryNav(code, navDate);
             if (navStr == null || navStr.equals("")) {
-                throw new FundTransactionException(999, "更新历史净值失败");
+                throw new FundTransactionException(999, "update history nav failed");
             }
         }
         return navStr;

@@ -31,8 +31,7 @@ public class FundTransactionController {
     @PostMapping("/purchase")
     public void purchaseFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
         @RequestParam("amount") String amount, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException, IOException {
-        fundTransactionService.insertFundPurchaseTransactionByConditions(code, DateUtil.strToDate(applicationDate), new BigDecimal(amount),
-            tradingPlatform);
+        fundTransactionService.purchaseFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(amount), tradingPlatform);
     }
 
     @PostMapping("/redemption")
