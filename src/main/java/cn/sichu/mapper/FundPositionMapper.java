@@ -20,15 +20,13 @@ public interface FundPositionMapper {
 
     List<FundPosition> selectAllFundPosition();
 
-    List<FundPosition> selectAllFundPositionByCodeOrderByTransactionDate(String code);
+    List<FundPosition> selectAllFundPositionWithNullMark(String code);
 
     List<FundPosition> selectFundPositionWithMaxHeldShareByCode(String code);
 
     List<FundPosition> selectFundPositionByCodeAndAfterTransactionDate(FundPosition fundPosition);
 
-    List<FundPosition> selectLastFundPositionInDifferentDate(FundPosition fundPosition);
-
-    List<FundPosition> selectLastFundPositionInSameDate(FundPosition fundPosition);
+    List<FundPosition> selectLastFundPosition(FundPosition fundPosition);
 
     List<FundPosition> selectAllFundPositionByConditionsOrderByTransactionDate(@Param("code") String code, @Param("heldDays") Integer heldDays,
         @Param("endDate") Date endDate);

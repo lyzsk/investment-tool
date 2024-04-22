@@ -48,12 +48,13 @@
         from fund_position
     </select>
 
-    <select id="selectAllFundPositionByCodeOrderByTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+    <select id="selectAllFundPositionWithNullMark" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
         id, code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date
         from fund_position
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
+            and mark is null
         </where>
         order by transaction_date asc
     </select>
@@ -65,25 +66,13 @@
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
             <if test="transactionDate != null">and transaction_date &gt; #{transactionDate}</if>
+            and mark is null
         </where>
         order by transaction_date asc
     </select>
 
-    <select id="selectLastFundPositionInDifferentDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
-        select code, total_principal_amount, total_amount, total_purchase_fee, held_share
-        from (
-        select code, total_principal_amount, total_amount, total_purchase_fee, held_share,
-        row_number() over (partition by code order by held_share desc) as rn
-        from fund_position
-        <where>
-            <if test="code != null and code != ''">and code = #{code}</if>
-            <if test="transactionDate != null">and transaction_date &lt; #{transactionDate}</if>
-        </where>
-        ) temp
-        where rn = 1
-    </select>
 
-    <select id="selectLastFundPositionInSameDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+    <select id="selectLastFundPosition" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select code, total_principal_amount, total_amount, total_purchase_fee, held_share
         from (
         select code, total_principal_amount, total_amount, total_purchase_fee, held_share,
@@ -91,8 +80,8 @@
         from fund_position
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
-            <if test="transactionDate != null">and transaction_date = #{transactionDate}
-            </if>
+            <if test="transactionDate != null">and transaction_date <![CDATA[<=]]> #{transactionDate}</if>
+            and mark is null
         </where>
         ) temp
         where rn = 1
@@ -131,8 +120,8 @@
             <if test="totalPrincipalAmount != null">total_principal_amount = #{totalPrincipalAmount},</if>
             <if test="totalPurchaseFee != null">total_purchase_fee = #{totalPurchaseFee},</if>
             <if test="heldShare != null">held_share = #{heldShare},</if>
-            <if test="totalAmount != null">total_amount = #{total_amount}</if>
+            <if test="totalAmount != null">total_amount = #{total_amount},</if>
         </set>
-        where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate}
+        where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and mark is null
     </update>
 </mapper>

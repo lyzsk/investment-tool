@@ -37,8 +37,7 @@ public class FundTransactionController {
     @PostMapping("/redemption")
     public void redemptionFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
         @RequestParam("share") String share, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException, IOException {
-        fundTransactionService.insertFundRedemptionTransactionByConditions(code, DateUtil.strToDate(applicationDate), new BigDecimal(share),
-            tradingPlatform);
+        fundTransactionService.redeemFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(share), tradingPlatform);
     }
 
     @PostMapping("/dividend")
