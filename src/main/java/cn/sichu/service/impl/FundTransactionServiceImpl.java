@@ -42,13 +42,10 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     FundPositionMapper fundPositionMapper;
     @Autowired
     FundHistoryPositionMapper fundHistoryPositionMapper;
-    @Autowired
-    FundDividendTransactionMapper fundDividendTransactionMapper;
 
     @Override
     public void purchaseFund(String code, Date applicationDate, BigDecimal amount, String tradingPlatform) throws IOException, ParseException {
         Date currentDate = new Date();
-        /* 共15个字段, must set 10 fields, optinal set 2 fields, no need to set 3 fields */
         FundTransaction transaction = new FundTransaction();
         /* set 1.code, 2.application_date, 3.amount, 4.trading_platform, 5.type */
         transaction.setCode(code);
@@ -106,7 +103,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             transaction.setShare(FinancialCalculationUtil.calculateShare(amount, transaction.getFee(), navStr));
             /* insert `fund_position` */
             if (Objects.equals(transaction.getStatus(), FundTransactionStatus.HELD.getCode())) {
-                insertFundPositionByFundPurchaseTransaction(transaction);
+                insertFundPositionByFundTransaction(transaction);
             }
         }
         /* insert `fund_transaction` */
@@ -118,15 +115,15 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
      * <br/>
      * 1.id, 2.code, 3.transaction_date, 4.initiation_date, 5.redemption_date, 6.total_principal_amount,
      * 7.total_amount, 8.total_purchase_fee, 9.total_redemption_fee, 10.held_share, 11.held_days, 12.update_date,
-     * 13.mark
+     * 13.status, 14.mark
      * <p/>
-     * 对于purchase交易, <b>1.id</b> 通过mapper自增; <b>5.redemption_date, 9.total_redemption_fee, 13.mark</b> 必为null
+     * 对于purchase交易, <b>1.id</b> 通过mapper自增; <b>5.redemption_date, 9.total_redemption_fee, 14.mark</b> 必为null
      *
      * @param transaction FundTransaction
      * @author sichu huang
      * @date 2024/03/20
      **/
-    private void insertFundPositionByFundPurchaseTransaction(FundTransaction transaction) throws IOException, ParseException {
+    private void insertFundPositionByFundTransaction(FundTransaction transaction) throws IOException, ParseException {
         String code = transaction.getCode();
         BigDecimal amount = transaction.getAmount();
         BigDecimal fee = transaction.getFee();
@@ -134,7 +131,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         Date transactionDate = transaction.getTransactionDate();
         Date initiationDate = transaction.getSettlementDate();
         FundPosition fundPosition = new FundPosition();
-        /* set 1.code, 2.transaction_date, 3.initiation_date, 4.held_days, 5.update_date */
+        /* set 1.code, 2.transaction_date, 3.initiation_date, 4.held_days, 5.update_date, 6.status */
         fundPosition.setCode(code);
         fundPosition.setTransactionDate(transactionDate);
         fundPosition.setInitiationDate(initiationDate);
@@ -142,13 +139,14 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         long heldDays = TransactionDayUtil.getHeldTransactionDays(currentDate, transaction.getTransactionDate());
         fundPosition.setHeldDays((int)heldDays);
         fundPosition.setUpdateDate(currentDate);
-        /* set 6.total_principal_amount, 7.total_purchase_fee, 8.held_share, 9.total_amount */
+        fundPosition.setStatus(transaction.getStatus());
+        /* set 7.total_principal_amount, 8.total_purchase_fee, 9.held_share, 10.total_amount */
         List<FundPosition> fundPositionList = fundPositionMapper.selectAllFundPositionWithNullMark(code);
         if (fundPositionList.isEmpty()) {
             /* 若无对应code的持仓数据: 直接插入数据 */
             setFundPositionDataAndInsert(fundPosition, amount, fee, share);
         } else {
-            /* 若有对应code的持仓数据: 日期最小的 fundPosition 为参照开始判断 */
+            /* 若有对应code的持仓数据: 以 transaction_date, held_share 最小的 fundPosition 为参照开始判断 */
             FundPosition position = fundPositionList.get(0);
             if (transaction.getTransactionDate().before(position.getTransactionDate())) {
                 handleFundPositionBeforeTransactionDate(fundPosition, amount, fee, share);
@@ -159,9 +157,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     }
 
     /**
-     * 首次 HELD 时, 更新的 total_amount 根据 initiation_date 的上一个交易日的 nav 计算
-     * <p/>
-     * set and insert 6.total_principal_amount, 7.total_purchase_fee, 8.held_share, 9.total_amount into `fund_position`
+     * set and insert 1.total_principal_amount, 2.total_purchase_fee, 3.held_share, 4.total_amount into `fund_position`
      *
      * @param fundPosition    fundPosition
      * @param principalAmount principalAmount
@@ -186,9 +182,9 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     }
 
     /**
-     * set and insert 6.total_principal_amount, 7.total_purchase_fee, 8.held_share, 9.total_amount into `fund_position`
+     * set and insert 1.total_principal_amount, 2.total_purchase_fee, 3.held_share, 4.total_amount into `fund_position`
      * <p/>
-     * update 6.total_principal_amount, 7.total_purchase_fee, 8.held_share, 9.total_amount for `fund_position` (排序之后的所有持仓)
+     * update 1.total_principal_amount, 2.total_purchase_fee, 3.held_share, 4.total_amount for `fund_position` (排序之后的所有持仓)
      *
      * @param fundPosition    FundPosition
      * @param principalAmount principalAmount
@@ -248,7 +244,6 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     @Override
     public void redeemFund(String code, Date applicationDate, BigDecimal share, String tradingPlatform) throws ParseException, IOException {
         Date currentDate = new Date();
-        /* 共15个字段, must set 10 fields, optinal set 3 fields, no need to set 1 field */
         FundTransaction transaction = new FundTransaction();
         /* set 1.code, 2.application_date, 3.share, 4.trading_platform, 5.type */
         transaction.setCode(code);
@@ -272,53 +267,132 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         Integer m = information.getRedemptionSettlementProcess();
         Date settlementDate = TransactionDayUtil.getNextNTransactionDate(transactionDate, m);
         transaction.setSettlementDate(settlementDate);
-        /* set 9.mark */
+        /* set 9.mark, 在 `fund_transaction` 中为一条 redemption, 在 `fund_position` 中为n条 redemption, (仅考虑每笔交易满份额赎回) */
         List<FundPosition> fundPositionList = fundPositionMapper.selectAllFundPositionWithNullMark(code);
         int size = fundPositionList.size();
-        Date startDate = fundPositionList.get(0).getTransactionDate();
-        transaction.setMark(DateUtil.dateToStr(startDate) + "->" + DateUtil.dateToStr(transactionDate));
-        for (int i = 0; i < size; i++) {
-            FundPosition fundPosition = fundPositionList.get(i);
+        BigDecimal heldShare = fundPositionList.get(size - 1).getHeldShare();
+        Deque<Date> dateDeque = new ArrayDeque<>();
+        List<BigDecimal> feeList = new ArrayList<>();
+        List<BigDecimal> amountList = new ArrayList<>();
+        int count = 0;
+        for (FundPosition fundPosition : fundPositionList) {
             if (transactionDate.before(fundPositionList.get(size - 1).getInitiationDate())) {
                 throw new FundTransactionException(999, "redemption transaction should be after purchase and held position");
             }
             if (share.compareTo(fundPositionList.get(size - 1).getHeldShare()) > 0) {
                 throw new FundTransactionException(999, "redemption share is larger than held_share in fund_position");
             }
+            heldShare = heldShare.subtract(fundPosition.getHeldShare());
+            ++count;
+            if (heldShare.compareTo(BigDecimal.ZERO) < 0) {
+                throw new FundTransactionException(999,
+                    "redemption share is larger than held_share in fund_position, need to manually check fund_position and fund_transaction");
+            }
             /* update held days for fund_position, 防止定时任务之后启动导致 held_days, update_date 数据不准确 */
             long heldDays = TransactionDayUtil.getHeldDays(fundPosition.getTransactionDate(), transaction.getTransactionDate());
             fundPosition.setHeldDays((int)heldDays);
             fundPosition.setUpdateDate(transaction.getTransactionDate());
             fundPositionMapper.updateTotalAmountAndHeldDaysAndUpdateDate(fundPosition);
-            /* TODO: 因为 fund_position 也添加了 mark 了, 所以考虑下该怎么写 */
-            if (i == fundPositionList.size() - 1) {
-                Date firstTransactionDate = fundPositionList.get(0).getTransactionDate();
-                String mark = DateUtil.dateToStr(firstTransactionDate) + "->" + DateUtil.dateToStr(transactionDate);
-                transaction.setMark(mark);
-                fundTransactionMapper.updateMarkByConditions(code, mark, firstTransactionDate, transactionDate);
+            if (heldShare.compareTo(BigDecimal.ZERO) == 0) {
+                /* 对于赎回部分仓位, 需要更新剩余持仓的 1.total_principal_amount, 2.total_amount, 3.total_purchase_fee, 4.held_share */
+                FundPosition last = fundPositionList.get(count - 1);
+                for (int i = count; i < size; i++) {
+                    FundPosition temp = fundPositionList.get(i);
+                    temp.setTotalPrincipalAmount(temp.getTotalPrincipalAmount().subtract(last.getTotalPrincipalAmount()));
+                    temp.setTotalAmount(temp.getTotalAmount().subtract(last.getTotalAmount()));
+                    temp.setTotalPurchaseFee(temp.getTotalPurchaseFee().subtract(last.getTotalPurchaseFee()));
+                    temp.setHeldShare(temp.getHeldShare().subtract(last.getHeldShare()));
+                    fundPositionMapper.updateRemainingFundPosition(temp);
+                }
+                break;
             }
+            Date startDate = fundPosition.getTransactionDate();
+            fundPosition.setMark(DateUtil.dateToStr(startDate) + "->" + DateUtil.dateToStr(transactionDate));
+            dateDeque.addFirst(startDate);
             /* set 10.status */
             if (currentDate.before(settlementDate)) {
                 transaction.setStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode());
+                fundPosition.setStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode());
             } else {
                 transaction.setStatus(FundTransactionStatus.REDEEMED.getCode());
+                fundPosition.setStatus(FundTransactionStatus.REDEEMED.getCode());
             }
             /* set 11.nav, 12.fee, 13.amount, only if nav is already updated */
             String navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, transactionDate);
             if (navStr != null && !navStr.equals("")) {
-                setFundHistoryPositionAndFundRedemptionTransactionData(fundPositionList, transaction, i, navStr);
+                transaction.setNav(new BigDecimal(navStr));
+                List<FundRedemptionFeeRate> fundRedemptionFeeRateList =
+                    fundRedemptionFeeRateMapper.selectRedemptionFeeRateByConditions(transaction.getCode(), transaction.getTradingPlatform());
+                if (fundRedemptionFeeRateList.isEmpty()) {
+                    throw new FundTransactionException(999,
+                        "can't calculate redemption transaction's fee and amount, because no fee rate found according to this code and trading_platform");
+                }
+                Map<String, BigDecimal> map = calculateRedemptionFeeAndAmount(fundPosition, navStr, fundRedemptionFeeRateList);
+                BigDecimal fee = map.get("fee");
+                BigDecimal amount = map.get("amount");
+                fundPosition.setTotalRedemptionFee(fee);
+                fundPosition.setTotalAmount(amount);
+                feeList.add(fee);
+                amountList.add(amount);
+            }
+            /* update `fund_position` with 1.redemption_date, 2.status, 3.mark, 4.total_redemption_fee(opt), 5.total_amount(opt) */
+            fundPositionMapper.updateWhenRedeemFund(fundPosition);
+        }
+        if (dateDeque.isEmpty()) {
+            throw new FundTransactionException(999, "date deque is empty, maybe fund_position has incorrect data");
+        }
+        String mark = DateUtil.dateToStr(dateDeque.peekLast()) + "->" + DateUtil.dateToStr(transactionDate);
+        transaction.setMark(mark);
+        fundTransactionMapper.updateMarkByConditions(code, mark, dateDeque.peekLast(), transactionDate);
+        if (!currentDate.before(confirmationDate)) {
+            transaction.setFee(feeList.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
+            transaction.setAmount(amountList.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
+        }
+        /* insert `fund_transaction` */
+        fundTransactionMapper.insertFundTransaction(transaction);
+    }
+
+    /**
+     * 返回 K = "fee", "amount", V = fee累加值, amount累加值 的哈希表
+     *
+     * @param fundPosition FundPosition
+     * @param navStr       navStr
+     * @param list         FundRedemptionFeeRate List
+     * @return java.util.Map<java.lang.String, java.math.BigDecimal>
+     * @author sichu huang
+     * @date 2024/03/30
+     **/
+    private Map<String, BigDecimal> calculateRedemptionFeeAndAmount(FundPosition fundPosition, String navStr, List<FundRedemptionFeeRate> list) {
+        Map<String, BigDecimal> map = new HashMap<>(2);
+        for (int i = 0; i < list.size(); i++) {
+            FundRedemptionFeeRate fundRedemptionFeeRate = list.get(i);
+            String feeRate = fundRedemptionFeeRate.getFeeRate();
+            if (fundPosition.getHeldDays() < fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                map.put("fee", FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate));
+                map.put("amount", FinancialCalculationUtil.calculateRedemptionAmount(fundPosition.getHeldShare(), navStr, map.get("fee")));
+                break;
+            }
+            if (i > 0 && fundPosition.getHeldDays() >= list.get(i - 1).getFeeRateChangeDays()
+                && fundPosition.getHeldDays() < fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                map.put("fee", FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate));
+                map.put("amount", FinancialCalculationUtil.calculateRedemptionAmount(fundPosition.getHeldShare(), navStr, map.get("fee")));
+                break;
+            }
+            if (i == list.size() - 1 && fundPosition.getHeldDays() >= fundRedemptionFeeRate.getFeeRateChangeDays()) {
+                feeRate = "0.00%";
+                map.put("fee", FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate));
+                map.put("amount", FinancialCalculationUtil.calculateRedemptionAmount(fundPosition.getHeldShare(), navStr, map.get("fee")));
+                break;
             }
         }
-        /* insert `fund_redemption_transaction` */
-        fundRedemptionTransactionMapper.insertFundRedemptionTransaction(transaction);
-        /* insert `fund_transaction` */
-        insertFundTransactionByFundRedemptionTransaction(transaction);
+        return map;
     }
 
     @Override
-    public void insertFundDividendTransactionByConditions(String code, Date applicationDate, BigDecimal dividendAmountPerShare,
-        String tradingPlatform) {
-        FundDividendTransaction transaction = new FundDividendTransaction();
+    public void dividendFund(String code, Date applicationDate, BigDecimal dividendAmountPerShare, String tradingPlatform) {
+        FundTransaction transaction = new FundTransaction();
+        /* set 1.code, 2.application_date, 3.transaction_date, 4.confirmation_date, 5.settlement_date,*/
+        /* 6.dividend_amount_per_share, 7.trading_platform, 8.status, 9.type */
         transaction.setCode(code);
         // TODO: 等遇到现金分红的时候看一下是当天公布当天分红还是隔一天, 还是要解析分红公告
         transaction.setApplicationDate(applicationDate);
@@ -326,23 +400,18 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         transaction.setConfirmationDate(applicationDate);
         transaction.setSettlementDate(applicationDate);
         transaction.setDividendAmountPerShare(dividendAmountPerShare);
-        transaction.setStatus(FundTransactionStatus.CASH_DIVIDEND.getCode());
         transaction.setTradingPlatform(tradingPlatform);
+        transaction.setStatus(FundTransactionStatus.CASH_DIVIDEND.getCode());
+        transaction.setType(FundTransactionType.DIVIDEND.getCode());
+        /* set 10.amount */
         List<FundPosition> fundPositionList = fundPositionMapper.selectFundPositionWithMaxHeldShareByCode(code);
         if (fundPositionList.isEmpty()) {
-            throw new FundTransactionException(999, "分红时无持仓");
+            throw new FundTransactionException(999, "can't calculate dividend amount, because no held_share in fund_position");
         }
         BigDecimal heldShare = fundPositionList.get(0).getHeldShare();
         transaction.setAmount(FinancialCalculationUtil.calculateDividendAmount(heldShare, dividendAmountPerShare));
-        /* insert `fund_dividend_transaction` */
-        fundDividendTransactionMapper.insertFundDividendTransaction(transaction);
         /* insert `fund_transaction` */
-        insertFundTransactionByFundDividendTransaction(transaction);
-    }
-
-    @Override
-    public List<FundTransaction> selectAllFundTransactions() {
-        return fundTransactionMapper.selectAllFundTransaction();
+        fundTransactionMapper.insertFundTransaction(transaction);
     }
 
     @Override
@@ -392,8 +461,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
 
     @Override
     public void updateTotalAmountAndHeldDaysAndUpdateDateForFundPosition(Date date) throws ParseException, IOException {
-        List<FundPosition> fundPositions = fundPositionMapper.selectAllFundPosition();
-        for (FundPosition fundPosition : fundPositions) {
+        List<FundPosition> fundPositionList = fundPositionMapper.selectAllFundPosition();
+        for (FundPosition fundPosition : fundPositionList) {
             Date formattedDate = DateUtil.formatDate(date);
             String navStr = fundHistoryNavService.selectLastNotNullFundHistoryNavByConditions(fundPosition.getCode(), formattedDate);
             fundPosition.setTotalAmount(FinancialCalculationUtil.calculateTotalAmount(fundPosition.getHeldShare(), navStr));
@@ -414,7 +483,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 transaction.setStatus(FundTransactionStatus.HELD.getCode());
                 fundPurchaseTransactionMapper.updateStatus(transaction);
                 /* insert HELD transaction into `fund_position` */
-                insertFundPositionByFundPurchaseTransaction(transaction);
+                insertFundPositionByFundTransaction(transaction);
             }
         }
         /* update `fund_redemption_transaction` */
@@ -444,113 +513,6 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 }
             }
         }
-    }
-
-    /**
-     * @param fundRedemptionTransaction FundRedemptionTransaction
-     * @author sichu huang
-     * @date 2024/03/24
-     **/
-    private void insertFundTransactionByFundRedemptionTransaction(FundRedemptionTransaction fundRedemptionTransaction) {
-        FundTransaction fundTransaction = new FundTransaction();
-        fundTransaction.setCode(fundRedemptionTransaction.getCode());
-        fundTransaction.setApplicationDate(fundRedemptionTransaction.getApplicationDate());
-        fundTransaction.setTransactionDate(fundRedemptionTransaction.getTransactionDate());
-        fundTransaction.setConfirmationDate(fundRedemptionTransaction.getConfirmationDate());
-        fundTransaction.setSettlementDate(fundRedemptionTransaction.getSettlementDate());
-        fundTransaction.setAmount(fundRedemptionTransaction.getAmount());
-        fundTransaction.setFee(fundRedemptionTransaction.getFee());
-        fundTransaction.setNav(fundRedemptionTransaction.getNav());
-        fundTransaction.setShare(fundRedemptionTransaction.getShare());
-        fundTransaction.setTradingPlatform(fundRedemptionTransaction.getTradingPlatform());
-        fundTransaction.setStatus(fundRedemptionTransaction.getStatus());
-        fundTransaction.setMark(fundRedemptionTransaction.getMark());
-        fundTransaction.setType(FundTransactionType.REDEMPTION.getCode());
-        fundTransactionMapper.insertFundTransaction(fundTransaction);
-    }
-
-    private void insertFundTransactionByFundDividendTransaction(FundDividendTransaction fundDividendTransaction) {
-        FundTransaction fundTransaction = new FundTransaction();
-        fundTransaction.setCode(fundDividendTransaction.getCode());
-        fundTransaction.setApplicationDate(fundDividendTransaction.getApplicationDate());
-        fundTransaction.setTransactionDate(fundDividendTransaction.getTransactionDate());
-        fundTransaction.setConfirmationDate(fundDividendTransaction.getConfirmationDate());
-        fundTransaction.setSettlementDate(fundDividendTransaction.getSettlementDate());
-        fundTransaction.setAmount(fundDividendTransaction.getAmount());
-        fundTransaction.setShare(fundDividendTransaction.getShare());
-        fundTransaction.setDividendAmountPerShare(fundDividendTransaction.getDividendAmountPerShare());
-        fundTransaction.setTradingPlatform(fundDividendTransaction.getTradingPlatform());
-        fundTransaction.setStatus(fundDividendTransaction.getStatus());
-        fundTransaction.setType(FundTransactionType.DIVIDEND.getCode());
-        fundTransactionMapper.insertFundTransaction(fundTransaction);
-    }
-
-    /**
-     * set <b>6.amount, 7.fee, 8.nav</b> for `fund_redemption_transaction`;
-     * <br/>
-     * set <b>1.code, 2.transaction_date, 3.initiation_date, 4.redemption_date, 5.total_principal_amount, 6.total_amount,
-     * 7.total_purchase_fee, 8.total_redemption_fee, 9.held_share, 10.held_days, 11.mark</b> for `fund_history_position`;
-     * <br/>
-     * if REDEEMED, insert data into `fund_history_position` and delete `fund_position` data
-     *
-     * @param fundPositions FundPosition ArrayList
-     * @param transaction   FundRedemptionTransaction
-     * @param i             i
-     * @param navStr        navStr
-     * @author sichu huang
-     * @date 2024/03/28
-     **/
-    private void setFundHistoryPositionAndFundRedemptionTransactionData(List<FundPosition> fundPositions, FundRedemptionTransaction transaction,
-        int i, String navStr) {
-        FundPosition fundPosition = fundPositions.get(i);
-        FundHistoryPosition fundHistoryPosition = new FundHistoryPosition();
-        /* set 1.code, 2.transactionDate, 3.initiationDate, 4.redemptionDate, 5.total_principal_amount, */
-        /* 7.totalPurchaseFee, 9.heldShare, 10.heldDays, 11.mark */
-        setFundHistoryPositionData(fundHistoryPosition, fundPosition, transaction);
-        /* set 7.total_redemption_fee, 5.total_amount */
-        List<FundRedemptionFeeRate> fundRedemptionFeeRates =
-            fundRedemptionFeeRateMapper.selectRedemptionFeeRateByConditions(transaction.getCode(), transaction.getTradingPlatform());
-        if (fundRedemptionFeeRates.isEmpty()) {
-            throw new FundTransactionException(999, "未查到赎回费率");
-        }
-        Map<String, BigDecimal> map = calculateRedemptionFeeAndAmount(fundPosition, navStr, fundRedemptionFeeRates);
-        fundHistoryPosition.setTotalRedemptionFee(map.get("fee"));
-        fundHistoryPosition.setTotalAmount(map.get("amount"));
-        /* set nav, redemption_fee, amount */
-        if (i == fundPositions.size() - 1) {
-            transaction.setNav(new BigDecimal(navStr));
-            transaction.setFee(fundHistoryPosition.getTotalRedemptionFee());
-            transaction.setAmount(fundHistoryPosition.getTotalAmount());
-        }
-        /* insert data into `fund_history_position` and delete `fund_position` data */
-        if (transaction.getStatus().equals(FundTransactionStatus.REDEEMED.getCode())) {
-            fundHistoryPositionMapper.insertFundHistoryPosition(fundHistoryPosition);
-            fundPositionMapper.deleteFundPosition(fundPosition.getId());
-        }
-    }
-
-    /**
-     * set <b>1.code, 2.transactionDate, 3.initiationDate, 4.redemptionDate, 5.total_principal_amount,
-     * 7.totalPurchaseFee, 9.heldShare, 10.heldDays, 11.mark</b> for `fund_history_position`
-     *
-     * @param fundHistoryPosition FundHistoryPosition
-     * @param fundPosition        FundPosition
-     * @param transaction         FundRedemptionTransaction
-     * @author sichu huang
-     * @date 2024/03/24
-     **/
-    private void setFundHistoryPositionData(FundHistoryPosition fundHistoryPosition, FundPosition fundPosition,
-        FundRedemptionTransaction transaction) {
-        fundHistoryPosition.setCode(fundPosition.getCode());
-        fundHistoryPosition.setTransactionDate(fundPosition.getTransactionDate());
-        fundHistoryPosition.setInitiationDate(fundPosition.getInitiationDate());
-        fundHistoryPosition.setRedemptionDate(transaction.getTransactionDate());
-        fundHistoryPosition.setTotalPrincipalAmount(fundPosition.getTotalPrincipalAmount());
-        fundHistoryPosition.setTotalPurchaseFee(fundPosition.getTotalPurchaseFee());
-        fundHistoryPosition.setHeldShare(fundPosition.getHeldShare());
-        fundHistoryPosition.setHeldDays(fundPosition.getHeldDays());
-        fundHistoryPosition.setMark(
-            DateUtil.dateToStr(fundPosition.getTransactionDate()) + "->" + DateUtil.dateToStr(transaction.getTransactionDate()));
     }
 
     /**
@@ -676,43 +638,6 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 fundPositionMapper.deleteFundPosition(fundPosition.getId());
             }
         }
-    }
-
-    /**
-     * 返回 K = "fee", "amount", V = fee累加值, amount累加值 的哈希表
-     *
-     * @param fundPosition           FundPosition
-     * @param navStr                 navStr
-     * @param fundRedemptionFeeRates FundRedemptionFeeRate List
-     * @return java.util.Map<java.lang.String, java.math.BigDecimal>
-     * @author sichu huang
-     * @date 2024/03/30
-     **/
-    private Map<String, BigDecimal> calculateRedemptionFeeAndAmount(FundPosition fundPosition, String navStr,
-        List<FundRedemptionFeeRate> fundRedemptionFeeRates) {
-        Map<String, BigDecimal> map = new HashMap<>(2);
-        for (int i = 0; i < fundRedemptionFeeRates.size(); i++) {
-            FundRedemptionFeeRate fundRedemptionFeeRate = fundRedemptionFeeRates.get(i);
-            String feeRate = fundRedemptionFeeRate.getFeeRate();
-            if (fundPosition.getHeldDays() < fundRedemptionFeeRate.getFeeRateChangeDays()) {
-                map.put("fee", FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate));
-                map.put("amount", FinancialCalculationUtil.calculateRedemptionAmount(fundPosition.getHeldShare(), navStr, map.get("fee")));
-                break;
-            }
-            if (i > 0 && fundPosition.getHeldDays() >= fundRedemptionFeeRates.get(i - 1).getFeeRateChangeDays()
-                && fundPosition.getHeldDays() < fundRedemptionFeeRate.getFeeRateChangeDays()) {
-                map.put("fee", FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate));
-                map.put("amount", FinancialCalculationUtil.calculateRedemptionAmount(fundPosition.getHeldShare(), navStr, map.get("fee")));
-                break;
-            }
-            if (i == fundRedemptionFeeRates.size() - 1 && fundPosition.getHeldDays() >= fundRedemptionFeeRate.getFeeRateChangeDays()) {
-                feeRate = "0.00%";
-                map.put("fee", FinancialCalculationUtil.calculateRedemptionFee(fundPosition.getHeldShare(), navStr, feeRate));
-                map.put("amount", FinancialCalculationUtil.calculateRedemptionAmount(fundPosition.getHeldShare(), navStr, map.get("fee")));
-                break;
-            }
-        }
-        return map;
     }
 
     /**

@@ -44,8 +44,7 @@ public class FundTransactionController {
     public void dividendFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
         @RequestParam("dividendAmountPerShare") String dividendAmountPerShare, @RequestParam("tradingPlatform") String tradingPlatform)
         throws ParseException {
-        fundTransactionService.insertFundDividendTransactionByConditions(code, DateUtil.strToDate(applicationDate),
-            new BigDecimal(dividendAmountPerShare), tradingPlatform);
+        fundTransactionService.dividendFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(dividendAmountPerShare), tradingPlatform);
     }
 
     @Scheduled(cron = "0 30 0 * * *")
