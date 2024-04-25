@@ -35,4 +35,7 @@ public interface FundPositionMapper {
 
     void updateTotalPrincipalAmountAndTotalPurchaseFeeAndHeldShareAndTotalAmount(FundPosition fundPosition);
 
+    void updateWhenRedeemFund(FundPosition fundPosition);
+
+    void updateRemainingFundPosition(FundPosition fundPosition);
 }

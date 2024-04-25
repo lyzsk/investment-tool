@@ -16,16 +16,17 @@
         <result property="heldShare" column="held_share"/>
         <result property="heldDays" column="held_days"/>
         <result property="updateDate" column="update_date"/>
+        <result property="status" column="status"/>
         <result property="mark" column="mark"/>
     </resultMap>
 
     <insert id="insertFundPosition" useGeneratedKeys="true" keyProperty="id">
         insert into fund_position
         (code, transaction_date, initiation_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee,
-        total_redemption_fee, held_share, held_days, update_date, mark)
+        total_redemption_fee, held_share, held_days, update_date, status, mark)
         select
         #{code}, #{transactionDate}, #{initiationDate}, #{redemptionDate}, #{totalPrincipalAmount}, #{totalAmount}, #{totalPurchaseFee},
-        #{totalRedemptionFee}, #{heldShare}, #{heldDays}, #{updateDate}, #{mark}
+        #{totalRedemptionFee}, #{heldShare}, #{heldDays}, #{updateDate}, #{status}, #{mark}
         from dual
         where not exists (
         select total_principal_amount, total_amount, total_purchase_fee, total_redemption_fee, held_share, mark
@@ -44,7 +45,7 @@
     <select id="selectAllFundPosition" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
         code, transaction_date, initiation_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee,
-        total_redemption_fee, held_share, held_days, update_date, mark
+        total_redemption_fee, held_share, held_days, update_date, status, mark
         from fund_position
     </select>
 
@@ -56,7 +57,7 @@
             <if test="code != null and code != ''">and code = #{code}</if>
             and mark is null
         </where>
-        order by transaction_date asc
+        order by transaction_date asc, held_share asc
     </select>
 
     <select id="selectFundPositionByCodeAndAfterTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
@@ -97,10 +98,13 @@
 
     <select id="selectFundPositionWithMaxHeldShareByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
-        id, code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee,
-        max(held_share) as held_share, held_days, update_date
+        max(held_share) as held_share
         from fund_position
-        where code = #{code}
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+            and status == 1
+            and mark is null
+        </where>
     </select>
 
     <update id="updateTotalAmountAndHeldDaysAndUpdateDate">
@@ -123,5 +127,29 @@
             <if test="totalAmount != null">total_amount = #{total_amount},</if>
         </set>
         where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and mark is null
+    </update>
+
+    <update id="updateWhenRedeemFund">
+        update fund_position
+        <set>
+            <if test="redemptionDate != null">redemption_date = #{redemptionDate},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="mark != null and mark != ''">mark = #{mark},</if>
+            <if test="totalRedemptionFee != null">total_redemption_fee = #{totalRedemptionFee},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and
+        total_principal_amount = #{totalPrincipalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare}
+    </update>
+
+    <update id="updateRemainingFundPosition">
+        update fund_position
+        <set>
+            <if test="totalPrincipalAmount != null">total_principal_amount = #{totalPrincipalAmount},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="totalPurchaseFee != null">total_purchase_fee = #{totalPurchaseFee},</if>
+            <if test="heldShare != null">held_share = #{heldShare},</if>
+        </set>
+        where id = #{id}
     </update>
 </mapper>
