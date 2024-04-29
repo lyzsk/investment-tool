@@ -1,6 +1,7 @@
 package cn.sichu.mapper;
 
 import cn.sichu.entity.FundPosition;
+import cn.sichu.entity.FundTransaction;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,11 +19,15 @@ public interface FundPositionMapper {
 
     void deleteFundPosition(Long id);
 
-    List<FundPosition> selectAllFundPosition();
+    List<FundPosition> selectAllFundPositionByStatus(@Param("status") Integer status);
 
-    List<FundPosition> selectAllFundPositionWithNullMark(String code);
+    List<FundPosition> selectAllFundPositionWithNullMark();
 
-    List<FundPosition> selectFundPositionWithMaxHeldShareByCode(String code);
+    List<FundPosition> selectAllFundPositionWithNullMarkAndNotNullTotalAmount();
+
+    List<FundPosition> selectAllFundPositionWithNullMarkByCode(String code);
+
+    List<FundPosition> selectFundPositionWithMaxHeldShareByConditions(@Param("code") String code, @Param("type") Integer type);
 
     List<FundPosition> selectFundPositionByCodeAndAfterTransactionDate(FundPosition fundPosition);
 
@@ -31,11 +36,21 @@ public interface FundPositionMapper {
     List<FundPosition> selectAllFundPositionByConditionsOrderByTransactionDate(@Param("code") String code, @Param("heldDays") Integer heldDays,
         @Param("endDate") Date endDate);
 
-    void updateTotalAmountAndHeldDaysAndUpdateDate(FundPosition fundPosition);
+    List<FundPosition> selectFundPositionByPurchaseTransaction(FundTransaction transaction);
+
+    List<FundPosition> selectAllFundPositionWithNullTotalAmountAndTotalRedemptionFee();
+
+    void updateStatus(FundPosition fundPosition);
+
+    void updateHeldDaysAndUpdateDate(FundPosition fundPosition);
 
     void updateTotalPrincipalAmountAndTotalPurchaseFeeAndHeldShareAndTotalAmount(FundPosition fundPosition);
 
     void updateWhenRedeemFund(FundPosition fundPosition);
 
     void updateRemainingFundPosition(FundPosition fundPosition);
+
+    void updateTotalAmount(FundPosition fundPosition);
+
+    void updateTotalRedemptionFeeAndTotalAmount(FundPosition fundPosition);
 }

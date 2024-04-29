@@ -22,9 +22,6 @@ public class FundTransactionReportSheet {
     /* 赎回交易所属日 */
     private String redemptionTransactionDate;
 
-    /* 分红交易所属日 */
-    private String dividendDate;
-
     /* 持有天数 */
     private String heldDays;
 
@@ -34,11 +31,20 @@ public class FundTransactionReportSheet {
     /* 合计金额 */
     private String totalAmount;
 
+    /* 分红次数 */
+    private String dividendCount;
+
+    /* 合计分红金额 */
+    private String totalDividendAmount;
+
     /* 净收益 */
     private String profit;
 
     /* 日均万份收益 */
     private String dailyNavYield;
+
+    /* 收益率 */
+    private String yieldRate;
 
     /* 交易平台 */
     private String tradingPlatform;
@@ -50,18 +56,20 @@ public class FundTransactionReportSheet {
     }
 
     public FundTransactionReportSheet(String code, String shortName, String purchaseTransactionDate, String redemptionTransactionDate,
-        String dividendDate, String heldDays, String totalPrincipalAmount, String totalAmount, String profit, String dailyNavYield,
-        String tradingPlatform, String companyName) {
+        String heldDays, String totalPrincipalAmount, String totalAmount, String dividendCount, String totalDividendAmount, String profit,
+        String dailyNavYield, String yieldRate, String tradingPlatform, String companyName) {
         this.code = code;
         this.shortName = shortName;
         this.purchaseTransactionDate = purchaseTransactionDate;
         this.redemptionTransactionDate = redemptionTransactionDate;
-        this.dividendDate = dividendDate;
         this.heldDays = heldDays;
         this.totalPrincipalAmount = totalPrincipalAmount;
         this.totalAmount = totalAmount;
+        this.dividendCount = dividendCount;
+        this.totalDividendAmount = totalDividendAmount;
         this.profit = profit;
         this.dailyNavYield = dailyNavYield;
+        this.yieldRate = yieldRate;
         this.tradingPlatform = tradingPlatform;
         this.companyName = companyName;
     }
@@ -70,10 +78,10 @@ public class FundTransactionReportSheet {
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("code", getCode()).append("shortName", getShortName())
             .append("purchaseTransactionDate", getPurchaseTransactionDate()).append("redemptionTransactionDate", getRedemptionTransactionDate())
-            .append("dividendDate", getDividendDate()).append("heldDays", getHeldDays())
-            .append("totalPrincipalAmount", getTotalPrincipalAmount()).append("totalAmount", getTotalAmount()).append("profit", getProfit())
-            .append("dailyNavYield", getDailyNavYield()).append("tradingPlatform", getTradingPlatform()).append("companyName", getCompanyName())
-            .toString();
+            .append("heldDays", getHeldDays()).append("totalPrincipalAmount", getTotalPrincipalAmount()).append("totalAmount", getTotalAmount())
+            .append("dividendCount", getDividendCount()).append("totalDividendAmount", getTotalDividendAmount()).append("profit", getProfit())
+            .append("dailyNavYield", getDailyNavYield()).append("yieldRate", getYieldRate()).append("tradingPlatform", getTradingPlatform())
+            .append("companyName", getCompanyName()).toString();
     }
 
     public String getCode() {
@@ -108,14 +116,6 @@ public class FundTransactionReportSheet {
         this.redemptionTransactionDate = redemptionTransactionDate;
     }
 
-    public String getDividendDate() {
-        return dividendDate;
-    }
-
-    public void setDividendDate(String dividendDate) {
-        this.dividendDate = dividendDate;
-    }
-
     public String getHeldDays() {
         return heldDays;
     }
@@ -140,6 +140,22 @@ public class FundTransactionReportSheet {
         this.totalAmount = totalAmount;
     }
 
+    public String getDividendCount() {
+        return dividendCount;
+    }
+
+    public void setDividendCount(String dividendCount) {
+        this.dividendCount = dividendCount;
+    }
+
+    public String getTotalDividendAmount() {
+        return totalDividendAmount;
+    }
+
+    public void setTotalDividendAmount(String totalDividendAmount) {
+        this.totalDividendAmount = totalDividendAmount;
+    }
+
     public String getProfit() {
         return profit;
     }
@@ -154,6 +170,14 @@ public class FundTransactionReportSheet {
 
     public void setDailyNavYield(String dailyNavYield) {
         this.dailyNavYield = dailyNavYield;
+    }
+
+    public String getYieldRate() {
+        return yieldRate;
+    }
+
+    public void setYieldRate(String yieldRate) {
+        this.yieldRate = yieldRate;
     }
 
     public String getTradingPlatform() {

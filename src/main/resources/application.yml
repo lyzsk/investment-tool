@@ -1,8 +1,3 @@
-investment-tool:
-  name: investment-tool
-  version: 1.0.1
-  copyright: Sichu Huang
-
 spring:
   profiles:
     active: dev
@@ -11,17 +6,6 @@ mybatis:
   typeAliasesPackage: cn.sichu.**.domain
   mapperLocations: classpath*:mapper/*Mapper.xml
   configLocation: classpath:/mybatis-config.xml
-
-server:
-  port: 8888
-  servlet:
-    context-path: /
-    tomcat:
-      uri-encoding: UTF-8
-      accept-count: 1000
-      threads:
-        max: 800
-        min-spare: 100
 
 logging:
   level:

@@ -3,17 +3,16 @@ package cn.sichu.service.impl;
 import cn.sichu.domain.FundTransactionReportSheet;
 import cn.sichu.domain.FundTransactionStatementSheet;
 import cn.sichu.domain.GoldTransactionStatementSheet;
-import cn.sichu.entity.FundHistoryPosition;
 import cn.sichu.entity.FundInformation;
 import cn.sichu.entity.FundPosition;
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.enums.FundTransactionType;
 import cn.sichu.exception.ExcelException;
+import cn.sichu.mapper.FundTransactionReportSheetMapper;
 import cn.sichu.mapper.FundTransactionStatementSheetMapper;
 import cn.sichu.service.IExportExcelService;
 import cn.sichu.utils.DateUtil;
 import cn.sichu.utils.FinancialCalculationUtil;
-import cn.sichu.utils.TransactionDayUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.enums.WriteDirectionEnum;
@@ -30,13 +29,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author sichu huang
@@ -46,6 +48,8 @@ import java.util.*;
 public class ExportExcelServiceImpl implements IExportExcelService {
     @Autowired
     FundTransactionStatementSheetMapper fundTransactionStatementSheetMapper;
+    @Autowired
+    FundTransactionReportSheetMapper fundTransactionReportSheetMapper;
     @Autowired
     FundHistoryNavServiceImpl fundHistoryNavService;
 
@@ -64,288 +68,174 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         String currentDateTime = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String fileName = URLEncoder.encode("-investment", StandardCharsets.UTF_8);
         response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + currentDateTime + fileName + ".xlsx");
-
+        /* 配置template路径 */
         String templatePath = "templates/";
         String template = "investment-template.xlsx";
         ClassPathResource classPathResource = new ClassPathResource(templatePath + template);
         InputStream inputStream = classPathResource.getInputStream();
-
+        /* 根据template创建需要导出的工作表, 以及设置工作簿 */
         XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
         workbook.setSheetName(0, "Fund Transaction Statement");
         workbook.setSheetName(1, "Fund Transaction Report");
         workbook.setSheetName(2, "Gold Transaction Statement");
-
-        List<FundTransaction> fundTransactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
-        List<FundTransactionStatementSheet> fundTransactionStatementSheetDataList = setFundTransactionStatementSheetData(fundTransactionList);
-        // List<FundTransactionReportSheet> fundTransactionReportSheetDataList =
-        //     setFundTransactionReportSheetData(fundTransactionStatementSheetDataList);
+        /* 对list数据(一对多关系)进行处理 */
+        List<FundTransaction> transactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
+        List<FundTransactionStatementSheet> fundTransactionStatementDataList = handleFundTransactionStatementSheetData(transactionList);
+        List<FundPosition> positionList = fundTransactionReportSheetMapper.selectAllFundPositionByConditions();
+        List<FundTransactionReportSheet> fundTransactionReportDataList = handleFundTransactionReportSheetData(positionList);
         List<GoldTransactionStatementSheet> goldTransactionStatementSheetDataList = new ArrayList<>();
-
-        for (int i = 0; i < 10; i++) {
-            GoldTransactionStatementSheet goldTransactionStatementSheet =
-                new GoldTransactionStatementSheet("积存金", "04/03/2024", "04/03/2024", "04/03/2024", "492.20", "492.20", "1.00", "1.00", "492.20",
-                    "492.20", "purchase", "中国银行");
-            goldTransactionStatementSheetDataList.add(goldTransactionStatementSheet);
-        }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
         byte[] bytes = outputStream.toByteArray();
         inputStream = new ByteArrayInputStream(bytes);
         ExcelWriter writer = EasyExcel.write(response.getOutputStream()).withTemplate(inputStream).build();
-        WriteSheet fundTransactionStatementSheetWriteSheet = EasyExcel.writerSheet("Fund Transaction Statement").build();
-        WriteSheet fundTransactionReportSheetWriteSheet = EasyExcel.writerSheet("Fund Transaction Report").build();
-        WriteSheet goldTransactionStatementSheetWriteSheet = EasyExcel.writerSheet("Gold Transaction Statement").build();
+        WriteSheet fundTransactionStatementWriteSheet = EasyExcel.writerSheet("Fund Transaction Statement").build();
+        WriteSheet fundTransactionReportWriteSheet = EasyExcel.writerSheet("Fund Transaction Report").build();
+        WriteSheet goldTransactionStatementWriteSheet = EasyExcel.writerSheet("Gold Transaction Statement").build();
 
         FillConfig listFillConfig = FillConfig.builder().forceNewRow(true).direction(WriteDirectionEnum.VERTICAL).build();
-        writer.fill(fundTransactionStatementSheetDataList, listFillConfig, fundTransactionStatementSheetWriteSheet);
-        // writer.fill(fundTransactionReportSheetDataList, listFillConfig, fundTransactionReportSheetWriteSheet);
-        writer.fill(goldTransactionStatementSheetDataList, listFillConfig, goldTransactionStatementSheetWriteSheet);
+        writer.fill(fundTransactionStatementDataList, listFillConfig, fundTransactionStatementWriteSheet);
+        writer.fill(fundTransactionReportDataList, listFillConfig, fundTransactionReportWriteSheet);
+        writer.fill(goldTransactionStatementSheetDataList, listFillConfig, goldTransactionStatementWriteSheet);
 
         inputStream.close();
         writer.finish();
     }
 
     /**
-     * @param fundTransactions FundTransaction List
+     * 共20列: 1.code, 2.shortName, 3.applicationDate, 4.transactionDate, 5.confirmationDate, 6.settlementDate, 7.fee,
+     * 8.totalFee, 9.share, 10.totalShare, 11.nav, 12.dilutedNav, 13.avgNavPerShare, 14.dividendAmountPerShare, 15.amount,
+     * 16.totalAmount, 17.type, 18.tradingPlatform, 19.fullName, 20.companyName
+     * <br/>
+     * 其中14列可直接通过 `fund_transaction` && `fund_information` 设置, 6列需要通过 `fund_position` 查询和计算来设置;
+     *
+     * @param transactionList FundTransaction List
      * @return java.util.List<cn.sichu.domain.FundTransactionStatementSheet>
      * @author sichu huang
      * @date 2024/03/09
      **/
-    private List<FundTransactionStatementSheet> setFundTransactionStatementSheetData(List<FundTransaction> fundTransactions) {
+    private List<FundTransactionStatementSheet> handleFundTransactionStatementSheetData(List<FundTransaction> transactionList) {
         List<FundTransactionStatementSheet> list = new ArrayList<>();
-        for (FundTransaction fundTransaction : fundTransactions) {
-            String code = fundTransaction.getCode();
+        for (FundTransaction transaction : transactionList) {
+            String code = transaction.getCode();
             List<FundInformation> fundInformationList = fundTransactionStatementSheetMapper.selectFundInformationByCode(code);
             if (fundInformationList.isEmpty()) {
-                throw new ExcelException(999, "获取基金信息失败");
+                throw new ExcelException(999, "can't find fund_information data when setting 'Fund Transaction Statement' Sheet");
             }
-            FundInformation fundInformation = fundInformationList.get(0);
-            FundTransactionStatementSheet fundTransactionStatementSheet = new FundTransactionStatementSheet();
-            handleFundTransactionStatementSheetData(fundTransactionStatementSheet, fundTransaction, fundInformation);
-            list.add(fundTransactionStatementSheet);
-        }
-        return list;
-    }
-
-    /**
-     * set data into template sheet: A.code, B.shortName, C.applicationDate, D.transactionDate, E.confirmationDate, F.settlementDate, G.fee,
-     * <b>H.totalFee(optional),</b> I.share, <b>J.totalShare(optional),</b> K.nav, <b>L.dilutedNav(optional),</b> <b>M.avgNavPerShare(optional),</b>
-     * N.dividendAmountPerShare, O.amount, <b>P.totalAmount(optional),</b> Q.type, R.tradingPlatform, S.fullName, T.companyName
-     * 合计 19 列
-     *
-     * @param sheet       FundTransactionStatementSheet
-     * @param transaction FundTransaction
-     * @param information FundInformation
-     * @author sichu huang
-     * @date 2024/04/01
-     **/
-    private void handleFundTransactionStatementSheetData(FundTransactionStatementSheet sheet, FundTransaction transaction,
-        FundInformation information) {
-        /* set A, B, C, D, E, F, G, I, K, O, Q, R, S, T (13列) */
-        String code = transaction.getCode();
-        Date transactionDate = transaction.getTransactionDate();
-        sheet.setCode(code);
-        sheet.setShortName(information.getShortName());
-        sheet.setApplicationDate(DateUtil.dateToStr(transaction.getApplicationDate()));
-        sheet.setTransactionDate(DateUtil.dateToStr(transactionDate));
-        sheet.setConfirmationDate(DateUtil.dateToStr(transaction.getConfirmationDate()));
-        sheet.setSettlementDate(DateUtil.dateToStr(transaction.getSettlementDate()));
-        sheet.setFee(String.valueOf(transaction.getFee()));
-        sheet.setShare(String.valueOf(transaction.getShare()));
-        sheet.setNav(String.valueOf(transaction.getNav()));
-        sheet.setAmount(String.valueOf(transaction.getAmount()));
-        sheet.setTradingPlatform(transaction.getTradingPlatform());
-        sheet.setFullName(information.getFullName());
-        sheet.setCompanyName(information.getCompanyName());
-        Integer type = transaction.getType();
-        /* set Q */
-        if (Objects.equals(type, FundTransactionType.PURCHASE.getCode())) {
-            sheet.setType(FundTransactionType.PURCHASE.getDescription());
-            List<FundPosition> fundPositionList = fundTransactionStatementSheetMapper.selectFundPositionByConditions(code, transactionDate);
-            if (!fundPositionList.isEmpty()) {
-                for (FundPosition position : fundPositionList) {
-                    BigDecimal totalFee = position.getTotalPurchaseFee();
-                    BigDecimal heldShare = position.getHeldShare();
-                    BigDecimal totalAmount = position.getTotalPrincipalAmount();
-                    sheet.setTotalFee(String.valueOf(totalFee));
-                    sheet.setTotalShare(String.valueOf(heldShare));
-                    sheet.setDividendAmountPerShare("N/A");
-                    sheet.setTotalAmount(String.valueOf(totalAmount));
-                    sheet.setDilutedNav(String.valueOf(FinancialCalculationUtil.calculateDilutedNav(totalAmount, totalFee, heldShare)));
-                    sheet.setAvgNavPerShare(String.valueOf(FinancialCalculationUtil.calculateAvgNavPerShare(totalAmount, heldShare)));
-                }
-            } else {
-                List<FundHistoryPosition> fundHistoryPositionList =
-                    fundTransactionStatementSheetMapper.selectFundHistoryPositionByConditions(code, transactionDate);
-                if (!fundHistoryPositionList.isEmpty()) {
-                    for (FundHistoryPosition position : fundHistoryPositionList) {
+            FundInformation information = fundInformationList.get(0);
+            FundTransactionStatementSheet sheet = new FundTransactionStatementSheet();
+            Date transactionDate = transaction.getTransactionDate();
+            sheet.setCode(code);
+            sheet.setApplicationDate(DateUtil.dateToStr(transaction.getApplicationDate()));
+            sheet.setTransactionDate(DateUtil.dateToStr(transactionDate));
+            sheet.setConfirmationDate(DateUtil.dateToStr(transaction.getConfirmationDate()));
+            sheet.setSettlementDate(DateUtil.dateToStr(transaction.getSettlementDate()));
+            sheet.setFee(String.valueOf(transaction.getFee()));
+            sheet.setShare(String.valueOf(transaction.getShare()));
+            sheet.setNav(String.valueOf(transaction.getNav()));
+            sheet.setAmount(String.valueOf(transaction.getAmount()));
+            sheet.setTradingPlatform(transaction.getTradingPlatform());
+            sheet.setFullName(information.getFullName());
+            sheet.setCompanyName(information.getCompanyName());
+            Integer type = transaction.getType();
+            if (Objects.equals(type, FundTransactionType.PURCHASE.getCode())) {
+                sheet.setType(FundTransactionType.PURCHASE.getDescription());
+                sheet.setDividendAmountPerShare("N/A");
+                List<FundPosition> fundPositionList = fundTransactionStatementSheetMapper.selectFundPositionByConditions(code, transactionDate);
+                /* PURCHASE_IN_TRAINSIT && CASH_DIVIDEND 不在 `fund_position` 中 */
+                if (!fundPositionList.isEmpty()) {
+                    for (FundPosition position : fundPositionList) {
                         BigDecimal totalFee = position.getTotalPurchaseFee();
                         BigDecimal heldShare = position.getHeldShare();
                         BigDecimal totalAmount = position.getTotalPrincipalAmount();
                         sheet.setTotalFee(String.valueOf(totalFee));
                         sheet.setTotalShare(String.valueOf(heldShare));
-                        sheet.setDividendAmountPerShare("N/A");
                         sheet.setTotalAmount(String.valueOf(totalAmount));
                         sheet.setDilutedNav(String.valueOf(FinancialCalculationUtil.calculateDilutedNav(totalAmount, totalFee, heldShare)));
                         sheet.setAvgNavPerShare(String.valueOf(FinancialCalculationUtil.calculateAvgNavPerShare(totalAmount, heldShare)));
                     }
                 }
+            } else if (Objects.equals(type, FundTransactionType.REDEMPTION.getCode())) {
+                /* 赎回交易仅显示一条聚合数据 */
+                sheet.setType(FundTransactionType.REDEMPTION.getDescription());
+                sheet.setDividendAmountPerShare("N/A");
+                sheet.setTotalFee(String.valueOf(transaction.getFee()));
+                sheet.setTotalShare(String.valueOf(transaction.getShare()));
+                sheet.setDilutedNav("N/A");
+                sheet.setAvgNavPerShare("N/A");
+                sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
+            } else if (Objects.equals(type, FundTransactionType.DIVIDEND.getCode())) {
+                sheet.setType(FundTransactionType.DIVIDEND.getDescription());
+                sheet.setTotalFee("N/A");
+                sheet.setTotalShare(String.valueOf(transaction.getShare()));
+                sheet.setDilutedNav("N/A");
+                sheet.setAvgNavPerShare("N/A");
+                sheet.setDividendAmountPerShare(String.valueOf(transaction.getDividendAmountPerShare()));
+                sheet.setAmount(String.valueOf(transaction.getAmount()));
+                // TODO: 分红的合计金额应该是根据mark进行累加计算, 即每一批次的交易(以赎回为分界)进行累加计算
+                sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
             }
-        } else if (Objects.equals(type, FundTransactionType.REDEMPTION.getCode())) {
-            sheet.setType(FundTransactionType.REDEMPTION.getDescription());
-            sheet.setTotalFee(String.valueOf(transaction.getFee()));
-            sheet.setTotalShare(String.valueOf(transaction.getShare()));
-            sheet.setDilutedNav("N/A");
-            sheet.setAvgNavPerShare("N/A");
-            sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
-        } else if (Objects.equals(type, FundTransactionType.DIVIDEND.getCode())) {
-            sheet.setType(FundTransactionType.DIVIDEND.getDescription());
-            sheet.setTotalFee("N/A");
-            sheet.setTotalShare(String.valueOf(transaction.getShare()));
-            sheet.setDilutedNav("N/A");
-            sheet.setAvgNavPerShare("N/A");
-            sheet.setDividendAmountPerShare(String.valueOf(transaction.getDividendAmountPerShare()));
-            sheet.setAmount(String.valueOf(transaction.getAmount()));
-            sheet.setTotalAmount(String.valueOf(transaction.getAmount()));
-        }
-    }
-
-    /**
-     * @param statementSheetList FundTransactionReportSheet List
-     * @return java.util.List<cn.sichu.domain.FundTransactionReportSheet>
-     * @author sichu huang
-     * @date 2024/04/03
-     **/
-    private List<FundTransactionReportSheet> setFundTransactionReportSheetData(List<FundTransactionStatementSheet> statementSheetList)
-        throws ParseException, IOException {
-        List<FundTransactionReportSheet> list = new ArrayList<>();
-        Map<String, FundTransactionStatementSheet> lastTransactionMap = new TreeMap<>(String::compareTo);
-        int index = 0;
-        for (FundTransactionStatementSheet statementSheet : statementSheetList) {
-            String code = statementSheet.getCode();
-            lastTransactionMap.put(code + "-" + index, statementSheet);
-            if (statementSheet.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
-                ++index;
-            }
-        }
-        for (Map.Entry<String, FundTransactionStatementSheet> entry : lastTransactionMap.entrySet()) {
-            String key = entry.getKey();
-            int idx = Integer.parseInt(key.split("-")[1]);
-            FundTransactionStatementSheet lastTransaction = entry.getValue();
-            FundTransactionReportSheet sheet = new FundTransactionReportSheet();
-            String code = lastTransaction.getCode();
-            Date formattedDate = DateUtil.formatDate(new Date());
-            sheet.setCode(code);
-            sheet.setShortName(lastTransaction.getShortName());
-            String transactionDate = lastTransaction.getTransactionDate();
-            String redemptionDate = "N/A";
-            String dividendDate = "N/A";
-            Date firstPurchaseDate = getFirstPurchaseDate(code, statementSheetList, idx);
-            if (firstPurchaseDate == null) {
-                throw new ExcelException(999, "未找到最早的购买交易日");
-            }
-            long heldDays = TransactionDayUtil.getHeldDays(firstPurchaseDate, formattedDate);
-            sheet.setPurchaseTransactionDate(DateUtil.dateToStr(firstPurchaseDate));
-            String totalPrincipalAmount = lastTransaction.getTotalAmount();
-            String navStr = fundHistoryNavService.selectLastNotNullFundHistoryNavByConditions(code, formattedDate);
-            String lastShare = lastTransaction.getTotalShare();
-            BigDecimal share = new BigDecimal(lastShare).setScale(2, RoundingMode.HALF_UP);
-            BigDecimal totalAmount = FinancialCalculationUtil.calculateTotalAmount(share, navStr);
-            if (lastTransaction.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
-                redemptionDate = transactionDate;
-                heldDays = TransactionDayUtil.getHeldDays(firstPurchaseDate, DateUtil.strToDate(transactionDate));
-                totalPrincipalAmount = getLastPurchasePrincipalAmount(code, statementSheetList, idx);
-                if (totalPrincipalAmount == null) {
-                    throw new ExcelException(999, "赎回前没有买入");
-                }
-                navStr = fundHistoryNavService.selectFundHistoryNavByConditions(code, DateUtil.strToDate(redemptionDate));
-                totalAmount = FinancialCalculationUtil.calculateRedemptionAmount(share, navStr, new BigDecimal(lastTransaction.getTotalFee()));
-            }
-            sheet.setRedemptionTransactionDate(redemptionDate);
-            sheet.setDividendDate(dividendDate);
-            sheet.setHeldDays(String.valueOf(heldDays));
-            sheet.setTotalPrincipalAmount(totalPrincipalAmount);
-            sheet.setTotalAmount(String.valueOf(totalAmount));
-            if (sheet.getTotalPrincipalAmount() != null) {
-                BigDecimal profit = totalAmount.subtract(new BigDecimal(sheet.getTotalPrincipalAmount()).setScale(2, RoundingMode.HALF_UP));
-                sheet.setProfit(String.valueOf(profit));
-                BigDecimal dailyNavYield = FinancialCalculationUtil.calculateDailyNavYield(profit, heldDays);
-                sheet.setDailyNavYield(String.valueOf(dailyNavYield));
-            }
-            sheet.setTradingPlatform(lastTransaction.getTradingPlatform());
-            sheet.setCompanyName(lastTransaction.getCompanyName());
             list.add(sheet);
         }
         return list;
     }
 
     /**
-     * @param code               code
-     * @param statementSheetList FundTransactionStatementSheet List
-     * @param index              key: "code-index" 中的 int index
-     * @return java.lang.String
+     * 共14列, 1.code, 2.shortName, 3.purchaseTransactionDate, 4.redemptionTransactionDate, 5.heldDays, 6.totalPrincipalAmount,
+     * 7.totalAmount, 8.dividendCount, 9.totalDividendAmount, 10.profit, 11.dailyNavYield, 12.yieldRate, 13.tradingPlatform, 14.companyName
+     * <br/>
+     * 其中 7列直接设置, 2列通过 `fund_information` 查询设置, 5列通过 `fund_transaction` 查询和计算来设置
+     *
+     * @param positionList FundPosition List
+     * @return java.util.List<cn.sichu.domain.FundTransactionReportSheet>
      * @author sichu huang
-     * @date 2024/04/04
+     * @date 2024/04/03
      **/
-    private String getLastPurchasePrincipalAmount(String code, List<FundTransactionStatementSheet> statementSheetList, int index) {
-        int count = 0;
-        for (int i = 0; i < statementSheetList.size(); i++) {
-            FundTransactionStatementSheet statementSheet = statementSheetList.get(i);
-            if (statementSheet.getCode().equals(code) && statementSheet.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
-                if (count == index) {
-                    int n = 1;
-                    while (i - n >= 0 && statementSheetList.get(i - n).getType().equals(FundTransactionType.DIVIDEND.getDescription())) {
-                        ++n;
-                    }
-                    if (i - n >= 0) {
-                        return statementSheetList.get(i - n).getTotalAmount();
-                    }
-                }
-                ++count;
+    private List<FundTransactionReportSheet> handleFundTransactionReportSheetData(List<FundPosition> positionList) throws ParseException {
+        List<FundTransactionReportSheet> list = new ArrayList<>();
+        for (FundPosition fundPosition : positionList) {
+            String code = fundPosition.getCode();
+            List<FundInformation> fundInformationList = fundTransactionReportSheetMapper.selectFundInformationByCode(code);
+            if (fundInformationList.isEmpty()) {
+                throw new ExcelException(999, "can't find fund_information data when setting 'Fund Transaction Report' Sheet");
             }
-        }
-        return null;
-    }
-
-    /**
-     * @param code               code
-     * @param statementSheetList FundTransactionStatementSheet List
-     * @param index              key: "code-index" 中的 int index
-     * @return java.util.Date
-     * @author sichu huang
-     * @date 2024/04/04
-     **/
-    private Date getFirstPurchaseDate(String code, List<FundTransactionStatementSheet> statementSheetList, int index) throws ParseException {
-        int purchaseCount = 0;
-        Date firstPurchaseDate = null;
-
-        for (FundTransactionStatementSheet statementSheet : statementSheetList) {
-            if (statementSheet.getCode().equals(code) && statementSheet.getType().equals(FundTransactionType.PURCHASE.getDescription())) {
-                if (purchaseCount == index) {
-                    firstPurchaseDate = DateUtil.strToDate(statementSheet.getTransactionDate());
-                    break; // 找到第一个购买日期后退出循环
-                }
-                purchaseCount++;
-            } else if (statementSheet.getType().equals(FundTransactionType.REDEMPTION.getDescription())) {
-                purchaseCount = 0; // 重置purchaseCount，开始新的周期
-                index++; // 更新周期索引
+            FundInformation information = fundInformationList.get(0);
+            FundTransactionReportSheet sheet = new FundTransactionReportSheet();
+            sheet.setCode(code);
+            sheet.setShortName(information.getShortName());
+            sheet.setCompanyName(information.getCompanyName());
+            sheet.setTradingPlatform(fundPosition.getTradingPlatform());
+            sheet.setPurchaseTransactionDate(String.valueOf(fundPosition.getTransactionDate()));
+            sheet.setRedemptionTransactionDate(String.valueOf(fundPosition.getRedemptionDate()));
+            Integer heldDays = fundPosition.getHeldDays();
+            sheet.setHeldDays(String.valueOf(heldDays));
+            BigDecimal totalPrincipalAmount = fundPosition.getTotalPrincipalAmount();
+            sheet.setTotalPrincipalAmount(String.valueOf(totalPrincipalAmount));
+            BigDecimal totalAmount = fundPosition.getTotalAmount();
+            sheet.setTotalAmount(String.valueOf(totalAmount));
+            int dividendCount = 0;
+            BigDecimal totalDividendAmount = BigDecimal.ZERO;
+            BigDecimal profit = BigDecimal.ZERO;
+            String[] splits = fundPosition.getMark().split("->");
+            List<FundTransaction> divdendTransactionList =
+                fundTransactionReportSheetMapper.selectAllDividendTransactionByConditions(DateUtil.strToDate(splits[0]),
+                    DateUtil.strToDate(splits[1]), FundTransactionType.DIVIDEND.getCode());
+            dividendCount += divdendTransactionList.size();
+            sheet.setDividendCount(String.valueOf(dividendCount));
+            for (FundTransaction transaction : divdendTransactionList) {
+                totalDividendAmount = totalDividendAmount.add(transaction.getAmount());
             }
+            sheet.setTotalDividendAmount(String.valueOf(totalDividendAmount));
+            profit = profit.add(totalDividendAmount).add(fundPosition.getTotalAmount());
+            sheet.setProfit(String.valueOf(profit));
+            sheet.setDailyNavYield(String.valueOf(FinancialCalculationUtil.calculateDailyNavYield(profit, heldDays)));
+            BigDecimal yieldRate = FinancialCalculationUtil.calculateYieldRate(profit, totalPrincipalAmount);
+            String yieldRateStr = new DecimalFormat("0.00%").format(yieldRate);
+            sheet.setYieldRate(yieldRateStr);
+            list.add(sheet);
         }
-
-        return firstPurchaseDate;
+        return list;
     }
-    // private Date getFirstPurchaseDate(String code, List<FundTransactionStatementSheet> statementSheetList, int index) throws ParseException {
-    //     int count = 0;
-    //     for (FundTransactionStatementSheet statementSheet : statementSheetList) {
-    //         if (statementSheet.getCode().equals(code) && statementSheet.getType().equals(FundTransactionType.PURCHASE.getDescription())) {
-    //             if (count == index) {
-    //                 return DateUtil.strToDate(statementSheet.getTransactionDate());
-    //             }
-    //             ++count;
-    //         }
-    //     }
-    //     return null;
-    // }
 
 }

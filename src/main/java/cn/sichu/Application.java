@@ -23,7 +23,7 @@ public class Application {
         System.out.println("  | || '_ \\ \\ / / _ \\/ __| __| '_ ` _ \\ / _ \\ '_ \\| __|   | |/ _ \\ / _ \\| |");
         System.out.println("  | || | | \\ V /  __/\\__ \\ |_| | | | | |  __/ | | | |_    | | (_) | (_) | |");
         System.out.println(" |___|_| |_|\\_/ \\___||___/\\__|_| |_| |_|\\___|_| |_|\\__|   |_|\\___/ \\___/|_|\n");
-        System.out.println(" Author: Sichu Huang                 Github: lyzsk                 (v1.0.1)\n");
+        System.out.println(" Author: Sichu Huang                 Github: lyzsk                 (v1.1.0)\n");
         System.out.println(" =========================== Start Successfully! ===========================\n");
     }
 }
