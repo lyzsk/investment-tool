@@ -24,6 +24,7 @@ public class FundPosition {
     private BigDecimal heldShare;
     private Integer heldDays;
     private Date updateDate;
+    private String tradingPlatform;
     private Integer status;
     private String mark;
 
@@ -32,7 +33,7 @@ public class FundPosition {
 
     public FundPosition(Long id, String code, Date transactionDate, Date initiationDate, Date redemptionDate, BigDecimal totalPrincipalAmount,
         BigDecimal totalAmount, BigDecimal totalPurchaseFee, BigDecimal totalRedemptionFee, BigDecimal heldShare, Integer heldDays,
-        Date updateDate, Integer status, String mark) {
+        Date updateDate, String tradingPlatform, Integer status, String mark) {
         this.id = id;
         this.code = code;
         this.transactionDate = transactionDate;
@@ -45,6 +46,7 @@ public class FundPosition {
         this.heldShare = heldShare;
         this.heldDays = heldDays;
         this.updateDate = updateDate;
+        this.tradingPlatform = tradingPlatform;
         this.status = status;
         this.mark = mark;
     }
@@ -54,7 +56,8 @@ public class FundPosition {
         return "FundPosition{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate + ", initiationDate="
             + initiationDate + ", redemptionDate=" + redemptionDate + ", totalPrincipalAmount=" + totalPrincipalAmount + ", totalAmount="
             + totalAmount + ", totalPurchaseFee=" + totalPurchaseFee + ", totalRedemptionFee=" + totalRedemptionFee + ", heldShare=" + heldShare
-            + ", heldDays=" + heldDays + ", updateDate=" + updateDate + ", status=" + status + ", mark='" + mark + '\'' + '}';
+            + ", heldDays=" + heldDays + ", updateDate=" + updateDate + ", tradingPlatform='" + tradingPlatform + '\'' + ", status=" + status
+            + ", mark='" + mark + '\'' + '}';
     }
 
     public Long getId() {
@@ -151,6 +154,14 @@ public class FundPosition {
 
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public String getTradingPlatform() {
+        return tradingPlatform;
+    }
+
+    public void setTradingPlatform(String tradingPlatform) {
+        this.tradingPlatform = tradingPlatform;
     }
 
     public Integer getStatus() {

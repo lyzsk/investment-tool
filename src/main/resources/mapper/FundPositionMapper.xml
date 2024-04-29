@@ -16,6 +16,7 @@
         <result property="heldShare" column="held_share"/>
         <result property="heldDays" column="held_days"/>
         <result property="updateDate" column="update_date"/>
+        <result property="tradingPlatform" column="trading_platform"/>
         <result property="status" column="status"/>
         <result property="mark" column="mark"/>
     </resultMap>
@@ -23,10 +24,10 @@
     <insert id="insertFundPosition" useGeneratedKeys="true" keyProperty="id">
         insert into fund_position
         (code, transaction_date, initiation_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee,
-        total_redemption_fee, held_share, held_days, update_date, status, mark)
+        total_redemption_fee, held_share, held_days, update_date, trading_platform, status, mark)
         select
         #{code}, #{transactionDate}, #{initiationDate}, #{redemptionDate}, #{totalPrincipalAmount}, #{totalAmount}, #{totalPurchaseFee},
-        #{totalRedemptionFee}, #{heldShare}, #{heldDays}, #{updateDate}, #{status}, #{mark}
+        #{totalRedemptionFee}, #{heldShare}, #{heldDays}, #{updateDate}, #{tradingPlatform}, #{status}, #{mark}
         from dual
         where not exists (
         select total_principal_amount, total_amount, total_purchase_fee, total_redemption_fee, held_share, mark
@@ -42,14 +43,32 @@
         where id = #{id}
     </delete>
 
-    <select id="selectAllFundPosition" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+    <select id="selectAllFundPositionByStatus" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
         code, transaction_date, initiation_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee,
-        total_redemption_fee, held_share, held_days, update_date, status, mark
+        total_redemption_fee, held_share, mark, held_days, update_date, trading_platform, status, mark
         from fund_position
+        <where>
+            <if test="status != null">and status = #{status}</if>
+        </where>
     </select>
 
     <select id="selectAllFundPositionWithNullMark" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select
+        code, transaction_date, initiation_date, total_principal_amount, total_purchase_fee, total_amount, held_share, held_days, update_date,
+        trading_platform
+        from fund_position
+        where mark is null
+    </select>
+
+    <select id="selectAllFundPositionWithNullMarkAndNotNullTotalAmount" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select
+        code, transaction_date, total_principal_amount, total_purchase_fee, total_amount, held_share, mark
+        from fund_position
+        where mark is null and total_amount != null
+    </select>
+
+    <select id="selectAllFundPositionWithNullMarkByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
         id, code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date
         from fund_position
@@ -96,7 +115,7 @@
         order by transaction_date asc
     </select>
 
-    <select id="selectFundPositionWithMaxHeldShareByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+    <select id="selectFundPositionWithMaxHeldShareByConditions" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
         max(held_share) as held_share
         from fund_position
@@ -107,15 +126,44 @@
         </where>
     </select>
 
-    <update id="updateTotalAmountAndHeldDaysAndUpdateDate">
+    <select id="selectFundPositionByPurchaseTransaction" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select
+        code, transaction_date, total_amount, held_share
+        from fund_position
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+            <if test="transactionDate != null">and transaction_date = #{transactionDate}</if>
+            and (mark is null or mark = '')
+        </where>
+    </select>
+
+    <select id="selectAllFundPositionWithNullTotalAmountAndTotalRedemptionFee"
+            resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+        select
+        code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, total_redemption_fee, held_share,
+        held_days, update_date, trading_platform, status, mark
+        from fund_position
+        where total_amount is null and total_redemption_fee is null and mark != null and mark != ''
+        order by code asc
+    </select>
+
+    <update id="updateStatus">
         update fund_position
         <set>
-            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate} and held_share = #{heldShare}
+    </update>
+
+    <update id="updateHeldDaysAndUpdateDate">
+        update fund_position
+        <set>
             <if test="heldDays != null">held_days = #{heldDays},</if>
             <if test="updateDate != null">update_date = #{updateDate},</if>
         </set>
         where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and
-        total_principal_amount = #{totalPrincipalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare}
+        total_principal_amount = #{totalPrincipalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare} and
+        trading_platform = #{tradingPlatform}
     </update>
 
     <update id="updateTotalPrincipalAmountAndTotalPurchaseFeeAndHeldShareAndTotalAmount">
@@ -151,5 +199,22 @@
             <if test="heldShare != null">held_share = #{heldShare},</if>
         </set>
         where id = #{id}
+    </update>
+
+    <update id="updateTotalAmount">
+        update fund_position
+        <set>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate} and (mark is null or mark = '')
+    </update>
+
+    <update id="updateTotalRedemptionFeeAndTotalAmount">
+        update fund_position
+        <set>
+            <if test="totalRedemptionFee != null">total_redemption_fee = #{totalRedemptionFee},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+        </set>
+        where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate}
     </update>
 </mapper>

@@ -11,13 +11,14 @@ import java.util.List;
 
 /**
  * @author sichu huang
- * @date 2024/04/01
+ * @date 2024/04/29
  **/
 @Mapper
-public interface FundTransactionStatementSheetMapper {
-    List<FundTransaction> selectAllFundTransaction();
+public interface FundTransactionReportSheetMapper {
+    List<FundPosition> selectAllFundPositionByConditions();
 
     List<FundInformation> selectFundInformationByCode(String code);
 
-    List<FundPosition> selectFundPositionByConditions(@Param("code") String code, @Param("transactionDate") Date transactionDate);
+    List<FundTransaction> selectAllDividendTransactionByConditions(@Param("startDate") Date startDate, @Param("endDate") Date endDate,
+        @Param("type") Integer type);
 }

@@ -30,7 +30,7 @@ public interface IFundHistoryNavService {
      * @author sichu huang
      * @date 2024/03/16
      **/
-    String selectFundHistoryNavByConditions(String code, Date navDate) throws ParseException, IOException;
+    String selectFundNavByConditions(String code, Date navDate) throws ParseException, IOException;
 
     /**
      * 找到上一个非空的净值
@@ -67,6 +67,8 @@ public interface IFundHistoryNavService {
     List<String> selectAllCode();
 
     /**
+     * 根据 1.code, 2.navDate 更新 `fund_history_nav`
+     *
      * @param code code
      * @param date date
      * @author sichu huang

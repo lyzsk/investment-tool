@@ -18,11 +18,14 @@ public interface FundTransactionMapper {
 
     List<FundTransaction> selectAllFundTransaction();
 
-    List<FundTransaction> selectAllFundTransactionInTransit();
+    List<FundTransaction> selectAllFundTransactionInTransit(@Param("status1") Integer status1, @Param("status2") Integer status2);
 
-    List<FundTransaction> selectAllFundTransactionWithNullNavAndShareForPurchaseType();
+    List<FundTransaction> selectAllPurchaseTransactionWithNullNavAndShare(@Param("type") Integer type);
 
     List<FundTransaction> selectAllFundTransactionWithNullNavAndFeeAndAmountForRedemptionType();
+
+    List<FundTransaction> selectAllRedemptionFundTransactionWithNullAmountAndFeeAndNav(@Param("code") String code,
+        @Param("redemptionDate") Date redemptionDate, @Param("type") Integer type);
 
     void updateStatus(FundTransaction fundTransaction);
 
@@ -32,4 +35,5 @@ public interface FundTransactionMapper {
 
     void updateMarkByConditions(@Param("code") String code, @Param("mark") String mark, @Param("startDate") Date startDate,
         @Param("endDate") Date endDate);
+
 }

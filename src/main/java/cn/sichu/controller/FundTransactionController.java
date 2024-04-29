@@ -21,7 +21,7 @@ import java.util.List;
  * @date 2024/03/18
  **/
 @RestController
-@RequestMapping("/transaction")
+@RequestMapping("/fundTransaction")
 public class FundTransactionController {
     @Autowired
     IFundTransactionService fundTransactionService;
@@ -47,24 +47,23 @@ public class FundTransactionController {
         fundTransactionService.dividendFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(dividendAmountPerShare), tradingPlatform);
     }
 
-    @Scheduled(cron = "0 30 0 * * *")
-    @PostMapping("/update-status")
+    @Scheduled(cron = "30 0 0 * * *")
+    @PostMapping("/updateStatus")
     public void updateStatusForTransactionInTransit() throws ParseException, IOException {
         Date date = new Date();
-        fundTransactionService.updateTotalAmountAndHeldDaysAndUpdateDateForFundPosition(date);
         fundTransactionService.updateStatusForTransactionInTransit(date);
+        fundTransactionService.updateHeldDaysAndUpdateDateForFundPosition(date);
     }
 
-    @Scheduled(cron = "0 0 20-23 * * *")
-    @PostMapping("/update-fund-transaction")
+    @Scheduled(cron = "0 0/15 20-23 * * *")
+    @PostMapping("/updateNav")
     public void updateNavAndShare() throws ParseException, IOException {
         Date date = new Date();
         List<String> codes = fundHistoryNavService.selectAllCode();
         for (String code : codes) {
             fundHistoryNavService.updateHistoryNavByConditions(code, date);
         }
-        fundTransactionService.updateNavAndShareForFundPurchaseTransaction();
-        fundTransactionService.updateNavAndFeeAndAmountForFundRedemptionTransaction();
+        fundTransactionService.dailyUpdateFundTransactionAndFundPosition();
     }
 
 }

@@ -38,21 +38,26 @@
         order by code, transaction_date
     </select>
 
-    <select id="selectAllFundTransactionInTransit" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
+    <select id="selectAllFundTransactionInTransit" resultType="cn.sichu.entity.FundTransaction">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
-        trading_platform, status, mark, type
+        dividend_amount_per_share, trading_platform, status, mark, type
         from fund_transaction
-        where status = 0 or status = 2
+        <where>
+            <if test="status1 != null and status2 != null">and status = #{status1} or status = #{status2}</if>
+        </where>
     </select>
 
-    <select id="selectAllFundTransactionWithNullNavAndShareForPurchaseType" resultType="cn.sichu.entity.FundTransaction"
+    <select id="selectAllPurchaseTransactionWithNullNavAndShare" resultType="cn.sichu.entity.FundTransaction"
             resultMap="resultMap">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
         trading_platform, status, mark, type
         from fund_transaction
-        where (nav is null or share is null) and type = 0
+        where
+        (nav is null or nav = '') and
+        (share is null or share = '') and
+        type = #{type}
     </select>
 
     <select id="selectAllFundTransactionWithNullNavAndFeeAndAmountForRedemptionType"
@@ -62,6 +67,20 @@
         trading_platform, status, mark, type
         from fund_transaction
         where (nav is null or fee is null or amount is null) and type = 1
+    </select>
+
+    <select id="selectAllRedemptionFundTransactionWithNullAmountAndFeeAndNav" resultType="cn.sichu.entity.FundTransaction">
+        select
+        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share, trading_platform, status, mark,
+        type
+        from fund_transaction
+        where
+        code = #{code} and
+        transaction_date = #{redemptionDate} and
+        amount is null and
+        fee is null and
+        nav is null and
+        type = #{type}
     </select>
 
     <update id="updateStatus">

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.sichu.mapper.FundTransactionStatementSheetMapper">
+<mapper namespace="cn.sichu.mapper.FundTransactionReportSheetMapper">
     <resultMap id="fundTransactionResultMap" type="cn.sichu.entity.FundTransaction">
         <id property="id" column="id"/>
         <result property="code" column="code"/>
@@ -50,12 +50,20 @@
         <result property="mark" column="mark"/>
     </resultMap>
 
-    <select id="selectAllFundTransaction" resultType="cn.sichu.entity.FundTransaction" resultMap="fundTransactionResultMap">
+    <select id="selectAllFundPositionByConditions" resultType="cn.sichu.entity.FundPosition" resultMap="fundPositionResultMap">
         select
-        code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share, dividend_amount_per_share,
-        status, trading_platform, mark, type
-        from fund_transaction
-        order by code, transaction_date
+        code, transaction_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee, total_redemption_fee,
+        held_share, held_days
+        from
+        (
+        select
+        code, transaction_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee, total_redemption_fee,
+        held_share, held_days, mark,
+        row_number() over (partition by substring_index(mark, '->', -1) order by held_share desc) as rn
+        from fund_position
+        ) as temp
+        where rn = 1
+        order by code, transaction_date, substring_index(temp.mark, '->', -1);
     </select>
 
     <select id="selectFundInformationByCode" resultType="cn.sichu.entity.FundInformation" resultMap="fundInformationResultMap">
@@ -66,15 +74,11 @@
         </where>
     </select>
 
-    <select id="selectFundPositionByConditions" resultType="cn.sichu.entity.FundPosition" resultMap="fundPositionResultMap">
+    <select id="selectAllDividendTransactionByConditions" resultType="cn.sichu.entity.FundTransaction" resultMap="fundTransactionResultMap">
         select
-        code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date
-        from fund_position
-        <where>
-            <if test="code != null and code != ''">and code = #{code}</if>
-            <if test="transactionDate != null">and transaction_date = #{transactionDate}</if>
-        </where>
-        order by code, transaction_date
+        code, transaction_date, amount
+        from fund_transaction
+        where type = #{type} and transacntion_date between #{startDate} and #{endDate}
+        order by code, transaction_date, mark
     </select>
-
 </mapper>

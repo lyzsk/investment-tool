@@ -139,6 +139,17 @@ public class FinancialCalculationUtil {
     }
 
     /**
+     * @param profit               净利润
+     * @param totalPrincipalAmount 合计本金
+     * @return java.math.BigDecimal
+     * @author sichu huang
+     * @date 2024/04/29
+     **/
+    public static BigDecimal calculateYieldRate(BigDecimal profit, BigDecimal totalPrincipalAmount) {
+        return profit.divide(totalPrincipalAmount, 4, RoundingMode.HALF_UP);
+    }
+
+    /**
      * @param share                  份额
      * @param dividendAmountPerShare 每股先进分红金额
      * @return java.math.BigDecimal
