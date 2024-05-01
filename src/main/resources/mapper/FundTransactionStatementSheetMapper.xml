@@ -55,7 +55,7 @@
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share, dividend_amount_per_share,
         status, trading_platform, mark, type
         from fund_transaction
-        order by code, transaction_date
+        order by code, mark is null, substring_index(mark, '->', -1), transaction_date
     </select>
 
     <select id="selectFundInformationByCode" resultType="cn.sichu.entity.FundInformation" resultMap="fundInformationResultMap">

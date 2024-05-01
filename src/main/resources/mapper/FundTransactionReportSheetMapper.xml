@@ -50,20 +50,15 @@
         <result property="mark" column="mark"/>
     </resultMap>
 
-    <select id="selectAllFundPositionByConditions" resultType="cn.sichu.entity.FundPosition" resultMap="fundPositionResultMap">
+    <select id="selectAllFundPosition" resultType="cn.sichu.entity.FundPosition" resultMap="fundPositionResultMap">
         select
-        code, transaction_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee, total_redemption_fee,
-        held_share, held_days
-        from
-        (
-        select
-        code, transaction_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee, total_redemption_fee,
-        held_share, held_days, mark,
-        row_number() over (partition by substring_index(mark, '->', -1) order by held_share desc) as rn
+        code, min(transaction_date) as transaction_date, max(redemption_date) as redemption_date, max(total_principal_amount) as
+        total_principal_amount, max(total_amount) as total_amount,
+        max(total_purchase_fee) as total_purchase_fee, max(total_redemption_fee) as total_redemption_fee, max(held_share) as held_share,
+        max(held_days) as held_days, update_date, trading_platform, mark
         from fund_position
-        ) as temp
-        where rn = 1
-        order by code, transaction_date, substring_index(temp.mark, '->', -1);
+        group by code, redemption_date
+        order by code, transaction_date, redemption_date
     </select>
 
     <select id="selectFundInformationByCode" resultType="cn.sichu.entity.FundInformation" resultMap="fundInformationResultMap">
@@ -78,7 +73,7 @@
         select
         code, transaction_date, amount
         from fund_transaction
-        where type = #{type} and transacntion_date between #{startDate} and #{endDate}
+        where type = #{type} and transaction_date between #{startDate} and #{endDate}
         order by code, transaction_date, mark
     </select>
 </mapper>

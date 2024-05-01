@@ -68,15 +68,16 @@
         where mark is null and total_amount != null
     </select>
 
-    <select id="selectAllFundPositionWithNullMarkByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+    <select id="selectFundPositionWithNullMarkByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
-        id, code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date
+        id, code, transaction_date, initiation_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee,
+        total_redemption_fee, held_share, held_days, update_date, trading_platform, status, mark
         from fund_position
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
             and mark is null
         </where>
-        order by transaction_date asc, held_share asc
+        order by transaction_date, held_share
     </select>
 
     <select id="selectFundPositionByCodeAndAfterTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
@@ -172,7 +173,7 @@
             <if test="totalPrincipalAmount != null">total_principal_amount = #{totalPrincipalAmount},</if>
             <if test="totalPurchaseFee != null">total_purchase_fee = #{totalPurchaseFee},</if>
             <if test="heldShare != null">held_share = #{heldShare},</if>
-            <if test="totalAmount != null">total_amount = #{total_amount},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
         </set>
         where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and mark is null
     </update>
@@ -186,17 +187,16 @@
             <if test="totalRedemptionFee != null">total_redemption_fee = #{totalRedemptionFee},</if>
             <if test="totalAmount != null">total_amount = #{totalAmount},</if>
         </set>
-        where code = #{code} and transaction_date = #{transactionDate} and initiation_date = #{initiationDate} and
-        total_principal_amount = #{totalPrincipalAmount} and total_purchase_fee = #{totalPurchaseFee} and held_share = #{heldShare}
+        where id = #{id}
     </update>
 
     <update id="updateRemainingFundPosition">
         update fund_position
         <set>
             <if test="totalPrincipalAmount != null">total_principal_amount = #{totalPrincipalAmount},</if>
+            <if test="heldShare != null">held_share = #{heldShare},</if>
             <if test="totalAmount != null">total_amount = #{totalAmount},</if>
             <if test="totalPurchaseFee != null">total_purchase_fee = #{totalPurchaseFee},</if>
-            <if test="heldShare != null">held_share = #{heldShare},</if>
         </set>
         where id = #{id}
     </update>

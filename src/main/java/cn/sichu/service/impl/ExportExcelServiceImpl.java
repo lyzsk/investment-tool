@@ -81,7 +81,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         /* 对list数据(一对多关系)进行处理 */
         List<FundTransaction> transactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
         List<FundTransactionStatementSheet> fundTransactionStatementDataList = handleFundTransactionStatementSheetData(transactionList);
-        List<FundPosition> positionList = fundTransactionReportSheetMapper.selectAllFundPositionByConditions();
+        List<FundPosition> positionList = fundTransactionReportSheetMapper.selectAllFundPosition();
         List<FundTransactionReportSheet> fundTransactionReportDataList = handleFundTransactionReportSheetData(positionList);
         List<GoldTransactionStatementSheet> goldTransactionStatementSheetDataList = new ArrayList<>();
 
@@ -127,6 +127,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             FundTransactionStatementSheet sheet = new FundTransactionStatementSheet();
             Date transactionDate = transaction.getTransactionDate();
             sheet.setCode(code);
+            sheet.setShortName(information.getShortName());
             sheet.setApplicationDate(DateUtil.dateToStr(transaction.getApplicationDate()));
             sheet.setTransactionDate(DateUtil.dateToStr(transactionDate));
             sheet.setConfirmationDate(DateUtil.dateToStr(transaction.getConfirmationDate()));
@@ -206,8 +207,10 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             sheet.setShortName(information.getShortName());
             sheet.setCompanyName(information.getCompanyName());
             sheet.setTradingPlatform(fundPosition.getTradingPlatform());
-            sheet.setPurchaseTransactionDate(String.valueOf(fundPosition.getTransactionDate()));
-            sheet.setRedemptionTransactionDate(String.valueOf(fundPosition.getRedemptionDate()));
+            Date startDate = fundPosition.getTransactionDate();
+            sheet.setPurchaseTransactionDate(DateUtil.dateToStr(startDate));
+            Date endDate = fundPosition.getRedemptionDate();
+            sheet.setRedemptionTransactionDate(endDate == null ? "" : DateUtil.dateToStr(endDate));
             Integer heldDays = fundPosition.getHeldDays();
             sheet.setHeldDays(String.valueOf(heldDays));
             BigDecimal totalPrincipalAmount = fundPosition.getTotalPrincipalAmount();
@@ -217,17 +220,23 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             int dividendCount = 0;
             BigDecimal totalDividendAmount = BigDecimal.ZERO;
             BigDecimal profit = BigDecimal.ZERO;
-            String[] splits = fundPosition.getMark().split("->");
-            List<FundTransaction> divdendTransactionList =
-                fundTransactionReportSheetMapper.selectAllDividendTransactionByConditions(DateUtil.strToDate(splits[0]),
-                    DateUtil.strToDate(splits[1]), FundTransactionType.DIVIDEND.getCode());
+            String mark = fundPosition.getMark();
+            List<FundTransaction> divdendTransactionList;
+            if (mark != null && !mark.equals("")) {
+                divdendTransactionList = fundTransactionReportSheetMapper.selectAllDividendTransactionByConditions(startDate, endDate,
+                    FundTransactionType.DIVIDEND.getCode());
+            } else {
+                divdendTransactionList =
+                    fundTransactionReportSheetMapper.selectAllDividendTransactionByConditions(startDate, fundPosition.getUpdateDate(),
+                        FundTransactionType.DIVIDEND.getCode());
+            }
             dividendCount += divdendTransactionList.size();
             sheet.setDividendCount(String.valueOf(dividendCount));
             for (FundTransaction transaction : divdendTransactionList) {
                 totalDividendAmount = totalDividendAmount.add(transaction.getAmount());
             }
-            sheet.setTotalDividendAmount(String.valueOf(totalDividendAmount));
-            profit = profit.add(totalDividendAmount).add(fundPosition.getTotalAmount());
+            sheet.setTotalDividendAmount(totalDividendAmount.equals(BigDecimal.ZERO) ? "0.00" : String.valueOf(totalDividendAmount));
+            profit = profit.add(fundPosition.getTotalAmount()).add(totalDividendAmount).subtract(fundPosition.getTotalPrincipalAmount());
             sheet.setProfit(String.valueOf(profit));
             sheet.setDailyNavYield(String.valueOf(FinancialCalculationUtil.calculateDailyNavYield(profit, heldDays)));
             BigDecimal yieldRate = FinancialCalculationUtil.calculateYieldRate(profit, totalPrincipalAmount);
