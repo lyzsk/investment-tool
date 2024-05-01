@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @date 2024/03/09
  **/
 public class FundTransactionStatementSheet {
-    /* 基金代码 */
+    /* 基金代码, 6位 */
     private String code;
 
     /* 基金简称 */

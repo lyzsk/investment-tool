@@ -29,16 +29,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author sichu huang
@@ -61,7 +58,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
      * @date 2024/03/09
      **/
     @Override
-    public void exportInvestmentExcel(HttpServletResponse response) throws IOException, ParseException {
+    public void exportInvestmentExcel(HttpServletResponse response) throws IOException {
         response.setContentType("application/vnd.ms-excel; charset=UTF-8");
         response.setCharacterEncoding("utf-8");
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -82,7 +79,9 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         List<FundTransaction> transactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
         List<FundTransactionStatementSheet> fundTransactionStatementDataList = handleFundTransactionStatementSheetData(transactionList);
         List<FundPosition> positionList = fundTransactionReportSheetMapper.selectAllFundPosition();
-        List<FundTransactionReportSheet> fundTransactionReportDataList = handleFundTransactionReportSheetData(positionList);
+        List<FundTransactionReportSheet> fundTransactionReportDataList = new ArrayList<>();
+        Map<String, String> fundTransactionReportDataMap = new HashMap<>();
+        handleFundTransactionReportSheetData(positionList, fundTransactionReportDataList, fundTransactionReportDataMap);
         List<GoldTransactionStatementSheet> goldTransactionStatementSheetDataList = new ArrayList<>();
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -94,10 +93,11 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         WriteSheet fundTransactionReportWriteSheet = EasyExcel.writerSheet("Fund Transaction Report").build();
         WriteSheet goldTransactionStatementWriteSheet = EasyExcel.writerSheet("Gold Transaction Statement").build();
 
-        FillConfig listFillConfig = FillConfig.builder().forceNewRow(true).direction(WriteDirectionEnum.VERTICAL).build();
-        writer.fill(fundTransactionStatementDataList, listFillConfig, fundTransactionStatementWriteSheet);
-        writer.fill(fundTransactionReportDataList, listFillConfig, fundTransactionReportWriteSheet);
-        writer.fill(goldTransactionStatementSheetDataList, listFillConfig, goldTransactionStatementWriteSheet);
+        FillConfig fillConfig = FillConfig.builder().forceNewRow(true).direction(WriteDirectionEnum.VERTICAL).build();
+        writer.fill(fundTransactionStatementDataList, fillConfig, fundTransactionStatementWriteSheet);
+        writer.fill(fundTransactionReportDataList, fillConfig, fundTransactionReportWriteSheet);
+        writer.fill(fundTransactionReportDataMap, fillConfig, fundTransactionReportWriteSheet);
+        writer.fill(goldTransactionStatementSheetDataList, fillConfig, goldTransactionStatementWriteSheet);
 
         inputStream.close();
         writer.finish();
@@ -189,12 +189,22 @@ public class ExportExcelServiceImpl implements IExportExcelService {
      * 其中 7列直接设置, 2列通过 `fund_information` 查询设置, 5列通过 `fund_transaction` 查询和计算来设置
      *
      * @param positionList FundPosition List
-     * @return java.util.List<cn.sichu.domain.FundTransactionReportSheet>
+     * @param list         FundTransactionReportSheet 一对多关系数据(List)
+     * @param map          FundTransactionReportSheet 一对一关系数据数据(HashMap)
      * @author sichu huang
      * @date 2024/04/03
      **/
-    private List<FundTransactionReportSheet> handleFundTransactionReportSheetData(List<FundPosition> positionList) throws ParseException {
-        List<FundTransactionReportSheet> list = new ArrayList<>();
+    private void handleFundTransactionReportSheetData(List<FundPosition> positionList, List<FundTransactionReportSheet> list,
+        Map<String, String> map) {
+        BigDecimal sumTotalPrincipalAmount = BigDecimal.ZERO;
+        BigDecimal sumTotalAmount = BigDecimal.ZERO;
+        int sumDividendCount = 0;
+        BigDecimal sumTotalDividendAmount = BigDecimal.ZERO;
+        BigDecimal sumProfit = BigDecimal.ZERO;
+        BigDecimal sumDailyNavYield = BigDecimal.ZERO;
+        BigDecimal sumYieldRate = BigDecimal.ZERO;
+        DecimalFormat decimalFormat = new DecimalFormat("0.00%");
+        int size = positionList.size();
         for (FundPosition fundPosition : positionList) {
             String code = fundPosition.getCode();
             List<FundInformation> fundInformationList = fundTransactionReportSheetMapper.selectFundInformationByCode(code);
@@ -215,8 +225,10 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             sheet.setHeldDays(String.valueOf(heldDays));
             BigDecimal totalPrincipalAmount = fundPosition.getTotalPrincipalAmount();
             sheet.setTotalPrincipalAmount(String.valueOf(totalPrincipalAmount));
+            sumTotalPrincipalAmount = sumTotalPrincipalAmount.add(totalPrincipalAmount);
             BigDecimal totalAmount = fundPosition.getTotalAmount();
             sheet.setTotalAmount(String.valueOf(totalAmount));
+            sumTotalAmount = sumTotalAmount.add(totalAmount);
             int dividendCount = 0;
             BigDecimal totalDividendAmount = BigDecimal.ZERO;
             BigDecimal profit = BigDecimal.ZERO;
@@ -232,19 +244,32 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             }
             dividendCount += divdendTransactionList.size();
             sheet.setDividendCount(String.valueOf(dividendCount));
+            sumDividendCount += dividendCount;
             for (FundTransaction transaction : divdendTransactionList) {
                 totalDividendAmount = totalDividendAmount.add(transaction.getAmount());
             }
             sheet.setTotalDividendAmount(totalDividendAmount.equals(BigDecimal.ZERO) ? "0.00" : String.valueOf(totalDividendAmount));
+            sumTotalDividendAmount = sumTotalDividendAmount.add(totalDividendAmount);
             profit = profit.add(fundPosition.getTotalAmount()).add(totalDividendAmount).subtract(fundPosition.getTotalPrincipalAmount());
             sheet.setProfit(String.valueOf(profit));
-            sheet.setDailyNavYield(String.valueOf(FinancialCalculationUtil.calculateDailyNavYield(profit, heldDays)));
+            sumProfit = sumProfit.add(profit);
+            BigDecimal dailyNavYield = FinancialCalculationUtil.calculateDailyNavYield(profit, heldDays);
+            sheet.setDailyNavYield(String.valueOf(dailyNavYield));
+            sumDailyNavYield = sumDailyNavYield.add(dailyNavYield);
             BigDecimal yieldRate = FinancialCalculationUtil.calculateYieldRate(profit, totalPrincipalAmount);
-            String yieldRateStr = new DecimalFormat("0.00%").format(yieldRate);
+            String yieldRateStr = decimalFormat.format(yieldRate);
             sheet.setYieldRate(yieldRateStr);
+            sumYieldRate = sumYieldRate.add(yieldRate);
             list.add(sheet);
         }
-        return list;
+        map.put("sumTotalPrincipalAmount", String.valueOf(sumTotalPrincipalAmount));
+        map.put("sumTotalAmount", String.valueOf(sumTotalAmount));
+        map.put("sumDividendCount", String.valueOf(sumDividendCount));
+        map.put("sumTotalDividendAmount", sumTotalDividendAmount.equals(BigDecimal.ZERO) ? "0.00" : String.valueOf(sumTotalDividendAmount));
+        map.put("sumProfit", String.valueOf(sumProfit));
+        BigDecimal avgDailyNavYield = sumDailyNavYield.divide(new BigDecimal(size), 4, RoundingMode.HALF_UP);
+        map.put("avgDailyNavYield", String.valueOf(avgDailyNavYield));
+        BigDecimal avgYieldRate = sumYieldRate.divide(new BigDecimal(size), 4, RoundingMode.HALF_UP);
+        map.put("avgYieldRate", decimalFormat.format(avgYieldRate));
     }
-
 }

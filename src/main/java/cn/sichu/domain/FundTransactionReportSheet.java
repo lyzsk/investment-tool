@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @date 2024/03/09
  **/
 public class FundTransactionReportSheet {
-    /* 编号 */
+    /* 基金代码, 6位 */
     private String code;
 
     /* 基金简称 */
@@ -52,12 +52,35 @@ public class FundTransactionReportSheet {
     /* 基金公司 */
     private String companyName;
 
+    /* 累计本金 */
+    private String sumTotalPrincipalAmount;
+
+    /* 累计金额 */
+    private String sumTotalAmount;
+
+    /* 累计分红次数 */
+    private String sumDividendCount;
+
+    /* 累计分红金额 */
+    private String sumTotalDividendAmount;
+
+    /* 累计收益 */
+    private String sumProfit;
+
+    /* 平均日均万份收益 */
+    private String avgDailyNavYield;
+
+    /* 平均收益率 */
+    private String avgYieldRate;
+
     public FundTransactionReportSheet() {
     }
 
     public FundTransactionReportSheet(String code, String shortName, String purchaseTransactionDate, String redemptionTransactionDate,
         String heldDays, String totalPrincipalAmount, String totalAmount, String dividendCount, String totalDividendAmount, String profit,
-        String dailyNavYield, String yieldRate, String tradingPlatform, String companyName) {
+        String dailyNavYield, String yieldRate, String tradingPlatform, String companyName, String sumTotalPrincipalAmount,
+        String sumTotalAmount, String sumDividendCount, String sumTotalDividendAmount, String sumProfit, String avgDailyNavYield,
+        String avgYieldRate) {
         this.code = code;
         this.shortName = shortName;
         this.purchaseTransactionDate = purchaseTransactionDate;
@@ -72,6 +95,13 @@ public class FundTransactionReportSheet {
         this.yieldRate = yieldRate;
         this.tradingPlatform = tradingPlatform;
         this.companyName = companyName;
+        this.sumTotalPrincipalAmount = sumTotalPrincipalAmount;
+        this.sumTotalAmount = sumTotalAmount;
+        this.sumDividendCount = sumDividendCount;
+        this.sumTotalDividendAmount = sumTotalDividendAmount;
+        this.sumProfit = sumProfit;
+        this.avgDailyNavYield = avgDailyNavYield;
+        this.avgYieldRate = avgYieldRate;
     }
 
     @Override
@@ -81,7 +111,10 @@ public class FundTransactionReportSheet {
             .append("heldDays", getHeldDays()).append("totalPrincipalAmount", getTotalPrincipalAmount()).append("totalAmount", getTotalAmount())
             .append("dividendCount", getDividendCount()).append("totalDividendAmount", getTotalDividendAmount()).append("profit", getProfit())
             .append("dailyNavYield", getDailyNavYield()).append("yieldRate", getYieldRate()).append("tradingPlatform", getTradingPlatform())
-            .append("companyName", getCompanyName()).toString();
+            .append("companyName", getCompanyName()).append("sumTotalPrincipalAmount", getSumTotalPrincipalAmount())
+            .append("sumTotalAmount", getSumTotalAmount()).append("sumDividendCount", getSumDividendCount())
+            .append("sumTotalDividendAmount", getSumTotalDividendAmount()).append("sumProfit", getSumProfit())
+            .append("avgDailyNavYield", getAvgDailyNavYield()).append("avgYieldRate", getAvgYieldRate()).toString();
     }
 
     public String getCode() {
@@ -194,5 +227,61 @@ public class FundTransactionReportSheet {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public String getSumTotalPrincipalAmount() {
+        return sumTotalPrincipalAmount;
+    }
+
+    public void setSumTotalPrincipalAmount(String sumTotalPrincipalAmount) {
+        this.sumTotalPrincipalAmount = sumTotalPrincipalAmount;
+    }
+
+    public String getSumTotalAmount() {
+        return sumTotalAmount;
+    }
+
+    public void setSumTotalAmount(String sumTotalAmount) {
+        this.sumTotalAmount = sumTotalAmount;
+    }
+
+    public String getSumDividendCount() {
+        return sumDividendCount;
+    }
+
+    public void setSumDividendCount(String sumDividendCount) {
+        this.sumDividendCount = sumDividendCount;
+    }
+
+    public String getSumTotalDividendAmount() {
+        return sumTotalDividendAmount;
+    }
+
+    public void setSumTotalDividendAmount(String sumTotalDividendAmount) {
+        this.sumTotalDividendAmount = sumTotalDividendAmount;
+    }
+
+    public String getSumProfit() {
+        return sumProfit;
+    }
+
+    public void setSumProfit(String sumProfit) {
+        this.sumProfit = sumProfit;
+    }
+
+    public String getAvgDailyNavYield() {
+        return avgDailyNavYield;
+    }
+
+    public void setAvgDailyNavYield(String avgDailyNavYield) {
+        this.avgDailyNavYield = avgDailyNavYield;
+    }
+
+    public String getAvgYieldRate() {
+        return avgYieldRate;
+    }
+
+    public void setAvgYieldRate(String avgYieldRate) {
+        this.avgYieldRate = avgYieldRate;
     }
 }
