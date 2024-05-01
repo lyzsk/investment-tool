@@ -65,11 +65,13 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         Date settlementDate = TransactionDayUtil.getNextNTransactionDate(transactionDate, n);
         transaction.setSettlementDate(settlementDate);
         /* set 9.status */
+        int status;
         if (currentDate.before(settlementDate)) {
-            transaction.setStatus(FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode());
+            status = FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode();
         } else {
-            transaction.setStatus(FundTransactionStatus.HELD.getCode());
+            status = FundTransactionStatus.HELD.getCode();
         }
+        transaction.setStatus(status);
         /* set 10.fee */
         List<FundPurchaseFeeRate> feeRateList = fundPurchaseFeeRateMapper.selectFundPurchaseFeeRateByConditions(code, tradingPlatform);
         if (feeRateList.isEmpty()) {
@@ -99,7 +101,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             transaction.setNav(new BigDecimal(navStr));
             transaction.setShare(FinancialCalculationUtil.calculateShare(amount, transaction.getFee(), navStr));
             /* insert `fund_position` */
-            if (Objects.equals(transaction.getStatus(), FundTransactionStatus.HELD.getCode())) {
+            if (Objects.equals(status, FundTransactionStatus.HELD.getCode())) {
                 insertFundPositionByFundTransaction(transaction);
             }
         }

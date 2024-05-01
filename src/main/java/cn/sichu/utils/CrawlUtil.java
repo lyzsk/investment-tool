@@ -18,9 +18,9 @@ import java.util.Map;
 public class CrawlUtil {
 
     /**
-     * @param code      code
-     * @param startDate startDate
-     * @param endDate   endDate
+     * @param code      基金代码, 6位
+     * @param startDate startDate(inclusive)
+     * @param endDate   endDate(invlusive)
      * @param callback  callback
      * @return java.util.Map<java.lang.String, java.lang.String>
      * @author sichu huang
