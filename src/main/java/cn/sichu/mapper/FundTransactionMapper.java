@@ -16,6 +16,8 @@ public interface FundTransactionMapper {
 
     void insertFundTransaction(FundTransaction fundTransaction);
 
+    List<FundTransaction> selectAllCode();
+
     List<FundTransaction> selectAllFundTransaction();
 
     List<FundTransaction> selectAllFundTransactionInTransit(@Param("status1") Integer status1, @Param("status2") Integer status2);

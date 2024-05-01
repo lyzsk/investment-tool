@@ -2,9 +2,11 @@ package cn.sichu.service.impl;
 
 import cn.sichu.entity.FundEastmoneyJjjz;
 import cn.sichu.entity.FundHistoryNav;
+import cn.sichu.entity.FundTransaction;
 import cn.sichu.exception.FundTransactionException;
 import cn.sichu.mapper.FundEastmoneyJjjzMapper;
 import cn.sichu.mapper.FundHistoryNavMapper;
+import cn.sichu.mapper.FundTransactionMapper;
 import cn.sichu.service.IFundHistoryNavService;
 import cn.sichu.utils.CrawlUtil;
 import cn.sichu.utils.DateUtil;
@@ -29,6 +31,8 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     FundHistoryNavMapper fundHistoryNavMapper;
     @Autowired
     FundEastmoneyJjjzMapper fundEastmoneyJjjzMapper;
+    @Autowired
+    FundTransactionMapper fundTransactionMapper;
 
     @Override
     public void insertFundHistoryNav(String code, String startDate, String endDate, String callback) throws ParseException, IOException {
@@ -50,81 +54,24 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         if (!fundHistoryNavList.isEmpty()) {
             return fundHistoryNavList.get(0).getNav();
         }
-        String navStr;
+        /* isEmpty的情况: 1.历史净值已更新但未入表, 需要根据callback查询和插入; 2.历史净值未更新, 返回"";  */
+        Date currentDate = DateUtil.formatDate(new Date());
         String callback = selectCallbackByCode(code);
-        List<FundHistoryNav> historyNavList = selectLastFundHistoryNavDateByCode(code);
-        if (historyNavList.isEmpty()) {
-            navStr = retryUpdateHistoryNav(code, navDate);
-            if (navStr == null || navStr.equals("")) {
-                throw new FundTransactionException(999, "update history nav failed, because there is no history nav for this code");
-            }
-            historyNavList = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
-        }
-        Date lastNavDate = historyNavList.get(0).getNavDate();
-        if (navDate.compareTo(lastNavDate) >= 0) {
-            insertFundHistoryNav(code, DateUtil.dateToStr(lastNavDate), DateUtil.dateToStr(navDate), callback);
-            List<FundHistoryNav> updatedHistoryNavList = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
-            if (updatedHistoryNavList.isEmpty()) {
-                /* 净值未更新 */
+        if (navDate.before(currentDate)) {
+            insertFundHistoryNav(code, DateUtil.dateToStr(navDate), DateUtil.dateToStr(navDate), callback);
+            fundHistoryNavList = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
+            return fundHistoryNavList.get(0).getNav();
+        } else if (navDate.equals(currentDate)) {
+            if (CrawlUtil.getDailyNavMapBetweenDates(code, DateUtil.dateToStr(navDate), DateUtil.dateToStr(navDate), callback).isEmpty()) {
                 return "";
-            } else {
-                return updatedHistoryNavList.get(0).getNav();
             }
+            insertFundHistoryNav(code, DateUtil.dateToStr(navDate), DateUtil.dateToStr(navDate), callback);
+            fundHistoryNavList = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
+            return fundHistoryNavList.get(0).getNav();
+        } else if (navDate.after(currentDate)) {
+            throw new FundTransactionException(999, "navDate should be earlier than or equals to currentDate");
         }
-        // TODO: 没懂这里的意义, 先注释掉
-        // else {
-        //     navStr = retryUpdateHistoryNav(code, navDate);
-        //     if (navStr == null || navStr.equals("")) {
-        //         throw new FundTransactionException(999, "update history nav failed");
-        //     }
-        // }
         return "";
-    }
-
-    @Override
-    public String selectLastNotNullFundHistoryNavByConditions(String code, Date navDate) throws ParseException, IOException {
-        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
-        if (!fundHistoryNavs.isEmpty()) {
-            return fundHistoryNavs.get(0).getNav();
-        }
-        String navStr;
-        String callback = selectCallbackByCode(code);
-        List<FundHistoryNav> historyNavs = selectLastFundHistoryNavDateByCode(code);
-        if (historyNavs.isEmpty()) {
-            navStr = retryUpdateHistoryNav(code, navDate);
-            if (navStr == null || navStr.equals("")) {
-                throw new FundTransactionException(999, "更新历史净值失败");
-            }
-            historyNavs = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
-        }
-        Date lastNavDate = historyNavs.get(0).getNavDate();
-        if (navDate.getTime() >= lastNavDate.getTime()) {
-            insertFundHistoryNav(code, DateUtil.dateToStr(lastNavDate), DateUtil.dateToStr(navDate), callback);
-            List<FundHistoryNav> updatedHistoryNavs = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
-            if (updatedHistoryNavs.isEmpty()) {
-                /* 净值未更新, 缺少美股节假日, 暂时使用暴力解决 */
-                navStr = null;
-                int n = 1;
-                int tryCount = 30;
-                for (int i = 0; i <= tryCount; i++) {
-                    if (navStr != null) {
-                        return navStr;
-                    }
-                    navStr = selectFundNavByConditions(code, TransactionDayUtil.getLastNTransactionDate(navDate, ++n));
-                    if (navStr == null || navStr.equals("")) {
-                        throw new FundTransactionException(999, "暴力查净值失败");
-                    }
-                }
-            } else {
-                return updatedHistoryNavs.get(0).getNav();
-            }
-        } else {
-            navStr = retryUpdateHistoryNav(code, navDate);
-            if (navStr == null || navStr.equals("")) {
-                throw new FundTransactionException(999, "更新历史净值失败");
-            }
-        }
-        return navStr;
     }
 
     @Override
@@ -140,33 +87,26 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
 
     @Override
     public List<String> selectAllCode() {
-        List<FundHistoryNav> fundHistoryNavs = fundHistoryNavMapper.selectAllCode();
-        List<String> list = new ArrayList<>();
-        for (FundHistoryNav fundHistoryNav : fundHistoryNavs) {
-            list.add(fundHistoryNav.getCode());
+        List<FundTransaction> list = fundTransactionMapper.selectAllCode();
+        List<String> codeList = new ArrayList<>();
+        for (FundTransaction transaction : list) {
+            codeList.add(transaction.getCode());
         }
-        return list;
+        return codeList;
     }
 
     @Override
     public void updateHistoryNavByConditions(String code, Date date) throws ParseException, IOException {
-        List<FundHistoryNav> navList = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
+        Date currentDate = DateUtil.formatDate(date);
+        List<FundHistoryNav> navList = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, currentDate);
+        if (!navList.isEmpty()) {
+            return;
+        }
         String callback = selectCallbackByCode(code);
-        if (navList.isEmpty()) {
-            String navStr = retryUpdateHistoryNav(code, date);
-            if (navStr == null || navStr.equals("")) {
-                throw new FundTransactionException(999,
-                    "failed to update history nav, because nav is null or '' after retryUpdateHistoryNav(String code, Date navDate)");
-            }
-            navList = fundHistoryNavMapper.selectLastFundHistoryNavDateAndNav();
+        if (CrawlUtil.getDailyNavMapBetweenDates(code, DateUtil.dateToStr(currentDate), DateUtil.dateToStr(currentDate), callback).isEmpty()) {
+            return;
         }
-        FundHistoryNav historyNav = navList.get(0);
-        Date lastNavDate = historyNav.getNavDate();
-        if (date.compareTo(lastNavDate) >= 0) {
-            insertFundHistoryNav(code, DateUtil.dateToStr(lastNavDate), DateUtil.dateToStr(date), callback);
-        } else {
-            throw new FundTransactionException(999, "updatenavDate should be larger than or equals to last navDate");
-        }
+        insertFundHistoryNav(code, DateUtil.dateToStr(currentDate), DateUtil.dateToStr(currentDate), callback);
     }
 
     /**

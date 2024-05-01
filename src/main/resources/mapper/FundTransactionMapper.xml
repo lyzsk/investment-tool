@@ -30,6 +30,11 @@
         #{fee}, #{nav}, #{share}, #{dividendAmountPerShare}, #{tradingPlatform}, #{status}, #{mark}, #{type})
     </insert>
 
+    <select id="selectAllCode" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
+        select distinct code
+        from fund_transaction
+    </select>
+
     <select id="selectAllFundTransaction" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,

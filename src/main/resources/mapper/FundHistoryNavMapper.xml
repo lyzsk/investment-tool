@@ -16,9 +16,9 @@
         select #{code}, #{navDate}, #{nav}
         from dual
         where not exists (
-        select nav_date
+        select code, nav_date, nav
         from fund_history_nav
-        where code = #{code} and nav_date = #{navDate}
+        where code = #{code} and nav_date = #{navDate} and nav = #{nav}
         )
     </insert>
 

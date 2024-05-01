@@ -59,8 +59,8 @@ public class FundTransactionController {
     @PostMapping("/updateNav")
     public void updateNavAndShare() throws ParseException, IOException {
         Date date = new Date();
-        List<String> codes = fundHistoryNavService.selectAllCode();
-        for (String code : codes) {
+        List<String> codeList = fundHistoryNavService.selectAllCode();
+        for (String code : codeList) {
             fundHistoryNavService.updateHistoryNavByConditions(code, date);
         }
         fundTransactionService.dailyUpdateFundTransactionAndFundPosition();
