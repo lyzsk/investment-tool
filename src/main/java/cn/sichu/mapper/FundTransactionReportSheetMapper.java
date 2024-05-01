@@ -15,7 +15,7 @@ import java.util.List;
  **/
 @Mapper
 public interface FundTransactionReportSheetMapper {
-    List<FundPosition> selectAllFundPositionByConditions();
+    List<FundPosition> selectAllFundPosition();
 
     List<FundInformation> selectFundInformationByCode(String code);
 
