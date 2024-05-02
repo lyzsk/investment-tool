@@ -1,5 +1,6 @@
 package cn.sichu.controller;
 
+import cn.sichu.annotation.LogAnnotation;
 import cn.sichu.common.Resp;
 import cn.sichu.service.IFundHistoryNavService;
 import cn.sichu.service.IFundTransactionService;
@@ -30,12 +31,14 @@ public class FundTransactionController {
     IFundHistoryNavService fundHistoryNavService;
 
     @PostMapping("/purchase")
+    @LogAnnotation(module = "FundTransactionController", operation = "purchaseFund")
     public Resp<String> purchaseFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
         @RequestParam("amount") String amount, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException {
         return fundTransactionService.purchaseFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(amount), tradingPlatform);
     }
 
     @PostMapping("/redemption")
+    @LogAnnotation(module = "FundTransactionController", operation = "redemptionFund")
     public Resp<String> redemptionFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
         @RequestParam("share") String share, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException {
         return fundTransactionService.redeemFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(share), tradingPlatform);
@@ -51,6 +54,7 @@ public class FundTransactionController {
 
     @Scheduled(cron = "30 0 0 * * *")
     @PostMapping("/updateStatus")
+    @LogAnnotation(module = "FundTransactionController", operation = "updateStatusForTransactionInTransit")
     public Resp<String> updateStatusForTransactionInTransit() {
         Date date = new Date();
         Resp<String> resp1 = fundTransactionService.updateStatusForTransactionInTransit(date);
@@ -64,6 +68,7 @@ public class FundTransactionController {
 
     @Scheduled(cron = "0 0/15 20-23 * * *")
     @PostMapping("/updateNav")
+    @LogAnnotation(module = "FundTransactionController", operation = "updateNavAndShare")
     public Resp<String> updateNavAndShare() throws ParseException, IOException {
         Date date = new Date();
         List<String> codeList = fundHistoryNavService.selectAllCode();
