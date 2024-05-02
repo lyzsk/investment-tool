@@ -1,5 +1,6 @@
 package cn.sichu.controller;
 
+import cn.sichu.annotation.LogAnnotation;
 import cn.sichu.common.Resp;
 import cn.sichu.service.IExportExcelService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +21,8 @@ public class ExportExcelController {
 
     // @Scheduled(cron = "30 0 0 * * *")
     @GetMapping("/export")
-    public Resp<String> getInvestmentTransactionStatementsExcel(HttpServletResponse response) {
+    @LogAnnotation(module = "ExportExcelController", operation = "exportInvestmentExcel")
+    public Resp<String> exportInvestmentExcel(HttpServletResponse response) {
         return exportExcelService.exportInvestmentExcel(response);
     }
 }

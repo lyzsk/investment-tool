@@ -6,7 +6,7 @@
 
     <groupId>cn.sichu</groupId>
     <artifactId>investment-tool</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 
     <profiles>
         <profile>
@@ -57,6 +57,12 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-aop -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+            <version>3.2.3</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
