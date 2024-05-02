@@ -18,9 +18,4 @@ public interface FundHistoryNavMapper {
 
     List<FundHistoryNav> selectFundHistoryNavByConditions(@Param("code") String code, @Param("navDate") Date navDate);
 
-    List<FundHistoryNav> selectLastFundHistoryNavDateByCode(String code);
-
-    List<FundHistoryNav> selectLastFundHistoryNavDateAndNav();
-
-    List<FundHistoryNav> selectAllCode();
 }

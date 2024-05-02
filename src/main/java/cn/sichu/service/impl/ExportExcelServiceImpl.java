@@ -267,8 +267,6 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         map.put("sumDividendCount", String.valueOf(sumDividendCount));
         map.put("sumTotalDividendAmount", sumTotalDividendAmount.equals(BigDecimal.ZERO) ? "0.00" : String.valueOf(sumTotalDividendAmount));
         map.put("sumProfit", String.valueOf(sumProfit));
-        BigDecimal avgDailyNavYield = sumDailyNavYield.divide(new BigDecimal(size), 4, RoundingMode.HALF_UP);
-        map.put("avgDailyNavYield", String.valueOf(avgDailyNavYield));
         BigDecimal avgYieldRate = sumYieldRate.divide(new BigDecimal(size), 4, RoundingMode.HALF_UP);
         map.put("avgYieldRate", decimalFormat.format(avgYieldRate));
     }

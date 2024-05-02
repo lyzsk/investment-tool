@@ -75,11 +75,6 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     }
 
     @Override
-    public List<FundHistoryNav> selectLastFundHistoryNavDateByCode(String code) {
-        return fundHistoryNavMapper.selectLastFundHistoryNavDateByCode(code);
-    }
-
-    @Override
     public String selectCallbackByCode(String code) {
         List<FundEastmoneyJjjz> list = fundEastmoneyJjjzMapper.selectCallbackByCode(code);
         return list.get(0).getCallback();
