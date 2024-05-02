@@ -4,9 +4,6 @@ import cn.sichu.exception.FundTransactionException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * RestControllerAdvice = @ControllerAdvice + @ResponseBody
  *
@@ -16,11 +13,12 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = FundTransactionException.class)
-    public Map<String, Object> fundTransactionHandler(FundTransactionException e) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("code", e.getCode());
-        map.put("meesage", e.getMessage());
-        return map;
+    @ExceptionHandler(value = Exception.class)
+    public <T> Resp<T> exceptionHandler(Exception e) {
+        if (e instanceof FundTransactionException) {
+            FundTransactionException fundTransactionException = (FundTransactionException)e;
+            return Resp.error(fundTransactionException.getCode(), fundTransactionException.getMessage());
+        }
+        return Resp.error(500, e.getMessage());
     }
 }

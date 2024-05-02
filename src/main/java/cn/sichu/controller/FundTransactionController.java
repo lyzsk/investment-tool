@@ -1,5 +1,6 @@
 package cn.sichu.controller;
 
+import cn.sichu.common.Resp;
 import cn.sichu.service.IFundHistoryNavService;
 import cn.sichu.service.IFundTransactionService;
 import cn.sichu.utils.DateUtil;
@@ -29,41 +30,47 @@ public class FundTransactionController {
     IFundHistoryNavService fundHistoryNavService;
 
     @PostMapping("/purchase")
-    public void purchaseFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
-        @RequestParam("amount") String amount, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException, IOException {
-        fundTransactionService.purchaseFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(amount), tradingPlatform);
+    public Resp<String> purchaseFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
+        @RequestParam("amount") String amount, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException {
+        return fundTransactionService.purchaseFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(amount), tradingPlatform);
     }
 
     @PostMapping("/redemption")
-    public void redemptionFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
-        @RequestParam("share") String share, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException, IOException {
-        fundTransactionService.redeemFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(share), tradingPlatform);
+    public Resp<String> redemptionFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
+        @RequestParam("share") String share, @RequestParam("tradingPlatform") String tradingPlatform) throws ParseException {
+        return fundTransactionService.redeemFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(share), tradingPlatform);
     }
 
     @PostMapping("/dividend")
-    public void dividendFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
+    public Resp<String> dividendFund(@RequestParam("code") String code, @RequestParam("applicationDate") String applicationDate,
         @RequestParam("dividendAmountPerShare") String dividendAmountPerShare, @RequestParam("tradingPlatform") String tradingPlatform)
         throws ParseException {
-        fundTransactionService.dividendFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(dividendAmountPerShare), tradingPlatform);
+        return fundTransactionService.dividendFund(code, DateUtil.strToDate(applicationDate), new BigDecimal(dividendAmountPerShare),
+            tradingPlatform);
     }
 
     @Scheduled(cron = "30 0 0 * * *")
     @PostMapping("/updateStatus")
-    public void updateStatusForTransactionInTransit() throws ParseException, IOException {
+    public Resp<String> updateStatusForTransactionInTransit() {
         Date date = new Date();
-        fundTransactionService.updateStatusForTransactionInTransit(date);
-        fundTransactionService.updateHeldDaysAndUpdateDateForFundPosition(date);
+        Resp<String> resp1 = fundTransactionService.updateStatusForTransactionInTransit(date);
+        Resp<String> resp2 = fundTransactionService.updateHeldDaysAndUpdateDateForFundPosition(date);
+        if (resp1.getMsg().equals("success") && resp2.getMsg().equals("success")) {
+            return Resp.success("updateStatusForTransactionInTransit and updateHeldDaysAndUpdateDateForFundPosition success");
+        } else {
+            return Resp.error(resp1.getMsg() + "\n" + resp2.getMsg());
+        }
     }
 
     @Scheduled(cron = "0 0/15 20-23 * * *")
     @PostMapping("/updateNav")
-    public void updateNavAndShare() throws ParseException, IOException {
+    public Resp<String> updateNavAndShare() throws ParseException, IOException {
         Date date = new Date();
         List<String> codeList = fundHistoryNavService.selectAllCode();
         for (String code : codeList) {
             fundHistoryNavService.updateHistoryNavByConditions(code, date);
         }
-        fundTransactionService.dailyUpdateFundTransactionAndFundPosition();
+        return fundTransactionService.dailyUpdateFundTransactionAndFundPosition();
     }
 
 }

@@ -10,28 +10,27 @@ public class ExcelException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 3652175395071972828L;
 
-    private Integer code;
-    private String message;
+    private int code;
+    private String msg;
 
-    public ExcelException(Integer code, String message) {
+    public ExcelException(int code, String msg) {
         this.code = code;
-        this.message = message;
+        this.msg = msg;
     }
 
-    public Integer getCode() {
+    public int getCode() {
         return code;
     }
 
-    public void setCode(Integer code) {
+    public void setCode(int code) {
         this.code = code;
     }
 
-    @Override
-    public String getMessage() {
-        return message;
+    public String getMsg() {
+        return msg;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 }
