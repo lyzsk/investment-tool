@@ -1,19 +1,16 @@
-package cn.sichu.exception;
-
-import java.io.Serial;
+package cn.sichu.enums;
 
 /**
  * @author sichu huang
- * @date 2024/03/24
+ * @date 2024/05/02
  **/
-public class FundTransactionException extends RuntimeException {
-    @Serial
-    private static final long serialVersionUID = 4133294663645980698L;
+public enum AppExceptionCodeMsg {
+    FUND_TRANSACTION_EXCEPTION(999, "fund transaction exception"), EXCEL_EXPORT_EXCEPTION(998, "excel export exception");
 
     private int code;
     private String msg;
 
-    public FundTransactionException(int code, String msg) {
+    AppExceptionCodeMsg(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }

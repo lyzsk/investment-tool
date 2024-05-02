@@ -1,8 +1,8 @@
 package cn.sichu.service;
 
-import java.io.IOException;
+import cn.sichu.common.Resp;
+
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -40,10 +40,11 @@ public interface IFundTransactionService {
      * @param applicationDate 交易申请日
      * @param amount          交易金额
      * @param tradingPlatform 交易平台
+     * @return cn.sichu.common.Resp<java.lang.String>
      * @author sichu huang
      * @date 2024/03/10
      **/
-    void purchaseFund(String code, Date applicationDate, BigDecimal amount, String tradingPlatform) throws ParseException, IOException;
+    Resp<String> purchaseFund(String code, Date applicationDate, BigDecimal amount, String tradingPlatform);
 
     /**
      * <b>INSERT into `fund_transaction`</b> with:
@@ -73,10 +74,11 @@ public interface IFundTransactionService {
      * @param applicationDate 交易申请日
      * @param share           交易份额
      * @param tradingPlatform 交易平台
+     * @return cn.sichu.common.Resp<java.lang.String>
      * @author sichu huang
      * @date 2024/03/24
      **/
-    void redeemFund(String code, Date applicationDate, BigDecimal share, String tradingPlatform) throws ParseException, IOException;
+    Resp<String> redeemFund(String code, Date applicationDate, BigDecimal share, String tradingPlatform);
 
     /**
      * <b>INSERT into `fund_transaction`</b> with:
@@ -94,10 +96,11 @@ public interface IFundTransactionService {
      * @param applicationDate        交易申请日
      * @param dividendAmountPerShare 每股现金分红金额
      * @param tradingPlatform        交易平台
+     * @return cn.sichu.common.Resp<java.lang.String>
      * @author sichu huang
      * @date 2024/04/07
      **/
-    void dividendFund(String code, Date applicationDate, BigDecimal dividendAmountPerShare, String tradingPlatform);
+    Resp<String> dividendFund(String code, Date applicationDate, BigDecimal dividendAmountPerShare, String tradingPlatform);
 
     /**
      * 定时任务(20:00:00-24:00:00, 每15分钟一次), 针对每日nav更新的场景, 需要考虑系统第一次运行的情况
@@ -120,19 +123,21 @@ public interface IFundTransactionService {
      * <br/>
      * iii. if nav is updated, update 1.total_amount for all position with no mark
      *
+     * @return cn.sichu.common.Resp<java.lang.String>
      * @author sichu huang
      * @date 2024/03/16
      **/
-    void dailyUpdateFundTransactionAndFundPosition() throws ParseException, IOException;
+    Resp<String> dailyUpdateFundTransactionAndFundPosition();
 
     /**
      * 定时任务(00:00:30) 更新 `fund_position` 的 1.held_days, 2.update_date
      *
      * @param date date
+     * @return cn.sichu.common.Resp<java.lang.String>
      * @author sichu huang
      * @date 2024/03/20
      **/
-    void updateHeldDaysAndUpdateDateForFundPosition(Date date) throws ParseException;
+    Resp<String> updateHeldDaysAndUpdateDateForFundPosition(Date date);
 
     /**
      * 定时任务更新(00:00:30) `fund_transaction` 的 1.status, `fund_position` 的 1.status
@@ -143,9 +148,10 @@ public interface IFundTransactionService {
      * ii. update REDEMPTION_IN_TRANSIT status for `fund_transaction` and `fund_position`
      *
      * @param date date
+     * @return cn.sichu.common.Resp<java.lang.String>
      * @author sichu huang
      * @date 2024/03/20
      **/
-    void updateStatusForTransactionInTransit(Date date) throws ParseException, IOException;
+    Resp<String> updateStatusForTransactionInTransit(Date date);
 
 }
