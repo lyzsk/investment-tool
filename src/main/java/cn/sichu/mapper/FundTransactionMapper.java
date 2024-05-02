@@ -18,13 +18,9 @@ public interface FundTransactionMapper {
 
     List<FundTransaction> selectAllCode();
 
-    List<FundTransaction> selectAllFundTransaction();
-
     List<FundTransaction> selectAllFundTransactionInTransit(@Param("status1") Integer status1, @Param("status2") Integer status2);
 
     List<FundTransaction> selectAllPurchaseTransactionWithNullNavAndShare(@Param("type") Integer type);
-
-    List<FundTransaction> selectAllFundTransactionWithNullNavAndFeeAndAmountForRedemptionType();
 
     List<FundTransaction> selectAllRedemptionFundTransactionWithNullAmountAndFeeAndNav(@Param("code") String code,
         @Param("redemptionDate") Date redemptionDate, @Param("type") Integer type);

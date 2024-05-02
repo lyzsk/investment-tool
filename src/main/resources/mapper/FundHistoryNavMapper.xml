@@ -31,33 +31,4 @@
         </where>
     </select>
 
-    <select id="selectLastFundHistoryNavDateByCode" resultType="cn.sichu.entity.FundHistoryNav"
-            resultMap="resultMap">
-        select code, nav_date, nav
-        from fund_history_nav
-        <where>
-            <if test="code != null and code != ''">and code = #{code}</if>
-        </where>
-        order by nav_date desc
-        limit 1
-    </select>
-
-    <select id="selectLastFundHistoryNavDateAndNav" resultType="cn.sichu.entity.FundHistoryNav" resultMap="resultMap">
-        select t1.code, t2.nav_date, t1.nav
-        from fund_history_nav t1
-        inner join
-        (
-        select code, max(nav_date) as nav_date
-        from fund_history_nav
-        group by code
-        order by nav_date
-        ) t2
-        on t1.code = t2.code and t1.nav_date = t2.nav_date
-    </select>
-
-    <select id="selectAllCode" resultType="java.lang.String" resultMap="resultMap">
-        select distinct code
-        from fund_history_nav
-    </select>
-
 </mapper>

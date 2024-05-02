@@ -5,7 +5,6 @@ import cn.sichu.entity.FundTransaction;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,8 +15,6 @@ import java.util.List;
 public interface FundPositionMapper {
 
     void insertFundPosition(FundPosition fundPosition);
-
-    void deleteFundPosition(Long id);
 
     List<FundPosition> selectAllFundPositionByStatus(@Param("status") Integer status);
 
@@ -32,9 +29,6 @@ public interface FundPositionMapper {
     List<FundPosition> selectFundPositionByCodeAndAfterTransactionDate(FundPosition fundPosition);
 
     List<FundPosition> selectLastFundPosition(FundPosition fundPosition);
-
-    List<FundPosition> selectAllFundPositionByConditionsOrderByTransactionDate(@Param("code") String code, @Param("heldDays") Integer heldDays,
-        @Param("endDate") Date endDate);
 
     List<FundPosition> selectFundPositionByPurchaseTransaction(FundTransaction transaction);
 

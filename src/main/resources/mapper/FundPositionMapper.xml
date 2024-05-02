@@ -38,11 +38,6 @@
         )
     </insert>
 
-    <delete id="deleteFundPosition">
-        delete from fund_position
-        where id = #{id}
-    </delete>
-
     <select id="selectAllFundPositionByStatus" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
         code, transaction_date, initiation_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee,
@@ -106,14 +101,6 @@
         </where>
         ) temp
         where rn = 1
-    </select>
-
-    <select id="selectAllFundPositionByConditionsOrderByTransactionDate" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
-        select
-        id, code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, held_share, held_days, update_date
-        from fund_position
-        where code = #{code} and held_days <![CDATA[<=]]> #{heldDays} and initiation_date <![CDATA[<=]]> #{endDate}
-        order by transaction_date asc
     </select>
 
     <select id="selectFundPositionWithMaxHeldShareByConditions" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
