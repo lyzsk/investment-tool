@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds">
     <!-- 日志存放路径 -->
-    <property name="logPath" value="${basedir}/logs"/>
+    <property name="logPath" value="logs/logs"/>
     <!--  日志输出格式  -->
     <property name="logPattern"
               value="$d{HH:mm:ss.SSS} [%thread] %-5level %logger{20} - %[%method, %line] - %msg%n"/>
@@ -168,32 +168,27 @@
         </filter>
     </appender>
 
-    <logger name="org.springframework.web" level="info"/>
-    <logger name="org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor"
-            level="INFO"/>
+    <logger name="cn.sichu" level="trace"/>
 
     <!-- 3. 最终的策略 -->
     <!-- 3.1 开发环境: 打印控制台-->
-    <springProfile name="dev">
-        <logger name="cn.sichu" level="debug"/><!-- 修改此处扫描包名 -->
-    </springProfile>
-
     <root level="info">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="DEBUG_FILE"/>
-        <!--        <appender-ref ref="INFO_FILE"/>-->
-        <!--        <appender-ref ref="WARN_FILE"/>-->
-        <!--        <appender-ref ref="ERROR_FILE"/>-->
-    </root>
-
-    <!-- 3.2 生产环境: 输出到文档-->
-    <springProfile name="prod">
-        <root level="info">
+        <springProfile name="dev">
+            <logger name="cn.sichu" level="debug"/><!-- 修改此处扫描包名 -->
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="DEBUG_FILE"/>
+            <!--        <appender-ref ref="INFO_FILE"/>-->
+            <!--        <appender-ref ref="WARN_FILE"/>-->
+            <!--        <appender-ref ref="ERROR_FILE"/>-->
+        </springProfile>
+        <!-- 3.2 生产环境: 输出到文档-->
+        <springProfile name="prod">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="DEBUG_FILE"/>
             <appender-ref ref="INFO_FILE"/>
             <appender-ref ref="ERROR_FILE"/>
             <appender-ref ref="WARN_FILE"/>
-        </root>
-    </springProfile>
+        </springProfile>
+    </root>
+
 </configuration>

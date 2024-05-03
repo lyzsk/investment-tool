@@ -23,6 +23,11 @@ public class ExportExcelController {
     @GetMapping("/export")
     @LogAnnotation(module = "ExportExcelController", operation = "exportInvestmentExcel")
     public Resp<String> exportInvestmentExcel(HttpServletResponse response) {
-        return exportExcelService.exportInvestmentExcel(response);
+        try {
+            exportExcelService.exportInvestmentExcel(response);
+            return Resp.success("export excel success!");
+        } catch (Exception e) {
+            return Resp.error(e.getMessage());
+        }
     }
 }
