@@ -26,6 +26,5 @@
 
 **/*.iml
 
-**/logs/*.log
-/logs/*.log
-/logs/logs/*.log
+/logs/*
+/logs/logs/*
