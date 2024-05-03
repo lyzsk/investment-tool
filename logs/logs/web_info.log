@@ -1,0 +1,558 @@
+2024-05-03 19:28:56.560 [main] INFO  cn.sichu.Application
+                - Starting Application using Java 17.0.10 with PID 187268 (C:\Users\sichu\dev\investment-tool\target\investment-tool-1.1.3.jar started by sichu in C:\Users\sichu\dev\investment-tool)
+2024-05-03 19:28:56.565 [main] INFO  cn.sichu.Application
+                - The following 1 profile is active: "prod"
+2024-05-03 19:28:59.567 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat initialized with port 8888 (http)
+2024-05-03 19:28:59.583 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Initializing ProtocolHandler ["http-nio-8888"]
+2024-05-03 19:28:59.586 [main] INFO  org.apache.catalina.core.StandardService
+                - Starting service [Tomcat]
+2024-05-03 19:28:59.619 [main] INFO  org.apache.catalina.core.StandardEngine
+                - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-05-03 19:29:00.328 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring embedded WebApplicationContext
+2024-05-03 19:29:00.329 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext
+                - Root WebApplicationContext: initialization completed in 3244 ms
+2024-05-03 19:29:01.990 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Starting ProtocolHandler ["http-nio-8888"]
+2024-05-03 19:29:02.147 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat started on port 8888 (http) with context path ''
+2024-05-03 19:29:02.356 [main] INFO  cn.sichu.Application
+                - Started Application in 7.082 seconds (process running for 9.82)
+2024-05-03 19:30:11.270 [http-nio-8888-exec-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-05-03 19:30:11.271 [http-nio-8888-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet
+                - Initializing Servlet 'dispatcherServlet'
+2024-05-03 19:30:11.273 [http-nio-8888-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet
+                - Completed initialization in 1 ms
+2024-05-03 19:30:12.001 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Starting...
+2024-05-03 19:30:12.252 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.pool.HikariPool
+                - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@42a4b0b6
+2024-05-03 19:30:12.255 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Start completed.
+2024-05-03 19:30:12.833 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:30:12.834 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:30:12.835 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - operation: purchaseFund
+2024-05-03 19:30:12.837 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.purchaseFund
+2024-05-03 19:30:12.837 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 1504 ms
+2024-05-03 19:30:12.838 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:30:19.077 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:30:19.077 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:30:19.078 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - operation: redemptionFund
+2024-05-03 19:30:19.078 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.redemptionFund
+2024-05-03 19:30:19.079 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - excution time: 563 ms
+2024-05-03 19:30:19.079 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:31:17.308 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:31:17.309 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:31:17.310 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - operation: purchaseFund
+2024-05-03 19:31:17.310 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.purchaseFund
+2024-05-03 19:31:17.311 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - excution time: 602 ms
+2024-05-03 19:31:17.311 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:31:35.478 [http-nio-8888-exec-5] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:31:35.479 [http-nio-8888-exec-5] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:31:35.479 [http-nio-8888-exec-5] INFO  cn.sichu.common.LogAspect
+                - operation: redemptionFund
+2024-05-03 19:31:35.480 [http-nio-8888-exec-5] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.redemptionFund
+2024-05-03 19:31:35.481 [http-nio-8888-exec-5] INFO  cn.sichu.common.LogAspect
+                - excution time: 544 ms
+2024-05-03 19:31:35.481 [http-nio-8888-exec-5] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:32:24.659 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:32:24.659 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:32:24.659 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - operation: purchaseFund
+2024-05-03 19:32:24.660 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.purchaseFund
+2024-05-03 19:32:24.663 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - excution time: 414 ms
+2024-05-03 19:32:24.663 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:32:36.972 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:32:36.974 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:32:36.974 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - operation: purchaseFund
+2024-05-03 19:32:36.976 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.purchaseFund
+2024-05-03 19:32:36.977 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - excution time: 372 ms
+2024-05-03 19:32:36.978 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:32:46.499 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:32:46.499 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:32:46.500 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - operation: purchaseFund
+2024-05-03 19:32:46.500 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.purchaseFund
+2024-05-03 19:32:46.501 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - excution time: 346 ms
+2024-05-03 19:32:46.502 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:32:51.830 [http-nio-8888-exec-9] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:32:51.832 [http-nio-8888-exec-9] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:32:51.835 [http-nio-8888-exec-9] INFO  cn.sichu.common.LogAspect
+                - operation: purchaseFund
+2024-05-03 19:32:51.836 [http-nio-8888-exec-9] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.purchaseFund
+2024-05-03 19:32:51.836 [http-nio-8888-exec-9] INFO  cn.sichu.common.LogAspect
+                - excution time: 361 ms
+2024-05-03 19:32:51.837 [http-nio-8888-exec-9] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:33:00.339 [http-nio-8888-exec-10] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:33:00.339 [http-nio-8888-exec-10] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:33:00.340 [http-nio-8888-exec-10] INFO  cn.sichu.common.LogAspect
+                - operation: purchaseFund
+2024-05-03 19:33:00.343 [http-nio-8888-exec-10] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.purchaseFund
+2024-05-03 19:33:00.344 [http-nio-8888-exec-10] INFO  cn.sichu.common.LogAspect
+                - excution time: 543 ms
+2024-05-03 19:33:00.345 [http-nio-8888-exec-10] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:33:04.430 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:33:04.431 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:33:04.431 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - operation: purchaseFund
+2024-05-03 19:33:04.433 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.purchaseFund
+2024-05-03 19:33:04.436 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - excution time: 242 ms
+2024-05-03 19:33:04.436 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:33:14.801 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:33:14.801 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:33:14.801 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - operation: purchaseFund
+2024-05-03 19:33:14.802 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.purchaseFund
+2024-05-03 19:33:14.803 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 557 ms
+2024-05-03 19:33:14.803 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:33:19.951 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:33:19.951 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 19:33:19.952 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - operation: purchaseFund
+2024-05-03 19:33:19.953 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.purchaseFund
+2024-05-03 19:33:19.953 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - excution time: 314 ms
+2024-05-03 19:33:19.954 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:34:06.052 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:34:06.052 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - module: ExportExcelController
+2024-05-03 19:34:06.052 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - operation: exportInvestmentExcel
+2024-05-03 19:34:06.053 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.ExportExcelController.exportInvestmentExcel
+2024-05-03 19:34:06.053 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - excution time: 1221 ms
+2024-05-03 19:34:06.054 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:34:38.210 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:34:38.210 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - module: ExportExcelController
+2024-05-03 19:34:38.211 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - operation: exportInvestmentExcel
+2024-05-03 19:34:38.211 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.ExportExcelController.exportInvestmentExcel
+2024-05-03 19:34:38.212 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - excution time: 303 ms
+2024-05-03 19:34:38.216 [http-nio-8888-exec-8] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:37:53.562 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 19:37:53.563 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - module: ExportExcelController
+2024-05-03 19:37:53.563 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - operation: exportInvestmentExcel
+2024-05-03 19:37:53.563 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.ExportExcelController.exportInvestmentExcel
+2024-05-03 19:37:53.564 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - excution time: 284 ms
+2024-05-03 19:37:53.564 [http-nio-8888-exec-3] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 19:41:52.391 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown initiated...
+2024-05-03 19:41:52.415 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown completed.
+2024-05-03 19:42:50.806 [main] INFO  cn.sichu.Application
+                - Starting Application using Java 17.0.10 with PID 86980 (C:\Users\sichu\dev\investment-tool\target\investment-tool-1.1.3.jar started by sichu in C:\Users\sichu\dev\investment-tool)
+2024-05-03 19:42:50.813 [main] INFO  cn.sichu.Application
+                - The following 1 profile is active: "prod"
+2024-05-03 19:42:53.676 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat initialized with port 8888 (http)
+2024-05-03 19:42:53.686 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Initializing ProtocolHandler ["http-nio-8888"]
+2024-05-03 19:42:53.688 [main] INFO  org.apache.catalina.core.StandardService
+                - Starting service [Tomcat]
+2024-05-03 19:42:53.689 [main] INFO  org.apache.catalina.core.StandardEngine
+                - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-05-03 19:42:54.307 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring embedded WebApplicationContext
+2024-05-03 19:42:54.308 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext
+                - Root WebApplicationContext: initialization completed in 2980 ms
+2024-05-03 19:42:56.006 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Starting ProtocolHandler ["http-nio-8888"]
+2024-05-03 19:42:56.166 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat started on port 8888 (http) with context path ''
+2024-05-03 19:42:56.387 [main] INFO  cn.sichu.Application
+                - Started Application in 6.79 seconds (process running for 9.491)
+2024-05-03 20:00:00.083 [scheduling-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Starting...
+2024-05-03 20:00:00.513 [scheduling-1] INFO  com.zaxxer.hikari.pool.HikariPool
+                - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7fb46983
+2024-05-03 20:00:00.517 [scheduling-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Start completed.
+2024-05-03 20:00:00.729 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 20:00:00.729 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 20:00:00.730 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - operation: updateNavAndShare
+2024-05-03 20:00:00.730 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.updateNavAndShare
+2024-05-03 20:00:00.730 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 675 ms
+2024-05-03 20:00:00.730 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 20:15:00.027 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 20:15:00.028 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 20:15:00.028 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - operation: updateNavAndShare
+2024-05-03 20:15:00.028 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.updateNavAndShare
+2024-05-03 20:15:00.028 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 20 ms
+2024-05-03 20:15:00.028 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 20:30:00.048 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 20:30:00.056 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 20:30:00.057 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - operation: updateNavAndShare
+2024-05-03 20:30:00.059 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.updateNavAndShare
+2024-05-03 20:30:00.060 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 39 ms
+2024-05-03 20:30:00.062 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 20:45:00.010 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 20:45:00.011 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 20:45:00.030 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - operation: updateNavAndShare
+2024-05-03 20:45:00.033 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.updateNavAndShare
+2024-05-03 20:45:00.033 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 7 ms
+2024-05-03 20:45:00.035 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 21:00:00.051 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 21:00:00.052 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 21:00:00.054 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - operation: updateNavAndShare
+2024-05-03 21:00:00.056 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.updateNavAndShare
+2024-05-03 21:00:00.057 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 41 ms
+2024-05-03 21:00:00.058 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 21:15:00.023 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 21:15:00.024 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 21:15:00.035 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - operation: updateNavAndShare
+2024-05-03 21:15:00.038 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.updateNavAndShare
+2024-05-03 21:15:00.040 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 8 ms
+2024-05-03 21:15:00.040 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 21:30:00.055 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 21:30:00.057 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 21:30:00.059 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - operation: updateNavAndShare
+2024-05-03 21:30:00.059 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.updateNavAndShare
+2024-05-03 21:30:00.060 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 46 ms
+2024-05-03 21:30:00.061 [scheduling-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 21:38:57.624 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown initiated...
+2024-05-03 21:38:57.640 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown completed.
+2024-05-03 21:39:27.230 [main] INFO  cn.sichu.Application
+                - Starting Application using Java 17.0.10 with PID 21528 (C:\Users\sichu\dev\investment-tool\target\classes started by sichu in C:\Users\sichu\dev\investment-tool)
+2024-05-03 21:39:27.234 [main] INFO  cn.sichu.Application
+                - The following 1 profile is active: "prod"
+2024-05-03 21:39:29.778 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat initialized with port 8888 (http)
+2024-05-03 21:39:29.795 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Initializing ProtocolHandler ["http-nio-8888"]
+2024-05-03 21:39:29.799 [main] INFO  org.apache.catalina.core.StandardService
+                - Starting service [Tomcat]
+2024-05-03 21:39:29.799 [main] INFO  org.apache.catalina.core.StandardEngine
+                - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-05-03 21:39:30.641 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring embedded WebApplicationContext
+2024-05-03 21:39:30.642 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext
+                - Root WebApplicationContext: initialization completed in 3328 ms
+2024-05-03 21:39:32.259 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Starting ProtocolHandler ["http-nio-8888"]
+2024-05-03 21:39:32.422 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat started on port 8888 (http) with context path ''
+2024-05-03 21:39:32.445 [main] INFO  cn.sichu.Application
+                - Started Application in 5.997 seconds (process running for 14.941)
+2024-05-03 21:39:37.359 [http-nio-8888-exec-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-05-03 21:39:37.360 [http-nio-8888-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet
+                - Initializing Servlet 'dispatcherServlet'
+2024-05-03 21:39:37.361 [http-nio-8888-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet
+                - Completed initialization in 1 ms
+2024-05-03 21:39:38.088 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Starting...
+2024-05-03 21:39:38.543 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.pool.HikariPool
+                - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1e60474b
+2024-05-03 21:39:38.545 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Start completed.
+2024-05-03 21:39:59.492 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown initiated...
+2024-05-03 21:39:59.502 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown completed.
+2024-05-03 21:40:33.025 [main] INFO  cn.sichu.Application
+                - Starting Application using Java 17.0.10 with PID 194776 (C:\Users\sichu\dev\investment-tool\target\classes started by sichu in C:\Users\sichu\dev\investment-tool)
+2024-05-03 21:40:33.029 [main] INFO  cn.sichu.Application
+                - The following 1 profile is active: "prod"
+2024-05-03 21:40:35.604 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat initialized with port 8888 (http)
+2024-05-03 21:40:35.616 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Initializing ProtocolHandler ["http-nio-8888"]
+2024-05-03 21:40:35.619 [main] INFO  org.apache.catalina.core.StandardService
+                - Starting service [Tomcat]
+2024-05-03 21:40:35.619 [main] INFO  org.apache.catalina.core.StandardEngine
+                - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-05-03 21:40:36.570 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring embedded WebApplicationContext
+2024-05-03 21:40:36.571 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext
+                - Root WebApplicationContext: initialization completed in 3450 ms
+2024-05-03 21:40:37.804 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Starting ProtocolHandler ["http-nio-8888"]
+2024-05-03 21:40:37.961 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat started on port 8888 (http) with context path ''
+2024-05-03 21:40:37.979 [main] INFO  cn.sichu.Application
+                - Started Application in 5.964 seconds (process running for 14.421)
+2024-05-03 21:40:51.111 [http-nio-8888-exec-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-05-03 21:40:51.111 [http-nio-8888-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet
+                - Initializing Servlet 'dispatcherServlet'
+2024-05-03 21:40:51.112 [http-nio-8888-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet
+                - Completed initialization in 1 ms
+2024-05-03 21:40:51.789 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Starting...
+2024-05-03 21:40:52.197 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.pool.HikariPool
+                - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@787030b5
+2024-05-03 21:40:52.200 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Start completed.
+2024-05-03 21:41:14.314 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown initiated...
+2024-05-03 21:41:14.322 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown completed.
+2024-05-03 21:45:11.411 [main] INFO  cn.sichu.Application
+                - Starting Application using Java 17.0.10 with PID 192028 (C:\Users\sichu\dev\investment-tool\target\classes started by sichu in C:\Users\sichu\dev\investment-tool)
+2024-05-03 21:45:11.415 [main] INFO  cn.sichu.Application
+                - The following 1 profile is active: "prod"
+2024-05-03 21:45:13.261 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat initialized with port 8888 (http)
+2024-05-03 21:45:13.275 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Initializing ProtocolHandler ["http-nio-8888"]
+2024-05-03 21:45:13.277 [main] INFO  org.apache.catalina.core.StandardService
+                - Starting service [Tomcat]
+2024-05-03 21:45:13.278 [main] INFO  org.apache.catalina.core.StandardEngine
+                - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-05-03 21:45:13.401 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring embedded WebApplicationContext
+2024-05-03 21:45:13.402 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext
+                - Root WebApplicationContext: initialization completed in 1916 ms
+2024-05-03 21:45:15.345 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Starting ProtocolHandler ["http-nio-8888"]
+2024-05-03 21:45:15.426 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat started on port 8888 (http) with context path ''
+2024-05-03 21:45:15.454 [main] INFO  cn.sichu.Application
+                - Started Application in 4.745 seconds (process running for 12.973)
+2024-05-03 21:45:18.457 [http-nio-8888-exec-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-05-03 21:45:18.457 [http-nio-8888-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet
+                - Initializing Servlet 'dispatcherServlet'
+2024-05-03 21:45:18.458 [http-nio-8888-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet
+                - Completed initialization in 1 ms
+2024-05-03 21:45:19.115 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Starting...
+2024-05-03 21:45:19.464 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.pool.HikariPool
+                - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@22f2e479
+2024-05-03 21:45:19.466 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Start completed.
+2024-05-03 21:45:19.994 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 21:45:19.995 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - module: ExportExcelController
+2024-05-03 21:45:19.995 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - operation: exportInvestmentExcel
+2024-05-03 21:45:19.995 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.ExportExcelController.exportInvestmentExcel
+2024-05-03 21:45:19.995 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 1489 ms
+2024-05-03 21:45:19.995 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 21:45:20.308 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 21:45:20.308 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - module: ExportExcelController
+2024-05-03 21:45:20.308 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - operation: exportInvestmentExcel
+2024-05-03 21:45:20.308 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.ExportExcelController.exportInvestmentExcel
+2024-05-03 21:45:20.308 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - excution time: 222 ms
+2024-05-03 21:45:20.308 [http-nio-8888-exec-2] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 21:48:38.183 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown initiated...
+2024-05-03 21:48:38.191 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown completed.
+2024-05-03 21:48:56.849 [main] INFO  cn.sichu.Application
+                - Starting Application using Java 17.0.10 with PID 205056 (C:\Users\sichu\dev\investment-tool\target\classes started by sichu in C:\Users\sichu\dev\investment-tool)
+2024-05-03 21:48:56.852 [main] INFO  cn.sichu.Application
+                - The following 1 profile is active: "prod"
+2024-05-03 21:48:58.908 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat initialized with port 8888 (http)
+2024-05-03 21:48:58.921 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Initializing ProtocolHandler ["http-nio-8888"]
+2024-05-03 21:48:58.924 [main] INFO  org.apache.catalina.core.StandardService
+                - Starting service [Tomcat]
+2024-05-03 21:48:58.924 [main] INFO  org.apache.catalina.core.StandardEngine
+                - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-05-03 21:48:59.788 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring embedded WebApplicationContext
+2024-05-03 21:48:59.788 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext
+                - Root WebApplicationContext: initialization completed in 2875 ms
+2024-05-03 21:49:01.565 [main] INFO  org.apache.coyote.http11.Http11NioProtocol
+                - Starting ProtocolHandler ["http-nio-8888"]
+2024-05-03 21:49:01.775 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer
+                - Tomcat started on port 8888 (http) with context path ''
+2024-05-03 21:49:01.802 [main] INFO  cn.sichu.Application
+                - Started Application in 5.591 seconds (process running for 13.695)
+2024-05-03 21:49:21.930 [http-nio-8888-exec-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/]
+                - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-05-03 21:49:21.931 [http-nio-8888-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet
+                - Initializing Servlet 'dispatcherServlet'
+2024-05-03 21:49:21.932 [http-nio-8888-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet
+                - Completed initialization in 1 ms
+2024-05-03 21:49:22.624 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Starting...
+2024-05-03 21:49:22.996 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.pool.HikariPool
+                - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3cf18561
+2024-05-03 21:49:22.998 [http-nio-8888-exec-1] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Start completed.
+2024-05-03 21:53:51.355 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 21:53:51.357 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - module: ExportExcelController
+2024-05-03 21:53:51.357 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - operation: exportInvestmentExcel
+2024-05-03 21:53:51.358 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.ExportExcelController.exportInvestmentExcel
+2024-05-03 21:53:51.358 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - excution time: 269359 ms
+2024-05-03 21:53:51.358 [http-nio-8888-exec-1] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 21:57:11.755 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 21:57:11.755 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - module: ExportExcelController
+2024-05-03 21:57:11.755 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - operation: exportInvestmentExcel
+2024-05-03 21:57:11.755 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.ExportExcelController.exportInvestmentExcel
+2024-05-03 21:57:11.755 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - excution time: 193983 ms
+2024-05-03 21:57:11.755 [http-nio-8888-exec-4] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 21:57:27.288 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 21:57:27.288 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - module: FundTransactionController
+2024-05-03 21:57:27.288 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - operation: updateStatusForTransactionInTransit
+2024-05-03 21:57:27.288 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.FundTransactionController.updateStatusForTransactionInTransit
+2024-05-03 21:57:27.289 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - excution time: 132 ms
+2024-05-03 21:57:27.289 [http-nio-8888-exec-7] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 21:57:42.300 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - ====================log start====================
+2024-05-03 21:57:42.300 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - module: ExportExcelController
+2024-05-03 21:57:42.300 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - operation: exportInvestmentExcel
+2024-05-03 21:57:42.300 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - request method: cn.sichu.controller.ExportExcelController.exportInvestmentExcel
+2024-05-03 21:57:42.300 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - excution time: 2730 ms
+2024-05-03 21:57:42.300 [http-nio-8888-exec-6] INFO  cn.sichu.common.LogAspect
+                - ====================log end====================
+2024-05-03 21:59:03.491 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown initiated...
+2024-05-03 21:59:03.499 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource
+                - HikariPool-1 - Shutdown completed.

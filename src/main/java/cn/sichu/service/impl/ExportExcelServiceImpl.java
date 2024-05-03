@@ -216,6 +216,10 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             Date endDate = fundPosition.getRedemptionDate();
             sheet.setRedemptionTransactionDate(endDate == null ? "" : DateUtil.dateToStr(endDate));
             Integer heldDays = fundPosition.getHeldDays();
+            if (heldDays == 0) {
+                throw new ExcelException(AppExceptionCodeMsg.EXCEL_EXPORT_EXCEPTION.getCode(),
+                    "please update status first before exporting excel, because held days can't be 0");
+            }
             sheet.setHeldDays(String.valueOf(heldDays));
             BigDecimal totalPrincipalAmount = fundPosition.getTotalPrincipalAmount();
             sheet.setTotalPrincipalAmount(String.valueOf(totalPrincipalAmount));

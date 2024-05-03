@@ -1,0 +1,73 @@
+2024-05-03 19:30:12.009 [http-nio-8888-exec-1] WARN  com.zaxxer.hikari.util.DriverDataSource
+                - Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.
+2024-05-03 20:00:00.094 [scheduling-1] WARN  com.zaxxer.hikari.util.DriverDataSource
+                - Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.
+2024-05-03 21:39:38.094 [http-nio-8888-exec-1] WARN  com.zaxxer.hikari.util.DriverDataSource
+                - Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.
+2024-05-03 21:40:51.795 [http-nio-8888-exec-1] WARN  com.zaxxer.hikari.util.DriverDataSource
+                - Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.
+2024-05-03 21:45:19.121 [http-nio-8888-exec-1] WARN  com.zaxxer.hikari.util.DriverDataSource
+                - Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.
+2024-05-03 21:49:22.630 [http-nio-8888-exec-1] WARN  com.zaxxer.hikari.util.DriverDataSource
+                - Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.
+2024-05-03 21:50:22.536 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool
+                - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=59s435ms719µs100ns).
+2024-05-03 21:53:51.353 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool
+                - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=46s393ms820µs).
+2024-05-03 21:57:42.304 [http-nio-8888-exec-6] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver
+                - Failure in @ExceptionHandler cn.sichu.common.GlobalExceptionHandler#exceptionHandler(Exception)
+org.springframework.http.converter.HttpMessageNotWritableException: No converter for [class cn.sichu.common.Resp] with preset Content-Type 'application/vnd.ms-excel;charset=utf-8'
+	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor.writeWithMessageConverters(AbstractMessageConverterMethodProcessor.java:319)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.handleReturnValue(RequestResponseBodyMethodProcessor.java:190)
+	at org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:78)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver.doResolveHandlerMethodException(ExceptionHandlerExceptionResolver.java:432)
+	at org.springframework.web.servlet.handler.AbstractHandlerMethodExceptionResolver.doResolveException(AbstractHandlerMethodExceptionResolver.java:74)
+	at org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver.resolveException(AbstractHandlerExceptionResolver.java:175)
+	at org.springframework.web.servlet.handler.HandlerExceptionResolverComposite.resolveException(HandlerExceptionResolverComposite.java:80)
+	at org.springframework.web.servlet.DispatcherServlet.processHandlerException(DispatcherServlet.java:1357)
+	at org.springframework.web.servlet.DispatcherServlet.processDispatchResult(DispatcherServlet.java:1160)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1106)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+2024-05-03 21:57:42.310 [http-nio-8888-exec-6] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver
+                - Ignoring exception, response committed already: org.springframework.http.converter.HttpMessageNotWritableException: No converter for [class cn.sichu.common.Resp] with preset Content-Type 'application/vnd.ms-excel;charset=utf-8'
+2024-05-03 21:57:42.311 [http-nio-8888-exec-6] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver
+                - Resolved [org.springframework.http.converter.HttpMessageNotWritableException: No converter for [class cn.sichu.common.Resp] with preset Content-Type 'application/vnd.ms-excel;charset=utf-8']
