@@ -12,4 +12,4 @@ logging:
     cn.sichu: debug
     org.springframework.boot.autoconfigure: warn
   config:
-    classpath: logback-application.xml
+    classpath: logback-spring.xml

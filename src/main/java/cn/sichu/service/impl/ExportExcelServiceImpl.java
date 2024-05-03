@@ -1,6 +1,5 @@
 package cn.sichu.service.impl;
 
-import cn.sichu.common.Resp;
 import cn.sichu.domain.FundTransactionReportSheet;
 import cn.sichu.domain.FundTransactionStatementSheet;
 import cn.sichu.domain.GoldTransactionStatementSheet;
@@ -28,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -50,56 +50,49 @@ public class ExportExcelServiceImpl implements IExportExcelService {
     FundTransactionReportSheetMapper fundTransactionReportSheetMapper;
 
     @Override
-    public Resp<String> exportInvestmentExcel(HttpServletResponse response) {
-        try {
-            response.setContentType("application/vnd.ms-excel; charset=UTF-8");
-            response.setCharacterEncoding("utf-8");
-            LocalDateTime localDateTime = LocalDateTime.now();
-            String currentDateTime = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            String fileName = URLEncoder.encode("-investment", StandardCharsets.UTF_8);
-            response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + currentDateTime + fileName + ".xlsx");
-            /* 配置template路径 */
-            String templatePath = "templates/";
-            String template = "investment-template.xlsx";
-            ClassPathResource classPathResource = new ClassPathResource(templatePath + template);
-            InputStream inputStream = classPathResource.getInputStream();
-            /* 根据template创建需要导出的工作表, 以及设置工作簿 */
-            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
-            workbook.setSheetName(0, "Fund Transaction Statement");
-            workbook.setSheetName(1, "Fund Transaction Report");
-            workbook.setSheetName(2, "Gold Transaction Statement");
-            /* 对list数据(一对多关系)进行处理 */
-            List<FundTransaction> transactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
-            List<FundTransactionStatementSheet> fundTransactionStatementDataList = handleFundTransactionStatementSheetData(transactionList);
-            List<FundPosition> positionList = fundTransactionReportSheetMapper.selectAllFundPosition();
-            List<FundTransactionReportSheet> fundTransactionReportDataList = new ArrayList<>();
-            Map<String, String> fundTransactionReportDataMap = new HashMap<>();
-            handleFundTransactionReportSheetData(positionList, fundTransactionReportDataList, fundTransactionReportDataMap);
-            List<GoldTransactionStatementSheet> goldTransactionStatementSheetDataList = new ArrayList<>();
+    public void exportInvestmentExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.ms-excel; charset=UTF-8");
+        response.setCharacterEncoding("utf-8");
+        LocalDateTime localDateTime = LocalDateTime.now();
+        String currentDateTime = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String fileName = URLEncoder.encode("-investment", StandardCharsets.UTF_8);
+        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + currentDateTime + fileName + ".xlsx");
+        /* 配置template路径 */
+        String templatePath = "templates/";
+        String template = "investment-template.xlsx";
+        ClassPathResource classPathResource = new ClassPathResource(templatePath + template);
+        InputStream inputStream = classPathResource.getInputStream();
+        /* 根据template创建需要导出的工作表, 以及设置工作簿 */
+        XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+        workbook.setSheetName(0, "Fund Transaction Statement");
+        workbook.setSheetName(1, "Fund Transaction Report");
+        workbook.setSheetName(2, "Gold Transaction Statement");
+        /* 对list数据(一对多关系)进行处理 */
+        List<FundTransaction> transactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
+        List<FundTransactionStatementSheet> fundTransactionStatementDataList = handleFundTransactionStatementSheetData(transactionList);
+        List<FundPosition> positionList = fundTransactionReportSheetMapper.selectAllFundPosition();
+        List<FundTransactionReportSheet> fundTransactionReportDataList = new ArrayList<>();
+        Map<String, String> fundTransactionReportDataMap = new HashMap<>();
+        handleFundTransactionReportSheetData(positionList, fundTransactionReportDataList, fundTransactionReportDataMap);
+        List<GoldTransactionStatementSheet> goldTransactionStatementSheetDataList = new ArrayList<>();
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            workbook.write(outputStream);
-            byte[] bytes = outputStream.toByteArray();
-            inputStream = new ByteArrayInputStream(bytes);
-            ExcelWriter writer = EasyExcel.write(response.getOutputStream()).withTemplate(inputStream).build();
-            WriteSheet fundTransactionStatementWriteSheet = EasyExcel.writerSheet("Fund Transaction Statement").build();
-            WriteSheet fundTransactionReportWriteSheet = EasyExcel.writerSheet("Fund Transaction Report").build();
-            WriteSheet goldTransactionStatementWriteSheet = EasyExcel.writerSheet("Gold Transaction Statement").build();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        byte[] bytes = outputStream.toByteArray();
+        inputStream = new ByteArrayInputStream(bytes);
+        ExcelWriter writer = EasyExcel.write(response.getOutputStream()).withTemplate(inputStream).build();
+        WriteSheet fundTransactionStatementWriteSheet = EasyExcel.writerSheet("Fund Transaction Statement").build();
+        WriteSheet fundTransactionReportWriteSheet = EasyExcel.writerSheet("Fund Transaction Report").build();
+        WriteSheet goldTransactionStatementWriteSheet = EasyExcel.writerSheet("Gold Transaction Statement").build();
 
-            FillConfig fillConfig = FillConfig.builder().forceNewRow(true).direction(WriteDirectionEnum.VERTICAL).build();
-            writer.fill(fundTransactionStatementDataList, fillConfig, fundTransactionStatementWriteSheet);
-            writer.fill(fundTransactionReportDataList, fillConfig, fundTransactionReportWriteSheet);
-            writer.fill(fundTransactionReportDataMap, fillConfig, fundTransactionReportWriteSheet);
-            writer.fill(goldTransactionStatementSheetDataList, fillConfig, goldTransactionStatementWriteSheet);
+        FillConfig fillConfig = FillConfig.builder().forceNewRow(true).direction(WriteDirectionEnum.VERTICAL).build();
+        writer.fill(fundTransactionStatementDataList, fillConfig, fundTransactionStatementWriteSheet);
+        writer.fill(fundTransactionReportDataList, fillConfig, fundTransactionReportWriteSheet);
+        writer.fill(fundTransactionReportDataMap, fillConfig, fundTransactionReportWriteSheet);
+        writer.fill(goldTransactionStatementSheetDataList, fillConfig, goldTransactionStatementWriteSheet);
 
-            inputStream.close();
-            writer.finish();
-            return Resp.success("export excel success!");
-        } catch (ExcelException e) {
-            return Resp.error(e.getCode(), e.getMessage());
-        } catch (Exception e) {
-            return Resp.error(e.getMessage());
-        }
+        inputStream.close();
+        writer.finish();
     }
 
     /**
