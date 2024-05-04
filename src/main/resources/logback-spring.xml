@@ -42,7 +42,7 @@
     <appender name="DEBUG_FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 正在记录的日志文档的路径及文档名 -->
-        <file>${logPath}/web_debug.log</file>
+        <file>${logPath}/log_debug.log</file>
         <!--日志文档输出格式-->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}
@@ -54,7 +54,7 @@
         <rollingPolicy
                 class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 日志归档 -->
-            <fileNamePattern>${logPath}/web-debug-%d{yyyy-MM-dd}.%i.log
+            <fileNamePattern>${logPath}/log-debug-%d{yyyy.MM.dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
@@ -75,7 +75,7 @@
     <appender name="INFO_FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 正在记录的日志文档的路径及文档名 -->
-        <file>${logPath}/web_info.log</file>
+        <file>${logPath}/log_info.log</file>
         <!-- 日志文档输出格式 -->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}
@@ -87,7 +87,7 @@
         <rollingPolicy
                 class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 每天日志归档路径以及格式 -->
-            <fileNamePattern>${logPath}/web-info-%d{yyyy-MM-dd}.%i.log
+            <fileNamePattern>${logPath}/log-info-%d{yyyy.MM.dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
@@ -108,7 +108,7 @@
     <appender name="WARN_FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 正在记录的日志文档的路径及文档名 -->
-        <file>${logPath}/web_warn.log</file>
+        <file>${logPath}/log_warn.log</file>
         <!--日志文档输出格式-->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}
@@ -119,7 +119,7 @@
         <!-- 日志记录器的滚动策略, 按日期, 按大小记录 -->
         <rollingPolicy
                 class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logPath}/web-warn-%d{yyyy-MM-dd}.%i.log
+            <fileNamePattern>${logPath}/log-warn-%d{yyyy.MM.dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
@@ -140,7 +140,7 @@
     <appender name="ERROR_FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 正在记录的日志文档的路径及文档名 -->
-        <file>${logPath}/web_error.log</file>
+        <file>${logPath}/log_error.log</file>
         <!--日志文档输出格式-->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}
@@ -151,7 +151,7 @@
         <!-- 日志记录器的滚动策略, 按日期, 按大小记录 -->
         <rollingPolicy
                 class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logPath}/web-error-%d{yyyy-MM-dd}.%i.log
+            <fileNamePattern>${logPath}/log-error-%d{yyyy.MM.dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
@@ -169,14 +169,12 @@
     </appender>
 
     <logger name="cn.sichu" level="trace"/>
-
     <!-- 3. 最终的策略 -->
     <!-- 3.1 开发环境: 打印控制台-->
     <root level="info">
         <springProfile name="dev">
-            <logger name="cn.sichu" level="debug"/><!-- 修改此处扫描包名 -->
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="DEBUG_FILE"/>
+            <!--        <appender-ref ref="DEBUG_FILE"/>-->
             <!--        <appender-ref ref="INFO_FILE"/>-->
             <!--        <appender-ref ref="WARN_FILE"/>-->
             <!--        <appender-ref ref="ERROR_FILE"/>-->
