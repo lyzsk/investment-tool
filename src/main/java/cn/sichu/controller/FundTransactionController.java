@@ -84,12 +84,30 @@ public class FundTransactionController {
     public Resp<String> updateNavAndShare() {
         try {
             Date date = new Date();
-            List<String> codeList = fundHistoryNavService.selectAllCode();
+            List<String> codeList = fundHistoryNavService.selectAllHeldCode();
             for (String code : codeList) {
                 fundHistoryNavService.updateHistoryNavByConditions(code, date);
             }
             fundTransactionService.dailyUpdateFundTransactionAndFundPosition();
             return Resp.success("update nav and share and fund transaction and fund position success!");
+        } catch (Exception e) {
+            return Resp.error(e.getMessage());
+        }
+    }
+
+    @PostMapping("/manualInit")
+    @LogAnnotation(module = "FundTransactionController", operation = "manuallyInit")
+    public Resp<String> manuallyInit() {
+        try {
+            Date date = new Date();
+            Date currentDate = DateUtil.formatDate(date);
+            List<String> codeList = fundHistoryNavService.selectAllCode();
+            /* 1. init `fund_history_nav` */
+            for (String code : codeList) {
+                String callback = fundHistoryNavService.selectCallbackByCode(code);
+                fundHistoryNavService.insertFundHistoryNav(code, "2023-08-01", DateUtil.dateToStr(currentDate), callback);
+            }
+            return Resp.success("initiate fund_history_nav success!");
         } catch (Exception e) {
             return Resp.error(e.getMessage());
         }

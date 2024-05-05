@@ -33,7 +33,12 @@
     <select id="selectAllCode" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select distinct code
         from fund_transaction
-        where status <![CDATA[<]]> 4 and (mark is null or mark == '')
+    </select>
+
+    <select id="selectAllHeldCode" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
+        select distinct code
+        from fund_transaction
+        where status <![CDATA[<]]> 4 and (mark is null or mark = '')
     </select>
 
     <select id="selectAllFundTransactionInTransit" resultType="cn.sichu.entity.FundTransaction">

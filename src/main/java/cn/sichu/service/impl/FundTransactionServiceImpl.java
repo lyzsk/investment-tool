@@ -427,7 +427,8 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             if (date.before(transaction.getConfirmationDate())) {
                 continue;
             }
-            String navStr = fundHistoryNavService.selectFundNavByConditions(transaction.getCode(), transaction.getTransactionDate());
+            String code = transaction.getCode();
+            String navStr = fundHistoryNavService.selectFundNavByConditions(code, transaction.getTransactionDate());
             if (navStr == null || navStr.equals("")) {
                 continue;
             }
@@ -516,6 +517,17 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             String navStr = fundHistoryNavService.selectFundNavByConditions(code, redemptionDate);
             if (navStr == null || navStr.equals("")) {
                 continue;
+            }
+            fundPosition.setTotalAmount(FinancialCalculationUtil.calculateTotalAmount(fundPosition.getHeldShare(), navStr));
+            fundPositionMapper.updateTotalAmount(fundPosition);
+        }
+        /* update total_amount for HELD position */
+        List<FundPosition> heldList = fundPositionMapper.selectAllFundPositionWithNullMark();
+        for (FundPosition fundPosition : heldList) {
+            String code = fundPosition.getCode();
+            String navStr = fundHistoryNavService.selectFundNavByConditions(code, DateUtil.formatDate(date));
+            if (navStr == null || navStr.equals("")) {
+                navStr = fundHistoryNavService.selectLastHistoryNav(code);
             }
             fundPosition.setTotalAmount(FinancialCalculationUtil.calculateTotalAmount(fundPosition.getHeldShare(), navStr));
             fundPositionMapper.updateTotalAmount(fundPosition);
