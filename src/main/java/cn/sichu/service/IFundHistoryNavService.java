@@ -41,9 +41,24 @@ public interface IFundHistoryNavService {
     /**
      * @return java.util.List<java.lang.String>
      * @author sichu huang
-     * @date 2024/03/25
+     * @date 2024/05/05
      **/
     List<String> selectAllCode();
+
+    /**
+     * @return java.util.List<java.lang.String>
+     * @author sichu huang
+     * @date 2024/03/25
+     **/
+    List<String> selectAllHeldCode();
+
+    /**
+     * @param code code
+     * @return java.lang.String
+     * @author sichu huang
+     * @date 2024/05/05
+     **/
+    String selectLastHistoryNav(String code);
 
     /**
      * 根据 1.code, 2.navDate 更新 `fund_history_nav`
@@ -54,4 +69,5 @@ public interface IFundHistoryNavService {
      * @date 2024/03/20
      **/
     void updateHistoryNavByConditions(String code, Date date) throws ParseException, IOException;
+
 }

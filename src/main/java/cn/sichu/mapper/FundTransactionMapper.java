@@ -18,6 +18,8 @@ public interface FundTransactionMapper {
 
     List<FundTransaction> selectAllCode();
 
+    List<FundTransaction> selectAllHeldCode();
+
     List<FundTransaction> selectAllFundTransactionInTransit(@Param("status1") Integer status1, @Param("status2") Integer status2);
 
     List<FundTransaction> selectAllPurchaseTransactionWithNullNavAndShare(@Param("type") Integer type);

@@ -91,6 +91,21 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     }
 
     @Override
+    public List<String> selectAllHeldCode() {
+        List<FundTransaction> list = fundTransactionMapper.selectAllHeldCode();
+        List<String> codeList = new ArrayList<>();
+        for (FundTransaction transaction : list) {
+            codeList.add(transaction.getCode());
+        }
+        return codeList;
+    }
+
+    @Override
+    public String selectLastHistoryNav(String code) {
+        return fundHistoryNavMapper.selectLastHistoryNav(code).get(0).getNav();
+    }
+
+    @Override
     public void updateHistoryNavByConditions(String code, Date date) throws ParseException, IOException {
         Date currentDate = DateUtil.formatDate(date);
         List<FundHistoryNav> navList = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, currentDate);
