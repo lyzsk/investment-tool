@@ -33,12 +33,13 @@
 
     <select id="selectLastHistoryNav" resultType="cn.sichu.entity.FundHistoryNav" resultMap="resultMap">
         select code, nav_date, nav
+        from
+        (
+        select code, nav_date, nav,
+        row_number() over (partition by code order by nav_date desc) as rn
         from fund_history_nav
-        <where>
-            <if test="code != null and code != ''">and code = #{code}</if>
-        </where>
-        order by nav_date desc
-        limit 1
+        ) as temp
+        where rn = 1 and temp.code = #{code}
     </select>
 
 </mapper>
