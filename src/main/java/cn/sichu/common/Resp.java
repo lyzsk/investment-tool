@@ -20,6 +20,10 @@ public class Resp<T> {
         this.data = data;
     }
 
+    public static <T> Resp<T> success(String msg) {
+        return new Resp<>(200, msg, null);
+    }
+
     public static <T> Resp<T> success(T data) {
         return new Resp<>(200, "success", data);
     }

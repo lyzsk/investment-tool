@@ -524,6 +524,9 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         /* update total_amount for HELD position */
         List<FundPosition> heldList = fundPositionMapper.selectAllFundPositionWithNullMark();
         for (FundPosition fundPosition : heldList) {
+            if (fundPosition.getTotalAmount() == null) {
+                continue;
+            }
             String code = fundPosition.getCode();
             String navStr = fundHistoryNavService.selectFundNavByConditions(code, DateUtil.formatDate(date));
             if (navStr == null || navStr.equals("")) {
