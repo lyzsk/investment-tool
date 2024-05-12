@@ -442,7 +442,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             }
         }
         /* ii. redemption transaction: update 1.amount, 2.fee, 3.nav for `fund_transaction`; update 1.total_amount, 2.total_redemption_fee for `fund_position` */
-        List<FundPosition> fundPositionList = fundPositionMapper.selectAllFundPositionWithNullTotalAmountAndTotalRedemptionFee();
+        List<FundPosition> fundPositionList = fundPositionMapper.selectAllFundPositionWithNullTotalRedemptionFee();
         // TODO: 研究capability设大还是设小好, 因为key是code, capability 肯定不满 fundPositionList.size()
         Map<String, BigDecimal[]> map = new HashMap<>(fundPositionList.size());
         for (FundPosition fundPosition : fundPositionList) {
@@ -587,7 +587,6 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                     transaction.setStatus(FundTransactionStatus.REDEEMED.getCode());
                     fundTransactionMapper.updateStatus(transaction);
                 }
-
             }
         }
         /* update `fund_position` */

@@ -38,17 +38,15 @@
     <select id="selectAllHeldCode" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select distinct code
         from fund_transaction
-        where status <![CDATA[<]]> 4 and (mark is null or mark = '')
+        where status &lt; 4 and (mark is null or mark = '')
     </select>
 
-    <select id="selectAllFundTransactionInTransit" resultType="cn.sichu.entity.FundTransaction">
+    <select id="selectAllFundTransactionInTransit" resultType="cn.sichu.entity.FundTransaction" resultMap="resultMap">
         select
         code, application_date, transaction_date, confirmation_date, settlement_date, amount, fee, nav, share,
         dividend_amount_per_share, trading_platform, status, mark, type
         from fund_transaction
-        <where>
-            <if test="status1 != null and status2 != null">and status = #{status1} or status = #{status2}</if>
-        </where>
+        where status = #{status1} or status = #{status2}
     </select>
 
     <select id="selectAllPurchaseTransactionWithNullNavAndShare" resultType="cn.sichu.entity.FundTransaction"

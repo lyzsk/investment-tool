@@ -125,13 +125,13 @@
         </where>
     </select>
 
-    <select id="selectAllFundPositionWithNullTotalAmountAndTotalRedemptionFee"
+    <select id="selectAllFundPositionWithNullTotalRedemptionFee"
             resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
         code, transaction_date, initiation_date, total_principal_amount, total_amount, total_purchase_fee, total_redemption_fee, held_share,
         held_days, update_date, trading_platform, status, mark
         from fund_position
-        where total_amount is null and total_redemption_fee is null and mark != null and mark != ''
+        where total_redemption_fee is null and (mark != null or mark != '')
         order by code asc
     </select>
 
