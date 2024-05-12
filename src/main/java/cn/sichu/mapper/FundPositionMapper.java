@@ -32,7 +32,7 @@ public interface FundPositionMapper {
 
     List<FundPosition> selectFundPositionByPurchaseTransaction(FundTransaction transaction);
 
-    List<FundPosition> selectAllFundPositionWithNullTotalAmountAndTotalRedemptionFee();
+    List<FundPosition> selectAllFundPositionWithNullTotalRedemptionFee();
 
     void updateStatus(FundPosition fundPosition);
 

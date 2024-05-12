@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ComponentScan({"cn.sichu.*"})
 @MapperScan("cn.sichu.mapper")
 public class Application {
+
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
         System.out.println("  ___                     _                        _     _____           _ ");
@@ -23,7 +24,7 @@ public class Application {
         System.out.println("  | || '_ \\ \\ / / _ \\/ __| __| '_ ` _ \\ / _ \\ '_ \\| __|   | |/ _ \\ / _ \\| |");
         System.out.println("  | || | | \\ V /  __/\\__ \\ |_| | | | | |  __/ | | | |_    | | (_) | (_) | |");
         System.out.println(" |___|_| |_|\\_/ \\___||___/\\__|_| |_| |_|\\___|_| |_|\\__|   |_|\\___/ \\___/|_|\n");
-        System.out.println(" Author: Sichu Huang                 Github: lyzsk                 (v1.1.5)\n");
+        System.out.println(" Author: Sichu Huang                 Github: lyzsk                 (v" + "1.1.6" + ")\n");
         System.out.println(" =========================== Start Successfully! ===========================\n");
     }
 }

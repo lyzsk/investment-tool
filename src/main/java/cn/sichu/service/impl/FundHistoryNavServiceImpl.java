@@ -3,6 +3,7 @@ package cn.sichu.service.impl;
 import cn.sichu.entity.FundEastmoneyJjjz;
 import cn.sichu.entity.FundHistoryNav;
 import cn.sichu.entity.FundTransaction;
+import cn.sichu.enums.AppExceptionCodeMsg;
 import cn.sichu.exception.FundTransactionException;
 import cn.sichu.mapper.FundEastmoneyJjjzMapper;
 import cn.sichu.mapper.FundHistoryNavMapper;
@@ -113,10 +114,16 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
             return;
         }
         String callback = selectCallbackByCode(code);
-        if (CrawlUtil.getDailyNavMapBetweenDates(code, DateUtil.dateToStr(currentDate), DateUtil.dateToStr(currentDate), callback).isEmpty()) {
+        List<FundHistoryNav> lastHistoryNav = fundHistoryNavMapper.selectLastHistoryNav(code);
+        if (lastHistoryNav.isEmpty()) {
+            throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+                "can't find last history nav and date, please manual init!");
+        }
+        Date lastDate = lastHistoryNav.get(0).getNavDate();
+        if (CrawlUtil.getDailyNavMapBetweenDates(code, DateUtil.dateToStr(lastDate), DateUtil.dateToStr(currentDate), callback).isEmpty()) {
             return;
         }
-        insertFundHistoryNav(code, DateUtil.dateToStr(currentDate), DateUtil.dateToStr(currentDate), callback);
+        insertFundHistoryNav(code, DateUtil.dateToStr(lastDate), DateUtil.dateToStr(currentDate), callback);
     }
 
     /**
