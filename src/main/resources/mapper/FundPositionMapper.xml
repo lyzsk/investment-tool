@@ -63,13 +63,14 @@
         where mark is null and total_amount != null
     </select>
 
-    <select id="selectFundPositionWithNullMarkByCode" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
+    <select id="selectFundPositionWithNullMarkByConditions" resultType="cn.sichu.entity.FundPosition" resultMap="resultMap">
         select
         id, code, transaction_date, initiation_date, redemption_date, total_principal_amount, total_amount, total_purchase_fee,
         total_redemption_fee, held_share, held_days, update_date, trading_platform, status, mark
         from fund_position
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
+            <if test="tradingPlatform != null and tradingPlatform != ''">and trading_platform = #{tradingPlatform}</if>
             and mark is null
         </where>
         order by transaction_date, held_share
@@ -82,6 +83,7 @@
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
             <if test="transactionDate != null">and transaction_date &gt; #{transactionDate}</if>
+            <if test="tradingPlatform != null and tradingPlatform != ''">and trading_platform = #{tradingPlatform}</if>
             and mark is null
         </where>
         order by transaction_date asc
@@ -97,6 +99,7 @@
         <where>
             <if test="code != null and code != ''">and code = #{code}</if>
             <if test="transactionDate != null">and transaction_date <![CDATA[<=]]> #{transactionDate}</if>
+            <if test="tradingPlatform != null and tradingPlatform != ''">and trading_platform = #{tradingPlatform}</if>
             and mark is null
         </where>
         ) temp

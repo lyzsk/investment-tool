@@ -22,7 +22,7 @@ public interface FundPositionMapper {
 
     List<FundPosition> selectAllFundPositionWithNullMarkAndNotNullTotalAmount();
 
-    List<FundPosition> selectFundPositionWithNullMarkByCode(String code);
+    List<FundPosition> selectFundPositionWithNullMarkByConditions(@Param("code") String code, @Param("tradingPlatform") String tradingPlatform);
 
     List<FundPosition> selectFundPositionWithMaxHeldShareByConditions(@Param("code") String code, @Param("type") Integer type);
 

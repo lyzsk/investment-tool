@@ -140,10 +140,11 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         long heldDays = TransactionDayUtil.getHeldTransactionDays(currentDate, transaction.getTransactionDate());
         fundPosition.setHeldDays((int)heldDays);
         fundPosition.setUpdateDate(currentDate);
-        fundPosition.setTradingPlatform(transaction.getTradingPlatform());
+        String tradingPlatform = transaction.getTradingPlatform();
+        fundPosition.setTradingPlatform(tradingPlatform);
         fundPosition.setStatus(transaction.getStatus());
         /* set 8.total_principal_amount, 9.total_purchase_fee, 10.held_share, 11.total_amount */
-        List<FundPosition> fundPositionList = fundPositionMapper.selectFundPositionWithNullMarkByCode(code);
+        List<FundPosition> fundPositionList = fundPositionMapper.selectFundPositionWithNullMarkByConditions(code, tradingPlatform);
         if (fundPositionList.isEmpty()) {
             /* 若无对应code的持仓数据: 直接插入数据 */
             setFundPositionDataAndInsert(fundPosition, amount, fee, share);
@@ -268,7 +269,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         Integer m = information.getRedemptionSettlementProcess();
         Date settlementDate = TransactionDayUtil.getNextNTransactionDate(transactionDate, m);
         transaction.setSettlementDate(settlementDate);
-        List<FundPosition> fundPositionList = fundPositionMapper.selectFundPositionWithNullMarkByCode(code);
+        List<FundPosition> fundPositionList = fundPositionMapper.selectFundPositionWithNullMarkByConditions(code, tradingPlatform);
         if (fundPositionList.isEmpty()) {
             throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                 "nothing to redeem, because no fund position found by code");

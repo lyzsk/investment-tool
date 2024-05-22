@@ -5,7 +5,8 @@ CREATE TABLE `fund_eastmoney_jjjz` (
   `code` varchar(6) DEFAULT NULL COMMENT '基金代码, 6位',
   `callback` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='https://fundf10.eastmoney.com/jjjz_{code}.html';
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='https://fundf10.eastmoney.com/jjjz_{code}.html';
+
 
 -- investment_tool.fund_history_nav definition
 
@@ -15,7 +16,8 @@ CREATE TABLE `fund_history_nav` (
   `nav_date` date DEFAULT NULL COMMENT '净值日期',
   `nav` varchar(100) DEFAULT NULL COMMENT '单位净值, 4位小数',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3081 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 -- investment_tool.fund_information definition
 
@@ -29,7 +31,8 @@ CREATE TABLE `fund_information` (
   `redemption_confirmation_process` int DEFAULT NULL COMMENT '卖出份额确认T+N',
   `redemption_settlement_process` int DEFAULT NULL COMMENT '卖出份额确认T+N',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 -- investment_tool.fund_position definition
 
@@ -50,7 +53,8 @@ CREATE TABLE `fund_position` (
   `status` int DEFAULT NULL COMMENT '状态, 0:买入在途purchase_in_transit, 1:持仓held, 2:赎回在途redemption_in_transit, 3:未全额赎回partially_redeemed, 4:已赎回redeemed, 5.现金分红cash_dividend',
   `mark` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '标注, 交易所属日-赎回交易日, 格式: startDate->endDate (yyyy-MM-dd)',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=565 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 -- investment_tool.fund_purchase_fee_rate definition
 
@@ -61,7 +65,8 @@ CREATE TABLE `fund_purchase_fee_rate` (
   `purchase_fee_rate` varchar(100) DEFAULT NULL COMMENT '申购费率%, 2位小数',
   `trading_platform` varchar(100) DEFAULT NULL COMMENT '交易平台',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 -- investment_tool.fund_redemption_fee_rate definition
 
@@ -72,7 +77,8 @@ CREATE TABLE `fund_redemption_fee_rate` (
   `redemption_fee_rate` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '赎回费率%, 3位小数',
   `trading_platform` varchar(100) DEFAULT NULL COMMENT '交易平台',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 -- investment_tool.fund_transaction definition
 
@@ -93,4 +99,4 @@ CREATE TABLE `fund_transaction` (
   `mark` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '标记',
   `type` int DEFAULT NULL COMMENT '交易类型, 0:purchase, 1:redemption, 2:dividend',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=635 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
