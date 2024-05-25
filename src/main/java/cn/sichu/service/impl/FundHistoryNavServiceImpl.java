@@ -57,22 +57,18 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         }
         /* isEmpty的情况: 1.历史净值已更新但未入表, 需要根据callback查询和插入; 2.历史净值未更新, 返回"";  */
         Date currentDate = DateUtil.formatDate(new Date());
+        String navDateStr = DateUtil.dateToStr(navDate);
         String callback = selectCallbackByCode(code);
-        if (navDate.before(currentDate)) {
-            insertFundHistoryNav(code, DateUtil.dateToStr(navDate), DateUtil.dateToStr(navDate), callback);
-            fundHistoryNavList = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
-            return fundHistoryNavList.get(0).getNav();
-        } else if (navDate.equals(currentDate)) {
-            if (CrawlUtil.getDailyNavMapBetweenDates(code, DateUtil.dateToStr(navDate), DateUtil.dateToStr(navDate), callback).isEmpty()) {
+        if (navDate.after(currentDate)) {
+            throw new FundTransactionException(999, "navDate should be earlier than or equals to currentDate");
+        } else {
+            if (CrawlUtil.getDailyNavMapBetweenDates(code, navDateStr, navDateStr, callback).isEmpty()) {
                 return "";
             }
             insertFundHistoryNav(code, DateUtil.dateToStr(navDate), DateUtil.dateToStr(navDate), callback);
             fundHistoryNavList = fundHistoryNavMapper.selectFundHistoryNavByConditions(code, navDate);
             return fundHistoryNavList.get(0).getNav();
-        } else if (navDate.after(currentDate)) {
-            throw new FundTransactionException(999, "navDate should be earlier than or equals to currentDate");
         }
-        return "";
     }
 
     @Override
