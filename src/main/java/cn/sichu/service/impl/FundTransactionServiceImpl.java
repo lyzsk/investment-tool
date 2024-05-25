@@ -1,8 +1,8 @@
 package cn.sichu.service.impl;
 
+import cn.sichu.constant.FundTransactionStatus;
 import cn.sichu.entity.*;
 import cn.sichu.enums.AppExceptionCodeMsg;
-import cn.sichu.enums.FundTransactionStatus;
 import cn.sichu.enums.FundTransactionType;
 import cn.sichu.exception.FundTransactionException;
 import cn.sichu.mapper.FundPositionMapper;
@@ -69,9 +69,9 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         /* set 9.status */
         int status;
         if (currentDate.before(settlementDate)) {
-            status = FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode();
+            status = FundTransactionStatus.PURCHASE_IN_TRANSIT;
         } else {
-            status = FundTransactionStatus.HELD.getCode();
+            status = FundTransactionStatus.HELD;
         }
         transaction.setStatus(status);
         /* set 10.fee */
@@ -103,7 +103,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             transaction.setNav(new BigDecimal(navStr));
             transaction.setShare(FinancialCalculationUtil.calculateShare(amount, transaction.getFee(), navStr));
             /* insert `fund_position` */
-            if (Objects.equals(status, FundTransactionStatus.HELD.getCode())) {
+            if (Objects.equals(status, FundTransactionStatus.HELD)) {
                 insertFundPositionByFundTransaction(transaction);
             }
         }
@@ -307,11 +307,11 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             fundPosition.setRedemptionDate(transactionDate);
             /* set 10.status */
             if (currentDate.before(settlementDate)) {
-                transaction.setStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode());
-                fundPosition.setStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode());
+                transaction.setStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT);
+                fundPosition.setStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT);
             } else {
-                transaction.setStatus(FundTransactionStatus.REDEEMED.getCode());
-                fundPosition.setStatus(FundTransactionStatus.REDEEMED.getCode());
+                transaction.setStatus(FundTransactionStatus.REDEEMED);
+                fundPosition.setStatus(FundTransactionStatus.REDEEMED);
             }
             /* set 11.nav, 12.fee, 13.amount, only if nav is already updated */
             String navStr = fundHistoryNavService.selectFundNavByConditions(code, transactionDate);
@@ -403,7 +403,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         transaction.setSettlementDate(applicationDate);
         transaction.setDividendAmountPerShare(dividendAmountPerShare);
         transaction.setTradingPlatform(tradingPlatform);
-        transaction.setStatus(FundTransactionStatus.CASH_DIVIDEND.getCode());
+        transaction.setStatus(FundTransactionStatus.CASH_DIVIDEND);
         Integer type = FundTransactionType.DIVIDEND.getCode();
         transaction.setType(type);
         /* set 10.amount */
@@ -574,25 +574,24 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
     public void updateStatusForTransactionInTransit(Date date) throws IOException, ParseException {
         /* update `fund_transaction` */
         List<FundTransaction> fundTransactionList =
-            fundTransactionMapper.selectAllFundTransactionInTransit(FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode(),
-                FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode());
+            fundTransactionMapper.selectAllFundTransactionInTransit(FundTransactionStatus.PURCHASE_IN_TRANSIT,
+                FundTransactionStatus.REDEMPTION_IN_TRANSIT);
         for (FundTransaction transaction : fundTransactionList) {
             if (date.compareTo(transaction.getSettlementDate()) >= 0) {
-                if (Objects.equals(transaction.getStatus(), FundTransactionStatus.PURCHASE_IN_TRANSIT.getCode())) {
-                    transaction.setStatus(FundTransactionStatus.HELD.getCode());
+                if (Objects.equals(transaction.getStatus(), FundTransactionStatus.PURCHASE_IN_TRANSIT)) {
+                    transaction.setStatus(FundTransactionStatus.HELD);
                     fundTransactionMapper.updateStatus(transaction);
                     /* insert into `fund_position` */
                     insertFundPositionByFundTransaction(transaction);
                 }
-                if (Objects.equals(transaction.getStatus(), FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode())) {
-                    transaction.setStatus(FundTransactionStatus.REDEEMED.getCode());
+                if (Objects.equals(transaction.getStatus(), FundTransactionStatus.REDEMPTION_IN_TRANSIT)) {
+                    transaction.setStatus(FundTransactionStatus.REDEEMED);
                     fundTransactionMapper.updateStatus(transaction);
                 }
             }
         }
         /* update `fund_position` */
-        List<FundPosition> fundPositionList =
-            fundPositionMapper.selectAllFundPositionByStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT.getCode());
+        List<FundPosition> fundPositionList = fundPositionMapper.selectAllFundPositionByStatus(FundTransactionStatus.REDEMPTION_IN_TRANSIT);
         for (FundPosition fundPosition : fundPositionList) {
             String mark = fundPosition.getMark();
             if (mark != null && !mark.equals("")) {
@@ -607,7 +606,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 Integer n = information.getRedemptionSettlementProcess();
                 Date settlementDate = TransactionDayUtil.getNextNTransactionDate(redemptionDate, n);
                 if (date.compareTo(settlementDate) >= 0) {
-                    fundPosition.setStatus(FundTransactionStatus.REDEEMED.getCode());
+                    fundPosition.setStatus(FundTransactionStatus.REDEEMED);
                     fundPositionMapper.updateStatus(fundPosition);
                 }
             }
