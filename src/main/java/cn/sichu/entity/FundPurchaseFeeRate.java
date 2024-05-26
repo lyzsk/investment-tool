@@ -1,5 +1,8 @@
 package cn.sichu.entity;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 /**
  * @author sichu huang
  * @date 2024/03/12
@@ -24,9 +27,9 @@ public class FundPurchaseFeeRate {
 
     @Override
     public String toString() {
-        return "FundPurchaseFeeRate{" + "id=" + id + ", code='" + code + '\'' + ", feeRateChangeAmount="
-            + feeRateChangeAmount + ", feeRate='" + feeRate + '\'' + ", tradingPlatform='" + tradingPlatform + '\''
-            + '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("id", getId()).append("code", getCode())
+            .append("feeRateChangeAmount", getFeeRateChangeAmount()).append("feeRate", getFeeRate())
+            .append("tradingPlatform", getTradingPlatform()).toString();
     }
 
     public Long getId() {

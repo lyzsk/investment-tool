@@ -30,7 +30,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
@@ -195,9 +194,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         BigDecimal sumTotalDividendAmount = BigDecimal.ZERO;
         BigDecimal sumProfit = BigDecimal.ZERO;
         BigDecimal sumDailyNavYield = BigDecimal.ZERO;
-        BigDecimal sumYieldRate = BigDecimal.ZERO;
         DecimalFormat decimalFormat = new DecimalFormat("0.00%");
-        int size = positionList.size();
         for (FundPosition fundPosition : positionList) {
             String code = fundPosition.getCode();
             List<FundInformation> fundInformationList = fundTransactionReportSheetMapper.selectFundInformationByCode(code);
@@ -255,9 +252,7 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             sheet.setDailyNavYield(String.valueOf(dailyNavYield));
             sumDailyNavYield = sumDailyNavYield.add(dailyNavYield);
             BigDecimal yieldRate = FinancialCalculationUtil.calculateYieldRate(profit, totalPrincipalAmount);
-            String yieldRateStr = decimalFormat.format(yieldRate);
-            sheet.setYieldRate(yieldRateStr);
-            sumYieldRate = sumYieldRate.add(yieldRate);
+            sheet.setYieldRate(decimalFormat.format(yieldRate));
             list.add(sheet);
         }
         map.put("sumTotalPrincipalAmount", String.valueOf(sumTotalPrincipalAmount));
@@ -265,7 +260,11 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         map.put("sumDividendCount", String.valueOf(sumDividendCount));
         map.put("sumTotalDividendAmount", sumTotalDividendAmount.equals(BigDecimal.ZERO) ? "0.00" : String.valueOf(sumTotalDividendAmount));
         map.put("sumProfit", String.valueOf(sumProfit));
-        BigDecimal avgYieldRate = sumYieldRate.divide(new BigDecimal(size), 4, RoundingMode.HALF_UP);
-        map.put("avgYieldRate", decimalFormat.format(avgYieldRate));
+        if (sumTotalPrincipalAmount.equals(BigDecimal.ZERO)) {
+            map.put("totalYieldRate", "0.00%");
+        } else {
+            map.put("totalYieldRate", decimalFormat.format(
+                FinancialCalculationUtil.calculateYieldRate(sumTotalAmount.subtract(sumTotalPrincipalAmount), sumTotalPrincipalAmount)));
+        }
     }
 }

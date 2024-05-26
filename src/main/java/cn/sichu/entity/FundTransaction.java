@@ -1,5 +1,8 @@
 package cn.sichu.entity;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -51,10 +54,12 @@ public class FundTransaction {
 
     @Override
     public String toString() {
-        return "FundTransaction{" + "id=" + id + ", code='" + code + '\'' + ", applicationDate=" + applicationDate + ", transactionDate="
-            + transactionDate + ", confirmationDate=" + confirmationDate + ", settlementDate=" + settlementDate + ", amount=" + amount + ", fee="
-            + fee + ", nav=" + nav + ", share=" + share + ", dividendAmountPerShare=" + dividendAmountPerShare + ", tradingPlatform='"
-            + tradingPlatform + '\'' + ", status=" + status + ", mark='" + mark + '\'' + ", type=" + type + '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("id", getId()).append("code", getCode())
+            .append("applicationDate", getApplicationDate()).append("transactionDate", getTransactionDate())
+            .append("confirmationDate", getConfirmationDate()).append("settlementDate", getSettlementDate()).append("amount", getAmount())
+            .append("fee", getFee()).append("nav", getNav()).append("share", getShare())
+            .append("dividendAmountPerShare", getDividendAmountPerShare()).append("transactionPlatform", getTradingPlatform())
+            .append("status", getStatus()).append("mark", getMark()).append("type", getType()).toString();
     }
 
     public Long getId() {

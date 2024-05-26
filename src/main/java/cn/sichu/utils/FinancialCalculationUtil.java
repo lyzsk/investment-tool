@@ -146,6 +146,9 @@ public class FinancialCalculationUtil {
      * @date 2024/04/29
      **/
     public static BigDecimal calculateYieldRate(BigDecimal profit, BigDecimal totalPrincipalAmount) {
+        if (totalPrincipalAmount.equals(BigDecimal.ZERO)) {
+            return BigDecimal.ZERO;
+        }
         return profit.divide(totalPrincipalAmount, 4, RoundingMode.HALF_UP);
     }
 

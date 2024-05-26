@@ -1,5 +1,8 @@
 package cn.sichu.entity;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -53,11 +56,13 @@ public class FundPosition {
 
     @Override
     public String toString() {
-        return "FundPosition{" + "id=" + id + ", code='" + code + '\'' + ", transactionDate=" + transactionDate + ", initiationDate="
-            + initiationDate + ", redemptionDate=" + redemptionDate + ", totalPrincipalAmount=" + totalPrincipalAmount + ", totalAmount="
-            + totalAmount + ", totalPurchaseFee=" + totalPurchaseFee + ", totalRedemptionFee=" + totalRedemptionFee + ", heldShare=" + heldShare
-            + ", heldDays=" + heldDays + ", updateDate=" + updateDate + ", tradingPlatform='" + tradingPlatform + '\'' + ", status=" + status
-            + ", mark='" + mark + '\'' + '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("id", getId()).append("code", getCode())
+            .append("transactionDate", getTransactionDate()).append("initiationDate", getInitiationDate())
+            .append("redemptionDate", getRedemptionDate()).append("totalPrincipalAmount", getTotalPrincipalAmount())
+            .append("totalAmount", getTotalAmount()).append("totalPurchaseFee", getTotalPurchaseFee())
+            .append("totalRedemptionFee", getTotalRedemptionFee()).append("heldShare", getHeldShare()).append("heldDays", getHeldDays())
+            .append("updateDate", getUpdateDate()).append("tradingPlatform", getTradingPlatform()).append("status", getStatus())
+            .append("mark", getMark()).toString();
     }
 
     public Long getId() {

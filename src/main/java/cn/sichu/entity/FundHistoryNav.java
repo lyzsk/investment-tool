@@ -1,5 +1,8 @@
 package cn.sichu.entity;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import java.util.Date;
 
 /**
@@ -27,8 +30,8 @@ public class FundHistoryNav {
 
     @Override
     public String toString() {
-        return "FundHistoryNav{" + "id=" + id + ", code='" + code + '\'' + ", navDate=" + navDate + ", nav='" + nav
-            + '\'' + '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("id", getId()).append("code", getCode())
+            .append("navDate", getNavDate()).append("nav", getNav()).toString();
     }
 
     public Long getId() {
