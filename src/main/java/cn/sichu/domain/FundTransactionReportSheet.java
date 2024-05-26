@@ -67,8 +67,8 @@ public class FundTransactionReportSheet {
     /* 累计收益 */
     private String sumProfit;
 
-    /* 平均收益率 */
-    private String avgYieldRate;
+    /* 累计收益率 */
+    private String totalYieldRate;
 
     public FundTransactionReportSheet() {
     }
@@ -76,7 +76,7 @@ public class FundTransactionReportSheet {
     public FundTransactionReportSheet(String code, String shortName, String purchaseTransactionDate, String redemptionTransactionDate,
         String heldDays, String totalPrincipalAmount, String totalAmount, String dividendCount, String totalDividendAmount, String profit,
         String dailyNavYield, String yieldRate, String tradingPlatform, String companyName, String sumTotalPrincipalAmount,
-        String sumTotalAmount, String sumDividendCount, String sumTotalDividendAmount, String sumProfit, String avgYieldRate) {
+        String sumTotalAmount, String sumDividendCount, String sumTotalDividendAmount, String sumProfit, String totalYieldRate) {
         this.code = code;
         this.shortName = shortName;
         this.purchaseTransactionDate = purchaseTransactionDate;
@@ -96,7 +96,7 @@ public class FundTransactionReportSheet {
         this.sumDividendCount = sumDividendCount;
         this.sumTotalDividendAmount = sumTotalDividendAmount;
         this.sumProfit = sumProfit;
-        this.avgYieldRate = avgYieldRate;
+        this.totalYieldRate = totalYieldRate;
     }
 
     @Override
@@ -109,7 +109,7 @@ public class FundTransactionReportSheet {
             .append("companyName", getCompanyName()).append("sumTotalPrincipalAmount", getSumTotalPrincipalAmount())
             .append("sumTotalAmount", getSumTotalAmount()).append("sumDividendCount", getSumDividendCount())
             .append("sumTotalDividendAmount", getSumTotalDividendAmount()).append("sumProfit", getSumProfit())
-            .append("avgYieldRate", getAvgYieldRate()).toString();
+            .append("totalYieldRate", getTotalYieldRate()).toString();
     }
 
     public String getCode() {
@@ -264,11 +264,11 @@ public class FundTransactionReportSheet {
         this.sumProfit = sumProfit;
     }
 
-    public String getAvgYieldRate() {
-        return avgYieldRate;
+    public String getTotalYieldRate() {
+        return totalYieldRate;
     }
 
-    public void setAvgYieldRate(String avgYieldRate) {
-        this.avgYieldRate = avgYieldRate;
+    public void setTotalYieldRate(String totalYieldRate) {
+        this.totalYieldRate = totalYieldRate;
     }
 }

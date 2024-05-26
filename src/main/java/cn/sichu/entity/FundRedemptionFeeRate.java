@@ -1,5 +1,8 @@
 package cn.sichu.entity;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 /**
  * fund_redemption_rule
  *
@@ -16,8 +19,7 @@ public class FundRedemptionFeeRate {
     public FundRedemptionFeeRate() {
     }
 
-    public FundRedemptionFeeRate(Long id, String code, Integer feeRateChangeDays, String feeRate,
-        String tradingPlatform) {
+    public FundRedemptionFeeRate(Long id, String code, Integer feeRateChangeDays, String feeRate, String tradingPlatform) {
         this.id = id;
         this.code = code;
         this.feeRateChangeDays = feeRateChangeDays;
@@ -27,8 +29,9 @@ public class FundRedemptionFeeRate {
 
     @Override
     public String toString() {
-        return "FundRedemptionFeeRate{" + "id=" + id + ", code='" + code + '\'' + ", feeRateChangeDays="
-            + feeRateChangeDays + ", feeRate='" + feeRate + '\'' + ", tradingPlatform='" + tradingPlatform + '\'' + '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("id", getId()).append("code", getCode())
+            .append("feeRateChangeDays", getFeeRateChangeDays()).append("feeRate", getFeeRate()).append("tradingPlatform", getTradingPlatform())
+            .toString();
     }
 
     public Long getId() {

@@ -1,5 +1,8 @@
 package cn.sichu.entity;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 /**
  * https://fundf10.eastmoney.com/jjjz_{code}.html
  *
@@ -22,7 +25,8 @@ public class FundEastmoneyJjjz {
 
     @Override
     public String toString() {
-        return "FundEastmoneyJjjz{" + "id=" + id + ", code='" + code + '\'' + ", callback='" + callback + '\'' + '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("id", getId()).append("code", getCode())
+            .append("callback", getCallback()).toString();
     }
 
     public Long getId() {
