@@ -54,6 +54,14 @@ public interface IFundHistoryNavService {
 
     /**
      * @param code code
+     * @return boolean
+     * @author sichu huang
+     * @date 2024/06/01
+     **/
+    boolean checkCodeExists(String code);
+
+    /**
+     * @param code code
      * @return java.lang.String
      * @author sichu huang
      * @date 2024/05/05
