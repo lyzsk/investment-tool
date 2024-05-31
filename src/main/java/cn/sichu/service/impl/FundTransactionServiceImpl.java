@@ -97,6 +97,11 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 break;
             }
         }
+        /* first time purchasing, init fund_history_nav for this code */
+        if (!fundHistoryNavService.checkCodeExists(code)) {
+            String callback = fundHistoryNavService.selectCallbackByCode(code);
+            fundHistoryNavService.insertFundHistoryNav(code, "2023-08-01", DateUtil.dateToStr(applicationDate), callback);
+        }
         /* set 11.nav, 12.share, optional, only if nav is already updated */
         String navStr = fundHistoryNavService.selectFundNavByConditions(code, transactionDate);
         if (navStr != null && !navStr.equals("")) {

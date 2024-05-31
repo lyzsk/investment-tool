@@ -22,6 +22,14 @@
         )
     </insert>
 
+    <select id="selectCode" resultType="java.lang.String">
+        select distinct code
+        from fund_history_nav
+        <where>
+            <if test="code != null and code != ''">and code = #{code}</if>
+        </where>
+    </select>
+
     <select id="selectFundHistoryNavByConditions" resultType="cn.sichu.entity.FundHistoryNav" resultMap="resultMap">
         select code, nav_date, nav
         from fund_history_nav
@@ -41,5 +49,6 @@
         ) as temp
         where rn = 1 and temp.code = #{code}
     </select>
+
 
 </mapper>

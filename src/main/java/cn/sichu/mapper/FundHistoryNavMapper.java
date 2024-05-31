@@ -16,6 +16,8 @@ public interface FundHistoryNavMapper {
 
     void insertFundHistoryNav(FundHistoryNav fundHistoryNav);
 
+    String selectCode(@Param("code") String code);
+
     List<FundHistoryNav> selectFundHistoryNavByConditions(@Param("code") String code, @Param("navDate") Date navDate);
 
     List<FundHistoryNav> selectLastHistoryNav(@Param("code") String code);

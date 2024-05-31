@@ -98,6 +98,12 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
     }
 
     @Override
+    public boolean checkCodeExists(String code) {
+        String str = fundHistoryNavMapper.selectCode(code);
+        return str != null && !str.equals("");
+    }
+
+    @Override
     public String selectLastHistoryNav(String code) {
         return fundHistoryNavMapper.selectLastHistoryNav(code).get(0).getNav();
     }
