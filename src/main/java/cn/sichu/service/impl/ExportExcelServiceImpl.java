@@ -2,7 +2,7 @@ package cn.sichu.service.impl;
 
 import cn.sichu.domain.FundTransactionReportSheet;
 import cn.sichu.domain.FundTransactionStatementSheet;
-import cn.sichu.domain.GoldTransactionStatementSheet;
+import cn.sichu.domain.GoldTransactionSummarySheet;
 import cn.sichu.entity.FundInformation;
 import cn.sichu.entity.FundPosition;
 import cn.sichu.entity.FundTransaction;
@@ -73,7 +73,9 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         List<FundTransactionReportSheet> fundTransactionReportDataList = new ArrayList<>();
         Map<String, String> fundTransactionReportDataMap = new HashMap<>();
         handleFundTransactionReportSheetData(positionList, fundTransactionReportDataList, fundTransactionReportDataMap);
-        List<GoldTransactionStatementSheet> goldTransactionStatementSheetDataList = new ArrayList<>();
+        // TODO: gold mapper & gold controller
+        List<GoldTransactionSummarySheet> goldTransactionSummarySheetDataList = new ArrayList<>();
+        Map<String, String> goldTransactionSummarySheetDataMap = new HashMap<>();
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
@@ -82,13 +84,14 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         ExcelWriter writer = EasyExcel.write(response.getOutputStream()).withTemplate(inputStream).build();
         WriteSheet fundTransactionStatementWriteSheet = EasyExcel.writerSheet("Fund Transaction Statement").build();
         WriteSheet fundTransactionReportWriteSheet = EasyExcel.writerSheet("Fund Transaction Report").build();
-        WriteSheet goldTransactionStatementWriteSheet = EasyExcel.writerSheet("Gold Transaction Statement").build();
+        WriteSheet goldTransactionSummaryWriteSheet = EasyExcel.writerSheet("Gold Transaction Summary").build();
 
         FillConfig fillConfig = FillConfig.builder().forceNewRow(true).direction(WriteDirectionEnum.VERTICAL).build();
         writer.fill(fundTransactionStatementDataList, fillConfig, fundTransactionStatementWriteSheet);
         writer.fill(fundTransactionReportDataList, fillConfig, fundTransactionReportWriteSheet);
         writer.fill(fundTransactionReportDataMap, fillConfig, fundTransactionReportWriteSheet);
-        writer.fill(goldTransactionStatementSheetDataList, fillConfig, goldTransactionStatementWriteSheet);
+        writer.fill(goldTransactionSummarySheetDataList, fillConfig, goldTransactionSummaryWriteSheet);
+        writer.fill(goldTransactionSummarySheetDataMap, fillConfig, goldTransactionSummaryWriteSheet);
 
         inputStream.close();
         writer.finish();

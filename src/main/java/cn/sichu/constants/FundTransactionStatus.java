@@ -1,4 +1,4 @@
-package cn.sichu.constant;
+package cn.sichu.constants;
 
 /**
  * @author sichu huang

@@ -5,7 +5,8 @@ package cn.sichu.enums;
  * @date 2024/05/02
  **/
 public enum AppExceptionCodeMsg {
-    FUND_TRANSACTION_EXCEPTION(999, "fund transaction exception"), EXCEL_EXPORT_EXCEPTION(998, "excel export exception");
+    FUND_TRANSACTION_EXCEPTION(999, "fund transaction exception"), EXCEL_EXPORT_EXCEPTION(998,
+        "excel export exception"), GOLD_TRANSACTION_EXCEPTION(997, "gold transaction exception");
 
     private int code;
     private String msg;

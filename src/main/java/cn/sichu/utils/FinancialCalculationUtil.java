@@ -162,4 +162,26 @@ public class FinancialCalculationUtil {
     public static BigDecimal calculateDividendAmount(BigDecimal share, BigDecimal dividendAmountPerShare) {
         return share.multiply(dividendAmountPerShare).setScale(2, RoundingMode.HALF_UP);
     }
+
+    /**
+     * @param grams        克数
+     * @param pricePerGram 单价/克
+     * @return java.math.BigDecimal
+     * @author sichu huang
+     * @date 2024/06/10
+     **/
+    public static BigDecimal calculateGoldTransactionAmount(BigDecimal grams, BigDecimal pricePerGram) {
+        return grams.multiply(pricePerGram).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * @param amount 金额
+     * @param grams  克数
+     * @return java.math.BigDecimal
+     * @author sichu huang
+     * @date 2024/06/10
+     **/
+    public static BigDecimal calculateAvgPricePerGram(BigDecimal amount, BigDecimal grams) {
+        return amount.divide(grams, 2, RoundingMode.HALF_UP);
+    }
 }

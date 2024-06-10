@@ -4,7 +4,7 @@ import cn.sichu.entity.FundEastmoneyJjjz;
 import cn.sichu.entity.FundHistoryNav;
 import cn.sichu.entity.FundTransaction;
 import cn.sichu.enums.AppExceptionCodeMsg;
-import cn.sichu.exception.FundTransactionException;
+import cn.sichu.exception.TransactionException;
 import cn.sichu.mapper.FundEastmoneyJjjzMapper;
 import cn.sichu.mapper.FundHistoryNavMapper;
 import cn.sichu.mapper.FundTransactionMapper;
@@ -60,7 +60,7 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         String navDateStr = DateUtil.dateToStr(navDate);
         String callback = selectCallbackByCode(code);
         if (navDate.after(currentDate)) {
-            throw new FundTransactionException(999, "navDate should be earlier than or equals to currentDate");
+            throw new TransactionException(999, "navDate should be earlier than or equals to currentDate");
         } else {
             if (CrawlUtil.getDailyNavMapBetweenDates(code, navDateStr, navDateStr, callback).isEmpty()) {
                 return "";
@@ -118,7 +118,7 @@ public class FundHistoryNavServiceImpl implements IFundHistoryNavService {
         String callback = selectCallbackByCode(code);
         List<FundHistoryNav> lastHistoryNav = fundHistoryNavMapper.selectLastHistoryNav(code);
         if (lastHistoryNav.isEmpty()) {
-            throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+            throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                 "can't find last history nav and date, please manual init!");
         }
         Date lastDate = lastHistoryNav.get(0).getNavDate();
