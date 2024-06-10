@@ -3,15 +3,16 @@ package cn.sichu.service.impl;
 import cn.sichu.domain.FundTransactionReportSheet;
 import cn.sichu.domain.FundTransactionStatementSheet;
 import cn.sichu.domain.GoldTransactionSummarySheet;
-import cn.sichu.entity.FundInformation;
-import cn.sichu.entity.FundPosition;
-import cn.sichu.entity.FundTransaction;
+import cn.sichu.entity.*;
 import cn.sichu.enums.AppExceptionCodeMsg;
 import cn.sichu.enums.FundTransactionType;
+import cn.sichu.enums.GoldTransactionType;
 import cn.sichu.exception.ExcelException;
 import cn.sichu.mapper.FundTransactionReportSheetMapper;
 import cn.sichu.mapper.FundTransactionStatementSheetMapper;
+import cn.sichu.mapper.GoldTransactionSummarySheetMapper;
 import cn.sichu.service.IExportExcelService;
+import cn.sichu.utils.DateTimeUtil;
 import cn.sichu.utils.DateUtil;
 import cn.sichu.utils.FinancialCalculationUtil;
 import com.alibaba.excel.EasyExcel;
@@ -47,6 +48,8 @@ public class ExportExcelServiceImpl implements IExportExcelService {
     FundTransactionStatementSheetMapper fundTransactionStatementSheetMapper;
     @Autowired
     FundTransactionReportSheetMapper fundTransactionReportSheetMapper;
+    @Autowired
+    GoldTransactionSummarySheetMapper goldTransactionSummarySheetMapper;
 
     @Override
     public void exportInvestmentExcel(HttpServletResponse response) throws IOException {
@@ -65,33 +68,36 @@ public class ExportExcelServiceImpl implements IExportExcelService {
         XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
         workbook.setSheetName(0, "Fund Transaction Statement");
         workbook.setSheetName(1, "Fund Transaction Report");
-        workbook.setSheetName(2, "Gold Transaction Statement");
+        workbook.setSheetName(2, "Gold Transaction Summary");
         /* 对list数据(一对多关系)进行处理 */
-        List<FundTransaction> transactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
-        List<FundTransactionStatementSheet> fundTransactionStatementDataList = handleFundTransactionStatementSheetData(transactionList);
-        List<FundPosition> positionList = fundTransactionReportSheetMapper.selectAllFundPosition();
+        List<FundTransaction> fundTransactionList = fundTransactionStatementSheetMapper.selectAllFundTransaction();
+        List<FundTransactionStatementSheet> fundTransactionStatementDataList = handleFundTransactionStatementSheetData(fundTransactionList);
+        List<FundPosition> fundPositionList = fundTransactionReportSheetMapper.selectAllFundPosition();
         List<FundTransactionReportSheet> fundTransactionReportDataList = new ArrayList<>();
         Map<String, String> fundTransactionReportDataMap = new HashMap<>();
-        handleFundTransactionReportSheetData(positionList, fundTransactionReportDataList, fundTransactionReportDataMap);
-        // TODO: gold mapper & gold controller
-        List<GoldTransactionSummarySheet> goldTransactionSummarySheetDataList = new ArrayList<>();
-        Map<String, String> goldTransactionSummarySheetDataMap = new HashMap<>();
+        handleFundTransactionReportSheetData(fundPositionList, fundTransactionReportDataList, fundTransactionReportDataMap);
+        List<GoldTransaction> goldTransactionList = goldTransactionSummarySheetMapper.selectAllGoldTransaction();
+        List<GoldPosition> goldPositionList = goldTransactionSummarySheetMapper.selectAllGoldPosition();
+        List<GoldTransactionSummarySheet> goldTransactionSummaryDataList = new ArrayList<>();
+        Map<String, String> goldTransactionSummaryDataMap = new HashMap<>();
+        handleGoldTransactionSummarySheetData(goldTransactionList, goldPositionList, goldTransactionSummaryDataList,
+            goldTransactionSummaryDataMap);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
         byte[] bytes = outputStream.toByteArray();
         inputStream = new ByteArrayInputStream(bytes);
         ExcelWriter writer = EasyExcel.write(response.getOutputStream()).withTemplate(inputStream).build();
-        WriteSheet fundTransactionStatementWriteSheet = EasyExcel.writerSheet("Fund Transaction Statement").build();
-        WriteSheet fundTransactionReportWriteSheet = EasyExcel.writerSheet("Fund Transaction Report").build();
-        WriteSheet goldTransactionSummaryWriteSheet = EasyExcel.writerSheet("Gold Transaction Summary").build();
+        WriteSheet sheet0 = EasyExcel.writerSheet("Fund Transaction Statement").build();
+        WriteSheet sheet1 = EasyExcel.writerSheet("Fund Transaction Report").build();
+        WriteSheet sheet2 = EasyExcel.writerSheet("Gold Transaction Summary").build();
 
         FillConfig fillConfig = FillConfig.builder().forceNewRow(true).direction(WriteDirectionEnum.VERTICAL).build();
-        writer.fill(fundTransactionStatementDataList, fillConfig, fundTransactionStatementWriteSheet);
-        writer.fill(fundTransactionReportDataList, fillConfig, fundTransactionReportWriteSheet);
-        writer.fill(fundTransactionReportDataMap, fillConfig, fundTransactionReportWriteSheet);
-        writer.fill(goldTransactionSummarySheetDataList, fillConfig, goldTransactionSummaryWriteSheet);
-        writer.fill(goldTransactionSummarySheetDataMap, fillConfig, goldTransactionSummaryWriteSheet);
+        writer.fill(fundTransactionStatementDataList, fillConfig, sheet0);
+        writer.fill(fundTransactionReportDataList, fillConfig, sheet1);
+        writer.fill(fundTransactionReportDataMap, fillConfig, sheet1);
+        writer.fill(goldTransactionSummaryDataList, fillConfig, sheet2);
+        writer.fill(goldTransactionSummaryDataMap, fillConfig, sheet2);
 
         inputStream.close();
         writer.finish();
@@ -269,5 +275,60 @@ public class ExportExcelServiceImpl implements IExportExcelService {
             map.put("totalYieldRate", decimalFormat.format(
                 FinancialCalculationUtil.calculateYieldRate(sumTotalAmount.subtract(sumTotalPrincipalAmount), sumTotalPrincipalAmount)));
         }
+    }
+
+    /**
+     * @param transactionList GoldTransaction List
+     * @param positionList    GoldPosition List
+     * @param list            一对多关系数据(List)
+     * @param map             一对一关系数据数据(HashMap)
+     * @author sichu huang
+     * @date 2024/06/11
+     **/
+    private void handleGoldTransactionSummarySheetData(List<GoldTransaction> transactionList, List<GoldPosition> positionList,
+        List<GoldTransactionSummarySheet> list, Map<String, String> map) {
+        BigDecimal sumPrincipalAmount = BigDecimal.ZERO;
+        BigDecimal sumGrams = BigDecimal.ZERO;
+        BigDecimal sumAmount = BigDecimal.ZERO;
+        BigDecimal sumProfit = BigDecimal.ZERO;
+        /* 一对多关系数据(List) */
+        for (GoldTransaction transaction : transactionList) {
+            GoldTransactionSummarySheet sheet = new GoldTransactionSummarySheet();
+            BigDecimal grams = transaction.getGrams();
+            sheet.setGrams(String.valueOf(grams));
+            BigDecimal pricePerGram = transaction.getPricePerGram();
+            sheet.setPricePerGram(String.valueOf(pricePerGram));
+            BigDecimal amount = FinancialCalculationUtil.calculateGoldTransactionAmount(grams, pricePerGram);
+            sheet.setAmount(String.valueOf(amount));
+            if (transaction.getType().equals(GoldTransactionType.PURCHASE.getCode())) {
+                sheet.setType(GoldTransactionType.PURCHASE.getDescription());
+                sheet.setPurchaseTime(DateTimeUtil.localDateTimeToDateStr(transaction.getTransactionTime()));
+                sumGrams = sumGrams.add(grams);
+                sumAmount = sumAmount.add(amount);
+            } else {
+                sheet.setType(GoldTransactionType.REDEMPTION.getDescription());
+                sheet.setRedemptionTime(DateTimeUtil.localDateTimeToDateStr(transaction.getTransactionTime()));
+                sumGrams = sumGrams.subtract(grams);
+                sumAmount = sumAmount.subtract(amount);
+            }
+            sheet.setTradingPlatform(transaction.getTradingPlatform());
+            list.add(sheet);
+        }
+        /* 一对一关系数据数据(HashMap) */
+        for (GoldPosition position : positionList) {
+            if (position.getMark() == null || position.getMark().equals("")) {
+                continue;
+            }
+            BigDecimal profit = position.getTotalAmount().subtract(position.getTotalPrincipalAmount());
+            sumProfit = sumProfit.add(profit);
+        }
+        DecimalFormat decimalFormat = new DecimalFormat("0.00%");
+        map.put("sumPrincipalAmount", String.valueOf(sumPrincipalAmount));
+        map.put("sumGrams", String.valueOf(sumGrams));
+        map.put("sumAmount", String.valueOf(sumAmount));
+        map.put("sumProfit", String.valueOf(sumProfit));
+        BigDecimal yieldRate = FinancialCalculationUtil.calculateYieldRate(sumProfit, sumPrincipalAmount);
+        map.put("sumYieldRate", decimalFormat.format(yieldRate));
+        map.put("avgAmountPerGram", String.valueOf(FinancialCalculationUtil.calculateAvgPricePerGram(sumAmount, sumGrams)));
     }
 }
