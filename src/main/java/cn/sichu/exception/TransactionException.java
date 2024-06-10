@@ -6,14 +6,14 @@ import java.io.Serial;
  * @author sichu huang
  * @date 2024/03/24
  **/
-public class FundTransactionException extends RuntimeException {
+public class TransactionException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 4133294663645980698L;
 
     private int code;
     private String msg;
 
-    public FundTransactionException(int code, String msg) {
+    public TransactionException(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }

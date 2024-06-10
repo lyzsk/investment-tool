@@ -1,10 +1,10 @@
 package cn.sichu.service.impl;
 
-import cn.sichu.constant.FundTransactionStatus;
+import cn.sichu.constants.FundTransactionStatus;
 import cn.sichu.entity.*;
 import cn.sichu.enums.AppExceptionCodeMsg;
 import cn.sichu.enums.FundTransactionType;
-import cn.sichu.exception.FundTransactionException;
+import cn.sichu.exception.TransactionException;
 import cn.sichu.mapper.FundPositionMapper;
 import cn.sichu.mapper.FundPurchaseFeeRateMapper;
 import cn.sichu.mapper.FundRedemptionFeeRateMapper;
@@ -59,7 +59,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         transaction.setConfirmationDate(transactionDate);
         List<FundInformation> informationList = fundInformationService.selectFundPurchaseTransactionProcessByCode(code);
         if (informationList.isEmpty()) {
-            throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+            throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                 "can't calculate purchase transaction's settlement_date, because no fund information found by code");
         }
         FundInformation information = informationList.get(0);
@@ -77,7 +77,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         /* set 10.fee */
         List<FundPurchaseFeeRate> feeRateList = fundPurchaseFeeRateMapper.selectFundPurchaseFeeRateByConditions(code, tradingPlatform);
         if (feeRateList.isEmpty()) {
-            throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+            throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                 "can't calculate purchase transaction's fee, because no fee rate found according to this code and trading_platform");
         }
         for (int i = 0; i < feeRateList.size(); i++) {
@@ -182,7 +182,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         Date lastNTransactionDate = TransactionDayUtil.getLastNTransactionDate(fundPosition.getInitiationDate(), 1);
         String navStr = fundHistoryNavService.selectFundNavByConditions(fundPosition.getCode(), lastNTransactionDate);
         if (navStr == null || navStr.equals("")) {
-            throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+            throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                 "can't calculate total_amount for `fund_position`, because nav is not update before settlement_date/initiation_date");
         }
         fundPosition.setTotalAmount(FinancialCalculationUtil.calculateTotalAmount(share, navStr));
@@ -264,7 +264,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         transaction.setTransactionDate(transactionDate);
         List<FundInformation> fundInformationList = fundInformationService.selectFundRedemptionTransactionProcessByCode(code);
         if (fundInformationList.isEmpty()) {
-            throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+            throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                 "can't calculate redemption transaction's confirmation_date and settlement_date, because no fund information found by code");
         }
         FundInformation information = fundInformationList.get(0);
@@ -276,7 +276,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         transaction.setSettlementDate(settlementDate);
         List<FundPosition> fundPositionList = fundPositionMapper.selectFundPositionWithNullMarkByConditions(code, tradingPlatform);
         if (fundPositionList.isEmpty()) {
-            throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+            throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                 "nothing to redeem, because no fund position found by code");
         }
         int size = fundPositionList.size();
@@ -289,11 +289,11 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         int count = 0;
         for (FundPosition fundPosition : fundPositionList) {
             if (transactionDate.before(fundPositionList.get(size - 1).getInitiationDate())) {
-                throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+                throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                     "redemption transaction should be after purchase and held position");
             }
             if (share.compareTo(fundPositionList.get(size - 1).getHeldShare()) > 0) {
-                throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+                throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                     "redemption share is larger than held_share in fund_position");
             }
             BigDecimal tempShare = new BigDecimal(String.valueOf(share)).subtract(fundPosition.getHeldShare());
@@ -325,7 +325,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 List<FundRedemptionFeeRate> fundRedemptionFeeRateList =
                     fundRedemptionFeeRateMapper.selectRedemptionFeeRateByConditions(transaction.getCode(), transaction.getTradingPlatform());
                 if (fundRedemptionFeeRateList.isEmpty()) {
-                    throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+                    throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                         "can't calculate redemption transaction's fee and amount, because no fee rate found according to this code and trading_platform");
                 }
                 Map<String, BigDecimal> map = calculateRedemptionFeeAndAmount(fundPosition, navStr, fundRedemptionFeeRateList);
@@ -414,7 +414,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
         /* set 10.amount */
         List<FundPosition> fundPositionList = fundPositionMapper.selectFundPositionWithMaxHeldShareByConditions(code, type);
         if (fundPositionList.isEmpty()) {
-            throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+            throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                 "can't calculate dividend amount, because no held_share in fund_position");
         }
         BigDecimal heldShare = fundPositionList.get(0).getHeldShare();
@@ -456,7 +456,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             Date redemptionDate = fundPosition.getRedemptionDate();
             List<FundInformation> fundInformationList = fundInformationService.selectFundRedemptionTransactionProcessByCode(code);
             if (fundInformationList.isEmpty()) {
-                throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+                throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                     "can't calculate redemption transaction's confirmation_date, because no fund information found by code");
             }
             FundInformation information = fundInformationList.get(0);
@@ -472,7 +472,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             List<FundRedemptionFeeRate> fundRedemptionFeeRateList =
                 fundRedemptionFeeRateMapper.selectRedemptionFeeRateByConditions(code, fundPosition.getTradingPlatform());
             if (fundRedemptionFeeRateList.isEmpty()) {
-                throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+                throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                     "can't calculate redemption transaction's fee and amount, because no fee rate found according to this code and trading_platform");
             }
             for (int i = 0; i < fundRedemptionFeeRateList.size(); i++) {
@@ -511,7 +511,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
             Date redemptionDate = fundPosition.getRedemptionDate();
             List<FundInformation> fundInformationList = fundInformationService.selectFundRedemptionTransactionProcessByCode(code);
             if (fundInformationList.isEmpty()) {
-                throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+                throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                     "can't calculate purchase transaction's confirmation_date, because no fund information found by code");
             }
             FundInformation information = fundInformationList.get(0);
@@ -604,7 +604,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService {
                 List<FundInformation> fundInformationList =
                     fundInformationService.selectFundRedemptionTransactionProcessByCode(fundPosition.getCode());
                 if (fundInformationList.isEmpty()) {
-                    throw new FundTransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
+                    throw new TransactionException(AppExceptionCodeMsg.FUND_TRANSACTION_EXCEPTION.getCode(),
                         "can't update fund_position's status(REDEMPTION_IN_TRANSIT), because no fund information found by code");
                 }
                 FundInformation information = fundInformationList.get(0);

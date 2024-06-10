@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +29,19 @@ public class TransactionDayUtil {
     }
 
     /**
-     * @param date
+     * @param datetime datetime
+     * @return boolean
+     * @author sichu huang
+     * @date 2024/06/10
+     **/
+    public static boolean isTransactionDate(LocalDateTime datetime) throws IOException {
+        String dateStr = DateTimeUtil.localDateTimeToDateStr(datetime);
+        JSONObject json = JsonUtil.readJsonFromUrl("https://holiday.dreace.top?date=" + dateStr);
+        return json.get("note").equals("普通工作日");
+    }
+
+    /**
+     * @param date date
      * @return java.util.Date
      * @author sichu huang
      * @date 2024/03/10
@@ -42,8 +55,8 @@ public class TransactionDayUtil {
     }
 
     /**
-     * @param date
-     * @param n
+     * @param date date
+     * @param n    n
      * @return java.util.Date
      * @author sichu huang
      * @date 2024/03/10
@@ -61,8 +74,8 @@ public class TransactionDayUtil {
     }
 
     /**
-     * @param date
-     * @param n
+     * @param date date
+     * @param n    n
      * @return java.util.Date
      * @author sichu huang
      * @date 2024/03/18
@@ -105,8 +118,8 @@ public class TransactionDayUtil {
     }
 
     /**
-     * @param startDate
-     * @param endDate
+     * @param startDate startDate
+     * @param endDate   endDate
      * @return java.lang.Long
      * @author sichu huang
      * @date 2024/04/04
@@ -119,8 +132,8 @@ public class TransactionDayUtil {
     }
 
     /**
-     * @param startDate
-     * @param endDate
+     * @param startDate startDate
+     * @param endDate   endDate
      * @return java.lang.Long
      * @author sichu huang
      * @date 2024/03/12
@@ -140,4 +153,23 @@ public class TransactionDayUtil {
         return heldTransactionDays;
     }
 
+    /**
+     * @param startTime startTime
+     * @param endTime   endTime
+     * @return int
+     * @author sichu huang
+     * @date 2024/06/10
+     **/
+    public static int getHeldTransactionDays(LocalDateTime startTime, LocalDateTime endTime) throws IOException {
+        int heldTransactionDays = 0;
+        LocalDateTime temp = startTime;
+        while (temp.isBefore(endTime)) {
+            LocalDateTime n = temp.plusDays(1);
+            if (isTransactionDate(n)) {
+                ++heldTransactionDays;
+            }
+            temp = n;
+        }
+        return heldTransactionDays;
+    }
 }
