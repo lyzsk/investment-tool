@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
  * @date 2024/06/10
  **/
 public class DateTimeUtil {
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
      * @param str str
@@ -17,7 +17,7 @@ public class DateTimeUtil {
      * @date 2024/06/10
      **/
     public static LocalDateTime strToDateTime(String str) {
-        return LocalDateTime.parse(str, FORMATTER);
+        return LocalDateTime.parse(str, YYYY_MM_DD_HH_MM_SS);
     }
 
     /**
@@ -27,7 +27,7 @@ public class DateTimeUtil {
      * @date 2024/06/10
      **/
     public static String dateTimeToStr(LocalDateTime dateTime) {
-        return dateTime.format(FORMATTER);
+        return dateTime.format(YYYY_MM_DD_HH_MM_SS);
     }
 
     /**
