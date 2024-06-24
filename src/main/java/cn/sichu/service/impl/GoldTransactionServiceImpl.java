@@ -19,6 +19,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
+ * TODO:
+ * solve bug: {
+ * "code": 500,
+ * "msg": "Cannot invoke \"java.time.chrono.ChronoLocalDateTime.toLocalDate()\" because \"other\" is null",
+ * "data": null
+ * }
+ *
  * @author sichu huang
  * @date 2024/06/10
  **/
@@ -92,7 +99,8 @@ public class GoldTransactionServiceImpl implements IGoldTransactionService {
                 updateLaterPositions(position);
             }
             updateHeldDays();
-        } else {
+        }
+        if (transaction.getType().equals(GoldTransactionType.REDEMPTION.getCode())) {
             List<GoldPosition> positionList = goldPositionMapper.selectGoldPositionWithNullMark();
             if (positionList.isEmpty()) {
                 throw new TransactionException(AppExceptionCodeMsg.GOLD_TRANSACTION_EXCEPTION.getCode(), "no gold position found to redeem");

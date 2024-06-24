@@ -28,9 +28,9 @@
 
     <select id="selectAllGoldTransaction" resultType="cn.sichu.entity.GoldTransaction" resultMap="transactionMap">
         select
-        price_per_gram, grams, type, confirmation_date, transactionTime, tradingPlatform, mark
+        price_per_gram, grams, type, transaction_time, trading_platform, mark
         from gold_transaction
-        order by transactionTime
+        order by transaction_time
     </select>
 
     <select id="selectAllGoldPosition" resultType="cn.sichu.entity.GoldPosition" resultMap="positionMap">
