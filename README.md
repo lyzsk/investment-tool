@@ -18,7 +18,10 @@
 
 # environment
 
-JDK17 + SpringBoot3.2.3 + MySQL 8.0.28
+-   Java 17
+-   SpringBoot3.3.4
+-   MyBatis-Plus 3.5.7
+-   MySQL 8.0.28
 
 # Features
 
