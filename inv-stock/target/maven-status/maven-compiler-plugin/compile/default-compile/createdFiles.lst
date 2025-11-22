@@ -1,0 +1,12 @@
+cn\sichu\controller\OcrImageController.class
+cn\sichu\service\IOcrImageService.class
+cn\sichu\dto\UploadImageDto.class
+cn\sichu\entity\OcrResult.class
+cn\sichu\mapper\OcrImageMapper.class
+cn\sichu\service\ILocalPaddleOcrService.class
+cn\sichu\service\impl\OcrImageServiceImpl.class
+cn\sichu\mapper\OcrResultMapper.class
+cn\sichu\service\impl\OcrProcessServiceImpl.class
+cn\sichu\service\impl\LocalPaddleOcrServiceImpl.class
+cn\sichu\service\IOcrProcessService.class
+cn\sichu\entity\OcrImage.class
