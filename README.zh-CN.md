@@ -16,34 +16,9 @@
 
 > **_喜欢，或者对你有帮助的话，记得点赞哦_** :star:
 
-# 免责声明
-
-**本程序代码仅供本人学习研究使用，如作他用所承受的法律责任一概与作者无关(下载使用即代表你同意上述观点)。使用者不得干扰或破坏数据来源网站的服务或与服务相连的服务器和网络，且本程序不对您构成任何投资建议，据此操作，风险自担。**
-
 # environment
 
 JDK17.0.10 + SpringBoot3.2.3 + MySQL 8.0.28
-
-# Quick Start
-
-## step1
-
-create mysql table using: `/sql/tables.sql`
-
-## step2
-
-```cmd
-mvn clean install
-mvn package spring-boot:repackage
-```
-
-run `/start.bat`
-
-> Note: change `start.bat` `JAVA_HOME` to your local path
-
-## step3
-
-enjoy the shit code with no ui design, just postman/browser visit controllers api.
 
 # Features
 
@@ -51,3 +26,36 @@ enjoy the shit code with no ui design, just postman/browser visit controllers ap
 -   [x] 自动更新持仓数据: 合计金额/合计手续费/持仓份额/持有天数, 每日 00:00 更新交易状态和对应数据, 每日 20:00 - 23:00 每小时自动爬取数据更新净值
 -   [x] 根据 template 自动导出 excel: 交易账单工作簿, 交易分析工作簿
 -   [ ] 交易自动计算收益, 自动分析
+-   [x] OCR 识别图片转化为数据和表格
+
+# Quick Start
+
+1. create mysql table using: `/sql/tables.sql`
+2. `mvn clean install` and `mvn package spring-boot:repackage`
+3. run `/start.bat`
+
+> Note: change `start.bat` `JAVA_HOME` to your local path
+
+# structure
+
+```
+├───investment-tool
+├───inv-admin # springboot entrance
+├───inv-common # common module
+├───inv-stock # stock module
+│   ├───src
+│   │   └───main
+│   │       ├───java
+│   │       │   └───cn
+│   │       │       └───sichu
+│   │       │           └───ocr # ocr module
+│   │       └───resources
+│   │           └───tessdata # traineddata
+└───sql # sql scripts
+```
+
+> trained data is from: https://github.com/tesseract-ocr/tessdata
+
+# 免责声明
+
+**本程序代码仅供本人学习研究使用，如作他用所承受的法律责任一概与作者无关(下载使用即代表你同意上述观点)。使用者不得干扰或破坏数据来源网站的服务或与服务相连的服务器和网络，且本程序不对您构成任何投资建议，据此操作，风险自担。**
