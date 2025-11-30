@@ -9,7 +9,7 @@ import java.util.Collection;
  * @since 2025/11/23 00:38
  */
 @Component
-public class CollUtil {
+public class CollectionUtils {
     public static boolean isEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty();
     }

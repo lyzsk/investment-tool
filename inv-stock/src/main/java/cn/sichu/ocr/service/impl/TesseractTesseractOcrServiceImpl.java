@@ -12,6 +12,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 
+/**
+ * @author sichu huang
+ * @since 2025/11/23 00:26
+ */
 @Service
 @Slf4j
 public class TesseractTesseractOcrServiceImpl implements ITesseractOcrService {
@@ -24,8 +28,6 @@ public class TesseractTesseractOcrServiceImpl implements ITesseractOcrService {
     @Override
     public String recognize(byte[] imageBytes) {
         Tesseract tesseract = new Tesseract();
-        // tesseract.setDatapath(
-        //     "C:/Users/Administrator/dev/investment-tool/inv-stock/src/main/resources/tessdata");
         tesseract.setDatapath(tessdataExtractor.getTessdataPath());
         tesseract.setLanguage("chi_sim");
 

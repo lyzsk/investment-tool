@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.system.mapper.FileUploadMapper">
+
+    <resultMap id="fileUploadResult" type="cn.sichu.system.entity.FileUpload">
+        <id property="id" column="id"/>
+        <result property="originalFilename" column="original_filename"/>
+        <result property="savedFilename" column="saved_filename"/>
+        <result property="path" column="path"/>
+        <result property="contentType" column="content_type"/>
+        <result property="size" column="size"/>
+        <result property="uploadBy" column="upload_by"/>
+        <result property="uploadTime" column="upload_time"/>
+        <result property="category" column="category"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <select id="selectByCategoryAndNotDeleted" resultMap="fileUploadResult">
+        select * from file_upload
+        <where>
+            <if test="category!= null and category!= ''">
+                and lower(category) = #{category}
+            </if>
+            and is_deleted = 0
+            and content_type like 'image/%'
+        </where>
+    </select>
+
+</mapper>

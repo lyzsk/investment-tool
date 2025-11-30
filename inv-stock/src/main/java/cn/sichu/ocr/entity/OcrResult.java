@@ -18,7 +18,8 @@ import java.time.LocalDateTime;
 @TableName("ocr_result")
 public class OcrResult extends BaseEntity {
 
-    private Long imageId;
+    @TableField("file_upload_id")
+    private Long fileUploadId;
 
     @TableField("raw_text")
     private String rawText;
@@ -26,8 +27,10 @@ public class OcrResult extends BaseEntity {
     @TableField("processed_text")
     private String processedText;
 
+    @TableField("word_count")
     private Long wordCount = 0L;
 
+    @TableField("processed_by")
     private Long processedBy;
 
     @TableField(value = "process_time", fill = FieldFill.INSERT)
@@ -38,5 +41,6 @@ public class OcrResult extends BaseEntity {
      */
     private Integer status = 0;
 
-    private String errorMsg;
+    @TableField("error_message")
+    private String errorMessage;
 }

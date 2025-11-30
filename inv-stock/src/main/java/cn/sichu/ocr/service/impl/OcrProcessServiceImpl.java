@@ -8,14 +8,17 @@ import cn.sichu.ocr.service.IOcrProcessService;
 import cn.sichu.ocr.service.ITesseractOcrService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import enums.BusinessStatus;
+import enums.ProcessStatus;
+import enums.TableLogic;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import result.ResultCode;
-import utils.CollUtil;
-import utils.StrUtil;
+import utils.CollectionUtils;
+import utils.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -64,40 +67,39 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int processPendingImages() {
-        LambdaQueryWrapper<OcrImage> wrapper =
-            Wrappers.lambdaQuery(OcrImage.class).eq(OcrImage::getStatus, 0)
-                .eq(OcrImage::getIsDeleted, 0);
+        LambdaQueryWrapper<OcrImage> wrapper = Wrappers.lambdaQuery(OcrImage.class)
+            .eq(OcrImage::getStatus, ProcessStatus.UNPROCESSED.getCode())
+            .eq(OcrImage::getIsDeleted, TableLogic.NOT_DELETED.getCode());
         List<OcrImage> list = ocrImageService.list(wrapper);
-        if (CollUtil.isEmpty(list)) {
+        if (CollectionUtils.isEmpty(list)) {
             log.info("没有待处理的OCR图片");
             return 0;
         }
         int success = 0;
         for (OcrImage image : list) {
             OcrResult result = new OcrResult();
-            result.setImageId(image.getId());
-
+            result.setFileUploadId(image.getFileUploadId());
             try {
-                byte[] imageBytes = image.getImageData();
-                if (imageBytes == null || imageBytes.length == 0) {
+                byte[] imageData = image.getImageData();
+                if (imageData == null || imageData.length == 0) {
                     throw new BusinessException(ResultCode.OCR_FAILED);
                 }
-                String rawText = tesseractOcrService.recognize(imageBytes);
+                String rawText = tesseractOcrService.recognize(imageData);
                 String processedText = postProcess(rawText);
                 result.setRawText(rawText);
                 result.setProcessedText(processedText);
                 result.setWordCount((long)rawText.length());
+                result.setProcessedBy(1L);
                 result.setProcessTime(LocalDateTime.now());
-                result.setStatus(0);
-                image.setStatus(1);
-                success++;
+                result.setStatus(BusinessStatus.SUCCESS.getCode());
+                image.setStatus(ProcessStatus.PROCESSED.getCode());
+                ++success;
             } catch (Exception e) {
-                result.setStatus(1);
-                result.setErrorMsg(StrUtil.maxLength(e.getMessage(), 500));
-                image.setStatus(2);
+                result.setStatus(BusinessStatus.FAILED.getCode());
+                result.setErrorMessage(StringUtils.maxLength(e.getMessage(), 500));
+                image.setStatus(ProcessStatus.PROCESS_FAILED.getCode());
                 log.error("OCR失败，imageId={}", image.getId(), e);
             }
-
             ocrResultMapper.insert(result);
             ocrImageService.updateById(image);
         }
@@ -108,7 +110,7 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
 
     @Override
     public String postProcess(String rawText) {
-        if (StrUtil.isEmpty(rawText)) {
+        if (StringUtils.isEmpty(rawText)) {
             return rawText;
         }
         String text = getText(rawText);

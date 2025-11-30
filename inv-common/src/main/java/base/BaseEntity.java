@@ -1,12 +1,11 @@
 package base;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * @author sichu huang
@@ -28,6 +27,12 @@ public class BaseEntity implements Serializable {
      */
     @TableLogic(value = "0", delval = "1")
     private Integer isDeleted;
+
+    @TableField("delete_by")
+    private Long deleteBy;
+
+    @TableField(value = "delete_time", fill = FieldFill.UPDATE)
+    private LocalDateTime deleteTime;
 
     /**
      * 备注
