@@ -28,3 +28,10 @@
 
 /logs/*
 /logs/logs/*
+
+### uploads
+uploads/
+uploads/*
+uploads/**/*
+
+tree.txt

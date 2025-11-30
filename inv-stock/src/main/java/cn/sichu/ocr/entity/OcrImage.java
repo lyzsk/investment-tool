@@ -18,15 +18,13 @@ import java.time.LocalDateTime;
 @TableName("ocr_image")
 public class OcrImage extends BaseEntity {
 
-    private String fileName;
-
-    private String fileType;
-
-    private Long fileSize;
+    @TableField("file_upload_id")
+    private Long fileUploadId;
 
     @TableField("image_data")
     private byte[] imageData;
 
+    @TableField("upload_by")
     private Long uploadBy;
 
     @TableField(value = "upload_time", fill = FieldFill.INSERT)

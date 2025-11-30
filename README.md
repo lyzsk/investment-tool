@@ -42,19 +42,135 @@
 # structure
 
 ```
-├───investment-tool
-├───inv-admin # springboot entrance
-├───inv-common # common module
-├───inv-stock # stock module
+investment-tool
+│   .gitignore
+│   LICENSE
+│   pom.xml
+│   README.md
+│   README.zh-CN.md
+│
+├───inv-admin
+│   │   pom.xml
+│   │
 │   ├───src
 │   │   └───main
 │   │       ├───java
 │   │       │   └───cn
 │   │       │       └───sichu
-│   │       │           └───ocr # ocr module
+│   │       │               Application.java
+│   │       │
 │   │       └───resources
-│   │           └───tessdata # trained data
-└───sql # sql scripts
+│   │               application.yml
+│   │               banner.txt
+│
+├───inv-common
+│   │   pom.xml
+│   │
+│   ├───src
+│   │   └───main
+│   │       ├───java
+│   │       │   ├───base
+│   │       │   │       BaseEntity.java
+│   │       │   │
+│   │       │   ├───config
+│   │       │   │       ProjectConfig.java
+│   │       │   │
+│   │       │   ├───enums
+│   │       │   │       BusinessStatus.java
+│   │       │   │       ProcessStatus.java
+│   │       │   │       TableLogic.java
+│   │       │   │
+│   │       │   ├───exception
+│   │       │   │       BusinessException.java
+│   │       │   │       GlobalExceptionHandler.java
+│   │       │   │       UtilException.java
+│   │       │   │
+│   │       │   ├───result
+│   │       │   │       IResultCode.java
+│   │       │   │       PageResult.java
+│   │       │   │       Result.java
+│   │       │   │       ResultCode.java
+│   │       │   │
+│   │       │   └───utils
+│   │       │       │   CollectionUtils.java
+│   │       │       │   IdUtils.java
+│   │       │       │   StringUtils.java
+│   │       │       │
+│   │       │       └───file
+│   │       │               FileTypeUtils.java
+│   │       │               FileUploadUtils.java
+│   │       │               FileUtils.java
+│   │       │               MimeTypeUtils.java
+│
+├───inv-stock
+│   │   pom.xml
+│   │
+│   ├───src
+│   │   └───main
+│   │       ├───java
+│   │       │   └───cn
+│   │       │       └───sichu
+│   │       │           └───ocr
+│   │       │               ├───controller
+│   │       │               │       OcrImageController.java
+│   │       │               │
+│   │       │               ├───entity
+│   │       │               │       OcrImage.java
+│   │       │               │       OcrResult.java
+│   │       │               │
+│   │       │               ├───init
+│   │       │               │       TessdataExtractor.java
+│   │       │               │
+│   │       │               ├───mapper
+│   │       │               │       OcrImageMapper.java
+│   │       │               │       OcrResultMapper.java
+│   │       │               │
+│   │       │               └───service
+│   │       │                   │   IOcrImageService.java
+│   │       │                   │   IOcrProcessService.java
+│   │       │                   │   ITesseractOcrService.java
+│   │       │                   │
+│   │       │                   └───impl
+│   │       │                           OcrImageServiceImpl.java
+│   │       │                           OcrProcessServiceImpl.java
+│   │       │                           TesseractTesseractOcrServiceImpl.java
+│   │       │
+│   │       └───resources
+│   │           ├───mapper
+│   │           │       OcrImageMapper.xml
+│   │           │       OcrResultMapper.xml
+│   │           │
+│   │           └───tessdata
+│   │                   chi_sim.traineddata
+├───inv-system
+│   │   pom.xml
+│   │
+│   ├───src
+│   │   └───main
+│   │       ├───java
+│   │       │   └───cn
+│   │       │       └───sichu
+│   │       │           └───system
+│   │       │               ├───controller
+│   │       │               │       FileUploadController.java
+│   │       │               │
+│   │       │               ├───entity
+│   │       │               │       FileUpload.java
+│   │       │               │
+│   │       │               ├───mapper
+│   │       │               │       FileUploadMapper.java
+│   │       │               │
+│   │       │               └───service
+│   │       │                   │   IFileUploadService.java
+│   │       │                   │
+│   │       │                   └───impl
+│   │       │                           FileUploadServiceImpl.java
+│   │       │
+│   │       └───resources
+│   │           └───mapper
+│   │                   FileUploadMapper.xml
+|
+└───sql ### sql scripts
 ```
 
 > trained data is from: https://github.com/tesseract-ocr/tessdata

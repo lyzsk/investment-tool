@@ -20,11 +20,24 @@ public enum ResultCode implements IResultCode, Serializable {
         "服务器内部错误"), SERVICE_UNAVAILABLE("503", "服务不可用"), GATEWAY_TIMEOUT("504",
         "网关超时"),
 
-    /* A类错误码 */
-    UPLOAD_FILE_FAILED("A0000", "上传文件失败"), OCR_FAILED("A0001", "OCR识别失败");
+    /* 参数错误码 */
+    PARAMS_EMPTY("PARAMS_001", "参数不能为空"), PARAMS_TYPE_ERROR("PARAMS_002",
+        "参数类型错误"), PARAMS_NOT_FOUND("PARAMS_003", "参数不存在"), PARAMS_REPEAT("PARAMS_004",
+        "参数重复"),
+
+    /* upload 错误码 */
+    FILE_EMPTY("FILE_001", "上传文件不能为空"), FILE_TYPE_NOT_SUPPORTED("FILE_002",
+        "不支持的文件类型"), FILE_UPLOAD_FAILED("FILE_003", "文件上传失败，请重试"), FILE_NOT_FOUND(
+        "FILE_004", "文件不存在"), FILE_PATH_NOT_FOUND("FILE_005",
+        "文件路径不存在"), FAILED_TO_READ_FILE("FILE_006", "读取文件失败"),
+
+    /* img 错误码 */
+    IMAGE_TYPE_NOT_SUPPORTED("IMG_001", "不支持的图像文件类型，仅支持 JPEG/JPG/PNG"),
+
+    /* ocr 错误码 */
+    OCR_FAILED("OCR_001", "OCR识别失败");
 
     private String code;
-
     private String msg;
 
     @Override

@@ -7,7 +7,10 @@ import org.springframework.stereotype.Component;
  * @since 2025/11/22 23:52
  */
 @Component
-public class StrUtil {
+public class StringUtils {
+
+    public static final String EMPTY = "";
+    public static final String DOT = ".";
 
     public static boolean isEmpty(String str) {
         return str == null || str.trim().isEmpty();

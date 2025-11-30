@@ -5,7 +5,7 @@
     <parent>
         <groupId>cn.sichu</groupId>
         <artifactId>investment-tool</artifactId>
-        <version>1.3.0</version>
+        <version>1.3.1</version>
     </parent>
     <artifactId>inv-stock</artifactId>
 
@@ -13,6 +13,11 @@
         <dependency>
             <groupId>cn.sichu</groupId>
             <artifactId>inv-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.sichu</groupId>
+            <artifactId>inv-system</artifactId>
             <version>${project.version}</version>
         </dependency>
 
