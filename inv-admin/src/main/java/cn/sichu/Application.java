@@ -5,6 +5,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * @author sichu huang
@@ -13,6 +14,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @SpringBootApplication(scanBasePackages = "cn.sichu")
 @MapperScan(basePackages = {"cn.sichu.**.mapper"})
 @EnableConfigurationProperties({ProjectConfig.class})
+@EnableAsync
 public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

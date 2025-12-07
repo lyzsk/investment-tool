@@ -67,10 +67,10 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int processPendingImages() {
-        LambdaQueryWrapper<OcrImage> wrapper = Wrappers.lambdaQuery(OcrImage.class)
+        LambdaQueryWrapper<OcrImage> query = Wrappers.lambdaQuery(OcrImage.class)
             .eq(OcrImage::getStatus, ProcessStatus.UNPROCESSED.getCode())
             .eq(OcrImage::getIsDeleted, TableLogic.NOT_DELETED.getCode());
-        List<OcrImage> list = ocrImageService.list(wrapper);
+        List<OcrImage> list = ocrImageService.list(query);
         if (CollectionUtils.isEmpty(list)) {
             log.info("没有待处理的OCR图片");
             return 0;
@@ -79,6 +79,7 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
         for (OcrImage image : list) {
             OcrResult result = new OcrResult();
             result.setFileUploadId(image.getFileUploadId());
+            LocalDateTime now = LocalDateTime.now();
             try {
                 byte[] imageData = image.getImageData();
                 if (imageData == null || imageData.length == 0) {
@@ -90,7 +91,7 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
                 result.setProcessedText(processedText);
                 result.setWordCount((long)rawText.length());
                 result.setProcessedBy(1L);
-                result.setProcessTime(LocalDateTime.now());
+                result.setProcessTime(now);
                 result.setStatus(BusinessStatus.SUCCESS.getCode());
                 image.setStatus(ProcessStatus.PROCESSED.getCode());
                 ++success;
@@ -100,10 +101,11 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
                 image.setStatus(ProcessStatus.PROCESS_FAILED.getCode());
                 log.error("OCR失败，imageId={}", image.getId(), e);
             }
+            result.setCreateBy(1L);
+            result.setCreateTime(now);
             ocrResultMapper.insert(result);
             ocrImageService.updateById(image);
         }
-
         log.info("本次OCR处理完成，成功{}张，总共{}张", success, list.size());
         return success;
     }
