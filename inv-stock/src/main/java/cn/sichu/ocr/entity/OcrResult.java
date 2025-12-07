@@ -4,6 +4,7 @@ import base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import enums.BusinessStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -36,11 +37,9 @@ public class OcrResult extends BaseEntity {
     @TableField(value = "process_time", fill = FieldFill.INSERT)
     private LocalDateTime processTime;
 
-    /**
-     * 0-成功, 1-失败
-     */
-    private Integer status = 0;
-
     @TableField("error_message")
     private String errorMessage;
+
+    @TableField("status")
+    private Integer status = BusinessStatus.SUCCESS.getCode();
 }

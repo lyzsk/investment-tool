@@ -3,8 +3,8 @@ package cn.sichu.ocr.service.impl;
 import cn.sichu.ocr.entity.OcrImage;
 import cn.sichu.ocr.mapper.OcrImageMapper;
 import cn.sichu.ocr.service.IOcrImageService;
-import cn.sichu.system.entity.FileUpload;
-import cn.sichu.system.mapper.FileUploadMapper;
+import cn.sichu.system.file.entity.FileUpload;
+import cn.sichu.system.file.mapper.FileUploadMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import config.ProjectConfig;
@@ -21,6 +21,7 @@ import utils.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -69,6 +70,8 @@ public class OcrImageServiceImpl extends ServiceImpl<OcrImageMapper, OcrImage>
                 ocrImage.setUploadBy(1L);
                 ocrImage.setUploadTime(fileUpload.getUploadTime());
                 ocrImage.setStatus(ProcessStatus.UNPROCESSED.getCode());
+                ocrImage.setCreateBy(1L);
+                ocrImage.setCreateTime(LocalDateTime.now());
                 this.save(ocrImage);
                 ++syncedCount;
                 log.info("同步OCR文件成功: fileUploadId={}, ocrImageId={}", fileUpload.getId(),

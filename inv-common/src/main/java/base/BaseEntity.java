@@ -22,6 +22,21 @@ public class BaseEntity implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    @TableField("status")
+    private Integer status;
+
+    @TableField("create_by")
+    private Long createBy;
+
+    @TableField("create_time")
+    private LocalDateTime createTime;
+
+    @TableField("update_by")
+    private Long updateBy;
+
+    @TableField("update_time")
+    private LocalDateTime updateTime;
+
     /**
      * 逻辑删除标识(0-未删除 1-已删除)
      */

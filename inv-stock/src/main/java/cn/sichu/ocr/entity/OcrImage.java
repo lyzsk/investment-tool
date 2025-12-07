@@ -4,6 +4,7 @@ import base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import enums.ProcessStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -33,6 +34,7 @@ public class OcrImage extends BaseEntity {
     /**
      * 0-未处理, 1-已处理, 2-处理失败
      */
-    private Integer status = 0;
+    @TableField("status")
+    private Integer status = ProcessStatus.UNPROCESSED.getCode();
 
 }

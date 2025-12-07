@@ -1,14 +1,14 @@
 package cn.sichu.ocr.init;
 
-import jakarta.annotation.PostConstruct;
+import config.ProjectConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * @author sichu huang
@@ -17,21 +17,65 @@ import java.nio.file.StandardCopyOption;
 @Component
 @Slf4j
 public class TessdataExtractor {
-    private Path tempTessdataDir;
+
+    private final Path tempTessdataDir;
+
+    @Autowired
+    public TessdataExtractor(ProjectConfig projectConfig) throws IOException {
+        String projectName = projectConfig.getName();
+        if (projectName == null || projectName.trim().isEmpty()) {
+            throw new IllegalArgumentException("project.name 未配置");
+        }
+        /* 创建基于项目名称的临时目录路径 */
+        this.tempTessdataDir =
+            Paths.get(System.getProperty("java.io.tmpdir"), "tessdata-" + projectName);
+        init();
+    }
 
     public String getTessdataPath() {
         return tempTessdataDir.toString();
     }
 
-    @PostConstruct
-    public void init() throws IOException {
-        /* 创建临时目录 */
-        tempTessdataDir = Files.createTempDirectory("tessdata-");
-        /* JVM 退出时删除 */
-        tempTessdataDir.toFile().deleteOnExit();
-        /* 从 classpath 复制 traineddata 文件 */
+    /**
+     * update: 2025/12/07 20:35:49 deleteOnExit() 只在 JVM 正常退出时生效(如 main 方法结束, System.exit()), 而IDEA点击STOP实际是发送 SIGKILL, 不会触发 shutdown hooks 会导致 deleteOnExit() 失效
+     * <br/>
+     * 使用固定路径 + 启动时自动清理旧目录
+     *
+     * @author sichu huang
+     * @since 2025/12/07 18:01:08
+     */
+    private void init() throws IOException {
+        /* 删除旧的目录 */
+        if (Files.exists(tempTessdataDir)) {
+            deleteDirectoryRecursively(tempTessdataDir);
+        }
+        /* 创建新的目录 */
+        Files.createDirectories(tempTessdataDir);
+        /* 从 classpath 复制 tessdata 目录 */
         copyFromClasspath("tessdata/chi_sim.traineddata", "chi_sim.traineddata");
-        log.info("Tessdata extracted to: {}", tempTessdataDir);
+        log.info("提取 Tessdata 到: {}", tempTessdataDir);
+    }
+
+    private void deleteDirectoryRecursively(Path path) throws IOException {
+        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                throws IOException {
+                if (exc == null) {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                } else {
+                    throw exc;
+                }
+            }
+        });
     }
 
     private void copyFromClasspath(String resourcePath, String targetFileName) throws IOException {

@@ -6,13 +6,11 @@ import exception.UtilException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 import result.ResultCode;
-import utils.IdUtils;
+import utils.DateUtils;
 import utils.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -34,7 +32,7 @@ public class FileUploadUtils {
      * <br/>
      * 2.生成安全文件名
      * <br/>
-     * 3.生成日期子目录：/category/yyyy/MM/dd/
+     * 3.生成日期子目录：/category/yyyy.MM.dd/
      * <br/>
      * 4.创建目录
      * <br/>
@@ -53,22 +51,25 @@ public class FileUploadUtils {
         throws IOException {
         ProjectConfig.FileUpload fileUploadConfig = projectConfig.getFile();
         return upload(file, category, fileUploadConfig.getRootDir(),
-            fileUploadConfig.getAllowedTypes());
+            fileUploadConfig.getAllowedTypes(), projectConfig.getName());
     }
 
     /**
      * 单文件上传(带参数)
+     * <p/>
+     * update: 2025/12/07 19:06:12 添加参数 prefix
      *
      * @param file         file
      * @param category     category
      * @param rootDir      rootDir
      * @param allowedTypes allowedTypes
+     * @param prefix       prefix(project.name)
      * @return java.lang.String
      * @author sichu huang
      * @since 2025/11/30 07:54:24
      */
     public static String upload(MultipartFile file, String category, String rootDir,
-        List<String> allowedTypes) throws IOException {
+        List<String> allowedTypes, String prefix) throws IOException {
         if (file.isEmpty()) {
             throw new BusinessException(ResultCode.FILE_EMPTY);
         }
@@ -79,9 +80,11 @@ public class FileUploadUtils {
         }
 
         String extension = FileTypeUtils.getFileExtension(file);
-        String safeFilename = IdUtils.getSnowflakeNextId() + StringUtils.DOT + extension;
-        String datePath = LocalDateTime.now().format(DateTimeFormatter.ofPattern("/yyyy.MM.dd/"));
-        String relativeDir = "/" + category + datePath;
+        String suffix = StringUtils.DOT + extension;
+        String filename =
+            prefix + StringUtils.UNDERLINE + DateUtils.getNumericMillionSecondStr() + suffix;
+        String datePath = StringUtils.SLASH + DateUtils.getDotDateStr() + StringUtils.SLASH;
+        String relativeDir = StringUtils.SLASH + category + datePath;
         String absoluteDir = rootDir + relativeDir;
 
         File dir = new File(absoluteDir);
@@ -89,11 +92,11 @@ public class FileUploadUtils {
             throw new IOException("无法创建上传目录: " + absoluteDir);
         }
 
-        String absolutePath = absoluteDir + safeFilename;
+        String absolutePath = absoluteDir + filename;
         file.transferTo(new File(absolutePath));
         log.info("文件上传成功: {}", absolutePath);
 
-        return relativeDir + safeFilename;
+        return relativeDir + filename;
     }
 
     /**
