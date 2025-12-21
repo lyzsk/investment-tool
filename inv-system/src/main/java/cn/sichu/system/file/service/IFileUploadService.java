@@ -16,4 +16,9 @@ public interface IFileUploadService extends IService<FileUpload> {
     FileUpload upload(MultipartFile file, String category);
 
     FileUploadDto batchUpload(List<MultipartFile> files, String category);
+
+    FileUploadDto batchUploadFromLocal(String category, String path, String contentType);
+
+    FileUploadDto batchUploadFromPathWithExtensions(String category, String path,
+        String extensions);
 }

@@ -10,14 +10,16 @@ import org.springframework.stereotype.Component;
 public class StringUtils {
 
     public static final String EMPTY = "";
+    public static final String SPACE = " ";
+    public static final String COMMA = ",";
     public static final String DOT = ".";
     public static final String UNDERLINE = "_";
     public static final String SLASH = "/";
 
     public static final String LEFT_BRACE = "{";
     public static final String RIGHT_BRACE = "}";
-    public static final String LEFT_BRACKET = "(";
-    public static final String RIGHT_BRACKET = ")";
+    public static final String LEFT_PARENTHESIS = "(";
+    public static final String RIGHT_PARENTHESIS = ")";
 
     public static boolean isEmpty(String str) {
         return str == null || str.trim().isEmpty();

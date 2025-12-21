@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
  * @author sichu huang
  * @since 2025/12/07 03:16
  */
-public class DateUtils {
+public class DateTimeUtils {
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_SSSSSS =
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSSSSS");
     public static final DateTimeFormatter YYYYMMDDHHMMSSSSSSSS =

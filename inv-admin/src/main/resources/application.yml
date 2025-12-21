@@ -1,6 +1,6 @@
 project:
   name: investment-tool
-  version: 1.3.1
+  version: @project.version@ # Maven 会替换为实际版本
   file:
     upload:
       root-dir: ${user.home}/dev/investment-tool/uploads
@@ -21,10 +21,35 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+  quartz:
+    job-store-type: jdbc
+    wait-for-jobs-to-complete-on-shutdown: true
+    overwrite-existing-jobs: false
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: InvestmentToolScheduler
+            instanceId: AUTO # 集群时自动生成唯一ID
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: true  # 集群模式
+            useProperties: false
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 10
+            threadPriority: 5
 
 mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 开启 SQL 日志
+  mapper-locations: classpath*:/mapper/**/*.xml
   global-config:
     db-config:
-      id-type: auto  # 主键自增
+      id-type: none
+      logic-delete-field: is_deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 开启 SQL 日志

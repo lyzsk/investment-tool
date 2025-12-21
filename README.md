@@ -16,22 +16,29 @@
 
 > **_If you like this project or it helps you in some way, don't forget to star._** :star:
 
-# environment
+# 🌐 Environment
 
 -   Java 17
 -   SpringBoot3.3.4
 -   MyBatis-Plus 3.5.7
 -   MySQL 8.0.28
 
-# Features
+# ✨ Features
 
 -   [x] Automatic accounting for purchase/redemption transactions: Based on input values (purchase transaction: fund code, amount, transaction application date, trading platform; redemption transaction: fund code, shares, transaction application date, trading platform), automatically calculate the transaction date/trade confirmation date/funds arrival date/transaction fees/net asset value/shares/trading status/etc.
 -   [x] Automatic update of holding data: total amount/total fee/holding share/holding days, update trading status and corresponding data daily at 00:00, automatically crawl data to update net asset value every hour from 20:00 to 23:00 daily.
 -   [x] Automatically export Excel based on template: Trading statement workbook, trading analysis workbook.
--   [ ] Automatically calculate profits for transactions, automatic analysis.
--   [x] OCR scan images into data and table
+-   [x] OCR Image-to-Data Conversion  
+         Upload screenshots of fund holdings → extract structured data via Tesseract OCR (Chinese support).
+-   [x] Quartz-Based Scheduled Task System
+    -   Unified job management via database (`sys_job`)
+    -   Dynamic Cron expression validation
+    -   Configurable misfire policies (ignore/fire/do nothing)
+    -   Asynchronous job log recording (`sys_job_log`)
+    -   Supports immediate trigger, pause/resume, and update/delete
+    -   Example: Auto-cleanup of processed OCR images
 
-# Quick Start
+# 🚀 Quick Start
 
 1. create mysql table using: `/sql/tables.sql`
 2. `mvn clean install` and `mvn package spring-boot:repackage`
@@ -39,138 +46,17 @@
 
 > Note: change `start.bat` `JAVA_HOME` to your local path
 
-# structure
+# 🏗️ Project Structure
 
 ```
 investment-tool
-│   .gitignore
-│   LICENSE
-│   pom.xml
-│   README.md
-│   README.zh-CN.md
-│
-├───inv-admin
-│   │   pom.xml
-│   │
-│   ├───src
-│   │   └───main
-│   │       ├───java
-│   │       │   └───cn
-│   │       │       └───sichu
-│   │       │               Application.java
-│   │       │
-│   │       └───resources
-│   │               application.yml
-│   │               banner.txt
-│
-├───inv-common
-│   │   pom.xml
-│   │
-│   ├───src
-│   │   └───main
-│   │       ├───java
-│   │       │   ├───base
-│   │       │   │       BaseEntity.java
-│   │       │   │
-│   │       │   ├───config
-│   │       │   │       ProjectConfig.java
-│   │       │   │
-│   │       │   ├───enums
-│   │       │   │       BusinessStatus.java
-│   │       │   │       ProcessStatus.java
-│   │       │   │       TableLogic.java
-│   │       │   │
-│   │       │   ├───exception
-│   │       │   │       BusinessException.java
-│   │       │   │       GlobalExceptionHandler.java
-│   │       │   │       UtilException.java
-│   │       │   │
-│   │       │   ├───result
-│   │       │   │       IResultCode.java
-│   │       │   │       PageResult.java
-│   │       │   │       Result.java
-│   │       │   │       ResultCode.java
-│   │       │   │
-│   │       │   └───utils
-│   │       │       │   CollectionUtils.java
-│   │       │       │   IdUtils.java
-│   │       │       │   StringUtils.java
-│   │       │       │
-│   │       │       └───file
-│   │       │               FileTypeUtils.java
-│   │       │               FileUploadUtils.java
-│   │       │               FileUtils.java
-│   │       │               MimeTypeUtils.java
-│
-├───inv-stock
-│   │   pom.xml
-│   │
-│   ├───src
-│   │   └───main
-│   │       ├───java
-│   │       │   └───cn
-│   │       │       └───sichu
-│   │       │           └───ocr
-│   │       │               ├───controller
-│   │       │               │       OcrImageController.java
-│   │       │               │
-│   │       │               ├───entity
-│   │       │               │       OcrImage.java
-│   │       │               │       OcrResult.java
-│   │       │               │
-│   │       │               ├───init
-│   │       │               │       TessdataExtractor.java
-│   │       │               │
-│   │       │               ├───mapper
-│   │       │               │       OcrImageMapper.java
-│   │       │               │       OcrResultMapper.java
-│   │       │               │
-│   │       │               └───service
-│   │       │                   │   IOcrImageService.java
-│   │       │                   │   IOcrProcessService.java
-│   │       │                   │   ITesseractOcrService.java
-│   │       │                   │
-│   │       │                   └───impl
-│   │       │                           OcrImageServiceImpl.java
-│   │       │                           OcrProcessServiceImpl.java
-│   │       │                           TesseractTesseractOcrServiceImpl.java
-│   │       │
-│   │       └───resources
-│   │           ├───mapper
-│   │           │       OcrImageMapper.xml
-│   │           │       OcrResultMapper.xml
-│   │           │
-│   │           └───tessdata
-│   │                   chi_sim.traineddata
-├───inv-system
-│   │   pom.xml
-│   │
-│   ├───src
-│   │   └───main
-│   │       ├───java
-│   │       │   └───cn
-│   │       │       └───sichu
-│   │       │           └───system
-│   │       │               ├───controller
-│   │       │               │       FileUploadController.java
-│   │       │               │
-│   │       │               ├───entity
-│   │       │               │       FileUpload.java
-│   │       │               │
-│   │       │               ├───mapper
-│   │       │               │       FileUploadMapper.java
-│   │       │               │
-│   │       │               └───service
-│   │       │                   │   IFileUploadService.java
-│   │       │                   │
-│   │       │                   └───impl
-│   │       │                           FileUploadServiceImpl.java
-│   │       │
-│   │       └───resources
-│   │           └───mapper
-│   │                   FileUploadMapper.xml
-|
-└───sql ### sql scripts
+├── inv-admin          # Main Spring Boot application entry
+├── inv-common         # Shared components
+├── inv-stock          #
+├── inv-system         # Core system services: file upload, Quartz job scheduling
+├── sql                # Database initialization scripts
+├── uploads/category/yyyy.mm.dd        # Auto generated dirs (organized by date)
+└── logs               # Application logs
 ```
 
 > trained data is from: https://github.com/tesseract-ocr/tessdata

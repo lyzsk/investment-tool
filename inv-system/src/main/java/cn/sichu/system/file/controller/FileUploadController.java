@@ -16,12 +16,13 @@ import org.springframework.web.multipart.MultipartFile;
 import result.Result;
 import result.ResultCode;
 import utils.CollectionUtils;
-import utils.DateUtils;
+import utils.DateTimeUtils;
 import utils.StringUtils;
 import utils.file.FileUploadUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,22 +39,15 @@ public class FileUploadController {
 
     private static FileDeleteDto getFileDeleteDto(Long fileId, boolean logicalDeleted,
         boolean physicalDeleted) {
-        FileDeleteDto result = new FileDeleteDto();
+        FileDeleteDto result;
         if (logicalDeleted) {
-            result.setLogicalSuccessCount(1);
-            result.setPhysicalSuccessCount(physicalDeleted ? 1 : 0);
             if (!physicalDeleted) {
-                result.setFailCount(1);
-                result.setIncompleteOrFailedIds(List.of(fileId));
+                result = new FileDeleteDto(1, 0, 1, List.of(fileId));
             } else {
-                result.setFailCount(0);
-                result.setIncompleteOrFailedIds(new ArrayList<>());
+                result = new FileDeleteDto(0, 1, 1, Collections.emptyList());
             }
         } else {
-            result.setLogicalSuccessCount(0);
-            result.setPhysicalSuccessCount(0);
-            result.setFailCount(1);
-            result.setIncompleteOrFailedIds(List.of(fileId));
+            result = new FileDeleteDto(0, 0, 1, List.of(fileId));
         }
         return result;
     }
@@ -82,11 +76,8 @@ public class FileUploadController {
             category = "default";
         }
         FileUpload upload = fileUploadService.upload(file, category);
-        FileUploadDto dto = new FileUploadDto();
-        dto.setSuccessList(List.of(upload));
-        dto.setSuccessCount(1);
-        dto.setFailCount(0);
-        dto.setFailFilenames(new ArrayList<>());
+        FileUploadDto dto = new FileUploadDto(List.of(upload), 1, 0, Collections.emptyList(),
+            Collections.emptyList());
         return Result.success(dto);
     }
 
@@ -124,6 +115,25 @@ public class FileUploadController {
     }
 
     /**
+     * 从本地文件路径批量上传文件
+     *
+     * @param category   category
+     * @param path       绝对路径
+     * @param extensions 允许使用","连接的扩展名
+     * @return result.Result<cn.sichu.system.file.dto.FileUploadDto>
+     * @author sichu huang
+     * @since 2025/12/14 07:17:01
+     */
+    @PostMapping("/batch-upload-from-path")
+    public Result<FileUploadDto> batchUploadFromPathWithExtensions(
+        @RequestParam("category") String category, @RequestParam("path") String path,
+        @RequestParam("extensions") String extensions) {
+        FileUploadDto result =
+            fileUploadService.batchUploadFromPathWithExtensions(category, path, extensions);
+        return Result.success(result);
+    }
+
+    /**
      * 删除单个文件(逻辑删除+物理删除)
      * <p/>
      * update: 2025/12/07 00:22:50 修改返回类型
@@ -138,11 +148,7 @@ public class FileUploadController {
     public Result<FileDeleteDto> delete(@PathVariable("fileId") Long fileId) {
         FileUpload fileUpload = fileUploadService.getById(fileId);
         if (fileUpload == null || fileUpload.getIsDeleted() == TableLogic.DELETED.getCode()) {
-            FileDeleteDto result = new FileDeleteDto();
-            result.setLogicalSuccessCount(0);
-            result.setPhysicalSuccessCount(0);
-            result.setFailCount(1);
-            result.setIncompleteOrFailedIds(List.of(fileId));
+            FileDeleteDto result = new FileDeleteDto(0, 0, 1, List.of(fileId));
             return Result.success(result);
         }
         boolean physicalDeleted = FileUploadUtils.delete(fileUpload.getPath(), projectConfig);
@@ -152,7 +158,6 @@ public class FileUploadController {
             String newRemark = (currentRemark != null ? currentRemark + "; " : "") + "物理删除失败: "
                 + fileUpload.getPath();
             fileUpload.setRemark(newRemark);
-            fileUpload.setUpdateBy(1L);
             fileUpload.setUpdateTime(LocalDateTime.now());
             fileUploadService.updateById(fileUpload);
         }
@@ -201,10 +206,9 @@ public class FileUploadController {
                     FileUploadUtils.delete(fileUpload.getPath(), projectConfig);
                 if (!physicalDeleted) {
                     log.warn("物理删除失败: {}, fileId: {}", fileUpload.getPath(), fileId);
-                    fileUpload.setUpdateBy(1L);
                     LocalDateTime now = LocalDateTime.now();
                     fileUpload.setUpdateTime(now);
-                    String timeStr = DateUtils.getMillionSecondStr(now);
+                    String timeStr = DateTimeUtils.getMillionSecondStr(now);
                     String newRemark =
                         (fileUpload.getRemark() != null ? fileUpload.getRemark() + "; " : "")
                             + timeStr + "物理删除失败: " + fileUpload.getPath();
@@ -234,11 +238,9 @@ public class FileUploadController {
                 incompleteOrFailedIds.add(fileId);
             }
         }
-        FileDeleteDto result = new FileDeleteDto();
-        result.setLogicalSuccessCount(logicalSuccess);
-        result.setPhysicalSuccessCount(physicalSuccess);
-        result.setFailCount(incompleteOrFailedIds.size());
-        result.setIncompleteOrFailedIds(incompleteOrFailedIds);
+        FileDeleteDto result =
+            new FileDeleteDto(logicalSuccess, physicalSuccess, incompleteOrFailedIds.size(),
+                incompleteOrFailedIds);
         return Result.success(result);
     }
 }

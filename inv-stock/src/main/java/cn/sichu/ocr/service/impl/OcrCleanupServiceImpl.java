@@ -13,7 +13,6 @@ import config.ProjectConfig;
 import enums.TableLogic;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -24,7 +23,7 @@ import java.util.List;
  * @author sichu huang
  * @since 2025/12/07 19:27
  */
-@Service("ocrCleanupService")
+@Service
 @RequiredArgsConstructor
 @Slf4j
 public class OcrCleanupServiceImpl implements IOcrCleanupService {
@@ -32,21 +31,9 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
     private final FileUploadMapper fileUploadMapper;
     private final OcrImageMapper ocrImageMapper;
     private final OcrResultMapper ocrResultMapper;
-    // private final ISysJobLogService sysJobLogService;
     private final ProjectConfig projectConfig;
 
-    /**
-     * 清理已处理（status=1）且超过7天的 OCR 相关文件
-     * - file_upload(category='ocr')
-     * - ocr_image(关联 file_upload_id)
-     * - ocr_result(关联 file_upload_id)
-     * 物理删除文件 + 逻辑删除 DB 记录
-     *
-     * @author sichu huang
-     * @since 2025/12/07 19:27:39
-     */
     @Override
-    @Async
     public void cleanupProcessedOcrFiles() {
         String rootDir = projectConfig.getFile().getRootDir();
         log.info("开始执行 OCR 已处理文件清理任务...");
@@ -94,10 +81,8 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
                 }
                 /* 逻辑删除 file_upload, ocr_image, ocr_result */
                 LocalDateTime fileUploadNow = LocalDateTime.now();
-                file.setUpdateBy(1L);
                 file.setUpdateTime(fileUploadNow);
                 file.setIsDeleted(TableLogic.DELETED.getCode());
-                file.setDeleteBy(1L);
                 file.setDeleteTime(fileUploadNow);
                 fileUploadMapper.updateById(file);
 
@@ -107,7 +92,6 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
                         .eq(OcrImage::getIsDeleted, TableLogic.NOT_DELETED.getCode());
                 List<OcrImage> ocrImages = ocrImageMapper.selectList(ocrImageQuery);
                 for (OcrImage ocrImage : ocrImages) {
-                    ocrImage.setUpdateBy(1L);
                     ocrImage.setUpdateTime(ocrImageNow);
                     ocrImage.setIsDeleted(TableLogic.DELETED.getCode());
                     ocrImage.setDeleteTime(ocrImageNow);
@@ -120,7 +104,6 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
                     .eq(OcrResult::getIsDeleted, TableLogic.NOT_DELETED.getCode());
                 List<OcrResult> ocrResults = ocrResultMapper.selectList(ocrResultQuery);
                 for (OcrResult ocrResult : ocrResults) {
-                    ocrResult.setUpdateBy(1L);
                     ocrResult.setUpdateTime(ocrResultNow);
                     ocrResult.setIsDeleted(TableLogic.DELETED.getCode());
                     ocrResult.setDeleteTime(ocrResultNow);
@@ -140,21 +123,5 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
         String summary =
             String.format("清理完成：成功 %d / 总计 %d", successCount, filesToClean.size());
         log.info(summary);
-        // saveJobLog(true, summary + "\n" + details);
     }
-
-    // private void saveJobLog(boolean success, String detail) {
-    //     try {
-    //         SysJobLog sysJobLog = new SysJobLog();
-    //         sysJobLog.setJobName("cleanupProcessedOcrFiles");
-    //         sysJobLog.setStatus(
-    //             success ? BusinessStatus.SUCCESS.getCode() : BusinessStatus.FAILED.getCode());
-    //         sysJobLog.setInvokeTarget("ocrCleanupService.cleanupProcessedOcrFiles");
-    //         sysJobLog.setJobMessage(detail);
-    //         sysJobLog.setCreateTime(LocalDateTime.now());
-    //         sysJobLogService.save(sysJobLog);
-    //     } catch (Exception e) {
-    //         log.error("记录任务日志失败", e);
-    //     }
-    // }
 }

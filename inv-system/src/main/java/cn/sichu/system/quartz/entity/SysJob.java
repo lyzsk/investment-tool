@@ -3,7 +3,6 @@ package cn.sichu.system.quartz.entity;
 import base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import enums.Concurrent;
 import enums.MisfirePolicy;
 import enums.QuartzStatus;
 import lombok.Data;
@@ -24,8 +23,17 @@ public class SysJob extends BaseEntity {
     @TableField("job_group")
     private String jobGroup;
 
-    @TableField("invoke_target")
-    private String invokeTarget;
+    @TableField("job_handler_name")
+    private String jobHandlerName;
+
+    @TableField("job_handler_param")
+    private String jobHandlerParam;
+
+    @TableField("retry_count")
+    private Integer retryCount;
+
+    @TableField("retry_interval")
+    private Integer retryInterval;
 
     @TableField("cron_expression")
     private String cronExpression;
@@ -35,12 +43,6 @@ public class SysJob extends BaseEntity {
      */
     @TableField("misfire_policy")
     private Integer misfirePolicy = MisfirePolicy.ABADON_EXECUTION.getCode();
-
-    /**
-     * 0-允许, 1-禁止
-     */
-    @TableField("concurrent")
-    private Integer concurrent = Concurrent.NOT_ALLOWED.getCode();
 
     /**
      * 0-运行, 1-暂停
