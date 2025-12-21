@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import config.ProjectConfig;
 import enums.ProcessStatus;
 import enums.TableLogic;
-import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,9 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import result.ResultCode;
 import utils.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -64,13 +60,9 @@ public class OcrImageServiceImpl extends ServiceImpl<OcrImageMapper, OcrImage>
             if (!exists) {
                 OcrImage ocrImage = new OcrImage();
                 ocrImage.setFileUploadId(fileUpload.getId());
-                /* 读取fileUpload内容并设置到 `image_data` 字段 */
-                byte[] imageData = readImageFile(fileUpload.getPath());
-                ocrImage.setImageData(imageData);
                 ocrImage.setUploadBy(1L);
                 ocrImage.setUploadTime(fileUpload.getUploadTime());
                 ocrImage.setStatus(ProcessStatus.UNPROCESSED.getCode());
-                ocrImage.setCreateBy(1L);
                 ocrImage.setCreateTime(LocalDateTime.now());
                 this.save(ocrImage);
                 ++syncedCount;
@@ -96,21 +88,5 @@ public class OcrImageServiceImpl extends ServiceImpl<OcrImageMapper, OcrImage>
         return projectConfig.getFile().getAllowedTypes().stream()
             .anyMatch(allowedType -> contentType.toLowerCase().equals(allowedType));
 
-    }
-
-    private byte[] readImageFile(String relativePath) {
-        if (relativePath == null) {
-            throw new BusinessException(ResultCode.FILE_PATH_NOT_FOUND);
-        }
-        String absolutePath = projectConfig.getFile().getRootDir() + relativePath;
-        File file = new File(absolutePath);
-        if (!file.exists()) {
-            throw new BusinessException(ResultCode.FILE_NOT_FOUND + ": " + absolutePath);
-        }
-        try {
-            return Files.readAllBytes(file.toPath());
-        } catch (IOException e) {
-            throw new BusinessException(ResultCode.FAILED_TO_READ_FILE + ": " + absolutePath, e);
-        }
     }
 }

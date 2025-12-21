@@ -6,12 +6,14 @@ import exception.UtilException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 import result.ResultCode;
-import utils.DateUtils;
+import utils.DateTimeUtils;
 import utils.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 通用文件上传工具类, 用于 file_upload 表
@@ -79,11 +81,11 @@ public class FileUploadUtils {
             throw new BusinessException(ResultCode.FILE_TYPE_NOT_SUPPORTED);
         }
 
-        String extension = FileTypeUtils.getFileExtension(file);
+        String extension = FileUtils.getFileExtension(file);
         String suffix = StringUtils.DOT + extension;
         String filename =
-            prefix + StringUtils.UNDERLINE + DateUtils.getNumericMillionSecondStr() + suffix;
-        String datePath = StringUtils.SLASH + DateUtils.getDotDateStr() + StringUtils.SLASH;
+            prefix + StringUtils.UNDERLINE + DateTimeUtils.getNumericMillionSecondStr() + suffix;
+        String datePath = StringUtils.SLASH + DateTimeUtils.getDotDateStr() + StringUtils.SLASH;
         String relativeDir = StringUtils.SLASH + category + datePath;
         String absoluteDir = rootDir + relativeDir;
 
@@ -180,11 +182,23 @@ public class FileUploadUtils {
      * @author sichu huang
      * @since 2025/11/30 07:58:26
      */
-    private static boolean isAllowedType(String contentType, List<String> allowedTypes) {
+    public static boolean isAllowedType(String contentType, List<String> allowedTypes) {
         if (contentType == null) {
             return false;
         }
         return allowedTypes.stream().anyMatch(
             allowedType -> contentType.toLowerCase().startsWith(allowedType.toLowerCase()));
+    }
+
+    /**
+     * 获取允许上传的文件类型集合
+     *
+     * @param allowedTypes allowedTypes
+     * @return java.util.Set<java.lang.String>
+     * @author sichu huang
+     * @since 2025/12/14 08:24:07
+     */
+    public static Set<String> getallowedType(List<String> allowedTypes) {
+        return allowedTypes.stream().map(String::toLowerCase).collect(Collectors.toSet());
     }
 }

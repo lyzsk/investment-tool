@@ -22,11 +22,17 @@ public class SysJobLog extends BaseEntity {
     @TableField("job_group")
     private String jobGroup;
 
-    @TableField("invoke_target")
-    private String invokeTarget;
+    @TableField("job_handler_name")
+    private String jobHandlerName;
+
+    @TableField("job_handler_param")
+    private String jobHandlerParam;
 
     @TableField("job_message")
     private String jobMessage;
+
+    @TableField("execution_time")
+    private Long executionTime;
 
     @TableField("exception_message")
     private String exceptionMessage;

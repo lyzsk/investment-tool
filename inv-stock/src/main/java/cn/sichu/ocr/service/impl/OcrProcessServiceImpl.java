@@ -6,8 +6,11 @@ import cn.sichu.ocr.mapper.OcrResultMapper;
 import cn.sichu.ocr.service.IOcrImageService;
 import cn.sichu.ocr.service.IOcrProcessService;
 import cn.sichu.ocr.service.ITesseractOcrService;
+import cn.sichu.system.file.entity.FileUpload;
+import cn.sichu.system.file.mapper.FileUploadMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import config.ProjectConfig;
 import enums.BusinessStatus;
 import enums.ProcessStatus;
 import enums.TableLogic;
@@ -20,6 +23,9 @@ import result.ResultCode;
 import utils.CollectionUtils;
 import utils.StringUtils;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -40,6 +46,8 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
     private final IOcrImageService ocrImageService;
     private final OcrResultMapper ocrResultMapper;
     private final ITesseractOcrService tesseractOcrService;
+    private final FileUploadMapper fileUploadMapper;
+    private final ProjectConfig projectConfig;
 
     /**
      * 1.替换换行符和回车符
@@ -78,12 +86,23 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
         int success = 0;
         for (OcrImage image : list) {
             OcrResult result = new OcrResult();
-            result.setFileUploadId(image.getFileUploadId());
+            Long fileUploadId = image.getFileUploadId();
+            result.setFileUploadId(fileUploadId);
             LocalDateTime now = LocalDateTime.now();
             try {
-                byte[] imageData = image.getImageData();
-                if (imageData == null || imageData.length == 0) {
-                    throw new BusinessException(ResultCode.OCR_FAILED);
+                FileUpload fileUpload = fileUploadMapper.selectById(fileUploadId);
+                if (fileUpload == null
+                    || fileUpload.getIsDeleted() == TableLogic.DELETED.getCode()) {
+                    throw new BusinessException("关联的文件上传记录不存在或已删除");
+                }
+                String absolutePath = projectConfig.getFile().getRootDir() + fileUpload.getPath();
+                File file = new File(absolutePath);
+                if (!file.exists()) {
+                    throw new BusinessException(ResultCode.FILE_NOT_FOUND + ": " + absolutePath);
+                }
+                byte[] imageData = Files.readAllBytes(Paths.get(absolutePath));
+                if (imageData.length == 0) {
+                    throw new BusinessException(ResultCode.FAILED_TO_READ_FILE);
                 }
                 String rawText = tesseractOcrService.recognize(imageData);
                 String processedText = postProcess(rawText);
@@ -101,7 +120,6 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
                 image.setStatus(ProcessStatus.PROCESS_FAILED.getCode());
                 log.error("OCR失败，imageId={}", image.getId(), e);
             }
-            result.setCreateBy(1L);
             result.setCreateTime(now);
             ocrResultMapper.insert(result);
             ocrImageService.updateById(image);
@@ -116,6 +134,8 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
             return rawText;
         }
         String text = getText(rawText);
+        /* 将'+'符号前后空格消除 */
+        text = text.replaceAll("\\s*\\+\\s*", "+");
         /* 5.移除中文字符之间的空格 */
         StringBuilder sb = new StringBuilder();
         char[] chars = text.toCharArray();

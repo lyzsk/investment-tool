@@ -1,7 +1,7 @@
 package cn.sichu.system.quartz.service.impl;
 
 import cn.sichu.system.quartz.entity.SysJob;
-import cn.sichu.system.quartz.manager.ScheduledTaskManager;
+import cn.sichu.system.quartz.manager.SchedulerManager;
 import cn.sichu.system.quartz.mapper.SysJobMapper;
 import cn.sichu.system.quartz.service.ISysJobService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -10,6 +10,7 @@ import enums.TableLogic;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
 import utils.StringUtils;
 
@@ -24,7 +25,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Slf4j
 public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> implements ISysJobService {
-    private final ScheduledTaskManager scheduledTaskManager;
+
+    private final SchedulerManager schedulerManager;
 
     /**
      * 保存定时任务
@@ -35,17 +37,18 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
      */
     @Override
     public void saveJob(SysJob job) {
-        if (StringUtils.isEmpty(job.getInvokeTarget())) {
-            throw new BusinessException("调用目标不能为空");
-        }
         if (StringUtils.isEmpty(job.getCronExpression())) {
             throw new BusinessException("定时任务必须设置Cron表达式");
         }
-        job.setCreateBy(1L);
         job.setCreateTime(LocalDateTime.now());
         this.save(job);
         if (job.getStatus().equals(QuartzStatus.RUNNING.getCode())) {
-            scheduledTaskManager.addJob(job);
+            try {
+                schedulerManager.addJob(job);
+            } catch (SchedulerException e) {
+                log.error("添加定时任务失败: {}", job.getJobHandlerName(), e);
+                throw new BusinessException("任务调度失败: " + e.getMessage());
+            }
         }
     }
 
@@ -62,21 +65,24 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
         if (existing == null || existing.getIsDeleted() == TableLogic.DELETED.getCode()) {
             throw new BusinessException("任务不存在");
         }
-        job.setUpdateBy(1L);
         job.setUpdateTime(LocalDateTime.now());
         this.updateById(job);
         boolean statusChanged = !Objects.equals(existing.getStatus(), job.getStatus());
-        if (statusChanged) {
-            if (job.getStatus().equals(QuartzStatus.RUNNING.getCode())) {
-                scheduledTaskManager.addJob(job);
-            } else if (job.getStatus().equals(QuartzStatus.PAUSED.getCode())) {
-                scheduledTaskManager.removeJob(job.getId());
+        try {
+            if (statusChanged) {
+                if (job.getStatus().equals(QuartzStatus.RUNNING.getCode())) {
+                    schedulerManager.addJob(job);
+                } else if (job.getStatus().equals(QuartzStatus.PAUSED.getCode())) {
+                    schedulerManager.deleteJob(job);
+                }
+            } else {
+                if (job.getStatus().equals(QuartzStatus.RUNNING.getCode())) {
+                    schedulerManager.updateJob(job);
+                }
             }
-        } else {
-            if (job.getStatus().equals(QuartzStatus.RUNNING.getCode())) {
-                scheduledTaskManager.removeJob(job.getId());
-                scheduledTaskManager.addJob(job);
-            }
+        } catch (SchedulerException e) {
+            log.error("更新定时任务失败: {}", job.getJobHandlerName(), e);
+            throw new BusinessException("任务调度失败: " + e.getMessage());
         }
     }
 
@@ -95,13 +101,17 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
             throw new BusinessException("任务不存在");
         }
         job.setStatus(status);
-        job.setUpdateBy(1L);
         job.setUpdateTime(LocalDateTime.now());
         this.updateById(job);
-        if (status.equals(QuartzStatus.RUNNING.getCode())) {
-            scheduledTaskManager.addJob(job);
-        } else if (status.equals(QuartzStatus.PAUSED.getCode())) {
-            scheduledTaskManager.removeJob(id);
+        try {
+            if (status.equals(QuartzStatus.RUNNING.getCode())) {
+                schedulerManager.addJob(job);
+            } else if (status.equals(QuartzStatus.PAUSED.getCode())) {
+                schedulerManager.deleteJob(job);
+            }
+        } catch (SchedulerException e) {
+            log.error("切换任务状态失败: {}", job.getJobHandlerName(), e);
+            throw new BusinessException("任务调度失败: " + e.getMessage());
         }
     }
 
@@ -118,7 +128,13 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
         if (job == null || job.getIsDeleted() == TableLogic.DELETED.getCode()) {
             throw new BusinessException("任务不存在");
         }
-        scheduledTaskManager.runOnce(id);
+        try {
+            schedulerManager.triggerJob(job);
+        } catch (SchedulerException e) {
+            log.error("手动触发任务失败: {}", job.getJobHandlerName(), e);
+            throw new BusinessException("任务触发失败: " + e.getMessage());
+        }
+
         log.info("手动执行任务: {}", job.getJobName());
     }
 
@@ -134,11 +150,14 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
         for (Long id : ids) {
             SysJob job = this.getById(id);
             if (job != null && job.getIsDeleted() != TableLogic.DELETED.getCode()) {
-                if (job.getStatus().equals(QuartzStatus.RUNNING.getCode())) {
-                    scheduledTaskManager.removeJob(id);
+                try {
+                    if (job.getStatus().equals(QuartzStatus.RUNNING.getCode())) {
+                        schedulerManager.deleteJob(job);
+                    }
+                } catch (SchedulerException e) {
+                    log.warn("删除调度任务时出错（可能已不存在）: {}", job.getJobHandlerName(), e);
                 }
                 LocalDateTime now = LocalDateTime.now();
-                job.setUpdateBy(1L);
                 job.setUpdateTime(now);
                 job.setIsDeleted(TableLogic.DELETED.getCode());
                 job.setDeleteTime(now);

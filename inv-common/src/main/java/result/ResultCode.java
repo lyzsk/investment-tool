@@ -28,14 +28,19 @@ public enum ResultCode implements IResultCode, Serializable {
     /* upload 错误码 */
     FILE_EMPTY("FILE_001", "上传文件不能为空"), FILE_TYPE_NOT_SUPPORTED("FILE_002",
         "不支持的文件类型"), FILE_UPLOAD_FAILED("FILE_003", "文件上传失败，请重试"), FILE_NOT_FOUND(
-        "FILE_004", "文件不存在"), FILE_PATH_NOT_FOUND("FILE_005",
-        "文件路径不存在"), FAILED_TO_READ_FILE("FILE_006", "读取文件失败"),
+        "FILE_004", "文件不存在"), FAILED_TO_READ_FILE("FILE_005", "读取文件失败"),
+
+    /* 路径错误码 */
+    INVALID_PATH("PATH_001", "路径不存在或不是文件夹"),
 
     /* img 错误码 */
     IMAGE_TYPE_NOT_SUPPORTED("IMG_001", "不支持的图像文件类型，仅支持 JPEG/JPG/PNG"),
 
     /* ocr 错误码 */
-    OCR_FAILED("OCR_001", "OCR识别失败");
+    OCR_FAILED("OCR_001", "OCR识别失败"),
+
+    /* Cron表达式错误 */
+    INVALID_CRON_EXPRESSION("CRON_001", "无效的Cron表达式");
 
     private String code;
     private String msg;

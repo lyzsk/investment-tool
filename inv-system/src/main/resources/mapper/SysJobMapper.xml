@@ -4,24 +4,5 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.sichu.system.quartz.mapper.SysJobMapper">
 
-    <resultMap id="sysJobResult" type="cn.sichu.system.quartz.entity.SysJob">
-        <id property="id" column="id"/>
-        <result property="jobName" column="job_name"/>
-        <result property="jobGroup" column="job_group"/>
-        <result property="invokeTarget" column="invoke_target"/>
-        <result property="cronExpression" column="cron_expression"/>
-        <result property="misfirePolicy" column="misfire_policy"/>
-        <result property="concurrent" column="concurrent"/>
-        <result property="status" column="status"/>
-        <result property="createBy" column="create_by"/>
-        <result property="createTime" column="create_time"/>
-        <result property="updateBy" column="update_by"/>
-        <result property="updateTime" column="update_time"/>
-        <result property="isDeleted" column="is_deleted"/>
-        <result property="deleteBy" column="delete_by"/>
-        <result property="deleteTime" column="delete_time"/>
-        <result property="remark" column="remark"/>
-    </resultMap>
-
 
 </mapper>
