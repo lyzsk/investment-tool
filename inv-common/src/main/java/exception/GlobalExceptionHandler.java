@@ -29,33 +29,33 @@ public class GlobalExceptionHandler {
         String msg =
             e.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining("；"));
-        return Result.failed(ResultCode.VALIDATE_FAILED, msg);
+        return Result.fail(ResultCode.VALIDATE_FAILED, msg);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public <T> Result<T> processException(NoHandlerFoundException e) {
         log.error(e.getMessage(), e);
-        return Result.failed(ResultCode.NOT_FOUND);
+        return Result.fail(ResultCode.NOT_FOUND);
     }
 
     @ExceptionHandler(SQLSyntaxErrorException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public <T> Result<T> processSQLSyntaxErrorException(SQLSyntaxErrorException e) {
         log.error(e.getMessage(), e);
-        return Result.failed(e.getMessage());
+        return Result.fail(e.getMessage());
     }
 
     @ExceptionHandler(BusinessException.class)
     public Result<Void> handleBusinessException(BusinessException e) {
         log.error("业务异常：{}", e.getMessage());
         IResultCode code = e.resultCode != null ? e.resultCode : ResultCode.FAILED;
-        return Result.failed(code);
+        return Result.fail(code);
     }
 
     @ExceptionHandler(Exception.class)
     public Result<Void> handleException(Exception e) {
         log.error("系统异常", e);
-        return Result.failed(ResultCode.INTERNAL_SERVER_ERROR);
+        return Result.fail(ResultCode.INTERNAL_SERVER_ERROR);
     }
 }
