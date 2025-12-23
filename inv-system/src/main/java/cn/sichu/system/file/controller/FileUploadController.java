@@ -124,8 +124,8 @@ public class FileUploadController {
      * @author sichu huang
      * @since 2025/12/14 07:17:01
      */
-    @PostMapping("/batch-upload-from-path")
-    public Result<FileUploadDto> batchUploadFromPathWithExtensions(
+    @PostMapping("/batch-upload-from-disk")
+    public Result<FileUploadDto> batchUploadFromDiskWithExtensions(
         @RequestParam("category") String category, @RequestParam("path") String path,
         @RequestParam("extensions") String extensions) {
         FileUploadDto result =

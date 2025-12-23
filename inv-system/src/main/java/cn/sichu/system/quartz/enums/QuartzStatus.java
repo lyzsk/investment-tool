@@ -1,4 +1,4 @@
-package enums;
+package cn.sichu.system.quartz.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

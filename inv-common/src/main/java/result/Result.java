@@ -41,19 +41,19 @@ public class Result<T> implements Serializable {
         return success(null);
     }
 
-    public static <T> Result<T> failed() {
+    public static <T> Result<T> fail() {
         return result(ResultCode.FAILED.getCode(), ResultCode.FAILED.getMsg(), null);
     }
 
-    public static <T> Result<T> failed(String msg) {
+    public static <T> Result<T> fail(String msg) {
         return result(ResultCode.FAILED.getCode(), msg, null);
     }
 
-    public static <T> Result<T> failed(IResultCode resultCode) {
+    public static <T> Result<T> fail(IResultCode resultCode) {
         return result(resultCode.getCode(), resultCode.getMsg(), null);
     }
 
-    public static <T> Result<T> failed(IResultCode resultCode, String msg) {
+    public static <T> Result<T> fail(IResultCode resultCode, String msg) {
         return result(resultCode.getCode(), msg, null);
     }
 
@@ -61,7 +61,7 @@ public class Result<T> implements Serializable {
         if (status) {
             return success();
         } else {
-            return failed();
+            return fail();
         }
     }
 

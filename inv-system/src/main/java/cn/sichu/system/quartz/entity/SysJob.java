@@ -1,10 +1,10 @@
 package cn.sichu.system.quartz.entity;
 
 import base.BaseEntity;
+import cn.sichu.system.quartz.enums.MisfirePolicy;
+import cn.sichu.system.quartz.enums.QuartzStatus;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import enums.MisfirePolicy;
-import enums.QuartzStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
