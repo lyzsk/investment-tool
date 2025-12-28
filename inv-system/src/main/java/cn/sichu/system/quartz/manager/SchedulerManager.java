@@ -161,16 +161,9 @@ public class SchedulerManager {
             return;
         }
         switch (policy) {
-            case EXECUTE_IMMEDIATELY:
-                builder.withMisfireHandlingInstructionIgnoreMisfires();
-                break;
-            case EXECUTE_ONCE:
-                builder.withMisfireHandlingInstructionFireAndProceed();
-                break;
-            case ABADON_EXECUTION:
-            default:
-                builder.withMisfireHandlingInstructionDoNothing();
-                break;
+            case EXECUTE_IMMEDIATELY -> builder.withMisfireHandlingInstructionIgnoreMisfires();
+            case EXECUTE_ONCE -> builder.withMisfireHandlingInstructionFireAndProceed();
+            default -> builder.withMisfireHandlingInstructionDoNothing();
         }
     }
 }

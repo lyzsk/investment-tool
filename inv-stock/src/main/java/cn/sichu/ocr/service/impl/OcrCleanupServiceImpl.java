@@ -14,6 +14,7 @@ import enums.TableLogic;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -34,6 +35,7 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
     private final ProjectConfig projectConfig;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void cleanupProcessedOcrFiles() {
         String rootDir = projectConfig.getFile().getRootDir();
         log.info("开始执行 OCR 已处理文件清理任务...");
@@ -79,34 +81,32 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
                 } else {
                     log.debug("文件已不存在（可能重复清理）: {}", absolutePath);
                 }
+                LocalDateTime deleteTime = LocalDateTime.now();
                 /* 逻辑删除 file_upload, ocr_image, ocr_result */
-                LocalDateTime fileUploadNow = LocalDateTime.now();
-                file.setUpdateTime(fileUploadNow);
+                file.setUpdateTime(deleteTime);
                 file.setIsDeleted(TableLogic.DELETED.getCode());
-                file.setDeleteTime(fileUploadNow);
+                file.setDeleteTime(deleteTime);
                 fileUploadMapper.updateById(file);
 
-                LocalDateTime ocrImageNow = LocalDateTime.now();
                 LambdaQueryWrapper<OcrImage> ocrImageQuery =
                     Wrappers.lambdaQuery(OcrImage.class).eq(OcrImage::getFileUploadId, file.getId())
                         .eq(OcrImage::getIsDeleted, TableLogic.NOT_DELETED.getCode());
                 List<OcrImage> ocrImages = ocrImageMapper.selectList(ocrImageQuery);
                 for (OcrImage ocrImage : ocrImages) {
-                    ocrImage.setUpdateTime(ocrImageNow);
+                    ocrImage.setUpdateTime(deleteTime);
                     ocrImage.setIsDeleted(TableLogic.DELETED.getCode());
-                    ocrImage.setDeleteTime(ocrImageNow);
+                    ocrImage.setDeleteTime(deleteTime);
                     ocrImageMapper.updateById(ocrImage);
                 }
 
-                LocalDateTime ocrResultNow = LocalDateTime.now();
                 LambdaQueryWrapper<OcrResult> ocrResultQuery = Wrappers.lambdaQuery(OcrResult.class)
                     .eq(OcrResult::getFileUploadId, file.getId())
                     .eq(OcrResult::getIsDeleted, TableLogic.NOT_DELETED.getCode());
                 List<OcrResult> ocrResults = ocrResultMapper.selectList(ocrResultQuery);
                 for (OcrResult ocrResult : ocrResults) {
-                    ocrResult.setUpdateTime(ocrResultNow);
+                    ocrResult.setUpdateTime(deleteTime);
                     ocrResult.setIsDeleted(TableLogic.DELETED.getCode());
-                    ocrResult.setDeleteTime(ocrResultNow);
+                    ocrResult.setDeleteTime(deleteTime);
                     ocrResultMapper.updateById(ocrResult);
                 }
 
