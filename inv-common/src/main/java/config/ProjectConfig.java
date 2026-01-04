@@ -23,7 +23,9 @@ public class ProjectConfig {
     private String version;
 
     /* 文件上传配置 */
-    private FileUpload file = new FileUpload();
+    private FileUpload fileUpload = new FileUpload();
+    /* 文件下载配置 */
+    private FileDownload fileDownload = new FileDownload();
 
     @Getter
     @Setter
@@ -31,5 +33,11 @@ public class ProjectConfig {
         private String rootDir = System.getProperty("user.home") + "/dev/investment-tool/uploads";
         private String maxSize = "10MB";
         private List<String> allowedTypes = List.of("image/jpeg", "image/jpg", "image/png");
+    }
+
+    @Getter
+    @Setter
+    public static class FileDownload {
+        private String rootDir = System.getProperty("user.home") + "/dev/investment-tool/downloads";
     }
 }
