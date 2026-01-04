@@ -74,7 +74,8 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
                     || fileUpload.getIsDeleted() == TableLogic.DELETED.getCode()) {
                     throw new BusinessException("关联的文件上传记录不存在或已删除");
                 }
-                String absolutePath = projectConfig.getFile().getRootDir() + fileUpload.getPath();
+                String absolutePath =
+                    projectConfig.getFileUpload().getRootDir() + fileUpload.getPath();
                 File file = new File(absolutePath);
                 if (!file.exists()) {
                     throw new BusinessException(ResultCode.FILE_NOT_FOUND + ": " + absolutePath);
@@ -88,7 +89,6 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
                 result.setRawText(rawText);
                 result.setProcessedText(processedText);
                 result.setWordCount((long)rawText.length());
-                result.setProcessedBy(1L);
                 result.setProcessTime(now);
                 result.setStatus(BusinessStatus.SUCCESS.getCode());
                 image.setStatus(ProcessStatus.PROCESSED.getCode());
@@ -118,10 +118,9 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
     private String fullPostProcess(String rawText) {
         String text = simplePostProcess(rawText);
         text = text.replace("%6“", StringUtils.PERCENT).replace("%6 _", StringUtils.PERCENT)
-            .replace("%6 ", StringUtils.PERCENT);
-        text = text.replace("亿国", "亿").replace("亿回", "亿").replace("亿团", "亿")
-            .replace("亿固", "亿").replace("亿囝", "亿").replace("亿申", "亿")
-            .replace("亿图", "亿");
+            .replace("%6 ", StringUtils.PERCENT).replace("%6_", StringUtils.PERCENT)
+            .replace("%““_", StringUtils.PERCENT);
+        // text = text.replaceAll("亿[国回团固囝申图因]\\s*", "亿");
         /*
          * 关键改进：
          * 1. 涨幅支持任意数字格式（含小数）
@@ -143,7 +142,7 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
                 /* 市值: 数字 + “亿”，前面允许少量符号 */
                 "[^\\u4e00-\\u9fa5\\w]*?" + "([\\d.]+\\s*亿)" +
                 /* 股票代码前干扰字 */
-                // "[国回团固囝申图]?\\s*" +
+                "[国回团固囝申图因]?\\s*" +
                 /* 股票代码（6位数字），后接空格/中文/结束 */
                 "(\\d{6})";
 

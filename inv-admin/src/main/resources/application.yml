@@ -9,6 +9,8 @@ project:
         - image/jpeg
         - image/jpg
         - image/png
+    download:
+      root-dir: ${user.home}/dev/investment-tool/downloads
 
 server:
   port: 8888

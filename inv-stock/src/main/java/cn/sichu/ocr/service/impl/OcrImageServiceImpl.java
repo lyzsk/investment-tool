@@ -60,7 +60,6 @@ public class OcrImageServiceImpl extends ServiceImpl<OcrImageMapper, OcrImage>
             if (!exists) {
                 OcrImage ocrImage = new OcrImage();
                 ocrImage.setFileUploadId(fileUpload.getId());
-                ocrImage.setUploadBy(1L);
                 ocrImage.setUploadTime(fileUpload.getUploadTime());
                 ocrImage.setStatus(ProcessStatus.UNPROCESSED.getCode());
                 ocrImage.setCreateTime(LocalDateTime.now());
@@ -85,7 +84,7 @@ public class OcrImageServiceImpl extends ServiceImpl<OcrImageMapper, OcrImage>
         if (StringUtils.isEmpty(contentType)) {
             return false;
         }
-        return projectConfig.getFile().getAllowedTypes().stream()
+        return projectConfig.getFileUpload().getAllowedTypes().stream()
             .anyMatch(allowedType -> contentType.toLowerCase().equals(allowedType));
 
     }

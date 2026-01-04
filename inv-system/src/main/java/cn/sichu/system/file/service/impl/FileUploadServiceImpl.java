@@ -4,6 +4,8 @@ import cn.sichu.system.file.dto.FileUploadDto;
 import cn.sichu.system.file.entity.FileUpload;
 import cn.sichu.system.file.mapper.FileUploadMapper;
 import cn.sichu.system.file.service.IFileUploadService;
+import cn.sichu.system.file.utils.FileUploadUtils;
+import cn.sichu.system.file.utils.FileUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import config.ProjectConfig;
 import enums.BusinessStatus;
@@ -15,8 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import result.ResultCode;
 import utils.CollectionUtils;
 import utils.StringUtils;
-import utils.file.FileUploadUtils;
-import utils.file.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +57,6 @@ public class FileUploadServiceImpl extends ServiceImpl<FileUploadMapper, FileUpl
             record.setPath(relativePath);
             record.setContentType(file.getContentType());
             record.setSize(file.getSize());
-            record.setUploadBy(1L);
             record.setUploadTime(now);
             record.setCategory(category);
             record.setStatus(BusinessStatus.SUCCESS.getCode());
@@ -128,7 +127,7 @@ public class FileUploadServiceImpl extends ServiceImpl<FileUploadMapper, FileUpl
             extesion = FileUtils.getFileExtension(extesion);
         }
         Set<String> allowedExts =
-            FileUtils.mimeTypeToExtesions(projectConfig.getFile().getAllowedTypes());
+            FileUtils.mimeTypeToExtesions(projectConfig.getFileUpload().getAllowedTypes());
         File[] files = dir.listFiles();
         if (files == null || files.length == 0) {
             return new FileUploadDto(Collections.emptyList(), 0, 0, Collections.emptyList(),
@@ -200,7 +199,7 @@ public class FileUploadServiceImpl extends ServiceImpl<FileUploadMapper, FileUpl
         }
 
         Set<String> allowedExts =
-            FileUtils.mimeTypeToExtesions(projectConfig.getFile().getAllowedTypes());
+            FileUtils.mimeTypeToExtesions(projectConfig.getFileUpload().getAllowedTypes());
         Set<String> validExts =
             extSet.stream().filter(allowedExts::contains).collect(Collectors.toSet());
         File[] files = dir.listFiles();

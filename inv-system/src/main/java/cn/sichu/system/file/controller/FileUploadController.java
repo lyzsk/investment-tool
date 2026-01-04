@@ -4,6 +4,7 @@ import cn.sichu.system.file.dto.FileDeleteDto;
 import cn.sichu.system.file.dto.FileUploadDto;
 import cn.sichu.system.file.entity.FileUpload;
 import cn.sichu.system.file.service.IFileUploadService;
+import cn.sichu.system.file.utils.FileUploadUtils;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import config.ProjectConfig;
 import enums.TableLogic;
@@ -18,7 +19,6 @@ import result.ResultCode;
 import utils.CollectionUtils;
 import utils.DateTimeUtils;
 import utils.StringUtils;
-import utils.file.FileUploadUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -165,8 +165,7 @@ public class FileUploadController {
         LambdaUpdateWrapper<FileUpload> query = new LambdaUpdateWrapper<>();
         query.eq(FileUpload::getId, fileId)
             .eq(FileUpload::getIsDeleted, TableLogic.NOT_DELETED.getCode())
-            .set(FileUpload::getUpdateBy, 1L).set(FileUpload::getUpdateTime, now)
-            .set(FileUpload::getDeleteBy, 1L).set(FileUpload::getDeleteTime, now)
+            .set(FileUpload::getUpdateTime, now).set(FileUpload::getDeleteTime, now)
             .set(FileUpload::getIsDeleted, TableLogic.DELETED.getCode());
         boolean logicalDeleted = fileUploadService.update(query);
         FileDeleteDto result = getFileDeleteDto(fileId, logicalDeleted, physicalDeleted);
@@ -219,8 +218,7 @@ public class FileUploadController {
                 LambdaUpdateWrapper<FileUpload> query = new LambdaUpdateWrapper<>();
                 query.eq(FileUpload::getId, fileId)
                     .eq(FileUpload::getIsDeleted, TableLogic.NOT_DELETED.getCode())
-                    .set(FileUpload::getUpdateBy, 1L).set(FileUpload::getUpdateTime, now)
-                    .set(FileUpload::getDeleteBy, 1L).set(FileUpload::getDeleteTime, now)
+                    .set(FileUpload::getUpdateTime, now).set(FileUpload::getDeleteTime, now)
                     .set(FileUpload::getIsDeleted, TableLogic.DELETED.getCode());
                 boolean logicalDeleted = fileUploadService.update(query);
                 if (logicalDeleted) {

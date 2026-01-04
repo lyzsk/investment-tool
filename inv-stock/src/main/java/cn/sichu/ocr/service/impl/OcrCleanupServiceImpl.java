@@ -37,7 +37,7 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cleanupProcessedOcrFiles() {
-        String rootDir = projectConfig.getFile().getRootDir();
+        String rootDir = projectConfig.getFileUpload().getRootDir();
         log.info("开始执行 OCR 已处理文件清理任务...");
         /* 安全校验根目录 */
         File root = new File(rootDir);
