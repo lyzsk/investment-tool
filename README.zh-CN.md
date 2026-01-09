@@ -30,6 +30,7 @@
 -   [x] 根据 template 自动导出 excel: 交易账单工作簿, 交易分析工作簿
 -   [ ] 交易自动计算收益, 自动分析
 -   [x] OCR 识别图片转化为数据和表格
+-   [x] auto fetch cls telegraphs into `cls_telegraph` and download important daily imgs into disk
 
 # 🚀 Quick Start
 
@@ -43,13 +44,22 @@
 
 ```
 investment-tool
-├── inv-admin          # Main Spring Boot application entry
-├── inv-common         # Shared components
-├── inv-stock          #
-├── inv-system         # Core system services: file upload, Quartz job scheduling
-├── sql                # Database initialization scripts
-├── uploads/category/yyyy.mm.dd        # Auto generated dirs (organized by date)
-└── logs               # Application logs
+├── inv-admin          # 主应用入口：Spring Boot 启动类、全局配置、Web 控制器
+├── inv-common         # 通用模块：工具类、常量、异常处理、响应封装等
+├── inv-stock          # 股票数据相关功能
+│   ├── cls            # 财联社（CLS）电报抓取与解析
+│   └── ocr            # 图片 OCR 识别（用于解析涨停分析/收评图片）
+├── inv-system         # 系统支撑服务
+│   ├── file           # 文件上传、存储管理
+│   └── quartz         # 定时任务调度（如每日自动抓取）
+├── sql                # 数据库初始化与更新脚本
+├── uploads            # 用户或系统上传的文件（按日期自动归档）
+│   └── category/yyyy-MM-dd
+├── downloads          # 系统自动下载的外部资源
+│   └── cls/yyyy-MM-dd # 财联社电报配图（按日期组织）
+├── stock              # 每日生成的股票分析 Markdown 报告
+│   └── yyyy-MM-dd.md
+└── logs               # 应用运行日志
 ```
 
 > trained data is from: https://github.com/tesseract-ocr/tessdata
