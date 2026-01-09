@@ -12,7 +12,7 @@ import utils.CronUtils;
 /**
  * 封装 Cron校验, MisfirePolicy 策略, Quartz操作等功能
  * <p/>
- * SysJob(DB table) -> SchedulerManager(add/update/delete) -> QuartzScheduler(JDBCJobStore) ->
+ * SysJob(DB table) -> SchedulerManager(add/update/delete) -> JobInitializationRunner(JDBCJobStore) ->
  * JobHandlerInvoker(QuartzJobBean) -> BusinessHandler(e.g. )
  *
  * @author sichu huang
@@ -36,10 +36,11 @@ public class SchedulerManager {
             throw new IllegalArgumentException(
                 ResultCode.INVALID_CRON_EXPRESSION.getMsg() + ": " + sysJob.getCronExpression());
         }
+        String jobName = sysJob.getJobHandlerName();
+        String jobGroup = sysJob.getJobGroup();
         JobDetail jobDetail =
-            JobBuilder.newJob(JobHandlerInvoker.class).withIdentity(sysJob.getJobHandlerName())
-                .usingJobData("JOB_ID", sysJob.getId())
-                .usingJobData("JOB_HANDLER_NAME", sysJob.getJobHandlerName())
+            JobBuilder.newJob(JobHandlerInvoker.class).withIdentity(jobName, jobGroup)
+                .usingJobData("JOB_ID", sysJob.getId()).usingJobData("JOB_HANDLER_NAME", jobName)
                 .usingJobData("JOB_HANDLER_PARAM", sysJob.getJobHandlerParam()).storeDurably()
                 .build();
 
@@ -47,7 +48,7 @@ public class SchedulerManager {
             CronScheduleBuilder.cronSchedule(sysJob.getCronExpression());
         applyMisfirePolicy(scheduleBuilder, sysJob.getMisfirePolicy());
 
-        Trigger trigger = TriggerBuilder.newTrigger().withIdentity(sysJob.getJobHandlerName())
+        Trigger trigger = TriggerBuilder.newTrigger().withIdentity(jobName, jobGroup)
             .withSchedule(scheduleBuilder).usingJobData("RETRY_COUNT", sysJob.getRetryCount())
             .usingJobData("RETRY_INTERVAL", sysJob.getRetryInterval()).build();
         scheduler.scheduleJob(jobDetail, trigger);
@@ -73,7 +74,7 @@ public class SchedulerManager {
      * @since 2025/12/21 11:58:49
      */
     public void deleteJob(SysJob sysJob) throws SchedulerException {
-        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName());
+        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName(), sysJob.getJobGroup());
         if (scheduler.checkExists(jobKey)) {
             scheduler.deleteJob(jobKey);
         }
@@ -87,7 +88,7 @@ public class SchedulerManager {
      * @since 2025/12/21 11:59:12
      */
     public void pauseJob(SysJob sysJob) throws SchedulerException {
-        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName());
+        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName(), sysJob.getJobGroup());
         if (scheduler.checkExists(jobKey)) {
             scheduler.pauseJob(jobKey);
         }
@@ -101,7 +102,7 @@ public class SchedulerManager {
      * @since 2025/12/21 11:59:52
      */
     public void resumeJob(SysJob sysJob) throws SchedulerException {
-        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName());
+        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName(), sysJob.getJobGroup());
         if (scheduler.checkExists(jobKey)) {
             scheduler.resumeJob(jobKey);
         }
@@ -115,7 +116,7 @@ public class SchedulerManager {
      * @since 2025/12/21 12:01:26
      */
     public void triggerJob(SysJob sysJob) throws SchedulerException {
-        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName());
+        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName(), sysJob.getJobGroup());
         if (scheduler.checkExists(jobKey)) {
             JobDataMap dataMap = new JobDataMap();
             dataMap.put("JOB_ID", sysJob.getId());
@@ -135,7 +136,8 @@ public class SchedulerManager {
      * @since 2025/12/21 12:00:18
      */
     public boolean exists(SysJob sysJob) throws SchedulerException {
-        return scheduler.checkExists(JobKey.jobKey(sysJob.getJobHandlerName()));
+        return scheduler.checkExists(
+            JobKey.jobKey(sysJob.getJobHandlerName(), sysJob.getJobGroup()));
     }
 
     /**

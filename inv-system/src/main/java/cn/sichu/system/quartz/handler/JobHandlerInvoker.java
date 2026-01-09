@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Quartz Job 入口
  * <p>
- * SysJob(DB table) -> SchedulerManager(add/update/delete) -> QuartzScheduler(JDBCJobStore) ->
+ * SysJob(DB table) -> SchedulerManager(add/update/delete) -> JobInitializationRunner(JDBCJobStore) ->
  * JobHandlerInvoker(QuartzJobBean) -> BusinessHandler(e.g. )
  *
  * @author sichu huang
@@ -41,7 +41,6 @@ public class JobHandlerInvoker extends QuartzJobBean {
         String param = data.getString("JOB_HANDLER_PARAM");
         /* 日志记录 */
         SysJobLog sysJobLog = new SysJobLog();
-        sysJobLog.setId(jobId);
         sysJobLog.setJobName(handlerName);
         sysJobLog.setJobHandlerName(handlerName);
         sysJobLog.setJobHandlerParam(param);

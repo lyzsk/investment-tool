@@ -9,6 +9,9 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 
 /**
+ * <a href="https://www.cls.cn/nodeapi/updateTelegraphList">电报json</a>
+ * <a href="https://www.cls.cn/detail/cls_id">电报detail</a>
+ *
  * @author sichu huang
  * @since 2026/01/03 16:31
  */

@@ -1,10 +1,7 @@
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\base\BaseEntity.java
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\config\ProjectConfig.java
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\enums\BusinessStatus.java
-C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\enums\Concurrent.java
-C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\enums\MisfirePolicy.java
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\enums\ProcessStatus.java
-C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\enums\QuartzStatus.java
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\enums\TableLogic.java
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\exception\BusinessException.java
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\exception\GlobalExceptionHandler.java
@@ -17,7 +14,5 @@ C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\utils\Collec
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\utils\CronUtils.java
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\utils\DateTimeUtils.java
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\utils\ExceptionUtils.java
-C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\utils\file\FileUploadUtils.java
-C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\utils\file\FileUtils.java
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\utils\IdUtils.java
 C:\Users\Administrator\dev\investment-tool\inv-common\src\main\java\utils\StringUtils.java
