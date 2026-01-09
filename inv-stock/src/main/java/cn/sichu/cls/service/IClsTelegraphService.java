@@ -2,7 +2,6 @@ package cn.sichu.cls.service;
 
 import cn.sichu.cls.entity.ClsTelegraph;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * @author sichu huang
@@ -11,29 +10,37 @@ import com.fasterxml.jackson.databind.JsonNode;
 public interface IClsTelegraphService extends IService<ClsTelegraph> {
 
     /**
-     * 根据财联社原始ID查询电报
+     * 拉取<a href="https://www.cls.cn/nodeapi/updateTelegraphList">电报json</a>中最新的电报
      *
-     * @param clsId clsId
-     * @return cn.sichu.cls.entity.ClsTelegraph
-     * @author sichu huang
-     * @since 2026/01/03 16:19:06
-     */
-
-    ClsTelegraph getByClsId(Long clsId);
-
-    /**
-     * 保存或更新电报(自动去重)
-     *
-     * @param itemNode JsonNode
-     * @return boolean
-     * @author sichu huang
-     * @since 2026/01/03 16:19:28
-     */
-    boolean saveOrUpdateFromRaw(JsonNode itemNode);
-
-    /**
+     * @return int 拉取的电报条数
      * @author sichu huang
      * @since 2026/01/03 16:56:25
      */
-    void fetchAndSaveLatestTelegraphs();
+    int fetchAndSaveLatestTelegraphs();
+
+    /**
+     * 拉取<a href="https://www.cls.cn/nodeapi/updateTelegraphList">电报json</a>中的 "收评" 电报
+     * <p/>
+     * 保存至`cls_telegraph`
+     * <p/>
+     * 下载第一张图片(包含重命名)到`downloads/cls/yyyy.mm.dd/`目录下
+     *
+     * @return int  拉取的电报条数
+     * @author sichu huang
+     * @since 2026/01/08 16:13:12
+     */
+    int fetchAndSaveShouPingTelegraphs();
+
+    /**
+     * 拉取<a href="https://www.cls.cn/nodeapi/updateTelegraphList">电报json</a>中的 "M月M日涨停分析" 电报
+     * <p/>
+     * 保存至`cls_telegraph`
+     * <p/>
+     * 下载第一张图片(包含重命名)到`downloads/cls/yyyy.mm.dd/`目录下
+     *
+     * @return int 拉取的电报条数
+     * @author sichu huang
+     * @since 2026/01/08 16:13:18
+     */
+    int fetchAndSaveZhangTingTelegraphs();
 }

@@ -1,6 +1,7 @@
-package cn.sichu.cls.utils;
+package utils;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,10 +14,10 @@ import java.util.regex.Pattern;
  * @since 2026/01/03 16:37
  */
 @Slf4j
-public class JsonFixUtils {
+public class JsonUtils {
     public static final ObjectMapper objectMapper =
         new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true)
-            .configure(JsonParser.Feature.ALLOW_TRAILING_COMMA, true)
+            .configure(JsonReadFeature.ALLOW_TRAILING_COMMA.mappedFeature(), true)
             .configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
