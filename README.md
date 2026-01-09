@@ -37,6 +37,7 @@
     -   Asynchronous job log recording (`sys_job_log`)
     -   Supports immediate trigger, pause/resume, and update/delete
     -   Example: Auto-cleanup of processed OCR images
+-   [x] auto fetch cls telegraphs into `cls_telegraph` and download important daily imgs into disk
 
 # 🚀 Quick Start
 
@@ -50,13 +51,22 @@
 
 ```
 investment-tool
-├── inv-admin          # Main Spring Boot application entry
-├── inv-common         # Shared components
-├── inv-stock          #
-├── inv-system         # Core system services: file upload, Quartz job scheduling
-├── sql                # Database initialization scripts
-├── uploads/category/yyyy.mm.dd        # Auto generated dirs (organized by date)
-└── logs               # Application logs
+├── inv-admin          # Main application entry: Spring Boot startup class, global configuration, web controllers
+├── inv-common         # Shared utilities: helper classes, constants, exception handling, response wrappers, etc.
+├── inv-stock          # Stock-related data features
+│   ├── cls            # CaiLianShe (CLS) telegraph fetching and parsing
+│   └── ocr            # Image OCR recognition (for parsing daily limit-up analysis / market close summaries)
+├── inv-system         # System infrastructure services
+│   ├── file           # File upload and storage management
+│   └── quartz         # Scheduled job execution (e.g., daily automated data fetching)
+├── sql                # Database initialization and migration scripts
+├── uploads            # User- or system-uploaded files (auto-organized by date)
+│   └── category/yyyy-MM-dd
+├── downloads          # Automatically downloaded external resources
+│   └── cls/yyyy-MM-dd # CLS telegraph images (grouped by date)
+├── stock              # Daily auto-generated stock analysis reports (Markdown)
+│   └── yyyy-MM-dd.md
+└── logs               # Application runtime logs
 ```
 
 > trained data is from: https://github.com/tesseract-ocr/tessdata
@@ -64,8 +74,3 @@ investment-tool
 # Disclaimer
 
 **The program code is provided for my personal learning and research purposes only. The author bears no legal responsibility for any other use (downloading and using it implies your agreement with the above statement). Users are not allowed to interfere with or disrupt the services of the data source website or the servers and networks connected to the service. Additionally, this program does not constitute any investment advice for you. Any actions taken based on it are at your own risk.**
-
-TODO:
-
-任务一: https://www.cls.cn/nodeapi/updateTelegraphList 的定时爬虫(先做每天 15:00-15:30 的定时任务, 每 5 分钟爬一次), 如果 title 出现关键词: "收评："和"xx 月 xx 日涨停分析", 则下载图片(收评只有一张图, 涨停分析只要第一张图)到 uploads/cls/yyyy.mm.dd/ 目录下(category 标记为 cls)
-任务二: 通过另一个服务作为任务一的扩展, 将下载的图片上传图片到 file_upload 数据库中, 然后添加 category=ocr, 然后走 ocr 服务到 ocr_image 和 ocr_result 中,
