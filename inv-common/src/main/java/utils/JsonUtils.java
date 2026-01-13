@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 /**
@@ -50,5 +52,36 @@ public class JsonUtils {
     public static JsonNode parseFixedJson(String rawJson) throws Exception {
         String fixed = fixJsonString(rawJson);
         return objectMapper.readTree(fixed);
+    }
+
+    /**
+     * 从 URL 中提取原始扩展名(不校验合法性, 不转换jpeg->jpg)
+     *
+     * @param url url
+     * @return java.lang.String
+     * @author sichu huang
+     * @since 2026/01/06 16:20:46
+     */
+    public static String getExtensionFromUrl(String url) {
+        if (StringUtils.isEmpty(url)) {
+            return null;
+        }
+        try {
+            URI uri = new URI(url);
+            String path = uri.getPath();
+            if (path == null || path.isEmpty()) {
+                return null;
+            }
+            int lastDotIndex = path.lastIndexOf('.');
+            if (lastDotIndex > 0 && lastDotIndex < path.length() - 1) {
+                String ext = path.substring(lastDotIndex + 1).toLowerCase();
+                if (ext.matches("[a-zA-Z0-9]+")) {
+                    return ext;
+                }
+            }
+            return null;
+        } catch (URISyntaxException e) {
+            return null;
+        }
     }
 }

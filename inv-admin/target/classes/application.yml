@@ -1,6 +1,6 @@
 project:
   name: investment-tool
-  version: 1.4.0 # Maven 会替换为实际版本
+  version: 1.5.0 # Maven 会替换为实际版本
   file:
     upload:
       root-dir: ${user.home}/dev/investment-tool/uploads

@@ -207,7 +207,7 @@ public class FileUploadController {
                     log.warn("物理删除失败: {}, fileId: {}", fileUpload.getPath(), fileId);
                     LocalDateTime now = LocalDateTime.now();
                     fileUpload.setUpdateTime(now);
-                    String timeStr = DateTimeUtils.getMillionSecondStr(now);
+                    String timeStr = DateTimeUtils.getNanoSecondStr(now);
                     String newRemark =
                         (fileUpload.getRemark() != null ? fileUpload.getRemark() + "; " : "")
                             + timeStr + "物理删除失败: " + fileUpload.getPath();
