@@ -22,7 +22,7 @@ public class DateTimeUtils {
      * @author sichu huang
      * @since 2025/12/07 03:41:12
      */
-    public static String getMillionSecondStr(LocalDateTime localDateTime) {
+    public static String getNanoSecondStr(LocalDateTime localDateTime) {
         return localDateTime.format(YYYY_MM_DD_HH_MM_SS_SSSSSS);
     }
 
@@ -31,7 +31,7 @@ public class DateTimeUtils {
      * @author sichu huang
      * @since 2025/12/07 21:41:51
      */
-    public static String getNumericMillionSecondStr() {
+    public static String getNumericNanoSecondStr() {
         return LocalDateTime.now().format(YYYYMMDDHHMMSSSSSSSS);
     }
 

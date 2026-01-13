@@ -19,14 +19,13 @@ import utils.JsonUtils;
 import utils.StringUtils;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,7 +70,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
                 ClsTelegraph telegraph = saveTelegraph(item);
                 if (telegraph != null) {
                     savedCount++;
-                    downloadFirstImage(telegraph, "cls_zt_");
+                    downloadFirstImage(telegraph, "cls_sp_");
                 }
             }
         }
@@ -88,7 +87,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
                 ClsTelegraph telegraph = saveTelegraph(item);
                 if (telegraph != null) {
                     savedCount++;
-                    downloadFirstImage(telegraph, "cls_zt_");
+                    downloadAllButLastImage(telegraph, "cls_zt_");
                 }
             }
         }
@@ -159,8 +158,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
 
         if (itemNode.has("ctime")) {
             long ctime = itemNode.get("ctime").asLong();
-            telegraph.setPublishTime(
-                LocalDateTime.ofEpochSecond(ctime, 0, java.time.ZoneOffset.ofHours(8)));
+            telegraph.setPublishTime(LocalDateTime.ofEpochSecond(ctime, 0, ZoneOffset.ofHours(8)));
         }
 
         try {
@@ -238,7 +236,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
      * 通用图片下载方法
      *
      * @param telegraph      telegraph
-     * @param filenamePrefix filenamePrefix
+     * @param filenamePrefix 下载的文件名前缀
      * @author sichu huang
      * @since 2026/01/08 17:00:29
      */
@@ -252,7 +250,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
 
         String url = imageUrls.get(0);
         String timeStr = DateTimeUtils.getSecondStr(telegraph.getPublishTime());
-        String ext = extractRawExtensionFromUrl(url);
+        String ext = JsonUtils.getExtensionFromUrl(url);
         if (ext == null || ext.trim().isEmpty()) {
             ext = "jpg";
         }
@@ -270,33 +268,41 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
     }
 
     /**
-     * 从 URL 中提取原始扩展名(不校验合法性, 不转换jpeg->jpg)
+     * 下载除最后一张外的所有图片
      *
-     * @param url url
-     * @return java.lang.String
+     * @param telegraph      telegraph
+     * @param filenamePrefix 下载的文件名前缀
      * @author sichu huang
-     * @since 2026/01/06 16:20:46
+     * @since 2026/01/12 16:44:05
      */
-    private String extractRawExtensionFromUrl(String url) {
-        if (StringUtils.isEmpty(url)) {
-            return null;
+    private void downloadAllButLastImage(ClsTelegraph telegraph, String filenamePrefix) {
+        List<String> imageUrls = extractImageUrls(telegraph.getRawData());
+        if (imageUrls.size() <= 1) {
+            /*/ 如果 ≤1 张, 按原逻辑下载第一张 */
+            downloadFirstImage(telegraph, filenamePrefix);
+            return;
         }
+
+        /* 排除最后一张 */
+        List<String> urlsToDownload = imageUrls.subList(0, imageUrls.size() - 1);
+        String dateStr = DateTimeUtils.getDotDateStr(telegraph.getPublishTime());
+        Path targetDir = Paths.get(projectConfig.getFileDownload().getRootDir(), "cls", dateStr);
+
         try {
-            URI uri = new URI(url);
-            String path = uri.getPath();
-            if (path == null || path.isEmpty()) {
-                return null;
-            }
-            int lastDotIndex = path.lastIndexOf('.');
-            if (lastDotIndex > 0 && lastDotIndex < path.length() - 1) {
-                String ext = path.substring(lastDotIndex + 1).toLowerCase();
-                if (ext.matches("[a-zA-Z0-9]+")) {
-                    return ext;
+            Files.createDirectories(targetDir);
+            for (int i = 0; i < urlsToDownload.size(); i++) {
+                String url = urlsToDownload.get(i);
+                String timeStr = DateTimeUtils.getSecondStr(telegraph.getPublishTime());
+                String ext = JsonUtils.getExtensionFromUrl(url);
+                if (ext == null || ext.trim().isEmpty()) {
+                    ext = "jpg";
                 }
+                String filename = filenamePrefix + timeStr + "_" + (i + 1) + "." + ext;
+                Path targetFile = targetDir.resolve(filename);
+                downloadAndSaveImage(url, targetFile);
             }
-            return null;
-        } catch (URISyntaxException e) {
-            return null;
+        } catch (IOException e) {
+            log.error("创建图片下载目录失败: {}", targetDir, e);
         }
     }
 

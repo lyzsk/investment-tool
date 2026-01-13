@@ -73,6 +73,13 @@
             </dependency>
 
             <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>5.10.0</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
@@ -95,7 +102,6 @@
                 <artifactId>tess4j</artifactId>
                 <version>5.11.0</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 

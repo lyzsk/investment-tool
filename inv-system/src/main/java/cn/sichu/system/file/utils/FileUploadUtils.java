@@ -84,7 +84,7 @@ public class FileUploadUtils {
         String extension = FileUtils.getFileExtension(file);
         String suffix = StringUtils.DOT + extension;
         String filename =
-            prefix + StringUtils.UNDERLINE + DateTimeUtils.getNumericMillionSecondStr() + suffix;
+            prefix + StringUtils.UNDERLINE + DateTimeUtils.getNumericNanoSecondStr() + suffix;
         String datePath = StringUtils.SLASH + DateTimeUtils.getDotDateStr() + StringUtils.SLASH;
         String relativeDir = StringUtils.SLASH + category + datePath;
         String absoluteDir = rootDir + relativeDir;
