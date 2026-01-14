@@ -53,20 +53,6 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
     private final ProjectConfig projectConfig;
     private final ClsHttpClient clsHttpClient;
 
-    // @Override
-    // public int fetchAndSaveLatestTelegraphs() {
-    //     List<JsonNode> items = fetchAllTelegraphItems();
-    //     int savedCount = 0;
-    //     for (JsonNode item : items) {
-    //         ClsTelegraph telegraph = saveTelegraph(item);
-    //         if (telegraph != null) {
-    //             savedCount++;
-    //         }
-    //     }
-    //     log.info("CLS 电报拉取完成：新增 {} 条", savedCount);
-    //     return savedCount;
-    // }
-
     @Override
     public int fetchAndSaveAllRedTelegraphs() {
         List<JsonNode> items = fetchAllTelegraphItems();
@@ -182,12 +168,8 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
 
             LocalDateTime start = date.atStartOfDay();
             LocalDateTime end = date.plusDays(1).atStartOfDay();
-            List<ClsTelegraph> telegraphs = this.list(
-                new LambdaQueryWrapper<ClsTelegraph>().eq(ClsTelegraph::getLevel, "B")
-                    .eq(ClsTelegraph::getIsDeleted, TableLogic.NOT_DELETED.getCode())
-                    .ge(ClsTelegraph::getPublishTime, start).lt(ClsTelegraph::getPublishTime, end)
-                    .orderByAsc(ClsTelegraph::getPublishTime));
-
+            List<ClsTelegraph> telegraphs = baseMapper.selectRedTelegraphs("B", start, end);
+            log.debug("Telegraph images: {}", telegraphs.get(0).getImages());
             String newTelegraphContent = buildTelegraphContent(telegraphs);
             String formattedContent = MarkdownUtils.format(newTelegraphContent);
             String updatedContent = replaceTelegraphSection(content, formattedContent);

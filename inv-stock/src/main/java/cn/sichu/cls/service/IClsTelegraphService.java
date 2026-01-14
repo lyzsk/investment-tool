@@ -11,15 +11,6 @@ import java.time.LocalDate;
  */
 public interface IClsTelegraphService extends IService<ClsTelegraph> {
 
-    // /**
-    //  * 拉取<a href="https://www.cls.cn/nodeapi/updateTelegraphList">电报json</a>中最新的电报
-    //  *
-    //  * @return int 拉取的电报条数
-    //  * @author sichu huang
-    //  * @since 2026/01/03 16:56:25
-    //  */
-    // int fetchAndSaveLatestTelegraphs();
-
     /**
      * 拉取并保存所有 level="B" 的电报(加红电报)
      *

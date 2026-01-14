@@ -3,5 +3,42 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.sichu.cls.mapper.ClsTelegraphMapper">
+    <resultMap id="TelegraphMap" type="cn.sichu.cls.entity.ClsTelegraph">
+        <id column="id" property="id"/>
+        <result column="cls_id" property="clsId"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="author" property="author"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <!-- JSON 字段：images 存储为 JSON 字符串，映射为 List<String> 或 List<ImageInfo> 等 -->
+        <result column="images" property="images"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="status" property="status"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="delete_by" property="deleteBy"/>
+        <result column="delete_time" property="deleteTime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
 
+    <select id="selectRedTelegraphs" resultMap="TelegraphMap">
+        <![CDATA[
+        SELECT
+            id, cls_id, title, brief, content, level, publish_time, author,
+            status, create_by, create_time, update_by, update_time,
+            is_deleted, delete_by, delete_time, remark, images
+        FROM cls_telegraph
+        WHERE is_deleted = 0
+          AND level = #{level}
+          AND publish_time >= #{start}
+          AND publish_time < #{end}
+        ORDER BY publish_time ASC
+        ]]>
+    </select>
 </mapper>
