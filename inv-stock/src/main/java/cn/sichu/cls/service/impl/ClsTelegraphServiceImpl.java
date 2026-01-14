@@ -12,13 +12,18 @@ import enums.BusinessStatus;
 import enums.TableLogic;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 import utils.DateTimeUtils;
 import utils.JsonUtils;
-import utils.StringUtils;
+import utils.MarkdownUtils;
+import utils.TradingDayUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,21 +49,37 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, ClsTelegraph>
     implements IClsTelegraphService {
-    private static final Pattern ZT_ANALYSIS_PATTERN =
-        Pattern.compile("(\\d{1,2}月\\d{1,2}日)涨停分析");
+    private final ResourceLoader resourceLoader;
     private final ProjectConfig projectConfig;
+    private final ClsHttpClient clsHttpClient;
+
+    // @Override
+    // public int fetchAndSaveLatestTelegraphs() {
+    //     List<JsonNode> items = fetchAllTelegraphItems();
+    //     int savedCount = 0;
+    //     for (JsonNode item : items) {
+    //         ClsTelegraph telegraph = saveTelegraph(item);
+    //         if (telegraph != null) {
+    //             savedCount++;
+    //         }
+    //     }
+    //     log.info("CLS 电报拉取完成：新增 {} 条", savedCount);
+    //     return savedCount;
+    // }
 
     @Override
-    public int fetchAndSaveLatestTelegraphs() {
+    public int fetchAndSaveAllRedTelegraphs() {
         List<JsonNode> items = fetchAllTelegraphItems();
         int savedCount = 0;
         for (JsonNode item : items) {
-            ClsTelegraph telegraph = saveTelegraph(item);
-            if (telegraph != null) {
-                savedCount++;
+            if (isRedTelegraphItem(item)) {
+                ClsTelegraph telegraph = saveTelegraph(item);
+                if (telegraph != null) {
+                    savedCount++;
+                }
             }
         }
-        log.info("CLS 电报拉取完成：新增 {} 条", savedCount);
+        log.info("CLS 加红电报(B级)拉取完成：新增 {} 条", savedCount);
         return savedCount;
     }
 
@@ -83,7 +105,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
         List<JsonNode> items = fetchAllTelegraphItems();
         int savedCount = 0;
         for (JsonNode item : items) {
-            if (isZhangTingAnalysisTodayItem(item)) {
+            if (isZhangTingAnalysisItem(item)) {
                 ClsTelegraph telegraph = saveTelegraph(item);
                 if (telegraph != null) {
                     savedCount++;
@@ -95,6 +117,90 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
         return savedCount;
     }
 
+    @Override
+    public boolean generateMarkdown(LocalDate today) {
+        try {
+            LocalDate nextTradingDay = TradingDayUtils.getNextTradingDay(today);
+            log.info("准备为下一个交易日 {} 生成 Markdown 文件", nextTradingDay);
+
+            Path dir = Paths.get(projectConfig.getMarkdown().getRootDir());
+            Files.createDirectories(dir);
+
+            String filename = nextTradingDay.format(DateTimeUtils.YYYY_MM_DD) + ".md";
+            Path markdownFile = dir.resolve(filename);
+
+            boolean fileExisted = Files.exists(markdownFile);
+            String content;
+
+            if (!fileExisted) {
+                /* 初始化模板 + 继承持仓 */
+                String dayOfWeek = DateTimeUtils.getDayOfWeekCN(nextTradingDay);
+                String titleLine =
+                    nextTradingDay.format(DateTimeUtils.YYYY_MM_DD) + " " + dayOfWeek;
+                String baseTemplate = loadTemplateContent();
+                content = "# " + titleLine + "\n\n" + baseTemplate;
+
+                /* 从上一交易日继承持仓标题 */
+                LocalDate prevTradingDay = TradingDayUtils.getPreviousTradingDay(nextTradingDay);
+                if (prevTradingDay != null) {
+                    String inheritedHoldings = inheritHoldingsFromPrevious(prevTradingDay);
+                    if (!inheritedHoldings.isEmpty()) {
+                        /* 替换 "### 当前持仓" 后的内容 */
+                        content = content.replaceFirst("(### 当前持仓\\s*\n)",
+                            "$1" + inheritedHoldings + "\n");
+                    }
+                }
+            } else {
+                /* 文件已存在: 读取现有内容 */
+                content = Files.readString(markdownFile, StandardCharsets.UTF_8);
+            }
+
+            /* 写回文件 */
+            Files.writeString(markdownFile, content, StandardCharsets.UTF_8);
+            log.info("Markdown 文件已更新: {}", markdownFile);
+            return true;
+
+        } catch (Exception e) {
+            log.error("生成 Markdown 文件失败", e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean appendRedTelegraphs(LocalDate date) {
+        try {
+            Path dir = Paths.get(projectConfig.getMarkdown().getRootDir());
+            String filename = date.format(DateTimeUtils.YYYY_MM_DD) + ".md";
+            Path markdownFile = dir.resolve(filename);
+
+            if (!Files.exists(markdownFile)) {
+                log.warn("Markdown 文件不存在，无法追加电报: {}", markdownFile);
+                return false;
+            }
+
+            String content = Files.readString(markdownFile, StandardCharsets.UTF_8);
+
+            LocalDateTime start = date.atStartOfDay();
+            LocalDateTime end = date.plusDays(1).atStartOfDay();
+            List<ClsTelegraph> telegraphs = this.list(
+                new LambdaQueryWrapper<ClsTelegraph>().eq(ClsTelegraph::getLevel, "B")
+                    .eq(ClsTelegraph::getIsDeleted, TableLogic.NOT_DELETED.getCode())
+                    .ge(ClsTelegraph::getPublishTime, start).lt(ClsTelegraph::getPublishTime, end)
+                    .orderByAsc(ClsTelegraph::getPublishTime));
+
+            String newTelegraphContent = buildTelegraphContent(telegraphs);
+            String formattedContent = MarkdownUtils.format(newTelegraphContent);
+            String updatedContent = replaceTelegraphSection(content, formattedContent);
+
+            Files.writeString(markdownFile, updatedContent, StandardCharsets.UTF_8);
+            log.info("成功追加 {} 条加红电报到 {}", telegraphs.size(), markdownFile);
+            return true;
+        } catch (Exception e) {
+            log.error("追加加红电报失败: date={}", date, e);
+            return false;
+        }
+    }
+
     /**
      * 发起 HTTP 请求并解析出 data.roll_data 列表
      *
@@ -104,7 +210,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
      */
     private List<JsonNode> fetchAllTelegraphItems() {
         try {
-            String rawResponse = new ClsHttpClient().fetchTelegraphList().block();
+            String rawResponse = clsHttpClient.fetchTelegraphList().block();
             if (rawResponse == null) {
                 throw new RuntimeException("HTTP 响应为空");
             }
@@ -161,12 +267,18 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
             telegraph.setPublishTime(LocalDateTime.ofEpochSecond(ctime, 0, ZoneOffset.ofHours(8)));
         }
 
-        try {
-            telegraph.setRawData(JsonUtils.objectMapper.writeValueAsString(itemNode));
-        } catch (Exception e) {
-            log.error("序列化原始 JSON 失败", e);
-            telegraph.setRawData("{}");
+        List<String> imageUrls = new ArrayList<>();
+        if (itemNode.has("images") && itemNode.get("images").isArray()) {
+            for (JsonNode urlNode : itemNode.get("images")) {
+                if (urlNode.isTextual()) {
+                    String url = urlNode.asText().trim();
+                    if (url.startsWith("http") || url.startsWith("https")) {
+                        imageUrls.add(url);
+                    }
+                }
+            }
         }
+        telegraph.setImages(imageUrls);
 
         LocalDateTime now = LocalDateTime.now();
         telegraph.setCreateTime(now);
@@ -176,9 +288,73 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
         boolean saved = this.save(telegraph);
         if (saved) {
             log.info("新增电报: id={}, title={}", clsId, telegraph.getTitle());
+            if (isWuPingItem(itemNode)) {
+                downloadFirstImage(telegraph, "cls_wp_");
+            } else if (isShouPingItem(itemNode)) {
+                downloadFirstImage(telegraph, "cls_sp_");
+            } else if (isWuJianZhangTingAnalysisItem(itemNode)) {
+                downloadAllButLastImage(telegraph, "cls_wjzt_");
+            } else if (isZhangTingAnalysisItem(itemNode)) {
+                downloadAllButLastImage(telegraph, "cls_zt_");
+            }
             return telegraph;
         }
         return null;
+    }
+
+    /**
+     * 判断是否为 level == "B" 电报(加红电报)
+     *
+     * @param item 电报 JSON 节点
+     * @return boolean
+     * @author sichu huang
+     * @since 2026/01/14 13:48:19
+     */
+    private boolean isRedTelegraphItem(JsonNode item) {
+        if (item == null || !item.has("level")) {
+            return false;
+        }
+        String level = item.get("level").asText("").trim();
+        return "B".equalsIgnoreCase(level);
+    }
+
+    /**
+     * 判断是否为“午评”电报
+     *
+     * @param item item
+     * @return boolean
+     * @author sichu huang
+     * @since 2026/01/14 13:53:52
+     */
+    private boolean isWuPingItem(JsonNode item) {
+        if (item == null || !item.has("title")) {
+            return false;
+        }
+        String title = item.get("title").asText("").trim();
+        return title.contains("午评");
+    }
+
+    /**
+     * 判断是否为“M月d日午间涨停分析”电报
+     *
+     * @param item item
+     * @return boolean
+     * @author sichu huang
+     * @since 2026/01/14 13:54:02
+     */
+    private boolean isWuJianZhangTingAnalysisItem(JsonNode item) {
+        if (item == null || !item.has("title")) {
+            return false;
+        }
+        String title = item.get("title").asText("").trim();
+        Pattern pattern = Pattern.compile("(\\d{1,2}月\\d{1,2}日)午间涨停分析");
+        Matcher matcher = pattern.matcher(title);
+        if (!matcher.find()) {
+            return false;
+        }
+        String datePart = matcher.group(1);
+        String todayStr = LocalDate.now().format(DateTimeUtils.M_D_CHINESE);
+        return todayStr.equals(datePart);
     }
 
     /**
@@ -205,17 +381,19 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
      * @author sichu huang
      * @since 2026/01/08 16:30:57
      */
-    private boolean isZhangTingAnalysisTodayItem(JsonNode item) {
+    private boolean isZhangTingAnalysisItem(JsonNode item) {
         if (item == null || !item.has("title")) {
             return false;
         }
         String title = item.get("title").asText("").trim();
-        Matcher matcher = ZT_ANALYSIS_PATTERN.matcher(title);
+
+        Pattern pattern = Pattern.compile("(\\d{1,2}月\\d{1,2}日)涨停分析");
+        Matcher matcher = pattern.matcher(title);
         if (!matcher.find()) {
             return false;
         }
         String datePart = matcher.group(1);
-        String todayStr = LocalDate.now().format(DateTimeFormatter.ofPattern("M月d日"));
+        String todayStr = LocalDate.now().format(DateTimeUtils.M_D_CHINESE);
         return todayStr.equals(datePart);
     }
 
@@ -241,8 +419,8 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
      * @since 2026/01/08 17:00:29
      */
     private void downloadFirstImage(ClsTelegraph telegraph, String filenamePrefix) {
-        List<String> imageUrls = extractImageUrls(telegraph.getRawData());
-        if (imageUrls.isEmpty()) {
+        List<String> imageUrls = telegraph.getImages();
+        if (imageUrls == null || imageUrls.isEmpty()) {
             log.debug("电报无图片可下载: id={}, title={}", telegraph.getClsId(),
                 telegraph.getTitle());
             return;
@@ -276,14 +454,16 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
      * @since 2026/01/12 16:44:05
      */
     private void downloadAllButLastImage(ClsTelegraph telegraph, String filenamePrefix) {
-        List<String> imageUrls = extractImageUrls(telegraph.getRawData());
+        List<String> imageUrls = telegraph.getImages();
+        if (imageUrls == null) {
+            imageUrls = Collections.emptyList();
+        }
+
         if (imageUrls.size() <= 1) {
-            /*/ 如果 ≤1 张, 按原逻辑下载第一张 */
             downloadFirstImage(telegraph, filenamePrefix);
             return;
         }
 
-        /* 排除最后一张 */
         List<String> urlsToDownload = imageUrls.subList(0, imageUrls.size() - 1);
         String dateStr = DateTimeUtils.getDotDateStr(telegraph.getPublishTime());
         Path targetDir = Paths.get(projectConfig.getFileDownload().getRootDir(), "cls", dateStr);
@@ -307,39 +487,6 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
     }
 
     /**
-     * 解析 JSON 获取图片 URL 列表
-     *
-     * @param rawData rawData
-     * @return java.util.List<java.lang.String>
-     * @author sichu huang
-     * @since 2026/01/05 16:23:05
-     */
-    private List<String> extractImageUrls(String rawData) {
-        if (StringUtils.isEmpty(rawData)) {
-            return Collections.emptyList();
-        }
-        try {
-            JsonNode node = JsonUtils.objectMapper.readTree(rawData);
-            if (!node.has("images") || !node.get("images").isArray()) {
-                return Collections.emptyList();
-            }
-            List<String> urls = new ArrayList<>();
-            for (JsonNode urlNode : node.get("images")) {
-                if (urlNode.isTextual()) {
-                    String url = urlNode.asText().trim();
-                    if (url.startsWith("http")) {
-                        urls.add(url);
-                    }
-                }
-            }
-            return urls;
-        } catch (Exception e) {
-            log.warn("解析 rawData 中的 images 失败", e);
-            return Collections.emptyList();
-        }
-    }
-
-    /**
      * 下载并保存单张图片
      *
      * @param url        url
@@ -349,7 +496,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
      */
     private void downloadAndSaveImage(String url, Path targetFile) {
         try {
-            byte[] imageBytes = new ClsHttpClient().downloadImage(url).block();
+            byte[] imageBytes = clsHttpClient.downloadImage(url).block();
             if (imageBytes == null || imageBytes.length == 0) {
                 log.warn("图片下载为空，跳过: {}", url);
                 return;
@@ -363,5 +510,129 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
         } catch (Exception e) {
             log.error("单张图片下载失败: {}", url, e);
         }
+    }
+
+    /**
+     * 加载模板
+     *
+     * @return java.lang.String
+     * @author sichu huang
+     * @since 2026/01/14 12:44:11
+     */
+    private String loadTemplateContent() throws IOException {
+        String location = projectConfig.getMarkdown().getTemplatePath();
+        Resource resource = resourceLoader.getResource(location);
+        if (!resource.exists()) {
+            throw new IllegalStateException("Markdown 模板文件不存在: " + location);
+        }
+        return StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 从上一交易日 Markdown 中提取 "### 复盘持仓" 下的 #### 标题行
+     *
+     * @param prevDate prevDate
+     * @return java.lang.String
+     * @author sichu huang
+     * @since 2026/01/13 17:00:35
+     */
+    private String inheritHoldingsFromPrevious(LocalDate prevDate) {
+        Path dir = Paths.get(projectConfig.getMarkdown().getRootDir());
+        String filename = prevDate.format(DateTimeUtils.YYYY_MM_DD) + ".md";
+        Path prevFile = dir.resolve(filename);
+
+        if (!Files.exists(prevFile)) {
+            log.warn("上一交易日文件不存在，无法继承持仓: {}", prevFile);
+            return "";
+        }
+
+        try {
+            String content = Files.readString(prevFile, StandardCharsets.UTF_8);
+            int startIndex = content.indexOf("### 复盘持仓");
+            if (startIndex == -1) {
+                return "";
+            }
+
+            /* 从 "### 复盘持仓" 之后开始找 #### 行 */
+            String afterSection = content.substring(startIndex + "### 复盘持仓".length());
+            Pattern holdingPattern = Pattern.compile("^####\\s+[^|]+\\|.*$", Pattern.MULTILINE);
+            Matcher matcher = holdingPattern.matcher(afterSection);
+
+            StringBuilder holdings = new StringBuilder();
+            while (matcher.find()) {
+                String line = matcher.group().trim();
+                holdings.append(line).append("\n");
+            }
+
+            return holdings.toString().trim();
+        } catch (IOException e) {
+            log.error("读取上一交易日文件失败: {}", prevFile, e);
+            return "";
+        }
+    }
+
+    /**
+     * 构建md填充的电报内容
+     *
+     * @param telegraphs (List<ClsTelegraph>
+     * @return java.lang.String
+     * @author sichu huang
+     * @since 2026/01/14 13:00:06
+     */
+    private String buildTelegraphContent(List<ClsTelegraph> telegraphs) {
+        if (telegraphs.isEmpty()) {
+            return "\n";
+        }
+        StringBuilder sb = new StringBuilder();
+        DateTimeFormatter dtf = DateTimeUtils.YYYY_MM_DD_HH_MM_SS;
+
+        for (ClsTelegraph t : telegraphs) {
+            String brief = Optional.ofNullable(t.getBrief()).orElse("");
+            String content = Optional.ofNullable(t.getContent()).orElse("");
+            String fullText = (!brief.isEmpty() ? brief : content);
+            String timeStr = t.getPublishTime().format(dtf);
+            String linkUrl = "https://www.cls.cn/detail/" + t.getClsId();
+            sb.append("-   [").append(timeStr).append("] [").append(fullText).append("](")
+                .append(linkUrl).append(")\n");
+            List<String> images = t.getImages();
+            log.debug("Processing telegraph id={}, images={}", t.getClsId(), t.getImages());
+            if (images != null && !images.isEmpty()) {
+                for (String url : images) {
+                    sb.append("    ![](").append(url).append(")\n");
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 替换 Markdown 中 "## 加红电报" 后的内容(直到下一个 ## 或 EOF)
+     *
+     * @param markdown   markdown
+     * @param newContent newContent
+     * @return java.lang.String
+     * @author sichu huang
+     * @since 2026/01/14 13:00:54
+     */
+    private String replaceTelegraphSection(String markdown, String newContent) {
+        String marker = "## 加红电报";
+        int markerIndex = markdown.indexOf(marker);
+        if (markerIndex == -1) {
+            /* 模板异常缺失, 兜底追加 */
+            return markdown.trim() + "\n\n" + marker + "\n" + newContent;
+        }
+
+        /* 找到 marker 行的结束位置(含换行) */
+        int endOfMarkerLine = markdown.indexOf('\n', markerIndex);
+        if (endOfMarkerLine == -1)
+            endOfMarkerLine = markdown.length();
+
+        /* 找下一个二级标题或文件结尾 */
+        int nextSection = markdown.indexOf("\n## ", endOfMarkerLine + 1);
+        int contentEnd = (nextSection == -1) ? markdown.length() : nextSection;
+
+        String before = markdown.substring(0, endOfMarkerLine + 1);
+        String after = markdown.substring(contentEnd);
+        return before + newContent + after;
     }
 }

@@ -1,5 +1,6 @@
 package utils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -8,13 +9,42 @@ import java.time.format.DateTimeFormatter;
  * @since 2025/12/07 03:16
  */
 public class DateTimeUtils {
-    public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_SSSSSS =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSSSSS");
-    public static final DateTimeFormatter YYYYMMDDHHMMSSSSSSSS =
-        DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSSSSS");
+    /**
+     * yyyy-MM-dd
+     */
+    public static final DateTimeFormatter YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    /**
+     * HH:mm:ss
+     */
+    public static final DateTimeFormatter HH_MM_SS = DateTimeFormatter.ofPattern("HH:mm:ss");
+    /**
+     * yyyy-MM-dd HH:mm:ss
+     */
+    public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    /**
+     * M月d日
+     */
+    public static final DateTimeFormatter M_D_CHINESE = DateTimeFormatter.ofPattern("M月d日");
+    /**
+     * yyyy.MM.dd
+     */
     public static final DateTimeFormatter YYYYMMDD_DOT = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+    /**
+     * yyyyMMddHHmmss
+     */
     public static final DateTimeFormatter YYYYMMDDHHMMSS =
         DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    /**
+     * yyyyMMddHHmmssSSSSSS
+     */
+    public static final DateTimeFormatter YYYYMMDDHHMMSSSSSSSS =
+        DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSSSSS");
+    /**
+     * yyyy-MM-dd HH:mm:ss:SSSSSS
+     */
+    public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_SSSSSS =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSSSSS");
 
     /**
      * @param localDateTime LocalDateTime.now()
@@ -64,4 +94,23 @@ public class DateTimeUtils {
         return dateTime.format(YYYYMMDDHHMMSS);
     }
 
+    /**
+     * LocalDate 转为中文星期
+     *
+     * @param date LocalDate
+     * @return java.lang.String 周一/周二/周三/周四/周五/周六/周日
+     * @author sichu huang
+     * @since 2026/01/14 12:57:10
+     */
+    public static String getDayOfWeekCN(LocalDate date) {
+        return switch (date.getDayOfWeek()) {
+            case MONDAY -> "周一";
+            case TUESDAY -> "周二";
+            case WEDNESDAY -> "周三";
+            case THURSDAY -> "周四";
+            case FRIDAY -> "周五";
+            case SATURDAY -> "周六";
+            case SUNDAY -> "周日";
+        };
+    }
 }

@@ -95,4 +95,45 @@ public class TradingDayUtils {
             return Collections.emptyMap();
         }
     }
+
+    /**
+     * 获取下个交易日
+     *
+     * @param date LocalDate
+     * @return java.time.LocalDate
+     * @author sichu huang
+     * @since 2026/01/13 16:53:06
+     */
+    public static LocalDate getNextTradingDay(LocalDate date) {
+        LocalDate next = date.plusDays(1);
+        while (!isTradingDay(next)) {
+            next = next.plusDays(1);
+        }
+        return next;
+    }
+
+    /**
+     * 获取上一个交易日
+     *
+     * @param date LocalDate
+     * @return java.time.LocalDate 上一个交易日
+     * @author sichu huang
+     * @since 2026/01/13 17:36:16
+     */
+    public static LocalDate getPreviousTradingDay(LocalDate date) {
+        if (date == null) {
+            throw new IllegalArgumentException("日期不能为 null");
+        }
+        final int MAX_LOOKBACK_DAYS = 365;
+        LocalDate candidate = date.minusDays(1);
+        for (int i = 0; i < MAX_LOOKBACK_DAYS; i++) {
+            if (isTradingDay(candidate)) {
+                return candidate;
+            }
+            candidate = candidate.minusDays(1);
+        }
+        throw new IllegalStateException(
+            String.format("无法在 %d 天内找到 %s 的上一个交易日，请检查节假日数据是否完整",
+                MAX_LOOKBACK_DAYS, date));
+    }
 }

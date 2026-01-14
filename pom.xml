@@ -78,10 +78,21 @@
                 <version>5.10.0</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>2.4.240</version>
+                <scope>test</scope>
+            </dependency>
 
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-extension</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
             <dependency>
@@ -101,6 +112,13 @@
                 <groupId>net.sourceforge.tess4j</groupId>
                 <artifactId>tess4j</artifactId>
                 <version>5.11.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.20.0</version>
+                <scope>compile</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

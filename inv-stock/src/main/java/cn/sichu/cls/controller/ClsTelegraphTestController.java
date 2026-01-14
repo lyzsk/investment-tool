@@ -21,7 +21,7 @@ public class ClsTelegraphTestController {
 
     @PostMapping("/fetch-and-save")
     public String fetchAndSaveLatestTelegraphs() {
-        clsTelegraphService.fetchAndSaveLatestTelegraphs();
+        // clsTelegraphService.fetchAndSaveLatestTelegraphs();
         return "CLS 电报拉取任务已执行，请查看日志或数据库";
     }
 }
