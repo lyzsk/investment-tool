@@ -11,6 +11,9 @@ project:
         - image/png
     download:
       root-dir: ${user.home}/dev/investment-tool/downloads
+  markdown:
+    root-dir: ${user.home}/dev/investment-tool/stock
+    template-path: classpath:templates/stock-template.md
 
 server:
   port: 8888
@@ -55,3 +58,4 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 开启 SQL 日志
+    auto-mapping-behavior: FULL # 显式启用自动映射带 typeHandler 的字段

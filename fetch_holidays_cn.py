@@ -37,7 +37,7 @@ def ensure_output_dir():
     print(f"📁 Output directory: {OUTPUT_DIR.resolve()}")
 
 
-def is_file_recent(file_path: Path, max_age_days: int = 30) -> bool:
+def is_file_recent(file_path: Path, max_age_days: int = 365) -> bool:
     """Check if file exists and was modified within max_age_days."""
     if not file_path.exists():
         return False

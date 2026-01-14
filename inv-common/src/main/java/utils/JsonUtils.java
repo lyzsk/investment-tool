@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class JsonUtils {
+    @Getter
     public static final ObjectMapper objectMapper =
         new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true)
             .configure(JsonReadFeature.ALLOW_TRAILING_COMMA.mappedFeature(), true)

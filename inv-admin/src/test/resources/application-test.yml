@@ -1,6 +1,6 @@
 project:
   name: investment-tool
-  version: @project.version@ # Maven 会替换为实际版本
+  version: 1.0.0
   file:
     upload:
       root-dir: ${user.home}/dev/investment-tool/uploads
@@ -15,37 +15,38 @@ project:
     root-dir: ${user.home}/dev/investment-tool/stock
     template-path: classpath:templates/stock-template.md
 
-server:
-  port: 8888
 
 spring:
   application:
-    name: investment-tool
+    name: investment-tool-test
+
   datasource:
-    url: jdbc:mysql://localhost:3306/investment_tool?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  # 自动执行 schema.sql 和 data.sql（可选）
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+
+  # Quartz 改为内存模式，避免建表失败
   quartz:
-    job-store-type: jdbc
-    wait-for-jobs-to-complete-on-shutdown: true
+    job-store-type: memory
+    wait-for-jobs-to-complete-on-shutdown: false
     overwrite-existing-jobs: false
     properties:
       org:
         quartz:
           scheduler:
-            instanceName: InvestmentToolScheduler
-            instanceId: AUTO # 集群时自动生成唯一ID
+            instanceName: TestScheduler
+            instanceId: TEST
           jobStore:
-            class: org.quartz.impl.jdbcjobstore.JobStoreTX
-            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-            tablePrefix: QRTZ_
-            isClustered: true  # 集群模式
-            useProperties: false
+            class: org.quartz.simpl.RAMJobStore
           threadPool:
-            class: org.quartz.simpl.SimpleThreadPool
-            threadCount: 10
-            threadPriority: 5
+            threadCount: 5
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml

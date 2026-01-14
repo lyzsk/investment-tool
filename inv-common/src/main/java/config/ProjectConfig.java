@@ -26,6 +26,8 @@ public class ProjectConfig {
     private FileUpload fileUpload = new FileUpload();
     /* 文件下载配置 */
     private FileDownload fileDownload = new FileDownload();
+    /* markdown 配置 */
+    private Markdown markdown = new Markdown();
 
     @Getter
     @Setter
@@ -39,5 +41,12 @@ public class ProjectConfig {
     @Setter
     public static class FileDownload {
         private String rootDir = System.getProperty("user.home") + "/dev/investment-tool/downloads";
+    }
+
+    @Getter
+    @Setter
+    public static class Markdown {
+        private String rootDir = System.getProperty("user.home") + "/dev/investment-tool/stock";
+        private String templatePath = "classpath:templates/stock-template.md";
     }
 }
