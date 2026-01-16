@@ -120,7 +120,6 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
         text = text.replace("%6“", StringUtils.PERCENT).replace("%6 _", StringUtils.PERCENT)
             .replace("%6 ", StringUtils.PERCENT).replace("%6_", StringUtils.PERCENT)
             .replace("%““_", StringUtils.PERCENT);
-        // text = text.replaceAll("亿[国回团固囝申图因]\\s*", "亿");
         /*
          * 关键改进：
          * 1. 涨幅支持任意数字格式（含小数）
@@ -150,7 +149,7 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
         List<MatchInfo> matches = getMatchInfos(stockPattern, text);
 
         if (matches.isEmpty()) {
-            return text; // 无股票，原样返回
+            return text;
         }
 
         StringBuilder result = new StringBuilder();
@@ -198,10 +197,9 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
 
         List<MatchInfo> matches = new ArrayList<>();
         while (matcher.find()) {
-            // 额外验证：确保股票名不含纯数字（避免误匹配）
             String name = matcher.group(1).trim();
             if (name.matches("\\d+"))
-                continue; // 跳过纯数字名
+                continue;
 
             matches.add(new MatchInfo(matcher.start(), matcher.end(), name, matcher.group(2).trim(),
                 matcher.group(3).trim(), matcher.group(4).trim(),

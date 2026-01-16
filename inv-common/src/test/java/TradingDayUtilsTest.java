@@ -15,7 +15,7 @@ public class TradingDayUtilsTest {
     @Test
     @DisplayName("2026-01-12 是周一，非节假日 → 应为交易日")
     void testNormalTradingDay() {
-        LocalDate date = LocalDate.of(2026, 1, 12); // 星期一
+        LocalDate date = LocalDate.of(2026, 1, 12);
         assertTrue(TradingDayUtils.isTradingDay(date));
     }
 
@@ -29,14 +29,14 @@ public class TradingDayUtilsTest {
     @Test
     @DisplayName("2026-01-11 是周日 → 非交易日（即使调休上班）")
     void testWeekendSunday() {
-        LocalDate date = LocalDate.of(2026, 1, 11); // Sunday
+        LocalDate date = LocalDate.of(2026, 1, 11);
         assertFalse(TradingDayUtils.isTradingDay(date));
     }
 
     @Test
     @DisplayName("2026-01-10 是周六 → 非交易日")
     void testWeekendSaturday() {
-        LocalDate date = LocalDate.of(2026, 1, 10); // Saturday
+        LocalDate date = LocalDate.of(2026, 1, 10);
         assertFalse(TradingDayUtils.isTradingDay(date));
     }
 

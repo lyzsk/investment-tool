@@ -1,5 +1,16 @@
+### Java / Maven ###
 /target/
 !.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.DS_Store
+logs/
+/logs/*
+/logs/logs/*
+**/*.iml
 
 ### STS ###
 .apt_generated
@@ -24,17 +35,13 @@
 /nbdist/
 /.nb-gradle/
 
-**/*.iml
 
-/logs/*
-/logs/logs/*
-
-### uploads
+### uploads ###
 uploads/
 uploads/*
 uploads/**/*
 
-### downloads
+### downloads ###
 downloads/
 downloads/*
 downloads/**/*
@@ -42,3 +49,12 @@ downloads/**/*
 **/pom.xml.versionsBackup
 
 tree.txt
+
+### npm ###
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm
+.yarn

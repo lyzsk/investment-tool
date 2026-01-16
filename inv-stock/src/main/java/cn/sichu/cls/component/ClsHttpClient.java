@@ -52,10 +52,10 @@ public class ClsHttpClient {
             .header("Referer", "https://www.cls.cn/")
             .header("Accept", "application/json, text/plain, */*")
             .header("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
-            .header("Accept-Encoding", "gzip, deflate, br") // 注意：WebClient 不会自动解压，但发这个头更像浏览器
-            .header("Sec-Fetch-Site", "same-origin").header("Sec-Fetch-Mode", "cors")
-            .header("Sec-Fetch-Dest", "empty").header("Connection", "keep-alive").retrieve()
-            .bodyToMono(String.class).timeout(Duration.ofSeconds(10))
+            .header("Accept-Encoding", "gzip, deflate, br").header("Sec-Fetch-Site", "same-origin")
+            .header("Sec-Fetch-Mode", "cors").header("Sec-Fetch-Dest", "empty")
+            .header("Connection", "keep-alive").retrieve().bodyToMono(String.class)
+            .timeout(Duration.ofSeconds(10))
             .doOnSuccess(response -> log.debug("成功获取 CLS 电报数据，长度: {}", response.length()))
             .doOnError(e -> log.error("获取 CLS 电报失败", e));
     }
