@@ -9,7 +9,7 @@ CREATE TABLE `cls_telegraph` (
   `level` char(1) DEFAULT NULL,
   `publish_time` datetime(6) NOT NULL COMMENT 'ctime 转换',
   `author` varchar(100) DEFAULT NULL,
-  `raw_data` json NOT NULL COMMENT '完整的原始JSON对象',
+  `images` json NOT NULL COMMENT '',
   `status` tinyint DEFAULT '0' COMMENT '0-成功, 1-失败',
   `create_by` bigint DEFAULT NULL,
   `create_time` datetime(6) DEFAULT NULL,

@@ -3,7 +3,7 @@ Fetch Chinese holiday data from https://github.com/NateScarlet/holiday-cn
 and save as JSON files for Java resource loading.
 
 Usage:
-    cd investment-tool/
+    cd investment-tool/scripts
     python fetch_holidays_cn.py
 
 Output:

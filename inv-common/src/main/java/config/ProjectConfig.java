@@ -18,10 +18,10 @@ import java.util.List;
 public class ProjectConfig {
     /* 项目名称 */
     private String name;
-
     /* 版本 */
     private String version;
-
+    /* 项目根目录 */
+    private String rootDir;
     /* 文件上传配置 */
     private FileUpload fileUpload = new FileUpload();
     /* 文件下载配置 */

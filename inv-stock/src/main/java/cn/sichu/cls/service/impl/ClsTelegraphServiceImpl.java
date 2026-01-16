@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 import utils.DateTimeUtils;
 import utils.JsonUtils;
-import utils.MarkdownUtils;
 import utils.TradingDayUtils;
 
 import java.io.IOException;
@@ -65,87 +64,55 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
                 }
             }
         }
-        log.info("CLS 加红电报(B级)拉取完成：新增 {} 条", savedCount);
-        return savedCount;
-    }
-
-    @Override
-    public int fetchAndSaveShouPingTelegraphs() {
-        List<JsonNode> items = fetchAllTelegraphItems();
-        int savedCount = 0;
-        for (JsonNode item : items) {
-            if (isShouPingItem(item)) {
-                ClsTelegraph telegraph = saveTelegraph(item);
-                if (telegraph != null) {
-                    savedCount++;
-                    downloadFirstImage(telegraph, "cls_sp_");
-                }
-            }
-        }
-        log.info("CLS 收评电报拉取完成：{} 条", savedCount);
-        return savedCount;
-    }
-
-    @Override
-    public int fetchAndSaveZhangTingTelegraphs() {
-        List<JsonNode> items = fetchAllTelegraphItems();
-        int savedCount = 0;
-        for (JsonNode item : items) {
-            if (isZhangTingAnalysisItem(item)) {
-                ClsTelegraph telegraph = saveTelegraph(item);
-                if (telegraph != null) {
-                    savedCount++;
-                    downloadAllButLastImage(telegraph, "cls_zt_");
-                }
-            }
-        }
-        log.info("CLS 涨停分析电报拉取完成：{} 条", savedCount);
+        log.info("CLS 加红电报拉取完成：新增 {} 条", savedCount);
         return savedCount;
     }
 
     @Override
     public boolean generateMarkdown(LocalDate today) {
+        log.info("...开始生成 Markdown 文件, 日期: {}...", today);
         try {
-            LocalDate nextTradingDay = TradingDayUtils.getNextTradingDay(today);
-            log.info("准备为下一个交易日 {} 生成 Markdown 文件", nextTradingDay);
+            LocalDate targetDate;
+            if (TradingDayUtils.isTradingDay(today)) {
+                targetDate = today;
+            } else {
+                targetDate = TradingDayUtils.getNextTradingDay(today);
+                if (targetDate == null) {
+                    return false;
+                }
+            }
 
-            Path dir = Paths.get(projectConfig.getMarkdown().getRootDir());
+            String quarterDirName = DateTimeUtils.getQuarterStr(targetDate);
+            Path dir = Paths.get(projectConfig.getMarkdown().getRootDir(), quarterDirName);
             Files.createDirectories(dir);
 
-            String filename = nextTradingDay.format(DateTimeUtils.YYYY_MM_DD) + ".md";
+            String filename = targetDate.format(DateTimeUtils.YYYY_MM_DD) + ".md";
             Path markdownFile = dir.resolve(filename);
 
             boolean fileExisted = Files.exists(markdownFile);
             String content;
 
             if (!fileExisted) {
-                /* 初始化模板 + 继承持仓 */
-                String dayOfWeek = DateTimeUtils.getDayOfWeekCN(nextTradingDay);
-                String titleLine =
-                    nextTradingDay.format(DateTimeUtils.YYYY_MM_DD) + " " + dayOfWeek;
+                String dayOfWeek = DateTimeUtils.getDayOfWeekCN(targetDate);
+                String titleLine = targetDate.format(DateTimeUtils.YYYY_MM_DD) + " " + dayOfWeek;
                 String baseTemplate = loadTemplateContent();
                 content = "# " + titleLine + "\n\n" + baseTemplate;
 
-                /* 从上一交易日继承持仓标题 */
-                LocalDate prevTradingDay = TradingDayUtils.getPreviousTradingDay(nextTradingDay);
+                LocalDate prevTradingDay = TradingDayUtils.getPreviousTradingDay(targetDate);
                 if (prevTradingDay != null) {
                     String inheritedHoldings = inheritHoldingsFromPrevious(prevTradingDay);
                     if (!inheritedHoldings.isEmpty()) {
-                        /* 替换 "### 当前持仓" 后的内容 */
                         content = content.replaceFirst("(### 当前持仓\\s*\n)",
-                            "$1" + inheritedHoldings + "\n");
+                            "$1\n" + inheritedHoldings + "\n");
                     }
                 }
             } else {
-                /* 文件已存在: 读取现有内容 */
                 content = Files.readString(markdownFile, StandardCharsets.UTF_8);
             }
 
-            /* 写回文件 */
             Files.writeString(markdownFile, content, StandardCharsets.UTF_8);
             log.info("Markdown 文件已更新: {}", markdownFile);
             return true;
-
         } catch (Exception e) {
             log.error("生成 Markdown 文件失败", e);
             return false;
@@ -155,7 +122,8 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
     @Override
     public boolean appendRedTelegraphs(LocalDate date) {
         try {
-            Path dir = Paths.get(projectConfig.getMarkdown().getRootDir());
+            String quarterDirName = DateTimeUtils.getQuarterStr(date);
+            Path dir = Paths.get(projectConfig.getMarkdown().getRootDir(), quarterDirName);
             String filename = date.format(DateTimeUtils.YYYY_MM_DD) + ".md";
             Path markdownFile = dir.resolve(filename);
 
@@ -169,10 +137,8 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
             LocalDateTime start = date.atStartOfDay();
             LocalDateTime end = date.plusDays(1).atStartOfDay();
             List<ClsTelegraph> telegraphs = baseMapper.selectRedTelegraphs("B", start, end);
-            log.debug("Telegraph images: {}", telegraphs.get(0).getImages());
             String newTelegraphContent = buildTelegraphContent(telegraphs);
-            String formattedContent = MarkdownUtils.format(newTelegraphContent);
-            String updatedContent = replaceTelegraphSection(content, formattedContent);
+            String updatedContent = replaceTelegraphSection(content, newTelegraphContent);
 
             Files.writeString(markdownFile, updatedContent, StandardCharsets.UTF_8);
             log.info("成功追加 {} 条加红电报到 {}", telegraphs.size(), markdownFile);
@@ -403,8 +369,6 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
     private void downloadFirstImage(ClsTelegraph telegraph, String filenamePrefix) {
         List<String> imageUrls = telegraph.getImages();
         if (imageUrls == null || imageUrls.isEmpty()) {
-            log.debug("电报无图片可下载: id={}, title={}", telegraph.getClsId(),
-                telegraph.getTitle());
             return;
         }
 
@@ -488,7 +452,6 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
                 StandardOpenOption.TRUNCATE_EXISTING);
 
             log.info("CLS 图片下载成功 | 保存路径={}", targetFile);
-
         } catch (Exception e) {
             log.error("单张图片下载失败: {}", url, e);
         }
@@ -519,7 +482,8 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
      * @since 2026/01/13 17:00:35
      */
     private String inheritHoldingsFromPrevious(LocalDate prevDate) {
-        Path dir = Paths.get(projectConfig.getMarkdown().getRootDir());
+        String quarterDirName = DateTimeUtils.getQuarterStr(prevDate);
+        Path dir = Paths.get(projectConfig.getMarkdown().getRootDir(), quarterDirName);
         String filename = prevDate.format(DateTimeUtils.YYYY_MM_DD) + ".md";
         Path prevFile = dir.resolve(filename);
 
@@ -572,12 +536,12 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
             String brief = Optional.ofNullable(t.getBrief()).orElse("");
             String content = Optional.ofNullable(t.getContent()).orElse("");
             String fullText = (!brief.isEmpty() ? brief : content);
+            String cleanText = cleanLinkText(fullText);
             String timeStr = t.getPublishTime().format(dtf);
             String linkUrl = "https://www.cls.cn/detail/" + t.getClsId();
-            sb.append("-   [").append(timeStr).append("] [").append(fullText).append("](")
+            sb.append("-   [").append(timeStr).append("] [").append(cleanText).append("](")
                 .append(linkUrl).append(")\n");
             List<String> images = t.getImages();
-            log.debug("Processing telegraph id={}, images={}", t.getClsId(), t.getImages());
             if (images != null && !images.isEmpty()) {
                 for (String url : images) {
                     sb.append("    ![](").append(url).append(")\n");
@@ -585,6 +549,27 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * 清洗文本, 确保符合 Markdown 链接语法
+     *
+     * @param text text
+     * @return java.lang.String
+     * @author sichu huang
+     * @since 2026/01/16 17:49:18
+     */
+    private String cleanLinkText(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return "";
+        }
+        /* 1. 移除所有换行符、回车符，替换为单个空格 */
+        String cleaned = text.replaceAll("[\\r\\n]+", " ");
+        /* 2. 压缩多个连续空格为单个空格 */
+        cleaned = cleaned.replaceAll("\\s+", " ");
+        /* 3. 去除首尾空格 */
+        cleaned = cleaned.trim();
+        return cleaned;
     }
 
     /**
@@ -615,6 +600,6 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
 
         String before = markdown.substring(0, endOfMarkerLine + 1);
         String after = markdown.substring(contentEnd);
-        return before + newContent + after;
+        return before + "\n" + newContent + after;
     }
 }

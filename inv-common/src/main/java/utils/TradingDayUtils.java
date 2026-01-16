@@ -85,13 +85,9 @@ public class TradingDayUtils {
                 log.warn("节假日数据文件未找到: {}", resourcePath);
                 return Collections.emptyMap();
             }
-            Map<String, Boolean> result =
-                objectMapper.readValue(inputStream, new TypeReference<>() {
-                });
-            log.info("成功加载节假日数据: {}, 共 {} 条", resourcePath, result.size());
-            return result;
+            return objectMapper.readValue(inputStream, new TypeReference<>() {
+            });
         } catch (IOException e) {
-            log.error("解析节假日文件失败: {}", resourcePath, e);
             return Collections.emptyMap();
         }
     }

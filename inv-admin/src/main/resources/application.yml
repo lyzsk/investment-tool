@@ -1,18 +1,19 @@
 project:
   name: investment-tool
   version: @project.version@ # Maven 会替换为实际版本
+  root-dir: ${user.home}/dev/investment-tool
   file:
     upload:
-      root-dir: ${user.home}/dev/investment-tool/uploads
+      root-dir: ${project.root-dir}/uploads
       max-size: 10MB
       allowed-types:
         - image/jpeg
         - image/jpg
         - image/png
     download:
-      root-dir: ${user.home}/dev/investment-tool/downloads
+      root-dir: ${project.root-dir}/downloads
   markdown:
-    root-dir: ${user.home}/dev/investment-tool/stock
+    root-dir: ${project.root-dir}/stocks
     template-path: classpath:templates/stock-template.md
 
 server:
