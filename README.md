@@ -18,32 +18,44 @@
 
 # 🌐 Environment
 
--   Java 17
--   SpringBoot3.3.4
--   MyBatis-Plus 3.5.7
--   MySQL 8.0.28
+- Java 17
+- SpringBoot3.3.4
+- MyBatis-Plus 3.5.7
+- MySQL 8.0.28
 
 # ✨ Features
 
--   [x] Automatic accounting for purchase/redemption transactions: Based on input values (purchase transaction: fund code, amount, transaction application date, trading platform; redemption transaction: fund code, shares, transaction application date, trading platform), automatically calculate the transaction date/trade confirmation date/funds arrival date/transaction fees/net asset value/shares/trading status/etc.
--   [x] Automatic update of holding data: total amount/total fee/holding share/holding days, update trading status and corresponding data daily at 00:00, automatically crawl data to update net asset value every hour from 20:00 to 23:00 daily.
--   [x] Automatically export Excel based on template: Trading statement workbook, trading analysis workbook.
--   [x] OCR Image-to-Data Conversion  
-         Upload screenshots of fund holdings → extract structured data via Tesseract OCR (Chinese support).
--   [x] Quartz-Based Scheduled Task System
-    -   Unified job management via database (`sys_job`)
-    -   Dynamic Cron expression validation
-    -   Configurable misfire policies (ignore/fire/do nothing)
-    -   Asynchronous job log recording (`sys_job_log`)
-    -   Supports immediate trigger, pause/resume, and update/delete
-    -   Example: Auto-cleanup of processed OCR images
--   [x] auto fetch cls telegraphs into `cls_telegraph` and download important daily imgs into disk
+- [x] Automatic accounting for purchase/redemption transactions: Based on input values (purchase transaction: fund code, amount, transaction application date, trading platform; redemption transaction: fund code, shares, transaction application date, trading platform), automatically calculate the transaction date/trade confirmation date/funds arrival date/transaction fees/net asset value/shares/trading status/etc.
+- [x] Automatic update of holding data: total amount/total fee/holding share/holding days, update trading status and corresponding data daily at 00:00, automatically crawl data to update net asset value every hour from 20:00 to 23:00 daily.
+- [x] Automatically export Excel based on template: Trading statement workbook, trading analysis workbook.
+- [x] OCR Image-to-Data Conversion  
+       Upload screenshots of fund holdings → extract structured data via Tesseract OCR (Chinese support).
+- [x] Quartz-Based Scheduled Task System
+    - Unified job management via database (`sys_job`)
+    - Dynamic Cron expression validation
+    - Configurable misfire policies (ignore/fire/do nothing)
+    - Asynchronous job log recording (`sys_job_log`)
+    - Supports immediate trigger, pause/resume, and update/delete
+    - Example: Auto-cleanup of processed OCR images
+- [x] auto fetch cls telegraphs and download wuPing, wuJianZhangTingAnalysis, shouPing, zhangTingAnalysis images into disk
+- [x] auto generate yyyy-MM-dd.md(tradingday.md) and write red telegraph into md
 
 # 🚀 Quick Start
 
 1. create mysql table using: `/sql/tables.sql`
 2. `mvn clean install` and `mvn package spring-boot:repackage`
-3. run `/start.bat`
+3. install enviroment for scrips
+    ```bash
+    cd investment-tool/
+    npm init -y
+    npm install prettier`
+    ```
+    ```bash
+    cd investment-tool/scripts
+    python fetch_holidays_cn.py
+    ```
+    requirements for fetch_holidays_cn.py: `pip install requests`
+4. run `/start.bat`
 
 > Note: change `start.bat` `JAVA_HOME` to your local path
 
@@ -54,7 +66,7 @@ investment-tool
 ├── inv-admin          # Main application entry: Spring Boot startup class, global configuration, web controllers
 ├── inv-common         # Shared utilities: helper classes, constants, exception handling, response wrappers, etc.
 ├── inv-stock          # Stock-related data features
-│   ├── cls            # CaiLianShe (CLS) telegraph fetching and parsing
+│   ├── cls            # CaiLianShe (CLS) telegraph fetching and parsing, auto generate yyyy-MM-dd.md(tradingday.md) into investment-tool/stocks/yearAndquarter/ dir and write red telegraph into md
 │   └── ocr            # Image OCR recognition (for parsing daily limit-up analysis / market close summaries)
 ├── inv-system         # System infrastructure services
 │   ├── file           # File upload and storage management
@@ -64,7 +76,10 @@ investment-tool
 │   └── category/yyyy-MM-dd
 ├── downloads          # Automatically downloaded external resources
 │   └── cls/yyyy-MM-dd # CLS telegraph images (grouped by date)
-├── stock              # Daily auto-generated stock analysis reports (Markdown)
+├── scripts
+│   └── fetch_holidays_cn.py # auto generate inv-common/src/main/resources/holiday/year.json for Chinese holidays
+│   └── format-markdown.mjs # auto simulate prettier to format markdown files
+├── stocks              # Daily auto-generated stock analysis reports (Markdown)
 │   └── yyyy-MM-dd.md
 └── logs               # Application runtime logs
 ```

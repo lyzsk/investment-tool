@@ -113,4 +113,19 @@ public class DateTimeUtils {
             case SUNDAY -> "周日";
         };
     }
+
+    /**
+     * e.g. 2026-01-15 -> 2026S1
+     *
+     * @param date LocalDate
+     * @return java.lang.String year+S+quarter
+     * @author sichu huang
+     * @since 2026/01/15 23:58:04
+     */
+    public static String getQuarterStr(LocalDate date) {
+        int year = date.getYear();
+        int month = date.getMonthValue();
+        int quarter = (month - 1) / 3 + 1;
+        return year + "S" + quarter;
+    }
 }

@@ -21,32 +21,6 @@ public interface IClsTelegraphService extends IService<ClsTelegraph> {
     int fetchAndSaveAllRedTelegraphs();
 
     /**
-     * 拉取<a href="https://www.cls.cn/nodeapi/updateTelegraphList">电报json</a>中的 "收评" 电报
-     * <p/>
-     * 保存至`cls_telegraph`
-     * <p/>
-     * 下载第一张图片(包含重命名)到`downloads/cls/yyyy.mm.dd/`目录下
-     *
-     * @return int  拉取的电报条数
-     * @author sichu huang
-     * @since 2026/01/08 16:13:12
-     */
-    int fetchAndSaveShouPingTelegraphs();
-
-    /**
-     * 拉取<a href="https://www.cls.cn/nodeapi/updateTelegraphList">电报json</a>中的 "M月M日涨停分析" 电报
-     * <p/>
-     * 保存至`cls_telegraph`
-     * <p/>
-     * 下载第一张图片(包含重命名)到`downloads/cls/yyyy.mm.dd/`目录下
-     *
-     * @return int 拉取的电报条数
-     * @author sichu huang
-     * @since 2026/01/08 16:13:18
-     */
-    int fetchAndSaveZhangTingTelegraphs();
-
-    /**
      * 为“下一个交易日”生成或更新 Markdown 日记文件。
      * <p>
      * - 计算 nextTradingDay = getNextTradingDay(today)

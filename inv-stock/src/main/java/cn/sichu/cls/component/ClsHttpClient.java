@@ -32,17 +32,18 @@ public class ClsHttpClient {
     }
 
     public Mono<String> fetchTelegraphList() {
-        // return webClient.get().uri("/nodeapi/updateTelegraphList")
-        //     .accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(String.class)
-        //     .timeout(Duration.ofSeconds(10))
-        //     .doOnSuccess(response -> log.debug("成功获取 CLS 电报数据，长度: {}", response.length()))
-        //     .doOnError(e -> log.error("获取 CLS 电报失败", e));
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("app_name", "CailianpressWeb");
+        params.add("app_name", "investment-tool");
         params.add("os", "web");
         params.add("sv", "8.4.6");
         String sign = generateSignForMultiValueMap(params);
         params.add("sign", sign);
+
+        String queryString = params.entrySet().stream().map(
+            entry -> entry.getKey() + "=" + String.join("&" + entry.getKey() + "=",
+                entry.getValue())).collect(Collectors.joining("&"));
+        String fullUrl = "https://www.cls.cn/nodeapi/updateTelegraphList?" + queryString;
+        log.info("即将请求 CLS 电报接口: {}", fullUrl);
 
         return webClient.get().uri(
                 uriBuilder -> uriBuilder.path("/nodeapi/updateTelegraphList").queryParams(params)
