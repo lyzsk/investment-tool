@@ -37,8 +37,7 @@ public class ClsRedTelegraphHandler implements JobHandler {
         boolean success = clsTelegraphService.appendRedTelegraphs(targetDate);
         if (success) {
             String quarterDirName = DateTimeUtils.getQuarterStr(targetDate);
-            Path dir = Paths.get(projectConfig.getMarkdown().getRootDir(),
-                quarterDirName); // 需要注入 projectConfig
+            Path dir = Paths.get(projectConfig.getMarkdown().getRootDir(), quarterDirName);
             String filename = targetDate.format(DateTimeUtils.YYYY_MM_DD) + ".md";
             Path markdownFile = dir.resolve(filename);
             boolean formatSuccess = markdownFormatService.formatMarkdownFile(markdownFile);

@@ -44,7 +44,6 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
         if (!root.exists() || !root.isDirectory()) {
             String msg = "上传根目录无效: " + rootDir;
             log.error(msg);
-            // saveJobLog(false, msg);
             return;
         }
         LocalDateTime ago = LocalDateTime.now().minusDays(7);
@@ -55,7 +54,6 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
                     "SELECT r.file_upload_id FROM ocr_result r WHERE r.file_upload_id = file_upload.id AND r.status = 0 AND r.is_deleted = 0"));
         if (filesToClean.isEmpty()) {
             log.info("无符合条件的 OCR 文件需要清理");
-            // saveJobLog(true, "无过期已处理文件");
             return;
         }
         log.info("发现 {} 个可清理的 OCR 文件记录", filesToClean.size());
