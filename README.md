@@ -22,6 +22,7 @@
 - SpringBoot3.3.4
 - MyBatis-Plus 3.5.7
 - MySQL 8.0.28
+- Python 3.10.16
 
 # ✨ Features
 
@@ -50,11 +51,11 @@
     npm init -y
     npm install prettier`
     ```
-    ```bash
-    cd investment-tool/scripts
-    python fetch_holidays_cn.py
-    ```
     requirements for fetch_holidays_cn.py: `pip install requests`
+    ```bash
+    cd investment-tool/
+    python scripts/fetch_holidays_cn.py
+    ```
 4. run `/start.bat`
 
 > Note: change `start.bat` `JAVA_HOME` to your local path

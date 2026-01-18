@@ -23,7 +23,9 @@ except ImportError:
 
 # ================== CONFIG ==================
 YEARS = list(range(2025, 2027))  # 2025, 2026
-OUTPUT_DIR = Path("inv-common") / "src" / "main" / "resources" / "holiday"
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+OUTPUT_DIR = PROJECT_ROOT / "inv-common" / "src" / "main" / "resources" / "holiday"
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/NateScarlet/holiday-cn/master/{year}.json"
 TIMEOUT = 15
 MAX_RETRIES = 3
