@@ -44,11 +44,11 @@
     npm init -y
     npm install prettier`
     ```
-    ```bash
-    cd investment-tool/scripts
-    python fetch_holidays_cn.py
-    ```
     requirements for fetch_holidays_cn.py: `pip install requests`
+    ```bash
+    cd investment-tool/
+    python scripts/fetch_holidays_cn.py
+    ```
 4. run `/start.bat`
 
 > Note: change `start.bat` `JAVA_HOME` to your local path

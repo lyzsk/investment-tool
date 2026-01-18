@@ -134,7 +134,16 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
 
             String content = Files.readString(markdownFile, StandardCharsets.UTF_8);
 
-            LocalDateTime start = date.atStartOfDay();
+            LocalDate today = LocalDate.now();
+            LocalDateTime start = null;
+            if (TradingDayUtils.isTradingDay(today)) {
+                start = today.atStartOfDay();
+            } else {
+                LocalDate lastTradingDay = TradingDayUtils.getPreviousTradingDay(today);
+                if (lastTradingDay != null) {
+                    start = lastTradingDay.plusDays(1).atStartOfDay();
+                }
+            }
             LocalDateTime end = date.plusDays(1).atStartOfDay();
             List<ClsTelegraph> telegraphs = baseMapper.selectRedTelegraphs("B", start, end);
             String newTelegraphContent = buildTelegraphContent(telegraphs);
