@@ -7,6 +7,8 @@ import enums.BusinessStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * @author sichu huang
  * @since 2025/12/07 02:34
@@ -39,4 +41,10 @@ public class SysJobLog extends BaseEntity {
 
     @TableField("status")
     private Integer status = BusinessStatus.SUCCESS.getCode();
+    
+    @TableField(exist = false)
+    private Long updateBy;
+
+    @TableField(exist = false)
+    private LocalDateTime updateTime;
 }

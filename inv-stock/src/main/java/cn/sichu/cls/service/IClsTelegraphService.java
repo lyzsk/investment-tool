@@ -29,7 +29,7 @@ public interface IClsTelegraphService extends IService<ClsTelegraph> {
      * 2. 初始化模板（若首次创建）
      * 3. 从上一交易日继承“复盘持仓”中的 #### 标题行到“当前持仓”
      *
-     * @param today 当前日期(LocalDate.now())
+     * @param today LocalDate
      * @return boolean
      * @author sichu huang
      * @since 2026/01/13 16:56:09
@@ -39,7 +39,7 @@ public interface IClsTelegraphService extends IService<ClsTelegraph> {
     /**
      * 将指定日期所有 level="B" 的电报（含图片）追加/覆盖到该日 Markdown 文件的 "## 加红电报" 区块
      *
-     * @param date 当前日期(LocalDate.now())
+     * @param date LocalDate
      * @return boolean
      * @author sichu huang
      * @since 2026/01/14 12:50:35

@@ -1,12 +1,12 @@
 package cn.sichu.system.file.controller;
 
+import cn.sichu.system.config.ProjectConfig;
 import cn.sichu.system.file.dto.FileDeleteDto;
 import cn.sichu.system.file.dto.FileUploadDto;
 import cn.sichu.system.file.entity.FileUpload;
 import cn.sichu.system.file.service.IFileUploadService;
 import cn.sichu.system.file.utils.FileUploadUtils;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import config.ProjectConfig;
 import enums.TableLogic;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -158,14 +158,11 @@ public class FileUploadController {
             String newRemark = (currentRemark != null ? currentRemark + "; " : "") + "物理删除失败: "
                 + fileUpload.getPath();
             fileUpload.setRemark(newRemark);
-            fileUpload.setUpdateTime(LocalDateTime.now());
             fileUploadService.updateById(fileUpload);
         }
-        LocalDateTime now = LocalDateTime.now();
         LambdaUpdateWrapper<FileUpload> query = new LambdaUpdateWrapper<>();
         query.eq(FileUpload::getId, fileId)
             .eq(FileUpload::getIsDeleted, TableLogic.NOT_DELETED.getCode())
-            .set(FileUpload::getUpdateTime, now).set(FileUpload::getDeleteTime, now)
             .set(FileUpload::getIsDeleted, TableLogic.DELETED.getCode());
         boolean logicalDeleted = fileUploadService.update(query);
         FileDeleteDto result = getFileDeleteDto(fileId, logicalDeleted, physicalDeleted);
@@ -205,20 +202,16 @@ public class FileUploadController {
                     FileUploadUtils.delete(fileUpload.getPath(), projectConfig);
                 if (!physicalDeleted) {
                     log.warn("物理删除失败: {}, fileId: {}", fileUpload.getPath(), fileId);
-                    LocalDateTime now = LocalDateTime.now();
-                    fileUpload.setUpdateTime(now);
-                    String timeStr = DateTimeUtils.getNanoSecondStr(now);
+                    String timeStr = DateTimeUtils.getNanoSecondStr(LocalDateTime.now());
                     String newRemark =
                         (fileUpload.getRemark() != null ? fileUpload.getRemark() + "; " : "")
                             + timeStr + "物理删除失败: " + fileUpload.getPath();
                     fileUpload.setRemark(newRemark);
                     fileUploadService.updateById(fileUpload);
                 }
-                LocalDateTime now = LocalDateTime.now();
                 LambdaUpdateWrapper<FileUpload> query = new LambdaUpdateWrapper<>();
                 query.eq(FileUpload::getId, fileId)
                     .eq(FileUpload::getIsDeleted, TableLogic.NOT_DELETED.getCode())
-                    .set(FileUpload::getUpdateTime, now).set(FileUpload::getDeleteTime, now)
                     .set(FileUpload::getIsDeleted, TableLogic.DELETED.getCode());
                 boolean logicalDeleted = fileUploadService.update(query);
                 if (logicalDeleted) {

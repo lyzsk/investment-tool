@@ -1,6 +1,6 @@
 package cn.sichu;
 
-import config.ProjectConfig;
+import cn.sichu.system.config.ProjectConfig;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
