@@ -5,11 +5,11 @@ import cn.sichu.ocr.entity.OcrResult;
 import cn.sichu.ocr.mapper.OcrImageMapper;
 import cn.sichu.ocr.mapper.OcrResultMapper;
 import cn.sichu.ocr.service.IOcrCleanupService;
+import cn.sichu.system.config.ProjectConfig;
 import cn.sichu.system.file.entity.FileUpload;
 import cn.sichu.system.file.mapper.FileUploadMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import config.ProjectConfig;
 import enums.TableLogic;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cleanupProcessedOcrFiles() {
-        String rootDir = projectConfig.getFileUpload().getRootDir();
+        String rootDir = projectConfig.getFile().getUpload().getRootDir();
         log.info("开始执行 OCR 已处理文件清理任务...");
         /* 安全校验根目录 */
         File root = new File(rootDir);
@@ -81,9 +81,7 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
                 }
                 LocalDateTime deleteTime = LocalDateTime.now();
                 /* 逻辑删除 file_upload, ocr_image, ocr_result */
-                file.setUpdateTime(deleteTime);
                 file.setIsDeleted(TableLogic.DELETED.getCode());
-                file.setDeleteTime(deleteTime);
                 fileUploadMapper.updateById(file);
 
                 LambdaQueryWrapper<OcrImage> ocrImageQuery =
@@ -91,9 +89,7 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
                         .eq(OcrImage::getIsDeleted, TableLogic.NOT_DELETED.getCode());
                 List<OcrImage> ocrImages = ocrImageMapper.selectList(ocrImageQuery);
                 for (OcrImage ocrImage : ocrImages) {
-                    ocrImage.setUpdateTime(deleteTime);
                     ocrImage.setIsDeleted(TableLogic.DELETED.getCode());
-                    ocrImage.setDeleteTime(deleteTime);
                     ocrImageMapper.updateById(ocrImage);
                 }
 
@@ -102,9 +98,7 @@ public class OcrCleanupServiceImpl implements IOcrCleanupService {
                     .eq(OcrResult::getIsDeleted, TableLogic.NOT_DELETED.getCode());
                 List<OcrResult> ocrResults = ocrResultMapper.selectList(ocrResultQuery);
                 for (OcrResult ocrResult : ocrResults) {
-                    ocrResult.setUpdateTime(deleteTime);
                     ocrResult.setIsDeleted(TableLogic.DELETED.getCode());
-                    ocrResult.setDeleteTime(deleteTime);
                     ocrResultMapper.updateById(ocrResult);
                 }
 

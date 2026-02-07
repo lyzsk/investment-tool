@@ -25,16 +25,16 @@ public class BaseEntity implements Serializable {
     @TableField("status")
     private Integer status;
 
-    @TableField("create_by")
+    @TableField(value = "create_by", fill = FieldFill.INSERT)
     private Long createBy;
 
-    @TableField("create_time")
+    @TableField(value = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
-    @TableField("update_by")
+    @TableField(value = "update_by", fill = FieldFill.UPDATE)
     private Long updateBy;
 
-    @TableField("update_time")
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /**
@@ -46,7 +46,7 @@ public class BaseEntity implements Serializable {
     @TableField("delete_by")
     private Long deleteBy;
 
-    @TableField(value = "delete_time", fill = FieldFill.UPDATE)
+    @TableField("delete_time")
     private LocalDateTime deleteTime;
 
     /**

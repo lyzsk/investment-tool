@@ -1,5 +1,6 @@
 package cn.sichu.system.file.service.impl;
 
+import cn.sichu.system.config.ProjectConfig;
 import cn.sichu.system.file.dto.FileUploadDto;
 import cn.sichu.system.file.entity.FileUpload;
 import cn.sichu.system.file.mapper.FileUploadMapper;
@@ -7,7 +8,6 @@ import cn.sichu.system.file.service.IFileUploadService;
 import cn.sichu.system.file.utils.FileUploadUtils;
 import cn.sichu.system.file.utils.FileUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import config.ProjectConfig;
 import enums.BusinessStatus;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,6 @@ import utils.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,17 +49,14 @@ public class FileUploadServiceImpl extends ServiceImpl<FileUploadMapper, FileUpl
         try {
             String relativePath = FileUploadUtils.upload(file, category, projectConfig);
             String savedName = new File(relativePath).getName();
-            LocalDateTime now = LocalDateTime.now();
             FileUpload record = new FileUpload();
             record.setOriginalFilename(file.getOriginalFilename());
             record.setSavedFilename(savedName);
             record.setPath(relativePath);
             record.setContentType(file.getContentType());
             record.setSize(file.getSize());
-            record.setUploadTime(now);
             record.setCategory(category);
             record.setStatus(BusinessStatus.SUCCESS.getCode());
-            record.setCreateTime(now);
             this.save(record);
             return record;
         } catch (IOException e) {
@@ -127,7 +123,7 @@ public class FileUploadServiceImpl extends ServiceImpl<FileUploadMapper, FileUpl
             extesion = FileUtils.getFileExtension(extesion);
         }
         Set<String> allowedExts =
-            FileUtils.mimeTypeToExtesions(projectConfig.getFileUpload().getAllowedTypes());
+            FileUtils.mimeTypeToExtesions(projectConfig.getFile().getUpload().getAllowedTypes());
         File[] files = dir.listFiles();
         if (files == null || files.length == 0) {
             return new FileUploadDto(Collections.emptyList(), 0, 0, Collections.emptyList(),
@@ -199,7 +195,7 @@ public class FileUploadServiceImpl extends ServiceImpl<FileUploadMapper, FileUpl
         }
 
         Set<String> allowedExts =
-            FileUtils.mimeTypeToExtesions(projectConfig.getFileUpload().getAllowedTypes());
+            FileUtils.mimeTypeToExtesions(projectConfig.getFile().getUpload().getAllowedTypes());
         Set<String> validExts =
             extSet.stream().filter(allowedExts::contains).collect(Collectors.toSet());
         File[] files = dir.listFiles();

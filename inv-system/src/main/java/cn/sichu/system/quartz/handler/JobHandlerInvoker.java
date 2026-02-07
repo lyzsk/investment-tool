@@ -14,7 +14,6 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import utils.ExceptionUtils;
 
-import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -44,7 +43,6 @@ public class JobHandlerInvoker extends QuartzJobBean {
         sysJobLog.setJobName(handlerName);
         sysJobLog.setJobHandlerName(handlerName);
         sysJobLog.setJobHandlerParam(param);
-        sysJobLog.setCreateTime(LocalDateTime.now());
         sysJobLog.setStatus(BusinessStatus.SUCCESS.getCode());
 
         long start = System.currentTimeMillis();

@@ -1,6 +1,6 @@
 project:
   name: investment-tool
-  version: 1.7.3 # Maven 会替换为实际版本
+  version: 1.7.4 # Maven 会替换为实际版本
   root-dir: ${user.home}/dev/investment-tool
   file:
     upload:
@@ -56,6 +56,7 @@ mybatis-plus:
       logic-delete-field: is_deleted
       logic-delete-value: 1
       logic-not-delete-value: 0
+      strict: true # 如果实体字段在 DB 中不存在, 启动时报错
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 开启 SQL 日志

@@ -6,11 +6,11 @@ import cn.sichu.ocr.mapper.OcrResultMapper;
 import cn.sichu.ocr.service.IOcrImageService;
 import cn.sichu.ocr.service.IOcrProcessService;
 import cn.sichu.ocr.service.ITesseractOcrService;
+import cn.sichu.system.config.ProjectConfig;
 import cn.sichu.system.file.entity.FileUpload;
 import cn.sichu.system.file.mapper.FileUploadMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import config.ProjectConfig;
 import enums.BusinessStatus;
 import enums.ProcessStatus;
 import enums.TableLogic;
@@ -67,7 +67,6 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
             OcrResult result = new OcrResult();
             Long fileUploadId = image.getFileUploadId();
             result.setFileUploadId(fileUploadId);
-            LocalDateTime now = LocalDateTime.now();
             try {
                 FileUpload fileUpload = fileUploadMapper.selectById(fileUploadId);
                 if (fileUpload == null
@@ -75,7 +74,7 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
                     throw new BusinessException("关联的文件上传记录不存在或已删除");
                 }
                 String absolutePath =
-                    projectConfig.getFileUpload().getRootDir() + fileUpload.getPath();
+                    projectConfig.getFile().getUpload().getRootDir() + fileUpload.getPath();
                 File file = new File(absolutePath);
                 if (!file.exists()) {
                     throw new BusinessException(ResultCode.FILE_NOT_FOUND + ": " + absolutePath);
@@ -89,7 +88,7 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
                 result.setRawText(rawText);
                 result.setProcessedText(processedText);
                 result.setWordCount((long)rawText.length());
-                result.setProcessTime(now);
+                result.setProcessTime(LocalDateTime.now());
                 result.setStatus(BusinessStatus.SUCCESS.getCode());
                 image.setStatus(ProcessStatus.PROCESSED.getCode());
                 ++success;
@@ -99,7 +98,6 @@ public class OcrProcessServiceImpl implements IOcrProcessService {
                 image.setStatus(ProcessStatus.PROCESS_FAILED.getCode());
                 log.error("OCR失败，imageId={}", image.getId(), e);
             }
-            result.setCreateTime(now);
             ocrResultMapper.insert(result);
             ocrImageService.updateById(image);
         }

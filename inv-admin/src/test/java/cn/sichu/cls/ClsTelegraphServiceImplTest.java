@@ -17,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -77,8 +76,6 @@ public class ClsTelegraphServiceImplTest {
         telegraph.setAuthor("测试作者");
         telegraph.setImages(expectedImages);
         telegraph.setStatus(1);
-        telegraph.setCreateTime(LocalDateTime.now());
-        telegraph.setUpdateTime(LocalDateTime.now());
         telegraph.setIsDeleted(0);
 
         boolean saved = clsTelegraphService.save(telegraph);
@@ -115,8 +112,6 @@ public class ClsTelegraphServiceImplTest {
         telegraph.setPublishTime(TEST_DATE.atStartOfDay().plusHours(9));
         telegraph.setImages(expectedImages);
         telegraph.setStatus(1);
-        telegraph.setCreateTime(LocalDateTime.now());
-        telegraph.setUpdateTime(LocalDateTime.now());
         telegraph.setIsDeleted(0);
 
         clsTelegraphService.save(telegraph);

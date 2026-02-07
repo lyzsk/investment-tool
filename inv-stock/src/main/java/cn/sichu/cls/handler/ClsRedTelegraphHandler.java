@@ -2,8 +2,8 @@ package cn.sichu.cls.handler;
 
 import cn.sichu.cls.service.IClsTelegraphService;
 import cn.sichu.cls.service.IMarkdownFormatService;
+import cn.sichu.system.config.ProjectConfig;
 import cn.sichu.system.quartz.handler.JobHandler;
-import config.ProjectConfig;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

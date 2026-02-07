@@ -1,7 +1,7 @@
 package cn.sichu.cls.service.impl;
 
 import cn.sichu.cls.service.IMarkdownFormatService;
-import config.ProjectConfig;
+import cn.sichu.system.config.ProjectConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
 package cn.sichu.ocr.init;
 
-import config.ProjectConfig;
+import cn.sichu.system.config.ProjectConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

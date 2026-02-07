@@ -4,10 +4,10 @@ import cn.sichu.cls.component.ClsHttpClient;
 import cn.sichu.cls.entity.ClsTelegraph;
 import cn.sichu.cls.mapper.ClsTelegraphMapper;
 import cn.sichu.cls.service.IClsTelegraphService;
+import cn.sichu.system.config.ProjectConfig;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
-import config.ProjectConfig;
 import enums.BusinessStatus;
 import enums.TableLogic;
 import lombok.RequiredArgsConstructor;
@@ -126,31 +126,26 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
             Path dir = Paths.get(projectConfig.getMarkdown().getRootDir(), quarterDirName);
             String filename = date.format(DateTimeUtils.YYYY_MM_DD) + ".md";
             Path markdownFile = dir.resolve(filename);
-
             if (!Files.exists(markdownFile)) {
                 log.warn("Markdown 文件不存在，无法追加电报: {}", markdownFile);
                 return false;
             }
 
-            String content = Files.readString(markdownFile, StandardCharsets.UTF_8);
-
-            LocalDate today = LocalDate.now();
+            LocalDate prevTradingDay = TradingDayUtils.getPreviousTradingDay(date);
             LocalDateTime start = null;
-            if (TradingDayUtils.isTradingDay(today)) {
-                start = today.atStartOfDay();
-            } else {
-                LocalDate lastTradingDay = TradingDayUtils.getPreviousTradingDay(today);
-                if (lastTradingDay != null) {
-                    start = lastTradingDay.plusDays(1).atStartOfDay();
-                }
+            if (prevTradingDay != null) {
+                start = prevTradingDay.plusDays(1).atStartOfDay();
             }
             LocalDateTime end = date.plusDays(1).atStartOfDay();
+
             List<ClsTelegraph> telegraphs = baseMapper.selectRedTelegraphs("B", start, end);
+            String content = Files.readString(markdownFile, StandardCharsets.UTF_8);
             String newTelegraphContent = buildTelegraphContent(telegraphs);
             String updatedContent = replaceTelegraphSection(content, newTelegraphContent);
 
             Files.writeString(markdownFile, updatedContent, StandardCharsets.UTF_8);
-            log.info("成功追加 {} 条加红电报到 {}", telegraphs.size(), markdownFile);
+            log.info("成功追加 {} 条加红电报到 {} (时间范围: {} ～ {})", telegraphs.size(),
+                markdownFile, start, end);
             return true;
         } catch (Exception e) {
             log.error("追加加红电报失败: date={}", date, e);
@@ -236,10 +231,6 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
             }
         }
         telegraph.setImages(imageUrls);
-
-        LocalDateTime now = LocalDateTime.now();
-        telegraph.setCreateTime(now);
-        telegraph.setUpdateTime(now);
         telegraph.setStatus(BusinessStatus.SUCCESS.getCode());
 
         boolean saved = this.save(telegraph);
@@ -389,7 +380,8 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
         }
         String filename = filenamePrefix + timeStr + "_1." + ext;
         String dateStr = DateTimeUtils.getDotDateStr(telegraph.getPublishTime());
-        Path targetDir = Paths.get(projectConfig.getFileDownload().getRootDir(), "cls", dateStr);
+        Path targetDir =
+            Paths.get(projectConfig.getFile().getDownload().getRootDir(), "cls", dateStr);
 
         try {
             Files.createDirectories(targetDir);
@@ -421,7 +413,8 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
 
         List<String> urlsToDownload = imageUrls.subList(0, imageUrls.size() - 1);
         String dateStr = DateTimeUtils.getDotDateStr(telegraph.getPublishTime());
-        Path targetDir = Paths.get(projectConfig.getFileDownload().getRootDir(), "cls", dateStr);
+        Path targetDir =
+            Paths.get(projectConfig.getFile().getDownload().getRootDir(), "cls", dateStr);
 
         try {
             Files.createDirectories(targetDir);

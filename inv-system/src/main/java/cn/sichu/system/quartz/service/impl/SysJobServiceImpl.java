@@ -14,7 +14,6 @@ import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
 import utils.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -40,7 +39,6 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
         if (StringUtils.isEmpty(job.getCronExpression())) {
             throw new BusinessException("定时任务必须设置Cron表达式");
         }
-        job.setCreateTime(LocalDateTime.now());
         this.save(job);
         if (job.getStatus().equals(QuartzStatus.RUNNING.getCode())) {
             try {
@@ -65,7 +63,6 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
         if (existing == null || existing.getIsDeleted() == TableLogic.DELETED.getCode()) {
             throw new BusinessException("任务不存在");
         }
-        job.setUpdateTime(LocalDateTime.now());
         this.updateById(job);
         boolean statusChanged = !Objects.equals(existing.getStatus(), job.getStatus());
         try {
@@ -101,7 +98,6 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
             throw new BusinessException("任务不存在");
         }
         job.setStatus(status);
-        job.setUpdateTime(LocalDateTime.now());
         this.updateById(job);
         try {
             if (status.equals(QuartzStatus.RUNNING.getCode())) {
@@ -157,10 +153,7 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
                 } catch (SchedulerException e) {
                     log.warn("删除调度任务时出错（可能已不存在）: {}", job.getJobHandlerName(), e);
                 }
-                LocalDateTime now = LocalDateTime.now();
-                job.setUpdateTime(now);
                 job.setIsDeleted(TableLogic.DELETED.getCode());
-                job.setDeleteTime(now);
                 this.updateById(job);
             }
         }

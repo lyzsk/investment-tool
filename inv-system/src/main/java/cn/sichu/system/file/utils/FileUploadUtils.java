@@ -1,6 +1,6 @@
 package cn.sichu.system.file.utils;
 
-import config.ProjectConfig;
+import cn.sichu.system.config.ProjectConfig;
 import exception.BusinessException;
 import exception.UtilException;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +51,8 @@ public class FileUploadUtils {
      */
     public static String upload(MultipartFile file, String category, ProjectConfig projectConfig)
         throws IOException {
-        ProjectConfig.FileUpload fileUploadConfig = projectConfig.getFileUpload();
+        // ProjectConfig.FileUpload fileUploadConfig = projectConfig.getFileUpload();
+        ProjectConfig.File.Upload fileUploadConfig = projectConfig.getFile().getUpload();
         return upload(file, category, fileUploadConfig.getRootDir(),
             fileUploadConfig.getAllowedTypes(), projectConfig.getName());
     }
@@ -114,7 +115,7 @@ public class FileUploadUtils {
         if (StringUtils.isEmpty(relativePath)) {
             return false;
         }
-        String absolutePath = projectConfig.getFileUpload().getRootDir() + relativePath;
+        String absolutePath = projectConfig.getFile().getUpload().getRootDir() + relativePath;
         boolean deleted = FileUtils.deleteFile(absolutePath);
         if (deleted) {
             log.info("文件删除成功: {}", absolutePath);
@@ -157,7 +158,7 @@ public class FileUploadUtils {
      * @since 2025/11/30 07:56:58
      */
     public static String getAbsolutePath(String relativePath, ProjectConfig projectConfig) {
-        return projectConfig.getFileUpload().getRootDir() + relativePath;
+        return projectConfig.getFile().getUpload().getRootDir() + relativePath;
     }
 
     /**
