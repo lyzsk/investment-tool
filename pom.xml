@@ -124,6 +124,10 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering> <!-- 启用变量替换 -->
             </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
         </resources>
         <plugins>
             <plugin>

@@ -10,6 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "prettier": "^3.8.0"
-  }
+    "prettier": "^3.8.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lyzsk/investment-tool.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lyzsk/investment-tool/issues"
+  },
+  "homepage": "https://github.com/lyzsk/investment-tool#readme"
 }
