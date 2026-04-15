@@ -33,7 +33,7 @@ public class TessdataExtractor {
     }
 
     public String getTessdataPath() {
-        return tempTessdataDir.toString();
+        return tempTessdataDir.toString().replace('\\', '/');
     }
 
     /**
@@ -52,7 +52,7 @@ public class TessdataExtractor {
         /* 创建新的目录 */
         Files.createDirectories(tempTessdataDir);
         /* 从 classpath 复制 tessdata 目录 */
-        copyFromClasspath("tessdata/chi_sim.traineddata", "chi_sim.traineddata");
+        copyFromClasspath();
         log.info("提取 Tessdata 到: {}", tempTessdataDir);
     }
 
@@ -78,12 +78,13 @@ public class TessdataExtractor {
         });
     }
 
-    private void copyFromClasspath(String resourcePath, String targetFileName) throws IOException {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
+    private void copyFromClasspath() throws IOException {
+        try (InputStream is = getClass().getClassLoader()
+            .getResourceAsStream("tessdata/chi_sim.traineddata")) {
             if (is == null) {
-                throw new RuntimeException("Resource not found: " + resourcePath);
+                throw new RuntimeException("Resource not found: " + "tessdata/chi_sim.traineddata");
             }
-            Path target = tempTessdataDir.resolve(targetFileName);
+            Path target = tempTessdataDir.resolve("chi_sim.traineddata");
             Files.copy(is, target, StandardCopyOption.REPLACE_EXISTING);
         }
     }
