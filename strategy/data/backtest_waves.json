@@ -1,0 +1,123 @@
+{
+ "固态电池": {
+  "诺德股份": {
+   "code": "600110",
+   "appearances": 8,
+   "waves": 2,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "天际股份": {
+   "code": "002759",
+   "appearances": 10,
+   "waves": 5,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "大东南": {
+   "code": "002263",
+   "appearances": 8,
+   "waves": 2,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "英联股份": {
+   "code": "002846",
+   "appearances": 9,
+   "waves": 2,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "湘潭电化": {
+   "code": "002125",
+   "appearances": 7,
+   "waves": 3,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "国晟科技": {
+   "code": "603778",
+   "appearances": 4,
+   "waves": 2,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  }
+ },
+ "核聚变/核电": {
+  "合锻智能": {
+   "code": "603011",
+   "appearances": 8,
+   "waves": 5,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "百利电气": {
+   "code": "600468",
+   "appearances": 4,
+   "waves": 4,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "海陆重工": {
+   "code": "002255",
+   "appearances": 8,
+   "waves": 4,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "安泰科技": {
+   "code": "000969",
+   "appearances": 7,
+   "waves": 3,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "雪人股份": {
+   "code": "002639",
+   "appearances": 7,
+   "waves": 4,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "融发核电": {
+   "code": "002366",
+   "appearances": 5,
+   "waves": 5,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  },
+  "王子新材": {
+   "code": "002735",
+   "appearances": 8,
+   "waves": 7,
+   "wave_detail": [],
+   "avg_r5": null,
+   "win5": "0/0",
+   "avg_max20": null
+  }
+ }
+}
