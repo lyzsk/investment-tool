@@ -32,6 +32,9 @@ public class SchedulerManager {
      * @since 2025/12/21 11:57:50
      */
     public void addJob(SysJob sysJob) throws SchedulerException {
+        if (exists(sysJob)) {
+            return;
+        }
         if (!CronUtils.isValid(sysJob.getCronExpression())) {
             throw new IllegalArgumentException(
                 ResultCode.INVALID_CRON_EXPRESSION.getMsg() + ": " + sysJob.getCronExpression());
