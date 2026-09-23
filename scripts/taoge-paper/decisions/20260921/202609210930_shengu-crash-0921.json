@@ -1,0 +1,24 @@
+{
+ "decision_time": "202609210930",
+ "strategy": "taoge",
+ "trigger_id": "shengu-crash-0921",
+ "code": "sh601091",
+ "name": "N沈鼓集团",
+ "side": "watch",
+ "info_cutoff": "202609210930",
+ "price_seen": 39,
+ "prev_close": 57.77,
+ "day_amount": 15010593,
+ "conditions": [
+  {
+   "type": "pct_below",
+   "value": -15
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "次新单日-15%以上: 载入史册行情的第二天就走A, 记录大资金护盘叙事破产的速度"
+ },
+ "source": "analysis/2026-09-18 + 历史参照盟固利次日走势",
+ "verdict": "notify_only"
+}

@@ -1,0 +1,24 @@
+{
+ "decision_time": "202609220940",
+ "strategy": "taoge",
+ "trigger_id": "shengu-deadcat-0922",
+ "code": "sh601091",
+ "name": "N沈鼓",
+ "side": "watch",
+ "info_cutoff": "202609220940",
+ "price_seen": 48,
+ "prev_close": 37.72,
+ "day_amount": 56778573,
+ "conditions": [
+  {
+   "type": "pct_above",
+   "value": 15
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "沈鼓+15%以上: 大阴线判断被打脸, 次新妖股反复无常的又一证据; 记录不追(R8)"
+ },
+ "source": "analysis/2026-09-21 反面情形",
+ "verdict": "notify_only"
+}

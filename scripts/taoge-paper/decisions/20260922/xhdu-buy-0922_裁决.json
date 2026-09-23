@@ -1,0 +1,15 @@
+{
+ "trigger_id": "xhdu-buy-0922",
+ "rule_id": "R10",
+ "verdict": "notify",
+ "info_cutoff": "202609220931",
+ "reasoning": "R10 learned_before 2026-09-21<=今日可用; 新华都自身条件满足(现价7.66=昨收0%在±3%窗内,09:31在时间窗内,1300股≈9958元=10%仓位上限内)。但R10前提'龙头新华传媒封单不减'本会话无行情数据无法验证(不联网纪律), 既不可视同封板approve也不可视同开板reject。降级notify: 请人工确认sh600825 pct>9仍封板后再手动执行; 若已开板或新华都高开>3%则放弃。",
+ "action_if_confirmed": {
+  "side": "buy",
+  "code": "sz002264",
+  "qty": 1300,
+  "price_ref": 7.66,
+  "exit": "新华传媒开板同步卖 + 自身-5%止损; 本规则只做启动日"
+ },
+ "paper_state_updated": false
+}

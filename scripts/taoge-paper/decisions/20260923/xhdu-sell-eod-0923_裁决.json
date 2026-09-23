@@ -1,0 +1,11 @@
+{
+ "trigger_id": "xhdu-sell-eod-0923",
+ "code": "sz002264",
+ "name": "新华都",
+ "side": "sell",
+ "rule_id": ["R10", "R4"],
+ "verdict": "approve",
+ "info_cutoff": "202609231430",
+ "reasoning": "R10 exit明定启动日玩法T+1冲高即撤, 9/22买入今日已是T+1尾盘, 兜底出清属规则内动作; 桃哥本人已离场, 不比他拿得久; R4一日游风险佐证隔夜第三天不留恋。",
+ "verdict_time": "202609231430"
+}

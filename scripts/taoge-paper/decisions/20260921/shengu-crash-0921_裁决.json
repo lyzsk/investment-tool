@@ -1,0 +1,10 @@
+{
+ "trigger_id": "shengu-crash-0921",
+ "decision_time": "202609210930",
+ "rule_id": ["R8", "R12"],
+ "verdict": "approve_notify_only",
+ "info_cutoff": "202609210945",
+ "reasoning": "R8负面规则明确'不玩新股/次新股, 只记录不参与', learned_before=2026-09-18可用; R12补充节前新股情绪顶跳水更凶, 与本次-15%触发吻合。触发单本身side=watch/action=notify, 裁决批准仅记录不买入, 不产生任何仓位变动。",
+ "paper_state_updated": false,
+ "note": "N沈鼓次日走A载入史册: 现价39 vs 昨收57.77, 大资金护盘叙事破产速度符合盟固利历史参照, 仅作样本记录。"
+}

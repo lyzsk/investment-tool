@@ -1,0 +1,24 @@
+{
+ "decision_time": "202609180945",
+ "strategy": "taoge",
+ "trigger_id": "guofang-spike-0918",
+ "code": "sh601086",
+ "name": "国芳集团",
+ "side": "sell",
+ "info_cutoff": "202609180945",
+ "price_seen": 15.26,
+ "prev_close": 14.6,
+ "day_amount": 6041220,
+ "conditions": [
+  {
+   "type": "pct_above",
+   "value": 4
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "持有票冲高4%: 唤醒裁决是否减半(次日冲高无量减半规则)"
+ },
+ "source": "analysis/2026-09-17 国芳: 持有看持续性",
+ "verdict": "notify_only"
+}

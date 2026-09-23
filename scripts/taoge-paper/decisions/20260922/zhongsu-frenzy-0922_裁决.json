@@ -1,0 +1,12 @@
+{
+ "decision_time": "202609221205",
+ "trigger_id": "zhongsu-frenzy-0922",
+ "rule_id": ["R8", "R12"],
+ "verdict": "notify",
+ "side": "watch",
+ "code": "sz301686",
+ "name": "N中塑",
+ "info_cutoff": "202609221205",
+ "reasoning": "R8负面规则: 不玩新股/次新股(只记录不参与), N中塑系新股, 无论涨幅一律不开仓。R12(learned_before=2026-09-21≤今日): 节前新股情绪顶更凶、尾盘跳水更厉害, 本次288冲高仅作情绪观测样本, 验证其'开盘情绪顶到几百块+尾盘大跳水'剧本。paper_state无持仓, 无需变更。",
+ "paper_state_updated": false
+}

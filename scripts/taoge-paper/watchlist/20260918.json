@@ -1,0 +1,39 @@
+{
+  "date": "20260918",
+  "derived_from": "bilibili-taoge/downloads/analysis/2026-09-17.json (9/17晚视频解读, walk-forward: T-1晚沉淀→T日执行)",
+  "_rehearsal": "试跑种子, 用于 9/18 回放压测; 正式 watchlist 由晚间重会话产出",
+  "items": [
+    {
+      "id": "muxi-chase-0918", "strategy": "taoge", "code": "sh688802", "name": "沐曦股份",
+      "side": "buy", "valid_date": "20260918",
+      "conditions": [
+        {"type": "time_window", "from": "09:33", "to": "09:40"},
+        {"type": "amount_gt", "value": 500000000},
+        {"type": "pct_above", "value": -5}
+      ],
+      "action": {"type": "buy", "qty": 100, "note": "解禁利空落地, 开盘3-4分钟承接确认(额>5亿且未深跌)则追"},
+      "source": "analysis/2026-09-17 沐曦: 次日3-4分钟确认承接可追; 他踏空20+点的复盘纪律"
+    },
+    {
+      "id": "guofang-spike-0918", "strategy": "taoge", "code": "sh601086", "name": "国芳集团",
+      "side": "sell", "valid_date": "20260918",
+      "conditions": [{"type": "pct_above", "value": 4}],
+      "action": {"type": "notify", "note": "持有票冲高4%: 唤醒裁决是否减半(次日冲高无量减半规则)"},
+      "source": "analysis/2026-09-17 国芳: 持有看持续性"
+    },
+    {
+      "id": "guofang-break-0918", "strategy": "taoge", "code": "sh601086", "name": "国芳集团",
+      "side": "sell", "valid_date": "20260918",
+      "conditions": [{"type": "pct_below", "value": -4}],
+      "action": {"type": "notify", "note": "持有票破位-4%: 唤醒裁决止损"},
+      "source": "strategy 通用: -4%硬止损线"
+    },
+    {
+      "id": "jinjian-flow-0918", "strategy": "taoge", "code": "sh600127", "name": "金健米业",
+      "side": "buy", "valid_date": "20260918",
+      "conditions": [{"type": "pct_above", "value": 5}],
+      "action": {"type": "notify", "note": "农业高标回流延续确认(涨5%): 唤醒评估低吸窗口"},
+      "source": "analysis/2026-09-17 金健: 同题材回流延续"
+    }
+  ]
+}

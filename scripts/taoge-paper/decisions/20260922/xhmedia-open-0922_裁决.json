@@ -1,0 +1,7 @@
+{
+ "trigger_id": "xhmedia-open-0922",
+ "rule_id": "R10",
+ "verdict": "approve_notify",
+ "info_cutoff": "202609220915",
+ "reasoning": "R10(learned_before 2026-09-21≤今日)exit条款: 龙头开板翻绿=字辈全面退潮, 新华传媒一字开板回落至+5%以下命中。paper_state无持仓(桃哥实盘的华字辈持仓不在本账本), 无卖单可执行, 仅approve为notify提醒实盘持仓者撤。现金/持仓不变, 不更新paper_state。"
+}

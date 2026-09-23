@@ -1,0 +1,24 @@
+{
+ "decision_time": "202609221205",
+ "strategy": "taoge",
+ "trigger_id": "zhongsu-frenzy-0922",
+ "code": "sz301686",
+ "name": "N中塑",
+ "side": "watch",
+ "info_cutoff": "202609221205",
+ "price_seen": 288,
+ "prev_close": 55.28,
+ "day_amount": 3523203478,
+ "conditions": [
+  {
+   "type": "price_above",
+   "value": 100
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "中塑股份(发行价55.28)冲上100: 验证'开盘情绪顶到几百块'; 重点观察尾盘是否大跳水(他的剧本: 就算上冲尾盘跳更厉害)"
+ },
+ "source": "analysis/2026-09-21: 明天开盘情绪顶到几百块",
+ "verdict": "notify_only"
+}

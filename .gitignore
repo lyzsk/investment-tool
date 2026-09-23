@@ -46,6 +46,9 @@ downloads/
 downloads/*
 downloads/**/*
 
+### dfcf 东财账户快照(个人资产隐私, 永不入库) ###
+scripts/dfcf/snapshots/
+
 **/pom.xml.versionsBackup
 
 tree.txt

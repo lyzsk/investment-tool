@@ -1,0 +1,12 @@
+{
+ "decision_time": "202609230926",
+ "trigger_id": "zhongsu-dive-0923",
+ "rule_id": ["R8"],
+ "verdict": "notify",
+ "side": "watch",
+ "code": "sz301686",
+ "name": "N中塑",
+ "info_cutoff": "202609230926",
+ "reasoning": "R8负面规则(learned_before=2026-09-18<=今日): 不玩新股/次新股, 只记录不参与, 本触发本身即'只记录不接盘'的watch, 裁决维持notify。现价340较昨收433约-21.5%, 已验证'低开30个点不亏钱'剧本方向(收433次日低开深杀), 作情绪观测样本入库。paper_state无中塑持仓, 无需变更。",
+ "paper_state_updated": false
+}

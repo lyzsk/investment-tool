@@ -1,0 +1,24 @@
+{
+ "decision_time": "202609230925",
+ "strategy": "taoge",
+ "trigger_id": "zhongsu-dive-0923",
+ "code": "sz301686",
+ "name": "N中塑",
+ "side": "watch",
+ "info_cutoff": "202609230925",
+ "price_seen": 340,
+ "prev_close": 433,
+ "day_amount": 83912000,
+ "conditions": [
+  {
+   "type": "pct_below",
+   "value": -20
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "中塑-20%以上: 验证'收300的明天低开30个点都不亏钱'(收433, -30%≈303)。换手90%+最高580=获利盘抛压巨大; 只记录不接盘(R8)"
+ },
+ "source": "analysis/2026-09-22: 明天低开30个点不亏钱",
+ "verdict": "notify_only"
+}

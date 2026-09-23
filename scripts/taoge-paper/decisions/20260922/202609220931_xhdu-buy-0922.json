@@ -1,0 +1,34 @@
+{
+ "decision_time": "202609220931",
+ "strategy": "taoge",
+ "trigger_id": "xhdu-buy-0922",
+ "code": "sz002264",
+ "name": "新华都",
+ "side": "buy",
+ "info_cutoff": "202609220931",
+ "price_seen": 7.66,
+ "prev_close": 7.66,
+ "day_amount": 37130000,
+ "conditions": [
+  {
+   "type": "time_window",
+   "from": "09:31",
+   "to": "14:00"
+  },
+  {
+   "type": "pct_below",
+   "value": 3
+  },
+  {
+   "type": "pct_above",
+   "value": -3
+  }
+ ],
+ "action": {
+  "type": "buy",
+  "qty": 1300,
+  "note": "R10字辈补涨(learned_before 9/21): 龙头新华传媒9/21两千手封单'涨到国庆后', 买字辈滞涨低位小盘(新华都9/21仅+4.22%未板)。1300股≈1万=10%仓位试错上限。裁决时必须先查新华传媒(sh600825)是否仍封板(pct>9): 开板则reject; 高开超3%不追; 出场=新华传媒开板同步卖+自身-5%止损"
+ },
+ "source": "analysis/2026-09-21: 他买新华都+新华医疗低位字辈; R10; journal/20260921 明日作战计划①",
+ "verdict": "wake_pending"
+}

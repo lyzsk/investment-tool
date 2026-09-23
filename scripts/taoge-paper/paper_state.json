@@ -1,0 +1,36 @@
+{
+ "as_of": "20260923",
+ "cash": 90574.25,
+ "nav_start": 100475.4,
+ "positions": [
+  {
+   "code": "sz300058",
+   "name": "蓝色光标",
+   "qty": 700,
+   "cost": 13.83,
+   "feeB": 2.42,
+   "buy_date": "20260923",
+   "buy_bar": "202609230931",
+   "trigger_id": "bluefocus-buy-0923"
+  }
+ ],
+ "closed_trades": [
+  {
+   "code": "sz002264",
+   "name": "新华都",
+   "qty": 1300,
+   "cost": 7.6,
+   "sell_px": 7.44,
+   "feeB": 2.47,
+   "feeS": 7.26,
+   "pnl": -217.73,
+   "buy_date": "20260922",
+   "buy_bar": "202609220935",
+   "sell_date": "20260923",
+   "sell_bar": "202609231430",
+   "trigger_buy": "xhdu-buy-0922",
+   "trigger_sell": "xhdu-sell-eod-0923",
+   "note": "R10启动日玩法T+1出清; 追认买入(用户确认龙头封板)→14:30兜底撤; 哨兵15:10 exit saveState覆盖盘中状态bug已修, 本账本按裁决文件重建"
+  }
+ ]
+}

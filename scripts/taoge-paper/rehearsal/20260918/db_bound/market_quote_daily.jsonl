@@ -1,0 +1,4 @@
+{"trade_date":"2026-09-18","stock_code":"sh000001","open":3891.96,"high":3919.67,"low":3888.5,"close":3911.87,"volume":485712507,"amount":1897002172226.0798,"pct_chg":0.94,"source":"tencent_m5_agg"}
+{"trade_date":"2026-09-18","stock_code":"sh688802","open":535,"high":585.19,"low":535,"close":554.83,"volume":9959464,"amount":5540207748.619998,"pct_chg":1.52,"source":"tencent_m5_agg"}
+{"trade_date":"2026-09-18","stock_code":"sh601086","open":14.11,"high":16.06,"low":14.02,"close":16.06,"volume":1120762,"amount":17549836.13,"pct_chg":10,"source":"tencent_m5_agg"}
+{"trade_date":"2026-09-18","stock_code":"sh600127","open":12.9,"high":14.32,"low":12.64,"close":14.32,"volume":3020548,"amount":41756513.639999986,"pct_chg":9.98,"source":"tencent_m5_agg"}

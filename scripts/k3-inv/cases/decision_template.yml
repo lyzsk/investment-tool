@@ -1,0 +1,50 @@
+# 决策单规格（R-SPEC）——每日每只操作票一张，填满才允许发出
+# 参数公式见 STRATEGY.md R-SPEC。此文件为模板+2026-09-23 牧原/东瑞实例。
+
+meta:
+  date: 2026-09-23
+  computed_at: "2026-09-22 收盘后"
+  refresh_at: "09:22 竞价后必须重算 prev_close 相关参数"
+
+position_review:            # R-OPPORTUNITY 账户级排序
+  holdings:
+    - code: sz002714
+      role: 猪主题中军+做T载体
+      keep: true              # 底仓信念仓
+    - code: sz001201
+      role: 猪主题弹性候选
+      action: 转仓买入(用牧原减仓资金, 不追价)
+  thesis: 涨价主线(猪=慢分支), 中军保底+弹性进攻
+
+orders:
+  - code: sz002714
+    side: sell
+    zone: [42.27, 42.74]      # =41.86×(1+0.99%) ~ ×(1+2.10%) [p50高~p75高]
+    time_window: ["09:45-11:00"]   # 案例库: 日内高点62%出现时段
+    qty: 500                  # =min(机动仓, 目标回笼2.1万÷42.5≈495)
+    formula: "sell_zone=prev×(1+p50~p75 hi), qty=目标现金/价"
+    condition: "竞价不低开后, 反弹进zone即挂限价卖; 竞价低开>1%则本单作废转观望"
+  - code: sz002714
+    side: buyback
+    zone: [41.18, 41.49]      # =41.86×(1-1.62%) ~ ×(1-0.89%) [p25低~p50低]
+    alt_zone: "卖价×0.985"     # 接回纪律取先到者
+    time_window: ["09:50-10:10", "13:00-14:30"]
+    qty: "=sell.qty"          # 接回量=卖出量(结构未破)
+    condition: "仅当sell已成交; 缩量(5min量<前5根均量)且不破前低才接"
+  - code: sz001201
+    side: buy
+    zone: [15.90, 16.15]      # =16.30×(1-2.5%) ~ ×(1-0.9%) [回踩5日线区, 09:22重算]
+    time_window: ["10:00-11:30", "13:00-14:00"]
+    qty: 800                  # ≈1.29万, 牧原卖出回笼资金的一部分
+    stop: 15.16               # =买入均价×0.93 (-7%纪律)
+    condition: "缩量回踩企稳才买, 放量拉升不追; 牧原sell未成交则本单冻结(无现金)"
+
+risk:
+  muyuan_hard_stop: 40.60     # 结构位=平台低点, 非拍脑袋百分比
+  muyuan_no_action_below: 41.00  # 此价以下禁止卖出(支撑区不卖)
+  total_pig_exposure_cap: 100000
+  dongrui_max_loss: "-7%"
+
+confidence:
+  factor_consistency: "待09:22因子打分后填"
+  rule: "一致性<0.6 → 只发形态不发方向, 概率<50%并标注低自信"
