@@ -1,0 +1,10 @@
+{
+ "rule_id": "R8",
+ "trigger_id": "shengu-deadcat-0922",
+ "code": "sh601091",
+ "name": "N沈鼓",
+ "verdict": "notify",
+ "info_cutoff": "202609220940",
+ "price_seen": 48,
+ "reasoning": "R8负面规则明确不玩新股/次新股只记录不参与, N沈鼓为上市首日次新+15%属典型妖股躁动, 与9/21分析的大阴线判断相违仅证其反复无常。该触发本身side=watch且action=notify, 无任何入场条款支持追入, 故维持仅通知不交易。paper_state无持仓, 无需变动。"
+}

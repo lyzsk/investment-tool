@@ -1,0 +1,98 @@
+{
+  "date": "20260923",
+  "derived_from": "bilibili-taoge/downloads/analysis/2026-09-22.json + rules_seed.json(R1-R13); walk-forward: T-1晚沉淀→T日执行",
+  "_posture": "带仓日(持仓新华都1300@7.60)。桃哥9/22已把字辈补涨仓全撤(T+1冲高即撤), 我们追认持仓比本人晚一天→9/23主任务是撤退不是进攻; 新华传媒100亿封单未死=字辈还活着但只做低位轮动不接力",
+  "_k3": "k3轻量跟跑: 用户牧原满仓(2400股, 可用资金279)倒T失败日后只能先卖后买; 上证+0.06收3952, 9/24周年前情绪躁动但指数高开低走=追高需谨慎",
+  "items": [
+    {
+      "id": "xhdu-sell-spike-0923", "strategy": "taoge", "code": "sz002264", "name": "新华都",
+      "side": "sell", "valid_date": "20260923",
+      "conditions": [
+        {"type": "time_window", "from": "09:31", "to": "13:00"},
+        {"type": "pct_above", "value": 1.5}
+      ],
+      "action": {"type": "sell", "qty": 1300, "note": "R10修正后退出纪律: 字辈补涨只做启动日, T+1冲高即撤(他本人9/22盘中冲高撤了新华都, 我们追认持仓晚一天)。冲高1.5%以上就撤不格局; 裁决时先查新华传媒(sh600825): 若已开板翻绿, 任何价格立即撤"},
+      "source": "analysis/2026-09-22: 新华都盘中冲高撤了; R10 exit修正; journal/20260922 作战计划①"
+    },
+    {
+      "id": "xhdu-sell-eod-0923", "strategy": "taoge", "code": "sz002264", "name": "新华都",
+      "side": "sell", "valid_date": "20260923",
+      "conditions": [{"type": "time_window", "from": "14:30", "to": "14:57"}],
+      "action": {"type": "sell", "qty": 1300, "note": "兜底出清: 冲高单没等到就尾盘无条件撤。启动日玩法不留恋, 隔夜第三天=他自己都认不出的行情(R4一日游风险)"},
+      "source": "R10 exit + R4; 桃哥本人已离场, 我们不比本人拿得久"
+    },
+    {
+      "id": "bluefocus-buy-0923", "strategy": "taoge", "code": "sz300058", "name": "蓝色光标",
+      "side": "buy", "valid_date": "20260923",
+      "conditions": [
+        {"type": "time_window", "from": "09:31", "to": "10:30"},
+        {"type": "pct_above", "value": -2},
+        {"type": "pct_below", "value": 1}
+      ],
+      "action": {"type": "buy", "qty": 700, "note": "事件驱动买最强: 谷歌智能体发酵他亲口说'蓝色早上+3买还能赚3个点, 比省广好'。今日已+6.76%→明日只接低开/平开(-2%~+1%), 高开不追(抬轿)。700股≈9835元=10%试错上限内。裁决时查AI应用板块竞价强度, 一日游风险自负(R4); 出场=次日不延续就走(R1式快进快出)"},
+      "source": "analysis/2026-09-22: 蓝色光标>省广; 防守≠空仓纪律要求的buy候选(条件苛刻)"
+    },
+    {
+      "id": "zhongsu-dive-0923", "strategy": "taoge", "code": "sz301686", "name": "N中塑",
+      "side": "watch", "valid_date": "20260923",
+      "conditions": [{"type": "pct_below", "value": -20}],
+      "action": {"type": "notify", "note": "中塑-20%以上: 验证'收300的明天低开30个点都不亏钱'(收433, -30%≈303)。换手90%+最高580=获利盘抛压巨大; 只记录不接盘(R8)"},
+      "source": "analysis/2026-09-22: 明天低开30个点不亏钱"
+    },
+    {
+      "id": "xhmedia-open-0923", "strategy": "taoge", "code": "sh600825", "name": "新华传媒",
+      "side": "watch", "valid_date": "20260923",
+      "conditions": [
+        {"type": "time_window", "from": "09:25", "to": "14:57"},
+        {"type": "pct_below", "value": 5}
+      ],
+      "action": {"type": "notify", "note": "新华传媒回落+5%以下=开板: 字辈退潮预警, 新华都任何价格立即撤(联动)。注意9/22教训: 竞价09:15-09:20可撤单段的指示价是假信号, 09:25后才算数"},
+      "source": "R10 exit联动 + 9/22竞价假开板教训"
+    },
+    {
+      "id": "xhmedia-dead-0923", "strategy": "taoge", "code": "sh600825", "name": "新华传媒",
+      "side": "watch", "valid_date": "20260923",
+      "conditions": [
+        {"type": "time_window", "from": "09:25", "to": "14:57"},
+        {"type": "pct_below", "value": 0}
+      ],
+      "action": {"type": "notify", "note": "新华传媒翻绿: 字辈行情死亡确认, '涨到国庆后'翻车; 记录"},
+      "source": "analysis/2026-09-21 反面情形持续跟踪"
+    },
+    {
+      "id": "shengu-track-0923", "strategy": "taoge", "code": "sh601091", "name": "N沈鼓",
+      "side": "watch", "valid_date": "20260923",
+      "conditions": [{"type": "pct_below", "value": -10}],
+      "action": {"type": "notify", "note": "沈鼓-10%: 9/22死猫跳+15%收+0.69%后, 接盘平均成本50的压力仍在; 次新股连续观察样本"},
+      "source": "次新跟踪(他9/22视频未提沈鼓, 热度已转移中塑)"
+    },
+    {
+      "id": "muyuan-sell-0923", "strategy": "k3", "code": "sz002714", "name": "牧原股份",
+      "side": "watch", "valid_date": "20260923",
+      "conditions": [{"type": "price_above", "value": 42.8}],
+      "action": {"type": "notify", "note": "牧原触及42.8: 用户42.8卖300挂单价到; 用户满仓(现金279)只能先卖后买, 成交后看41.5-42.0接回"},
+      "source": "用户持仓单42.8卖300; 9/22收41.86"
+    },
+    {
+      "id": "muyuan-break-0923", "strategy": "k3", "code": "sz002714", "name": "牧原股份",
+      "side": "watch", "valid_date": "20260923",
+      "conditions": [{"type": "price_below", "value": 41.0}],
+      "action": {"type": "notify", "note": "牧原破41.0(9/21反转日低点41.04): 假反转警报; 用户现金耗尽无法接, 只能扛或减——提醒用户决策"},
+      "source": "9/21反转结构 + 用户9/22后满仓状态"
+    },
+    {
+      "id": "idx-924-0923", "strategy": "k3", "code": "sh000001", "name": "上证指数",
+      "side": "watch", "valid_date": "20260923",
+      "conditions": [{"type": "pct_above", "value": 1}],
+      "action": {"type": "notify", "note": "上证+1%: 924周年前情绪躁动兑现中(他: 资金纯情绪提前动); 9/23-25访美事件期, 情绪行情不追高"},
+      "source": "analysis/2026-09-22: 马上924了资金纯情绪推动"
+    },
+    {
+      "id": "idx-defensive-0923", "strategy": "k3", "code": "sh000001", "name": "上证指数",
+      "side": "watch", "valid_date": "20260923",
+      "conditions": [{"type": "pct_below", "value": -1.5}],
+      "action": {"type": "notify", "note": "指数-1.5%: 访美事件期波动放大, 全面防守"},
+      "source": "k3 regime跟踪"
+    }
+  ]
+}

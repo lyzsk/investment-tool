@@ -1,0 +1,26 @@
+{
+ "decision_time": "202609231430",
+ "strategy": "taoge",
+ "trigger_id": "xhdu-sell-eod-0923",
+ "code": "sz002264",
+ "name": "新华都",
+ "side": "sell",
+ "info_cutoff": "202609231430",
+ "price_seen": 7.44,
+ "prev_close": 7.97,
+ "day_amount": 558368286,
+ "conditions": [
+  {
+   "type": "time_window",
+   "from": "14:30",
+   "to": "14:57"
+  }
+ ],
+ "action": {
+  "type": "sell",
+  "qty": 1300,
+  "note": "兜底出清: 冲高单没等到就尾盘无条件撤。启动日玩法不留恋, 隔夜第三天=他自己都认不出的行情(R4一日游风险)"
+ },
+ "source": "R10 exit + R4; 桃哥本人已离场, 我们不比本人拿得久",
+ "verdict": "wake_pending"
+}

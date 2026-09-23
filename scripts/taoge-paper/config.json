@@ -1,0 +1,32 @@
+{
+  "codes_extra": [
+    "sh000001"
+  ],
+  "sources": [
+    "tencent",
+    "sina",
+    "eastmoney"
+  ],
+  "wake": {
+    "enabled": true,
+    "cmd": "claude",
+    "args": [
+      "-p",
+      "--allowedTools",
+      "Read,Write,Edit,Bash(node*)"
+    ],
+    "cwd": "C:\\Users\\admin\\dev\\investment-tool\\scripts\\taoge-paper"
+  },
+  "inbox": {
+    "enabled": false,
+    "log": "C:/Users/admin/AppData/Local/hermes/logs/agent.log",
+    "prefix": [
+      "k3:",
+      "k3："
+    ],
+    "hermes": "C:/Users/admin/AppData/Local/hermes/hermes-agent/bin/hermes.exe",
+    "send_min_gap_ms": 100000,
+    "send_retry_ms": 900000,
+    "_note": "2026-09-22起微信问答由hermes(kimi)直连接管, k3:前缀中继废弃(SKILL模式四), enabled=false后checkInbox/processOutbox停用; hermes路径保留给哨兵告警(alert)与结算推送"
+  }
+}

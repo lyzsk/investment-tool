@@ -1,0 +1,24 @@
+{
+ "decision_time": "202609180950",
+ "strategy": "taoge",
+ "trigger_id": "jinjian-flow-0918",
+ "code": "sh600127",
+ "name": "金健米业",
+ "side": "buy",
+ "info_cutoff": "202609180950",
+ "price_seen": 13.76,
+ "prev_close": 13.02,
+ "day_amount": 15949631,
+ "conditions": [
+  {
+   "type": "pct_above",
+   "value": 5
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "农业高标回流延续确认(涨5%): 唤醒评估低吸窗口"
+ },
+ "source": "analysis/2026-09-17 金健: 同题材回流延续",
+ "verdict": "notify_only"
+}

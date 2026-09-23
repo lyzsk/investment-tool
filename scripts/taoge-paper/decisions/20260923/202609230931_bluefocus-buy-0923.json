@@ -1,0 +1,34 @@
+{
+ "decision_time": "202609230931",
+ "strategy": "taoge",
+ "trigger_id": "bluefocus-buy-0923",
+ "code": "sz300058",
+ "name": "蓝色光标",
+ "side": "buy",
+ "info_cutoff": "202609230931",
+ "price_seen": 13.83,
+ "prev_close": 14.05,
+ "day_amount": 226109064,
+ "conditions": [
+  {
+   "type": "time_window",
+   "from": "09:31",
+   "to": "10:30"
+  },
+  {
+   "type": "pct_above",
+   "value": -2
+  },
+  {
+   "type": "pct_below",
+   "value": 1
+  }
+ ],
+ "action": {
+  "type": "buy",
+  "qty": 700,
+  "note": "事件驱动买最强: 谷歌智能体发酵他亲口说'蓝色早上+3买还能赚3个点, 比省广好'。今日已+6.76%→明日只接低开/平开(-2%~+1%), 高开不追(抬轿)。700股≈9835元=10%试错上限内。裁决时查AI应用板块竞价强度, 一日游风险自负(R4); 出场=次日不延续就走(R1式快进快出)"
+ },
+ "source": "analysis/2026-09-22: 蓝色光标>省广; 防守≠空仓纪律要求的buy候选(条件苛刻)",
+ "verdict": "wake_pending"
+}

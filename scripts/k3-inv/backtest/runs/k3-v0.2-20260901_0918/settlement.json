@@ -1,0 +1,185 @@
+{
+ "meta": {
+  "strategy": "k3-inv v0.2",
+  "run": "k3-v0.2-20260901_0918",
+  "run_type": "backtest",
+  "window": "20260901→20260918",
+  "trading_days": 14,
+  "start_capital": 100475.4,
+  "fee_buy": 0.00025,
+  "fee_sell": 0.00075,
+  "fill_rule": "决策时刻下一根m5 bar开盘价(脚本断言bar存在)",
+  "benchmark": "上证指数 sh000001 收盘 3979.89→3911.87",
+  "v02_changes": "新增大盘预判层/板块主线层/顶背离否决/竞价观察窗(不可执行)/隔夜映射加权; rules.md 除名",
+  "honesty": "规格STRATEGY.md v0.2执行前冻结; 电报仅取时间戳≤决策时刻; 9/10与9/16盘中电报缺失按无电报日处理; 否决记录见vetoes"
+ },
+ "result": {
+  "end_nav": 99970.28,
+  "total_return_pct": -0.5,
+  "benchmark_return_pct": -1.71,
+  "excess_pct": 1.21,
+  "max_drawdown_pct": -0.79,
+  "closed_trades": 1,
+  "closed_wins": 0,
+  "vetoes": 4
+ },
+ "vetoes": [
+  {
+   "date": "20260901",
+   "target": "中国银行 sh601988",
+   "rule": "§2 板块顶背离否决 + 主线不成立(单次报道)",
+   "detail": "中证银行7562 vs 7/30前峰7517价格新高, DIF 100.12→74.29/RSI 70.5→65.8未新高→禁止开新仓; v0.1在此买入浮亏-1.97%, v0.2规避"
+  },
+  {
+   "date": "20260914",
+   "target": "中国银行 sh601988",
+   "rule": "§1 防守regime不开新仓",
+   "detail": "板块DIF修复至100.22≈前峰, 但涨停高度7→4递减=退潮, 且个股无威科夫入场结构(9/15-9/18连阴)"
+  },
+  {
+   "date": "20260916",
+   "target": "澜起科技 sh688008",
+   "rule": "§1防守 + §2主线不符 + §0数据洞",
+   "detail": "当日主线=半导体设备(摩根大通SPE报告, 涨停票均设备/材料小票), 澜起属设计/接口挂不上; 存储当日无可得催化(9/16盘中电报缺失); 高度4板=防守"
+  },
+  {
+   "date": "20260903",
+   "target": "中远海能 sh600026",
+   "rule": "§4 竞价观察窗(不可执行)",
+   "detail": "报道即涨停类机会需次日竞价数据, 历史竞价不可得 → 规则进paper验证清单, 本轮回测不执行"
+  }
+ ],
+ "trades": [
+  {
+   "bd": "20260907",
+   "bt": "1000",
+   "code": "sh688008",
+   "name": "澜起科技",
+   "qty": 100,
+   "bp": 194.87,
+   "feeB": 4.87,
+   "reason": "regime中性(高度5-6板); 存储=隔夜映射主线(9/04晚闪迪+5.4%/美光HBM翻倍, A股存储9/04跌-1.2%未透支); 9/07 0945低点192.76不破+0955放量回升=SOS回踩确认; 李大霄筛通过; 买入价194.87非60日新高, 顶背离否决不适用; 约1.9成仓",
+   "sd": "20260911",
+   "st": "0935",
+   "sp": 190.01,
+   "feeS": 14.25,
+   "pnl": -505.12,
+   "pct": -2.59,
+   "sellReason": "9/10晚反向催化(英伟达被市监总局调查+SK海力士-4%+美PPI超预期)→§5反向催化无条件走; 09:31决策, 0935 bar成交"
+  }
+ ],
+ "equity": [
+  {
+   "date": "20260901",
+   "cash": 100475.4,
+   "market_value": 0,
+   "total_nav": 100475.4,
+   "return_pct": 0,
+   "sh_close": 3979.89
+  },
+  {
+   "date": "20260902",
+   "cash": 100475.4,
+   "market_value": 0,
+   "total_nav": 100475.4,
+   "return_pct": 0,
+   "sh_close": 3941.39
+  },
+  {
+   "date": "20260903",
+   "cash": 100475.4,
+   "market_value": 0,
+   "total_nav": 100475.4,
+   "return_pct": 0,
+   "sh_close": 3942.09
+  },
+  {
+   "date": "20260904",
+   "cash": 100475.4,
+   "market_value": 0,
+   "total_nav": 100475.4,
+   "return_pct": 0,
+   "sh_close": 3930.12
+  },
+  {
+   "date": "20260907",
+   "cash": 80983.53,
+   "market_value": 19782,
+   "total_nav": 100765.53,
+   "return_pct": 0.29,
+   "sh_close": 3932.7
+  },
+  {
+   "date": "20260908",
+   "cash": 80983.53,
+   "market_value": 19565,
+   "total_nav": 100548.53,
+   "return_pct": 0.07,
+   "sh_close": 3940.55
+  },
+  {
+   "date": "20260909",
+   "cash": 80983.53,
+   "market_value": 19530,
+   "total_nav": 100513.53,
+   "return_pct": 0.04,
+   "sh_close": 3951.51
+  },
+  {
+   "date": "20260910",
+   "cash": 80983.53,
+   "market_value": 19533,
+   "total_nav": 100516.53,
+   "return_pct": 0.04,
+   "sh_close": 3934.4
+  },
+  {
+   "date": "20260911",
+   "cash": 99970.28,
+   "market_value": 0,
+   "total_nav": 99970.28,
+   "return_pct": -0.5,
+   "sh_close": 3888.11
+  },
+  {
+   "date": "20260914",
+   "cash": 99970.28,
+   "market_value": 0,
+   "total_nav": 99970.28,
+   "return_pct": -0.5,
+   "sh_close": 3885.33
+  },
+  {
+   "date": "20260915",
+   "cash": 99970.28,
+   "market_value": 0,
+   "total_nav": 99970.28,
+   "return_pct": -0.5,
+   "sh_close": 3864.28
+  },
+  {
+   "date": "20260916",
+   "cash": 99970.28,
+   "market_value": 0,
+   "total_nav": 99970.28,
+   "return_pct": -0.5,
+   "sh_close": 3891.6
+  },
+  {
+   "date": "20260917",
+   "cash": 99970.28,
+   "market_value": 0,
+   "total_nav": 99970.28,
+   "return_pct": -0.5,
+   "sh_close": 3875.6
+  },
+  {
+   "date": "20260918",
+   "cash": 99970.28,
+   "market_value": 0,
+   "total_nav": 99970.28,
+   "return_pct": -0.5,
+   "sh_close": 3911.87
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+{
+ "rule_id": "R8",
+ "trigger_id": "shengu-guard60-0921",
+ "verdict": "notify_only",
+ "info_cutoff": "202609210930",
+ "reasoning": "R8负面规则明确'不玩新股/次新股,只记录不参与'(learned_before 2026-09-18≤今日,可用)。N沈鼓集团为次新股,60元关口失守仅作为'大资金尾盘护盘'假设失效的验证信号记录,不构成任何买入动作。维持原notify_only裁决,paper_state无需变动。"
+}

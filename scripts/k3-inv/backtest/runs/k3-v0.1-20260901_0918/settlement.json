@@ -1,0 +1,174 @@
+{
+ "meta": {
+  "strategy": "k3-inv v0.1",
+  "run": "k3-v0.1-20260901_0918",
+  "run_type": "backtest",
+  "window": "20260901→20260918",
+  "trading_days": 14,
+  "start_capital": 100475.4,
+  "fee_buy": 0.00025,
+  "fee_sell": 0.00075,
+  "fill_rule": "决策时刻下一根m5 bar开盘价(脚本断言bar存在)",
+  "benchmark": "上证指数 sh000001 收盘 3979.89→3911.87",
+  "honesty": "策略规格STRATEGY.md回测前冻结; 电报仅取时间戳≤决策时刻; 9/10与9/16盘中电报缺失按无电报日处理(数据洞诚实标注)"
+ },
+ "result": {
+  "end_nav": 99772.78,
+  "total_return_pct": -0.7,
+  "benchmark_return_pct": -1.71,
+  "excess_pct": 1.01,
+  "max_drawdown_pct": -0.71,
+  "closed_trades": 1,
+  "closed_wins": 0,
+  "open_positions": 1
+ },
+ "trades": [
+  {
+   "bd": "20260907",
+   "bt": "1000",
+   "code": "sh688008",
+   "name": "澜起科技",
+   "qty": 100,
+   "bp": 194.87,
+   "feeB": 4.87,
+   "reason": "9/04晚隔夜催化(闪迪+5.4%/美光HBM需求翻倍, overnight映射存储); 9/07 0945低点192.76不破+0955放量回升=SOS回踩确认; 李大霄筛通过(内存接口全球龙头); 约1.9成仓",
+   "sd": "20260911",
+   "st": "0935",
+   "sp": 190.01,
+   "feeS": 14.25,
+   "pnl": -505.12,
+   "pct": -2.59,
+   "sellReason": "9/10晚反向催化(英伟达被市监总局调查+SK海力士-4%+美PPI超预期), 半导体链承压→规则§4反向催化无条件走; 09:31决策, 0935 bar成交"
+  },
+  {
+   "bd": "20260901",
+   "bt": "1350",
+   "code": "sh601988",
+   "name": "中国银行",
+   "qty": 1500,
+   "bp": 6.67,
+   "feeB": 2.5,
+   "reason": "9/01 13:46电报:银行股持续走高+净息差企稳报道(sector_move); 李大霄筛通过(国有大行龙头/业绩/非题材); 威科夫=吸筹末端慢牛, 决策时涨幅<5%不违追高线; 防御配置仓1成",
+   "open_mark": {
+    "date": "20260918",
+    "close": 6.54,
+    "mv": 9810,
+    "unrealized": -197.5
+   }
+  }
+ ],
+ "equity": [
+  {
+   "date": "20260901",
+   "cash": 90467.9,
+   "market_value": 10005,
+   "total_nav": 100472.9,
+   "return_pct": 0,
+   "sh_close": 3979.89
+  },
+  {
+   "date": "20260902",
+   "cash": 90467.9,
+   "market_value": 10020,
+   "total_nav": 100487.9,
+   "return_pct": 0.01,
+   "sh_close": 3941.39
+  },
+  {
+   "date": "20260903",
+   "cash": 90467.9,
+   "market_value": 9810,
+   "total_nav": 100277.9,
+   "return_pct": -0.2,
+   "sh_close": 3942.09
+  },
+  {
+   "date": "20260904",
+   "cash": 90467.9,
+   "market_value": 9855,
+   "total_nav": 100322.9,
+   "return_pct": -0.15,
+   "sh_close": 3930.12
+  },
+  {
+   "date": "20260907",
+   "cash": 70976.03,
+   "market_value": 29442,
+   "total_nav": 100418.03,
+   "return_pct": -0.06,
+   "sh_close": 3932.7
+  },
+  {
+   "date": "20260908",
+   "cash": 70976.03,
+   "market_value": 29150,
+   "total_nav": 100126.03,
+   "return_pct": -0.35,
+   "sh_close": 3940.55
+  },
+  {
+   "date": "20260909",
+   "cash": 70976.03,
+   "market_value": 29175,
+   "total_nav": 100151.03,
+   "return_pct": -0.32,
+   "sh_close": 3951.51
+  },
+  {
+   "date": "20260910",
+   "cash": 70976.03,
+   "market_value": 29328,
+   "total_nav": 100304.03,
+   "return_pct": -0.17,
+   "sh_close": 3934.4
+  },
+  {
+   "date": "20260911",
+   "cash": 89962.78,
+   "market_value": 9855,
+   "total_nav": 99817.78,
+   "return_pct": -0.65,
+   "sh_close": 3888.11
+  },
+  {
+   "date": "20260914",
+   "cash": 89962.78,
+   "market_value": 9960,
+   "total_nav": 99922.78,
+   "return_pct": -0.55,
+   "sh_close": 3885.33
+  },
+  {
+   "date": "20260915",
+   "cash": 89962.78,
+   "market_value": 9855,
+   "total_nav": 99817.78,
+   "return_pct": -0.65,
+   "sh_close": 3864.28
+  },
+  {
+   "date": "20260916",
+   "cash": 89962.78,
+   "market_value": 9840,
+   "total_nav": 99802.78,
+   "return_pct": -0.67,
+   "sh_close": 3891.6
+  },
+  {
+   "date": "20260917",
+   "cash": 89962.78,
+   "market_value": 9870,
+   "total_nav": 99832.78,
+   "return_pct": -0.64,
+   "sh_close": 3875.6
+  },
+  {
+   "date": "20260918",
+   "cash": 89962.78,
+   "market_value": 9810,
+   "total_nav": 99772.78,
+   "return_pct": -0.7,
+   "sh_close": 3911.87
+  }
+ ]
+}

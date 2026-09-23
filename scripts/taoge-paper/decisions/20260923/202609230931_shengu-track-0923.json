@@ -1,0 +1,24 @@
+{
+ "decision_time": "202609230931",
+ "strategy": "taoge",
+ "trigger_id": "shengu-track-0923",
+ "code": "sh601091",
+ "name": "N沈鼓",
+ "side": "watch",
+ "info_cutoff": "202609230931",
+ "price_seen": 34.01,
+ "prev_close": 37.98,
+ "day_amount": 190576207,
+ "conditions": [
+  {
+   "type": "pct_below",
+   "value": -10
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "沈鼓-10%: 9/22死猫跳+15%收+0.69%后, 接盘平均成本50的压力仍在; 次新股连续观察样本"
+ },
+ "source": "次新跟踪(他9/22视频未提沈鼓, 热度已转移中塑)",
+ "verdict": "notify_only"
+}

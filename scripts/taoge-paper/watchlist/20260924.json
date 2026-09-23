@@ -1,0 +1,102 @@
+{
+  "date": "20260924",
+  "derived_from": "bilibili-taoge/downloads/analysis/2026-09-23.json + rules_seed.json(R1-R14); walk-forward: T-1晚沉淀→T日执行",
+  "_posture": "带仓日(持仓蓝色光标700@13.83)。明天924两周年: 他昨天午后已拿科技先手, 924当天=先手资金的兑现日不是开仓日——我们没先手, 主任务=蓝色光标撤退纪律, buy候选只给回踩低吸(不接情绪盘)。周五中秋休市, 节前只剩下周3天",
+  "_k3": "k3轻量跟跑: 用户牧原满仓(2400股@42.614, 现金279)收41.40, 41.0多空线告急; 上证-0.39%收3936.52",
+  "items": [
+    {
+      "id": "bluefocus-sell-rebound-0924", "strategy": "taoge", "code": "sz300058", "name": "蓝色光标",
+      "side": "sell", "valid_date": "20260924",
+      "conditions": [
+        {"type": "time_window", "from": "09:31", "to": "11:30"},
+        {"type": "pct_above", "value": 0}
+      ],
+      "action": {"type": "sell", "qty": 700, "note": "昨日裁决既定出场: 次日不延续就走。昨收-3.77%已不延续, 早盘反弹回水上(>昨收13.52)就撤; 他省广走慢亏3点=一日游走慢被咬, 别犯同错(R4)"},
+      "source": "decisions/20260923/bluefocus-buy-0923_裁决 exit_plan; analysis/2026-09-23 省广教训"
+    },
+    {
+      "id": "bluefocus-sell-stop-0924", "strategy": "taoge", "code": "sz300058", "name": "蓝色光标",
+      "side": "sell", "valid_date": "20260924",
+      "conditions": [{"type": "price_below", "value": 13.0}],
+      "action": {"type": "sell", "qty": 700, "note": "止损线: 13.0=成本13.83的-6%, 也是昨日低点下方; 试错仓不扛破位"},
+      "source": "试错仓风控"
+    },
+    {
+      "id": "bluefocus-sell-eod-0924", "strategy": "taoge", "code": "sz300058", "name": "蓝色光标",
+      "side": "sell", "valid_date": "20260924",
+      "conditions": [{"type": "time_window", "from": "14:30", "to": "14:57"}],
+      "action": {"type": "sell", "qty": 700, "note": "兜底出清: 924兑现日不留AI应用一日游票过中秋周末(4天消息真空+R12节前减持雷)"},
+      "source": "R4+R12: 节前不留弱仓"
+    },
+    {
+      "id": "tjyy-buy-0924", "strategy": "taoge", "code": "sh600667", "name": "太极实业",
+      "side": "buy", "valid_date": "20260924",
+      "conditions": [
+        {"type": "time_window", "from": "09:31", "to": "13:30"},
+        {"type": "pct_above", "value": -2.5},
+        {"type": "pct_below", "value": 0}
+      ],
+      "action": {"type": "buy", "qty": 400, "note": "苛刻buy候选(防守≠空仓纪律): 924预期落空低开→先手资金被套=无溢价低吸模板(他新华百货式)。只做低开-2.5%~0的回踩, 高开=追情绪接盘坚决不买(924是先手兑现日)。400股≈8200元<10%仓。裁决时看科创50/科技板块竞价: 科技整体低开>2%则低吸逻辑不成立reject。出场=次日不延续走"},
+      "source": "analysis/2026-09-23: 太极实业有资金做924先手+3.62%; 他9/16在太极实业赚过+6.5%(辨识度)"
+    },
+    {
+      "id": "jinjian-squeeze-0924", "strategy": "taoge", "code": "sh600127", "name": "金健米业",
+      "side": "watch", "valid_date": "20260924",
+      "conditions": [{"type": "pct_above", "value": 5}],
+      "action": {"type": "notify", "note": "金健米业+5%: 他的压异动剧本兑现点('明天压5个点异动, 拉高就卖')——压异动进攻侧首次实盘验证, 记录他是否会卖/卖了之后走势"},
+      "source": "analysis/2026-09-23: 埋伏金健米业明天压5个点异动拉高就卖; R13进攻侧"
+    },
+    {
+      "id": "jinjian-fail-0924", "strategy": "taoge", "code": "sh600127", "name": "金健米业",
+      "side": "watch", "valid_date": "20260924",
+      "conditions": [{"type": "pct_below", "value": -8}],
+      "action": {"type": "notify", "note": "金健米业-8%: 压异动失败(闽东式跌停路径), R13反面样本"},
+      "source": "R13反面情形"
+    },
+    {
+      "id": "xhmedia-open-0924", "strategy": "taoge", "code": "sh600825", "name": "新华传媒",
+      "side": "watch", "valid_date": "20260924",
+      "conditions": [
+        {"type": "time_window", "from": "09:25", "to": "14:57"},
+        {"type": "pct_below", "value": 5}
+      ],
+      "action": {"type": "notify", "note": "新华传媒封单第4天回落+5%以下=开板: 字辈行情正式死亡确认(后排9/23已先倒); '涨到国庆后'最终裁决"},
+      "source": "字辈行情跟踪第4天"
+    },
+    {
+      "id": "shengu-track-0924", "strategy": "taoge", "code": "sh601091", "name": "N沈鼓",
+      "side": "watch", "valid_date": "20260924",
+      "conditions": [{"type": "pct_below", "value": -10}],
+      "action": {"type": "notify", "note": "沈鼓再-10%(破27): 次新绝望期连续杀跌第三幕; 他'平时做必亏'注解的验证"},
+      "source": "次新绝望期跟踪"
+    },
+    {
+      "id": "muyuan-sell-0924", "strategy": "k3", "code": "sz002714", "name": "牧原股份",
+      "side": "watch", "valid_date": "20260924",
+      "conditions": [{"type": "price_above", "value": 42.8}],
+      "action": {"type": "notify", "note": "牧原42.8: 用户卖单到价; 满仓只能先卖后买"},
+      "source": "用户持仓单; 9/23收41.40"
+    },
+    {
+      "id": "muyuan-break-0924", "strategy": "k3", "code": "sz002714", "name": "牧原股份",
+      "side": "watch", "valid_date": "20260924",
+      "conditions": [{"type": "price_below", "value": 41.0}],
+      "action": {"type": "notify", "note": "牧原破41.0(9/21反转低点41.04失守): 满仓硬扛状态下最危险的情形, 提醒用户决策: 破位减机动仓还是扛(逻辑=猪周期未破坏但短线结构破坏)"},
+      "source": "9/21反转结构+用户满仓状态"
+    },
+    {
+      "id": "idx-924-party-0924", "strategy": "k3", "code": "sh000001", "name": "上证指数",
+      "side": "watch", "valid_date": "20260924",
+      "conditions": [{"type": "pct_above", "value": 1.5}],
+      "action": {"type": "notify", "note": "上证+1.5%: 924两周年情绪行情兑现; 注意这是先手资金的卖出日不是我们的买入日"},
+      "source": "analysis/2026-09-23: 明天924两周年"
+    },
+    {
+      "id": "idx-defensive-0924", "strategy": "k3", "code": "sh000001", "name": "上证指数",
+      "side": "watch", "valid_date": "20260924",
+      "conditions": [{"type": "pct_below", "value": -1.5}],
+      "action": {"type": "notify", "note": "指数-1.5%: 924预期落空反杀+访美不确定性, 全面防守"},
+      "source": "k3 regime跟踪"
+    }
+  ]
+}

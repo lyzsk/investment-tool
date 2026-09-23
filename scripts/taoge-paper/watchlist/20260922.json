@@ -1,0 +1,95 @@
+{
+  "date": "20260922",
+  "derived_from": "bilibili-taoge/downloads/analysis/2026-09-21.json + rules_seed.json(R1-R12); walk-forward: T-1晚沉淀→T日执行",
+  "_posture": "带仓日(路线纠偏: 桃哥几乎不空仓, 零仓位需论证)。相信他'新华传媒涨到国庆后', 只买字辈里还没涨完的低位小盘(新华都), 不追已板的新华医疗/新华百货(抬轿)。单票≤10%仓位试错(2026-09-22纪律: 防守≠空仓但试错有上限)",
+  "_k3": "k3轻量跟跑: 上证+0.97收3949但节前缩量预期, 不开新仓; 牧原42.8/43.9挂单提醒并入哨兵",
+  "items": [
+    {
+      "id": "xhdu-buy-0922", "strategy": "taoge", "code": "sz002264", "name": "新华都",
+      "side": "buy", "valid_date": "20260922",
+      "conditions": [
+        {"type": "time_window", "from": "09:31", "to": "14:00"},
+        {"type": "pct_below", "value": 3},
+        {"type": "pct_above", "value": -3}
+      ],
+      "action": {"type": "buy", "qty": 1300, "note": "R10字辈补涨(learned_before 9/21): 龙头新华传媒9/21两千手封单'涨到国庆后', 买字辈滞涨低位小盘(新华都9/21仅+4.22%未板)。1300股≈1万=10%仓位试错上限。裁决时必须先查新华传媒(sh600825)是否仍封板(pct>9): 开板则reject; 高开超3%不追; 出场=新华传媒开板同步卖+自身-5%止损"},
+      "source": "analysis/2026-09-21: 他买新华都+新华医疗低位字辈; R10; journal/20260921 明日作战计划①"},
+    {
+      "id": "zgfilm-buy-0922", "strategy": "taoge", "code": "sh600977", "name": "中国电影",
+      "side": "buy", "valid_date": "20260922",
+      "conditions": [{"type": "pct_above", "value": 9}],
+      "action": {"type": "buy", "qty": 700, "note": "他的原话条件: '股性激活要等拉个涨停板'(流浪地球3定档2027春节)。冲+9%逼近涨停时裁决: 板上封单稳才追, 冲高回落不追; 一日游风险自负(R4)"},
+      "source": "analysis/2026-09-21: 中国电影股性激活要等涨停板; journal/20260921 明日作战计划②"
+    },
+    {
+      "id": "shengu-crash-0922", "strategy": "taoge", "code": "sh601091", "name": "N沈鼓",
+      "side": "watch", "valid_date": "20260922",
+      "conditions": [{"type": "pct_below", "value": -10}],
+      "action": {"type": "notify", "note": "沈鼓-10%以上: 验证桃哥'明天肯定大阴线'(接盘平均成本~50 vs 收盘37.72); 9/18他说60守得住已翻车, 这是连续第二次次新判断验证"},
+      "source": "analysis/2026-09-21: 明天再杀一杀肯定大阴线, 50多买的没戏"
+    },
+    {
+      "id": "shengu-deadcat-0922", "strategy": "taoge", "code": "sh601091", "name": "N沈鼓",
+      "side": "watch", "valid_date": "20260922",
+      "conditions": [{"type": "pct_above", "value": 15}],
+      "action": {"type": "notify", "note": "沈鼓+15%以上: 大阴线判断被打脸, 次新妖股反复无常的又一证据; 记录不追(R8)"},
+      "source": "analysis/2026-09-21 反面情形"
+    },
+    {
+      "id": "zhongsu-frenzy-0922", "strategy": "taoge", "code": "sz301686", "name": "N中塑",
+      "side": "watch", "valid_date": "20260922",
+      "conditions": [{"type": "price_above", "value": 100}],
+      "action": {"type": "notify", "note": "中塑股份(发行价55.28)冲上100: 验证'开盘情绪顶到几百块'; 重点观察尾盘是否大跳水(他的剧本: 就算上冲尾盘跳更厉害)"},
+      "source": "analysis/2026-09-21: 明天开盘情绪顶到几百块"
+    },
+    {
+      "id": "zhongsu-dive-0922", "strategy": "taoge", "code": "sz301686", "name": "N中塑",
+      "side": "watch", "valid_date": "20260922",
+      "conditions": [{"type": "time_window", "from": "14:30", "to": "15:00"}, {"type": "price_below", "value": 70}],
+      "action": {"type": "notify", "note": "尾盘时段跌回70以下: 尾盘跳水剧本兑现度记录(首日无涨跌幅限制, 只记录)"},
+      "source": "analysis/2026-09-21: 尾盘只会跳得更厉害"
+    },
+    {
+      "id": "xhmedia-open-0922", "strategy": "taoge", "code": "sh600825", "name": "新华传媒",
+      "side": "watch", "valid_date": "20260922",
+      "conditions": [{"type": "pct_below", "value": 5}],
+      "action": {"type": "notify", "note": "新华传媒从涨停回落到+5%以下=一字板开板: 字辈退潮预警(R10 exit条件), 华字辈持仓者(桃哥: 新华网/新华医疗/新华都)应撤"},
+      "source": "analysis/2026-09-21 + R10: 龙头开板翻绿=字辈全面退潮"
+    },
+    {
+      "id": "xhmedia-dead-0922", "strategy": "taoge", "code": "sh600825", "name": "新华传媒",
+      "side": "watch", "valid_date": "20260922",
+      "conditions": [{"type": "pct_below", "value": 0}],
+      "action": {"type": "notify", "note": "新华传媒翻绿: 字辈行情当日死亡确认, '涨到国庆后'判断翻车; 记录"},
+      "source": "analysis/2026-09-21 反面情形"
+    },
+    {
+      "id": "zgfilm-activate-0922", "strategy": "taoge", "code": "sh600977", "name": "中国电影",
+      "side": "watch", "valid_date": "20260922",
+      "conditions": [{"type": "pct_above", "value": 7}],
+      "action": {"type": "notify", "note": "中国电影+7%逼近涨停: 流浪地球3利好兑现中, 他说'股性激活要等涨停板'——若封板则激活确认, 后续回踩可关注"},
+      "source": "analysis/2026-09-21: 中国电影股性激活要等拉涨停板"
+    },
+    {
+      "id": "muyuan-sell-0922", "strategy": "k3", "code": "sz002714", "name": "牧原股份",
+      "side": "watch", "valid_date": "20260922",
+      "conditions": [{"type": "price_above", "value": 42.8}],
+      "action": {"type": "notify", "note": "牧原触及42.8: 用户真实持仓42.8卖300挂单价到(成本42.666, 保本微赚); 若放量突破42.8可撤单改挂43.9"},
+      "source": "用户持仓单: 42.8卖300/43.9卖300; 9/21收42.38低开后强势反转"
+    },
+    {
+      "id": "muyuan-break-0922", "strategy": "k3", "code": "sz002714", "name": "牧原股份",
+      "side": "watch", "valid_date": "20260922",
+      "conditions": [{"type": "price_below", "value": 41.0}],
+      "action": {"type": "notify", "note": "牧原破41.0(9/21低点41.04失守): 反转日低点被破=假反转警报, 观察40.6支撑; 用户可用资金仅9千(含GC001)不宜接"},
+      "source": "9/21反转结构 + 用户持仓风控"
+    },
+    {
+      "id": "idx-regime-0922", "strategy": "k3", "code": "sh000001", "name": "上证指数",
+      "side": "watch", "valid_date": "20260922",
+      "conditions": [{"type": "pct_below", "value": -1.5}],
+      "action": {"type": "notify", "note": "指数-1.5%: 节前避险提前发酵, 9/23-25老大访美事件期波动; 继续防守"},
+      "source": "k3 regime跟踪 + 9/23-25访美事件"
+    }
+  ]
+}

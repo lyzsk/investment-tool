@@ -1,0 +1,35 @@
+{
+  "run_code": "pilot-20260915",
+  "skill_version": "v0.0-only-le-0914",
+  "info_cutoff": "2026-09-14",
+  "trade_date": "2026-09-15",
+  "init_capital": 100000,
+  "rules_available": [
+    "缩量存量博弈: 只做小题材小市值, 大票拉不动(9/14)",
+    "顶一字/太一致不追(9/14)",
+    "放巨量天地板=出货, 次日跌停还是卖(9/14)",
+    "低吸要吸龙头, 且需下杀企稳+环境配合(9/14)"
+  ],
+  "watchlist": [
+    {"code": "sh600127", "name": "金健米业", "trigger": "再下杀时的低吸机会"},
+    {"code": "sz002790", "name": "瑞尔特", "action": "avoid"},
+    {"code": null, "name": "网络安全板块", "action": "avoid"},
+    {"code": null, "name": "次新股", "action": "avoid"}
+  ],
+  "decisions": [
+    {"time": "09:35", "code": "sh600127", "action": "watch", "reason": "低开-0.4%直杀-4.4%, 巨量382k手(5min). 进入'下杀'观察, 但低吸需企稳确认, 第1根bar不动作", "rule": "低吸要吸龙头"},
+    {"time": "09:45", "code": "sh600127", "action": "watch", "reason": "13.7附近横盘3根bar看似企稳, 量能在缩(382k→101k), 但: ①无农业板块效应 ②指数平稳无'资金切防御'的切换环境 ③企稳样本仅15分钟. 充分条件不满足, 忍住", "rule": "低吸需企稳+环境配合"},
+    {"time": "09:50", "code": "sh600127", "action": "watch", "reason": "破13.7平台收13.51(-4.7%), 假企稳证伪, 正确等待"},
+    {"time": "09:55", "code": "sh600127", "action": "avoid", "reason": "放量崩至-8.4%(200k手), 是出货不是承接, 低吸信号彻底否决", "rule": "放量下杀≠承接"},
+    {"time": "10:25", "code": "sh600127", "action": "avoid", "reason": "跌停封死12.75, 全天焊死. 盘前信号(低吸关注)若无脑执行= -10%, 触发纪律躲过"},
+    {"time": "09:35", "code": "sz002790", "action": "avoid_confirmed", "reason": "瑞尔特开杀-9.9%→跌停, 验证9/14回避判断"},
+    {"time": "10:05", "code": "sh600667", "action": "watch_miss", "reason": "太极实业红盘抗跌稳步放量走高(+2.2%). 盘前计划外, ≤9/14规则库无'盘中追辨识度'条款 → 不买. 如实记为MISS(桃哥实盘早盘买了, 次日+7.7%)"},
+    {"time": "09:35", "code": "sh603200/sz002882", "action": "no_action", "reason": "上海洗霸/金龙羽一字涨停(固态电池当日消息), 盘前不可知+'太一致不追' → 不操作", "rule": "太一致不追"}
+  ],
+  "trades": [],
+  "settlement": {"cash": 100000, "positions": [], "nav": 1.0000, "day_return": 0},
+  "avoided": [
+    {"code": "sh600127", "name": "金健米业", "would_be_return": "-10.0%"},
+    {"code": "sz002790", "name": "瑞尔特", "would_be_return": "-10.0%"}
+  ]
+}

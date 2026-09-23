@@ -1,0 +1,24 @@
+{
+ "decision_time": "202609210935",
+ "strategy": "taoge",
+ "trigger_id": "shengu-guard60-0921",
+ "code": "sh601091",
+ "name": "N沈鼓集团",
+ "side": "watch",
+ "info_cutoff": "202609210935",
+ "price_seen": 39,
+ "prev_close": 57.77,
+ "day_amount": 317257200,
+ "conditions": [
+  {
+   "type": "price_below",
+   "value": 60
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "60元整数关口失守: 验证桃哥'大资金尾盘护盘'判断是否失效, 次新情绪转弱信号; 只记录不参与(R8)"
+ },
+ "source": "analysis/2026-09-18: 9/21验证是否守住60元",
+ "verdict": "notify_only"
+}

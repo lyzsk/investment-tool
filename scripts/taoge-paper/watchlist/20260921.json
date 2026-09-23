@@ -1,0 +1,43 @@
+{
+  "date": "20260921",
+  "derived_from": "bilibili-taoge/downloads/analysis/2026-09-18.json (9/18周五晚视频解读) + rules_seed.json; walk-forward: T-1晚沉淀→T日执行",
+  "_posture": "首日试跑 + regime防守(高度4板退潮) + R8不玩次新 → 全天只盯不开仓, 所有触发均为notify唤醒裁决, 验证哨兵-唤醒-决策链路的真实表现",
+  "_k3": "k3轻量跟跑: 防守regime不开新仓, 仅记录指数环境",
+  "items": [
+    {
+      "id": "shengu-guard60-0921", "strategy": "taoge", "code": "sh601091", "name": "N沈鼓集团",
+      "side": "watch", "valid_date": "20260921",
+      "conditions": [{"type": "price_below", "value": 60}],
+      "action": {"type": "notify", "note": "60元整数关口失守: 验证桃哥'大资金尾盘护盘'判断是否失效, 次新情绪转弱信号; 只记录不参与(R8)"},
+      "source": "analysis/2026-09-18: 9/21验证是否守住60元"
+    },
+    {
+      "id": "shengu-frenzy-0921", "strategy": "taoge", "code": "sh601091", "name": "N沈鼓集团",
+      "side": "watch", "valid_date": "20260921",
+      "conditions": [{"type": "pct_above", "value": 10}],
+      "action": {"type": "notify", "note": "次新单日再涨10%+: 情绪外溢确认, 记录是否带动同批次新/主板情绪; 仍不追(R8)"},
+      "source": "analysis/2026-09-18: 次新情绪是否外溢"
+    },
+    {
+      "id": "shengu-crash-0921", "strategy": "taoge", "code": "sh601091", "name": "N沈鼓集团",
+      "side": "watch", "valid_date": "20260921",
+      "conditions": [{"type": "pct_below", "value": -15}],
+      "action": {"type": "notify", "note": "次新单日-15%以上: 载入史册行情的第二天就走A, 记录大资金护盘叙事破产的速度"},
+      "source": "analysis/2026-09-18 + 历史参照盟固利次日走势"
+    },
+    {
+      "id": "idx-defensive-0921", "strategy": "k3", "code": "sh000001", "name": "上证指数",
+      "side": "watch", "valid_date": "20260921",
+      "conditions": [{"type": "pct_below", "value": -1.5}],
+      "action": {"type": "notify", "note": "指数-1.5%: 防守regime加深, 周二watchlist应进一步收缩; k3继续空仓"},
+      "source": "k3 v0.2 regime三态: 高度4板退潮期指数大跌=防守确认"
+    },
+    {
+      "id": "idx-repair-0921", "strategy": "k3", "code": "sh000001", "name": "上证指数",
+      "side": "watch", "valid_date": "20260921",
+      "conditions": [{"type": "pct_above", "value": 1}],
+      "action": {"type": "notify", "note": "指数+1%: 情绪修复信号, 晚间会话评估regime是否从防守切中性, 影响9/22 watchlist开仓空间"},
+      "source": "k3 v0.2 regime切换观察"
+    }
+  ]
+}

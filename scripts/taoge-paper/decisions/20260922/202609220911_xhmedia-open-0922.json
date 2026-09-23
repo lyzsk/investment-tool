@@ -1,0 +1,24 @@
+{
+ "decision_time": "202609220911",
+ "strategy": "taoge",
+ "trigger_id": "xhmedia-open-0922",
+ "code": "sh600825",
+ "name": "新华传媒",
+ "side": "watch",
+ "info_cutoff": "202609220911",
+ "price_seen": 5.84,
+ "prev_close": 5.84,
+ "day_amount": 0,
+ "conditions": [
+  {
+   "type": "pct_below",
+   "value": 5
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "新华传媒从涨停回落到+5%以下=一字板开板: 字辈退潮预警(R10 exit条件), 华字辈持仓者(桃哥: 新华网/新华医疗/新华都)应撤"
+ },
+ "source": "analysis/2026-09-21 + R10: 龙头开板翻绿=字辈全面退潮",
+ "verdict": "notify_only"
+}
