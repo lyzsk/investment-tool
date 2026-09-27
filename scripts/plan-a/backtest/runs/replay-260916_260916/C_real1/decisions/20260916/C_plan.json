@@ -1,0 +1,14 @@
+{
+ "group": "C",
+ "date": "20260916",
+ "gran": "m5",
+ "info_cutoff": "202609152359",
+ "rule_cutoff": "T-1",
+ "llm": {
+  "mode": "real",
+  "polluted": [
+   " cutoff后日期:20260916"
+  ]
+ },
+ "items": []
+}

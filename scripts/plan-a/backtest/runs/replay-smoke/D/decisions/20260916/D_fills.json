@@ -1,0 +1,16 @@
+[
+ {
+  "id": "mock-d-taiji",
+  "code": "sh600667",
+  "name": "太极实业",
+  "side": "buy",
+  "trigger_bar": "202609160940",
+  "fill_bar": "202609160945",
+  "verdict": "filled",
+  "px": 19.22,
+  "qty": 1000,
+  "fee": 4.8,
+  "note": "mock辨识度红盘抗跌",
+  "source": "mock:R9思路"
+ }
+]

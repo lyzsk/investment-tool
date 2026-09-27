@@ -30,20 +30,6 @@ public class ProjectConfig {
     /* markdown 配置 */
     private Markdown markdown = new Markdown();
 
-    // @Getter
-    // @Setter
-    // public static class FileUpload {
-    //     private String rootDir = System.getProperty("user.home") + "/dev/investment-tool/uploads";
-    //     private String maxSize = "10MB";
-    //     private List<String> allowedTypes = List.of("image/jpeg", "image/jpg", "image/png");
-    // }
-
-    // @Getter
-    // @Setter
-    // public static class FileDownload {
-    //     private String rootDir = System.getProperty("user.home") + "/dev/investment-tool/downloads";
-    // }
-
     @Getter
     @Setter
     public static class Markdown {
@@ -56,6 +42,7 @@ public class ProjectConfig {
     public static class File {
         private Upload upload = new Upload();
         private Download download = new Download();
+        private Result result = new Result();
 
         @Getter
         @Setter
@@ -68,6 +55,12 @@ public class ProjectConfig {
         @Getter
         @Setter
         public static class Download {
+            private String rootDir;
+        }
+
+        @Getter
+        @Setter
+        public static class Result {
             private String rootDir;
         }
     }

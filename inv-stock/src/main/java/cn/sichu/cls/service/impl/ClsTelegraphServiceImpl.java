@@ -21,22 +21,21 @@ import utils.DateTimeUtils;
 import utils.JsonUtils;
 import utils.TradingDayUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.time.format.DateTimeParseException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * @author sichu huang
@@ -51,6 +50,21 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
     private final ResourceLoader resourceLoader;
     private final ProjectConfig projectConfig;
     private final ClsHttpClient clsHttpClient;
+
+    private static Thread getThread(Process process, StringBuilder errBuf) {
+        Thread errThread = new Thread(() -> {
+            try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    errBuf.append(line).append('\n');
+                }
+            } catch (IOException ignored) {
+            }
+        });
+        errThread.setDaemon(true);
+        return errThread;
+    }
 
     @Override
     public int fetchAndSaveAllRedTelegraphs() {
@@ -141,7 +155,9 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
             List<ClsTelegraph> telegraphs = baseMapper.selectRedTelegraphs("B", start, end);
             String content = Files.readString(markdownFile, StandardCharsets.UTF_8);
             String newTelegraphContent = buildTelegraphContent(telegraphs);
-            String updatedContent = replaceTelegraphSection(content, newTelegraphContent);
+            // String updatedContent =  replaceTelegraphSection(content, newTelegraphContent);
+            String updatedContent =
+                replaceSection(content, "## 加红电报", "\n" + newTelegraphContent);
 
             Files.writeString(markdownFile, updatedContent, StandardCharsets.UTF_8);
             log.info("成功追加 {} 条加红电报到 {} (时间范围: {} ～ {})", telegraphs.size(),
@@ -187,7 +203,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
     }
 
     /**
-     * 保存电报
+     * 保存电报, "cls_wp_", "cls_sp_", "cls_wjzt_", "cls_zt_" 自动 OCR 填充 md
      *
      * @param itemNode itemNode
      * @return cn.sichu.cls.entity.ClsTelegraph
@@ -238,12 +254,16 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
             log.info("新增电报: id={}, title={}", clsId, telegraph.getTitle());
             if (isWuPingItem(itemNode)) {
                 downloadFirstImage(telegraph, "cls_wp_");
+                ocrAndAppendMarkDown("wp", "午评");
             } else if (isShouPingItem(itemNode)) {
                 downloadFirstImage(telegraph, "cls_sp_");
+                ocrAndAppendMarkDown("sp", "收评");
             } else if (isWuJianZhangTingAnalysisItem(itemNode)) {
                 downloadAllButLastImage(telegraph, "cls_wjzt_");
+                ocrAndAppendMarkDown("wjzt", "午间涨停分析");
             } else if (isZhangTingAnalysisItem(itemNode)) {
                 downloadAllButLastImage(telegraph, "cls_zt_");
+                ocrAndAppendMarkDown("zt", "涨停分析");
             }
             return telegraph;
         }
@@ -583,25 +603,239 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
      * @author sichu huang
      * @since 2026/01/14 13:00:54
      */
-    private String replaceTelegraphSection(String markdown, String newContent) {
-        String marker = "## 加红电报";
+    // private String replaceTelegraphSection(String markdown, String newContent) {
+    //     String marker = "## 加红电报";
+    //     int markerIndex = markdown.indexOf(marker);
+    //     if (markerIndex == -1) {
+    //         /* 模板异常缺失, 兜底追加 */
+    //         return markdown.trim() + "\n\n" + marker + "\n" + newContent;
+    //     }
+    //
+    //     /* 找到 marker 行的结束位置(含换行) */
+    //     int endOfMarkerLine = markdown.indexOf('\n', markerIndex);
+    //     if (endOfMarkerLine == -1) {
+    //         endOfMarkerLine = markdown.length();
+    //     }
+    //
+    //     /* 找下一个二级标题或文件结尾 */
+    //     int nextSection = markdown.indexOf("\n## ", endOfMarkerLine + 1);
+    //     int contentEnd = (nextSection == -1) ? markdown.length() : nextSection;
+    //
+    //     String before = markdown.substring(0, endOfMarkerLine + 1);
+    //     String after = markdown.substring(contentEnd);
+    //     return before + "\n" + newContent + after;
+    // }
+
+    /**
+     * cls 图下载成功后: OCR 解析 -> 填入当天 md 的对应 ## 小节
+     * scripts/fill_cls_md.py; 解析器 scripts/cls_image_ocr.py
+     * 失败只告警不写 md: 图不存在/python 非0退出(PARSE_FAIL)/小节已有人工内容
+     *
+     * @param imgSuffix   文件名 cls_{suffix}_HHmmss_1.*
+     * @param sectionName md 小节名 午评/收评/午间涨停分析/涨停分析
+     * @author sichu huang
+     * @since 2026/09/25 15:23:19
+     */
+    private void ocrAndAppendMarkDown(String imgSuffix, String sectionName) {
+        try {
+            /* 1. 收集当天图: downloads/cls/yyyy.MM.dd/cls_{suffix}_时间戳_N.*
+            同一天电报若重发会有多组时间戳, 只取最新一组, 组内按 N 升序 */
+            String dateStr = DateTimeUtils.getDotDateStr(LocalDateTime.now());
+            Path clsDir =
+                Paths.get(projectConfig.getFile().getDownload().getRootDir(), "cls", dateStr);
+            if (!Files.isDirectory(clsDir)) {
+                log.warn("cls 图目录不存在, 跳过 OCR 填 md: {}", clsDir);
+                return;
+            }
+            Pattern namePattern = Pattern.compile("cls_" + imgSuffix + "_(\\d{14})_(\\d+)\\..+");
+            String latestTs = "";
+            List<Path> imageFiles;
+            Map<String, List<Path>> byTs = new HashMap<>();
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(clsDir,
+                "cls_" + imgSuffix + "_*_*.*")) {
+                for (Path p : stream) {
+                    Matcher m = namePattern.matcher(p.getFileName().toString());
+                    if (m.matches()) {
+                        byTs.computeIfAbsent(m.group(1), k -> new ArrayList<>()).add(p);
+                        if (m.group(1).compareTo(latestTs) > 0) {
+                            latestTs = m.group(1);
+                        }
+                    }
+                }
+            }
+            if (byTs.isEmpty()) {
+                log.warn("当天 {} 图不存在, 跳过 OCR 填 md: {}", imgSuffix, clsDir);
+                return;
+            }
+            imageFiles = byTs.get(latestTs);
+            /* 按序号 N 升序(_1 是大长图上半, _2 是下半...) */
+            imageFiles.sort(Comparator.comparingInt(p -> {
+                Matcher m = namePattern.matcher(p.getFileName().toString());
+                return m.matches() ? Integer.parseInt(m.group(2)) : 0;
+            }));
+
+            /* 2. 定位当天 md, 三态判断(空/空表模板才填, 人工内容跳过保人工) */
+            LocalDate today = LocalDate.now();
+            Path markdownFile = Paths.get(projectConfig.getMarkdown().getRootDir(),
+                DateTimeUtils.getQuarterStr(today), today.format(DateTimeUtils.YYYY_MM_DD) + ".md");
+            if (!Files.exists(markdownFile)) {
+                log.warn("Markdown 文件不存在, 无法填入 {}: {}", sectionName, markdownFile);
+                return;
+            }
+            String content = Files.readString(markdownFile, StandardCharsets.UTF_8);
+            String marker = "## " + sectionName;
+            String body = sectionBody(content, marker);
+            if (body == null) {
+                log.warn("md 中无 {} 小节, 跳过: {}", marker, markdownFile);
+                return;
+            }
+            String trimmed = body.trim();
+            boolean empty = trimmed.isEmpty();
+            boolean emptyTemplate =
+                trimmed.contains("大于+8%") && !Pattern.compile("\\d+\\s*(家|<br>)")
+                    .matcher(trimmed).find();
+            if (!empty && !emptyTemplate) {
+                log.info("{} 小节已有内容(人工或已 OCR), 跳过", marker);
+                return;
+            }
+
+            /* 3. 逐张调 python OCR(附录 B: 工作目录=项目根, 两流读干, 超时兜底), 任一 PARSE_FAIL 则整组不写(宁缺毋错) */
+            Path projectRoot =
+                Paths.get(projectConfig.getFile().getDownload().getRootDir()).getParent();
+            StringBuilder merged = new StringBuilder();
+            for (Path imageFile : imageFiles) {
+                Path venvPy = projectRoot.resolve("scripts/venv/Scripts/python.exe");
+                String pythonExe = Files.isRegularFile(venvPy) ? venvPy.toString() : "python";
+                ProcessBuilder pb = new ProcessBuilder(pythonExe,
+                    projectRoot.resolve("scripts/cls_image_ocr.py").toString());
+                pb.directory(projectRoot.toFile());
+                Process process = pb.start();
+                /* stderr 起线程读干, 防缓冲区满死锁 */
+                StringBuilder errBuf = new StringBuilder();
+                Thread errThread = getThread(process, errBuf);
+                errThread.start();
+                /* stdout 必须 UTF-8: python 侧已 reconfigure, 默认 GBK 读会乱码 */
+                StringBuilder outBuf = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        outBuf.append(line).append('\n');
+                    }
+                }
+                boolean finished = process.waitFor(5, TimeUnit.MINUTES);
+                if (!finished) {
+                    process.destroyForcibly();
+                    log.warn("OCR 超时(5min), 整组跳过: {} {}", sectionName, imageFile);
+                    return;
+                }
+                if (process.exitValue() != 0) {
+                    log.warn("OCR PARSE_FAIL: {} {} | {}", sectionName, imageFile.getFileName(),
+                        errBuf.toString().trim());
+                    return;
+                }
+                String one = outBuf.toString().trim();
+                if (one.isEmpty()) {
+                    log.warn("OCR 输出为空, 整组跳过: {} {}", sectionName, imageFile.getFileName());
+                    return;
+                }
+                if (!merged.isEmpty()) {
+                    merged.append("\n\n");
+                }
+                merged.append(one);
+            }
+
+            /* 4. 替换小节写盘 */
+            String updated = replaceSection(content, marker, "\n" + merged + "\n");
+            Files.writeString(markdownFile, updated, StandardCharsets.UTF_8);
+            log.info("OCR 填入 {} 成功, 共 {} 张图 <- 最新组 {}", marker, imageFiles.size(),
+                latestTs);
+        } catch (Exception e) {
+            log.error("OCR 填 md 失败: {} {}", imgSuffix, sectionName, e);
+        }
+    }
+
+    /**
+     * 取 marker 小节正文(marker 行到下一个 ## 行之间), 无小节返回 null
+     *
+     * @param markdown markdown
+     * @param marker   如 "## 午评"
+     * @return java.lang.String
+     * @author sichu huang
+     * @since 2026/09/25 15:37:25
+     */
+    private String sectionBody(String markdown, String marker) {
+        int markerIndex = markdown.indexOf(marker);
+        if (markerIndex == -1) {
+            return null;
+        }
+        int endOfMarkerLine = markdown.indexOf('\n', markerIndex);
+        if (endOfMarkerLine == -1) {
+            return "";
+        }
+        int nextSection = markdown.indexOf("\n## ", endOfMarkerLine + 1);
+        int contentEnd = (nextSection == -1) ? markdown.length() : nextSection;
+        return markdown.substring(endOfMarkerLine + 1, contentEnd);
+    }
+
+    /**
+     * 替换 marker 小节正文
+     *
+     * @param markdown   markdown
+     * @param marker     如 "## 午评"
+     * @param newContent 新正文(含首尾换行)
+     * @return java.lang.String
+     * @author sichu huang
+     * @since 2026/09/25 15:38:22
+     */
+    private String replaceSection(String markdown, String marker, String newContent) {
         int markerIndex = markdown.indexOf(marker);
         if (markerIndex == -1) {
             /* 模板异常缺失, 兜底追加 */
             return markdown.trim() + "\n\n" + marker + "\n" + newContent;
         }
-
-        /* 找到 marker 行的结束位置(含换行) */
         int endOfMarkerLine = markdown.indexOf('\n', markerIndex);
-        if (endOfMarkerLine == -1)
+        if (endOfMarkerLine == -1) {
             endOfMarkerLine = markdown.length();
-
-        /* 找下一个二级标题或文件结尾 */
+        }
         int nextSection = markdown.indexOf("\n## ", endOfMarkerLine + 1);
         int contentEnd = (nextSection == -1) ? markdown.length() : nextSection;
-
         String before = markdown.substring(0, endOfMarkerLine + 1);
         String after = markdown.substring(contentEnd);
-        return before + "\n" + newContent + after;
+        return before + newContent + after;
+    }
+
+    @Override
+    public String cleanupLocalImages(int retentionDays) {
+        Path clsDir = Paths.get(projectConfig.getFile().getDownload().getRootDir(), "cls");
+        if (!Files.isDirectory(clsDir)) {
+            return "cls 图片目录不存在, 跳过";
+        }
+        LocalDate cutoff = LocalDate.now().minusDays(retentionDays);
+        int removed = 0, failed = 0;
+        try (Stream<Path> dirs = Files.list(clsDir)) {
+            for (Path dayDir : dirs.filter(Files::isDirectory).toList()) {
+                try {
+                    /* 非日期目录跳过 */
+                    if (LocalDate.parse(dayDir.getFileName().toString(), DateTimeUtils.YYYYMMDD_DOT)
+                        .isBefore(cutoff)) {
+                        try (Stream<Path> walk = Files.walk(dayDir)) {
+                            for (Path p : walk.sorted(Comparator.reverseOrder()).toList()) {
+                                Files.deleteIfExists(p);
+                            }
+                        }
+                        removed++;
+                    }
+                } catch (DateTimeParseException e) {
+                    /* 非日期目录, 跳过 */
+                } catch (Exception e) {
+                    log.error("cls 图片目录删除失败 {}: {}", dayDir, e.getMessage());
+                    failed++;
+                }
+            }
+        } catch (Exception e) {
+            return "cls 图片清理异常: " + e.getMessage();
+        }
+        return String.format("cls图片清理 %d 个日期目录/失败 %d", removed, failed);
     }
 }

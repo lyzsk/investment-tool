@@ -1,21 +1,32 @@
 # scripts/ 目录说明
 
-本目录分四块：**桃哥管线**(bilibili-taoge/)、**东财快照**(dfcf/)、**AI 自研策略 k3-inv**(k3-inv/)、以及项目原有的根目录脚本。
+本目录分五块：**plan-a**(学桃哥管线， 收益率最高)、**plan-b**(转债日内， 目前日内最强， 骨架待建)、**plan-c**(AI 自研策略， 原 k3-inv, 最弱缺参考系)、**东财快照**(dfcf/)、以及项目原有的根目录脚本。
+
+> 三计划定位(2026-09-24 用户定): plan-a=学桃哥(有参考系=桃哥视频) / plan-b=转债(有参考系=用户自己实盘+高手语料) / plan-c=AI 自学(无参考系, 最弱——同花顺大赛/淘股吧高手语料采集就是为了给它补参考系)。
+> 2026-09-24 改名: `bilibili-taoge/` → `plan-a/`, `k3-inv/` → `plan-c/`。策略 ID 不变(决策日志里仍叫 taoge/k3), 只动目录名。
 
 ---
 
-## bilibili-taoge/ — 桃哥管线（audio → text → 纠错 → 注入 md → 学习 → 回测）
+## plan-a/（原 bilibili-taoge/）— 桃哥管线（audio → text → 纠错 → 注入 md → 学习 → 回测）
 
 针对 B站 UP主「股市-目标1000万的股桃」(mid=625315686) 的完整流水线。
 
 ### 采集与转写
 | 脚本 | 用途 |
 |---|---|
-| `fetch_taoge.mjs` | 抓桃哥最新视频列表（B站 API，无 cookie)，对比本地判断有无更新 |
+| `fetch_bilibili_taoge.mjs`（在 scripts/ 根，9/27 起） | 桃哥视频发现+产物下载（由 fetch_taoge/fetch_video 合并）: `--list` 只发现（Java handler 消费）; `--bvid X --out 目录` 一次拿 mp4+m4a+json(playurl 一次请求取 dash 双轨，产物已存在则跳过） |
+| `process_video.py`（在 scripts/ 根，9/27 起） | 视频处理全管线（transcribe+correct_names+vision_extract+aggregate_pages 四合一体）: ASR→纠错→7B视觉→pages聚合 → `<out>/<bvid>.txt+raw.txt+tsv+vision.json`。`--bvid --mp4 --m4a --out`, `--stage asr,correct,vision,aggregate`, 幂等跳已完成阶段 |
 | `crawl_index.mjs` | BFS 爬全部历史视频索引 → `downloads/index.json`(archive/related API) |
 | `backfill_prepare.mjs` | 用 index.json ∩ stocks/*.md 日期，生成追溯下载工作清单 |
 | `coverage_report.mjs` | 覆盖率报告： index.json 日期 vs stocks 已有 md，看缺哪些天 |
-| `transcribe.py` | faster-whisper 单文件转写 m4a → txt（用本目录 venv) |
+| `transcribe.py` | （9/27 已并入 scripts/process_video.py, 文件已删） |
+| `vision_extract.py` | （9/27 已并入 scripts/process_video.py, 文件已删） |
+| `setup_vision.sh` | 视觉/OCR 环境一键安装固化（9/24 晚）: venv依赖+torch cu124本地wheel+Qwen2.5-VL-7B模型，幂等。`bash setup_vision.sh` |
+| `inject_vision.py` | vision JSON → md `### 桃哥` 下插 `#### 画面`（口述未提增量/互证/板块指数）; 名≥2帧投票或OCR确认， 代码只采信OCR同屏共现投票（号段过滤+严格多数） |
+| `batch_vision_q3.sh` | ⚠️历史归档（Q3 视觉管线批量已完成；引用的 fetch_video/vision_extract 已删，勿直接重跑） |
+| `aggregate_pages.py` | （9/27 已并入 scripts/process_video.py, 文件已删） |
+| `batch_vision2_q3.sh` | ⚠️历史归档（Q3 58 视频 Vision2.0 重跑已完成；引用的 vision_extract/aggregate_pages 已并入 scripts/process_video.py, 勿直接重跑） |
+| `synthesize_prompt.md` + `batch_synthesize_q3.sh` | 合并综合陈述批量合成（headless claude -p, 倒叙近两周优先， 断点=无####解读/画面）: 转写+vision pages+analysis → 五要点合并， 删 #### 画面/解读 |
 | `batch_transcribe.py` | 批量转写 downloads/audio/*.m4a → downloads/txt/，可断点续跑 |
 | `watch_and_inject.mjs` | 等 small 批跑完 → 自动纠错+注入 md（一次性看护） |
 | `watch_and_medium.mjs` | 等 small 批完 → 自动启动 medium 模型重跑 |
@@ -24,7 +35,7 @@
 ### 纠错与注入
 | 脚本 | 用途 |
 |---|---|
-| `correct_names.py` | 股名纠错 v4: jieba + 拼音反查 + 首字母校验 + 实体锚定（SK海力士类）。`python correct_names.py <输入目录> <输出目录>`，字典 `downloads/entity_dict.json` |
+| `correct_names.py` | （9/27 已并入 scripts/process_video.py, 文件已删；字典仍在 downloads/stock_dict.json+entity_dict.json) |
 | `inject_md.mjs` | 把转写+解读注入 stocks/*/YYYY-MM-DD.md 的 `## 复盘 → ### 桃哥 → #### 解读`。`--dir <txt目录> --replace` 替换已有小节 |
 | `extract_prompt.md` | 从转写文本提取"解读"JSON 的 LLM prompt（大盘判断/提及个股/操作/风格规则） |
 
@@ -60,7 +71,7 @@ powershell -ExecutionPolicy Bypass -File em.ps1 -Action hide                   #
 
 ---
 
-## k3-inv/ — AI 自研操盘策略（非桃哥）
+## plan-c/（原 k3-inv/）— AI 自研操盘策略（非桃哥）
 
 k3-inv = k3(我) + 用户引导， 纯 AI 策略： **加红电报(催化) × 威科夫(结构) × 李大霄(选股与心性) × AI 综合仲裁**, 与桃哥管线并列对照（plan A = 学桃哥情绪周期， k3-inv = 质量过滤的催化跟随, 标的池几乎不重叠）。
 
@@ -75,9 +86,18 @@ SQL 表设计在 `sql/k3inv.sql`(6 表： signal/watch/strategy/run/decision/tra
 
 ---
 
+## plan-b/ — 转债日内策略（骨架， 2026-09-24 新增）
+
+用户实盘转债日内线（目前三计划中日内最强, 但无代码无沉淀）。只有 README: 定位/待回答的第一性问题/数据需求(交割单导出、集思录溢价率、强赎下修日历)。建设顺序见 `docs/TODO.md`。
+
+---
+
 ## 根目录（项目原有， 非本次新增）
 | 脚本 | 用途 |
 |---|---|
 | `format-markdown.mjs` | md 格式化， **被 Java 后端 MarkdownFormatServiceImpl 通过 ProcessBuilder 调用**，勿动接口 |
-| `fetch_holidays_cn.py` | 抓中国节假日数据（inv-common resources/holiday/*.json 的来源） |
-| `ocr_zdfb.py` | 早期 OCR 涨停分析图片的实验脚本（现 OCR 已由 Java Tess4j 承担） |
+| `cls_image_ocr.py` | 财联社图自动填 md(9/24 晚， 全本地 OCR 0 token): `python cls_image_ocr.py <图> --type wp|sp|wjzt|zt` → stdout(UTF-8）出 md 小节内容（wp→午评/wjzt→午间涨停分析/sp→收评/zt→涨停分析）; 校验不过非0退出 PARSE_FAIL。依赖见 requirements-cls.txt(`pip install -r scripts/requirements-cls.txt`, 任意 python 环境均可; 本机用 scripts/venv 隔离)； 9月 wp/sp 30/30 + wjzt/zt 7图全 PASS |
+| `fill_cls_md.py` | cls 图批量填 md(9/24 晚, Q3 一次性回填已完成): `--from/--to/--overwrite/--backup`; PARSE_FAIL 只告警不写。**保留原因**: wjzt 23 天 PARSE_FAIL 待 Java 侧修解析器后, 历史回填仍走它(Java 只有日常增量入口), 回填完成可删。同 requirements-cls.txt |
+| `requirements-cls.txt` | 根目录脚本 python 依赖(9/25, 从 plan-a/venv 剥离): 只装 rapidocr/onnxruntime/opencv/numpy/pillow ~300MB, 版本与 plan-a 实测一致 |
+| `fetch_holidays_cn.py` | 抓中国节假日数据（inv-common resources/holiday/*.json 的来源, 每年需重跑） |
+| ~~`ocr_zdfb.py`~~ | 已删(9/27): 早期实验脚本, OCR 已由 Java Tess4j 承担, 零引用 |

@@ -1,0 +1,26 @@
+# investment-tool 桃哥管线(ASR + 7B 视觉)依赖, 装进 scripts/venv
+# 2026-09-25 从 plan-a/venv 剥离: 版本与实测通过的完全一致
+#
+# 安装顺序(重要, torch 必须先单独装):
+#   1) torch/torchvision cu124 用本地 wheel(已在 scripts/plan-a/downloads/,
+#      官网按 IP 限速 0.2-2MB/s, 别重下; --no-deps 防止连带装 cpu 版覆盖):
+#      scripts/venv/Scripts/python.exe -m pip install --no-deps \
+#        scripts/plan-a/downloads/torch-2.6.0+cu124-cp313-cp313-win_amd64.whl \
+#        scripts/plan-a/downloads/torchvision-0.21.0+cu124-cp313-cp313-win_amd64.whl
+#      (新机器没有 wheel 就去 https://download.pytorch.org/whl/cu124/ 下同名文件)
+#   2) 其余依赖:
+#      scripts/venv/Scripts/python.exe -m pip install -r scripts/requirements-taoge.txt
+#      (requirements-cls.txt 也要装, 两边共享 numpy/opencv/rapidocr)
+#   3) Qwen2.5-VL-7B 模型 ~15GB, vision_extract.py --download-model 走 modelscope(85MB/s)
+faster-whisper==1.2.1
+ctranslate2==4.8.2
+av==18.1.0
+transformers==5.17.0
+tokenizers==0.23.2
+accelerate==1.15.0
+safetensors==0.8.0
+huggingface_hub==1.32.0
+qwen-vl-utils==0.0.14
+modelscope==1.40.1
+jieba==0.42.1
+pypinyin==0.55.0

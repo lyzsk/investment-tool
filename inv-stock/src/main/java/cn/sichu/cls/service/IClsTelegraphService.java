@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public interface IClsTelegraphService extends IService<ClsTelegraph> {
 
     /**
-     * 拉取并保存所有 level="B" 的电报(加红电报)
+     * 拉取并保存所有 level="B" 的电报(加红电报, OCR 自动填充 午评, 收评, 午间涨停分析, 涨停分析)
      *
      * @return int
      * @author sichu huang
@@ -45,4 +45,15 @@ public interface IClsTelegraphService extends IService<ClsTelegraph> {
      * @since 2026/01/14 12:50:35
      */
     boolean appendRedTelegraphs(LocalDate date);
+
+    /**
+     * 物理删除 downloads/cls/<yyyy.MM.dd>/ 下超过 retentionDays 天的日期目录(按目录名日期判定)
+     * DB cls_telegraph.images 存的是远程 URL, 删本地文件不动表
+     *
+     * @param retentionDays 保留天数
+     * @return java.lang.String "cls图片清理 x 个日期目录/失败 y"
+     * @author sichu huang
+     * @since 2026/09/27 12:26:27
+     */
+    String cleanupLocalImages(int retentionDays);
 }

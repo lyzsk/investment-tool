@@ -1,20 +1,26 @@
 {
- "as_of": "20260923",
- "cash": 90574.25,
+ "as_of": "20260925",
+ "cash": 100108.09,
  "nav_start": 100475.4,
- "positions": [
+ "positions": [],
+ "closed_trades": [
   {
    "code": "sz300058",
    "name": "蓝色光标",
    "qty": 700,
    "cost": 13.83,
+   "sell_px": 13.63,
    "feeB": 2.42,
+   "feeS": 7.16,
+   "pnl": -149.58,
    "buy_date": "20260923",
    "buy_bar": "202609230931",
-   "trigger_id": "bluefocus-buy-0923"
-  }
- ],
- "closed_trades": [
+   "sell_date": "20260924",
+   "sell_bar": "202609240931",
+   "trigger_buy": "bluefocus-buy-0923",
+   "trigger_sell": "bluefocus-sell-rebound-0924",
+   "note": "R4+既定exit_plan: 次日不延续, 早盘反弹回水上(13.63>昨收13.52)机械撤离, 亏-1.4%认输出局"
+  },
   {
    "code": "sz002264",
    "name": "新华都",

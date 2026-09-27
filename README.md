@@ -52,6 +52,8 @@
     npm install prettier`
     ```
     requirements for fetch_holidays_cn.py: `pip install requests`
+    requirements for cls_image_ocr.py: `pip install -r scripts/requirements-cls.txt`
+    requirements for 桃哥管线 ASR+7B(process_video.py): `pip install -r scripts/requirements-taoge.txt`(torch cu124 需先装本地 wheel, 见文件头注释)
     ```bash
     cd investment-tool/
     python scripts/fetch_holidays_cn.py

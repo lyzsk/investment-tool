@@ -15,7 +15,7 @@ let lastQuotes = {};   // 每轮轮询更新的全量快照(wake附关联票用,
 import { dbRow, hashchain, hole, wakeLog } from './dblog.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
-const KLINE_DIR = path.join(ROOT, '..', 'bilibili-taoge', 'downloads', 'kline');
+const KLINE_DIR = path.join(ROOT, '..', 'plan-a', 'downloads', 'kline');
 const args = process.argv.slice(2);
 const REPLAY = args.includes('--replay') ? args[args.indexOf('--replay') + 1] : null;
 const NO_WAKE = args.includes('--no-wake');

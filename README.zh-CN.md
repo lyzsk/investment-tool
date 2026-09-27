@@ -26,8 +26,8 @@
 
 # ✨ Features
 
-- [x] 申购/赎回交易自动记账: 根据输入值(买入交易: 基金代码, 金额, 交易申请日, 交易平台; 卖出交易: 基金代码, 份额, 交易申请日, 交易平台), 自动推算交易所属日/交易确认日/交易到账日/手续费/净值/份额/交易状态等
-- [x] 自动更新持仓数据: 合计金额/合计手续费/持仓份额/持有天数, 每日 00:00 更新交易状态和对应数据, 每日 20:00 - 23:00 每小时自动爬取数据更新净值
+- [x] 申购 / 赎回交易自动记账: 根据输入值 (买入交易: 基金代码, 金额, 交易申请日, 交易平台; 卖出交易: 基金代码, 份额, 交易申请日, 交易平台), 自动推算交易所属日 / 交易确认日 / 交易到账日 / 手续费 / 净值 / 份额 / 交易状态等
+- [x] 自动更新持仓数据: 合计金额 / 合计手续费 / 持仓份额 / 持有天数, 每日 00:00 更新交易状态和对应数据, 每日 20:00 - 23:00 每小时自动爬取数据更新净值
 - [x] 根据 template 自动导出 excel: 交易账单工作簿, 交易分析工作簿
 - [ ] 交易自动计算收益, 自动分析
 - [x] OCR 识别图片转化为数据和表格
@@ -45,6 +45,7 @@
     npm install prettier`
     ```
     requirements for fetch_holidays_cn.py: `pip install requests`
+    requirements for cls_image_ocr.py: `pip install -r scripts/requirements-cls.txt`
     ```bash
     cd investment-tool/
     python scripts/fetch_holidays_cn.py

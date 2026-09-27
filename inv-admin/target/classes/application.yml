@@ -12,6 +12,8 @@ project:
         - image/png
     download:
       root-dir: ${project.root-dir}/downloads
+    result:
+      root-dir: ${project.root-dir}/results
   markdown:
     root-dir: ${project.root-dir}/stocks
     template-path: classpath:templates/stock-template.md

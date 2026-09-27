@@ -1,6 +1,6 @@
 // wechat_sync.mjs — 每日微信对话同步: hermes agent.log → wechat/<date>.md
 // 目的(2026-09-22 用户指令): 用户盘中通过微信clawbot和hermes(kimi)的对话=用户盘中所想,
-// 每晚回家同步给两个交易agent(taoge-paper/k3-inv), 场景复盘升级为"用户 vs Claude vs 桃哥"三方对照。
+// 每晚回家同步给交易agent(taoge-paper/plan-c), 场景复盘升级为"用户 vs Claude vs 桃哥"三方对照。
 // 用法: node wechat_sync.mjs [--date 20260922]   缺省=今天
 // 闭环: 日志缺失/无消息也产出文件(注明原因), 不抛异常给调用方。
 import fs from 'fs';

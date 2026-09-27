@@ -16,3 +16,10 @@
 {"trade_date":"2026-09-23","stock_code":"sh600825","open":7.06,"high":7.06,"low":7.06,"close":7.06,"volume":4579200,"amount":32329152,"pct_chg":9.97,"source":"tencent_m5_agg"}
 {"trade_date":"2026-09-23","stock_code":"sh601091","open":36,"high":36.5,"low":29.96,"close":30,"volume":117702100,"amount":3881609834.0661006,"pct_chg":-21.01,"source":"tencent_m5_agg"}
 {"trade_date":"2026-09-23","stock_code":"sz002714","open":41.81,"high":42,"low":41.33,"close":41.4,"volume":19880000,"amount":825293872.7769002,"pct_chg":-1.1,"source":"tencent_m5_agg"}
+{"trade_date":"2026-09-24","stock_code":"sh000001","open":3925.323,"high":3930.496,"low":3888.374,"close":3888.374,"volume":43853041200,"amount":783612968960,"pct_chg":-1.22,"source":"tencent_m5_agg"}
+{"trade_date":"2026-09-24","stock_code":"sz300058","open":13.38,"high":13.74,"low":13.14,"close":13.15,"volume":178277300,"amount":2390459712.4946995,"pct_chg":-2.74,"source":"tencent_m5_agg"}
+{"trade_date":"2026-09-24","stock_code":"sh600667","open":20.17,"high":20.24,"low":19.4,"close":19.41,"volume":154324700,"amount":3053364001.859901,"pct_chg":-5.73,"source":"tencent_m5_agg"}
+{"trade_date":"2026-09-24","stock_code":"sh600127","open":16.74,"high":17.05,"low":15.29,"close":16.49,"volume":265009000,"amount":4316129306.818399,"pct_chg":-1.55,"source":"tencent_m5_agg"}
+{"trade_date":"2026-09-24","stock_code":"sh600825","open":7.77,"high":7.77,"low":7.77,"close":7.77,"volume":5980100,"amount":46465314.84030001,"pct_chg":10.06,"source":"tencent_m5_agg"}
+{"trade_date":"2026-09-24","stock_code":"sh601091","open":27.7,"high":28.86,"low":27,"close":27,"volume":55173800,"amount":1521369024.0103,"pct_chg":-10,"source":"tencent_m5_agg"}
+{"trade_date":"2026-09-24","stock_code":"sz002714","open":41.3,"high":41.34,"low":40.42,"close":40.48,"volume":27200500,"amount":1106455754.7733002,"pct_chg":-2.22,"source":"tencent_m5_agg"}

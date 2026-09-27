@@ -1,49 +1,7 @@
--- investment_tool 桃哥管线 DDL
+-- investment_tool 桃哥管线 DDL(回测相关表)
 -- 公共字段遵循 BaseEntity: id/status/create_by/create_time/update_by/update_time/is_deleted/delete_by/delete_time/remark
-
--- 1. 桃哥视频索引
-CREATE TABLE `taoge_video` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `bvid` varchar(16) NOT NULL COMMENT 'B站BV号',
-  `title` varchar(500) DEFAULT NULL,
-  `pubdate` datetime(6) NOT NULL COMMENT '发布时间',
-  `trade_date` date NOT NULL COMMENT '归属交易日',
-  `duration` int DEFAULT NULL COMMENT '时长(秒)',
-  `url` varchar(200) DEFAULT NULL,
-  `status` tinyint DEFAULT '0' COMMENT '0-成功, 1-失败',
-  `create_by` bigint DEFAULT NULL,
-  `create_time` datetime(6) DEFAULT NULL,
-  `update_by` bigint DEFAULT NULL,
-  `update_time` datetime(6) DEFAULT NULL,
-  `is_deleted` tinyint DEFAULT '0' COMMENT '0-未删除, 1-已删除',
-  `delete_by` bigint DEFAULT NULL,
-  `delete_time` datetime(6) DEFAULT NULL,
-  `remark` varchar(500) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_bvid` (`bvid`),
-  KEY `idx_trade_date` (`trade_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- 2. 语音转写(原文+纠错文, 按模型版本存)
-CREATE TABLE `taoge_transcript` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `bvid` varchar(16) NOT NULL,
-  `asr_model` varchar(20) NOT NULL COMMENT 'small/medium',
-  `raw_text` longtext COMMENT 'ASR原文',
-  `fixed_text` longtext COMMENT '股名纠错后文本',
-  `corrections` json DEFAULT NULL COMMENT '纠错明细[{from,to,level}]',
-  `status` tinyint DEFAULT '0' COMMENT '0-成功, 1-失败',
-  `create_by` bigint DEFAULT NULL,
-  `create_time` datetime(6) DEFAULT NULL,
-  `update_by` bigint DEFAULT NULL,
-  `update_time` datetime(6) DEFAULT NULL,
-  `is_deleted` tinyint DEFAULT '0' COMMENT '0-未删除, 1-已删除',
-  `delete_by` bigint DEFAULT NULL,
-  `delete_time` datetime(6) DEFAULT NULL,
-  `remark` varchar(500) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_bvid_model` (`bvid`, `asr_model`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- 注意(2026-09-26): 视频索引表已独立为 sql/bilibili_video.sql(一表一文件约定, 通用化不限桃哥);
+--   原 taoge_video 删除; taoge_transcript 暂缓不建(产物=文件, 路径按 bvid 约定派生, step 状态机表达进度)
 
 -- 3. 每日提取(#### 解读 的结构化本体)
 CREATE TABLE `taoge_analysis` (

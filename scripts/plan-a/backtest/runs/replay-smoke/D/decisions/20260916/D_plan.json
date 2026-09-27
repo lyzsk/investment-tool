@@ -1,0 +1,47 @@
+{
+ "group": "D",
+ "date": "20260916",
+ "gran": "m5",
+ "info_cutoff": "202609152359",
+ "rule_cutoff": "T-1",
+ "llm": {
+  "mode": "mock",
+  "market_view": "mock(桃哥腔): 缩量市只做辨识度",
+  "n_items": 1
+ },
+ "items": [
+  {
+   "id": "mock-d-taiji",
+   "strategy": "llm",
+   "code": "sh600667",
+   "name": "太极实业",
+   "side": "buy",
+   "valid_date": "20260916",
+   "conditions": [
+    {
+     "type": "time_window",
+     "from": "09:31",
+     "to": "13:30"
+    },
+    {
+     "type": "index_pct_below",
+     "value": 0
+    },
+    {
+     "type": "pct_above",
+     "value": 0.5
+    }
+   ],
+   "evidence": [
+    "md:太极实业(sh600667)",
+    "kline:sh600667"
+   ],
+   "action": {
+    "type": "buy",
+    "max_amt": 20000,
+    "note": "mock辨识度红盘抗跌"
+   },
+   "source": "mock:R9思路"
+  }
+ ]
+}

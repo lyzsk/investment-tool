@@ -1,6 +1,6 @@
 {
  "_meta": {
-  "source": "bilibili-taoge/rules_spec.md v0.1 + backtest/runs/pilot-2week/report.md",
+  "source": "plan-a/rules_spec.md v0.1 + backtest/runs/pilot-2week/report.md",
   "principle": "每条规则带 learned_before — 该日期之前的回测/决策不得使用此规则(防未来函数)",
   "usage": "晚间会话产出 watchlist 时逐条对照; 新规则只能由当晚视频解读沉淀追加, 盘中不发明规则; R10-R12沉淀自2026-09-21视频; R13+R10退出修正沉淀自2026-09-22视频",
   "updated": "2026-09-23"

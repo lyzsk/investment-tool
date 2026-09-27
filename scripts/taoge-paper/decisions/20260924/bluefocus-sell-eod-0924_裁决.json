@@ -1,0 +1,7 @@
+{
+ "trigger_id": "bluefocus-sell-eod-0924",
+ "rule_id": "R4+R12",
+ "verdict": "reject",
+ "info_cutoff": "202609241431",
+ "reasoning": "R4/R12 learned_before(09-18/09-21)≤今日, 规则可用; 但paper_state.json显示sz300058已于今晨09:31以13.63反弹撤离(trigger=bluefocus-sell-rebound-0924, pnl-149.58), 当前positions为空无仓可卖。触发意图(节前不留弱仓)已由早盘成交以更高价实现, 批准将导致账本重复卖出, 故reject。"
+}

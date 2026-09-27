@@ -15,6 +15,8 @@ description: "Use when 桃哥paper试跑的三种会话: evening(晚间解读视
 - live 模式 sentinel 绝不自动成交; buy/sell 触发一律唤醒本 skill 的 checkpoint 模式裁决
 - **追认成交(retro-approval, 9/22 确立)**: checkpoint 因信息不足降级 notify 的 buy, 用户事后确认前提成立(如龙头封板)→ 按系统既定口径(触发 bar 的下一根 m5 开盘价)补入 paper_state, 标注 retro_approved_by/retro_note; 若结算已跑要同步更正 equity.csv 当行(去重+改数), 并重发一条"paper结算更正"推送——推送错了必须更正, 不许装没发生
 - **防守≠空仓（2026-09-22 用户指令修正, learned_before=20260922）**: 桃哥本人不可能空仓——防守期 watchlist 也必须产出 ≥1 条 buy 候选（条件苛刻也要写），满足 R 系列条件的票允许 ≤10% 仓位试错；禁止"零开仓"式纯观察
+- **启动日玩法必须当天进场（9/23 实证）**：R10 类启动日逻辑，进场时滞一天 = 从 +5% 变 -2%（新华都案：桃哥 9/22 冲高撤，系统 9/23 兜底撤）；龙头封单等前提必须由哨兵快照附带保证离线可验（已修复关联票快照）
+- **哨兵 live 模式退出禁止 saveState**（9/23 事故：退出时内存旧账本覆盖盘中裁决的 paper_state 更新）；账本唯一写入口 = 裁决/结算流程，任何修正必须留痕
 - 所有路径根: `C:/Users/admin/dev/investment-tool/scripts/taoge-paper/`
 
 ## 决策智能体通用纪律（2026-09-22 用户立法，桃哥/k3-inv 双修）
@@ -27,14 +29,15 @@ description: "Use when 桃哥paper试跑的三种会话: evening(晚间解读视
 
 ## 模式一: evening(每晚手动, 交易日 20:00 后)
 
+**新增第一步（2026-09-24 入律）明牌事件先手**：先扫当日加红电报的"复牌/停牌/并购重组"类公告 → 复牌日=先手窗口 → watchlist 直接列关联股（字辈/同板块）为**复牌日竞价先手候选**（新华传媒案：9/18 复牌公告躺库三天无人读，9/21 复牌日桃哥早盘低吸字辈 +5~8%，我们 9/22 才进=-2.2%）。明牌事件的链路是"电报→当晚计划→次日竞价"，不是"视频→解读→次日"（后者天然慢一天）。
+
 输入: 当晚桃哥视频(可能还没有——他发稿时间不定, 没有就跳过解读直接复盘)
 步骤:
 0. **同步当日微信对话**(2026-09-22 用户指令): `node wechat_sync.mjs` → `wechat/YYYYMMDD.md`(用户盘中和 kimi 的全部发言=用户盘中所想)。场景复盘升级为**三方对照: 用户盘中判断 vs Claude/哨兵 vs 桃哥**——用户判对的要承认(9/22 用户 10:10 预判大阴线, 我的 watchlist 无开盘卖出信号), 判错的归因。k3-inv 相关的用户指令同步写进 k3-inv STRATEGY §8
-1. 若当晚有新视频: 走 bilibili-taoge 标准管线,  checklist(9/21-22 踩坑后定版):
+1. 若当晚有新视频: 走 plan-a 标准管线,  checklist(9/21-22 踩坑后定版):
    - **发现**: `x/web-interface/archive/related?bvid=<上一期>` BFS 一跳(search 接口漏最新视频), 过滤 owner.mid=625315686 取最新
-   - **下载**: `node fetch_taoge.mjs --bvid <BV>` → m4a+meta 落 downloads/
-   - **转写**: `venv/Scripts/python.exe transcribe.py downloads/<BV>.m4a --out downloads/txt/<BV>.txt` — **必须写进 downloads/txt/ 目录**, 放根目录 correct_names 看不到(9/21 坑: 转写躺了一天没纠错没注入)
-   - **纠错**: `venv/Scripts/python.exe correct_names.py txt txt_fixed`
+   - **下载**: `node ../fetch_bilibili_taoge.mjs --bvid <BV> --audio-only` → m4a+meta 落 downloads/(9/27 起脚本在 scripts/ 根, 由 fetch_taoge/fetch_video 合并)
+   - **转写+纠错**: `../venv/Scripts/python.exe ../process_video.py --bvid <BV> --m4a downloads/<BV>.m4a --out downloads/txt_fixed --stage asr,correct` → 产 downloads/txt_fixed/<BV>.txt(纠错后, inject 直接读; 9/27 起四合一体, transcribe/correct_names 已删)
    - **worklist**: downloads/worklist.json 按 `"YYYY-MM-DD": [{bvid,title,pubdate,duration}]` 补当天条目(inject 的数据源, 缺了不注入)
    - **解读**: 读 txt_fixed 转写, 产出 `downloads/analysis/YYYY-MM-DD.json`(schema: date/bvid/title/market_view/mentions[]/operations_today[]/style_rules[]/tomorrow_implication; **operations_today 必须是数组**, inject 要 .join)
    - **注入**: `node inject_md.mjs --replace --dir txt_fixed` — 每日 md 由定时任务预建空 `### 桃哥` 小节, 不加 --replace 会被幂等跳过(9/22 坑); 9/18 手工精修版受保护不被覆盖
@@ -95,3 +98,4 @@ description: "Use when 桃哥paper试跑的三种会话: evening(晚间解读视
 - 哨兵回放命令: `node sentinel.mjs --replay <date>`; 产物归档 rehearsal/<date>/
 - **结算推送与追认的时序**: 15:06 结算推送按当时 paper_state 出数; 15:06 后的追认成交要在晚间会话更正 equity.csv 当行(去重+改数)并补发"paper结算更正"(9/22 实踩)
 - **告警=队列不是一次性**: alerts/ 目录是 outbox, hermes 限流失败退避 15 分钟重投, delivered.log 去重; 盘中告警可能因 kimi 占用 iLink 配额迟到, 不会丢
+- **wechat_sync 传未来日期会静默返回 0 条**(9/23 坑: 晚间会话把日期搞成明天, 误判 gateway 挂了排查半天——先 `date` 对时, 0 条先怀疑日期再怀疑进程); hermes 双 python gateway 进程同秒启动是启动器常态, 不是冲突

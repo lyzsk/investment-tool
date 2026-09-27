@@ -1,0 +1,24 @@
+{
+ "decision_time": "202609240945",
+ "strategy": "k3",
+ "trigger_id": "muyuan-break-0924",
+ "code": "sz002714",
+ "name": "牧原股份",
+ "side": "watch",
+ "info_cutoff": "202609240945",
+ "price_seen": 40.98,
+ "prev_close": 41.4,
+ "day_amount": 161250000,
+ "conditions": [
+  {
+   "type": "price_below",
+   "value": 41
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "牧原破41.0(9/21反转低点41.04失守): 满仓硬扛状态下最危险的情形, 提醒用户决策: 破位减机动仓还是扛(逻辑=猪周期未破坏但短线结构破坏)"
+ },
+ "source": "9/21反转结构+用户满仓状态",
+ "verdict": "notify_only"
+}

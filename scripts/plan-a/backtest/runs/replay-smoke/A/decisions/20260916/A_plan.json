@@ -1,0 +1,29 @@
+{
+ "group": "A",
+ "date": "20260916",
+ "gran": "m5",
+ "info_cutoff": "202609152359",
+ "rule_cutoff": "T-1",
+ "llm": null,
+ "items": [
+  {
+   "id": "A-copy-buy-sh600667-20260916",
+   "strategy": "A",
+   "code": "sh600667",
+   "name": "太极实业",
+   "side": "buy",
+   "valid_date": "20260916",
+   "conditions": [
+    {
+     "type": "open"
+    }
+   ],
+   "action": {
+    "type": "buy",
+    "max_amt": 25000,
+    "note": "照抄: 他T-1自述[看多/已买入(早盘)]"
+   },
+   "source": "20260915 md 提及个股"
+  }
+ ]
+}

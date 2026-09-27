@@ -45,7 +45,7 @@ process.on('unhandledRejection', e => {
   alert('结算脚本异步失败: ' + String(e).slice(0, 150), '今日 equity/market_quote_daily 可能不完整', '看 alerts/ 与 holes.log 定位; 修复后手动重跑 node paper_settle.mjs --date <日期>');
   process.exit(1);
 });
-const KLINE_DIR = path.join(ROOT, '..', 'bilibili-taoge', 'downloads', 'kline');
+const KLINE_DIR = path.join(ROOT, '..', 'plan-a', 'downloads', 'kline');
 const args = process.argv.slice(2);
 // --date YYYYMMDD, 缺省=今天(任务计划程序 15:06 调用时不带参数)
 let DATE = args.includes('--date') ? args[args.indexOf('--date') + 1] : null;
