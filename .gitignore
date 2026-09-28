@@ -63,3 +63,9 @@ yarn-error.log*
 .pnpm-debug.log*
 .npm
 .yarn
+downloads/
+results/
+scripts/taoge-paper/raw/
+inv-stock/target/
+**/tessdata/
+backups/

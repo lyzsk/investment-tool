@@ -1,0 +1,23 @@
+{
+ "decision_time": "202609280914",
+ "strategy": "taoge",
+ "trigger_id": "xhmedia-watch-0928",
+ "code": "sh600825",
+ "name": "新华传媒",
+ "side": null,
+ "info_cutoff": "202609280914",
+ "price_seen": 7.77,
+ "prev_close": 7.77,
+ "day_amount": 0,
+ "conditions": [
+  {
+   "type": "pct_below",
+   "value": 5
+  }
+ ],
+ "action": {
+  "type": "notify",
+  "note": "华字辈龙头第4板观察: 回落+5%以下=开板退潮信号, 字辈全线规避"
+ },
+ "verdict": "notify_only"
+}

@@ -1,0 +1,99 @@
+{
+  "date": "20260928",
+  "derived_from": "hermes应急补齐(无晚间会话产物): 节前3天+paper全空仓, 仅监控项, 无买入候选",
+  "_posture": "active",
+  "_k3": "用户立法: 每天都有操作(做T或买入), 空仓等待是机械照抄的错误; 节前+低位+严格条件",
+  "items": [
+    {
+      "id": "xhmedia-watch-0928",
+      "strategy": "taoge",
+      "code": "sh600825",
+      "name": "新华传媒",
+      "side": null,
+      "valid_date": "20260928",
+      "conditions": [
+        {
+          "type": "pct_below",
+          "value": 5
+        }
+      ],
+      "action": {
+        "type": "notify",
+        "note": "华字辈龙头第4板观察: 回落+5%以下=开板退潮信号, 字辈全线规避"
+      }
+    },
+    {
+      "id": "huaci-watch-0928",
+      "strategy": "taoge",
+      "code": "sh001216",
+      "name": "华瓷股份",
+      "side": null,
+      "valid_date": "20260928",
+      "conditions": [
+        {
+          "type": "pct_below",
+          "value": 0
+        }
+      ],
+      "action": {
+        "type": "notify",
+        "note": "全场最高板(6板后): 断板翻绿=情绪退潮总信号"
+      }
+    },
+    {
+      "id": "muyuan-watch-0928",
+      "strategy": "taoge",
+      "code": "sz002714",
+      "name": "牧原股份",
+      "side": null,
+      "valid_date": "20260928",
+      "conditions": [
+        {
+          "type": "price_below",
+          "value": 40.0
+        }
+      ],
+      "action": {
+        "type": "notify",
+        "note": "用户持仓股: 放量破40.0=接回计划失效线, 推送用户"
+      }
+    },
+    {
+      "id": "idx-regime-0928",
+      "strategy": "k3",
+      "code": "sh000001",
+      "name": "上证指数",
+      "side": null,
+      "valid_date": "20260928",
+      "conditions": [
+        {
+          "type": "pct_below",
+          "value": -1.5
+        }
+      ],
+      "action": {
+        "type": "notify",
+        "note": "大盘单日-1.5%以上=系统性风险日, 一切操作冻结"
+      }
+    },
+    {
+      "id": "muyuan-t-0928",
+      "strategy": "taoge",
+      "code": "sz002714",
+      "name": "牧原股份",
+      "side": "buy",
+      "valid_date": "20260928",
+      "conditions": [
+        {
+          "type": "price_below",
+          "value": 40.3
+        }
+      ],
+      "action": {
+        "type": "buy",
+        "qty": 600,
+        "note": "三连砸企稳接回(用户实盘同逻辑): ≤40.3买600股=paper仓6%; 裁决时查上证>-1.5%则approve, 破位放量则reject"
+      }
+    }
+  ]
+}

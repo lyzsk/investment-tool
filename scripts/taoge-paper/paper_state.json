@@ -1,7 +1,13 @@
 {
- "as_of": "20260925",
+ "as_of": "20260928",
  "cash": 100108.09,
  "nav_start": 100475.4,
+ "regime_freeze": {
+  "date": "20260928",
+  "set_at": "202609281030",
+  "trigger": "idx-regime-0928",
+  "note": "上证-1.55%<-1.5%系统性风险日: 一切操作冻结, 禁止新开仓/加仓/做T"
+ },
  "positions": [],
  "closed_trades": [
   {

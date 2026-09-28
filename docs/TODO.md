@@ -48,6 +48,20 @@
 - **速查表**: `scripts/backfill_taoge/md_checklist.md`(results↔md↔状态), 重跑 `gen_md_checklist.py` 刷新。
 - **每日例程(9/28 用户定)**: 用户交易日回家一句"check md"= 自动三步 ①/check-cls-md 电报进 md ②/taoge-sum 当日桃哥进 md ③/taoge-distill 沉淀 taoge-skill(滚动迭代, 人格像人一样成长)。
 
+# 9/28 晚 check-md 立法包（用户当场拍板, 全链暂停待"开始"）
+
+- **当前状态**: `scripts/PAUSE` 已建(全链暂停); results/ 产物复用不动; **总结+distill 归零重跑**(新 skill 口径)。用户说"开始"后: 跑 `scripts/backfill_taoge/reset_for_new_skill.py --apply`(归档 persona+清 distill 账本) → 删 PAUSE → 重启 `backfill_taoge.py --ignore-window`。
+- **倒序回填(用户定)**: 队列改最新日期优先(backfill_taoge.py 已改), 新口径总结先覆盖近期临时能用上, 远月慢慢补。
+- **持仓逆向工程(用户定, 已入 taoge-sum SKILL 3.5)**: 总结涉及持仓→确定性代码拉 日线≥120日+当日 m5(粒度允许时), 算 MA5/10/20/60、MACD、RSI14、CCI14、近30日振幅 → 逆向推断持有动机+下个触发点; 事实与推断分层, 推断标"推断"字样。逆向口径需多轮完善(用户预告)。
+- **紫色高亮=持仓(用户确认)**: 不是"疑似"; 口述说"已走"但画面仍紫=两说并列标"待核", 不擅自二选一。
+- **cls 填入口径(用户定, Java 已改+编译过)**: ## 涨停分析=OCR 主题插在 ## 行后, 人工手填(如 ### ST 股)沉底保持最后, 已有 ### 主题跳过幂等; 其它小节(午评/收评/午间涨停分析)=整段复写(OCR 输出是该小节唯一权威)。需 IDEA 重构生效。
+- **OCR 两 PARSE_FAIL 根因已修(cls_image_ocr.py, 已验证)**: ①wp/sp 网格锚点盲信首末标签→两两(dx/di)中位数拟合(9/28 跌停标签漏检致网格右缩, 348 错当跌停) ②zt 题材锚 red_ratio 0.25 一刀切→两档阈值(两字题材"化工"0.20 被误杀, 段并入上一题材)。
+- **排队(等"开始")**: ①持仓逆向口径多轮完善 ②归零重跑后 harness 窗口重选。
+- **指标参数口径(用户推荐, 已入 taoge-sum SKILL 3.5)**: RSI(6,12,24) / MACD(12,26,9) / KDJ(9,3,3) / CCI14。
+- **taoge-skill 致命问题已对照诊断(9/28 晚, 立法已入 taoge-skill SKILL.md)**: 根因=事实包股票清单全靠手工摘昨日遗留票, 全链路无市场扫描能力(factpack.mjs 只有 bars/resolve) → 04 候选池守旧。立法三条: ①事实包必含市场扫描段(竞价异动榜/竞价看龙头电报全文/昨日跌停榜/次新区间跌幅/板块竞价榜) ②04 候选分遗留票组+市场新票组, 两组列齐才可空仓终裁 ③盘中动手信号被命中必须盘中重跑(9/28 信号一 沪指-1.5% 当日 -1.67% 已命中却无人重跑)。**待建: 市场扫描脚本**(东财 push2/腾讯排行, 防封铁律同 quote.mjs: 多源+抖动+失败闭环)。
+- **pom 修复(顺手)**: 根 pom resources filtering=true 无 includes 把 tessdata 二进制当文本过滤炸 MalformedInputException; 已加 `tessdata/**` exclude, mvn 全量编译通过(与 RapidOCR 管线无关, 纯构建配置)。
+
+
 ## 9/28 回测 harness（人读版, 用户拍板）
 
 - **背景**: 旧回测(runs/)是机器读格式, 已全删。新回测=A 照抄桃哥 / B 纯LLM / C taoge-skill(模拟用户真实用法) 三组对比, 严格可追溯闭环: 事实采集(确定性代码)→分析→辩论(×2)→交易方案→风控→终裁→复盘(6 个独立 agent, 上下文隔离, 环节间只传文件)。只回测已沉淀区间(🧠 最密区间, 预计 2025-10-13..11-14, 以 distill_state.json 为准)。

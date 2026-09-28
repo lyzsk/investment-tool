@@ -629,7 +629,8 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
     /**
      * cls 图下载成功后: OCR 解析 -> 填入当天 md 的对应 ## 小节
      * scripts/fill_cls_md.py; 解析器 scripts/cls_image_ocr.py
-     * 失败只告警不写 md: 图不存在/python 非0退出(PARSE_FAIL)/小节已有人工内容
+     * 失败只告警不写 md: 图不存在/python 非0退出(PARSE_FAIL);
+     * 涨停分析=OCR 主题插在 ## 行后(人工手填沉底), 其它小节=整段复写
      *
      * @param imgSuffix   文件名 cls_{suffix}_HHmmss_1.*
      * @param sectionName md 小节名 午评/收评/午间涨停分析/涨停分析
@@ -674,7 +675,9 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
                 return m.matches() ? Integer.parseInt(m.group(2)) : 0;
             }));
 
-            /* 2. 定位当天 md, 三态判断(空/空表模板才填, 人工内容跳过保人工) */
+            /* 2. 定位当天 md
+            涨停分析=OCR 主题插在 ## 行后(人工手填的 ### 如 ST 股沉底保持最后);
+            其它小节(午评/收评/午间涨停分析)=整段复写, OCR 结果是该小节唯一权威内容 */
             LocalDate today = LocalDate.now();
             Path markdownFile = Paths.get(projectConfig.getMarkdown().getRootDir(),
                 DateTimeUtils.getQuarterStr(today), today.format(DateTimeUtils.YYYY_MM_DD) + ".md");
@@ -689,15 +692,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
                 log.warn("md 中无 {} 小节, 跳过: {}", marker, markdownFile);
                 return;
             }
-            String trimmed = body.trim();
-            boolean empty = trimmed.isEmpty();
-            boolean emptyTemplate =
-                trimmed.contains("大于+8%") && !Pattern.compile("\\d+\\s*(家|<br>)")
-                    .matcher(trimmed).find();
-            if (!empty && !emptyTemplate) {
-                log.info("{} 小节已有内容(人工或已 OCR), 跳过", marker);
-                return;
-            }
+            boolean isZt = "涨停分析".equals(sectionName);
 
             /* 3. 逐张调 python OCR(附录 B: 工作目录=项目根, 两流读干, 超时兜底), 任一 PARSE_FAIL 则整组不写(宁缺毋错) */
             Path projectRoot =
@@ -707,7 +702,8 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
                 Path venvPy = projectRoot.resolve("scripts/venv/Scripts/python.exe");
                 String pythonExe = Files.isRegularFile(venvPy) ? venvPy.toString() : "python";
                 ProcessBuilder pb = new ProcessBuilder(pythonExe,
-                    projectRoot.resolve("scripts/cls_image_ocr.py").toString());
+                    projectRoot.resolve("scripts/cls_image_ocr.py").toString(),
+                    imageFile.toString(), "--type", imgSuffix);
                 pb.directory(projectRoot.toFile());
                 Process process = pb.start();
                 /* stderr 起线程读干, 防缓冲区满死锁 */
@@ -745,14 +741,81 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
                 merged.append(one);
             }
 
-            /* 4. 替换小节写盘 */
-            String updated = replaceSection(content, marker, "\n" + merged + "\n");
+            /* 4. 写盘: 涨停分析=插入合并; 其它小节=整段复写 */
+            String updated;
+            if (isZt) {
+                String mergedBody = mergeSubsections(body, merged.toString());
+                if (mergedBody == null) {
+                    log.info("{} 小节全部 OCR 主题已存在, 无新增", marker);
+                    return;
+                }
+                updated = replaceSection(content, marker, "\n" + mergedBody + "\n");
+            } else {
+                updated = replaceSection(content, marker, "\n" + merged + "\n");
+            }
             Files.writeString(markdownFile, updated, StandardCharsets.UTF_8);
-            log.info("OCR 填入 {} 成功, 共 {} 张图 <- 最新组 {}", marker, imageFiles.size(),
-                latestTs);
+            log.info("OCR 填入 {} 成功, 共 {} 张图 <- 最新组 {}{}", marker, imageFiles.size(),
+                latestTs, isZt ? "(插入合并)" : "(整段复写)");
         } catch (Exception e) {
             log.error("OCR 填 md 失败: {} {}", imgSuffix, sectionName, e);
         }
+    }
+
+    /**
+     * 涨停分析专用插入合并
+     * 现有内容之前——人工手填的小节(如 ### ST 股)沉底保持最后;
+     * 已存在的 ### 主题跳过(同日重发电报幂等); 无 ### 的 OCR 前言不插。
+     *
+     * @param body    现有小节正文
+     * @param ocrText OCR 产出(若干 "### 主题" 块)
+     * @return 合并后正文; 无新增返回 null
+     * @author sichu huang
+     * @since 2026/09/28 19:30:00
+     */
+    private String mergeSubsections(String body, String ocrText) {
+        Set<String> existing = new HashSet<>();
+        for (String line : body.split("\n")) {
+            String t = line.trim();
+            if (t.startsWith("### ")) {
+                existing.add(t.substring(4).replace(" ", "").toLowerCase());
+            }
+        }
+        List<String> blocks = new ArrayList<>();
+        StringBuilder cur = null;
+        for (String line : ocrText.split("\n")) {
+            if (line.trim().startsWith("### ")) {
+                if (cur != null) {
+                    blocks.add(cur.toString());
+                }
+                cur = new StringBuilder();
+            }
+            if (cur != null) {
+                cur.append(line).append('\n');
+            }
+        }
+        if (cur != null) {
+            blocks.add(cur.toString());
+        }
+        StringBuilder head = new StringBuilder();
+        List<String> added = new ArrayList<>();
+        for (String b : blocks) {
+            String firstLine = b.lines().findFirst().orElse("").trim();
+            String title = firstLine.substring(4).replace(" ", "").toLowerCase();
+            if (existing.contains(title)) {
+                continue;
+            }
+            if (head.length() > 0) {
+                head.append("\n\n");
+            }
+            head.append(b.strip());
+            added.add(title);
+        }
+        if (added.isEmpty()) {
+            return null;
+        }
+        log.info("合并填入 {} 个新主题: {}", added.size(), added);
+        String rest = body.strip();
+        return rest.isEmpty() ? head.toString() : head + "\n\n" + rest;
     }
 
     /**

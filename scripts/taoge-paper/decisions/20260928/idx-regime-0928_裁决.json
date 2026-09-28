@@ -1,0 +1,6 @@
+{
+ "rule_id": null,
+ "verdict": "approve",
+ "info_cutoff": "202609281030",
+ "reasoning": "上证3828.26较昨收3888.374跌幅-1.55%, 跌破-1.5%阈值, 系统性风险日成立; 该触发为checkpoint自带的regime冻结条款, rules_seed中无对应桃哥规则(无需learned_before匹配); 按action=notify冻结今日一切新开仓, 持仓不加仓不做T。"
+}

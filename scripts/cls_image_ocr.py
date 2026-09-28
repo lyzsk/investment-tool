@@ -104,11 +104,25 @@ def parse_breadth(lines, img_path=None):
     main = sorted([(cx, t) for cx, cy, t in lab if abs(cy - y_mode) <= 12])
     if len(main) < 8:
         return None, f"main-row labels only {len(main)}"
-    # 2) 均匀网格: 用最左/最右锚点(涨停/跌停必在两端)拟合 13 格
-    x0, x12 = main[0][0], main[-1][0]
-    step = (x12 - x0) / 12.0
+    # 2) 均匀网格: 不再盲信首末标签锚点(9/28 案: 跌停标签漏检 -> 网格右缩一格,
+    #    -8% 档的 348 被当成跌停, 交叉校验炸)。改为两两 (dx/di) 估 step 中位数,
+    #    各标签回推 x0 取中位, 缺任意标签都能稳健拟合; 残差过大=拟合失败
+    import statistics
+    pairs = []
+    for a in range(len(main)):
+        for b in range(a + 1, len(main)):
+            ia, ib = BINS.index(main[a][1]), BINS.index(main[b][1])
+            if ib != ia:
+                pairs.append((main[b][0] - main[a][0]) / (ib - ia))
+    if not pairs:
+        return None, "cannot fit grid step"
+    step = statistics.median(pairs)
     if step < 40 or step > 220:
         return None, f"grid step {step:.0f} abnormal"
+    x0 = statistics.median([cx - step * BINS.index(t) for cx, t in main])
+    resid = [abs(cx - (x0 + step * BINS.index(t))) for cx, t in main]
+    if sum(1 for r in resid if r > step * 0.35) > len(main) * 0.2:
+        return None, f"grid fit poor: {sum(1 for r in resid if r > step * 0.35)}/{len(main)} labels off-grid"
     grid_x = [x0 + i * step for i in range(13)]
     # 3) 每格找数字: 标签线上方, |dx| < step*0.6, 取最近(y最大)
     nums = [(cx, cy, t) for cx, cy, t, s in lines
@@ -310,9 +324,20 @@ def parse_zt(img_path):
     h, w = img.shape[:2]
     lines = ocr_sliced(img_path)
     # 1) 题材锚点: 红色大字(h>28)在左栏(x<250), 排除红头区(y<230)
+    #    两档阈值: >0.25 稳; 0.12~0.25 需纯中文短词(≤6字, 无数字/%/板)——
+    #    9/28 案: 两字题材"化工"红占比 0.20 被 0.25 闸误杀, 整段并入上一题材炸校验
+    def _is_theme(cx, cy, t, box):
+        hh = abs(box[3][1] - box[0][1])
+        if hh <= 28 or cx >= 250 or cy <= 230:
+            return False
+        rr = _red_ratio(img, box)
+        if rr > 0.25:
+            return True
+        tt = t.replace(" ", "")
+        return (rr > 0.12 and len(tt) <= 6
+                and re.fullmatch(r"[一-鿿]+", tt) is not None)
     themes_y = [(cy, t.replace(" ", "")) for cx, cy, t, s, box in lines
-                if _red_ratio(img, box) > 0.25
-                and abs(box[3][1] - box[0][1]) > 28 and cx < 250 and cy > 230]
+                if _is_theme(cx, cy, t, box)]
     themes_y.sort()
     if not themes_y:
         return None, None, "no theme anchors"
@@ -336,6 +361,7 @@ def parse_zt(img_path):
                                and l[0] < 200
                                and abs(l[4][3][1] - l[4][0][1]) >= 18
                                and not re.fullmatch(r"\d{6}", l[2].replace(" ", ""))
+                               and l[2].replace(" ", "") not in ("股票名称", "板数", "涨跌幅", "涨停时间", "上涨逻辑")
                                and re.search(r"[一-鿿]", l[2])),
                               key=lambda l: l[1])
         rows = []

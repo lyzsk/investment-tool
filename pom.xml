@@ -123,6 +123,10 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering> <!-- 启用变量替换 -->
+                <excludes>
+                    <!-- 二进制资源不能按文本过滤: tessdata 会让 mvn resources 炸 MalformedInputException -->
+                    <exclude>tessdata/**</exclude>
+                </excludes>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>

@@ -74,7 +74,7 @@ EST_MIN_ASR = 3          # asr-only 单条 ~3min(CPU whisper small)
 #    注意——窗口内 md 改写为新格式后 #### 解读 小节消失, 未来重跑 A 组需 planner 适配新格式)
 STOCKS = ROOT / "stocks"
 MD_SKIP_DATES = {"2026-09-24"}  # 定稿样板不动; 2026-09-18 手稿已于 9/27 用户指令覆盖(备份 scripts/backfill_taoge/md_backup_2026-09-18_before.md)
-MD_NEW_MARKER = "**画面增量"     # 新格式(9/24 定稿)标记: sweep 幂等守卫, 已是新格式不重写
+MD_NEW_MARKER = "**持仓逆向"     # 新格式标记 v2(9/28 起): taoge-sum 加持仓逆向工程 bullet, 凡新加 skill 内容全量重跑(用户立法), 旧格式日因此自动重新合成; distill 就绪闸同标
 MD_TIMEOUT = 900         # headless 合成单条上限 15min(读 txt+vision.json+写 md)
 
 
@@ -192,7 +192,7 @@ def load_index():
     if not videos:
         sys.exit("索引为空: 先跑 node scripts/backfill_taoge_index.mjs")
     out = [v for v in videos.values() if v.get("pubdate") and v["pubdate"] >= CUTOFF]
-    out.sort(key=lambda v: v["pubdate"])  # 最旧优先: 回填按时间正序推进, 历史脉络连续
+    out.sort(key=lambda v: v["pubdate"], reverse=True)  # 最新优先(9/28 用户定): 新 skill 口径的总结/沉淀先覆盖近期, 临时能用上; 远月慢慢补
     return out
 
 
@@ -593,7 +593,7 @@ def main():
     if args.distill_sweep:
         distilled = load_distilled()
         before = len(distilled)
-        dates = sorted({dt.datetime.fromtimestamp(v["pubdate"]).strftime("%Y-%m-%d") for v in videos})
+        dates = sorted({dt.datetime.fromtimestamp(v["pubdate"]).strftime("%Y-%m-%d") for v in videos}, reverse=True)
         for d in dates:
             wait_pause()
             maybe_distill(d, distilled)
