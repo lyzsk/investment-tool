@@ -48,6 +48,8 @@ export function parseTaogeSection(mdText, hole) {
     vision.push({ name: mm[1], code: mm[2] ? normCode(mm[2]) : null, price: +mm[3], pct: +mm[4] });
   }
   const jd = grab('解读');
+  // 转写原文(blockquote 行): 2026-09-14 之前的 md 没有结构化解读小节, 转写原文是 C/D 组唯一的信息源
+  const transcript = body.split('\n').filter(l => l.startsWith('>')).map(l => l.replace(/^>\s?/, '')).join('\n').trim();
   // 提及个股: "- 太极实业(sh600667) · 看多 · 已买入(早盘)（转写别名: 太极） — 备注 【桃哥: 持有】"
   // tags 段可含半角/全角括号注释(如"已买入(早盘)"), 故先粗抓到 " — " 分界, 再剥离转写别名后切 ·
   const mentions = [];
@@ -80,6 +82,7 @@ export function parseTaogeSection(mdText, hole) {
   return {
     vision,
     mentions,
+    transcript,                                // ASR 转写原文(无解读小节时的兜底信息源)
     market_view: bullet('大盘判断'),
     his_ops: bullet('桃哥今日操作'),          // 他自述的当日操作(A组照抄源/E组对照真值)
     strategy, focus, avoid,
@@ -145,9 +148,11 @@ export async function buildInfoPack(date, prevDate, { ruleCutoff = 'T-1', hole }
   const taoge = mdText ? parseTaogeSection(mdText, hole) : null;
   if (!taoge) hole?.('桃哥小节缺失', prevDate);
   const rules = rulesFor({ date }, prevDate, ruleCutoff);
+  // 候选票: 优先解读提及个股; 无解读小节的老 md 退化用画面真值里的代码
   const candidateCodes = [
     ...(taoge?.mentions || []).map(m => m.code),
     ...(taoge?.focus || []).map(f => f.code),
+    ...((taoge?.mentions?.length ? [] : (taoge?.vision || []).filter(v => v.code).map(v => v.code))),
     'sh000001',
   ];
   const digest = await klineDigest(candidateCodes, prevDate, hole);

@@ -14,7 +14,7 @@ import { makeChain, makeHole } from './replay/hchain.mjs';
 import { ensureBars, pickGranularity, loadCachedBars } from './replay/kline.mjs';
 import { tradingCalendar, buildInfoPack, loadMd, parseTaogeSection, compactOf } from './replay/infopack.mjs';
 import { simulateDay } from './replay/sim.mjs';
-import { settleDay, writeTrades, writeReport } from './replay/settle.mjs';
+import { settleDay, writeTrades, writeReport, writeRetry } from './replay/settle.mjs';
 import { runLlm, validatePlan, detectPollution } from './replay/llm.mjs';
 import { planA, promptC, promptD, packDigestText, evalE } from './replay/planners.mjs';
 import { sampleDays } from './replay/sampler.mjs';
@@ -35,6 +35,24 @@ const MOCK = FLAG('--mock-llm');
 const RULE_CUTOFF = opt('--rule-cutoff', 'T-1');
 const LLM_DELAY = +opt('--llm-delay', 2000);
 const RUN_TAG = opt('--tag', '');
+// --resume(9/27 加, EBUSY 崩批后断点续跑): 决策(plan)/成交(fills)/复盘(review)已落盘的日子
+// 不再调 LLM、不重跑 sim——按 fills 确定性重放账本(买扣钱/卖加钱), equity.csv 清空重结。
+// 这样断点续跑不会重调 LLM 产生不同预案(温度0也挡不住 headless 抖动), 保证全区间是同一条世界线
+const RESUME = FLAG('--resume');
+
+// 重放一笔已落盘成交到账本(口径照 sim.tryFill: 买=cash-(px*qty+fee), 卖=cash+(px*qty-fee), 先进先出配对)
+function applyFill(state, f) {
+  if (f.verdict !== 'filled') return;   // notify_only/rejected 不动账本
+  if (f.side === 'buy') {
+    state.cash -= f.px * f.qty + f.fee;
+    state.positions.push({ code: f.code, name: f.name, qty: f.qty, cost: f.px, feeB: f.fee,
+      buy_date: f.fill_bar.slice(0, 8), buy_bar: f.fill_bar, trigger_id: f.id });
+  } else if (f.side === 'sell') {
+    state.cash += f.px * f.qty - f.fee;
+    const pos = state.positions.find(p => p.code === f.code && p.qty > 0);
+    if (pos) { pos.qty -= f.qty; if (pos.qty <= 0) state.positions = state.positions.filter(p => p !== pos); }
+  }
+}
 
 // ---------- 交易日工具 ----------
 const cal = tradingCalendar().map(d => d.date);
@@ -53,8 +71,18 @@ async function runOneDay({ group, day, state, runDir, chain, hole, mockReview })
   // ---- 1. 信息包(全部 ≤T-1 晚) ----
   const pack = await buildInfoPack(date, prev, { ruleCutoff: RULE_CUTOFF, hole });
   // ---- 2. 预案(分组生成; 此阶段不碰 T 日行情) ----
+  const decDir = path.join(runDir, 'decisions', date);
+  const decFile = path.join(decDir, `${group}_plan.json`);
+  const fillsPath = path.join(decDir, `${group}_fills.json`);
+  const reviewPath = path.join(decDir, `${group}_review.json`);
+  // resume: 决策已落盘 → 直接读盘不重调 LLM(断点续跑必须保住同一条世界线)
+  const resumedPlan = RESUME && fs.existsSync(decFile);
   let items = [], llmMeta = null, reviewInject = state.lastReview || null;
-  if (group === 'A') {
+  if (resumedPlan) {
+    const stored = JSON.parse(fs.readFileSync(decFile, 'utf8'));
+    items = stored.items || [];
+    llmMeta = { mode: 'resume', ...(stored.llm || {}) };
+  } else if (group === 'A') {
     items = planA(pack, state, hole);
   } else {   // C / D: LLM 盘前预案(节点①)
     const promptBase = group === 'C' ? promptC(pack) : promptD(pack);
@@ -65,14 +93,19 @@ async function runOneDay({ group, day, state, runDir, chain, hole, mockReview })
       const { obj, mode } = await runLlm(prompt, { mock: MOCK, mockResponse, runDir, tag: `${date}_${group}_plan`, hole, cwd: LLM_CWD });
       const packText = packDigestText(pack);
       // 污染审计: 推理链出现包外代码/cutoff后日期 → 该日污染作废(立法)
-      const pol = detectPollution(JSON.stringify(obj), packText, pack.info_cutoff);
+      const pol = detectPollution(JSON.stringify(obj), packText, date);
       if (pol.length) {
         hole('LLM污染作废', `${group}@${date}: ${pol.join(';')}`);
         fs.appendFileSync(path.join(runDir, 'pollution_audit.log'),
           JSON.stringify({ date, group, hits: pol, at: new Date().toISOString() }) + '\n');
         llmMeta = { mode, polluted: pol };
       } else {
+        // 规则锚全集: rules_seed 的 R 系 + (D组) persona/rules.md 的 A/B/C/D/E 系编号
         const ruleIds = new Set(pack.rules.map(r => r.id));
+        if (group === 'D') {
+          const pr = fs.readFileSync('C:/Users/admin/dev/investment-tool/skills/taoge-skill/persona/rules.md', 'utf8');
+          for (const m of pr.matchAll(/^### ([A-E]\d+)\s/gm)) ruleIds.add(m[1]);
+        }
         const plan = validatePlan(obj, date, hole, packText, ruleIds);
         items = plan.items;
         llmMeta = { mode, market_view: plan.market_view, n_items: items.length };
@@ -83,15 +116,15 @@ async function runOneDay({ group, day, state, runDir, chain, hole, mockReview })
     }
     if (!MOCK) await sleep(LLM_DELAY);   // headless 批量节流
   }
-  // ---- 3. 决策落盘 + 哈希链(先写哈希, 再让模拟器碰行情) ----
-  const decDir = path.join(runDir, 'decisions', date);
-  fs.mkdirSync(decDir, { recursive: true });
-  const decFile = path.join(decDir, `${group}_plan.json`);
-  fs.writeFileSync(decFile, JSON.stringify({
-    group, date, gran, info_cutoff: pack.info_cutoff, rule_cutoff: RULE_CUTOFF,
-    llm: llmMeta, items,
-  }, null, 1));
-  chain(decFile);
+  // ---- 3. 决策落盘 + 哈希链(先写哈希, 再让模拟器碰行情; resume 日已落盘跳过) ----
+  if (!resumedPlan) {
+    fs.mkdirSync(decDir, { recursive: true });
+    fs.writeFileSync(decFile, JSON.stringify({
+      group, date, gran, info_cutoff: pack.info_cutoff, rule_cutoff: RULE_CUTOFF,
+      llm: llmMeta, items,
+    }, null, 1));
+    chain(decFile);
+  }
   // ---- 4. 行情准备(此刻起才许读 T 日数据) ----
   const codes = [...new Set([...items.map(i => i.code), ...state.positions.map(p => p.code), 'sh000001'])];
   const barsByCode = {};
@@ -102,18 +135,28 @@ async function runOneDay({ group, day, state, runDir, chain, hole, mockReview })
     const dayBars = barsByCode[c].filter(b => b.t.startsWith(date));
     if (!dayBars.length && c !== 'sh000001') hole('当日无bar(停牌/窗口外)', `${c}@${date}`);
   }
-  // ---- 5. 机械执行(三档撤退由 sim 自动挂) ----
-  const fills = simulateDay({ date, items, state, barsByCode, hole, log: s => console.log(`  [${group} ${date}] ${s}`) });
-  if (fills.length) {
-    const f = path.join(decDir, `${group}_fills.json`);
-    fs.writeFileSync(f, JSON.stringify(fills, null, 1));
-    chain(f);
+  // ---- 5. 机械执行(三档撤退由 sim 自动挂; resume 日按已落盘 fills 确定性重放) ----
+  let fills;
+  if (RESUME && fs.existsSync(fillsPath)) {
+    fills = JSON.parse(fs.readFileSync(fillsPath, 'utf8'));
+    for (const f of fills) applyFill(state, f);
+    const n = fills.filter(f => f.verdict === 'filled').length;
+    if (n) console.log(`  [${group} ${date}] resume回放 ${n} 笔成交`);
+  } else {
+    fills = simulateDay({ date, items, state, barsByCode, hole, log: s => console.log(`  [${group} ${date}] ${s}`) });
+    if (fills.length) {
+      fs.writeFileSync(fillsPath, JSON.stringify(fills, null, 1));
+      chain(fillsPath);
+    }
   }
   // ---- 6. 结算 ----
   settleDay({ runDir, group, date, state, barsByCode, hole });
   // ---- 7. C/D 节点②: 收盘复盘(T 收盘后, 输入 ≤T 收盘; 产出供 T+1 注入) ----
   if ((group === 'C' || group === 'D') && !FLAG('--no-review')) {
-    try {
+    if (RESUME && fs.existsSync(reviewPath)) {
+      // resume: 复盘已落盘 → 读盘注入次日, 不重调 LLM
+      state.lastReview = JSON.stringify(JSON.parse(fs.readFileSync(reviewPath, 'utf8')));
+    } else try {
       const daySummary = codes.filter(c => c !== 'sh000001').map(c => {
         const db = (barsByCode[c] || []).filter(b => b.t.startsWith(date));
         return db.length ? `${c} 开${db[0].o} 收${db[db.length - 1].c} 高${Math.max(...db.map(b => b.h))} 低${Math.min(...db.map(b => b.l))}` : null;
@@ -146,6 +189,11 @@ async function runGroup(group, days, runDirParent) {
   const chain = makeChain(runDir), hole = makeHole(runDir);
   const state = { cash: NAV_START, nav_start: NAV_START, positions: [], equity: [], lastReview: null };
   const allFills = [];
+  if (RESUME) {
+    // 账本确定性重结: 清空 equity.csv 全区间重写(逐日 append, 防断点处留半行/旧行)
+    const eq = path.join(runDir, 'equity.csv');
+    if (fs.existsSync(eq)) writeRetry(() => fs.unlinkSync(eq), eq);
+  }
   for (const day of days) {
     console.log(`[${group}] ${day.date} (T-1=${day.prev})`);
     allFills.push(...await runOneDay({ group, day, state, runDir, chain, hole }));

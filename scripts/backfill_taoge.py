@@ -65,6 +65,18 @@ PROC_TIMEOUT = 3600      # 单视频 60min 超时强杀(正常 15-20min, 长视�
 EST_MIN_FULL = 18        # dry-run 估时: 全阶段单条 ~18min
 EST_MIN_ASR = 3          # asr-only 单条 ~3min(CPU whisper small)
 
+# results→md 自动合成(2026-09-27 用户拍板"跑完某一天的 results 就调用自己去总结写回 md"):
+# 单条产物落地后, headless claude -p 按 /taoge-sum(9/24 定稿模板: 五大 bullet 收在 ### 桃哥 下)
+# 整小节覆盖写 stocks md。跳过规则:
+#   - 2026-09-18: 用户手工精修稿, 永不覆盖
+#   - 2026-09-24: 定稿样板本身(新格式从它开始), 不动
+#   (原 replay 窗口 2026-06-29~09-24 冻结令 9/27 深夜解除: C/D 回测已全部跑完, 世界线已封存;
+#    注意——窗口内 md 改写为新格式后 #### 解读 小节消失, 未来重跑 A 组需 planner 适配新格式)
+STOCKS = ROOT / "stocks"
+MD_SKIP_DATES = {"2026-09-24"}  # 定稿样板不动; 2026-09-18 手稿已于 9/27 用户指令覆盖(备份 scripts/backfill_taoge/md_backup_2026-09-18_before.md)
+MD_NEW_MARKER = "**画面增量"     # 新格式(9/24 定稿)标记: sweep 幂等守卫, 已是新格式不重写
+MD_TIMEOUT = 900         # headless 合成单条上限 15min(读 txt+vision.json+写 md)
+
 
 # ---------- 日志: stdout + backfill.log 双写 ----------
 def log(msg: str):
@@ -187,7 +199,7 @@ def load_index():
 # ---------- 完成判据: results 产物是唯一事实 ----------
 def scan_done():
     """扫 results/bilibili/<mid>/<yyyy.MM.dd>/ 下产物:
-    asr_done = <bvid>.txt 存在且非空; full_done = asr_done 且 vision.json 含 pages 段"""
+    asr_done = <bvid>.txt 存在且非空; full_done = asr_done 且 vision.json 含 ocr(或老格式 pages)段"""
     asr_done, full_done = set(), set()
     if not RESULTS.exists():
         return asr_done, full_done
@@ -201,7 +213,8 @@ def scan_done():
         vj = txt.with_name(f"{stem}.vision.json")
         if vj.exists():
             try:
-                if json.loads(vj.read_text(encoding="utf-8")).get("pages"):
+                d = json.loads(vj.read_text(encoding="utf-8"))
+                if d.get("ocr") or d.get("pages"):  # 2026-09-27 实测现行键=ocr, pages 为老格式兜底
                     full_done.add(stem)
             except (OSError, json.JSONDecodeError):
                 pass  # 半个文件=未完成, 重跑补
@@ -299,6 +312,166 @@ def run_cmd(cmd, timeout, tag):
         return False, f"oserror: {e}"
 
 
+# ---------- results→md 自动合成: 单条产物落地后 headless claude -p 调 /taoge-sum ----------
+def md_path_for(pub_date: str) -> Path:
+    """stocks/<year>S<quarter>/<yyyy-MM-dd>.md; quarter=(月-1)//3+1"""
+    y, m, _ = pub_date.split("-")
+    return STOCKS / f"{y}S{(int(m) - 1) // 3 + 1}" / f"{pub_date}.md"
+
+
+def maybe_write_md(v, asr_only, sweep=False):
+    """跑完某一天的 results 就调用 claude 自己总结写回 md(2026-09-27 用户拍板)。
+    sweep=True 时带幂等守卫(已是新格式跳过)。失败一律只 log 不阻断回填。"""
+    if asr_only:
+        return  # 快速通道只有逐字稿, 态2 合成等 vision 补齐后再说(vision 完成的那轮会触发)
+    pub_date = dt.datetime.fromtimestamp(v["pubdate"]).strftime("%Y-%m-%d")
+    if pub_date in MD_SKIP_DATES:
+        log(f"md 合成跳过 {pub_date} (手工精修/定稿样板, 永不覆盖)")
+        return
+    md = md_path_for(pub_date)
+    if not md.exists():
+        log(f"md 合成跳过 {pub_date}: {md} 不存在(非交易日/未预建, 挂载归口不在本脚本)")
+        return
+    if sweep:
+        try:
+            if MD_NEW_MARKER in md.read_text(encoding="utf-8", errors="ignore"):
+                log(f"md 合成跳过 {pub_date}: 已是新格式(幂等守卫)")
+                return
+        except OSError:
+            return
+    prompt = (f"调用 /taoge-sum 合成 {pub_date} 的桃哥视频产物进 stocks md。"
+              f"该日期是历史回填日期(results 产物齐但 pendingSummary 无此行), 走批量改写分支: "
+              f"原料 results/bilibili/{MID}/{date_dir(v['pubdate'])}/ 的 txt+vision.json, "
+              f"按 9/24 定稿模板整小节覆盖 {md} 的 ### 桃哥 小节, 不 curl markSummarized。")
+    # --dangerously-skip-permissions: hermes 实测教训(其 MEMORY.md 9/27)——headless claude -p
+    # 做文件写入会被权限审批卡死到超时; 只跑在本机仓库内、prompt 固定, 风险可控
+    ok, info = run_cmd(["cmd", "/c", "claude", "-p", "--dangerously-skip-permissions", prompt], MD_TIMEOUT, "md")
+    if ok:
+        log(f"md 合成完成 {pub_date}")
+    else:
+        log(f"md 合成失败 {pub_date}: {info} (不阻断回填, 批量会话兜底)")
+
+
+# ---------- md→taoge-skill 人格沉淀: 串行链第三环(2026-09-28 用户拍板) ----------
+# 单 agent 串行: results→md→distill 逐日咬合; 账本幂等断点续跑; 无候选池(全量回顾自行核销); 误判一等公民
+DISTILL_STATE = SCRIPT_DIR / "distill_state.json"  # {"done": ["YYYY-MM-DD", ...]}
+DISTILL_TIMEOUT = 900
+DISTILL_OP_LOCK = SCRIPT_DIR / "distill_op.lock"  # 单次 distill 互斥(main 内联与 sweep 旁路会并发, 9/28)
+PAUSE_FILE = SCRIPT_DIR / "PAUSE"  # 存在即全链暂停(2026-09-28 用户定: 随叫随停, 说"暂停"建文件/"继续"删文件)
+def ensure_single_instance(mode: str = "main"):
+    """pid 锁+tasklist 活体验证: 同模式已有活实例则本实例退出; 死锁自动清。
+    锁按模式分(main/md-sweep/distill-sweep)——distill-sweep 是架构内的并发旁路(看门狗发起),
+    不得被 main 锁误杀(9/28 初版单锁误杀 distill-sweep 的教训); 同模式双开才是事故。"""
+    lock = SCRIPT_DIR / f"backfill_instance_{mode}.lock"
+    if lock.exists():
+        try:
+            pid = int(lock.read_text(encoding="utf-8").strip())
+        except (ValueError, OSError):
+            pid = -1
+        alive = False
+        if pid > 0:
+            try:
+                r = subprocess.run(["tasklist", "/FI", f"PID eq {pid}"], capture_output=True, text=True, timeout=15)
+                alive = str(pid) in r.stdout
+            except (OSError, subprocess.TimeoutExpired):
+                alive = True  # 证据不足保守退出
+        if alive:
+            print(f"{mode} 已有实例在跑(pid={pid}), 本实例退出", flush=True)
+            sys.exit(0)
+        lock.unlink(missing_ok=True)
+    lock.write_text(str(os.getpid()), encoding="utf-8")
+    import atexit
+    atexit.register(lambda: lock.unlink(missing_ok=True))
+
+
+def wait_pause():
+    """暂停闸: PAUSE 文件在就原地待命, 每 5min 报一次还活着"""
+    n = 0
+    while PAUSE_FILE.exists():
+        if n % 10 == 0:
+            log("已暂停(PAUSE 文件在), 待命中... (删 scripts/PAUSE 即继续)")
+        n += 1
+        time.sleep(30)
+
+
+def day_full(pub_date: str) -> bool:
+    """该日 results 目录每个 txt 都有 vision(ocr/pages) → 产物齐才可沉淀。
+    不齐就等剩余视频(2026-09-28: 防半天多视频只沉淀到部分原料)"""
+    d = RESULTS / pub_date.replace("-", ".")
+    if not d.is_dir():
+        return False
+    txts = [f for f in d.glob("BV*.txt")
+            if not f.name.endswith((".raw.txt", ".correct.log")) and f.stat().st_size > 0]
+    if not txts:
+        return False
+    for t in txts:
+        vj = t.with_name(t.name[:-4] + ".vision.json")
+        try:
+            j = json.loads(vj.read_text(encoding="utf-8"))
+            if not (j.get("ocr") or j.get("pages")):
+                return False
+        except (OSError, json.JSONDecodeError):
+            return False
+    return True
+
+
+def load_distilled() -> set:
+    try:
+        return set(json.loads(DISTILL_STATE.read_text(encoding="utf-8")).get("done", []))
+    except (OSError, json.JSONDecodeError):
+        return set()
+
+
+def save_distilled(s: set):
+    DISTILL_STATE.write_text(json.dumps({"done": sorted(s)}, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def maybe_distill(pub_date: str, distilled: set) -> bool:
+    """md 新格式+当日产物齐 → headless claude 调 /taoge-distill 沉淀进 skills/taoge-skill/persona/。
+    幂等账本; 仅当 stdout 末行哨兵 DISTILL_OK 才记账; 失败只 log 不阻断。返回 True=本日已沉淀(含此前已记)。"""
+    if pub_date in distilled:
+        return True
+    md = md_path_for(pub_date)
+    try:
+        if not md.exists() or MD_NEW_MARKER not in md.read_text(encoding="utf-8", errors="ignore"):
+            return False  # md 未就绪(旧格式/不存在), 等 md 钩子/清扫先跑
+    except OSError:
+        return False
+    if not day_full(pub_date):
+        log(f"distill 跳过 {pub_date}: 当日产物未齐(等剩余视频)")
+        return False
+    if DISTILL_OP_LOCK.exists():
+        log(f"distill 跳过 {pub_date}: 另一 distill 在进行中(main 与 sweep 互斥锁, 下轮再来)")
+        return False
+    prompt = (f"调用 /taoge-distill 沉淀 {pub_date}。"
+              f"原料: {md} 的 ### 桃哥 小节(信息截止={pub_date}, 禁用晚于该日的知识与文件)。"
+              f"按 SKILL 流程先核销 rules.md 的 [待验证] 规则, 再从本日小节提取新规则/案例/语言指纹进 "
+              f"skills/taoge-skill/persona/(rules.md/cases.md/profile.md/language.md), 全带证据锚点。"
+              f"无货可沉淀也是正常结果。stdout 末行必须打印 DISTILL_OK {pub_date}。")
+    # capture_output: 哨兵记账需要 stdout; 与 md 钩子同因带 --dangerously-skip-permissions
+    log(f"run[distill]: {pub_date}")
+    DISTILL_OP_LOCK.write_text(str(os.getpid()), encoding="utf-8")
+    try:
+        r = subprocess.run(["cmd", "/c", "claude", "-p", "--dangerously-skip-permissions", prompt],
+                           timeout=DISTILL_TIMEOUT, cwd=str(ROOT),
+                           capture_output=True, text=True, encoding="utf-8", errors="replace")
+        tail = (r.stdout or "").strip().splitlines()
+        if r.returncode == 0 and tail and tail[-1].strip() == f"DISTILL_OK {pub_date}":
+            distilled.add(pub_date)
+            save_distilled(distilled)
+            log(f"distill 完成 {pub_date}")
+            return True
+        err_snip = (r.stderr or "").strip().replace("\n", " ")[:200]  # 9/28: 03:18 批量 exit=1 无 stderr 可查的教训
+        log(f"distill 失败 {pub_date}: exit={r.returncode} 哨兵缺失 err={err_snip} (不阻断, --distill-sweep 兜底)")
+    except subprocess.TimeoutExpired:
+        log(f"distill 超时 {pub_date}: >{DISTILL_TIMEOUT}s killed")
+    except OSError as e:
+        log(f"distill oserror {pub_date}: {e}")
+    finally:
+        DISTILL_OP_LOCK.unlink(missing_ok=True)
+    return False
+
+
 def process_one(v, asr_only):
     """返回 (ok, info, source)。source: 复用/新下/复用+新下(state 记账用)"""
     bvid, pub = v["bvid"], v["pubdate"]
@@ -347,7 +520,15 @@ def main():
     ap.add_argument("--asr-only", action="store_true", help="只下载+asr,correct(不占 GPU 的快速通道)")
     ap.add_argument("--bvid", help="只处理指定 bvid(调试)")
     ap.add_argument("--ignore-window", action="store_true", help="跳过时间窗守卫(调试用, 挂机勿用)")
+    ap.add_argument("--md-sweep", action="store_true",
+                    help="只为已完成产物补写 md(不处理视频): 钩子只在本次 OK 时触发, "
+                         "钩子诞生前完成的+崩溃后被补齐的天数会漏写, 用本开关扫一轮(9/27 设计盲区补救)")
+    ap.add_argument("--distill-sweep", action="store_true",
+                    help="只为已就绪天数补沉淀 taoge-skill(不处理视频/不写 md): "
+                         "md 新格式+当日产物齐+账本未记 才触发(9/28 串行链第三环)")
     args = ap.parse_args()
+    mode = "distill-sweep" if args.distill_sweep else ("md-sweep" if args.md_sweep else "main")
+    ensure_single_instance(mode)  # 9/28 立法: 同模式单实例; distill-sweep 与 main 允许并发(架构内旁路)
 
     holidays = load_holidays()
     videos = load_index()
@@ -398,11 +579,34 @@ def main():
             log(f"  ... 其余 {len(todo)-50} 条略")
         return
 
+    if args.md_sweep:
+        # 只补写已完成天数的 md, 不碰视频处理; 跳过规则(replay窗口/9-18/md不存在)在 maybe_write_md 内
+        n = 0
+        for v in videos:
+            if v["bvid"] in full_done:
+                wait_pause()
+                maybe_write_md(v, False, sweep=True)
+                n += 1
+        log(f"md 补写清扫结束: 检查 {n} 天(已完成产物天数)")
+        return
+
+    if args.distill_sweep:
+        distilled = load_distilled()
+        before = len(distilled)
+        dates = sorted({dt.datetime.fromtimestamp(v["pubdate"]).strftime("%Y-%m-%d") for v in videos})
+        for d in dates:
+            wait_pause()
+            maybe_distill(d, distilled)
+        log(f"distill 清扫结束: 检查 {len(dates)} 天, 本轮新沉淀 {len(distilled)-before}, 账本累计 {len(distilled)}")
+        return
+
     limit = args.max if args.max > 0 else len(todo)
+    distilled = load_distilled()  # 串行链第三环账本(钩子用; 清扫走上面的独立分支)
     n_done = n_fail = 0
     for i, v in enumerate(todo[:limit]):
         bvid = v["bvid"]
         log(f"===== [{i+1}/{min(limit, len(todo))}] {bvid} | {date_dir(v['pubdate'])} | {str(v.get('title'))[:40]}")
+        wait_pause()  # 随叫随停(9/28 用户定): 视频粒度暂停, 在跑的子进程跑完当前条即停
         if not args.ignore_window:
             wait_window(holidays)
         if not args.asr_only:
@@ -412,6 +616,9 @@ def main():
         if ok:
             n_done += 1
             log(f"OK {bvid}")
+            maybe_write_md(v, args.asr_only)
+            # 串行链第三环: md 就绪且当日产物齐则沉淀(9/28 用户拍板; 不齐则留给 --distill-sweep 兜底)
+            maybe_distill(dt.datetime.fromtimestamp(v["pubdate"]).strftime("%Y-%m-%d"), distilled)
         else:
             n_fail += 1
             log(f"FAIL {bvid}: {info} (第{state['bvids'][bvid]['retries']}次)")

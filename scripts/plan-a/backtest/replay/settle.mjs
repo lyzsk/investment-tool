@@ -7,6 +7,28 @@ import path from 'path';
 
 const dayOf = t => t.slice(0, 8);
 
+// CSV 写 UTF-8 BOM: 无 BOM 时中文 Windows 的 Excel 按 GBK 读 → 全列乱码(9/27 用户踩坑)
+const BOM = '﻿';
+
+// 文件写重试(9/27 踩坑: 用户 Excel 打开 equity.csv 占锁 → EBUSY 崩掉 62 天跑批)
+// 5 次×1s 退避; 最终失败抛出带指引的错误, 别只丢 errno
+export function writeRetry(fn, label, tries = 5) {
+  for (let i = 0; ; i++) {
+    try { return fn(); }
+    catch (e) {
+      if ((e.code === 'EBUSY' || e.code === 'EPERM') && i < tries - 1) {
+        const until = Date.now() + 1000;
+        while (Date.now() < until);   // 同步短退避(写文件都是 ms 级, 不值得上异步)
+        continue;
+      }
+      if (e.code === 'EBUSY' || e.code === 'EPERM') {
+        throw new Error(`文件被占用(请关闭 Excel/编辑器后重跑): ${label} [${e.code}]`);
+      }
+      throw e;
+    }
+  }
+}
+
 // 当日结算: 现金 + 持仓市值 → 追加 equity.csv
 export function settleDay({ runDir, group, date, state, barsByCode, hole }) {
   let mv = 0;
@@ -22,9 +44,11 @@ export function settleDay({ runDir, group, date, state, barsByCode, hole }) {
   const nav = +(state.cash + mv).toFixed(2);
   const shBars = (barsByCode['sh000001'] || []).filter(b => dayOf(b.t) === date);
   const f = path.join(runDir, 'equity.csv');
-  if (!fs.existsSync(f)) fs.writeFileSync(f, 'date,cash,market_value,total_nav,return_pct,sh_close\n');
-  fs.appendFileSync(f, [date, state.cash.toFixed(2), mv.toFixed(2), nav,
-    ((nav / state.nav_start - 1) * 100).toFixed(2), shBars.length ? shBars[shBars.length - 1].c : ''].join(',') + '\n');
+  writeRetry(() => {
+    if (!fs.existsSync(f)) fs.writeFileSync(f, BOM + 'date,cash,market_value,total_nav,return_pct,sh_close\n');
+    fs.appendFileSync(f, [date, state.cash.toFixed(2), mv.toFixed(2), nav,
+      ((nav / state.nav_start - 1) * 100).toFixed(2), shBars.length ? shBars[shBars.length - 1].c : ''].join(',') + '\n');
+  }, f);
   state.equity.push({ date, nav });
   return nav;
 }
@@ -36,7 +60,7 @@ export function writeTrades(runDir, allFills) {
   const esc = s => `"${String(s ?? '').replaceAll('"', "'")}"`;
   const rows = allFills.map(x => [x.trigger_bar.slice(0, 8), x.id, x.code, x.name, x.side, x.verdict,
     x.trigger_bar, x.fill_bar || '', x.px ?? '', x.qty ?? '', x.fee ?? '', esc(x.note)].join(','));
-  fs.writeFileSync(f, head + rows.join('\n') + '\n');
+  writeRetry(() => fs.writeFileSync(f, BOM + head + rows.join('\n') + '\n'), f);
 }
 
 // report.md: 每组一份, 对齐 pilot-2week 的报告骨架
@@ -79,5 +103,5 @@ ${rejected.map(r => `- ${r.trigger_bar} ${r.name} ${r.side}: ${r.note || ''}`).j
 - trades.csv / equity.csv / decisions/(每日决策+哈希链) / holes.log(数据洞) / hashchain.log(防作伪链)
 ${extra.appendix || ''}
 `;
-  fs.writeFileSync(path.join(runDir, 'report.md'), md);
+  writeRetry(() => fs.writeFileSync(path.join(runDir, 'report.md'), md), path.join(runDir, 'report.md'));
 }

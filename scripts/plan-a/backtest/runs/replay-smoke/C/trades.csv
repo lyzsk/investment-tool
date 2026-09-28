@@ -1,2 +1,0 @@
-date,id,code,name,side,verdict,trigger_bar,fill_bar,px,qty,fee,note
-20260916,mock-c-taiji,sh600667,太极实业,buy,filled,202609160935,202609160940,18.97,1000,4.74,"mock链路验证单"

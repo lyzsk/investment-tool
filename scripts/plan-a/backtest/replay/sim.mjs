@@ -168,6 +168,13 @@ export function simulateDay({ date, items, state, barsByCode, indexBars, hole, l
       if (!ok) continue;
       const next = bars[i + 1];
       if (!next) { hole('无下一根bar无法成交', item.id + '@' + t); fired.add(item.id); continue; }
+      // notify(观察/回避表态): 只留痕不成交
+      if (item.action.type === 'notify') {
+        fills.push({ id: item.id, code: item.code, name: item.name, side: 'watch',
+          trigger_bar: t, fill_bar: null, verdict: 'notify_only', px: null, qty: null, fee: null,
+          note: item.action.note, source: item.source });
+        fired.add(item.id); continue;
+      }
       const fill = tryFill(item, next, pos, ctx, state, hole, log);
       fills.push({
         id: item.id, code: item.code, name: item.name, side: item.action.type,

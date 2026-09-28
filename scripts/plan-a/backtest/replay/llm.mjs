@@ -41,28 +41,37 @@ const COND_TYPES = new Set(['time_window', 'open', 'price_above', 'price_below',
   'amount_gt', 'index_pct_below', 'index_pct_above', 'vol_ratio_gt', 'no_new_low_n']);
 
 // 证据锚校验(单条): 返回 true=锚住; 锚不在信息包里=幻觉证据, 该决策作废
+// 空白归一: LLM 引用时常省略空格("看多·已买入" vs 原文"看多 · 已买入"), 比较前两侧去全部空白;
+// 但数字/文字必须逐字一致 —— 数值错=幻觉, 照杀(9/16 smoke: C 引"半导体 15864.3" 与画面不符被杀, 正确)
 function evidenceOk(ev, packText, ruleIds) {
   if (typeof ev !== 'string') return false;
+  // 空白+全半角标点归一: LLM 引用常把半角逗号写成全角(9/16 smoke 实测), 这类不算篡改;
+  // 文字与数字仍须逐字一致 —— 数值错=幻觉, 照杀
+  const PUNCT = { '，': ',', '；': ';', '：': ':', '（': '(', '）': ')', '“': '"', '”': '"', '‘': "'", '’': "'", '。': '.' };
+  const squash = s => s.replace(/\s+/g, '').replace(/[，；：（）“”‘’。]/g, ch => PUNCT[ch]);
   if (ev.startsWith('rule:')) return ruleIds.has(ev.slice(5).trim());
   if (ev.startsWith('kline:')) return packText.includes(ev.slice(6).trim());
-  if (ev.startsWith('md:')) { const q = ev.slice(3).trim(); return q.length >= 6 && packText.includes(q); }
+  // md:/vision:/quote: 统一=信息包原文逐字子串(去空白比较; 数字必须逐字一致)
+  for (const p of ['md:', 'vision:', 'quote:']) {
+    if (ev.startsWith(p)) { const q = squash(ev.slice(p.length).trim()); return q.length >= 6 && squash(packText).includes(q); }
+  }
   return false;   // 无前缀=不可机检, 一律按不合格处理(严进)
 }
 
 // 污染审计(立法: 推理链出现信息包外的事件 → 标记该日污染作废)
 // 可机检的两类污染:
 //   ① 引用了信息包里不存在的股票代码(训练数据记忆里的票混进来)
-//   ② 提及晚于 info_cutoff 的日期(未来函数/记忆泄露)
+//   ② 提及晚于交易日 T 的日期(未来函数/记忆泄露) —— 注意 plan_date/valid_date=T 本身是合法的,
+//      阈值必须是 T 而非 info_cutoff(T-1), 否则误伤(9/16 smoke 踩过)
 // 注意局限: "信息包外的事件"若不含代码/日期(如复述某条旧新闻)机械查不出 —— 复盘人工兜底。
-export function detectPollution(rawText, packText, infoCutoff) {
+export function detectPollution(rawText, packText, tradeDate) {
   const hits = [];
   for (const m of rawText.matchAll(/(sh|sz)\d{6}/g)) {
     if (!packText.includes(m[0])) hits.push('包外代码:' + m[0]);
   }
-  const cutoff = infoCutoff.slice(0, 8);
   for (const m of rawText.matchAll(/(20\d{2})[-/年.](\d{1,2})[-/月.](\d{1,2})/g)) {
     const d = m[1] + String(m[2]).padStart(2, '0') + String(m[3]).padStart(2, '0');
-    if (d > cutoff) hits.push(' cutoff后日期:' + d);
+    if (d > tradeDate) hits.push(' 未来日期:' + d);
   }
   return [...new Set(hits)];
 }
@@ -74,25 +83,35 @@ export function validatePlan(obj, date, hole, packText = '', ruleIds = new Set()
     const bad = [];
     if (!/^(sh|sz)\d{6}$/.test(it?.code || '')) bad.push('code');
     if (!['buy', 'sell', 'watch'].includes(it?.side)) bad.push('side');
-    if (!Array.isArray(it?.conditions) || !it.conditions.length) bad.push('conditions');
-    else for (const c of it.conditions) if (!COND_TYPES.has(c.type)) bad.push('cond:' + c.type);
-    if (!['buy', 'sell', 'notify'].includes(it?.action?.type)) bad.push('action');
-    if (it?.action?.type === 'buy' && it.side !== 'buy') bad.push('side/action不一致');
-    // 证据锚: buy/sell 必须至少一条可机检证据且全部锚在信息包内; watch 放宽(不下单)
+    // notify/watch(回避观察类)允许空 conditions(语义=只表态不下单); buy/sell 必须有可机械判定条件
+    const isNotify = it?.action?.type === 'notify' || it?.action?.type === 'watch';
+    if (!isNotify && (!Array.isArray(it?.conditions) || !it.conditions.length)) bad.push('conditions');
+    else if (Array.isArray(it?.conditions)) for (const c of it.conditions) if (!COND_TYPES.has(c.type)) bad.push('cond:' + c.type);
+    if (!['buy', 'sell', 'notify', 'watch'].includes(it?.action?.type)) bad.push('action');
+    // side/action 不一致(LLM 高频笔误): 以 action.type 为准归一 side, 记洞不杀(语义在 action 里)
+    const wantSide = it?.action?.type === 'buy' ? 'buy' : it?.action?.type === 'sell' ? 'sell' : 'watch';
+    if (it?.side !== wantSide && !bad.includes('action')) {
+      hole?.('side/action不一致已归一', `#${k} ${it?.code}: side=${it?.side}→${wantSide}`);
+      it.side = wantSide;
+    }
+    // 证据锚: buy/sell 必须全部锚在信息包内(引不出证据的决策不许下单, 立法); watch 也查但只记不杀
     const evs = Array.isArray(it?.evidence) ? it.evidence : [];
-    if (it?.action?.type !== 'notify') {
+    if (!isNotify) {
       if (!evs.length) bad.push('无evidence');
       else {
         const badEv = evs.filter(e => !evidenceOk(e, packText, ruleIds));
         if (badEv.length) bad.push('证据锚外:' + badEv.join('|').slice(0, 120));
       }
+    } else {
+      const badEv = evs.filter(e => !evidenceOk(e, packText, ruleIds));
+      if (badEv.length) hole?.('watch条目证据锚外(仅记录)', `#${k} ${it?.code}: ${badEv.join('|').slice(0, 100)}`);
     }
     if (bad.length) { hole?.('LLM条目校验丢弃', `#${k} ${it?.code || '?'}: ${bad.join(',')}`); continue; }
     items.push({
       id: String(it.id || `llm-${k}`), strategy: 'llm', code: it.code, name: it.name || it.code,
       side: it.side === 'watch' ? 'watch' : it.side, valid_date: date,
-      conditions: it.conditions, evidence: evs,
-      action: it.action.type === 'notify'
+      conditions: it.conditions || [], evidence: evs,
+      action: isNotify
         ? { type: 'notify', note: String(it.action.note || '') }
         : { type: it.action.type, max_amt: Math.min(+it.action.max_amt || 25000, 25000), qty: it.action.qty, note: String(it.action.note || '') },
       source: String(it.source || 'llm'),
@@ -137,11 +156,17 @@ export function callClaude(prompt, { timeoutMs = 180000, cwd } = {}) {
 }
 
 // 统一入口: mock 或真调, 原始输出一律落 runDir/llm_raw/<tag>.txt 留痕
+// 真调失败自动重试 1 次(Windows 上 claude.cmd 偶发"The batch file cannot be found"瞬时故障, 9/16 smoke 踩过)
 export async function runLlm(prompt, { mock, mockResponse, runDir, tag, hole, cwd }) {
   let raw, mode;
   if (mock) { raw = mockResponse; mode = 'mock'; }
   else {
-    raw = await callClaude(prompt, { cwd });
+    try { raw = await callClaude(prompt, { cwd }); }
+    catch (e) {
+      hole?.('LLM首调失败重试', `${tag} ${String(e).slice(0, 120)}`);
+      await new Promise(r => setTimeout(r, 3000));
+      raw = await callClaude(prompt, { cwd });   // 第二次失败直接抛, 上层记洞=当日空仓
+    }
     mode = 'real';
   }
   const dir = path.join(runDir, 'llm_raw');

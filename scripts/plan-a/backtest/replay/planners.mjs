@@ -66,13 +66,16 @@ export function packDigestText(pack) {
   const klineLines = Object.entries(pack.kline || {}).map(([c, k]) =>
     `  - ${c} 昨收${k.last_close}(${k.last_pct ?? '?'}%) 近${k.bars.length}日: ${k.bars.map(b => b.d.slice(4) + '收' + b.c).join(' ')}`).join('\n');
   const ruleLines = pack.rules.map(r => `  - ${r.id} ${r.name}(learned_before=${r.learned_before}): ${r.trigger || r.precondition || ''} → ${r.action || (r.items || []).join(';')}`).join('\n');
+  // 2026-09-14 前的 md 无结构化解读小节: 转写原文(截断)兜底, 并显式标注数据形态, 防 LLM 假装看到解读
+  const transcriptBlock = t.market_view ? '' :
+    `\n【T-1晚 桃哥复盘转写原文(ASR, 含同音错字; 当日无结构化解读小节, 这是唯一复盘信息源)】\n${(t.transcript || '(无)').slice(0, 1800)}`;
   return `【信息边界】你只许用 ≤${pack.prev_date} 晚的信息(info_cutoff=${pack.info_cutoff}), 严禁提及任何之后的行情。
 【T-1晚 桃哥复盘解读】
-大盘判断: ${t.market_view || '(无)'}
+大盘判断: ${t.market_view || '(当日md无结构化解读小节, 见下方转写原文)'}
 提及个股:
 ${mentionLines || '  (无)'}
 桃哥今日操作: ${t.his_ops || '(无)'}
-明日策略: ${t.strategy || '(无)'}
+明日策略: ${t.strategy || '(无)'}${transcriptBlock}
 【T-1晚 画面真值(视觉数据)】
 ${visionLines || '  (无)'}
 【候选票 kline 历史(截止T-1收盘)】
@@ -81,10 +84,20 @@ ${klineLines || '  (无)'}
 ${ruleLines || '  (无可用规则)'}`;
 }
 
+// 证据锚纪律(C/D 共用, 拼进 prompt 尾部): 引不出证据的决策不许下单(立法 2026-09-27)
+const EVIDENCE_DISCIPLINE = `【证据纪律(硬性, 机器逐条校验, 不合格直接丢弃该条目)】
+每条 buy/sell 必须带 evidence 数组, 元素只许三种:
+  ① "md:<信息包原文的连续逐字片段≥6字>" —— 必须逐字照抄【】区块里的连续文字, 禁止改写/省略中间字/拼接两句(空格可省, 字一个不能错); 引画面数据同样逐字(含数字)
+  ② "kline:<代码>" —— 该代码的kline摘要必须出现在信息包里
+  ③ "rule:<规则编号>" —— 只能用信息包/画像里实际存在的编号(如 R9 或 A2), 禁止自造编号
+反例(会被杀): "md:太极实业 · 看多·已买入 【桃哥: 持有】"(中间省略了"(早盘)(转写别名)"原文, 不是连续子串); "rule:B10-risk"(自造编号)
+正确例: "md:太极实业(sh600667) · 看多 · 已买入(早盘)"`;
+
 export function promptC(pack) {
   return `你是短线交易预案生成器。今天是 ${pack.date.slice(0, 4)}-${pack.date.slice(4, 6)}-${pack.date.slice(6, 8)} 开盘前。
 根据下面的 T-1 晚信息包, 产出今日 watchlist(盘中由机械引擎按"触发后次根bar开盘价"执行)。
 纪律: 单票金额上限 25000 元; 只在信息包出现过的代码里选; 每个条目必须给可机械判定的 conditions; 不确定就不给条目, 空仓是合法输出。
+${EVIDENCE_DISCIPLINE}
 只输出一个 JSON 对象(不要markdown解释), schema:
 ${PLAN_SCHEMA_HINT}
 
@@ -109,6 +122,7 @@ ${rules}
 
 以上是 B站 UP 主"股桃"(桃哥)的完整人格画像。你现在扮演桃哥, 今天是 ${pack.date.slice(0, 4)}-${pack.date.slice(4, 6)}-${pack.date.slice(6, 8)} 开盘前, 用他的思维方式/他的纪律产出今日 watchlist(盘中由机械引擎按"触发后次根bar开盘价"执行)。
 纪律: 单票金额上限 25000 元(他缩量环境 2-3 成仓); 只在信息包出现过的代码里选; 退出不靠你(机械三档撤退统一兜底), 你只负责"买什么/什么条件买/避开什么"; 每个条目必须给可机械判定的 conditions; 不符合他审美的机会一律不给(空仓是合法输出)。
+${EVIDENCE_DISCIPLINE}
 只输出一个 JSON 对象(不要markdown解释, 不要角色扮演台词), schema:
 ${PLAN_SCHEMA_HINT}
 
