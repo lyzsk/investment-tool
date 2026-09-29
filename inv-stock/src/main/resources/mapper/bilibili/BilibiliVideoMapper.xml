@@ -13,8 +13,6 @@
         <result column="trade_date" property="tradeDate"/>
         <result column="duration" property="duration"/>
         <result column="url" property="url"/>
-        <result column="source_files" property="sourceFiles"
-                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="step" property="step"/>
         <result column="retry_count" property="retryCount"/>
         <result column="status" property="status"/>
@@ -34,7 +32,7 @@
         <![CDATA[
           SELECT
               id, bvid, author_mid, title, publish_time, trade_date, duration, url,
-              source_files, step, retry_count,
+              step, retry_count,
               status, create_by, create_time, update_by, update_time,
               is_deleted, delete_by, delete_time, remark
           FROM bilibili_video

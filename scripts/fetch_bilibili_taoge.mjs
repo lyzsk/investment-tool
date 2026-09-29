@@ -3,7 +3,7 @@
 // 用法:
 //   node fetch_bilibili_taoge.mjs --list        # 只发现不下载, stdout 末行 "JSON:[...]" (Java BilibiliVideoHandler 发现段消费)
 //   node fetch_bilibili_taoge.mjs [--bvid BVxxxx] [--out <目录>] [--video-only|--audio-only]
-//                                               # 下载产物 → <outDir>/<bvid>.mp4(画面,视觉用) + .m4a(音轨,ASR用) + .json(元数据)
+//                                               # 下载产物 → <outDir>/<bvid>.mp4(画面,视觉用) + .m4a(音轨,ASR用) + .json(源元数据=view API原始响应全文+抓取信封)
 //   --bvid 不传=下最新一个; --out 不传默认 cwd/downloads, 传了=精确落盘目录(Java 传 downloads/bilibili/<作者mid>/<yyyy.MM.dd>, TODO 2.9 约定)
 // B站 DASH 音视频分流: 一次 playurl(fnval=16) 同时返回 dash.audio + dash.video, 一次请求各取所需
 // 幂等: 产物已存在(size>0)则跳过, 重试只补缺不重下; 退出码 0=所求产物全部就位, 1=任一失败
@@ -109,7 +109,8 @@ async function discover() {
       const v = await getJson(`https://api.bilibili.com/x/web-interface/view?bvid=${c.bvid}`);
       if (v.code === 0 && v.data.owner.mid === MID) {
         // view 返回的 title 是干净原文(搜索页抠的可能带转义), cid/duration 也只有 view 有
-        his.push({ ...c, mid: String(MID), cid: v.data.cid, desc: v.data.desc, duration: v.data.duration, title: v.data.title });
+        // _raw(2026-09-29 用户定): 保留 view API 原始 data 全文, 落盘 .json 存源不存裁剪版
+        his.push({ ...c, mid: String(MID), cid: v.data.cid, desc: v.data.desc, duration: v.data.duration, title: v.data.title, _raw: v.data });
       }
     } catch (e) {
       console.error(`view fail ${c.bvid}: ${e.message}`);
@@ -178,13 +179,21 @@ async function downloadProducts(video, outDir, wantVideo, wantAudio) {
     }
   }
 
-  // 元数据每次都刷新(几KB, 保持最新); page/fetched_at(2026-09-29 用户定): 该 json 全文会进
-  // DB source_files.meta, 原料物理删除后仍能凭 page+bvid+cid 知道去哪重查
+  // 源元数据每次都刷新(2026-09-29 用户定: 存原本的样子, 不存手工裁剪版):
+  // 信封(api 来源+fetched_at) + data=view API 原始响应全文(含 stat 播放/点赞/硬币、
+  // pages 分P、owner、subtitle 等 40+ 字段)。只是磁盘产物(随原料 30 天清理, 不入库),
+  // 物理删除后要重查=拿 bvid 重跑本脚本重新走 view/playurl
+  let raw = video._raw;
+  if (!raw) {
+    // BFS related 捞进来的候选没过 view API(罕见), 补拉一次保 raw
+    const v = await getJson(`https://api.bilibili.com/x/web-interface/view?bvid=${video.bvid}`);
+    if (v.code === 0) raw = v.data;
+  }
   const metaPath = path.join(outDir, `${video.bvid}.json`);
   fs.writeFileSync(metaPath, JSON.stringify({
-    ...video,
-    page: `https://www.bilibili.com/video/${video.bvid}`,
+    api: `https://api.bilibili.com/x/web-interface/view?bvid=${video.bvid}`,
     fetched_at: new Date().toISOString(),
+    data: raw ?? video,
   }, null, 2));
   console.log("meta:", metaPath);
 }
@@ -215,7 +224,7 @@ async function main() {
   if (bvid) {
     const v = await getJson(`https://api.bilibili.com/x/web-interface/view?bvid=${bvid}`);
     if (v.code !== 0) throw new Error("view api: " + v.message);
-    video = { bvid, cid: v.data.cid, title: v.data.title, pubdate: v.data.pubdate, desc: v.data.desc, duration: v.data.duration };
+    video = { bvid, cid: v.data.cid, title: v.data.title, pubdate: v.data.pubdate, desc: v.data.desc, duration: v.data.duration, _raw: v.data };
   } else {
     const his = await discover();
     if (!his.length) throw new Error("no videos found for mid " + MID);

@@ -55,8 +55,9 @@ public interface IBilibiliVideoService extends IService<BilibiliVideo> {
     String processPendingVideos(int maxRetry);
 
     /**
-     * 物理删除 SUMMARIZED 且超过 retentionDays 天的视频原料(source_files 数组列出的全部文件),
-     * source_files 置空 + remark 记删除时间, DB 行保留(防重复下载)
+     * 物理删除 SUMMARIZED 且超过 retentionDays 天的视频原料(mp4+m4a+json 三件套,
+     * 路径按命名约定从 bvid/author_mid/publish_time 派生), remark 记删除时间,
+     * DB 行保留(防重复下载)
      *
      * @param retentionDays 保留天数
      * @return java.lang.String "bilibili原料清理 x/失败 y"

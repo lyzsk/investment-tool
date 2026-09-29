@@ -6,7 +6,6 @@ import cn.sichu.bilibili.service.IBilibiliVideoService;
 import cn.sichu.system.config.ProjectConfig;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,7 +39,6 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
     implements IBilibiliVideoService {
     /* 7B bf16 需 ~15GB 显存 */
     private static final long MIN_VRAM_BYTES = 15_000_000_000L;
-    private static final ObjectMapper OM = new ObjectMapper();
     private final ProjectConfig projectConfig;
 
     @Override
@@ -139,13 +135,13 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
 
     /**
      * 下载单个视频的全部产物到 downloads/bilibili/<作者mid>/<发布日 yyyy.MM.dd>/:
-     * mp4(画面流, 视觉管线用) + m4a(音轨, ASR用) + json(元数据), 一次 node 调用全拿
+     * mp4(画面流, 视觉管线用) + m4a(音轨, ASR用) + json(view API 原始响应全文), 一次 node 调用全拿
      * (脚本内一次 playurl 同时取 dash.audio+dash.video, 幂等: 已存在的产物跳过只补缺)。
      * 目录约定(TODO 2.9)由本方法显式传 --out 实现, 脚本只认"给目录我存哪";
-     * mid 作目录段=表是通用 B站索引(不限桃哥), 路径由 DB 行的 author_mid 驱动
-     * 成功: source_files={mp4,m4a,json 相对路径(正斜杠) + meta=抓取元数据 json 全文}
-     * (2026-09-29 用户定: 物理删除后不置空, 留"曾在哪+去哪重查"的线索),
-     * step→DOWNLOADED, retry_count 归零
+     * mid 作目录段=表是通用 B站索引(不限桃哥), 路径由 DB 行的 author_mid 驱动。
+     * 产物路径不入库(2026-09-29 用户定: 命名约定可从 bvid/author_mid/publish_time 派生,
+     * 磁盘是唯一事实, source_files 列已删); 回溯=拿 url/bvid 重跑 mjs。
+     * 成功: step→DOWNLOADED, retry_count 归零
      *
      * @param v BilibiliVideo
      * @author sichu huang
@@ -157,19 +153,6 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
             v.getAuthorMid(), day);
         Files.createDirectories(outDir);
         runNode("fetch_bilibili_taoge.mjs", "--bvid", v.getBvid(), "--out", outDir.toString());
-        String relDir = "downloads/bilibili/" + v.getAuthorMid() + "/" + day;
-        Map<String, Object> files = new LinkedHashMap<>();
-        files.put("mp4", relDir + "/" + v.getBvid() + ".mp4");
-        files.put("m4a", relDir + "/" + v.getBvid() + ".m4a");
-        files.put("json", relDir + "/" + v.getBvid() + ".json");
-        /* meta=抓取到的元数据 json 全文(cid/title/pubdate/desc/duration/page/fetched_at),
-           物理删除后仍可凭 cid/bvid 重新走 view/playurl 拉流 */
-        Path metaPath = outDir.resolve(v.getBvid() + ".json");
-        if (Files.isRegularFile(metaPath)) {
-            files.put("meta", OM.readValue(Files.readString(metaPath, StandardCharsets.UTF_8),
-                Map.class));
-        }
-        v.setSourceFiles(files);
         v.setStep("DOWNLOADED");
         v.setStatus(0);
         v.setRetryCount(0);
@@ -297,18 +280,21 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
     @Override
     public String cleanupPhysicalFiles(int retentionDays) {
         LocalDateTime threshold = LocalDateTime.now().minusDays(retentionDays);
-        /* @TableLogic 自动带 is_deleted=0 */
+        /* @TableLogic 自动带 is_deleted=0。
+           2026-09-29 用户定: source_files 列已删, 路径从 bvid/author_mid/publish_time 按命名约定派生
+           (磁盘是唯一事实, 顺带消除"写库路径硬编码 vs 下载目录配置"双真相分叉隐患);
+           幂等=三件套全不在则视为已清理, 跳过且不动 remark */
         List<BilibiliVideo> list = lambdaQuery().eq(BilibiliVideo::getStep, "SUMMARIZED")
-            .isNotNull(BilibiliVideo::getSourceFiles).lt(BilibiliVideo::getUpdateTime, threshold)
-            .list();
+            .lt(BilibiliVideo::getUpdateTime, threshold).list();
         int cleaned = 0, failed = 0, already = 0;
         for (BilibiliVideo v : list) {
             try {
-                /* 2026-09-29 用户定: 物理删除后 source_files 不再置空(路径+meta 是"去哪查"的线索);
-                   幂等改由磁盘判真: 三件套全不在=已清理过, 跳过且不动 remark */
+                String day = DateTimeUtils.getDotDateStr(v.getPublishTime());
+                Path dir = Paths.get(projectConfig.getFile().getDownload().getRootDir(), "bilibili",
+                    v.getAuthorMid(), day);
                 boolean anyDeleted = false;
-                for (String rel : sourceFilePaths(v)) {
-                    anyDeleted |= Files.deleteIfExists(Paths.get(projectConfig.getRootDir(), rel));
+                for (String ext : new String[] {".mp4", ".m4a", ".json"}) {
+                    anyDeleted |= Files.deleteIfExists(dir.resolve(v.getBvid() + ext));
                 }
                 if (!anyDeleted) {
                     already++;
@@ -323,22 +309,6 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
             }
         }
         return String.format("bilibili原料清理 %d/失败 %d/已是空 %d", cleaned, failed, already);
-    }
-
-    /** source_files(对象 {mp4,m4a,json,meta})提取三件套相对路径; 键缺/非字符串则跳过 */
-    private List<String> sourceFilePaths(BilibiliVideo v) {
-        List<String> rels = new ArrayList<>();
-        Map<String, Object> files = v.getSourceFiles();
-        if (files == null) {
-            return rels;
-        }
-        for (String key : new String[] {"mp4", "m4a", "json"}) {
-            Object p = files.get(key);
-            if (p instanceof String) {
-                rels.add((String)p);
-            }
-        }
-        return rels;
     }
 
     private void markFail(BilibiliVideo v, String reason) {

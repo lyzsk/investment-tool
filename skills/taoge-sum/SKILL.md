@@ -10,7 +10,7 @@ description: "Use when 合成桃哥B站视频产物进 stocks md: 读 results/bi
 > 停留在 9/27 版, 缺 §3.5/§5/§6, 若不同步, backfill 的 md-sweep 会按旧格式合成)。
 
 上游 `bilibiliVideoHandler`(quartz, cron 0 30 15-23 * * ?)已完成:
-发现(INSERT step=NEW) → 下载(mp4+m4a+json → source_files, step=DOWNLOADED)
+发现(INSERT step=NEW) → 下载(mp4+m4a+json 落盘 downloads/, step=DOWNLOADED; 路径不入库——命名约定可派生, 磁盘是唯一事实, 9/29 用户定)
 → 直链 process_video.py(ASR→纠错→视觉→聚合 → results/, step=VISION_DONE)。
 
 本 skill = 把 VISION_DONE 的产物消化进 stocks md, 然后推进 SUMMARIZED。
