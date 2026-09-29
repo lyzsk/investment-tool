@@ -178,9 +178,14 @@ async function downloadProducts(video, outDir, wantVideo, wantAudio) {
     }
   }
 
-  // 元数据每次都刷新(几KB, 保持最新)
+  // 元数据每次都刷新(几KB, 保持最新); page/fetched_at(2026-09-29 用户定): 该 json 全文会进
+  // DB source_files.meta, 原料物理删除后仍能凭 page+bvid+cid 知道去哪重查
   const metaPath = path.join(outDir, `${video.bvid}.json`);
-  fs.writeFileSync(metaPath, JSON.stringify(video, null, 2));
+  fs.writeFileSync(metaPath, JSON.stringify({
+    ...video,
+    page: `https://www.bilibili.com/video/${video.bvid}`,
+    fetched_at: new Date().toISOString(),
+  }, null, 2));
   console.log("meta:", metaPath);
 }
 

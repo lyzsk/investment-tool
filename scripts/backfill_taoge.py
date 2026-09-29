@@ -66,15 +66,18 @@ EST_MIN_FULL = 18        # dry-run 估时: 全阶段单条 ~18min
 EST_MIN_ASR = 3          # asr-only 单条 ~3min(CPU whisper small)
 
 # results→md 自动合成(2026-09-27 用户拍板"跑完某一天的 results 就调用自己去总结写回 md"):
-# 单条产物落地后, headless claude -p 按 /taoge-sum(9/24 定稿模板: 五大 bullet 收在 ### 桃哥 下)
-# 整小节覆盖写 stocks md。跳过规则:
-#   - 2026-09-18: 用户手工精修稿, 永不覆盖
-#   - 2026-09-24: 定稿样板本身(新格式从它开始), 不动
-#   (原 replay 窗口 2026-06-29~09-24 冻结令 9/27 深夜解除: C/D 回测已全部跑完, 世界线已封存;
-#    注意——窗口内 md 改写为新格式后 #### 解读 小节消失, 未来重跑 A 组需 planner 适配新格式)
+# 单条产物落地后, headless claude -p 按 /taoge-sum 整小节覆盖写 stocks md。
+# 口径锚点(2026-09-29 用户修订): 格式/口径永远以 skills/taoge-sum/SKILL.md 最新版 +
+# 最新一期已合成 md 的小节为准(总结方式更新最先体现在最新日期), 脚本不硬编码模板日期;
+# headless claude 每次重新读 SKILL.md, 故口径更新零脚本改动。
+# 跳过规则: 最新一期已合成 md(格式样板本身, latest_synth_date() 动态判定, 永不覆盖)。
+#   (2026-09-18 原手工精修稿已于 9/27 用户指令覆盖, 备份 md_backup_2026-09-18_before.md, 现按普通日期处理;
+#    2026-09-24 原定稿样板自 9/29 锚点改版后不再特保, 同样可被重合成)
+#   (replay 窗口 2026-06-29~09-24 冻结令 9/27 深夜解除, 世界线已封存; 注意——窗口内 md 改写为
+#    新格式后 #### 解读 小节消失, 未来重跑 A 组需 planner 适配新格式)
 STOCKS = ROOT / "stocks"
-MD_SKIP_DATES = {"2026-09-24"}  # 定稿样板不动; 2026-09-18 手稿已于 9/27 用户指令覆盖(备份 scripts/backfill_taoge/md_backup_2026-09-18_before.md)
-MD_NEW_MARKER = "**持仓逆向"     # 新格式标记 v2(9/28 起): taoge-sum 加持仓逆向工程 bullet, 凡新加 skill 内容全量重跑(用户立法), 旧格式日因此自动重新合成; distill 就绪闸同标
+MD_NEW_MARKER = "**持仓逆向"     # 新格式标记 v2(9/28 起): taoge-sum 加持仓逆向工程 bullet; 幂等守卫用,
+                                # skill 口径更新后的全量重跑走 --md-force 无视该守卫(9/29 用户立法); distill 就绪闸同标
 MD_TIMEOUT = 900         # headless 合成单条上限 15min(读 txt+vision.json+写 md)
 
 
@@ -319,30 +322,60 @@ def md_path_for(pub_date: str) -> Path:
     return STOCKS / f"{y}S{(int(m) - 1) // 3 + 1}" / f"{pub_date}.md"
 
 
-def maybe_write_md(v, asr_only, sweep=False):
+_LATEST_SYNTH = {"date": None, "checked": False}
+
+
+def latest_synth_date():
+    """最新一期已合成 md(含 ### 桃哥 小节)的日期 = 格式样板, 永不覆盖(锚点动态化, 2026-09-29 用户定)"""
+    if _LATEST_SYNTH["checked"]:
+        return _LATEST_SYNTH["date"]
+    _LATEST_SYNTH["checked"] = True
+    cands = []
+    for md in STOCKS.glob("*/*.md"):
+        try:
+            dt.date.fromisoformat(md.stem)
+        except ValueError:
+            continue
+        cands.append(md)
+    for md in sorted(cands, key=lambda p: p.stem, reverse=True):
+        try:
+            if "### 桃哥" in md.read_text(encoding="utf-8", errors="ignore"):
+                _LATEST_SYNTH["date"] = md.stem
+                return md.stem
+        except OSError:
+            continue
+    return None
+
+
+def maybe_write_md(v, asr_only, sweep=False, force=False):
     """跑完某一天的 results 就调用 claude 自己总结写回 md(2026-09-27 用户拍板)。
-    sweep=True 时带幂等守卫(已是新格式跳过)。失败一律只 log 不阻断回填。"""
+    sweep=True 时带幂等守卫(已是新格式跳过); force=True 无视守卫强制重合成(skill 口径更新后用)。
+    失败一律只 log 不阻断回填。"""
     if asr_only:
         return  # 快速通道只有逐字稿, 态2 合成等 vision 补齐后再说(vision 完成的那轮会触发)
     pub_date = dt.datetime.fromtimestamp(v["pubdate"]).strftime("%Y-%m-%d")
-    if pub_date in MD_SKIP_DATES:
-        log(f"md 合成跳过 {pub_date} (手工精修/定稿样板, 永不覆盖)")
+    latest = latest_synth_date()
+    if latest and pub_date == latest:
+        log(f"md 合成跳过 {pub_date}: 最新一期已合成 md(格式样板本身, 不动)")
         return
     md = md_path_for(pub_date)
     if not md.exists():
         log(f"md 合成跳过 {pub_date}: {md} 不存在(非交易日/未预建, 挂载归口不在本脚本)")
         return
-    if sweep:
+    if sweep and not force:
         try:
             if MD_NEW_MARKER in md.read_text(encoding="utf-8", errors="ignore"):
-                log(f"md 合成跳过 {pub_date}: 已是新格式(幂等守卫)")
+                log(f"md 合成跳过 {pub_date}: 已是新格式(幂等守卫; 口径更新后重跑请加 --md-force)")
                 return
         except OSError:
             return
     prompt = (f"调用 /taoge-sum 合成 {pub_date} 的桃哥视频产物进 stocks md。"
               f"该日期是历史回填日期(results 产物齐但 pendingSummary 无此行), 走批量改写分支: "
               f"原料 results/bilibili/{MID}/{date_dir(v['pubdate'])}/ 的 txt+vision.json, "
-              f"按 9/24 定稿模板整小节覆盖 {md} 的 ### 桃哥 小节, 不 curl markSummarized。")
+              f"口径与格式以 skills/taoge-sum/SKILL.md 最新版为准(锚点=最新一期有桃哥总结的 md 的小节格式), "
+              f"整小节覆盖 {md} 的 ### 桃哥 小节——覆盖前先读旧小节交叉对比(2026-09-29 用户定): "
+              f"旧小节里人工补充/纠错且 results 无法复现的信息保留并入新小节并标注来源, 其余以新合成为准; "
+              f"不 curl markSummarized。")
     # --dangerously-skip-permissions: hermes 实测教训(其 MEMORY.md 9/27)——headless claude -p
     # 做文件写入会被权限审批卡死到超时; 只跑在本机仓库内、prompt 固定, 风险可控
     ok, info = run_cmd(["cmd", "/c", "claude", "-p", "--dangerously-skip-permissions", prompt], MD_TIMEOUT, "md")
@@ -523,6 +556,18 @@ def main():
     ap.add_argument("--md-sweep", action="store_true",
                     help="只为已完成产物补写 md(不处理视频): 钩子只在本次 OK 时触发, "
                          "钩子诞生前完成的+崩溃后被补齐的天数会漏写, 用本开关扫一轮(9/27 设计盲区补救)")
+    ap.add_argument("--md-force", action="store_true",
+                    help="md-sweep 用: 无视'已是新格式'幂等守卫强制重合成"
+                         "(skill 口径更新后的全量重跑, 2026-09-29 用户立法)")
+    ap.add_argument("--md-months", default="",
+                    help="md-sweep 用: 只处理这些月份, 逗号分隔如 2026-09,2026-08"
+                         "(索引本身倒序, 叠加后=先 9 月后 8 月, 2026-09-29 用户定)")
+    ap.add_argument("--md-max-minutes", type=int, default=0,
+                    help="md-sweep 用: 批跑时间预算, 到点停手并打印已完成/剩余清单"
+                         "(0=不限; 2h 批跑节奏 2026-09-29 用户定)")
+    ap.add_argument("--ignore-pause", action="store_true",
+                    help="md-sweep 用: PAUSE 全局暂停期间的特许批跑"
+                         "(仅限用户显式排期的任务, PAUSE 文件本身不动, 2026-09-29 起)")
     ap.add_argument("--distill-sweep", action="store_true",
                     help="只为已就绪天数补沉淀 taoge-skill(不处理视频/不写 md): "
                          "md 新格式+当日产物齐+账本未记 才触发(9/28 串行链第三环)")
@@ -580,14 +625,44 @@ def main():
         return
 
     if args.md_sweep:
-        # 只补写已完成天数的 md, 不碰视频处理; 跳过规则(replay窗口/9-18/md不存在)在 maybe_write_md 内
-        n = 0
-        for v in videos:
-            if v["bvid"] in full_done:
+        # 只补写/重写已完成天数的 md, 不碰视频处理(results 齐备=scan_done 判真, 天然不重做视频→results)
+        # 范围枚举以 results 目录为唯一事实, 不走 index.json——cron/DB 管线进来的新视频不在回填索引里
+        # (2026-09-29 教训: 9/28、9/29 的视频 index.json 漏收, 按索引枚举会漏天); yyyy.MM.dd 字典序=时间序
+        months = {m.strip() for m in args.md_months.split(",") if m.strip()} or None
+        budget = args.md_max_minutes * 60 if args.md_max_minutes > 0 else 0
+        scope = []
+        for d in sorted((p for p in RESULTS.glob("*") if p.is_dir()),
+                        key=lambda p: p.name, reverse=True):
+            try:
+                pd = dt.datetime.strptime(d.name, "%Y.%m.%d").strftime("%Y-%m-%d")
+            except ValueError:
+                continue
+            if months and pd[:7] not in months:
+                continue
+            bvids = [f.name[:-4] for f in d.glob("BV*.txt")
+                     if not f.name.endswith(".raw.txt") and f.stat().st_size > 0]
+            if not any(b in full_done for b in bvids):
+                continue  # 当天没有任何一条产物齐(txt+vision), 不合成
+            scope.append(({"pubdate": dt.datetime.strptime(d.name, "%Y.%m.%d").timestamp()}, pd))
+        log(f"md 清扫范围: {len(scope)} 天 (月份过滤={args.md_months or '无'}, "
+            f"force={args.md_force}, 时间预算={args.md_max_minutes or '不限'}min, "
+            f"ignore_pause={args.ignore_pause})")
+        t0 = time.time()
+        done = []
+        for v, pd in scope:
+            if budget and time.time() - t0 > budget:
+                log(f"md 清扫时间预算 {args.md_max_minutes}min 用尽, 停手")
+                break
+            if not args.ignore_pause:
                 wait_pause()
-                maybe_write_md(v, False, sweep=True)
-                n += 1
-        log(f"md 补写清扫结束: 检查 {n} 天(已完成产物天数)")
+            maybe_write_md(v, False, sweep=True, force=args.md_force)
+            done.append(pd)
+        remaining = [pd for _, pd in scope[len(done):]]
+        log(f"md 补写清扫结束: 范围 {len(scope)} 天, 本轮处理 {len(done)} 天, 剩余 {len(remaining)} 天")
+        if done:
+            log(f"已完成清单: {', '.join(done)}")
+        if remaining:
+            log(f"剩余清单(等用户再启动): {', '.join(remaining)}")
         return
 
     if args.distill_sweep:

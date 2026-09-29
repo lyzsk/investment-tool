@@ -1,0 +1,16 @@
+{
+ "decision_file": "close-firstmove-0929_裁决",
+ "trigger_id": "close-firstmove-0929",
+ "code": "sh603200",
+ "name": "上海洗霸",
+ "side": "buy",
+ "rule_id": null,
+ "verdict": "reject",
+ "info_cutoff": "202609291446",
+ "reasoning": "①触发出处为空, rules_seed.json 无任何规则对应'出金日尾盘先手', 纪律'盘中不发明规则'→无规则依据不开仓; ②R12(learned_before 2026-09-21)长假前'少参与, 风险优先于机会'直接覆盖本场景, 且昨日0928上证-1.55%系统性风险冻结(regime_freeze)未见解除记录; ③现价40.67恰为涨停价(36.97*1.10=40.667), 属尾盘追高封板形态, 不符合R2'提前下跌后企稳低吸'的先手形态, R2事件前最后交易日也是9/30非今日。",
+ "checked": {
+  "rules_seed": "R1-R14 无匹配; R2形态不符; R12反向约束",
+  "paper_state": "cash 100108.09, 无持仓, regime_freeze(20260928)未解除"
+ },
+ "note": "不更新paper_state.json; 若用户坚持要拿节后先手, 归晚间会话沉淀新规则或明日(9/30最后交易日)按R2形态重新评估"
+}

@@ -9,8 +9,9 @@ import org.springframework.stereotype.Component;
 /**
  * downloads 物理删除任务(通用, 按域驱动): 逻辑删除(is_deleted)只是 DB 标记, 本任务管磁盘文件
  * <p>
- * - bilibili 域: SUMMARIZED 且超过 30 天的视频原料(source_files 数组列出的 mp4+m4a+json 全删),
- * DB 行保留防重复下载; 结果文件在 results/ 永久不动
+ * - bilibili 域: SUMMARIZED 且超过 30 天的视频原料(source_files 记录的 mp4+m4a+json 全删),
+ * DB 行保留防重复下载, source_files 不置空(2026-09-29 用户定: 路径+meta 留作"去哪重查"线索,
+ * 幂等由磁盘判真); 结果文件在 results/ 永久不动
  * - cls 域: downloads/cls/<yyyy.MM.dd>/ 超过 90 天的日期目录整删(目录名日期判定);
  * DB images 字段是远程 URL 不受影响
  * <p>

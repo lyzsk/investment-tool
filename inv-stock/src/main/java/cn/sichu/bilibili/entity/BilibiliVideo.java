@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -43,9 +43,14 @@ public class BilibiliVideo extends BaseEntity {
     @TableField("url")
     private String url;
 
-    /** 下载产物相对路径三件套 [mp4, m4a, json](照 cls_telegraph.images 先例), 物理删除后置空 */
+    /**
+     * 下载产物档案 {mp4, m4a, json 相对路径(正斜杠), meta=抓取元数据全文
+     * (bvid/cid/title/pubdate/desc/duration/page/fetched_at)};
+     * 物理删除后不置空(2026-09-29 用户定: 路径=曾在哪, meta+bvid=去哪重查;
+     * 播放页签名 URL 时效 ~2h, 入库无意义故不存)
+     */
     @TableField(value = "source_files", typeHandler = JacksonTypeHandler.class)
-    private List<String> sourceFiles;
+    private Map<String, Object> sourceFiles;
 
     @TableField("step")
     private String step;
