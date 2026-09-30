@@ -797,8 +797,11 @@ VALUES ('东财账户快照', 'dfcf', 'dfcfSnapshotHandler', '0 5 11,15 ? * MON-
 + 事实走确定性代码/拟人只做判断评分 + 学习闭环(延迟结算+反思注入+历史决策向量索引)
 + 可解释性(采集→辩论→决策全链路日志)。沉淀格式待 2-3 周数据后定, 先不建表。
 
-## 定时任务: 桃哥 md 重合成批(2026-09-29 用户定; 同晚修订为脚本驱动)
-- 2026-09-30 凌晨 1:00 起(CronCreate 已排 01:03, durable), 命令:
+## 定时任务: 桃哥 md 重合成批(2026-09-29 用户定; 同晚修订为脚本驱动) — ✅ 首批已完成(2026-09-30 凌晨)
+- 首批结果(01:03-02:01, 56min 跑完, 预算 110min 内): 合成 9 天=9/28, 9/24~9/15; 跳过 9/29(样板)+9/27(周日无 md, 番外问题自动消解); 2026-08 无 results 未涉及; 抽查 9/28+9/15 六要素全齐, §6 惯性核查已在 headless 输出中实证生效
+- 坑已修: latest_synth_date() 原判据"含 ### 桃哥"被 cls 预建的次日空占位小节骗过(9/30.md), 改为"小节存在且含 bilibili.com/video/ 链接"
+- 下批启动条件: 2026-08 及更早的 results 由 backfill 主链回填出来后(等归零重跑的"开始"), 再排同命令(月份参数顺延)
+- 命令(备查):
   `scripts/venv/Scripts/python.exe scripts/backfill_taoge.py --md-sweep --md-force --md-months 2026-09,2026-08 --md-max-minutes 110 --ignore-pause`
 - 脚本语义(taoge-sum SKILL §5 同口径): 枚举 results 目录(不走 index.json)四件套齐备的日期, 倒序, **天然不重做视频→results**; --md-force 无视幂等守卫全量重跑; 最新一期 md(格式样板)自动跳过; 覆盖前交叉对比旧小节(脚本 prompt 已固化)
 - **只跑 ~2 小时停手**(--md-max-minutes 110 + PAUSE 本来就在, --ignore-pause 只是特许本次批跑, PAUSE 文件不动), log 打印已完成/剩余清单, 等用户下次说"开始/继续"再排下一批

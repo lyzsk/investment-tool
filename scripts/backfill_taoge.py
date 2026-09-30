@@ -326,7 +326,9 @@ _LATEST_SYNTH = {"date": None, "checked": False}
 
 
 def latest_synth_date():
-    """最新一期已合成 md(含 ### 桃哥 小节)的日期 = 格式样板, 永不覆盖(锚点动态化, 2026-09-29 用户定)"""
+    """最新一期有桃哥总结的 md 的日期 = 格式样板, 永不覆盖(锚点动态化, 2026-09-29 用户定)。
+    判据="### 桃哥" 小节且含视频链接: cls 管线会预建次日 md 带空的 ### 桃哥 占位头,
+    只看小节名会把占位误判为已合成(2026-09-30 凌晨实测: 9/30 占位导致 9/29 样板未被跳过)"""
     if _LATEST_SYNTH["checked"]:
         return _LATEST_SYNTH["date"]
     _LATEST_SYNTH["checked"] = True
@@ -339,7 +341,8 @@ def latest_synth_date():
         cands.append(md)
     for md in sorted(cands, key=lambda p: p.stem, reverse=True):
         try:
-            if "### 桃哥" in md.read_text(encoding="utf-8", errors="ignore"):
+            content = md.read_text(encoding="utf-8", errors="ignore")
+            if "### 桃哥" in content and "bilibili.com/video/BV" in content:
                 _LATEST_SYNTH["date"] = md.stem
                 return md.stem
         except OSError:
