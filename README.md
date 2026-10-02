@@ -45,15 +45,16 @@
 
 1. create mysql table using: `/sql/tables.sql`
 2. `mvn clean install` and `mvn package spring-boot:repackage`
-3. install enviroment for scrips
+3. install enviroment for scripts
     ```bash
     cd investment-tool/
     npm init -y
     npm install prettier`
     ```
     requirements for fetch_holidays_cn.py: `pip install requests`
-    requirements for cls_image_ocr.py: `pip install -r scripts/requirements-cls.txt`
-    requirements for 桃哥管线 ASR+7B(process_video.py): `pip install -r scripts/requirements-taoge.txt`(torch cu124 需先装本地 wheel, 见文件头注释)
+    requirements for cls/cls_image_ocr.py: `pip install -r scripts/requirements-cls.txt`
+    requirements for 桃哥管线 ASR+7B(bilibili/process_video.py): create venv at `scripts/venv/`, then `pip install -r scripts/requirements-taoge.txt`(torch cu124 需先装本地 wheel, 见文件头注释)
+    download Qwen2.5-VL-7B into `scripts/models/`: `scripts/venv/Scripts/python.exe scripts/bilibili/process_video.py --download-model`
     ```bash
     cd investment-tool/
     python scripts/fetch_holidays_cn.py
@@ -69,21 +70,36 @@ investment-tool
 ├── inv-admin          # Main application entry: Spring Boot startup class, global configuration, web controllers
 ├── inv-common         # Shared utilities: helper classes, constants, exception handling, response wrappers, etc.
 ├── inv-stock          # Stock-related data features
-│   ├── cls            # CaiLianShe (CLS) telegraph fetching and parsing, auto generate yyyy-MM-dd.md(tradingday.md) into investment-tool/stocks/yearAndquarter/ dir and write red telegraph into md
-│   └── ocr            # Image OCR recognition (for parsing daily limit-up analysis / market close summaries)
+│   ├── cls            # CaiLianShe (CLS) telegraph fetching and parsing, auto generate yyyy-MM-dd.md(tradingday.md) into stocks/<year>S<quarter>/ dir and write red telegraph into md
+│   ├── ocr            # Image OCR recognition (for parsing daily limit-up analysis / market close summaries)
+│   ├── bilibili       # Bilibili video pipeline driver (fetch → ASR → name-correction → VLM vision extraction)
+│   └── tzzb           # TongHuaShun investment-ledger fetching and sync (convertible-bond master tracking)
 ├── inv-system         # System infrastructure services
 │   ├── file           # File upload and storage management
 │   └── quartz         # Scheduled job execution (e.g., daily automated data fetching)
 ├── sql                # Database initialization and migration scripts
 ├── uploads            # User- or system-uploaded files (auto-organized by date)
 │   └── category/yyyy-MM-dd
-├── downloads          # Automatically downloaded external resources
-│   └── cls/yyyy-MM-dd # CLS telegraph images (grouped by date)
-├── scripts
-│   └── fetch_holidays_cn.py # auto generate inv-common/src/main/resources/holiday/year.json for Chinese holidays
-│   └── format-markdown.mjs # auto simulate prettier to format markdown files
-├── stocks              # Daily auto-generated stock analysis reports (Markdown)
-│   └── yyyy-MM-dd.md
+├── downloads          # Automatically downloaded external resources (gitignored)
+│   ├── cls/yyyy-MM-dd           # CLS telegraph images (grouped by date)
+│   ├── bilibili/<mid>/<yyyy.MM.dd>  # video raw material mp4/m4a (auto cleanup after 30 days)
+│   ├── tzzb/<ledger>            # investment-ledger raw JSON (evidence layer)
+│   └── cb_quotes/{kline,trends} # convertible-bond quotes archive (daily kline / minute trends)
+├── results            # Pipeline outputs (permanent)
+│   └── bilibili/<mid>/<yyyy.MM.dd>  # corrected transcript + vision.json
+├── scripts            # Domain-organized tool scripts, full-chain usage: scripts/README.md
+│   ├── scan.mjs               # market six-board scanner (gainers/ladders/limit-down/...)
+│   ├── fetch_holidays_cn.py   # auto generate inv-common/src/main/resources/holiday/year.json for Chinese holidays
+│   ├── bilibili/              # taoge video pipeline (fetch_bilibili_taoge.mjs + process_video.py)
+│   ├── tzzb/                  # convertible-bond master line (fetch / quotes / md-gen / review / profile)
+│   ├── cls/                   # CLS image OCR (cls_image_ocr.py, called by Java)
+│   ├── md/                    # markdown tools (format-markdown.mjs prettier / migrate_md_template.mjs)
+│   ├── backfill_taoge/        # historical backfill daemon (local only, gitignored)
+│   ├── models/                # Qwen2.5-VL-7B + name dictionaries (gitignored)
+│   └── venv/                  # python environment (gitignored)
+├── skills             # Claude Code skills (taoge-skill / cb-skill / daily check-md chain)
+├── stocks             # Daily auto-generated stock analysis reports (Markdown)
+│   └── <year>S<quarter>/yyyy-MM-dd.md
 └── logs               # Application runtime logs
 ```
 

@@ -38,14 +38,16 @@
 
 1. create mysql table using: `/sql/tables.sql`
 2. `mvn clean install` and `mvn package spring-boot:repackage`
-3. install enviroment for scrips
+3. install enviroment for scripts
     ```bash
     cd investment-tool/
     npm init -y
     npm install prettier`
     ```
     requirements for fetch_holidays_cn.py: `pip install requests`
-    requirements for cls_image_ocr.py: `pip install -r scripts/requirements-cls.txt`
+    requirements for cls/cls_image_ocr.py: `pip install -r scripts/requirements-cls.txt`
+    requirements for 桃哥管线 ASR+7B(bilibili/process_video.py): 先建 venv 到 `scripts/venv/`, 再 `pip install -r scripts/requirements-taoge.txt`(torch cu124 需先装本地 wheel, 见文件头注释)
+    下载 Qwen2.5-VL-7B 到 `scripts/models/`: `scripts/venv/Scripts/python.exe scripts/bilibili/process_video.py --download-model`
     ```bash
     cd investment-tool/
     python scripts/fetch_holidays_cn.py
@@ -61,21 +63,36 @@ investment-tool
 ├── inv-admin          # 主应用入口：Spring Boot 启动类、全局配置、Web 控制器
 ├── inv-common         # 通用模块：工具类、常量、异常处理、响应封装等
 ├── inv-stock          # 股票数据相关功能
-│   ├── cls            # 财联社（CLS）电报抓取与解析, 自动生成yyyy-MM-dd.md(交易日.md)到into investment-tool/stocks/yearAndquarter/ 路径, 自动写入加红电报
-│   └── ocr            # 图片 OCR 识别（用于解析涨停分析/收评图片）
+│   ├── cls            # 财联社（CLS）电报抓取与解析, 自动生成yyyy-MM-dd.md(交易日.md)到 stocks/<year>S<quarter>/ 路径, 自动写入加红电报
+│   ├── ocr            # 图片 OCR 识别（用于解析涨停分析/收评图片）
+│   ├── bilibili       # B站视频管线驱动（下载 → ASR 转写 → 股名纠错 → VLM 视觉提取）
+│   └── tzzb           # 同花顺投资账本抓取与同步（转债高手跟踪）
 ├── inv-system         # 系统支撑服务
 │   ├── file           # 文件上传、存储管理
 │   └── quartz         # 定时任务调度（如每日自动抓取）
 ├── sql                # 数据库初始化与更新脚本
 ├── uploads            # 用户或系统上传的文件（按日期自动归档）
 │   └── category/yyyy-MM-dd
-├── downloads          # 系统自动下载的外部资源
-│   └── cls/yyyy-MM-dd # 财联社电报配图（按日期组织）
-├── stock              # 每日生成的股票分析 Markdown 报告
-├── scripts
-│   └── fetch_holidays_cn.py # 自动抓取中国大陆节假日到 inv-common/src/main/resources/holiday/year.json
-│   └── format-markdown.mjs # 自动模拟 prettier 格式化 Markdown
-│   └── yyyy-MM-dd.md
+├── downloads          # 系统自动下载的外部资源（已 gitignore）
+│   ├── cls/yyyy-MM-dd           # 财联社电报配图（按日期组织）
+│   ├── bilibili/<mid>/<yyyy.MM.dd>  # 视频原料 mp4/m4a（30 天自动物理清理）
+│   ├── tzzb/<ledger>            # 投资账本原始 JSON（证据层）
+│   └── cb_quotes/{kline,trends} # 转债行情归档（日线 / 分钟级分时）
+├── results            # 管线产物（永久保留）
+│   └── bilibili/<mid>/<yyyy.MM.dd>  # 纠错逐字稿 + vision.json
+├── scripts            # 按域组织的工具脚本, 全链路用法见 scripts/README.md
+│   ├── scan.mjs               # 大盘六榜扫描（涨跌/连板梯队/跌停/次新/板块）
+│   ├── fetch_holidays_cn.py   # 自动抓取中国大陆节假日到 inv-common/src/main/resources/holiday/year.json
+│   ├── bilibili/              # 桃哥视频管线（fetch_bilibili_taoge.mjs + process_video.py）
+│   ├── tzzb/                  # 转债高手线（抓取 / 行情 / md 生成 / 复盘 / 画像）
+│   ├── cls/                   # 财联社图 OCR（cls_image_ocr.py, Java 调用）
+│   ├── md/                    # Markdown 工具（format-markdown.mjs prettier / migrate_md_template.mjs 模板迁移）
+│   ├── backfill_taoge/        # 桃哥历史回填守护（只在本机跑, 已 gitignore）
+│   ├── models/                # Qwen2.5-VL-7B + 纠错字典（已 gitignore）
+│   └── venv/                  # python 环境（已 gitignore）
+├── skills             # Claude Code skills（taoge-skill / cb-skill / 每日 check md 链）
+├── stocks             # 每日生成的股票分析 Markdown 报告
+│   └── <year>S<quarter>/yyyy-MM-dd.md
 └── logs               # 应用运行日志
 ```
 

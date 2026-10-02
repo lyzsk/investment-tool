@@ -702,7 +702,7 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
                 Path venvPy = projectRoot.resolve("scripts/venv/Scripts/python.exe");
                 String pythonExe = Files.isRegularFile(venvPy) ? venvPy.toString() : "python";
                 ProcessBuilder pb = new ProcessBuilder(pythonExe,
-                    projectRoot.resolve("scripts/cls_image_ocr.py").toString(),
+                    projectRoot.resolve("scripts/cls/cls_image_ocr.py").toString(),
                     imageFile.toString(), "--type", imgSuffix);
                 pb.directory(projectRoot.toFile());
                 Process process = pb.start();

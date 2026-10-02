@@ -1,103 +1,112 @@
-# scripts/ 目录说明
+# scripts/ 目录说明 + 全链路使用手册(2026-10-02 重组 v2: 域目录化)
 
-本目录分五块：**plan-a**(学桃哥管线， 收益率最高)、**plan-b**(转债日内， 目前日内最强， 骨架待建)、**plan-c**(AI 自研策略， 原 k3-inv, 最弱缺参考系)、**东财快照**(dfcf/)、以及项目原有的根目录脚本。
+> 在用路线: **taoge-skill(学桃哥) + cb-skill(转债高手不吃土豆0)** 两条线。
+> 目录按域分文件夹; 根目录只放全局工具+环境; Java 调用的脚本路径已同步改 Java(10/2)。
+> 运行前提: mjs 一律 `node scripts/<域>/<脚本>`(cwd=项目根); py 一律 `scripts/venv/Scripts/python.exe scripts/<域>/<脚本>`。
 
-> 三计划定位(2026-09-24 用户定): plan-a=学桃哥(有参考系=桃哥视频) / plan-b=转债(有参考系=用户自己实盘+高手语料) / plan-c=AI 自学(无参考系, 最弱——同花顺大赛/淘股吧高手语料采集就是为了给它补参考系)。
-> 2026-09-24 改名: `bilibili-taoge/` → `plan-a/`, `k3-inv/` → `plan-c/`。策略 ID 不变(决策日志里仍叫 taoge/k3), 只动目录名。
+## 根目录(全局)
 
----
-
-## plan-a/（原 bilibili-taoge/）— 桃哥管线（audio → text → 纠错 → 注入 md → 学习 → 回测）
-
-针对 B站 UP主「股市-目标1000万的股桃」(mid=625315686) 的完整流水线。
-
-### 采集与转写
-| 脚本 | 用途 |
-|---|---|
-| `fetch_bilibili_taoge.mjs`（在 scripts/ 根，9/27 起） | 桃哥视频发现+产物下载（由 fetch_taoge/fetch_video 合并）: `--list` 只发现（Java handler 消费）; `--bvid X --out 目录` 一次拿 mp4+m4a+json(playurl 一次请求取 dash 双轨，产物已存在则跳过） |
-| `process_video.py`（在 scripts/ 根，9/27 起） | 视频处理全管线（transcribe+correct_names+vision_extract+aggregate_pages 四合一体）: ASR→纠错→7B视觉→pages聚合 → `<out>/<bvid>.txt+raw.txt+tsv+vision.json`。`--bvid --mp4 --m4a --out`, `--stage asr,correct,vision,aggregate`, 幂等跳已完成阶段 |
-| `crawl_index.mjs` | BFS 爬全部历史视频索引 → `downloads/index.json`(archive/related API) |
-| `backfill_prepare.mjs` | 用 index.json ∩ stocks/*.md 日期，生成追溯下载工作清单 |
-| `coverage_report.mjs` | 覆盖率报告： index.json 日期 vs stocks 已有 md，看缺哪些天 |
-| `transcribe.py` | （9/27 已并入 scripts/process_video.py, 文件已删） |
-| `vision_extract.py` | （9/27 已并入 scripts/process_video.py, 文件已删） |
-| `setup_vision.sh` | 视觉/OCR 环境一键安装固化（9/24 晚）: venv依赖+torch cu124本地wheel+Qwen2.5-VL-7B模型，幂等。`bash setup_vision.sh` |
-| `inject_vision.py` | vision JSON → md `### 桃哥` 下插 `#### 画面`（口述未提增量/互证/板块指数）; 名≥2帧投票或OCR确认， 代码只采信OCR同屏共现投票（号段过滤+严格多数） |
-| `batch_vision_q3.sh` | ⚠️历史归档（Q3 视觉管线批量已完成；引用的 fetch_video/vision_extract 已删，勿直接重跑） |
-| `aggregate_pages.py` | （9/27 已并入 scripts/process_video.py, 文件已删） |
-| `batch_vision2_q3.sh` | ⚠️历史归档（Q3 58 视频 Vision2.0 重跑已完成；引用的 vision_extract/aggregate_pages 已并入 scripts/process_video.py, 勿直接重跑） |
-| `synthesize_prompt.md` + `batch_synthesize_q3.sh` | 合并综合陈述批量合成（headless claude -p, 倒叙近两周优先， 断点=无####解读/画面）: 转写+vision pages+analysis → 五要点合并， 删 #### 画面/解读 |
-| `batch_transcribe.py` | 批量转写 downloads/audio/*.m4a → downloads/txt/，可断点续跑 |
-| `watch_and_inject.mjs` | 等 small 批跑完 → 自动纠错+注入 md（一次性看护） |
-| `watch_and_medium.mjs` | 等 small 批完 → 自动启动 medium 模型重跑 |
-| `watch_and_finalize.mjs` | 等 medium 批完 → 自动纠错+注入（已完成于 2026-09-19 06:20) |
-
-### 纠错与注入
-| 脚本 | 用途 |
-|---|---|
-| `correct_names.py` | （9/27 已并入 scripts/process_video.py, 文件已删；字典仍在 downloads/stock_dict.json+entity_dict.json) |
-| `inject_md.mjs` | 把转写+解读注入 stocks/*/YYYY-MM-DD.md 的 `## 复盘 → ### 桃哥 → #### 解读`。`--dir <txt目录> --replace` 替换已有小节 |
-| `extract_prompt.md` | 从转写文本提取"解读"JSON 的 LLM prompt（大盘判断/提及个股/操作/风格规则） |
-
-### 行情数据与回测
-| 脚本 | 用途 |
-|---|---|
-| `fetch_m5.mjs` | 抓腾讯 5 分钟 K线（约 2 周深度）→ `downloads/kline/<code>_m5.json`。`node fetch_m5.mjs sh600127 ...` |
-| `day_card.mjs` | 日内回放卡片： 打印某日 前收/开/收/高低点时刻+关键 bar，回测 replay 用 |
-| `backtest/` | 回测结果：`runs/pilot-20260915/`(单日试跑）、`runs/pilot-2week/`(9/02→9/18 两周走查， 含 report.md/trades.csv/equity.csv/settlement.json) |
-| `rules_spec.md` | 桃哥操盘规则的规格草稿（入场/出场/仓位/成交口径） |
-
-### 数据目录（downloads/，不进 git 也不用手动看）
-`audio/`(m4a)、`txt/ txt_fixed/ txt_medium/ txt_medium_fixed/`(各级转写）、`analysis/`(每日解读 JSON)、`kline/`(m5 缓存）、`index.json`、`entity_dict.json`、`*.log`。venv/ 是 Anaconda 建的 python 环境（faster-whisper)。
+| 文件/目录 | 用途 | 用法 |
+|---|---|---|
+| `scan.mjs` | 大盘六榜扫描(涨跌幅/连板梯队/跌停/次新/板块), taoge-skill 事实包用 | `node scripts/scan.mjs --out <run_dir> [--date YYYYMMDD] [--top 30]` → scan.md+scan.json |
+| `fetch_holidays_cn.py` | 中国节假日抓取(年度) | `python scripts/fetch_holidays_cn.py` → inv-common/resources/holiday/{year}.json |
+| `venv/` | python 环境(ASR+7B+OCR; 已 gitignore) | 重建: `requirements-taoge.txt` / `requirements-cls.txt` |
+| `models/` | Qwen2.5-VL-7B(16G)+纠错字典+wheel(已 gitignore) | `process_video.py --download-model` 一次性下载 |
+| `dfcf/` | 实盘语料存档(snapshots/ 已 gitignore=隐私唯一落点) | 见文末「dfcf 线」 |
 
 ---
 
-## dfcf/ — 东财客户端快照（只读！）
+## bilibili/ — 桃哥视频管线(发现→下载→ASR→纠错→VLM→产物)
 
-读取本机已登录的东方财富终端（进程 mainfree，交易窗口标题"东方财富证券")。**原则： 只截屏读取， 绝不点击买入/卖出区， 不输入密码； 用户在场时禁止运行（窗口会闪现)。**
+**全链路**: B站视频 → `fetch_bilibili_taoge.mjs`(发现+下载原料) → `process_video.py`(转知识) → `results/bilibili/<mid>/<yyyy.MM.dd>/` 四件套 → taoge-sum 合成进 stocks md。
 
-统一入口只有一个脚本 `em.ps1`(8 个旧 em_*.ps1 已合并删除）:
+| 脚本 | 用法 | 产物/出口 |
+|---|---|---|
+| `fetch_bilibili_taoge.mjs` | `node scripts/bilibili/fetch_bilibili_taoge.mjs --list`(只发现, stdout 末行 `JSON:[...]`)<br>`node scripts/bilibili/fetch_bilibili_taoge.mjs [--bvid BVxxxx] [--out <目录>] [--video-only\|--audio-only]` | `<out>/<bvid>.mp4`+`.m4a`+`.json`; 幂等补缺; 0=就位 1=失败 |
+| `process_video.py` | `scripts/venv/Scripts/python.exe scripts/bilibili/process_video.py --bvid <bvid> --mp4 <路径> --m4a <路径> --out <结果目录>`<br>调试口: `--stage asr,correct,vision,aggregate` / `--keep-frames` / `--download-model` | `<bvid>.raw.txt`+`.tsv`+`.txt`(合成读的)+`.vision.json`; 幂等; GPU 串行(ASR 卸载再上 7B) |
 
-```powershell
-# hermes / Claude 调用方式(在 scripts/dfcf/ 下, 输出单行 JSON, file 字段是截图路径, 用 Read 工具看图)
-powershell -ExecutionPolicy Bypass -File em.ps1 -Action probe                  # 找进程+交易窗口, 不截图
-powershell -ExecutionPolicy Bypass -File em.ps1 -Action read                   # 截【资金持仓】页(默认页, 最常用)
-powershell -ExecutionPolicy Bypass -File em.ps1 -Action read -Page 当日成交 -RealClick  # 翻页再截(真实鼠标, 仅无人时用)
-powershell -ExecutionPolicy Bypass -File em.ps1 -Action hide                   # 重新隐藏窗口
+**Java 驱动(生产唯一入口, 勿手工并行跑)**: `bilibiliVideoHandler` 单 job 三段(发现→下载→process_video), 状态机走 `bilibili_video` 表(VISION_DONE 后等 taoge-sum 合成→SUMMARIZED→30 天原料物理删除)。
+**依赖**: scripts/models/(字典+7B); 无 cookie 方案(search HTML+view/playurl API 不吃风控, 空间列表已风控勿用)。
+
+---
+
+## tzzb/ — 转债高手(不吃土豆0)线
+
+**全链路**: 同花顺投资账本 API → `fetch_tzzb.mjs`(Java cron 小时级) → `downloads/tzzb/<ledger>/`(raw 证据层) → Java sync 入 `tzzb_record` 表 → `gen_tzzb_md.mjs`(硬数据层) + tzzb-sum skill(【推测】层) → stocks md `#### 不吃土豆 0` → tzzb-distill(机械核销进 cb-skill)。
+
+### 每日链(15:10 抓取后, check md 例程内)
+
+```bash
+node scripts/tzzb/fetch_cb_quotes.mjs --trends-all      # ①当日有腿标的分钟级分时归档(东财只留~5天, 必做!)
+node scripts/tzzb/gen_tzzb_md.mjs --ledger bchitudou0 --date <yyyy-MM-dd> --write   # ②硬数据层进 md
+# ③tzzb-sum skill: LLM 补【推测】层(逐条标【推测】, 不复述硬数据)
+# ④tzzb-distill 机械层(零 token, 每日必跑):
+scripts/venv/Scripts/python.exe scripts/tzzb/profile_bchitudou0.py
+scripts/venv/Scripts/python.exe scripts/tzzb/review_cb_daily.py --json scripts/backfill_taoge/review_cb_daily.json
+scripts/venv/Scripts/python.exe scripts/tzzb/gen_cb_cases.py    # 依赖 ② 的 json, 重生成 cases.md 双尾区
 ```
 
-核心手法： EnumWindows 按 PID+标题+子窗口 `_DC` 类名后缀识别交易主窗口 → ShowWindow(SW_SHOWNA) → MoveWindow 1600x950 → PrintWindow(PW_RENDERFULLCONTENT) 截 PNG → 原本隐藏则还原。已验证的关键坑： 隐藏窗口截图全黑； 合成消息点击(PostMessage/SendMessage)被东财 DirectUI 全部忽略， 翻页只能 -RealClick 注入真实鼠标（光标物理移动约1秒+窗口短暂前台， 仅限无人值守）; 账号掉线（页面值 "--"）时翻页无响应， 需用户手动重登。
-截图输出 `snapshots/` 已 gitignore（资产隐私）。已验证可拿到： 总资产/可用资金/证券市值/持仓盈亏/个股持仓， 与手算交叉验证一致。
+### 脚本明细
+
+| 脚本 | 用法 | 说明 |
+|---|---|---|
+| `fetch_tzzb.mjs` | `node scripts/tzzb/fetch_tzzb.mjs [--ledger <id>]` | 默认跑 `tzzb_ledgers.json` 全部账本; 产物=downloads/tzzb/<ledger>/(position_change/nav_daily/month/position/change_bs_*/state.json); 出口 0=正常 2=凭证失效 1=失败 |
+| `fetch_cb_quotes.mjs` | `--kline-all` / `--kline --code <code>` / `--trends --code <code>` / `--trends-all` / `--snap --code <code>` | 转债行情: 日线回填/分时归档/实时快照; 产物 downloads/cb_quotes/{kline,trends}/ |
+| `gen_tzzb_md.mjs` | `--ledger <id> --date <d> [--write]` / `--ledger <id> --all --write` | 硬数据层(零 token): 净值行+FIFO round-trip 明细+汇总; --write 整小节覆盖**保留【推测】行**; --all 全历史回填 |
+| `review_cb_daily.py` | `[--json out.json]` | 执行质量复盘: 卖分位/卖飞上限/持收增量/买滑点/日度对照 |
+| `profile_bchitudou0.py` | `[--json out.json]` | 机械画像: 900腿统计+市况反向联动(T-1 口径) |
+| `gen_cb_cases.py` | (先跑 review --json) | cases.md 双尾样本库区机械重生成(curated 区保留); 阈值 \|持收增量\|≥5% 全量不截断 |
+| `sweep_tzzb_spec.py` | `[--limit N]` | 历史日【推测】层批量补写(headless, 5日/批); **10/2 已全量收官 144/144**, 留作新高手账本接入时的模板 |
+| `tzzb_ledgers.json` | — | 账本凭证清单(分享链接 key+user_key), 加高手=加一行 |
 
 ---
 
-## plan-c/（原 k3-inv/）— AI 自研操盘策略（非桃哥）
+## cls/ — 财联社电报线
 
-k3-inv = k3(我) + 用户引导， 纯 AI 策略： **加红电报(催化) × 威科夫(结构) × 李大霄(选股与心性) × AI 综合仲裁**, 与桃哥管线并列对照（plan A = 学桃哥情绪周期， k3-inv = 质量过滤的催化跟随, 标的池几乎不重叠）。
+**全链路**: cls_telegraph 表(Java 已有) + 电报图下载(downloads/cls/<yyyy.MM.dd>/) → `cls_image_ocr.py`(本地 OCR 零 token) → stocks md 四小节(午评/午间涨停分析/收评/涨停分析, **OCR 单一数据源覆盖**) → /check-cls-md 晚间人工看图复核。
 
-| 内容 | 用途 |
+| 脚本 | 用法 | 说明 |
+|---|---|---|
+| `cls_image_ocr.py` | `python scripts/cls/cls_image_ocr.py <图片路径> --type wp\|sp\|wjzt\|zt` | stdout=md 小节内容(不含标题); PARSE_FAIL 非0退出=不写 md 只告警; **Java ClsTelegraphServiceImpl 定时调用(生产入口)** |
+| `fill_cls_md.py` | `python scripts/cls/fill_cls_md.py --from <d> --to <d> [--overwrite --backup <dir>]` | 历史回填通道(非 Java); 默认只填空小节, --overwrite 才覆盖 |
+
+---
+
+## md/ — stocks md 工具
+
+| 脚本 | 用法 | 说明 |
+|---|---|---|
+| `format-markdown.mjs` | Java MarkdownFormatServiceImpl 调用 | prettier 格式化(需项目根 npm install prettier) |
+| `migrate_md_template.mjs` | `node scripts/md/migrate_md_template.mjs [--dry] [dir...]` | **模板迁移常备**: stock-template.md 变更后跑它批量同步历史 md(模板驱动/标题归一/缺节补骨架; 幂等) |
+
+---
+
+## backfill_taoge/ — 桃哥历史追溯(整目录已 gitignore, 只在本机跑)
+
+**全链路**: `backfill_taoge_index.mjs`(BFS 建待办索引 index.json) → `backfill_taoge.py` 守护(待办=索引-results 扫描; 时间窗/GPU/PAUSE 三守卫; 下载(先查 reuse/ 硬链复用)→process_video→state 记账) → results 四件套 → md-sweep(taoge-sum 批量合成) → distill(taoge-distill 核销沉淀, distill_state.json 账本)。
+
+| 脚本 | 用法 |
 |---|---|
-| `STRATEGY.md` | 策略规格 v0.1（信息可用性/李大霄筛/威科夫入场/电报催化/卖出与仓位/成交口径）, 回测前冻结 |
-| `telegraph/*.txt` | 从 stocks/2026S3/*.md `## 加红电报` 提取的电报流（13 个交易日, 738 条, 回测数据源) |
-| `backtest/runs/` | 回测结果（首个: k3-v0.1-20260901_0918) |
-| `README.md` | 定位与规则（每策略一子目录/walk-forward/成交口径与桃哥一致/复用 kline 缓存） |
+| `backfill_taoge.py` | 守护模式(无参, 常驻); `--bvid <bvid>` 一次性插跑单视频; `--md-sweep --md-force --md-months <yyyy-MM,...> --md-max-minutes 110 --ignore-pause` =md 批量重合成(枚举 results 四件套齐备日倒序, 最新一期样板自动跳过) |
+| `backfill_taoge_index.mjs` | 索引多跳 BFS 重建(产物 index.json) |
+| `reset_for_new_skill.py` | 归零器: skill 大改时归档 distill_state+重置, 配合"凡新加 skill 内容全量重跑"铁律 |
+| `gen_md_checklist.py` | md 覆盖核对清单生成 |
 
-SQL 表设计在 `sql/k3inv.sql`(6 表： signal/watch/strategy/run/decision/trade)。
-
----
-
-## plan-b/ — 转债日内策略（骨架， 2026-09-24 新增）
-
-用户实盘转债日内线（目前三计划中日内最强, 但无代码无沉淀）。只有 README: 定位/待回答的第一性问题/数据需求(交割单导出、集思录溢价率、强赎下修日历)。建设顺序见 `docs/TODO.md`。
+**开关**: `PAUSE` 文件=总刹车(backfill 守护与 sweep_tzzb_spec 共用; 存在即停); 实例锁(wait_pause 待命期间释放, 一次性 --bvid 可插跑)。
+**铁律**: 跑批必须用户发令"开始/继续"; 有 token 才跑; results 产物是唯一事实, state.json 只是加速账本。
 
 ---
 
-## 根目录（项目原有， 非本次新增）
-| 脚本 | 用途 |
-|---|---|
-| `format-markdown.mjs` | md 格式化， **被 Java 后端 MarkdownFormatServiceImpl 通过 ProcessBuilder 调用**，勿动接口 |
-| `cls_image_ocr.py` | 财联社图自动填 md(9/24 晚， 全本地 OCR 0 token): `python cls_image_ocr.py <图> --type wp|sp|wjzt|zt` → stdout(UTF-8）出 md 小节内容（wp→午评/wjzt→午间涨停分析/sp→收评/zt→涨停分析）; 校验不过非0退出 PARSE_FAIL。依赖见 requirements-cls.txt(`pip install -r scripts/requirements-cls.txt`, 任意 python 环境均可; 本机用 scripts/venv 隔离)； 9月 wp/sp 30/30 + wjzt/zt 7图全 PASS |
-| `fill_cls_md.py` | cls 图批量填 md(9/24 晚, Q3 一次性回填已完成): `--from/--to/--overwrite/--backup`; PARSE_FAIL 只告警不写。**保留原因**: wjzt 23 天 PARSE_FAIL 待 Java 侧修解析器后, 历史回填仍走它(Java 只有日常增量入口), 回填完成可删。同 requirements-cls.txt |
-| `requirements-cls.txt` | 根目录脚本 python 依赖(9/25, 从 plan-a/venv 剥离): 只装 rapidocr/onnxruntime/opencv/numpy/pillow ~300MB, 版本与 plan-a 实测一致 |
-| `fetch_holidays_cn.py` | 抓中国节假日数据（inv-common resources/holiday/*.json 的来源, 每年需重跑） |
-| ~~`ocr_zdfb.py`~~ | 已删(9/27): 早期实验脚本, OCR 已由 Java Tess4j 承担, 零引用 |
+## dfcf/ — 实盘语料存档(隐私唯一落点, 已 gitignore)
+
+只有 `snapshots/`: 用户做 T 后手动贴的成交 txt(牧原做T系列)+live_account.md 账户快照。
+em.ps1(东财自动截图) 10/2 已删——手动贴文本流保真度远高于 OCR, 自动化性价比不成立; DirectUI 实测结论存 Claude 记忆, 重建账户感知层先读。
+
+---
+
+## 每日 check md 链条(用户回家一句"check md"触发)
+
+check-cls-md(Java 侧已灌) → **taoge-sum**(results→md 桃哥小节) → **taoge-distill**(md→taoge-skill 核销沉淀)
+→ **tzzb-sum**(腿→md 土豆小节, 前置必跑 fetch_cb_quotes --trends-all) → **tzzb-distill**(腿→cb-skill 核销, 机械层零 token 必跑)
+
+各 skill 的过程性事件(跑批/格式/立法/事故)追加到对应 `skills/<skill>/PROCESS.md`。

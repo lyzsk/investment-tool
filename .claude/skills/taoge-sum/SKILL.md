@@ -1,9 +1,11 @@
 ---
 name: taoge-sum
-description: "Use when 合成桃哥B站视频产物进 stocks md: 读 results/bilibili/<mid>/<日期>/ 的 txt+vision.json 写 ### 桃哥 小节, 并推进状态机 VISION_DONE→SUMMARIZED(每晚跑批后/用户喊合成桃哥视频时)"
+description: "Use when 合成桃哥B站视频产物进 stocks md: 读 results/bilibili/<mid>/<日期>/ 的 txt+vision.json 写 #### 股市 - 桃哥复盘 小节, 并推进状态机 VISION_DONE→SUMMARIZED(每晚跑批后/用户喊合成桃哥视频时)"
 ---
 
 # 桃哥视频产物合成(状态机最后一棒)
+
+> 📜 过程记录(跑批/格式变更/立法/事故)= 本目录 `PROCESS.md`, 每次有过程性事件就追加一行(2026-10-02 用户立法)。
 
 > ⚠️ 双副本防漂移(2026-09-29 实测): 本文件是 canonical; **headless `claude -p` 实际加载的是
 > `.claude/skills/taoge-sum/SKILL.md`**, 每次编辑本文件后必须同步覆盖那份(9/29 发现该副本
@@ -24,7 +26,13 @@ description: "Use when 合成桃哥B站视频产物进 stocks md: 读 results/bi
 3. **股票代码以 OCR/多帧投票为准**(VLM 会编代码: 金健米业→600193, 真 600127),
    对不上的代码标 `[?]`, 不猜
 4. 不改 downloads/ 任何文件, 不删任何文件; results/ 是永久档案只读
-5. `### 桃哥` 小节内容只可能是本 skill 的产出, 合成即整小节覆盖(幂等), 无需任何标记
+5. `#### 股市 - 桃哥复盘` 小节内容只可能是本 skill 的产出, 合成即整小节覆盖(幂等), 无需任何标记
+6. **格式机械可验(2026-10-01 立法, 10/2 随模板迁移层级+1)**: `#### 股市 - 桃哥复盘` 小节内禁止任何 `#####` 子标题——
+   五大 bullet 直排(§3), 任何合成路径(cron/md-sweep/**夜跑补合成**)的产物都必须过
+   此校验, 不许信 agent 自觉。校验:
+   `awk '/^#### 股市 - 桃哥复盘/{f=1;next} /^#{2,4} /{if(f)exit} f' <md> | grep -c '^##### '` 应为 0。
+   10/1 夜跑 47 天+早期 3 天违规产物已用 `scripts/temp/reformat_taoge_md.py` 零 token 机械整编
+   (#### 画面/解读 → bullet 改名映射, 内容不动; 脚本可复跑, 异常一律跳过不硬转)
 
 ## 步骤
 
@@ -55,12 +63,12 @@ curl -s localhost:8888/api/bilibili/video/pendingSummary
 
 ### 3. 合成写 md
 
-挂载点: `stocks/<year>S<quarter>/<发布日 yyyy-MM-dd>.md` 的 `## 复盘` → `### 桃哥` 小节
-(桃哥只在交易日盘后发稿, 挂发布日当天; quarter=(月-1)/3+1, 9月=S3)
+挂载点: `stocks/<year>S<quarter>/<发布日 yyyy-MM-dd>.md` 的 `## 复盘` → `### bilibili` → `#### 股市 - 桃哥复盘` 小节
+(桃哥只在交易日盘后发稿, 挂发布日当天; quarter=(月-1)/3+1, 9月=S3; 10/2 模板迁移后小节在 ### bilibili 下)
 
-小节结构(2026-09-24 用户定稿格式, 五大 bullet 全收在 ### 桃哥 下, 不用 #### 子小节):
+小节结构(2026-09-24 用户定稿格式, 五大 bullet 全收在 #### 股市 - 桃哥复盘 下, 不用 ##### 子小节):
 ```markdown
-### 桃哥
+#### 股市 - 桃哥复盘
 
 **[视频标题](https://www.bilibili.com/video/<bvid>)** · HH:MM 发布 · N 分钟 ·（语音转写）
 
@@ -125,7 +133,7 @@ MACD 柱/RSI 超买超卖/KDJ 金叉死叉/CCI 极值/振幅带) → 回答"他�
 态2(仅 txt)标注位置: 在视频引用行下一行加
 `> ⚠️ 画面产物缺失(仅CPU管线), 本节无视觉信息`, bullet 只写 大盘/操作/提及/规则 四条。
 
-- `### 桃哥` 小节只可能是 AI 产出 → 已存在就直接整小节覆盖(幂等重合成)
+- `#### 股市 - 桃哥复盘` 小节只可能是 AI 产出 → 已存在就直接整小节覆盖(幂等重合成)
 - md 文件不存在(非交易日/没预建) → 报告, 不新建(挂载归口是 cls 域的职责)
 
 ### 4. 推进状态机(只推合成成功的)
@@ -143,14 +151,14 @@ curl -X POST localhost:8888/api/bilibili/video/markSummarized \
 
 ### 5. 批量改写(2026-09-29 用户修订: 旧 md 全部统一为**最新日期格式**)
 
-旧 md(~219 天, 2025-10 起)的 `### 桃哥` 是旧格式(纯逐字稿 或 #### 解读/
+旧 md(~219 天, 2025-10 起)的 `#### 股市 - 桃哥复盘` 是旧格式(纯逐字稿 或 #### 解读/
 #### 画面 子小节), 全部按**最新一期有桃哥总结的 md 的小节格式**整小节覆盖重写
 (2026-09-29 用户定: 总结方式若更新, 最先更新的是最新日期的 md, 所以锚点跟随
 最新日期而非某个历史定稿日; 当前参照=2026-09-29 格式)。
 
 **驱动方式(2026-09-29 用户定: 走脚本, 不走手工会话)**:
 ```bash
-scripts/venv/Scripts/python.exe scripts/backfill_taoge.py --md-sweep \
+scripts/venv/Scripts/python.exe scripts/backfill_taoge/backfill_taoge.py --md-sweep \
   [--md-force] [--md-months 2026-09,2026-08] [--md-max-minutes 120] [--ignore-pause]
 ```
 - `--md-sweep`: 枚举 **results 目录**(唯一事实, 不走 index.json——cron 管线新视频
@@ -160,7 +168,7 @@ scripts/venv/Scripts/python.exe scripts/backfill_taoge.py --md-sweep \
   无视"已是新格式"幂等守卫全量重跑(不加则只补写旧格式日)
 - **覆盖前交叉对比(已固化进脚本 prompt)**: 先读旧小节, 其中人工补充/纠错且 results
   无法复现的信息保留并入新小节并标注来源, 其余以新合成为准
-- 跳过=最新一期有桃哥总结(含 `### 桃哥` 小节)的 md(格式样板, 脚本
+- 跳过=最新一期有桃哥总结(含 `#### 股市 - 桃哥复盘` 小节)的 md(格式样板, 脚本
   `latest_synth_date()` 动态判定);
   2026-09-18 原手稿 9/27 已被用户指令覆盖(备份 scripts/backfill_taoge/md_backup_2026-09-18_before.md),
   2026-09-24 原定稿样板自锚点改版后不再特保——两者均按普通日期处理

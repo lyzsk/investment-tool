@@ -152,7 +152,7 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
         Path outDir = Paths.get(projectConfig.getFile().getDownload().getRootDir(), "bilibili",
             v.getAuthorMid(), day);
         Files.createDirectories(outDir);
-        runNode("fetch_bilibili_taoge.mjs", "--bvid", v.getBvid(), "--out", outDir.toString());
+        runNode("bilibili/fetch_bilibili_taoge.mjs", "--bvid", v.getBvid(), "--out", outDir.toString());
         v.setStep("DOWNLOADED");
         v.setStatus(0);
         v.setRetryCount(0);
@@ -180,7 +180,7 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
             return true;
         }
         if (fullVision) {
-            runPython("process_video.py", "--bvid", v.getBvid(), "--mp4",
+            runPython("bilibili/process_video.py", "--bvid", v.getBvid(), "--mp4",
                 rawDir.resolve(v.getBvid() + ".mp4").toString(), "--m4a",
                 rawDir.resolve(v.getBvid() + ".m4a").toString(), "--out", outDir.toString());
             /* 成败判据=产物校验不是 exit 0: txt(纠错后) + vision.json 含 pages 段 */
@@ -193,7 +193,7 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
         }
         /* 仅 CPU: 只跑 asr+correct(txt 照出), 视觉等全配机器; txt 已有则本轮无事可做 */
         if (!Files.isRegularFile(txt)) {
-            runPython("process_video.py", "--bvid", v.getBvid(), "--m4a",
+            runPython("bilibili/process_video.py", "--bvid", v.getBvid(), "--m4a",
                 rawDir.resolve(v.getBvid() + ".m4a").toString(), "--out", outDir.toString(),
                 "--stage", "asr,correct");
         }

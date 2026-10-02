@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class MarkdownFormatServiceImpl implements IMarkdownFormatService {
-    private static final String NODE_SCRIPT_PATH = "scripts/format-markdown.mjs";
+    private static final String NODE_SCRIPT_PATH = "scripts/md/format-markdown.mjs";
     private final ProjectConfig projectConfig;
 
     @Override

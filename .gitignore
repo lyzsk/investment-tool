@@ -46,8 +46,8 @@ downloads/
 downloads/*
 downloads/**/*
 
-### dfcf 东财账户快照(个人资产隐私, 永不入库) ###
-scripts/dfcf/snapshots/
+### dfcf 实盘语料 ###
+scripts/dfcf/
 
 **/pom.xml.versionsBackup
 
@@ -69,3 +69,11 @@ scripts/taoge-paper/raw/
 inv-stock/target/
 **/tessdata/
 backups/
+
+### 环境和模型
+scripts/venv/
+scripts/models/
+**/__pycache__/
+
+### backfill_taoge 桃哥追溯(只在本机跑, 索引/状态/日志/备份全本地) ###
+scripts/backfill_taoge/

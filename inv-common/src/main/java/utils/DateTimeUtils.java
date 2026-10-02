@@ -31,6 +31,10 @@ public class DateTimeUtils {
      */
     public static final DateTimeFormatter YYYYMMDD_DOT = DateTimeFormatter.ofPattern("yyyy.MM.dd");
     /**
+     * yyyyMMdd
+     */
+    public static final DateTimeFormatter YYYYMMDD = DateTimeFormatter.ofPattern("yyyyMMdd");
+    /**
      * yyyyMMddHHmmss
      */
     public static final DateTimeFormatter YYYYMMDDHHMMSS =
@@ -92,6 +96,26 @@ public class DateTimeUtils {
      */
     public static String getSecondStr(LocalDateTime dateTime) {
         return dateTime.format(YYYYMMDDHHMMSS);
+    }
+
+    /**
+     * 宽松解析外部数据源的日期时间字符串(格式不可控时用, 如第三方 API 返回值):
+     * yyyyMMdd(8位) / yyyy-MM-dd(10位) → 当天 00:00, 其余按 yyyy-MM-dd HH:mm:ss 解析
+     *
+     * @param str 日期时间字符串
+     * @return java.time.LocalDateTime
+     * @author sichu huang
+     * @since 2026/10/01 23:59:15
+     */
+    public static LocalDateTime parseLenient(String str) {
+        str = str.trim();
+        if (str.length() == 8) {
+            return LocalDate.parse(str, YYYYMMDD).atStartOfDay();
+        }
+        if (str.length() == 10) {
+            return LocalDate.parse(str, YYYY_MM_DD).atStartOfDay();
+        }
+        return LocalDateTime.parse(str, YYYY_MM_DD_HH_MM_SS);
     }
 
     /**
