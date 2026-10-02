@@ -169,7 +169,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 - 误判进 cases.md 候选队列；规则级教训标"单样本，待验证"不进 rules.md
 
 ````prompt
-任务：对 {date} 执行决策链 07 复盘。读 {run_dir}/ 全部产物（01-06+validate_report）与当日 stocks md（收评/涨停分析/桃哥小节）、paper_state.json 当日成交。
+任务：对 {date} 执行决策链 07 复盘。读 {run_dir}/ 全部产物（01-06+validate_report）与当日 md（收评/涨停分析/桃哥小节）、paper_state.json 当日成交。
 盘前预案 vs 当日实际 逐条对照：候选票命中/漏票/误判各是什么，误判的直接原因，可复用教训。
 写入 {run_dir}/07_review.md，contract 块：
 ```contract

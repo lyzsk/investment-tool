@@ -1,6 +1,6 @@
-// migrate_md_template.mjs — stocks md 复盘结构同步器(2026-10-02 v2: 模板驱动常备工具)
+// migrate_md_template.mjs — md 复盘结构同步器(2026-10-02 v2: 模板驱动常备工具)
 // 用户立法: stock-template.md 每次变更后跑本脚本批量同步所有历史 md
-// 用法: node scripts/migrate_md_template.mjs [--dry] [dir...]   默认 stocks/2025S1..2026S4
+// 用法: node scripts/migrate_md_template.mjs [--dry] [dir...]   默认 md/2025S1..2026S4
 // 能力:
 //   ①模板驱动: 复盘骨架(## 复盘 ~ 下一个 ## 之间的 ###/#### 标题行)从 stock-template.md 现读, 不写死
 //   ②标题归一: 同义变体(空格/大小写差异, 如 `股市-桃哥复盘` vs `股市 - 桃哥复盘`, `Bilibili` vs `bilibili`)
@@ -17,7 +17,7 @@ const dirs = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const targets = dirs.length
     ? dirs
     : ["2025S1", "2025S2", "2025S3", "2025S4", "2026S1", "2026S2", "2026S3", "2026S4"].map(
-          (d) => path.join("stocks", d));
+          (d) => path.join("md", d));
 
 const TEMPLATE = path.resolve("inv-stock/src/main/resources/templates/stock-template.md");
 

@@ -12,7 +12,7 @@
   **倒序=新的先补**, 5 日/批 headless `claude -p`, 批后逐日复检【推测】真出现才算成)。
   运行日志=`scripts/backfill_taoge/tzzb_spec_sweep.log`。17:31 进度 105/144 完成, 批13(03-09~03-13)。
   **01-21/01-22/03-06 等早期日无【推测】=还没轮到, 非漏跑**(用户抽查提出, 此条释疑)。
-- 2026-10-02 §2.5 立法: 每次合成前必跑 `node scripts/fetch_cb_quotes.mjs --trends-all` 归档当日分时
+- 2026-10-02 §2.5 立法: 每次合成前必跑 `node scripts/quotes/fetch_cb_quotes.mjs --trends-all` 归档当日分时
   (东财分钟级只留 ~5 天, 当天不归档永远丢失; 执行质量复盘依赖)。
 - 2026-10-02 字段语义纠正: pre/aftPositionPercent=**日级**字段(144/144 天恒 0=从不隔夜),
   腿级仓位方向校验假阳性刷屏 → 消融后从 gen_tzzb_md.mjs 删除, 仅保留缺日哨兵。

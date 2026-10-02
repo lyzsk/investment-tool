@@ -11,7 +11,7 @@ description: "检查/修正某日 md 里 cls 图 OCR 自动填充的四小节(�
 
 ## 输入
 
-- 日期(默认今天)。cls 图目录 `downloads/cls/yyyy.MM.dd/`(点分隔), md 在 `stocks/<季度>/yyyy-MM-dd.md`(横线, 季度=(月-1)/3+1 → `2026S3`)
+- 日期(默认今天)。cls 图目录 `downloads/cls/yyyy.MM.dd/`(点分隔), md 在 `md/<季度>/yyyy-MM-dd.md`(横线, 季度=(月-1)/3+1 → `2026S3`)
 
 ## 检查流程
 

@@ -70,7 +70,7 @@ investment-tool
 ├── inv-admin          # Main application entry: Spring Boot startup class, global configuration, web controllers
 ├── inv-common         # Shared utilities: helper classes, constants, exception handling, response wrappers, etc.
 ├── inv-stock          # Stock-related data features
-│   ├── cls            # CaiLianShe (CLS) telegraph fetching and parsing, auto generate yyyy-MM-dd.md(tradingday.md) into stocks/<year>S<quarter>/ dir and write red telegraph into md
+│   ├── cls            # CaiLianShe (CLS) telegraph fetching and parsing, auto generate yyyy-MM-dd.md(tradingday.md) into md/<year>S<quarter>/ dir and write red telegraph into md
 │   ├── ocr            # Image OCR recognition (for parsing daily limit-up analysis / market close summaries)
 │   ├── bilibili       # Bilibili video pipeline driver (fetch → ASR → name-correction → VLM vision extraction)
 │   └── tzzb           # TongHuaShun investment-ledger fetching and sync (convertible-bond master tracking)
@@ -84,21 +84,33 @@ investment-tool
 │   ├── cls/yyyy-MM-dd           # CLS telegraph images (grouped by date)
 │   ├── bilibili/<mid>/<yyyy.MM.dd>  # video raw material mp4/m4a (auto cleanup after 30 days)
 │   ├── tzzb/<ledger>            # investment-ledger raw JSON (evidence layer)
-│   └── cb_quotes/{kline,trends} # convertible-bond quotes archive (daily kline / minute trends)
+│   ├── wechat/<account>/<yyyy-MM-dd>  # WeChat article raw html/text/meta/spec (fage line)
+│   ├── cls_zaobao/<yyyy-MM-dd>  # CLS morning-report article raw/text/meta/spec
+│   └── quotes/{cb/{kline,trends},stock/trends} # quotes archive (cb daily/minute, stock minute)
 ├── results            # Pipeline outputs (permanent)
 │   └── bilibili/<mid>/<yyyy.MM.dd>  # corrected transcript + vision.json
 ├── scripts            # Domain-organized tool scripts, full-chain usage: scripts/README.md
 │   ├── scan.mjs               # market six-board scanner (gainers/ladders/limit-down/...)
 │   ├── fetch_holidays_cn.py   # auto generate inv-common/src/main/resources/holiday/year.json for Chinese holidays
 │   ├── bilibili/              # taoge video pipeline (fetch_bilibili_taoge.mjs + process_video.py)
-│   ├── tzzb/                  # convertible-bond master line (fetch / quotes / md-gen / review / profile)
-│   ├── cls/                   # CLS image OCR (cls_image_ocr.py, called by Java)
-│   ├── md/                    # markdown tools (format-markdown.mjs prettier / migrate_md_template.mjs)
+│   ├── tzzb/                  # convertible-bond master line (ledger fetch / md-gen / review / profile)
+│   ├── quotes/                # quotes fetchers (fetch_cb_quotes.mjs cb daily+minute / fetch_stock_trends.mjs stock minute)
+│   ├── cls/                   # CLS image OCR (cls_image_ocr.py, called by Java) + morning-report line (fetch_cls_zaobao.mjs)
+│   ├── md/                    # markdown tools (format-markdown.mjs prettier / migrate_md_template.mjs / gen_scorecard.mjs)
+│   ├── wechat/                # WeChat official-account pre-market line (fetch_wechat.mjs, manual-link entry)
 │   ├── backfill_taoge/        # historical backfill daemon (local only, gitignored)
 │   ├── models/                # Qwen2.5-VL-7B + name dictionaries (gitignored)
 │   └── venv/                  # python environment (gitignored)
-├── skills             # Claude Code skills (taoge-skill / cb-skill / daily check-md chain)
-├── stocks             # Daily auto-generated stock analysis reports (Markdown)
+├── skills             # Claude Code skills (双副本, 编辑后同步 .claude/skills/)
+│   ├── taoge-skill/   # taoge persona (post-market review rules, distilled from verified samples)
+│   ├── taoge-sum/     # daily: results transcript -> md taoge section
+│   ├── taoge-distill/ # daily: md taoge section -> persona verification & distillation
+│   ├── cb-skill/      # convertible-bond master persona (bchitudou0 behavior rules)
+│   ├── tzzb-sum/      # daily: ledger legs -> md tzzb section (【推测】 layer)
+│   ├── tzzb-distill/  # daily: legs -> cb-skill mechanical review (zero-token)
+│   ├── fage-skill/    # fage pre-market line (hermes distills spec / Claude T+1 verification / persona)
+│   └── check-cls-md/  # evening routine: review CLS OCR sections against images
+├── md                 # Daily auto-generated stock analysis reports (Markdown)
 │   └── <year>S<quarter>/yyyy-MM-dd.md
 └── logs               # Application runtime logs
 ```

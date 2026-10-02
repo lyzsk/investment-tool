@@ -1,6 +1,6 @@
 ---
 name: tzzb-sum
-description: "Use when 合成同花顺投资账本高手的每日操作进 stocks md: 跑 scripts/tzzb/gen_tzzb_md.mjs 生成硬数据层(零token), LLM 补【推测】思维逆推层, 整小节覆盖写入 ## 复盘 → ### 同花顺投资账本 → #### <高手名>(每日15:10抓取后/用户喊合成投资账本时)"
+description: "Use when 合成同花顺投资账本高手的每日操作进 md: 跑 scripts/tzzb/gen_tzzb_md.mjs 生成硬数据层(零token), LLM 补【推测】思维逆推层, 整小节覆盖写入 ## 复盘 → ### 同花顺投资账本 → #### <高手名>(每日15:10抓取后/用户喊合成投资账本时)"
 ---
 
 # 投资账本高手操作合成(两层: 硬数据 + 【推测】逆推)
@@ -14,7 +14,7 @@ description: "Use when 合成同花顺投资账本高手的每日操作进 stock
 fetch_tzzb.mjs 抓取 → `downloads/tzzb/<ledger>/{nav_daily.json, change_bs_*.json, position.json}` 落盘
 → syncFromRawJson 增量入 `tzzb_record` 表(trade/nav_day/position_snap/bs_leg 四口径, 增量去重不覆盖)。
 
-本 skill = 把落盘原料消化进 stocks md 的 `#### <高手名>` 小节, 供复盘与日后反推。**无 DB 状态机——
+本 skill = 把落盘原料消化进 md 的 `#### <高手名>` 小节, 供复盘与日后反推。**无 DB 状态机——
 整小节覆盖即幂等**, 重复合成不产生副作用。
 
 ## 纪律(不可违反)
@@ -25,7 +25,7 @@ fetch_tzzb.mjs 抓取 → `downloads/tzzb/<ledger>/{nav_daily.json, change_bs_*.
 3. `#### <高手名>` 小节内容只可能是本 skill 的产出 → 合成即**整小节覆盖**(幂等), 无需任何标记
 4. **空仓日照常写**(净值行+无操作)——空仓=纪律信号, 不许跳过(2026-10-01 用户立法)
 5. 不改 downloads/ 任何文件, 不直接写 DB
-6. **实盘隐私立法**: 用户自己的成交/账户明细永远不进 stocks md(git 文件); 本 skill 只写高手分享页的公开数据
+6. **实盘隐私立法**: 用户自己的成交/账户明细永远不进 md(git 文件); 本 skill 只写高手分享页的公开数据
 7. **格式机械可验**(同 taoge-sum 立法): 小节内禁止 `#####` 子标题, 校验:
    `awk '/^#### <高手名>$/{f=1;next} /^#{2,4} /{if(f)exit} f' <md> | grep -c '^##### '` 应为 0
 
@@ -48,11 +48,11 @@ node scripts/tzzb/gen_tzzb_md.mjs --ledger <ledger> --date <yyyy-MM-dd>
 ### 2.5 归档当日行情(机械, 不可再生——每次合成必做)
 
 ```bash
-node scripts/tzzb/fetch_cb_quotes.mjs --trends-all   # 当日有腿标的的分钟级分时归档(已存在自动跳过)
+node scripts/quotes/fetch_cb_quotes.mjs --trends-all   # 当日有腿标的的分钟级分时归档(已存在自动跳过)
 ```
 
 **分钟级行情东财只留 ~5 天, 当天不归档就永远丢失**(2026-10-02 用户立法: 日后做执行质量复盘——
-卖飞/逃早/更优操作——依赖此数据)。日线缺失标的(新债)顺手 `node scripts/tzzb/fetch_cb_quotes.mjs --kline --code <code>`。
+卖飞/逃早/更优操作——依赖此数据)。日线缺失标的(新债)顺手 `node scripts/quotes/fetch_cb_quotes.mjs --kline --code <code>`。
 日线级复盘随时可跑: `scripts/venv/Scripts/python.exe scripts/tzzb/review_cb_daily.py`(卖分位/卖飞上限/持收增量)。
 
 ### 3. 补【推测】思维逆推层(LLM)
@@ -73,7 +73,7 @@ node scripts/tzzb/fetch_cb_quotes.mjs --trends-all   # 当日有腿标的的分�
 
 ### 4. 挂载(整小节覆盖)
 
-目标: `stocks/<year>S<quarter>/<date>.md` → `## 复盘` → `### 同花顺投资账本` → `#### <name>`。
+目标: `md/<year>S<quarter>/<date>.md` → `## 复盘` → `### 同花顺投资账本` → `#### <name>`。
 md 无此骨架(老文件) → 先跑 `node scripts/md/migrate_md_template.mjs` 补骨架, 再写; 当天 md 不存在 → 跳过并在输出里说明。
 多高手 = 多个 #### 小节并列, 各写各的。
 

@@ -1,6 +1,6 @@
 # profile_bchitudou0.py — 不吃土豆0 机械统计画像 + 市况反向联动(零 token, 2026-10-02)
 # 正向链: 900腿 → 统计事实(H1止损/H2时刻/H4熟票池 + 杂项)
-# 反向链: stocks md 收评节(大盘情绪) + 涨停分析节(正股状态) × 他的行为 → H3正股联动/H5市况开关
+# 反向链: md 收评节(大盘情绪) + 涨停分析节(正股状态) × 他的行为 → H3正股联动/H5市况开关
 # 口径: 与 gen_tzzb_md.mjs 相同(腿去重键 trans_date|op|stock_code, FIFO round-trip)
 # 用法: scripts/venv/Scripts/python.exe scripts/profile_bchitudou0.py [--json out.json]
 import json, re, sys
@@ -97,7 +97,7 @@ R["杂项"] = {
 # ---------- 反向链: md 市况联动 ----------
 def md_of(day):
     y, m = day[:4], int(day[5:7])
-    return ROOT / "stocks" / f"{y}S{(m + 2) // 3}" / f"{day}.md"
+    return ROOT / "md" / f"{y}S{(m + 2) // 3}" / f"{day}.md"
 def parse_mkt(day):
     """收评节机械解析: (涨停, 跌停, 上涨家数, 成交额万亿); 无节返回 None"""
     p = md_of(day)

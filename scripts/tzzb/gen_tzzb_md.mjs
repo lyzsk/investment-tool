@@ -1,10 +1,10 @@
-// gen_tzzb_md.mjs — 生成 stocks md `#### <name>` 小节的硬数据层(零 token, 2026-10-02)
+// gen_tzzb_md.mjs — 生成 md `#### <name>` 小节的硬数据层(零 token, 2026-10-02)
 // 用法:
 //   node scripts/gen_tzzb_md.mjs --ledger bchitudou0 --date 2026-09-30          # stdout 打印
 //   node scripts/gen_tzzb_md.mjs --ledger bchitudou0 --date 2026-09-30 --write  # 挂载进 md(整小节覆盖)
 //   node scripts/gen_tzzb_md.mjs --ledger bchitudou0 --all --write              # 全历史日批量回填
 // 输入: downloads/tzzb/<ledger>/change_bs_*.json(逐笔腿) + nav_daily.json(净值)
-// 挂载: stocks/<year>S<quarter>/<date>.md 的 #### <name> 小节(名字以模板为准, 空格不敏感匹配)
+// 挂载: md/<year>S<quarter>/<date>.md 的 #### <name> 小节(名字以模板为准, 空格不敏感匹配)
 //       覆盖时保留旧小节里的【推测】行(LLM 推测层是另一作者, 硬数据重跑不冲掉)
 // 口径: ①腿去重键=(trans_date|op|stock_code)(change_bs 分页服务端重复, 同 fetch 早停同款)
 //       ②同(日,标的)内买卖腿按时间 FIFO 配对成 round-trip; 买未配对=持有过夜(他风格日内归零, 属异常要显式)
@@ -148,7 +148,7 @@ function genForDate(day) {
 // ---- 挂载: 整小节覆盖, 保留旧【推测】行 ----
 function mount(day, body) {
     const [y, m] = day.split("-");
-    const md = path.join("stocks", `${y}S${Math.ceil(+m / 3)}`, `${day}.md`);
+    const md = path.join("md", `${y}S${Math.ceil(+m / 3)}`, `${day}.md`);
     if (!fs.existsSync(md)) return "无md";
     const lines = fs.readFileSync(md, "utf8").split("\n");
     const hi = lines.findIndex((l) => /^#{4} /.test(l) && canon(l) === canon(HEADING));

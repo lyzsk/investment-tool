@@ -1,6 +1,6 @@
 ---
 name: taoge-sum
-description: "Use when 合成桃哥B站视频产物进 stocks md: 读 results/bilibili/<mid>/<日期>/ 的 txt+vision.json 写 #### 股市 - 桃哥复盘 小节, 并推进状态机 VISION_DONE→SUMMARIZED(每晚跑批后/用户喊合成桃哥视频时)"
+description: "Use when 合成桃哥B站视频产物进 md: 读 results/bilibili/<mid>/<日期>/ 的 txt+vision.json 写 #### 股市 - 桃哥复盘 小节, 并推进状态机 VISION_DONE→SUMMARIZED(每晚跑批后/用户喊合成桃哥视频时)"
 ---
 
 # 桃哥视频产物合成(状态机最后一棒)
@@ -15,7 +15,7 @@ description: "Use when 合成桃哥B站视频产物进 stocks md: 读 results/bi
 发现(INSERT step=NEW) → 下载(mp4+m4a+json 落盘 downloads/, step=DOWNLOADED; 路径不入库——命名约定可派生, 磁盘是唯一事实, 9/29 用户定)
 → 直链 process_video.py(ASR→纠错→视觉→聚合 → results/, step=VISION_DONE)。
 
-本 skill = 把 VISION_DONE 的产物消化进 stocks md, 然后推进 SUMMARIZED。
+本 skill = 把 VISION_DONE 的产物消化进 md, 然后推进 SUMMARIZED。
 **这是状态机最后一棒: 不推进, 30 天物理删除永不触发, downloads/ 会膨胀。**
 
 ## 纪律(不可违反)
@@ -63,7 +63,7 @@ curl -s localhost:8888/api/bilibili/video/pendingSummary
 
 ### 3. 合成写 md
 
-挂载点: `stocks/<year>S<quarter>/<发布日 yyyy-MM-dd>.md` 的 `## 复盘` → `### bilibili` → `#### 股市 - 桃哥复盘` 小节
+挂载点: `md/<year>S<quarter>/<发布日 yyyy-MM-dd>.md` 的 `## 复盘` → `### bilibili` → `#### 股市 - 桃哥复盘` 小节
 (桃哥只在交易日盘后发稿, 挂发布日当天; quarter=(月-1)/3+1, 9月=S3; 10/2 模板迁移后小节在 ### bilibili 下)
 
 小节结构(2026-09-24 用户定稿格式, 五大 bullet 全收在 #### 股市 - 桃哥复盘 下, 不用 ##### 子小节):
@@ -181,7 +181,7 @@ scripts/venv/Scripts/python.exe scripts/backfill_taoge/backfill_taoge.py --md-sw
 ### 6. 逆向推导必查近期 md 炒作惯性(2026-09-29 用户立法, 新易盛/通鼎互联教训)
 
 做**持仓逆向/提及个股板块定性/选股链复盘**时, 不许只看当日快照——必查近 2-3 周
-stocks md 的涨停分析小节(md=信息聚合层, 妖股速查库):
+md 的涨停分析小节(md=信息聚合层, 妖股速查库):
 - 同板块近期历史连板/涨停记录=**炒作惯性证据**(实证: 通鼎互联 2026-08-20→08-21
   二连板+2026-09-15 首板, 9/29 桃哥买它是惯性个股逻辑的再现; 当日 chain 选新易盛
   =方向对选票错——光模块≠光纤, 细分环就要靠 md 连板史区分)

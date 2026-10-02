@@ -5,7 +5,7 @@
 
 ## 定位
 
-读某一天的 stocks md `### 桃哥` 小节(新格式五大 bullet), 把可复用的东西沉淀进 `skills/taoge-skill/persona/`。
+读某一天的 md `### 桃哥` 小节(新格式五大 bullet), 把可复用的东西沉淀进 `skills/taoge-skill/persona/`。
 **信息截止铁律**: 只允许使用 ≤ 目标日期的素材(md 文件、rules.md 现有内容); 禁止用任何晚于目标日期的市场知识修饰规则——这是回填, 不是马后炮。
 
 ## 流程(两步, 顺序不可换)

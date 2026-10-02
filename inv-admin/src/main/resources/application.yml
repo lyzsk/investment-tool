@@ -15,7 +15,7 @@ project:
     result:
       root-dir: ${project.root-dir}/results
   markdown:
-    root-dir: ${project.root-dir}/stocks
+    root-dir: ${project.root-dir}/md
     template-path: classpath:templates/stock-template.md
 
 server:

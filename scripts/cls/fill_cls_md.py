@@ -15,13 +15,13 @@ import cls_image_ocr as C
 
 ROOT = Path(__file__).resolve().parents[2]             # investment-tool/(10/2 迁入 scripts/cls/)
 CLS_DIR = ROOT / "downloads" / "cls"
-STOCKS = ROOT / "stocks"
+STOCKS = ROOT / "md"
 
 SECTION = {"wp": "午评", "wjzt": "午间涨停分析", "sp": "收评", "zt": "涨停分析"}
 
 
 def quarter_dir(date):
-    """yyyy-mm-dd -> stocks/2026SX"""
+    """yyyy-mm-dd -> md/2026SX"""
     m = int(date[5:7])
     return f"2026S{(m - 1) // 3 + 1}"
 
@@ -74,7 +74,7 @@ def main():
     ap.add_argument("--from", dest="dfrom", required=True)
     ap.add_argument("--to", dest="dto", required=True)
     ap.add_argument("--overwrite", action="store_true", help="连人工内容也覆盖(需 --backup)")
-    ap.add_argument("--backup", help="覆盖前先整体备份 stocks 到该目录")
+    ap.add_argument("--backup", help="覆盖前先整体备份 md 到该目录")
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
 
@@ -83,8 +83,8 @@ def main():
     if args.backup:
         bdir = Path(args.backup)
         if not bdir.exists():
-            shutil.copytree(STOCKS, bdir / "stocks")
-            print(f"[backup] {STOCKS} -> {bdir / 'stocks'}")
+            shutil.copytree(STOCKS, bdir / "md")
+            print(f"[backup] {STOCKS} -> {bdir / 'md'}")
 
     d0 = datetime.date.fromisoformat(args.dfrom)
     d1 = datetime.date.fromisoformat(args.dto)

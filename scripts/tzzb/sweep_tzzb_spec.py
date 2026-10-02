@@ -22,7 +22,7 @@ def log(msg):
 
 def md_of(day):
     y, m = day.split("-")[:2]
-    return ROOT / "stocks" / f"{y}S{(int(m) + 2) // 3}" / f"{day}.md"
+    return ROOT / "md" / f"{y}S{(int(m) + 2) // 3}" / f"{day}.md"
 
 def has_spec(day):
     md = md_of(day)

@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]  # investment-tool/(10/2 迁入 scripts/tzzb/)
 TZZB = ROOT / "downloads" / "tzzb" / "bchitudou0"
-KDIR = ROOT / "downloads" / "cb_quotes" / "kline"
+KDIR = ROOT / "downloads" / "quotes" / "cb" / "kline"
 
 legs, seen = [], set()
 for f in TZZB.glob("change_bs_*.json"):

@@ -1,7 +1,7 @@
 # chain.md — taoge-skill 决策链编排契约（2026-10-01，TODO 0.6 + 0.7-1 合并实施）
 
 > 定位：七步链每一步的**输入/输出/prompt 模板/哨兵/失败重跑粒度**以本文档为唯一定义。
-> 驱动器=原 `scripts/plan-a/run_taoge_chain.py`(**2026-10-02 plan-a 废除, 已压缩进 `scripts/_graveyard/plans_taoge-paper_2026-10-02.zip`**;
+> 驱动器=原 `scripts/plan-a/run_taoge_chain.py`(**2026-10-02 plan-a 废除, 归档已被用户删除不可恢复**;
 > 本文档的 prompt 模板与契约仍有效, 需要重建驱动器时按本文档实现, 与 plan-a 代码无关)。
 > **prompt 纯文本可移植**：hermes(kimi-k3) 与 claude headless 共用同一条链，模板只引用文件路径+占位符，不绑定任何 agent 框架。
 > 纪律：单模型多 pass + 落盘契约，**禁多 agent 互聊和稀泥**（9/28 立法）；事实走确定性代码，LLM 只做判断/评分/表态。
@@ -169,7 +169,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 - 误判进 cases.md 候选队列；规则级教训标"单样本，待验证"不进 rules.md
 
 ````prompt
-任务：对 {date} 执行决策链 07 复盘。读 {run_dir}/ 全部产物（01-06+validate_report）与当日 stocks md（收评/涨停分析/桃哥小节）、paper_state.json 当日成交。
+任务：对 {date} 执行决策链 07 复盘。读 {run_dir}/ 全部产物（01-06+validate_report）与当日 md（收评/涨停分析/桃哥小节）、paper_state.json 当日成交。
 盘前预案 vs 当日实际 逐条对照：候选票命中/漏票/误判各是什么，误判的直接原因，可复用教训。
 写入 {run_dir}/07_review.md，contract 块：
 ```contract

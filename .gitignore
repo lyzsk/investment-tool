@@ -46,9 +46,6 @@ downloads/
 downloads/*
 downloads/**/*
 
-### dfcf 实盘语料 ###
-scripts/dfcf/
-
 **/pom.xml.versionsBackup
 
 tree.txt
@@ -65,10 +62,12 @@ yarn-error.log*
 .yarn
 downloads/
 results/
-scripts/taoge-paper/raw/
 inv-stock/target/
 **/tessdata/
 backups/
+
+### dfcf 实盘语料 ###
+scripts/dfcf/
 
 ### 环境和模型
 scripts/venv/
