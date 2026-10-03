@@ -5,6 +5,8 @@
 // v1 内容: ①scan.mjs 六榜(大盘) ②持仓+挂单票腾讯快照 ③state_digest(昨日EOD)
 // v2(10/2): ④新到电报=直接读当天 md ## 加红电报 节(Java 全天实时写), 抠 [时间戳] 落在
 //   上一 slot~本 slot 之间的条目; 首 slot=当日 00:00 起; 今日 md 未建=显式标注不编数据
+// v3(10/4): ⑤池子覆盖率(涨停池 vs persona/pools.json, <70% WARN 强制扩池)+⑥竞价异动临时池
+//   (slot≥0925, 涨幅榜池外新面孔=接力池取数口)——盲区修复⑤双池制的机械层
 // 出口: 0=ok 1=用法错 2=scan 失败
 import fs from "node:fs";
 import path from "node:path";
@@ -79,6 +81,58 @@ for (const [code, tag] of watch) {
     await sleep(500);
 }
 
+// ①c 池子登记簿: 覆盖率告警 + 竞价异动临时池(10/4 立法, 盲区修复⑤)
+// 池子偏见=最大盲区根因(固态有 9/5 预建池被选中/医药没池连方向组都没建); pools.json=低吸池(B48)唯一机器真源
+// 覆盖率: 最近涨停池票名在池率<70% → WARN 强制扩池; 临时池: slot≥0925 涨幅榜池外新面孔(打破 T-1 池子时间差, 接力池取数口)
+const POOLS_FILE = path.resolve("skills/taoge-skill/persona/pools.json");
+const pools = (() => {
+    try {
+        const p = JSON.parse(fs.readFileSync(POOLS_FILE, "utf8"));
+        const names = new Set(), codes = new Set();
+        for (const d of Object.values(p.directions || {})) for (const s of d.stocks || []) { names.add(s.name); codes.add(s.code); }
+        return { names, codes };
+    } catch { return null; }
+})();
+function poolCoverage() {  // → {md, data|null}
+    if (!pools) return { md: "⚠️ pools.json 缺失/解析失败——池子无登记簿, 覆盖率无法计算, 本身即告警, 立即修复", data: null };
+    const sec = (scanMd.match(/## 连板梯队\n([\s\S]*?)(?=\n## |\n*$)/) || [])[1] || "";
+    if (!sec || /获取失败/.test(sec)) return { md: "(连板梯队缺失, 无法计算)", data: null };
+    const names = [...new Set(sec.split("\n").filter((l) => /连板\[/.test(l))
+        .flatMap((l) => [...l.matchAll(/([一-龥A-Za-z0-9*]+)\(/g)].map((x) => x[1]).filter((n) => n.length >= 2)))];
+    if (!names.length) return { md: "(涨停池无票)", data: { total: 0, inPool: 0, rate: 1 } };
+    const inn = names.filter((n) => pools.names.has(n)), out = names.filter((n) => !pools.names.has(n));
+    const rate = inn.length / names.length;
+    const warn = rate < 0.7 ? ` ⚠️WARN: 在池率 ${(rate * 100).toFixed(0)}% < 70%——池子太窄, 强制扩池(04 提案+用户确认后改 pools.json)` : "";
+    return {
+        md: [`涨停池 ${names.length} 只, 在池 ${inn.length} 只 (${(rate * 100).toFixed(0)}%)${warn}`,
+            `在池: ${inn.join("、") || "无"}`, `池外: ${out.join("、") || "无"}`].join("\n"),
+        data: { total: names.length, inPool: inn.length, rate: +rate.toFixed(3) },
+    };
+}
+function tempPool() {  // slot≥0925 才存在(竞价后) → {md, rows} | null
+    if (SLOT < "0925") return null;
+    if (!pools) return { md: "⚠️ pools.json 缺失——无法区分池内外, 临时池停用", rows: [] };
+    const sec = (scanMd.match(/## 涨跌幅榜\n([\s\S]*?)(?=\n## |\n*$)/) || [])[1] || "";
+    if (!sec || /获取失败/.test(sec)) return { md: "(涨幅榜缺失, 临时池空——接力池今日无取数口)", rows: [] };
+    const rows = sec.split("\n").filter((l) => !l.includes("🔒"))
+        .map((l) => l.match(/^\s*\d+\.\s*(.+?)\((?:sh|sz|bj)?(\d{6})\)\s*([+-]?[\d.]+)%/)).filter(Boolean)
+        .map((x) => ({ name: x[1], code: x[2], pct: +x[3] }))
+        .filter((r) => !pools.codes.has(r.code) && !watch.has(r.code)).slice(0, 10);
+    const md = rows.length
+        ? rows.map((r) => `- ${r.code} ${r.name} ${r.pct > 0 ? "+" : ""}${r.pct}%`).join("\n")
+            + "\n> 临时池=竞价/早盘异动票当日临时入池(打破 T-1 池子时间差, 接力池取数口); 日内级不落 pools.json, 隔夜归 04 提案+用户确认"
+        : "(涨幅榜 Top 内无池外新面孔)";
+    return { md, rows };
+}
+const coverage = poolCoverage();
+const tmp = tempPool();
+
+// ①d 轮动位置(rotation.mjs --digest, 纯本地零网络; 10/4 盲区修复⑥: "科技回避"粗话消失=资金从哪向哪迁移+证据锚)
+let rotationMd = "(rotation 历史未建: node scripts/rotation.mjs --backfill)";
+try {
+    rotationMd = execFileSync("node", ["scripts/rotation.mjs", "--digest"], { stdio: "pipe", timeout: 15000 }).toString("utf8").trim();
+} catch (e) { rotationMd = `(轮动位置获取失败: ${String(e.message).slice(0, 120)})`; }
+
 // ③state_digest
 const digestFile = path.join(DIR, "state_digest.md");
 const digest = fs.existsSync(digestFile) ? fs.readFileSync(digestFile, "utf8") : "(无 state_digest=首日前)";
@@ -107,10 +161,13 @@ function telegraph() {
 const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${SLOT}）`, "",
     "## 昨日账本状态", digest, "",
     "## 选股层硬过滤(机械规则, 优先级高于一切候选)", seals.size ? "🔒=一字封死(开=高=低=现价且达板限): 当日禁入候选, 无论买卖方向; 已在六榜行尾标注, 04/06 层不得将其列为可交易标的(等炸板分歧也不行——连续一字票进候选=废单制造机)" : "(今日无一字封死票)", "",
+    "## 池子覆盖率(最近涨停池 vs pools.json 登记簿)", coverage.md, "",
+    "## 轮动位置(rotation.mjs 机械判定)", rotationMd, "",
+    ...(tmp ? ["## 竞价异动临时池(接力池取数口, 当日有效)", tmp.md, ""] : []),
     "## 新到电报(自上一 slot)", telegraph(), "",
     "## 关注票实时快照", snaps.length ? snaps.map((s) => `- ${s.code} ${s.name}(${s.tag}): ${s.last} (${s.pct > 0 ? "+" : ""}${s.pct}%) 高${s.high} 低${s.low}${isSealed(s) ? " " + sealTag(s) + "·禁入候选" : ""}`).join("\n") : "(无持仓无挂单)", "",
     "## 大盘六榜", scanMd].join("\n");
 fs.writeFileSync(path.join(OUT, "facts.md"), md);
-fs.writeFileSync(path.join(OUT, "facts.json"), JSON.stringify({ date, slot: SLOT, builtAt: new Date().toISOString(), watch: snaps, chars: md.length }, null, 1));
+fs.writeFileSync(path.join(OUT, "facts.json"), JSON.stringify({ date, slot: SLOT, builtAt: new Date().toISOString(), watch: snaps, coverage: coverage.data, tempPool: tmp ? tmp.rows : undefined, chars: md.length }, null, 1));
 console.log(`facts ${date}/${SLOT}: ${md.length}字 → ${OUT}/`);
 console.log(`JSON:${JSON.stringify({ out: OUT, chars: md.length, watch: snaps.length })}`);
