@@ -66,8 +66,14 @@ inv-stock/target/
 **/tessdata/
 backups/
 
-### dfcf 实盘语料 ###
-scripts/dfcf/
+### dfcf 实盘语料(隐私) ###
+scripts/dfcf/snapshots/
+### paper 模拟盘: 状态隔离(代码 *.mjs/README 可追踪) ###
+scripts/dfcf/paper/facts/
+scripts/dfcf/paper/plans/
+scripts/dfcf/paper/books/
+scripts/dfcf/paper/nav_*.csv
+scripts/dfcf/paper/*.log
 
 ### 环境和模型
 scripts/venv/

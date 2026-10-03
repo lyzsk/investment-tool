@@ -13,6 +13,7 @@
 | `venv/` | python 环境(ASR+7B+OCR; 已 gitignore) | 重建: `requirements-taoge.txt` / `requirements-cls.txt` |
 | `models/` | Qwen2.5-VL-7B(16G)+纠错字典+wheel(已 gitignore) | `process_video.py --download-model` 一次性下载 |
 | `dfcf/` | 实盘语料存档(snapshots/ 已 gitignore=隐私唯一落点) | 见文末「dfcf 线」 |
+| `taoge-chain/` | 决策链驱动器(按 skills/taoge-skill/workflows/chain.md 契约) | `scripts/venv/Scripts/python.exe scripts/taoge-chain/run_taoge_chain.py --slot 0915 [--date yyyymmdd] [--dry]` / `--review` / `--selftest`(不烧 token); 出口 0=完成 1=中止 3=ESCALATE_FULL_CHAIN |
 
 ---
 
@@ -87,6 +88,7 @@ scripts/venv/Scripts/python.exe scripts/tzzb/gen_cb_cases.py    # 依赖 ② 的
 |---|---|---|
 | `format-markdown.mjs` | Java MarkdownFormatServiceImpl 调用 | prettier 格式化(需项目根 npm install prettier) |
 | `migrate_md_template.mjs` | `node scripts/md/migrate_md_template.mjs [--dry] [dir...]` | **模板迁移常备**: stock-template.md 变更后跑它批量同步历史 md(模板驱动/标题归一/缺节补骨架; 幂等) |
+| `gen_rules_index.mjs` | `node scripts/md/gen_rules_index.mjs` | B3 分级加载: rules.md ### Xnn 头→rules_index.md(134条 239KB→20.5KB, ✅⏳❌ 状态标+前 2 条正文要点备注防漏捞); 幂等; chain 驱动器每轮自动重建, distill 改 rules 后可手跑 |
 
 ---
 
