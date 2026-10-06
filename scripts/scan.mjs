@@ -41,14 +41,19 @@ async function fetchJson(url, headers = {}) {
 
 // ---------- 东财 push2 clist(主源; board_rank 已验证的范式) ----------
 // 全A fs: 深主板+创业板+沪主板+科创板; fields: f12代码/f14名/f2价/f3涨跌幅/f6成交额/f24 60日涨跌幅/f26上市日期
+// 10/6 G-4 补全: push2 限频时切 push2delay(延迟 15min 镜像, 独立限频池; 盘后/盘前 slot=收盘数据零影响, 盘中影响小)
 const FS_ALL_A = 'm:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23';
-async function emClist({ fs: fss, fid = 'f3', po = 1, pz = 30, fields = 'f12,f14,f2,f3,f6' }) {
-  const u = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=${pz}&po=${po}&np=1&fltt=2&invt=2`
+async function emClist({ fs: fss, fid = 'f3', po = 1, pz = 30, fields = 'f12,f14,f2,f3,f6' }, host = 'push2.eastmoney.com') {
+  const u = `https://${host}/api/qt/clist/get?pn=1&pz=${pz}&po=${po}&np=1&fltt=2&invt=2`
     + `&fid=${fid}&fs=${encodeURIComponent(fss)}&fields=${fields}`;
   const j = await fetchJson(u, EM_REF);
   const rows = (j.data && j.data.diff) || [];
   if (!rows.length) throw new Error('clist 空');
   return rows;
+}
+async function emClist2x(opt) {
+  try { return await emClist(opt); }
+  catch (e) { await jitter(); return await emClist(opt, 'push2delay.eastmoney.com'); }
 }
 const fmtPct = v => (v === '-' || v == null) ? '?' : (+v).toFixed(2) + '%';
 const fmtAmt = v => (v === '-' || v == null) ? '?' : (v >= 1e8 ? (v / 1e8).toFixed(1) + '亿' : (v / 1e4).toFixed(0) + '万');
@@ -79,11 +84,39 @@ async function emPool(type /* 'ZT'|'DT' */, date, maxBack = 5) {
   throw new Error(`${type}Pool 近 ${maxBack} 天全空`);
 }
 
+
+// ---------- 连板梯队备源(10/6 G-4): 当日 md 加红电报的涨停分析条目机械解析 ----------
+// 语义降级已标注: 电报只列焦点股(非全量池), "新华传媒 7 连板/澳弘电子 12 天 8 板"两种格式都收
+function telegraphLianban(date8) {
+  const results = [];
+  for (let back = 0; back < 4 && !results.length; back++) {
+    const d = new Date(date8.slice(0,4)+'-'+date8.slice(4,6)+'-'+date8.slice(6)+'T12:00:00');
+    d.setDate(d.getDate() - back);
+    const iso = d.toISOString().slice(0, 10);
+    const [y, m] = iso.split('-');
+    const p = path.join('md', y + 'S' + Math.ceil(+m / 3), iso + '.md');
+    if (!fs.existsSync(p)) continue;
+    const c = fs.readFileSync(p, 'utf8');
+    const sec = c.slice(c.indexOf('## 加红电报'));
+    for (const m2 of sec.matchAll(/【[^】]*涨停分析[^】]*】[^]]*/g)) {
+      const txt = m2[0];
+      const clean = s => {  // 剥概念前缀: "并购重组的新华传媒"/"机器人概念股襄阳轴承"/"纺织板块泰慕士"→纯票名
+        for (const sep of ['的', '概念股', '板块']) { const i = s.indexOf(sep); if (i >= 0 && i + sep.length < s.length) s = s.slice(i + sep.length); }
+        return s.replace(/[0-9]+$/, '');  // '中新赛克1'→'中新赛克'(正则把板数尾巴吸进名的偶发)
+      };
+      for (const g of txt.matchAll(/([一-龥A-Za-z0-9*ST]+)[s,，]*(?:d+天)?(d+)s*连板/g)) results.push({ name: clean(g[1]), lb: +g[2] });
+      for (const g of txt.matchAll(/([一-龥A-Za-z0-9*ST]+)[s,，]*(d+)s*天s*(d+)s*板/g)) results.push({ name: clean(g[1]), lb: +g[3] });
+    }
+  }
+  const seen = new Set();
+  return results.filter(r => { const k = r.name + r.lb; if (seen.has(k) || r.name.length < 2 || !/[一-龥]/.test(r.name)) return false; seen.add(k); return true; });  // 去重+必须含中文(滤"20cm"类噪声)
+}
+
 // ---------- 各榜(每榜独立闭环) ----------
 // 涨跌榜双源: 东财(主, 含成交额字段更全) → 新浪(备); 其余榜东财单源+闭环
 async function rankBoard(asc, top, label) {
   try {
-    const rows = await emClist({ fs: FS_ALL_A, fid: 'f3', po: asc ? 0 : 1, pz: top });
+    const rows = await emClist2x({ fs: FS_ALL_A, fid: 'f3', po: asc ? 0 : 1, pz: top });
     const md = rows.map((r, i) => `${i + 1}. ${r.f14}(${r.f12}) ${fmtPct(r.f3)} 额${fmtAmt(r.f6)}`).join('\n');
     return { src: 'eastmoney', md, raw: rows };
   } catch (e1) {
@@ -119,17 +152,17 @@ async function board跌停(date, top) {
 }
 async function board次新(top) {
   // 次新股板块 BK0959; f26=上市日期, f24=60日涨跌幅 → 区间跌幅榜(回撤视角)
-  const rows = await emClist({ fs: 'b:BK0959', fid: 'f24', po: 0, pz: top, fields: 'f12,f14,f2,f3,f24,f26' });
+  const rows = await emClist2x({ fs: 'b:BK0959', fid: 'f24', po: 0, pz: top, fields: 'f12,f14,f2,f3,f24,f26' });
   const md = [`(次新股板块 BK0959, 按60日涨跌幅升序=区间回撤最深)`]
     .concat(rows.map((r, i) => `${i + 1}. ${r.f14}(${r.f12}) 上市${r.f26 || '?'} 60日${fmtPct(r.f24)} 今日${fmtPct(r.f3)}`));
   return { src: 'eastmoney', md: md.join('\n'), raw: rows };
 }
 async function board板块() {
-  const hy = await emClist({ fs: 'm:90+t:2', fid: 'f3', po: 1, pz: 8, fields: 'f14,f3' });
+  const hy = await emClist2x({ fs: 'm:90+t:2', fid: 'f3', po: 1, pz: 8, fields: 'f14,f3' });
   await jitter();
-  const hyDn = await emClist({ fs: 'm:90+t:2', fid: 'f3', po: 0, pz: 8, fields: 'f14,f3' });
+  const hyDn = await emClist2x({ fs: 'm:90+t:2', fid: 'f3', po: 0, pz: 8, fields: 'f14,f3' });
   await jitter();
-  const gn = await emClist({ fs: 'm:90+t:3', fid: 'f3', po: 1, pz: 8, fields: 'f14,f3' });
+  const gn = await emClist2x({ fs: 'm:90+t:3', fid: 'f3', po: 1, pz: 8, fields: 'f14,f3' });
   const line = (tag, rows) => `${tag}: ` + rows.map(x => `${x.f14}${fmtPct(x.f3)}`).join(' ');
   return { src: 'eastmoney', md: [line('行业涨幅Top8', hy), line('行业跌幅Top8', hyDn), line('概念涨幅Top8', gn)].join('\n'),
     raw: { hy, hyDn, gn } };

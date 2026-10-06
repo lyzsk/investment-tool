@@ -1,8 +1,38 @@
 [
   {
-    "ledger": "bchitudou0",
+    "ledger": "buchitudou0",
     "name": "不吃土豆0",
     "key": "6Mk3xjj",
     "user_key": "189268"
+  },
+  {
+    "ledger": "liunianqing",
+    "name": "刘念青",
+    "key": "2OmTm72",
+    "user_key": "200240"
+  },
+  {
+    "ledger": "lianghuaxiaohao",
+    "name": "量化短线小号实验",
+    "key": "yDYm2oX",
+    "user_key": "183921"
+  },
+  {
+    "ledger": "a658",
+    "name": "A658 正好蓝天",
+    "key": "6wQ3yXp",
+    "user_key": "187735"
+  },
+  {
+    "ledger": "bianbenling",
+    "name": "边学本领边实践",
+    "key": "wXNp67m",
+    "user_key": "181118"
+  },
+  {
+    "ledger": "xingjianye",
+    "name": "星见野",
+    "key": "nWXkx6p",
+    "user_key": "172474"
   }
 ]

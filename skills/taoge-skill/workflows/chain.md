@@ -70,6 +70,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````prompt
 任务：对 {date} 执行决策链 01 事实采集（元指令已随本任务下发：任务优先，禁反问；读 skills/taoge-skill/persona/profile.md 即可，本步不需要规则）。
 读 {run_dir}/facts.txt，按其指示读昨日涨停分析 md 与 paper_state.json，写成事实摘要（只陈述事实，不做判断）。
+两条硬规则：①**勘误表跳过**（10/6 立法）：昨日 md 涨停分析中含 `> ⚠️ 勘误` 标记的表是已证伪污染数据，禁止引用其任何内容（9/24 PCB 虚构表先例）；②**导师信号速览逐源回应**（G-1 聚合层， 10/6 立法"确保每个 skill 都别空仓"）：facts.txt 的「导师信号速览」节列出的每个信号源（桃哥/发哥/刘念青/量化实验/A658/边学本领/星见野/土豆/卢本圆/趋势天哥），摘要中必须各给一行"该源当日相关信号或'今日无信号'"——按状态标加权（✅已验证>⏳待验证>❌反例禁用），发哥回避信号单独标"刹车级"，量化实验标"只看不跟(程序化嫌疑)"。只摘录不判断。
 写入 {run_dir}/01_facts.md（Write 工具）：正文后接
 ```contract
 {"date":"{date_dash}","sources":["..."],"digest":"<=200字"}
@@ -86,6 +87,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````prompt
 任务：对 {date} 执行决策链 02 分析。读 {run_dir}/01_facts.md 与 skills/taoge-skill/persona/（只读 profile.md+rules_index.md 索引；定市况后按需 grep -n "^### <编号>" rules.md 捞 2-3 条全文，**禁全量读 rules.md**）。
 ①市况三态判定（有主线/无主线退潮/普跌）→ 定先行层（有主线=板块层先行；无主线/退潮/普跌=资金惯性层先行，板块层降级为回避清单，9/28 立法）；
+**发哥刹车条款（G-1， 10/6 立法）**：01 摘要中发哥信号若含"回避/不追高/控回撤"且当日未被证伪——02 的市况判定必须显式回应（采纳=市况至少降半档或防御兜底方向必启用；不采纳=02 正文给一条具体反驳理由），不许无视；
 ②方向→板块/概念→情绪周期判定；③输出方向清单（后续 04 方向组必须落在其中；防御兜底方向若启用也必须列进来）。
 写入 {run_dir}/02_analysis.md，contract 块：
 ```contract
@@ -113,17 +115,17 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 <!-- step:04 -->
 ### 04 交易方案
 - 输入：01+02+03
-- 输出：`04_plan.md`；contract=`{"candidates":[{"name":"票名","direction":"属02某方向","group":"遗留|方向","trigger":"条件价"}...],"断链说明":null}`
-- 校验：candidates 非空（B72：禁止空方向组）；group=方向 的 candidate.direction ∈ 02.directions；两组齐全或"断链说明"写明断在哪环缺什么
+- 输出：`04_plan.md`；contract=`{"candidates":[{"name":"票名","code":"002050","direction":"属02某方向","group":"遗留|方向","trigger":"条件价"}...],"断链说明":null}`
+- 校验：candidates 非空（B72：禁止空方向组）；group=方向 的 candidate.direction ∈ 02.directions；code 若填必须 6 位数字（04 后驱动器按 code 机械拉候选票价格锚快照 → `{run_dir}/cand_snap.md/.json`，06 挂单价必须锚定它）；两组齐全或"断链说明"写明断在哪环缺什么
 
 ````prompt
 任务：对 {date} 执行决策链 04 交易方案。读 {run_dir}/01_facts.md、{run_dir}/02_analysis.md、{run_dir}/03_debate.md 与 skills/taoge-skill/persona/（profile.md+rules_index.md，方向→选股时按需 grep 捞规则全文，禁全量读 rules.md）。
 候选池两组列齐（9/28 立法，缺组=违规输出）：
 ①遗留票组=昨日语境遗留（facts 已给 paper_state/昨日候选）；
 ②桃哥选股方向组=必填推导链：方向→板块→细分概念→大票/小票→个股，每环带三件套（证据锚=沉淀出处/失效条件/置信度）；推不出个股也要推出方向+板块，"暂缺"只允许挂在断链环上写明缺什么；无证据硬凑=学偏，禁止。
-每只候选给条件价+仓位建议。写入 {run_dir}/04_plan.md，contract 块：
+每只候选给 6 位代码（从 facts 六榜/电报/state_digest 抄，查不到写 null）+条件价+仓位建议。写入 {run_dir}/04_plan.md，contract 块：
 ```contract
-{"candidates":[{"name":"...","direction":"...","group":"遗留|方向","trigger":"..."}],"断链说明":null}
+{"candidates":[{"name":"...","code":"002050","direction":"...","group":"遗留|方向","trigger":"..."}],"断链说明":null}
 ```
 末行只写：STEP_OK 04 {date}
 ````
@@ -146,33 +148,35 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 
 <!-- step:06 -->
 ### 06 终裁
-- 输入：01..05
-- 输出：`06_verdict.md`；contract=`{"supersedes":"首裁|取代盘前决策:...|维持盘前决策:...","actions":[{"name":"票名","code":"600127","op":"买|卖","trigger_price":"...","qty":800,"invalid_if":"..."}...],"no_trade":false}`
-- 校验：actions.name ⊆ 05 批准∪条件批准；**code 必须 6 位数字、qty 必须正整数**（驱动器转 plans 的取数口，缺=回炉）；qty 由模型按 paper_state 现金+params 仓位规则换算，驱动器机械复检 qty×trigger_price ≤ 单票仓位上限×nav（超限=回炉）；no_trade=true ⇒ 04 两组已列齐且 actions 含进场条件单；盘中重跑 ⇒ supersedes 必须显式含"维持/取代"（决策版本号，0.7-3 立法）
+- 输入：01..05 + `{run_dir}/cand_snap.md`（候选票价格锚，04 后驱动器机械拉取；不存在=04 无 code 候选，跳过锚定）
+- 输出：`06_verdict.md`；contract=`{"supersedes":"首裁|取代盘前决策:...|维持盘前决策:...","actions":[{"name":"票名","code":"600127","op":"买|卖","trigger_price":"...","qty":800,"cancel_below":6.95,"stop_below":null,"invalid_if":"..."}...],"no_trade":false}`
+- 校验：actions.name ⊆ 05 批准∪条件批准；**code 必须 6 位数字、qty 必须正整数**（驱动器转 plans 的取数口，缺=回炉）；trigger_price=数值**或** `Z*系数` 公式（Z=cand_snap 前收，驱动器代换求值成数值才落 plans，其他文法=回炉）；**价格锚（C7-①）**：挂单价落在该票当日理论区间外=编造嫌疑回炉（区间=前收×(1±板限)，板限按代码分档 10/20/30%，主板 ST 同 10%）；cancel_below/stop_below 若填必须>0 且 stop_below 只许卖单；qty 由模型按 paper_state 现金+params 仓位规则换算，驱动器机械复检 qty×trigger_price ≤ 单票仓位上限×nav（超限=回炉）；no_trade=true ⇒ 04 两组已列齐且 actions 含进场条件单；盘中重跑 ⇒ supersedes 必须显式含"维持/取代"（决策版本号，0.7-3 立法）
 
 ````prompt
-任务：对 {date} 执行决策链 06 终裁。读 {run_dir}/01_facts.md 至 {run_dir}/05_risk.md 与 skills/taoge-skill/persona/（profile.md+rules_index.md，按需 grep 捞规则全文，禁全量读 rules.md）。
+任务：对 {date} 执行决策链 06 终裁。读 {run_dir}/01_facts.md 至 {run_dir}/05_risk.md、{run_dir}/cand_snap.md（候选票价格锚，若存在）与 skills/taoge-skill/persona/（profile.md+rules_index.md，按需 grep 捞规则全文，禁全量读 rules.md）。
 ①买/卖/不操作+标的+**6 位代码**+条件价+**股数 qty**(按 paper_state.json 的 nav_est×单票≤1.5 成上限自己换算， qty=正整数)+失效条件；②必须含"竞价确认→早盘可执行触发器"（不只午后信号）；
+**条件价与失效条件规则（C7 立法，防 9/28 大亚 14.00 型编造价）**：trigger_price 必须锚定 cand_snap.md 的前收/现价（回踩单=低于现价、突破单=高于现价但≤板限上沿，超出当日理论区间=驱动器直接回炉）；表达为前收比例时可写公式如 `Z*0.97`（Z=前收，驱动器代换求值）；失效条件能用单一边界价表达的**必须**填结构化字段——买/卖单 `cancel_below`=跌破即撤（形态破坏不接刀），卖单 `stop_below`=止损哨兵（跌破按市价出），复杂条件另写 invalid_if 文字，两者不互斥；
 ③若当前为盘后运行，必须声明"盘后版=后见之明污染风险，方向判定含金量打折，以盘前版为准"；
-④05 的否决项是硬约束，05 否决的票不许进终裁；⑤盘中重跑时必须显式声明"维持/取代盘前 XX 决策+理由"；
+④05 的否决项是硬约束，05 否决的票不许进终裁；**你有权且应当推翻 02-05 的任何判断（方向/候选/价格），推翻上游是终裁的职责而非失误**（10/5 立法：任务独立性不靠上下文独立）；⑤盘中重跑时必须显式声明"维持/取代盘前 XX 决策+理由"；
 ⑥决策输出三选一：立即单/条件单(主形态)/空仓+进场触发条件——纯观望=违规输出，空仓也必须给进场条件单挂单等。
 写入 {run_dir}/06_verdict.md，contract 块：
 ```contract
-{"supersedes":"...","actions":[{"name":"...","code":"002050","op":"买|卖","trigger_price":"12.50","qty":800,"invalid_if":"..."}],"no_trade":false}
+{"supersedes":"...","actions":[{"name":"...","code":"002050","op":"买|卖","trigger_price":"12.50","qty":800,"cancel_below":12.0,"stop_below":null,"invalid_if":"..."}],"no_trade":false}
 ```
 末行只写：STEP_OK 06 {date}
 ````
 
 <!-- step:blind -->
 ### 盲审（06→01 反向验证 + 二次交叉验证）
-- 输入：**只给** 01_facts.md + 06_verdict.md（独立新会话，不给中间环节）
+- 输入：**只给** 01_facts.md + 06_verdict.md + cand_snap.md（若存在；独立新会话，不给中间环节）
 - 输出：`validate_report.md`；contract=`{"verdict":"pass|fail","issues":["..."]}`
-- FAIL → 带 issues 回炉 06 一次 → 复审一次；再 FAIL=链中止 exit 1
+- FAIL → 带 issues 回炉 06 一次 → 复审一次；再 FAIL=链中止 exit 1；回炉版若 contract 校验败**再给一次带原因回炉**（C9 修复：9/29 死链——公式价被数值校验器拒后直接 abort 无产出）
 
 ````prompt
-你是独立审计员（未见中间分析环节，故意如此）。只读 {run_dir}/01_facts.md 与 {run_dir}/06_verdict.md。
+你是独立审计员（未见中间分析环节，故意如此）。只读 {run_dir}/01_facts.md、{run_dir}/06_verdict.md 与 {run_dir}/cand_snap.md（若存在）。
 审计 {date} 的终裁：①矛盾检测（终裁回避的方向事实包里却在涨停潮=矛盾）；②编造证据检测（终裁引用的"事实"在 01 里是否存在）；③后见之明污染（盘后版是否用了盘中不可能知道的信息）；④结论是否被事实支持；
-⑤规则漏用抽检（B3 验证口径）：读 skills/taoge-skill/persona/rules_index.md 索引，对照 01 事实找"显然适用而 06 未体现"的规则（特别 C 类负面规则：候选/成交标的撞上祖训禁区却未回避=漏用铁证）——此维度同时验证索引备注是否足以触发捞取，发现"索引行看不出该捞"的条目直接列入 issues。
+⑤规则漏用抽检（B3 验证口径）：读 skills/taoge-skill/persona/rules_index.md 索引，对照 01 事实找"显然适用而 06 未体现"的规则（特别 C 类负面规则：候选/成交标的撞上祖训禁区却未回避=漏用铁证）——此维度同时验证索引备注是否足以触发捞取，发现"索引行看不出该捞"的条目直接列入 issues；
+⑥价格锚核对（C7-③ 立法，防 9/28 大亚挂 14.00 vs 实际 7.6 型编造价）：06 每个 trigger_price/cancel_below/stop_below 必须能在 cand_snap.md（或 01 facts 快照）找到锚——数值超出当日理论区间（前收×(1±板限)）=编造嫌疑直接 FAIL；锚数值合理但语义矛盾（如声称"回踩低吸"却挂得比现价高、声称"突破追入"却挂得比现价低、止损价高于买入价）=列入 issues。
 写入 {run_dir}/validate_report.md，逐条给 通过/存疑+理由，contract 块：
 ```contract
 {"verdict":"pass|fail","issues":["..."]}

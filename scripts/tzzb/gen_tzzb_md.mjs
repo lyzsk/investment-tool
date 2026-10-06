@@ -1,32 +1,36 @@
-// gen_tzzb_md.mjs — 生成 md `#### <name>` 小节的硬数据层(零 token, 2026-10-02)
+// gen_tzzb_md.mjs — tzzb 账本 → md `#### <name>` 小节硬数据层(零 token)
+// v1 2026-10-02 建 | v2 2026-10-06 整体重构(用户令: 补丁摞补丁推倒重来)
+//
+// 设计原则(用户立法沉淀):
+//   ①md=当天腿的忠实记录: 日内做T(当天买+卖)=完整行; 跨日卖出=单行(买腿在历史 md, 不拼接);
+//     当天买入未卖=买腿行+(持仓)。禁期货术语("未平/平仓")。
+//   ②仓位标签用推算持仓(aftPositionPercent 恒 0 已实证失真, 6/12 A658 满仓被标空仓=大 bug 教训):
+//     有腿日=收盘持仓只数; 无腿日=asset 变化(现金不动, 持仓会波动)交叉验证。
+//   ③汇总三计数(日内/跨日/新建仓), 不硬凑全口径胜率。
+//   ④期初存粮(账本开始记录前已有持仓): 首见卖出无库存=如实标"期初存粮", 不截 0 掩盖。
+//
+// 三层结构: load(原料) → derive(派生: FIFO 配对+持仓滚动+日分类, 一次算好) → render(纯查表渲染)
 // 用法:
-//   node scripts/gen_tzzb_md.mjs --ledger bchitudou0 --date 2026-09-30          # stdout 打印
-//   node scripts/gen_tzzb_md.mjs --ledger bchitudou0 --date 2026-09-30 --write  # 挂载进 md(整小节覆盖)
-//   node scripts/gen_tzzb_md.mjs --ledger bchitudou0 --all --write              # 全历史日批量回填
-// 输入: downloads/tzzb/<ledger>/change_bs_*.json(逐笔腿) + nav_daily.json(净值)
-// 挂载: md/<year>S<quarter>/<date>.md 的 #### <name> 小节(名字以模板为准, 空格不敏感匹配)
-//       覆盖时保留旧小节里的【推测】行(LLM 推测层是另一作者, 硬数据重跑不冲掉)
-// 口径: ①腿去重键=(trans_date|op|stock_code)(change_bs 分页服务端重复, 同 fetch 早停同款)
-//       ②同(日,标的)内买卖腿按时间 FIFO 配对成 round-trip; 买未配对=持有过夜(他风格日内归零, 属异常要显式)
-//       ③明细封顶 10 笔, 超出并入汇总行; 空仓日只出净值行
-//       ④推测层(为什么选这债/为什么这时点)不在这里——归 tzzb-sum skill LLM 合成, 逐条标【推测】
-// 幂等: 无状态文件——硬数据层覆盖即幂等, 【推测】行有无即推测层状态(内容即状态, 2026-10-02 用户拍板口径)
+//   node scripts/gen_tzzb_md.mjs --ledger <id> --date 2026-09-30 [--write]   # 单日(stdout/--write)
+//   node scripts/gen_tzzb_md.mjs --ledger <id> --all --write                 # 全历史批量
+// 挂载: 整小节覆盖, 【推测】段全保留(从首个含【推测】行到小节末, 去尾空行防叠加)
+// 幂等: 无状态文件——硬数据覆盖即幂等, 【推测】有无即推测层状态(内容即状态)
 import fs from "fs";
 import path from "path";
 
 const arg = (k) => { const i = process.argv.indexOf("--" + k); return i > -1 ? process.argv[i + 1] : null; };
-const LEDGER = arg("ledger") || "bchitudou0";
+const LEDGER = arg("ledger") || "buchitudou0";
 const DATE = arg("date");
 const WRITE = process.argv.includes("--write");
 const ALL = process.argv.includes("--all");
 if (!ALL && !DATE) { console.error("用法: node scripts/gen_tzzb_md.mjs --ledger <id> (--date yyyy-MM-dd | --all) [--write]"); process.exit(1); }
 
+// ---------- load: 原料 ----------
 const DIR = path.resolve("downloads/tzzb", LEDGER);
 if (!fs.existsSync(DIR)) { console.error(`${DIR} 不存在, 先跑 fetch_tzzb.mjs --ledger ${LEDGER}`); process.exit(1); }
 
-// ledger → md 小节名: 名字以模板 #### 标题为准(用户可能带空格改模板), canon=去空格小写匹配
 const canon = (s) => s.replace(/^#+\s*/, "").replace(/\s+/g, "").toLowerCase();
-const LEDGERS = JSON.parse(fs.readFileSync("scripts/tzzb_ledgers.json", "utf8"));
+const LEDGERS = JSON.parse(fs.readFileSync("scripts/tzzb/tzzb_ledgers.json", "utf8"));
 const NAME = (LEDGERS.find((l) => l.ledger === LEDGER) || {}).name || LEDGER;
 function sectionHeading() {
     const tpl = fs.readFileSync("inv-stock/src/main/resources/templates/stock-template.md", "utf8").split("\n");
@@ -39,7 +43,81 @@ function sectionHeading() {
 }
 const HEADING = sectionHeading();
 
-// 转债代码段(沪深): 110/111/113/118(沪) 123/127/128(深) → 单位"张", 其余"股"
+const legsByDate = {};          // day -> [腿](去重, 时序)
+{
+    const seen = new Set();
+    for (const f of fs.readdirSync(DIR).filter((f) => f.startsWith("change_bs_"))) {
+        const list = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8"))?.ex_data?.change_list || [];
+        for (const t of list) {
+            const day = (t.trans_date || "").slice(0, 10);
+            if (!day) continue;
+            const k = `${t.trans_date}|${t.op}|${t.stock_code}`;
+            if (seen.has(k)) continue;
+            seen.add(k);
+            (legsByDate[day] ||= []).push(t);
+        }
+    }
+    for (const d of Object.keys(legsByDate)) legsByDate[d].sort((a, b) => (a.trans_date < b.trans_date ? -1 : 1));
+}
+const navByDay = {};            // day -> {cur, prev}
+{
+    const nl = JSON.parse(fs.readFileSync(path.join(DIR, "nav_daily.json"), "utf8"))?.ex_data?.index_list || [];
+    nl.forEach((x, i) => {
+        const d = x.date;
+        navByDay[`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`] = { cur: +x.index, prev: i > 0 ? +nl[i - 1].index : null };
+    });
+}
+const summDates = {};           // 分页截断哨兵原料(10/2 立法: 脚本数数, LLM 不许算)
+for (const f of fs.readdirSync(DIR).filter((f) => f.startsWith("position_change_p"))) {
+    const list = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8"))?.ex_data?.change_list || [];
+    for (const t of list) {
+        const d = (t.trans_date || "").slice(0, 10);
+        if (d) (summDates[t.stock_code] ||= new Set()).add(d);
+    }
+}
+
+// ---------- derive: FIFO 配对 + 持仓滚动 + 日分类(一次算好, render 只查表) ----------
+const dayClass = {};            // day -> {intraday:[{buy,sell}], crossday:[sell腿], sells:[sell腿], buys:[buy腿]}
+const holdByDay = {};           // day -> Map(code -> qty) 收盘持仓
+const seeds = [];               // 期初存粮: 首见超卖 {code, name, qty}
+{
+    const openq = new Map();    // code -> [未配对买腿](FIFO 队列)
+    const pos = new Map();      // code -> 净持仓(可负=超卖欠定)
+    const seq = [...new Set([...Object.keys(legsByDate), ...Object.keys(navByDay)])].sort();
+    for (const d of seq) {
+        const cls = { intraday: [], crossday: [], sells: [], buys: [] };
+        for (const t of legsByDate[d] || []) {
+            if (t.op === "1") {
+                (openq.get(t.stock_code) || openq.set(t.stock_code, []).get(t.stock_code)).push(t);
+                pos.set(t.stock_code, (pos.get(t.stock_code) || 0) + +t.trans_count);
+                cls.buys.push(t);
+            } else {
+                const buy = (openq.get(t.stock_code) || []).shift() || null;
+                pos.set(t.stock_code, (pos.get(t.stock_code) || 0) - +t.trans_count);
+                const q = pos.get(t.stock_code);
+                if (q < 0 && !seeds.some((s) => s.code === t.stock_code))
+                    seeds.push({ code: t.stock_code, name: t.stock_name, qty: -q, day: d });  // 首见超卖=期初存粮(记首见日)
+                if (buy && buy.trans_date.slice(0, 10) === d) cls.intraday.push({ buy, sell: t });
+                else cls.crossday.push(t);
+                cls.sells.push(t);
+            }
+        }
+        dayClass[d] = cls;
+        holdByDay[d] = new Map(pos);
+    }
+}
+
+// ---------- render: 纯渲染(只读 derive 结果) ----------
+const codeName = new Map();   // code -> 名称(腿数据反查, 持仓明细用)
+for (const d of Object.keys(legsByDate)) for (const lg of legsByDate[d]) codeName.set(lg.stock_code, lg.stock_name);
+// 真实历史持仓(day_position_by_share, 10/6 破译): {date8: {list:[{code,name,position_percent,rate}]}}——百分比取代推算股数(1074股类残差禁现)
+let dayPos = null;
+{ const f = path.join(DIR, "day_positions.json"); if (fs.existsSync(f)) { try { dayPos = JSON.parse(fs.readFileSync(f, "utf8")); } catch {} } }
+function realPos(day) {
+    if (!dayPos) return null;
+    const rec = dayPos[day.replaceAll("-", "")];
+    return rec && rec.list?.length ? rec.list : null;
+}
 const isBond = (c) => /^(11[0138]|12[378])/.test(c || "");
 const unit = (c) => (isBond(c) ? "张" : "股");
 const fmtPct = (x) => (x >= 0 ? "+" : "") + (x * 100).toFixed(2) + "%";
@@ -50,102 +128,86 @@ const fmtDur = (ms) => {
 };
 const fmtWan = (amt) => (amt / 10000).toFixed(1) + "万";
 
-// ---- 原料一次性载入: 腿按日分组(去重), 净值按日索引 ----
-const legsByDate = {};
-const seen = new Set();
-for (const f of fs.readdirSync(DIR).filter((f) => f.startsWith("change_bs_"))) {
-    const list = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8"))?.ex_data?.change_list || [];
-    for (const t of list) {
-        const day = (t.trans_date || "").slice(0, 10);
-        if (!day) continue;
-        const k = `${t.trans_date}|${t.op}|${t.stock_code}`;
-        if (seen.has(k)) continue;
-        seen.add(k);
-        (legsByDate[day] ||= []).push(t);
-    }
-}
-const navList = JSON.parse(fs.readFileSync(path.join(DIR, "nav_daily.json"), "utf8"))?.ex_data?.index_list || [];
-const navByDay = {};
-navList.forEach((x, i) => {
-    const d = x.date;
-    navByDay[`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`] = { cur: +x.index, prev: i > 0 ? +navList[i - 1].index : null };
-});
+// 国债逆回购=现金管理非持仓。语义(10/7 用户破译): 正值=当日借出存续; **负值=T-1 借出今日资金回笼的清算镜像**
+// (实证: 星见野 4/13 +100.0% → 4/14 -99.7% 完美镜像对)。展示保留 API 原值(不去符号), 但 sum 总仓位排除(镜像会污染)。
+const isRepo = (x) => /^(204|1318)/.test(x.code) || /GC0|R-00/.test(x.name || "");
 
-// 日汇总(机械交叉核对原料): 每标的有交易的日期集合 —— 分页截断自动感知
-// (2026-10-02 立法: ⚠️ 标记由脚本确定性产出, LLM 不许数数; 10/2 全量核查 51 标的 0 缺日,
-//  "75 条顶格"实测=分页服务端重复返回第 1 页(冗余非丢失), 本标记常态休眠但保留哨兵)
-const summDates = {};
-for (const f of fs.readdirSync(DIR).filter((f) => f.startsWith("position_change_p"))) {
-    const list = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8"))?.ex_data?.change_list || [];
-    for (const t of list) {
-        const d = (t.trans_date || "").slice(0, 10);
-        if (d) (summDates[t.stock_code] ||= new Set()).add(d);
+function positionTag(day, hasLegs) {
+    // ①真实历史持仓(day_positions.json)——存在即权威; 逆回购单列不计入持仓(负值日=T+1清算污染 sum, 10/7 用户令加总百分比)
+    const real = realPos(day);
+    if (real) {
+        const repos = real.filter(isRepo), holds = real.filter((x) => !isRepo(x) && +x.position_percent > 0);
+        const sum = holds.reduce((a, x) => a + +x.position_percent, 0);
+        const detail = holds.map((x) => `${x.name} ${(100 * +x.position_percent).toFixed(1)}%`).join(" · ");
+        const repoTxt = repos.length ? ` · 另逆回购 ${repos.map((x) => (100 * +x.position_percent).toFixed(1) + "%").join("/")} 现金管理(负=T-1借出回笼)` : "";
+        if (hasLegs) return holds.length ? `持仓过夜(${holds.length} 支 ${(100 * sum).toFixed(1)}%: ${detail}${repoTxt})` : `空仓过夜(${repoTxt.slice(3) || "仅逆回购"})`;
+        return holds.length || repos.length ? `无操作(持仓过夜 ${(100 * sum).toFixed(1)}%: ${detail || "仅逆回购"}${repoTxt})` : "无操作(空仓)";
     }
+    // ②fallback: 推算持仓只数(无股数无百分比——期初存粮场景推算值不可靠, 只报只数)
+    const held = holdByDay[day] ? [...holdByDay[day].entries()].filter(([, q]) => q > 0) : [];
+    if (hasLegs) return held.length ? `持仓过夜(${held.length} 支, 明细待核)` : "空仓过夜";
+    const a = navByDay[day];
+    const chg = a && a.prev ? Math.abs(a.cur / a.prev - 1) : 0;
+    return (chg > 0.001 || held.length) ? "无操作(持仓过夜)" : "无操作(空仓)";
 }
 
-// ---- 生成某日的硬数据层正文; 无腿且无净值 = null(跳过, 不污染 md) ----
-function genForDate(day) {
-    const legs = (legsByDate[day] || []).sort((a, b) => (a.trans_date < b.trans_date ? -1 : 1));
+function renderDay(day) {
+    const legs = legsByDate[day] || [];
     const nav = navByDay[day];
     if (legs.length === 0 && !nav) return null;
     const navLine = nav ? `净值 ${nav.cur.toFixed(4)}` + (nav.prev ? ` · 日收益 ${fmtPct(nav.cur / nav.prev - 1)}` : "") : "";
-    if (legs.length === 0) return navLine ? `${navLine} · 无操作(空仓观望)` : null;
+    if (legs.length === 0) return navLine ? `${navLine} · ${positionTag(day, false)}` : null;
 
-    // FIFO 配对 round-trip
-    const trips = [];
-    const openBuys = {};
-    for (const t of legs) {
-        if (t.op === "1") (openBuys[t.stock_code] ||= []).push(t);
-        else if (t.op === "2") {
-            const q = openBuys[t.stock_code] || [];
-            trips.push({ code: t.stock_code, name: t.stock_name, buy: q.length ? q.shift() : null, sell: t });
+    const cls = dayClass[day];
+    const rows = [];
+    // ①日内做T(当天买+当天卖): 完整行带盈亏
+    for (const { buy, sell } of cls.intraday) {
+        const pct = +sell.trans_price / +buy.trans_price - 1;
+        const dur = new Date(sell.trans_date) - new Date(buy.trans_date);
+        rows.push(`- ${sell.stock_name}(${sell.stock_code}): ${buy.trans_date.slice(11)} 买 ${buy.trans_count}${unit(sell.stock_code)}@${(+buy.trans_price).toFixed(4)} → ${sell.trans_date.slice(11)} 卖 ${sell.trans_count}${unit(sell.stock_code)}@${(+sell.trans_price).toFixed(4)} **${fmtPct(pct)} · 持仓 ${fmtDur(dur)} · 名义 ${fmtWan(+buy.trans_amount)}**`);
+    }
+    // ②跨日卖出: 单行记录(买腿在历史 md, 用户立法不拼接)
+    for (const sell of cls.crossday) {
+        rows.push(`- ${sell.stock_name}(${sell.stock_code}): ${sell.trans_date.slice(11)} 卖 ${sell.trans_count}${unit(sell.stock_code)}@${(+sell.trans_price).toFixed(4)}`);
+    }
+    // ③当天买入: 净持仓为正的(持仓), 被同日卖出抵消的不标(做T行已表达)
+    for (const buy of cls.buys) {
+        const heldNow = (holdByDay[day].get(buy.stock_code) || 0) > 0;
+        const soldSameDay = cls.sells.some((s) => s.stock_code === buy.stock_code);
+        if (heldNow || !soldSameDay) {
+            rows.push(`- ${buy.stock_name}(${buy.stock_code}): ${buy.trans_date.slice(11)} 买 ${buy.trans_count}${unit(buy.stock_code)}@${(+buy.trans_price).toFixed(4)}${heldNow ? " (持仓)" : ""}`);
         }
     }
-    const overnight = Object.values(openBuys).flat();
+    rows.sort((a, b) => ((a.match(/(\d{2}:\d{2}:\d{2})/)?.[1] || "").localeCompare(b.match(/(\d{2}:\d{2}:\d{2})/)?.[1] || "")));
 
-    const rows = trips.map(({ code, name, buy, sell }) => {
-        const bp = buy ? +buy.trans_price : null, sp = +sell.trans_price;
-        const pct = bp ? sp / bp - 1 : null;
-        const dur = buy ? new Date(sell.trans_date) - new Date(buy.trans_date) : null;
-        const u = unit(code);
-        const buyTxt = buy ? `${buy.trans_date.slice(11)} 买 ${buy.trans_count}${u}@${bp.toFixed(4)}` : "(买腿缺)";
-        const stat = [
-            pct != null ? `**${fmtPct(pct)}` : null,
-            dur != null ? `持仓 ${fmtDur(dur)}` : null,
-            buy ? `名义 ${fmtWan(+buy.trans_amount)}` + "**" : null,
-        ].filter(Boolean).join(" · ");
-        return `- ${name}(${code}): ${buyTxt} → ${sell.trans_date.slice(11)} 卖 ${sell.trans_count}${u}@${sp.toFixed(4)} ${stat}`;
-    });
-
-    const wins = trips.filter((t) => t.buy && +t.sell.trans_price > +t.buy.trans_price).length;
-    const durs = trips.filter((t) => t.buy).map((t) => new Date(t.sell.trans_date) - new Date(t.buy.trans_date));
-    const avgDur = durs.length ? durs.reduce((a, b) => a + b, 0) / durs.length : 0;
-    const pcts = trips.filter((t) => t.buy).map((t) => +t.sell.trans_price / +t.buy.trans_price - 1);
+    // 汇总三计数
+    const wins = cls.intraday.filter((t) => +t.sell.trans_price > +t.buy.trans_price).length;
+    const pcts = cls.intraday.map((t) => +t.sell.trans_price / +t.buy.trans_price - 1);
     const avgPct = pcts.length ? pcts.reduce((a, b) => a + b, 0) / pcts.length : 0;
-    const notional = trips.reduce((a, t) => a + (t.buy ? +t.buy.trans_amount : 0), 0);
-    const lastAftZero = legs[legs.length - 1].aftPositionPercent === 0;
+    const notional = cls.intraday.reduce((a, t) => a + +t.buy.trans_amount, 0);
+    const openCnt = rows.filter((r) => r.includes("(持仓)")).length;
+    const parts = [];
+    if (cls.intraday.length) parts.push(`日内 round-trip ${cls.intraday.length} 笔(胜率 ${wins}/${cls.intraday.length}, 平均 ${fmtPct(avgPct)}, 名义 ${fmtWan(notional)})`);
+    if (cls.crossday.length) parts.push(`跨日卖出 ${cls.crossday.length} 笔`);
+    if (openCnt) parts.push(`新建仓 ${openCnt} 笔(持仓)`);
 
-    const out = [];
-    out.push(navLine + (lastAftZero ? " · 空仓过夜" : " · 持仓过夜"));
-    out.push("");
+    const out = [`${navLine} · ${positionTag(day, true)}`, ""];
     const CAP = 10;
     out.push(...rows.slice(0, CAP));
     if (rows.length > CAP) out.push(`- …另有 ${rows.length - CAP} 笔(明细略, 见 tzzb_record bs_leg)`);
-    out.push("");
-    out.push(`汇总: ${trips.length} 笔 round-trip · 胜率 ${wins}/${trips.length} · 平均单笔 ${fmtPct(avgPct)} · 平均持仓 ${fmtDur(avgDur)} · 名义本金 ${fmtWan(notional)}`);
-    // 分页截断哨兵(确定性标记, 推测层只许读不许算): 日汇总有交易但当日腿缺失才报
-    // (10/2 全量核查 51 标的 0 缺日常态休眠; pre/aftPositionPercent 已实证为日级字段且恒 0, 无腿级仓位可校验)
+    out.push("", `汇总: ` + (parts.length ? parts.join(" · ") : `${legs.length} 笔`));
+    // 分页截断哨兵(10/2 立法: 确定性标记)
     const legStocks = new Set(legs.map((t) => t.stock_code));
     for (const [code, dates] of Object.entries(summDates)) {
         if (dates.has(day) && !legStocks.has(code)) out.push(`⚠️ 数据校验: ${code} 日汇总有交易但逐笔腿缺失(分页截断), 当日汇总口径可能不全`);
     }
-    for (const t of overnight) {
-        out.push(`⚠️ ${t.stock_name}(${t.stock_code}) 买 ${t.trans_count}${unit(t.stock_code)}@${(+t.trans_price).toFixed(4)} 未平(持有过夜)`);
-    }
+    // 期初存粮披露(仅该票首次出现卖出的日子)
+    const daySeeds = seeds.filter((s) => s.day === day);  // 仅首见日披露(后续卖出日不重复报)
+    if (daySeeds.length) out.push(`⚠️ 期初存粮: ${daySeeds.map((s) => `${s.name}(${s.code}) 账本开始记录前已持有(首见卖出超出现有买入, 欠定 ${s.qty}${unit(s.code)})`).join("; ")}`);
     return out.join("\n");
 }
 
-// ---- 挂载: 整小节覆盖, 保留旧【推测】行 ----
+// ---------- mount: 整小节覆盖, 【推测】全段保留 ----------
 function mount(day, body) {
     const [y, m] = day.split("-");
     const md = path.join("md", `${y}S${Math.ceil(+m / 3)}`, `${day}.md`);
@@ -157,22 +219,25 @@ function mount(day, body) {
     for (let i = hi + 1; i < lines.length; i++) {
         if (/^#{2,4} /.test(lines[i])) { end = i; break; }
     }
-    const carry = lines.slice(hi + 1, end).filter((l) => l.includes("【推测】"));
+    const secLines = lines.slice(hi + 1, end);
+    const specIdx = secLines.findIndex((l) => l.includes("【推测】"));
+    const carry = specIdx >= 0 ? secLines.slice(specIdx) : [];
+    while (carry.length && carry[carry.length - 1].trim() === "") carry.pop();  // 去尾空行(防叠加)
     const block = [HEADING, "", ...body.split("\n")];
-    if (carry.length) block.push("", ...carry);
-    block.push("");
+    if (carry.length) block.push("", ...carry, "");  // 尾留恰好 1 空行接下节标题
+    else block.push("");
     lines.splice(hi, end - hi, ...block);
     fs.writeFileSync(md, lines.join("\n"));
-    return carry.length ? `覆盖(保${carry.length}条推测)` : "覆盖";
+    return carry.length ? `覆盖(保${carry.length}行推测)` : "覆盖";
 }
 
+// ---------- main ----------
 const days = ALL
     ? [...new Set([...Object.keys(legsByDate), ...Object.keys(navByDay)])].sort()
     : [DATE];
-
 const tally = {};
 for (const day of days) {
-    const body = genForDate(day);
+    const body = renderDay(day);
     if (body === null) { tally["无数据跳过"] = (tally["无数据跳过"] || 0) + 1; continue; }
     if (!WRITE) { console.log((ALL ? `\n=== ${day} ===\n` : "") + body); continue; }
     const r = mount(day, body);

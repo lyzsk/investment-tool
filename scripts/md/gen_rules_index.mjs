@@ -12,8 +12,9 @@ const text = fs.readFileSync(RULES, "utf8");
 const rows = [];
 let cur = null;   // 当前 rule, 正文行顺收(取前 2 条要点做备注, 防 C6 式"标题零信息"漏捞)
 let lineNo = 0;
-for (const line of text.split("\n")) {
+for (const raw of text.split("\n")) {
     lineNo++;
+    const line = raw.replace(/\r$/, "");   // PC2 git autocrlf=CRLF, .不匹配\r 会全灭(10/4 实测)
     const m = line.match(/^### ([A-Z]\d+) (.*)$/);
     if (m) {
         const [, id, rest] = m;

@@ -37,8 +37,15 @@ public class BilibiliVideoHandler implements JobHandler {
     @Override
     public String execute(String params) {
         Path script =
-            Paths.get(projectConfig.getRootDir(), "scripts", "fetch_bilibili_taoge.mjs");
-        ProcessBuilder pb = new ProcessBuilder("node", script.toString(), "--list");
+            Paths.get(projectConfig.getRootDir(), "scripts", "fetch_bilibili.mjs");
+        /* 多UP化: job 的 job_handler_param 透传给脚本(如 "--mid 550494308 --name 卢本圆复盘"),
+           桃哥 job param 为空=默认(向后兼容); 脚本侧 --mid/--name 决定发现目标 */
+        java.util.List<String> cmd = new java.util.ArrayList<>();
+        cmd.add("node"); cmd.add(script.toString()); cmd.add("--list");
+        if (params != null && !params.isBlank()) {
+            cmd.addAll(java.util.Arrays.asList(params.trim().split("\\s+")));
+        }
+        ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(Paths.get(projectConfig.getRootDir()).toFile());
         pb.redirectErrorStream(true);
         String jsonLine = null;
@@ -61,13 +68,13 @@ public class BilibiliVideoHandler implements JobHandler {
             }
             if (!proc.waitFor(TIMEOUT_MIN, TimeUnit.MINUTES)) {
                 proc.destroyForcibly();
-                throw new BusinessException("fetch_bilibili_taoge.mjs --list 超时 " + TIMEOUT_MIN + "min");
+                throw new BusinessException("fetch_bilibili.mjs --list 超时 " + TIMEOUT_MIN + "min");
             }
             exit = proc.exitValue();
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {
-            throw new BusinessException("调 fetch_bilibili_taoge.mjs 异常: " + e.getMessage());
+            throw new BusinessException("调 fetch_bilibili.mjs 异常: " + e.getMessage());
         }
         if (exit != 0 || jsonLine == null) {
             throw new BusinessException("发现失败 exit=" + exit + ", 输出尾部: " + tail);
@@ -102,7 +109,7 @@ public class BilibiliVideoHandler implements JobHandler {
         /* 第三段: 直链处理所有 step=DOWNLOADED 的(process_video.py: ASR→纠错→视觉→聚合) → VISION_DONE,
            单视频~15-20min, 长任务靠 quartz @DisallowConcurrentExecution 防重叠 */
         String processResult = bilibiliVideoService.processPendingVideos(3);
-        return String.format("B站桃哥视频拉取完成: 发现新增 %d/跳过 %d, %s, %s", inserted, skipped,
+        return String.format("B站视频拉取完成(多UP): 发现新增 %d/跳过 %d, %s, %s", inserted, skipped,
             downloadResult, processResult);
     }
 

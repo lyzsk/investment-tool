@@ -102,7 +102,7 @@ public class TzzbFetchHandler implements JobHandler {
         }
         if (exit == 2) {
             throw new BusinessException("tzzb 凭证失效 ledger=" + ledger
-                + ", 需用户重新取 key(见 skills/cb-skill/references/api.md)");
+                + ", 需用户重新取 key(见 skills/buchitudou0-skill/references/api.md)");
         }
         if (exit != 0) {
             throw new BusinessException(

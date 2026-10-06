@@ -1,14 +1,18 @@
 // facts.mjs — 共享事实包构建器 v1(零 token 机械层, 2026-10-02)
 // 定位: LLM 只为判断付费不为看数据付费; A/B/C/D 四方消费同一 facts 版本=归因干净前提
-// 用法: node scripts/dfcf/paper/facts.mjs --slot 0915 [--date yyyy-MM-dd]
+// 用法: node scripts/dfcf/paper/facts.mjs --slot <HHMM> [--date yyyy-MM-dd]
 // 产物: facts/<date>/<slot>/{facts.md(2-4k token LLM 读), facts.json(机器用)}
 // v1 内容: ①scan.mjs 六榜(大盘) ②持仓+挂单票腾讯快照 ③state_digest(昨日EOD)
 // v2(10/2): ④新到电报=直接读当天 md ## 加红电报 节(Java 全天实时写), 抠 [时间戳] 落在
 //   上一 slot~本 slot 之间的条目; 首 slot=当日 00:00 起; 今日 md 未建=显式标注不编数据
+// v3(10/5): 快照统一走 snapshot.mjs 多源(腾讯→东财→腾讯分时qt→新浪→东财延迟); 关注票加日线锚(A2)
+// v4(10/6): ⑤导师信号速览(G-1 聚合层接线)——全员 persona 规则标题+记分卡+当日盘前导师小节,
+//   "确保每个 skill 都别空仓": 每个信号源在 01 都有声音, 权重判断留 LLM(按状态标 ✅>⏳>❌)
 // 出口: 0=ok 1=用法错 2=scan 失败
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { snapOne, limitOf, isSealed } from "./snapshot.mjs"; // 快照/板限/一字判据统一多源真源(10/5)
 
 const DIR = path.resolve("scripts/dfcf/paper");
 const arg = (k) => { const i = process.argv.indexOf("--" + k); return i > -1 ? process.argv[i + 1] : null; };
@@ -19,37 +23,15 @@ const OUT = path.join(DIR, "facts", date, SLOT);
 fs.mkdirSync(OUT, { recursive: true });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const prefix = (code) => (/^(60|68|11[0138]|5)/.test(code) ? "sh" : "sz");
-async function snap(code) {
-    const r = await fetch(`https://qt.gtimg.cn/q=${prefix(code)}${code}`, { headers: { Referer: "https://gu.qq.com/" } });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const m = new TextDecoder("gbk").decode(await r.arrayBuffer()).match(/="([\s\S]*)"/);
-    if (!m) throw new Error("空");
-    const f = m[1].split("~");
-    return { code, name: f[1], last: +f[3], pct: +f[32], high: +f[33], low: +f[34], open: +f[5] };
-}
-
-// ---- 一字封死检测(10/3 立法, TODO §C.10: 选股层过滤, 一字票当日禁入候选) ----
-// 判据: 开=高=低=现价 且涨跌幅达板限(10cm/20cm/30cm 分档); 盘前=昨日一字, 盘中=今日迄今一字
-const limitOf = (code) => (/^(30|68)/.test(code) ? 19.7 : /^(8|4|920)/.test(code) ? 29.7 : 9.7);
-const isSealed = (s) => s.open > 0 && s.open === s.high && s.high === s.low && s.low === s.last && Math.abs(s.pct) >= limitOf(s.code);
 const sealTag = (s) => (s.pct > 0 ? "🔒一字涨停" : "🔒一字跌停");
-async function sealMap(codes) {
+async function sealMap(codes) {  // 一字封死检测(10/3 立法 §C.10): 开=高=低=现价且达板限; 多源快照(snapOne 全灭=显式 error 不编数据)
     const map = new Map();
     for (const c of [...new Set(codes)].slice(0, 60)) {
-        try { const s = await snap(c); if (isSealed(s)) map.set(c, sealTag(s)); } catch { }
+        const s = await snapOne(c);
+        if (!s.error && isSealed(s)) map.set(c, sealTag(s));
         await sleep(400);
     }
     return map;
-}
-function markSealed(scanText, seals) {
-    if (!seals.size) return { text: scanText, n: 0 };
-    let n = 0;
-    const text = scanText.split("\n").map((l) => {
-        for (const [c, tag] of seals) if (l.includes(c)) { n++; return l.replace(/\s*$/, ` ${tag}·禁入候选`); }
-        return l;
-    }).join("\n");
-    return { text, n };
 }
 
 // ①六榜(复用 scan.mjs; 非交易时段=最近交易日收盘数据)
@@ -62,6 +44,15 @@ try {
 // ①b 一字封死标注(六榜+关注票全扫, 命中行尾打 🔒·禁入候选)
 const scanCodes = [...scanMd.matchAll(/\b((?:[0368]\d{5}|920\d{3}|4\d{5}))\b/g)].map((x) => x[1]);
 const seals = await sealMap(scanCodes);
+function markSealed(text, sealMap2) {
+    if (!sealMap2.size) return { text, n: 0 };
+    let n = 0;
+    const out = text.split("\n").map((l) => {
+        for (const [c, tag] of sealMap2) if (l.includes(c)) { n++; return l.replace(/\s*$/, ` ${tag}·禁入候选`); }
+        return l;
+    }).join("\n");
+    return { text: out, n };
+}
 const marked = markSealed(scanMd, seals);
 scanMd = marked.text;
 if (marked.n) console.log(`一字封死标注: ${marked.n} 行 (${[...seals.entries()].map(([c, t]) => c + t).join(", ")})`);
@@ -75,8 +66,21 @@ for (const f of fs.existsSync(path.join(DIR, "books")) ? fs.readdirSync(path.joi
 }
 const snaps = [];
 for (const [code, tag] of watch) {
-    try { snaps.push({ ...(await snap(code)), tag }); } catch (e) { console.error(`快照失败 ${code}: ${e.message}`); }
+    const s = await snapOne(code);
+    if (s.error) console.error(`快照失败 ${code}: ${s.error}`);
+    else snaps.push({ ...s, tag });
     await sleep(500);
+}
+
+// ②b 关注票日线锚(A2 接线 10/5): 日线归档存在时补 近120日区间位置%(零 token; 文件缺失静默跳过=未回补)
+function dailyAnchor(code) {
+    try {
+        const k = JSON.parse(fs.readFileSync(path.join("downloads", "quotes", "daily", code + ".json"), "utf8")).klines;
+        if (!k?.length) return "";
+        const last = k[k.length - 1], win = k.slice(-120);
+        const hi = Math.max(...win.map((x) => x.h)), lo = Math.min(...win.map((x) => x.l));
+        return hi > lo ? ` 近120日${lo.toFixed(2)}~${hi.toFixed(2)}(${((last.c - lo) / (hi - lo) * 100).toFixed(0)}%)` : "";
+    } catch { return ""; }
 }
 
 // ③state_digest
@@ -93,7 +97,6 @@ function telegraph() {
     if (si === -1) return "(md 无加红电报节)";
     const end = text.indexOf("\n## ", si + 3);
     const sec = text.slice(si, end === -1 ? undefined : end);
-    // 上一 slot(同日期目录下比本 slot 小的最大者)
     const dayDir = path.join(DIR, "facts", date);
     const prev = fs.existsSync(dayDir) ? fs.readdirSync(dayDir).filter((d) => /^\d{4}$/.test(d) && d < SLOT).sort().pop() : null;
     const after = prev ? `${date} ${prev.slice(0, 2)}:${prev.slice(2)}:00` : `${date} 00:00:00`;
@@ -103,12 +106,59 @@ function telegraph() {
     return items.length ? items.join("\n") : `(自${after.slice(11)}无新电报)`;
 }
 
+// ⑤导师信号速览(G-1 聚合层机械接线, 10/6): 各 skill persona 规则标题+记分卡+当日盘前导师小节
+function ruleHeads(file, re) {
+    try {
+        return fs.readFileSync(file, "utf8").split("\n").filter((l) => re.test(l))
+            .map((l) => l.replace(/^#+\s*/, "").replace(/^[-*]\s*/, "").slice(0, 90));
+    } catch { return []; }
+}
+function mentorDigest() {
+    const out = [];
+    const tg = ruleHeads("skills/taoge-skill/persona/rules_index.md", /^- [A-Z]\d+ ✅/).slice(0, 25);
+    if (tg.length) out.push("### 桃哥(主框架: 情绪周期/龙头) ✅已验证规则\n" + tg.join("\n"));
+    try {
+        const ic = JSON.parse(fs.readFileSync("skills/taoge-skill/persona/ic.json", "utf8"));
+        out.push(`- 桃哥提及 IC 记分(10/6): 预测性 ${JSON.stringify(ic.split?.predictive)} / 事实性 ${JSON.stringify(ic.split?.factual)}——预测性观点暂不给正权重, 事实性提及=动量参考`);
+    } catch { }
+    try {
+        const fg = fs.readFileSync("skills/fage-skill/persona/rules.md", "utf8");
+        const seg = fg.slice(fg.indexOf("## 强项"), fg.indexOf("## 框架指纹"));
+        const sc = JSON.parse(fs.readFileSync("skills/fage-skill/persona/score.json", "utf8"));
+        out.push(`### 发哥(刹车: 回避信号一票否决级) 近20日纯命中 ${sc.last20.pureHitRate}\n` +
+            seg.replace(/^## [^\n]*\n+/, "").trim().split("\n").filter((l) => /^\d+\./.test(l.trim())).join("\n"));
+    } catch { }
+    // dir = skill 内 rules.md 所在目录(相对 skills/); 土豆在 persona/buchitudou0/ 子层
+    // (10/7 修双 persona 死路径 bug: 原拼 .../persona/buchitudou0/persona/rules.md, ruleHeads 静默空→土豆规则从未进过速览)
+    const mentors = [["liunianqing-skill/persona", "刘念青(波段隔夜/板块簇, 日均+1.10%)"], ["lianghuaxiaohao-skill/persona", "量化实验(程序化嫌疑,只看不跟)"],
+        ["a658-skill/persona", "A658(ST/次新极端风险, 教训为主)"], ["bianbenling-skill/persona", "边学本领(无止损反面教材)"],
+        ["xingjianye-skill/persona", "星见野(港/北交所重仓)"], ["buchitudou0-skill/persona/buchitudou0", "不吃土豆0(转债T+0, A-cb用)"]];
+    for (const [dir, label] of mentors) {
+        const heads = ruleHeads(`skills/${dir}/rules.md`, /^###\s/).slice(0, 8);
+        if (heads.length) out.push("### " + label + "\n" + heads.join("\n"));
+    }
+    const [y, m] = date.split("-");
+    try {
+        const text = fs.readFileSync(path.join("md", `${y}S${Math.ceil(+m / 3)}`, `${date}.md`), "utf8");
+        for (const [name, tag] of [["卢本圆复盘", "卢本圆(盘中实战, 晨报型)"], ["趋势天哥", "趋势天哥(趋势视角)"]]) {
+            const si = text.indexOf("#### " + name);
+            if (si === -1) continue;
+            const rest = text.slice(si);
+            const endM = rest.slice(10).match(/^#{2,4} /m);
+            const sec = (endM ? rest.slice(0, 10 + endM.index) : rest).replace(/\s+/g, " ").slice(0, 400);
+            out.push("### 当日 " + tag + " 小节速览(截断)\n" + sec);
+        }
+    } catch { }
+    return out.length ? out.join("\n\n") : "(导师速览构建失败, 各源信号本次缺席)";
+}
+
 // ---- 拼 facts.md(LLM 读, 目标 2-4k token) ----
 const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${SLOT}）`, "",
     "## 昨日账本状态", digest, "",
     "## 选股层硬过滤(机械规则, 优先级高于一切候选)", seals.size ? "🔒=一字封死(开=高=低=现价且达板限): 当日禁入候选, 无论买卖方向; 已在六榜行尾标注, 04/06 层不得将其列为可交易标的(等炸板分歧也不行——连续一字票进候选=废单制造机)" : "(今日无一字封死票)", "",
+    "## 导师信号速览(G-1 聚合: 全员规则标题+记分+当日晨报; 01 需逐源回应, 权重按状态标 ✅>⏳>❌)", mentorDigest(), "",
     "## 新到电报(自上一 slot)", telegraph(), "",
-    "## 关注票实时快照", snaps.length ? snaps.map((s) => `- ${s.code} ${s.name}(${s.tag}): ${s.last} (${s.pct > 0 ? "+" : ""}${s.pct}%) 高${s.high} 低${s.low}${isSealed(s) ? " " + sealTag(s) + "·禁入候选" : ""}`).join("\n") : "(无持仓无挂单)", "",
+    "## 关注票实时快照", snaps.length ? snaps.map((s) => `- ${s.code} ${s.name}(${s.tag}): ${s.last} (${s.pct > 0 ? "+" : ""}${s.pct}%) 高${s.high} 低${s.low}${isSealed(s) ? " " + sealTag(s) + "·禁入候选" : ""}${dailyAnchor(s.code)}`).join("\n") : "(无持仓无挂单)", "",
     "## 大盘六榜", scanMd].join("\n");
 fs.writeFileSync(path.join(OUT, "facts.md"), md);
 fs.writeFileSync(path.join(OUT, "facts.json"), JSON.stringify({ date, slot: SLOT, builtAt: new Date().toISOString(), watch: snaps, chars: md.length }, null, 1));

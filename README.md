@@ -105,9 +105,8 @@ investment-tool
 │   ├── taoge-skill/   # taoge persona (post-market review rules, distilled from verified samples)
 │   ├── taoge-sum/     # daily: results transcript -> md taoge section
 │   ├── taoge-distill/ # daily: md taoge section -> persona verification & distillation
-│   ├── cb-skill/      # convertible-bond master persona (bchitudou0 behavior rules)
-│   ├── tzzb-sum/      # daily: ledger legs -> md tzzb section (【推测】 layer)
-│   ├── tzzb-distill/  # daily: legs -> cb-skill mechanical review (zero-token)
+│   ├── buchitudou0-skill/   # tzzb pure-CB master (ledger=buchitudou0) persona rules
+│   ├── tzzb-skill/    # daily: ledger legs -> md tzzb section (【推测】) + persona distill
 │   ├── fage-skill/    # fage pre-market line (hermes distills spec / Claude T+1 verification / persona)
 │   └── check-cls-md/  # evening routine: review CLS OCR sections against images
 ├── md                 # Daily auto-generated stock analysis reports (Markdown)

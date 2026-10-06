@@ -98,9 +98,8 @@ investment-tool
 │   ├── taoge-skill/   # 桃哥 persona（盘后复盘规则, 核销样本沉淀）
 │   ├── taoge-sum/     # 每日: results 逐字稿 → md 桃哥小节
 │   ├── taoge-distill/ # 每日: md 桃哥小节 → persona 核销沉淀
-│   ├── cb-skill/      # 转债高手 persona（不吃土豆0 行为规则）
-│   ├── tzzb-sum/      # 每日: 账本腿 → md 土豆小节（【推测】层）
-│   ├── tzzb-distill/  # 每日: 腿 → cb-skill 机械核销（零 token）
+│   ├── buchitudou0-skill/   # 转债高手（不吃土豆0）persona 规则
+│   ├── tzzb-skill/    # 每日: 账本腿 → md 小节（【推测】层）+ persona 蒸馏
 │   ├── fage-skill/    # 发哥盘前线（hermes 蒸馏 spec / Claude T+1 核销 / persona）
 │   └── check-cls-md/  # 晚间例程: 对照图片复核财联社 OCR 小节
 ├── md                 # 每日生成的股票分析 Markdown 报告

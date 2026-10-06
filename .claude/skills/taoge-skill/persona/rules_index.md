@@ -1,5 +1,5 @@
-# rules_index.md — 桃哥决策规则索引(B3 分级加载; 生成于 2026-10-03 04:46)
-> 源: rules.md(134 条/239KB)。本索引=常驻; **禁全量读 rules.md**。
+# rules_index.md — 桃哥决策规则索引(B3 分级加载; 生成于 2026-10-04 15:59)
+> 源: rules.md(134 条/240KB)。本索引=常驻; **禁全量读 rules.md**。
 > 捞全文: grep -n "^### <编号>" skills/taoge-skill/persona/rules.md 得行号, 读到下一个 ### 前。
 > 标记: ✅=已验证(md/plan-a) ⏳=待验证/话术 ❌=已证伪/已失效(反例优先, 保留)
 

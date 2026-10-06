@@ -68,3 +68,6 @@ node scripts/wechat/fetch_wechat.mjs --url <url> --write
 2. 小节重挂载=整小节覆盖幂等, 保【核销】行; spec.md 是【推演要点】唯一真源(md 里手改会被覆盖)
 3. 消费侧(taoge-skill chain 01 facts)引用推演要点时必须标注=**主观判断层**, 与 scan 硬榜分层, 权重归 02
 4. alpha 未验证纪律: 攒 2-3 周核销样本前, 推演要点在 01 facts 只作参考不作依据
+
+## 上下游
+> **架构方向(10/6 用户立法)**: 本 skill 未来接**独立决策链**(workflows/chain.md, 与 taoge-skill 同构; 七步暂定); persona 攒厚后启动。成长触发器: rules.md>15KB 建索引+references/ 放溯源全文。

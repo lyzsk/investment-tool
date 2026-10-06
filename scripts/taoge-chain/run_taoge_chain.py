@@ -14,6 +14,16 @@ C6 方案 B: persona 反问修复=01 模板头已有"任务优先, 禁反问"元
 出口: 0=链完成 1=链中止(回炉耗尽/校验败) 2=用法/环境错 3=ESCALATE_FULL_CHAIN(市况变, 子链升级)
 """
 import argparse, json, os, re, shutil, subprocess, sys, time
+
+def _cap_single():
+    """B6(10/5): 单票仓位上限从 scripts/dfcf/paper/params.yaml 读(stock.cap_single), 缺文件/无 yaml 库回退 0.15"""
+    try:
+        import yaml  # anaconda 自带; 无则回退
+        cfg = yaml.safe_load((ROOT / "scripts/dfcf/paper/params.yaml").read_text(encoding="utf-8"))
+        v = float(cfg["stock"]["cap_single"])
+        return v if 0 < v <= 1 else 0.15
+    except Exception:
+        return 0.15
 from datetime import datetime
 from pathlib import Path
 
@@ -22,6 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):  # Windows GBK 控制台防乱码
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parents[2]
+CAP_SINGLE = _cap_single()  # B6: params.yaml 驱动, 见 _cap_single
 CHAIN_MD = ROOT / "skills/taoge-skill/workflows/chain.md"
 PAPER = ROOT / "scripts/dfcf/paper"
 TOKEN_LOG = PAPER / "token_log.csv"
@@ -115,6 +126,9 @@ def v04(c, ctx):
     for x in cands:
         if x.get("group") == "方向" and x.get("direction") not in dirs:
             return f"方向组 {x.get('name')} 的 direction '{x.get('direction')}' ∉ 02.directions"
+        code = str(x.get("code") or "")
+        if code and code not in ("None", "null") and not re.fullmatch(r"\d{6}", code):
+            return f"{x.get('name')} code 非 6 位数字: {code}"  # C7-①: code 供 04 后拉价格锚
 
 def v05(c, ctx):
     got = {v.get("name") for v in (c.get("verdicts") or [])}
@@ -125,10 +139,31 @@ def v05(c, ctx):
         if v.get("result") not in ("批准", "否决", "条件批准"):
             return f"verdict 非法: {v.get('result')}"
 
+def limit_of(code):
+    """板限%(与 snapshot.mjs limitOf 同款; 2026-07-06 起主板 ST 同 10% 无需特判)"""
+    if re.match(r"^(30|68)", code): return 19.7
+    if re.match(r"^(8|4|920)", code): return 29.7
+    return 9.7
+
+def resolve_px(v, prev):
+    """trigger_price 求值(C9-②): 数值直返; `Z*0.97`/`0.97*Z` 公式用前收代换(Z|P0|前收|昨收);
+    不可求值=(None, None)。返回(数值, 公式原文|None)"""
+    if v is None: return None, None
+    s = str(v).strip()
+    try: return float(s), None
+    except ValueError: pass
+    if not prev: return None, None
+    m = re.search(r"(?:(\d+(?:\.\d+)?)\s*\*\s*(?:Z|z|P0|前收|昨收)|(?:Z|z|P0|前收|昨收)\s*\*\s*(\d+(?:\.\d+)?))", s)
+    if m:
+        coef = float(m.group(1) or m.group(2))
+        return round(prev * coef, 3), s
+    return None, None
+
 def v06(c, ctx):
     acts = c.get("actions") or []
     approved = {v["name"] for v in (ctx["contracts"].get("05", {}).get("verdicts") or [])
                 if v.get("result") in ("批准", "条件批准")}
+    snaps = ctx.get("snap") or {}
     for a in acts:
         if a.get("name") not in approved:
             return f"06 标的 {a.get('name')} ∉ 05 批准集"
@@ -136,13 +171,29 @@ def v06(c, ctx):
             return f"{a.get('name')} code 非 6 位数字: {a.get('code')}"
         if not (isinstance(a.get("qty"), int) and a["qty"] > 0):
             return f"{a.get('name')} qty 非正整数: {a.get('qty')}"
-        try:
-            px = float(a.get("trigger_price"))
-        except (TypeError, ValueError):
-            return f"{a.get('name')} trigger_price 非数值: {a.get('trigger_price')}"
-        cap = 0.15 * ctx["nav"]  # 单票≤1.5 成(10/2 params 立法), 驱动器重算非模型自声明
-        if a.get("op") == "买" and px * a["qty"] > cap:
-            return f"{a.get('name')} 金额 {px * a['qty']:.0f} 超单票上限 {cap:.0f}"
+        # C7-①+C9-②: 价格求值(数值或公式)→ 锚定前收的当日理论区间校验(防 9/28 大亚 14.00 型编造价)
+        code = str(a["code"])
+        prev = snaps.get(code, {}).get("prevClose")
+        px, formula = resolve_px(a.get("trigger_price"), prev)
+        if px is None:
+            return f"{a.get('name')} trigger_price 非数值/可求值公式(Z*系数): {a.get('trigger_price')}"
+        a["_px"], a["_formula"] = px, formula  # 回填取数口, emit_plans 直接用(不再二次解析)
+        if prev:
+            lim = limit_of(code)
+            lo, hi = prev * (1 - lim / 100 - 0.005), prev * (1 + lim / 100 + 0.005)
+            if not (lo <= px <= hi):
+                return f"{a.get('name')} 挂单价 {px} 出当日理论区间 [{lo:.2f},{hi:.2f}](前收{prev}, 板限{lim:g}%)=编造嫌疑 C7-①"
+        else:
+            print(f"WARN: {a.get('name')}({code}) 无价格锚快照, 验价降级(matcher 第四道防线兜底)")
+        # C7-②: 结构化失效条件
+        for k in ("cancel_below", "stop_below"):
+            if a.get(k) is not None and not (isinstance(a.get(k), (int, float)) and a[k] > 0):
+                return f"{a.get('name')} {k} 非正数: {a.get(k)}"
+        if a.get("stop_below") is not None and a.get("op") != "卖":
+            return f"{a.get('name')} stop_below 只许卖单带(止损哨兵)"
+        cap = CAP_SINGLE * ctx["nav"]  # 单票上限(params.yaml stock.cap_single, B6 10/5), 驱动器重算非模型自声明
+        if a.get("op") == "买" and a["_px"] * a["qty"] > cap:
+            return f"{a.get('name')} 金额 {a['_px'] * a['qty']:.0f} 超单票上限 {cap:.0f}"
     if c.get("no_trade") and not acts:
         return "no_trade=true 但 actions 无进场条件单(三选一契约)"
     if ctx["sub"] and "首裁" not in str(c.get("supersedes", "")) \
@@ -208,6 +259,29 @@ def log_tokens(date, slot, step, attempt, usage, cost, dur):
                 f"{usage.get('output_tokens', '')},{cost},{dur:.0f}\n")
 
 # ---------- 06 actions → plans 行(机械转换, LLM 不直接写 plans) ----------
+def snap_candidates(run_dir, c04):
+    """C7-①: 04 后按候选票 code 机械拉价格锚快照(snapshot.mjs 多源 fallback)→ cand_snap.md/.json
+    06 的 trigger_price 锚定它+盲审⑥维度消费它; 部分失败不挡链(消费方按票降级)"""
+    codes = [str(x.get("code")) for x in (c04.get("candidates") or [])]
+    codes = [c for c in codes if re.fullmatch(r"\d{6}", c)]
+    if not codes:
+        print("cand_snap: 04 无 code 候选, 跳过价格锚")
+        return {}
+    js, md = run_dir / "cand_snap.json", run_dir / "cand_snap.md"
+    r = subprocess.run(["node", "scripts/dfcf/paper/snapshot.mjs", "--codes", ",".join(codes),
+                        "--json", str(js), "--md", str(md)],
+                       cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
+    if r.returncode == 2:
+        print(f"WARN: 候选票快照源全灭, 06 价格锚校验降级: {(r.stdout or r.stderr or '')[-150:]}")
+    snaps = {}
+    if js.exists():
+        try:
+            snaps = {s["code"]: s for s in json.loads(js.read_text(encoding="utf-8"))["snaps"] if not s.get("error")}
+        except (json.JSONDecodeError, KeyError):
+            print("WARN: cand_snap.json 解析败, 验价降级")
+    print(f"cand_snap: {len(snaps)}/{len(codes)} 票有价格锚 → {md.name}")
+    return snaps
+
 def emit_plans(date_dash, slot, source, contract, book):
     acts = contract.get("actions") or []
     if not acts:
@@ -226,11 +300,17 @@ def emit_plans(date_dash, slot, source, contract, book):
         side = "BUY" if a["op"] == "买" else "SELL"
         code = str(a["code"])
         if code in open_by_code:  # 版本链: 新单+CXL 旧单, 禁覆盖
-            lines.append(f"- {hm} | {source} | CXL | {code} | - | - | - | 取代旧单(slot {slot} 终裁)")
-        note = f"链终裁: 触发{a['trigger_price']}"
+            lines.append(f"- {hm} | {source} | CXL | {code} | - | - | - | - | 取代旧单(slot {slot} 终裁)")
+        px = a.get("_px") or float(a.get("trigger_price"))  # v06 已回填求值结果(公式价代换后数值)
+        conds = []
+        if a.get("cancel_below"):  # C7-②: 失效条件结构化(matcher 哨兵执行, 不再只是 note 文字)
+            conds.append(f"cancel_below={float(a['cancel_below']):g}")
+        if a.get("stop_below"):
+            conds.append(f"stop_below={float(a['stop_below']):g}")
+        note = f"链终裁: 触发{px:g}" + (f"(公式 {a['_formula']})" if a.get("_formula") else "")
         if a.get("invalid_if"):
             note += f" 失效:{a['invalid_if']}"
-        lines.append(f"- {hm} | {source} | {side} | {code} | {float(a['trigger_price']):g} | {a['qty']} | day | {note}")
+        lines.append(f"- {hm} | {source} | {side} | {code} | {px:g} | {a['qty']} | day | {';'.join(conds) or '-'} | {note}")
     with f.open("a", encoding="utf-8") as fp:
         fp.write("\n".join(lines) + "\n")
     print(f"plans 落 {len(lines)} 行 → {f}")
@@ -309,7 +389,25 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                     sys.exit(f"盲审回炉 06 contract 异常({cerr06}), 链中止(未 emit)")
                 v06fail = VALIDATORS["06"](c06n, ctx)
                 if v06fail:
-                    sys.exit(f"盲审回炉 06 校验败({v06fail}), 链中止(未 emit)")
+                    # C9-①(10/4): 死链修复——回炉版校验败不再直接 abort(9/29 实证: 公式价被数值校验拒→链中止无产出),
+                    # 再给一次带失败原因的回炉; 仍败才中止。公式价合法性本体由 C9-② resolve_px 支持。
+                    print(f"盲审回炉 06 校验败({v06fail}), 再给一次带原因回炉")
+                    p06r = templates["06"].replace("{date_dash}", date_dash).replace("{date}", date) \
+                        .replace("{run_dir}", str(run_dir).replace("\\", "/")) + \
+                        f"\n\n[驱动器回炉] 上版 contract 校验败: {v06fail}。只修此问题, 重写 06_verdict.md。"
+                    since2 = time.time()
+                    _, u3, c3, d3 = call_claude(p06r)
+                    log_tokens(date, slot, "06", attempt, u3, c3, d3)
+                    t06b, e06b = read_artifact(run_dir, "06", since2)
+                    if e06b or sentinel_ok(t06b or "", "06", date) is not True:
+                        sys.exit(f"盲审回炉 06 二版产物/哨兵异常({e06b or '哨兵缺失'}), 链中止(未 emit)")
+                    c06b, cerr06b = contract_of(t06b)
+                    if cerr06b:
+                        sys.exit(f"盲审回炉 06 二版 contract 异常({cerr06b}), 链中止(未 emit)")
+                    v06fb = VALIDATORS["06"](c06b, ctx)
+                    if v06fb:
+                        sys.exit(f"盲审回炉 06 二次校验仍败({v06fb}), 链中止(未 emit)")
+                    c06n = c06b
                 ctx["contracts"]["06"] = c06n
                 continue
             if so is not True:
@@ -324,6 +422,8 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                 fail_reason = vfail
                 continue
             ctx["contracts"][step] = c
+            if step == "04":  # C7-①: 04 落地即拉候选票价格锚(v06 校验+盲审⑥维度消费)
+                ctx["snap"] = snap_candidates(run_dir, c)
             # 回溯重验 01..当前(机械零 token, chain.md 交叉验证表)
             for done_step in ctx["contracts"]:
                 t2 = (run_dir / ART[done_step]).read_text(encoding="utf-8")
@@ -398,16 +498,42 @@ def selftest():
         if not v06(bad, ctx):
             fails.append(f"06 {tag}")
 
+    # C7-①/C9-② 价格锚+公式价(带快照锚的 ctx; 002050 主板/000910 主板/300750 创业板20cm)
+    ctx2 = dict(ctx, snap={"002050": {"prevClose": 12.6}, "000910": {"prevClose": 7.6}, "300750": {"prevClose": 286.8}})
+    ctx2["contracts"] = {**ctx["contracts"], "05": {"verdicts": [  # 三票全批准, 让用例真正走到锚校验分支
+        {"name": n, "result": "批准", "reason": "r"} for n in ("三花智控", "大亚", "宁德时代")]}}
+    f06 = {"supersedes": "首裁", "actions": [{"name": "三花智控", "code": "002050", "op": "买",
+            "trigger_price": "Z*0.97", "qty": 800, "cancel_below": 11.5, "invalid_if": "破11.5"}], "no_trade": False}
+    if v06(f06, ctx2) or abs(f06["actions"][0]["_px"] - 12.222) > 1e-6:
+        fails.append("公式价 Z*0.97 正例被误杀/求值错")
+    f20 = {"supersedes": "首裁", "actions": [{"name": "宁德时代", "code": "300750", "op": "买",
+            "trigger_price": "Z*1.15", "qty": 30}], "no_trade": False}  # 20cm 追板单不得被 10% 一刀切误杀
+    if v06(f20, ctx2):
+        fails.append("20cm 板限分档误杀追板单")
+    for bad, tag in [
+        ({"supersedes": "首裁", "actions": [{"name": "大亚", "code": "000910", "op": "买", "trigger_price": "14.00", "qty": 800}], "no_trade": False}, "编造价(9/28 大亚案)未抓"),
+        ({"supersedes": "首裁", "actions": [{"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "突破前高", "qty": 800}], "no_trade": False}, "不可求值公式未抓"),
+        ({"supersedes": "首裁", "actions": [{"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "12.5", "qty": 800, "stop_below": 11.9}], "no_trade": False}, "买单带 stop_below 未抓"),
+        ({"supersedes": "首裁", "actions": [{"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "12.5", "qty": 800, "cancel_below": -1}], "no_trade": False}, "cancel_below 负数未抓"),
+        ({"supersedes": "首裁", "actions": [{"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "1.0", "qty": 800}], "no_trade": False}, "价格锚区间下界越界未抓"),
+    ]:
+        if not v06(bad, ctx2):
+            fails.append(f"06 价格锚 {tag}")
+    if not v04({"candidates": [{"name": "X", "direction": "机器人", "group": "方向", "trigger": "1", "code": "123"}], "断链说明": None}, ctx):
+        fails.append("04 code 非 6 位未抓")
+
     # 盲审哨兵 REVIEW_FAIL 分支
     mk("blind", {"verdict": "fail", "issues": ["编造证据"]}, sentinel="REVIEW_FAIL 20260930")
     if sentinel_ok((tmp / ART["blind"]).read_text(encoding="utf-8"), "blind", "20260930") != "FAIL":
         fails.append("REVIEW_FAIL 分支未识别")
 
-    # plans 机械转换(假账本)
+    # plans 机械转换(假账本; 公式价+cond 列断言)
     book = {"source": "A-taoge", "cash": 100000, "positions": {},
             "orders": [{"id": "x", "code": "002050", "status": "open"}]}
+    a_form = {"name": "大亚", "code": "000910", "op": "卖", "trigger_price": "Z*1.02", "qty": 1000, "stop_below": 8.1}
+    a_form["_px"], a_form["_formula"] = resolve_px("Z*1.02", 7.6)  # 模拟 v06 回填后的取数口
     c06 = {"supersedes": "取代盘前决策:纠偏", "actions": [
-        {"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "12.5", "qty": 800, "invalid_if": "破12"}]}
+        {"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "12.5", "qty": 800, "invalid_if": "破12"}, a_form]}
     pf = PAPER / "plans" / "2026-09-30_A-taoge.md"
     # emit_plans 现在会自动调 matcher --import, 自测打桩防污染真账本
     orig_run = subprocess.run
@@ -419,6 +545,8 @@ def selftest():
     got = pf.read_text(encoding="utf-8")
     if "CXL | 002050" not in got or "BUY | 002050 | 12.5 | 800" not in got:
         fails.append("plans 转换缺 CXL/BUY 行")
+    if "SELL | 000910 | 7.752 | 1000 | day | stop_below=8.1 |" not in got:
+        fails.append("plans 公式价代换/stop_below cond 列缺失")
     os.remove(pf)
 
     shutil.rmtree(tmp, ignore_errors=True)
@@ -427,7 +555,7 @@ def selftest():
         for f in fails:
             print(" -", f)
         sys.exit(1)
-    print("SELFTEST PASS: 模板抽取/哨兵/contract 校验器(正例不误杀+5 反例全抓)/盲审 FAIL 分支/plans 转换")
+    print("SELFTEST PASS: 模板抽取/哨兵/contract 校验器(正例不误杀+10 反例全抓, 含 C7 价格锚 5 反例+公式价+20cm 分档)/盲审 FAIL 分支/plans 转换(cond 列+公式价代换)")
 
 def main():
     ap = argparse.ArgumentParser()

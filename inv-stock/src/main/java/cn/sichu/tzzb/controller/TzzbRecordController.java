@@ -21,7 +21,7 @@ public class TzzbRecordController {
 
     /**
      * 手动触发 downloads/tzzb/<ledger>/*.json 同步入库
-     * 例: curl -X POST "localhost:8888/api/cb/tzzb/sync?ledger=bchitudou0"
+     * 例: curl -X POST "localhost:8888/api/cb/tzzb/sync?ledger=buchitudou0"
      *
      * @param ledger ledger
      * @return result.Result<java.lang.String>
@@ -29,7 +29,7 @@ public class TzzbRecordController {
      * @since 2026/10/01 23:53:39
      */
     @PostMapping("/sync")
-    public Result<String> sync(@RequestParam(defaultValue = "bchitudou0") String ledger) {
+    public Result<String> sync(@RequestParam(defaultValue = "buchitudou0") String ledger) {
         return Result.success(tzzbRecordService.syncFromRawJson(ledger));
     }
 }

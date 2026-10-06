@@ -6,7 +6,7 @@
 //       downloads/tzzb/<ledger>/change_bs_<code>_p<n>.json (逐笔买卖腿, 每标的全历史分页)
 //       downloads/tzzb/<ledger>/state.json(lastFetch/tradeRows/lastNavDate/bsLegs, 供对账)
 // 出口: 0=正常(含无新增); 2=凭证失效(stderr 带 ledger id); 1=其他失败
-// 约定: 摘要行以 "JSON:" 前缀输出供 Java handler 解析(照 fetch_bilibili_taoge.mjs --list 先例)
+// 约定: 摘要行以 "JSON:" 前缀输出供 Java handler 解析(照 fetch_bilibili.mjs --list 先例)
 import fs from "fs";
 import path from "path";
 
@@ -49,7 +49,7 @@ async function fetchLedger({ ledger, key, user_key }) {
     // 实测信封(2026-10-01): error_code/error_msg/ex_data; 列表=ex_data.change_list, 总数=ex_data.max_count
     let total = 0, pages = 0, maxCount = Infinity;
     const codes = new Set();   // 顺带产出全量标的清单, 供 ③ 逐笔腿逐个拉
-    for (let p = 1; p <= 20 && total < maxCount; p++) {
+    for (let p = 1; p <= 40 && total < maxCount; p++) {
         const j = await call("position_change_by_share", p);
         const list = j?.ex_data?.change_list || [];
         if (typeof j?.ex_data?.max_count === "number") maxCount = j.ex_data.max_count;
@@ -105,6 +105,31 @@ async function fetchLedger({ ledger, key, user_key }) {
             await jitter();
         }
         await jitter();
+    }
+    // ④ 历史日持仓 day_positions(10/6 破译端点; 合并进主链=增量模式: 只抓缺的日期,
+    //    首轮全量回补已由独立跑完成, 每日新增≈1 日期/人)
+    {
+        const dpFile = path.join(out, "day_positions.json");
+        let store = fs.existsSync(dpFile) ? JSON.parse(fs.readFileSync(dpFile, "utf8")) : {};
+        const allDays = (JSON.parse(fs.readFileSync(path.join(out, "nav_daily.json"), "utf8"))
+            ?.ex_data?.index_list || []).map((x) => x.date);
+        const todo = allDays.filter((d) => !store[d]);
+        let dpOk = 0, dpFail = 0;
+        for (const d of todo) {
+            try {
+                const j = await call("day_position_by_share", null, 3, "&date=" + d);
+                const list = j?.ex_data?.list || [];
+                store[d] = list.length
+                    ? { list, sum_pct: +list.reduce((a, x) => a + (+x.position_percent || 0), 0).toFixed(3) }
+                    : { list: [], sum_pct: 0, note: "空仓或无数据" };
+                dpOk++;
+            } catch { dpFail++; }
+            await jitter();
+        }
+        if (todo.length) {
+            fs.writeFileSync(dpFile, JSON.stringify(store, null, 1));
+            console.log("day_positions 增量: " + dpOk + " 新/" + dpFail + " 败 (" + Object.keys(store).length + "/" + allDays.length + " 日覆盖)");
+        }
     }
     fs.writeFileSync(path.join(out, "state.json"),
         JSON.stringify({ lastFetch: new Date().toISOString(), tradeRows: total, lastNavDate, bsLegs }, null, 1));

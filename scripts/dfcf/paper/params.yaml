@@ -1,0 +1,27 @@
+# params.yaml — paper 策略参数(我们的策略, 非 persona; 2026-10-05 建, B6 小件)
+# 消费方: run_taoge_chain.py(v06 仓位复检读 cap_single)/06 prompt 引用; 修改后无需改代码
+# 立法源: docs/TODO.md §E「仓位参数」; 语料实证=regime 仓位制(桃哥 rules A1/A2)
+
+# ---- 股票线(taoge) ----
+stock:
+  base_state: 地量防守          # 当前 regime 基准态(02 步判定偏离时按 regime 表调)
+  max_total_position: 0.30      # 基准态总仓上限(3成); 市况转强放宽, 主跌强制极低仓
+  cap_single: 0.15              # 单票上限(1.5成 nav)——驱动器 v06 机械复检口径
+  min_cash_reserve: 0.40        # 现金留存下限(4成)
+  regime:
+    有主线: { max_total_position: 0.60, cap_single: 0.20 }
+    无主线退潮: { max_total_position: 0.15, cap_single: 0.10 }
+    普跌: { max_total_position: 0.05, cap_single: 0.05 }
+
+# ---- 转债线(cb, A-cb 二期; 10/3 用户立法: 全仓单票+日内机械出) ----
+cb:
+  max_total_position: 1.00      # 全仓单票进
+  take_profit_ladder: 0.03      # 梯子目标 +3%
+  trail_sentinel: true          # 回落哨兵(高点回落 X% 即出, X 先用 1.5 观察再调)
+  eod_force_exit: true          # 尾盘必走(不隔夜)
+  # 妖债秒单打法(严牌类)=A-cb 疆界, C-cb 不越界(账本层由 plans source 区分)
+
+# ---- 撮合仿真(matchter.mjs CONFIG 为准, 此处只做口径声明) ----
+sim:
+  price_cage: true              # 价格笼子 ±2%(连续竞价申报口径, 10/4 已落地 matcher)
+  conservative_fill: true       # 触及≠成交, 买价须被现价击穿

@@ -1,0 +1,165 @@
+{
+ "src": "taoge",
+ "metric": "IC/IR",
+ "generatedAt": "2026-10-04T20:49:28.024Z",
+ "formula": "强度=档位(-3..+3, 关键词表见 gen_taoge_ic.mjs GRADES); main=T+1开盘买→T+2开盘卖(可执行, 用户立法 10/5); excess=main−板属指数同窗; IC=Spearman(mid-rank), 日度需≥3事件; 10/6① 语义补强=LLM 对 predictive+mixed 43 事件重打分(注意力/被动持有/踏空修正), 修正 19 条",
+ "events": 82,
+ "days": 25,
+ "pendingT2": 0,
+ "noKline": 1,
+ "all": {
+  "n": 15,
+  "icMean": 0.3008,
+  "icStd": 0.5885,
+  "ir": 0.511,
+  "tStat": 1.98
+ },
+ "last20": {
+  "n": 15,
+  "icMean": 0.3008,
+  "icStd": 0.5885,
+  "ir": 0.511,
+  "tStat": 1.98
+ },
+ "allRaw": {
+  "n": 15,
+  "icMean": 0.3008,
+  "icStd": 0.5885,
+  "ir": 0.511,
+  "tStat": 1.98
+ },
+ "pooled": {
+  "events": 80,
+  "icExcess": 0.199,
+  "tauB": 0.1484
+ },
+ "byRegime": {
+  "强": {
+   "events": 6,
+   "pooledIC": 0.878
+  },
+  "震荡": {
+   "events": 60,
+   "pooledIC": 0.444
+  },
+  "弱": {
+   "events": 16,
+   "pooledIC": 0.254
+  }
+ },
+ "split": {
+  "predictive": {
+   "ic": -0.3651,
+   "n": 9
+  },
+  "factual": {
+   "ic": 0.2442,
+   "n": 35
+  },
+  "mixed": {
+   "ic": 0.265,
+   "n": 24
+  },
+  "未分": {
+   "ic": null,
+   "n": 0
+  },
+  "llmEnhanced": {
+   "n": 34,
+   "ic": 0.1503
+  }
+ },
+ "degenerateDays": 10,
+ "daily": [
+  {
+   "date": "2026-05-15",
+   "n": 4,
+   "icExcess": 0.775,
+   "icRaw": 0.775
+  },
+  {
+   "date": "2026-07-03",
+   "n": 5,
+   "icExcess": 0.894,
+   "icRaw": 0.894
+  },
+  {
+   "date": "2026-07-06",
+   "n": 3,
+   "icExcess": 0.866,
+   "icRaw": 0.866
+  },
+  {
+   "date": "2026-07-07",
+   "n": 3,
+   "icExcess": -0.866,
+   "icRaw": -0.866
+  },
+  {
+   "date": "2026-08-11",
+   "n": 3,
+   "icExcess": 0.866,
+   "icRaw": 0.866
+  },
+  {
+   "date": "2026-08-12",
+   "n": 3,
+   "icExcess": 1,
+   "icRaw": 1
+  },
+  {
+   "date": "2026-08-20",
+   "n": 4,
+   "icExcess": 0.632,
+   "icRaw": 0.632
+  },
+  {
+   "date": "2026-08-25",
+   "n": 4,
+   "icExcess": 0,
+   "icRaw": 0
+  },
+  {
+   "date": "2026-09-01",
+   "n": 4,
+   "icExcess": -0.4,
+   "icRaw": -0.4
+  },
+  {
+   "date": "2026-09-02",
+   "n": 5,
+   "icExcess": 0,
+   "icRaw": 0
+  },
+  {
+   "date": "2026-09-15",
+   "n": 4,
+   "icExcess": 0.775,
+   "icRaw": 0.775
+  },
+  {
+   "date": "2026-09-21",
+   "n": 4,
+   "icExcess": -0.316,
+   "icRaw": -0.316
+  },
+  {
+   "date": "2026-09-24",
+   "n": 3,
+   "icExcess": 0.5,
+   "icRaw": 0.5
+  },
+  {
+   "date": "2026-09-28",
+   "n": 8,
+   "icExcess": -0.214,
+   "icRaw": -0.214
+  },
+  {
+   "date": "2026-09-29",
+   "n": 3,
+   "icExcess": 0,
+   "icRaw": 0
+  }
+ ]
+}

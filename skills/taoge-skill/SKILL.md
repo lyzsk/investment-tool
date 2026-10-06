@@ -1,3 +1,8 @@
+---
+name: taoge-skill
+description: "桃哥(B站 mid=625315686)人格画像与决策规则: persona 库(persona/ + rules_index 分级加载 + IC 记分 ic.json) + 事实包立法 + 七步决策链契约(workflows/chain.md)。sum(合成视频产物进 md #### 股市 - 桃哥复盘+推进状态机)/distill(每日核销+沉淀 persona) 工作流在 workflows/ 按任务读对应文件, 不全文载(10/7 目录结构立法)。"
+---
+
 # taoge-skill · 桃哥人格画像与决策规则
 
 > 初版建立: 2026-09-27 (Claude Code 晚间重会话)
@@ -28,17 +33,35 @@
 
 ```
 skills/taoge-skill/
-├── SKILL.md              # 本文件: 定位/骨架/目录/更新纪律
+├── SKILL.md              # 本文件: 定位/骨架/路由表/事实包立法/更新纪律(薄路由)
 ├── persona/
 │   ├── profile.md        # 交易哲学/认知偏差/情绪周期/决策节奏/经验记忆/身份背景
 │   ├── language.md       # 语言指纹: 口头禅/句式/用词/比喻体系/情绪表达/互动风格
 │   ├── rules.md          # 决策规则: "给定情境 X, 桃哥倾向做 Y" + 回测验证状态
+│   ├── rules_index.md    # rules 分级加载索引(gen_rules_index.mjs 产)
+│   ├── ic.json           # IC 记分(gen_taoge_ic.mjs 产)
 │   └── cases.md          # 典型案例库(2026-09-28 起): 误判复盘/神操作/学费时刻, 单次怪操作的家
-└── references/
-    └── corpus-index.md   # 语料索引: 位置/数量/覆盖区间/缺口
+├── workflows/            # 工作流全文, 按任务读对应文件(不全文载)
+│   ├── sum.md            # 合成视频产物进 md 小节 + 推进 VISION_DONE→SUMMARIZED
+│   ├── distill.md        # 每日 md 小节核销+提取沉淀进 persona(信息截止铁律, 哨兵 DISTILL_OK)
+│   └── chain.md          # 七步决策链契约(01 逐源回应/02 发哥刹车/06 推翻授权/价格锚)
+├── references/
+│   ├── corpus-index.md   # 语料索引: 位置/数量/覆盖区间/缺口
+│   └── rules_spec.md     # 规则格式规范
+├── PROCESS.md            # 过程账
+└── CHANGELOG.md          # 变更日志
+
+## 路由表（按任务读对应文件）
+
+| 任务 | 读 |
+|---|---|
+| 合成视频产物进 md | `workflows/sum.md` |
+| 每日核销+沉淀 persona | `workflows/distill.md` |
+| 盘前/盘中/盘后决策链 | 本文件事实包立法 + `workflows/chain.md` |
+| 画像维护 | `persona/` 对应文件 + 下方更新纪律 |
 ```
 
-> 沉淀管线(2026-09-28 起): backfill_taoge.py 串行链 results→md→/taoge-distill, 逐日核销+提取, 账本 scripts/backfill_taoge/distill_state.json 断点续跑。
+> 沉淀管线(2026-09-28 起; 2026-10 升级为两段式): backfill_taoge.py `--stage download` 视频段产 results → `--llm-batch` 清账段(5 天/会话批量 results→md→/taoge-skill(distill), 核销+提取), 账本 scripts/backfill_taoge/distill_state.json 断点续跑。
 
 ## 事实包立法(2026-09-28 致命问题复盘, 用户定)
 

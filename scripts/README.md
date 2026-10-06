@@ -1,6 +1,6 @@
 # scripts/ 目录说明 + 全链路使用手册(2026-10-02 重组 v2: 域目录化)
 
-> 在用路线: **taoge-skill(学桃哥) + cb-skill(转债高手不吃土豆0)** 两条线。
+> 在用路线: **taoge-skill(学桃哥) + buchitudou0-skill(转债高手不吃土豆0)** 两条线。
 > 目录按域分文件夹; 根目录只放全局工具+环境; Java 调用的脚本路径已同步改 Java(10/2)。
 > 运行前提: mjs 一律 `node scripts/<域>/<脚本>`(cwd=项目根); py 一律 `scripts/venv/Scripts/python.exe scripts/<域>/<脚本>`。
 
@@ -19,32 +19,32 @@
 
 ## bilibili/ — 桃哥视频管线(发现→下载→ASR→纠错→VLM→产物)
 
-**全链路**: B站视频 → `fetch_bilibili_taoge.mjs`(发现+下载原料) → `process_video.py`(转知识) → `results/bilibili/<mid>/<yyyy.MM.dd>/` 四件套 → taoge-sum 合成进 md。
+**全链路**: B站视频 → `fetch_bilibili_taoge.mjs`(发现+下载原料) → `process_video.py`(转知识) → `results/bilibili/<mid>/<yyyy.MM.dd>/` 四件套 → taoge-skill sum 合成进 md。
 
 | 脚本 | 用法 | 产物/出口 |
 |---|---|---|
 | `fetch_bilibili_taoge.mjs` | `node scripts/bilibili/fetch_bilibili_taoge.mjs --list`(只发现, stdout 末行 `JSON:[...]`)<br>`node scripts/bilibili/fetch_bilibili_taoge.mjs [--bvid BVxxxx] [--out <目录>] [--video-only\|--audio-only]` | `<out>/<bvid>.mp4`+`.m4a`+`.json`; 幂等补缺; 0=就位 1=失败 |
 | `process_video.py` | `scripts/venv/Scripts/python.exe scripts/bilibili/process_video.py --bvid <bvid> --mp4 <路径> --m4a <路径> --out <结果目录>`<br>调试口: `--stage asr,correct,vision,aggregate` / `--keep-frames` / `--download-model` | `<bvid>.raw.txt`+`.tsv`+`.txt`(合成读的)+`.vision.json`; 幂等; GPU 串行(ASR 卸载再上 7B) |
 
-**Java 驱动(生产唯一入口, 勿手工并行跑)**: `bilibiliVideoHandler` 单 job 三段(发现→下载→process_video), 状态机走 `bilibili_video` 表(VISION_DONE 后等 taoge-sum 合成→SUMMARIZED→30 天原料物理删除)。
+**Java 驱动(生产唯一入口, 勿手工并行跑)**: `bilibiliVideoHandler` 单 job 三段(发现→下载→process_video), 状态机走 `bilibili_video` 表(VISION_DONE 后等 taoge-skill sum 合成→SUMMARIZED→30 天原料物理删除)。
 **依赖**: scripts/models/(字典+7B); 无 cookie 方案(search HTML+view/playurl API 不吃风控, 空间列表已风控勿用)。
 
 ---
 
 ## tzzb/ — 转债高手(不吃土豆0)线
 
-**全链路**: 同花顺投资账本 API → `fetch_tzzb.mjs`(Java cron 小时级) → `downloads/tzzb/<ledger>/`(raw 证据层) → Java sync 入 `tzzb_record` 表 → `gen_tzzb_md.mjs`(硬数据层) + tzzb-sum skill(【推测】层) → md `#### 不吃土豆 0` → tzzb-distill(机械核销进 cb-skill)。
+**全链路**: 同花顺投资账本 API → `fetch_tzzb.mjs`(Java cron 小时级) → `downloads/tzzb/<ledger>/`(raw 证据层) → Java sync 入 `tzzb_record` 表 → `gen_tzzb_md.mjs`(硬数据层) + tzzb-skill(sum 工作流,【推测】层) → md `#### 不吃土豆 0` → tzzb-skill(distill 工作流,机械核销进 buchitudou0-skill)。
 
 ### 每日链(15:10 抓取后, check md 例程内)
 
 ```bash
-node scripts/quotes/fetch_cb_quotes.mjs --trends-all      # ①当日有腿标的分钟级分时归档(东财只留~5天, 必做!)
-node scripts/tzzb/gen_tzzb_md.mjs --ledger bchitudou0 --date <yyyy-MM-dd> --write   # ②硬数据层进 md
-# ③tzzb-sum skill: LLM 补【推测】层(逐条标【推测】, 不复述硬数据)
-# ④tzzb-distill 机械层(零 token, 每日必跑):
-scripts/venv/Scripts/python.exe scripts/tzzb/profile_bchitudou0.py
-scripts/venv/Scripts/python.exe scripts/tzzb/review_cb_daily.py --json scripts/backfill_taoge/review_cb_daily.json
-scripts/venv/Scripts/python.exe scripts/tzzb/gen_cb_cases.py    # 依赖 ② 的 json, 重生成 cases.md 双尾区
+node scripts/quotes/fetch_quotes.mjs --market cb --trends-all      # ①当日有腿标的分钟级分时归档(东财只留~5天, 必做!)
+node scripts/tzzb/gen_tzzb_md.mjs --ledger buchitudou0 --date <yyyy-MM-dd> --write   # ②硬数据层进 md
+# ③tzzb-skill(sum 工作流): LLM 补【推测】层(逐条标【推测】, 不复述硬数据)
+# ④tzzb-skill(distill 工作流) 机械层(零 token, 每日必跑):
+scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_profile.py --ledger buchitudou0
+scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_review.py --ledger buchitudou0 --json scripts/backfill_taoge/review_cb_daily.json
+scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_cases.py --all    # 六人 cases.md 双尾区(直连 review 引擎, 无需 json 前置)
 ```
 
 ### 脚本明细
@@ -53,9 +53,9 @@ scripts/venv/Scripts/python.exe scripts/tzzb/gen_cb_cases.py    # 依赖 ② 的
 |---|---|---|
 | `fetch_tzzb.mjs` | `node scripts/tzzb/fetch_tzzb.mjs [--ledger <id>]` | 默认跑 `tzzb_ledgers.json` 全部账本; 产物=downloads/tzzb/<ledger>/(position_change/nav_daily/month/position/change_bs_*/state.json); 出口 0=正常 2=凭证失效 1=失败 |
 | `gen_tzzb_md.mjs` | `--ledger <id> --date <d> [--write]` / `--ledger <id> --all --write` | 硬数据层(零 token): 净值行+FIFO round-trip 明细+汇总; --write 整小节覆盖**保留【推测】行**; --all 全历史回填 |
-| `review_cb_daily.py` | `[--json out.json]` | 执行质量复盘: 卖分位/卖飞上限/持收增量/买滑点/日度对照 |
-| `profile_bchitudou0.py` | `[--json out.json]` | 机械画像: 900腿统计+市况反向联动(T-1 口径) |
-| `gen_cb_cases.py` | (先跑 review --json) | cases.md 双尾样本库区机械重生成(curated 区保留); 阈值 \|持收增量\|≥5% 全量不截断 |
+| `review_cb_daily.py` | `[--json out.json]` | K3 原作(全日内单土豆口径, 10/7 退役存档); 日常链用 gen_tzzb_review |
+| `gen_tzzb_profile.py --ledger buchitudou0` | `[--json out.json]` | 机械画像: 900腿统计+市况反向联动(T-1 口径) |
+| `gen_tzzb_cases.py` | `--ledger <id> \| --all` | 六人 cases.md 双尾样本库区机械重生成(直连 gen_tzzb_review 含跨日); 阈值 \|持收增量\|≥5% 全量不截断; 土豆 curated 区与五人 LLM 叙事区保留 |
 | `sweep_tzzb_spec.py` | `[--limit N]` | 历史日【推测】层批量补写(headless, 5日/批); **10/2 已全量收官 144/144**, 留作新高手账本接入时的模板 |
 | `tzzb_ledgers.json` | — | 账本凭证清单(分享链接 key+user_key), 加高手=加一行 |
 
@@ -73,12 +73,15 @@ scripts/venv/Scripts/python.exe scripts/tzzb/gen_cb_cases.py    # 依赖 ② 的
 
 ---
 
-## quotes/ — 行情获取域(转债+个股, 东财公开接口)
+## quotes/ — 行情获取域(转债+个股)
 
 | 脚本 | 用法 | 说明 |
 |---|---|---|
-| `fetch_stock_trends.mjs` | `node scripts/quotes/fetch_stock_trends.mjs --from-md <yyyy-MM-dd> [--force]`<br>`--codes 600127,002264 [--date <d>]` | 桃哥=分时盘口选手, 日内断言("冲高2点没走"/"尾盘硬拉")需分钟级核销; 东财分时只留~5天=当天必归; --from-md 抠 md 全文（6位代码）去重归档 → downloads/quotes/stock/trends/<code>_<date>.json; 市场位自动翻转(北交所) |
-| `fetch_cb_quotes.mjs` | `node scripts/quotes/fetch_cb_quotes.mjs --trends-all`<br>`--kline-all` / `--kline --code <c>` / `--trends --code <c>` / `--snap --code <c>` | 转债行情(10/2 自 tzzb/ 迁入): 日线回填(双源东财+腾讯)/分时归档/实时快照; --trends-all 单向依赖 downloads/tzzb 账本腿; 产物 downloads/quotes/cb/{kline,trends}/ |
+| `kline.mjs` | `node scripts/quotes/kline.mjs --codes 002428,1.000001 [--src east\|tencent\|sina] [--dir <d>] [--full]` | **日线多源注册表**(10/5 用户立法: 数据源 switch-case): 东财(前复权,增量beg)→腾讯ifzq(前复权,900根)→新浪(不复权,仅兜底禁混前复权档); `--src`=强制单源排障; 归档幂等按日期合并 → downloads/quotes/daily/; gen_taoge_ic(A1) 与 A2 通用归档共用; 淘汰记录见文件头(163死/雪球要登录/东财镜像空) |
+| `fetch_quotes.mjs --market stock` | `node scripts/quotes/fetch_quotes.mjs --market stock --from-md <yyyy-MM-dd> [--force]`<br>`--codes 600127,002264 [--date <d>]` | 桃哥=分时盘口选手, 日内断言("冲高2点没走"/"尾盘硬拉")需分钟级核销; 东财分时只留~5天=当天必归; --from-md 抠 md 全文（6位代码）去重归档 → downloads/quotes/stock/trends/<code>_<date>.json; 市场位自动翻转(北交所)。**无替代源**(腾讯分时仅当日且格式异, 5天窗口是本脚本存在原因) |
+| `fetch_quotes.mjs --market cb` | `node scripts/quotes/fetch_quotes.mjs --market cb --trends-all`<br>`--kline-all` / `--kline --code <c>` / `--trends --code <c>` / `--snap --code <c>` | 转债行情(10/2 自 tzzb/ 迁入): 日线回填(双源东财+腾讯)/分时归档/实时快照; --trends-all 单向依赖 downloads/tzzb 账本腿; 产物 downloads/quotes/cb/{kline,trends}/; 日线可后续迁移至 kline.mjs 注册表(TODO) |
+
+> **数据源立法(10/5)**: 行情快照统一走 `dfcf/paper/snapshot.mjs`(5 源: 腾讯qt/东财/腾讯分时qt/新浪/东财延迟, `--src` 强制单源; matcher/facts/驱动器验价共用), 日线统一走本目录 `kline.mjs`(3 源)。东财限频实证(10/5)后立的: **任何行情拉取禁单源直连**, 注册表+fallback 是标配。
 
 ---
 
@@ -94,11 +97,19 @@ scripts/venv/Scripts/python.exe scripts/tzzb/gen_cb_cases.py    # 依赖 ② 的
 
 ## backfill_taoge/ — 桃哥历史追溯(整目录已 gitignore, 只在本机跑)
 
-**全链路**: `backfill_taoge_index.mjs`(BFS 建待办索引 index.json) → `backfill_taoge.py` 守护(待办=索引-results 扫描; 时间窗/GPU/PAUSE 三守卫; 下载(先查 reuse/ 硬链复用)→process_video→state 记账) → results 四件套 → md-sweep(taoge-sum 批量合成) → distill(taoge-distill 核销沉淀, distill_state.json 账本)。
+**全链路**: `backfill_taoge_index.mjs`(BFS 建待办索引 index.json) → `backfill_taoge.py` 守护(待办=索引-results 扫描; 时间窗/GPU/PAUSE 三守卫; 下载(先查 reuse/ 硬链复用)→process_video→state 记账) → results 四件套 → **两段式清账**: ①`--stage download` 视频段(纯 GPU, 零 LLM) ②`--llm-batch` 清账段(5 天/会话批量 taoge-skill sum 合成 md + taoge-skill distill 核销沉淀, distill_state.json 账本)。
+
+**启动命令(两段式, 2026-10 起为默认路径)**:
+```bash
+# ① 视频段(纯 GPU, 零 LLM): 下载+process_video, 产出 results 四件套
+scripts/venv/Scripts/python.exe scripts/backfill_taoge/backfill_taoge.py --stage download
+# ② 清账段(5 天/会话, 批量 sum+distill): results→md→skill 沉淀一次清 5 天
+scripts/venv/Scripts/python.exe scripts/backfill_taoge/backfill_taoge.py --llm-batch
+```
 
 | 脚本 | 用法 |
 |---|---|
-| `backfill_taoge.py` | 守护模式(无参, 常驻); `--bvid <bvid>` 一次性插跑单视频; `--md-sweep --md-force --md-months <yyyy-MM,...> --md-max-minutes 110 --ignore-pause` =md 批量重合成(枚举 results 四件套齐备日倒序, 最新一期样板自动跳过) |
+| `backfill_taoge.py` | 守护模式(无参, 常驻); `--stage download` =视频段(纯 GPU); `--llm-batch` =清账段(5 天/会话批量 sum+distill, **默认走这个**); `--bvid <bvid>` 一次性插跑单视频; 旧路径 `--md-sweep --md-force --md-months <yyyy-MM,...> --md-max-minutes 110 --ignore-pause` =md 批量重合成(仅重合成 md 时用, 枚举 results 四件套齐备日倒序, 最新一期样板自动跳过) |
 | `backfill_taoge_index.mjs` | 索引多跳 BFS 重建(产物 index.json) |
 | `reset_for_new_skill.py` | 归零器: skill 大改时归档 distill_state+重置, 配合"凡新加 skill 内容全量重跑"铁律 |
 | `gen_md_checklist.py` | md 覆盖核对清单生成 |
@@ -131,8 +142,8 @@ em.ps1(东财自动截图) 10/2 已删——手动贴文本流保真度远高于
 
 ## 每日 check md 链条(用户回家一句"check md"触发)
 
-check-cls-md(Java 侧已灌) → **taoge-sum**(results→md 桃哥小节; 同日必跑 fetch_stock_trends --from-md=分时归档, 东财只留5天) → **taoge-distill**(md→taoge-skill 核销沉淀, 日内断言用 stock_trends 核销)
-→ **tzzb-sum**(腿→md 土豆小节, 前置必跑 fetch_cb_quotes --trends-all) → **tzzb-distill**(腿→cb-skill 核销, 机械层零 token 必跑)
+check-cls-md(Java 侧已灌) → **taoge-skill sum**(results→md 桃哥小节; 同日必跑 fetch_quotes --market stock --from-md=分时归档, 东财只留5天) → **taoge-skill distill**(md→taoge-skill 核销沉淀, 日内断言用 stock_trends 核销)
+→ **tzzb-skill(sum)**(腿→md 小节, 前置必跑 fetch_quotes --market cb --trends-all) → **tzzb-skill(distill)**(腿→buchitudou0-skill 核销, 机械层零 token 必跑)
 → **fage-skill 入口②**(发哥推演 T+1 核销; 盘前蒸馏=入口①归 hermes 早上)
 
 各 skill 的过程性事件(跑批/格式/立法/事故)追加到对应 `skills/<skill>/PROCESS.md`。

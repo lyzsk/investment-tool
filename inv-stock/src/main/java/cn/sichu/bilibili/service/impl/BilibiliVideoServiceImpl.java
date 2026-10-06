@@ -152,7 +152,7 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
         Path outDir = Paths.get(projectConfig.getFile().getDownload().getRootDir(), "bilibili",
             v.getAuthorMid(), day);
         Files.createDirectories(outDir);
-        runNode("bilibili/fetch_bilibili_taoge.mjs", "--bvid", v.getBvid(), "--out", outDir.toString());
+        runNode("bilibili/fetch_bilibili.mjs", "--bvid", v.getBvid(), "--out", outDir.toString());
         v.setStep("DOWNLOADED");
         v.setStatus(0);
         v.setRetryCount(0);
