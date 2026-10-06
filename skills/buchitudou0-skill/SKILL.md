@@ -66,8 +66,10 @@ skills/buchitudou0-skill/
 ├── persona/
 │   ├── profile.md      # 操作指纹(统计事实层)
 │   └── rules.md        # 反推规则(推断层, 五闸门)
-└── references/
-    └── api.md          # 端点/凭证/枚举字典/故障模式
+├── references/
+│   └── api.md          # 端点/凭证/枚举字典/故障模式
+└── workflows/
+    └── chain.md        # cb 决策链(10/4 PC1 建, 01-06 无 03 拆环; --skill cb 驱动, 真跑未验)
 ```
 
 ## 纪律
@@ -79,4 +81,4 @@ skills/buchitudou0-skill/
 5. 绝不编造他的"想法/说法"——推断动机时永远并列 ≥2 个竞争性假设
 
 ## 上下游
-> **架构方向(10/6 用户立法)**: 本 skill 未来接**独立决策链**(workflows/chain.md, 与 taoge-skill 同构; 七步暂定); persona 攒厚后启动。成长触发器: rules.md>15KB 建索引+references/ 放溯源全文。
+> **架构方向(10/6 用户立法)**: 本 skill 接**独立决策链**——workflows/chain.md 已建(10/4 PC1: cb 版 01-06, 无 03 拆环, R 规则 id/转债 code 闸/全仓上限; `run_taoge_chain.py --skill cb` 参数化, 真跑未验)。成长触发器: rules.md>15KB 建索引+references/ 放溯源全文。

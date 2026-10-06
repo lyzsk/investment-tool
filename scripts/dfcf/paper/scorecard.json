@@ -1,0 +1,118 @@
+{
+ "builtAt": "2026-10-03T16:48:54.808Z",
+ "books": [
+  {
+   "src": "C-taoge",
+   "days": 3,
+   "nav": 106711.64,
+   "ret": 0.06711639999999996,
+   "mdd": 0,
+   "sharpe": 12.418984408168168,
+   "filled": 3,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0.5031128750340638
+  },
+  {
+   "src": "C-cb",
+   "days": 4,
+   "nav": 105153.97,
+   "ret": 0.051539699999999966,
+   "mdd": 0,
+   "sharpe": 12.70423064379197,
+   "filled": 8,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-cb",
+   "days": 3,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-taoge",
+   "days": 3,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 3,
+   "voidRate": 1,
+   "position": 0
+  },
+  {
+   "src": "B-cb",
+   "days": 2,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "B-taoge",
+   "days": 3,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  }
+ ],
+ "cost": {
+  "usd": 26.8245,
+  "tokens": 2683149,
+  "byStep": {
+   "01": {
+    "cost": 2.184018,
+    "tokens": 221554,
+    "n": 4
+   },
+   "02": {
+    "cost": 5.961081999999999,
+    "tokens": 668658,
+    "n": 13
+   },
+   "03": {
+    "cost": 1.706143,
+    "tokens": 204323,
+    "n": 4
+   },
+   "04": {
+    "cost": 4.2419165,
+    "tokens": 399614,
+    "n": 5
+   },
+   "05": {
+    "cost": 2.521577,
+    "tokens": 271669,
+    "n": 5
+   },
+   "06": {
+    "cost": 8.707788,
+    "tokens": 787436,
+    "n": 13
+   },
+   "blind": {
+    "cost": 1.5019775,
+    "tokens": 129895,
+    "n": 5
+   }
+  }
+ }
+}

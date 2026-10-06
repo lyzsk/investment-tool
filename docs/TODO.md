@@ -42,6 +42,7 @@
 | 8 | fage 权重定级（核销 alpha 后） | 等 2-3 周 |
 | 9 | 牧原做 T（30 日振幅现算/R-PNL-TRUE 账户级） | PC1 用户 |
 | 10 | TODO 0.7 缺日回填两洞（tzzb-skill(sum) 扫描+fetch_quotes --date 补腿） | PC2✓ |
+| 11 | §F 会战残留: client.mjs 统一行情客户端(主备源链+健康台账) / 跷跷板相关性矩阵 / 转债域 facts 榜单 / seed.json 校对 / 异构对抗(kimi 空方) / matcher 核销操作卡 | PC2✓ |
 
 ---
 
@@ -69,15 +70,15 @@
 
 # §7 paper 设计（§E 精存）
 
-> 目的: 不动真钱证明 skill 可靠; 多账本归因。目录 scripts/dfcf/paper/（状态 gitignore）。机械层全建（matcher 六子命令+ 四哨兵+ 价格笼子 / facts v4 导师速览 / report / 驱动器 selftest PASS / 9/28 回放冒烟 $5.69 全链 / Quartz 3+1 handler+seed）。
+> 目的: 不动真钱证明 skill 可靠; 多账本归因。目录 scripts/dfcf/paper/（状态 gitignore）。机械层全建（matcher 六子命令+ 五哨兵(一字/锚偏离/cancel/stop/区间)+ 拒落账闸+ 价格笼子 / facts v4 导师速览+ 池子覆盖率+ 竞价临时池+ 轮动位置节 / report+ scorecard / pools.json 登记簿+ pool_merge 扩池自动落 / rotation.mjs 轮动图谱 / cb 决策链 v1(--skill cb, 真跑未验) / 驱动器 selftest PASS / 9/28 回放冒烟 $5.69 全链 / Quartz 3+1 handler+seed）。
 > **架构**: 事实层共用（零 token）→ 决策层分账（稀疏 LLM）→ 执行层全自动。6 账本 A/B/C × taoge/cb; plans 带 source+facts_version; book 哈希链。
 > **A 级时刻表**: 09:15 全链→09:27 纠偏→09:30-45 机械→09:45/10:00/10:30 确认→11:27 定位→12:30 午间链→13:00-03 机械→14:00/14:30→14:55 尾盘。
 > **决策契约**: 立即单 / 条件单（主）/ 空仓+ 触发条件; 废单率= 质量度量; 盘中改单= 版本链。
 > **参数**: params.yaml; 基准态总仓≤3 成 / 单票≤1.5 成 / 留≥4 成现金; 转债= 全仓单票+ 机械出。
 > **回放记录**: C-taoge +6.71% / C-cb +5.15% / A-taoge -0.75%（9/28-30）; B 线回放期空仓; A-cb 二期。
 > **证明节奏**: 1-2 周笔记分卡→3-4 周净值门槛→cb 真腿次日对照。
-> **未决**: A-cb 时机 / token 日预算 / facts 刷新频率 / 首跑 vs backfill 时序。
-> **已知不自信**: cb 纸面上限 / B 线选择偏差 / C 线自觉 / 14:55 两分钟执行窗 / 盘前链零实盘验证。
+> **未决**: token 日预算 / facts 刷新频率（10/4 已拍板归档: A-cb 已落 seed 4 job / 首跑 vs backfill=非问题, 驱动器每轮现读 chain.md 无缓存）。
+> **已知不自信**: cb 纸面上限 / B 线选择偏差 / C 线自觉 / 14:55 两分钟执行窗 / 盘前链零实盘验证 / matcher 撮合=活快照, 真 replay 模式(读归档分时)未建——回放成交数字不算数(10/4 PC1 记档)。
 
 # §8 后排大活【全 ★】
 

@@ -13,6 +13,11 @@ INSERT INTO `sys_job` (`job_name`, `job_group`, `job_handler_name`, `job_handler
 ('paper链-1400',          'PAPER_GROUP', 'paperChainHandler', '1400', '0 0 14 * * ?',  2, 0, '下午确认点1'),
 ('paper链-1430',          'PAPER_GROUP', 'paperChainHandler', '1430', '0 30 14 * * ?', 2, 0, '下午确认点2'),
 ('paper链-1455尾盘',      'PAPER_GROUP', 'paperChainHandler', '1455', '0 55 14 * * ?', 2, 0, '尾盘竞价决策, 14:57前落地'),
+-- cb 转债链(10/4 盲区修复⑦): param=cb:HHMM 前缀走 --skill cb; 时刻集中早盘(R1: 88% 出手在 09:25-09:35, 午后不开新仓)
+('paper链-cb-0915盘前全链','PAPER_GROUP', 'paperChainHandler', 'cb:0915', '0 15 9 * * ?',  2, 0, '转债链盘前全链(无03拆环): 01→02→04→05→06→盲审'),
+('paper链-cb-0927竞价纠偏','PAPER_GROUP', 'paperChainHandler', 'cb:0927', '0 27 9 * * ?',  2, 0, '转债链主战场: 竞价后重裁(开盘双通道)'),
+('paper链-cb-0935',        'PAPER_GROUP', 'paperChainHandler', 'cb:0935', '0 35 9 * * ?',  2, 0, '转债链开盘窗口收尾'),
+('paper链-cb-1000',        'PAPER_GROUP', 'paperChainHandler', 'cb:1000', '0 0 10 * * ?',  2, 0, '转债链早盘最后一次(之后不开新仓=R1)'),
 ('paper撮合-每分钟',      'PAPER_GROUP', 'paperMatchHandler', NULL,  '0 * 9-14 * * ?', 2, 0, '保守撮合; 时段窗口(9:30-11:30/13:00-15:00)由代码守门, 非交易日跳过'),
 ('paper日终-EOD',         'PAPER_GROUP', 'paperEodHandler',   NULL,  '0 5 15 * * ?',   2, 0, '废单→nav→nav_*.csv→state_digest.md(次日facts用)'),
 ('paper 07 复盘',   'PAPER_GROUP', 'paperReviewHandler', '', '0 0 20 * * ?', '1', '0', 'TODO §G-5 修复: 当晚链产物 vs 实际对照, 误判进 cases; 防呆=无 06_verdict 自动跳过(2026-10-06)');

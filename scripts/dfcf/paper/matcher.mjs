@@ -5,7 +5,13 @@
 //   node scripts/dfcf/paper/matcher.mjs --import plans/<file>.md    # plans行→挂单(格式校验)
 //   node scripts/dfcf/paper/matcher.mjs --once [--dry]              # 单轮撮合(腾讯快照, 保守成交)
 //   node scripts/dfcf/paper/matcher.mjs --eod --date <yyyy-MM-dd>   # 日终: 废单→nav→state_digest
-// 保守成交铁律: 买=现价≤挂价才成 / 卖=现价≥挂价才成; 09:25-09:30 竞价休止不撮合;
+// 保守成交铁律: 买=现价≤挂价才成 / 卖=现价≥挂价才成
+// 时段铁律(10/3): 撮合窗=09:30-15:00, 竞价(09:15-09:30)与盘后一律不撮合——竞价成交只走
+//   --import-fills 人工核销, 且人工核销前必须过锚偏离检查(锚飞了=废单, 禁按开盘价机械成交)
+// 锚偏离铁律(10/3): plans 行带结构化 anchor=链自报估算锚; 撮合前校 |前收-锚|与|现价-锚|,
+//   两者都偏超 3%(或 anchor@pct 指定)=自动废单"需链重锚重裁", matcher 永不自动改价
+// 拒落账铁律(10/4): import 时校 |挂单价-前收|/前收 > 板限(10cm→11%/20cm→21%/30cm→31%/转债→32%)
+//   =锚编了, 直接拒落账(取数失败宁可拒); 与锚偏离闸两层分工: 进口查挂单价粗筛, 撮合查自报锚细校
 //   历史回放仅工程冒烟用(rules 从历史学出=训练集考试, 收益数字不看)
 // 出口: 0=ok 1=用法/格式错 2=行情源失败 3=账本损坏
 import fs from "node:fs";
@@ -44,9 +50,11 @@ function initBooks() {
     }
 }
 
-// ---- plans 行解析: - HH:MM | source | BUY|SELL|CXL | code | price | qty | valid | [cond] | note ----
-// cond 列(C7-②, 2026-10-04): cancel_below=<价>(跌破即撤) / stop_below=<价>(SELL止损=跌破按市价出), `;`可组合, `-`=无
-const LINE = /^-\s*(\d{1,2}:\d{2})\s*\|\s*([ABC]-(?:taoge|cb))\s*\|\s*(BUY|SELL|CXL)\s*\|\s*(\d{6})\s*\|\s*([\d.]+|-)\s*\|\s*(\d+|-)\s*\|\s*(\S+)\s*\|\s*(?:((?:cancel_below|stop_below)=[\d.]+(?:;(?:cancel_below|stop_below)=[\d.]+)*|-)\s*\|\s*)?(.+)$/;
+// ---- plans 行解析: - HH:MM | source | BUY|SELL|CXL | code | price | qty | valid | [anchor[@pct] |] [cond |] note ----
+// anchor 列(10/3 PC1)=链自报估算锚(可选, 兼容旧 8 字段行; 新单应必填): 数字 或 数字@允许偏离%(默认3) 或 "-"
+// cond 列(C7-②)=cancel_below=<价>(跌破即撤) / stop_below=<价>(SELL 止损=跌破按市价出), `;` 可组合, `-`=无
+// 两列都在时 anchor 在前 cond 在后(内容文法可区分, 正则天然分流不歧义)
+const LINE = /^-\s*(\d{1,2}:\d{2})\s*\|\s*([ABC]-(?:taoge|cb))\s*\|\s*(BUY|SELL|CXL)\s*\|\s*(\d{6})\s*\|\s*([\d.]+|-)\s*\|\s*(\d+|-)\s*\|\s*(\S+)\s*\|\s*(?:(\d+(?:\.\d+)?(?:@\d+(?:\.\d+)?)?|-)\s*\|\s*)?(?:((?:cancel_below|stop_below)=[\d.]+(?:;(?:cancel_below|stop_below)=[\d.]+)*|-)\s*\|\s*)?(.+)$/;
 function parseCond(s) {
     const o = {};
     if (!s || s === "-") return o;
@@ -57,40 +65,64 @@ function parseCond(s) {
     }
     return o;
 }
-function importPlans(file) {
+// 拒落账闸(10/4 用户立法): 挂单价 vs 实际前收偏离超一个板限=锚编了 → import 直接拒, 不落账不进场
+// 阈值=板限+1pt(10cm→11%/20cm→21%/30cm→31%/转债→32%): 给"挂跌停价排队出"留活路, 超板限的偏离没有合法场景
+const boardLimit = (code) => (/^(30|68)/.test(code) ? 0.21 : /^(8|4|920)/.test(code) ? 0.31 : /^(11|12)/.test(code) ? 0.32 : 0.11);
+async function importPlans(file) {
     const date = path.basename(file).match(/^(\d{4}-\d{2}-\d{2})/)?.[1];
     if (!date) { console.error("文件名须以 yyyy-MM-dd 开头"); process.exit(1); }
     let ok = 0, bad = 0, dup = 0;
-    fs.readFileSync(file, "utf8").split("\n").forEach((l, i) => {
-        l = l.trim();
-        if (!l.startsWith("-")) return;
+    const prevCloseCache = {};  // 拒落账闸取数缓存(每 code 一次快照)
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+    for (let i = 0; i < lines.length; i++) {
+        let l = lines[i].trim();
+        if (!l.startsWith("-")) continue;
         const m = l.match(LINE);
-        if (!m) { console.error(`坏行 ${i + 1}: ${l.slice(0, 60)}`); bad++; return; }
+        if (!m) { console.error(`坏行 ${i + 1}: ${l.slice(0, 60)}`); bad++; continue; }
         // 幂等: 行内容哈希进账本, 重复 import 同文件/同行=跳过(Java 每分钟撮合前 import 的兜底)
         const h = crypto.createHash("sha1").update(l).digest("hex").slice(0, 12);
         const [, time, src] = m;
         const b = loadBook(src);
         b.imported = b.imported || [];
-        if (b.imported.includes(h)) { dup++; return; }
-        const [, , , side, code, price, qty, valid, condRaw, note] = m;
+        if (b.imported.includes(h)) { dup++; continue; }
+        const [, , , side, code, price, qty, valid, anchorRaw, condRaw, note] = m;
         if (side === "CXL") {
             const o = b.orders.find((o) => o.code === code && o.status === "open");
             if (o) { o.status = "cxl"; o.note += ` | CXL@${time}: ${note}`; console.log(`撤单 ${src} ${code} #${o.id}`); }
             else console.log(`无单可撤 ${src} ${code}(忽略)`);
             b.imported.push(h); saveBook(b, `CXL ${code}`); ok++;
-            return;
+            continue;
         }
-        if (!(+price > 0) || !(+qty > 0)) { console.error(`坏价量 ${i + 1}`); bad++; return; }
+        if (!(+price > 0) || !(+qty > 0)) { console.error(`坏价量 ${i + 1}`); bad++; continue; }
+        let anchor = null, anchorPct = 0.03;
+        if (anchorRaw && anchorRaw !== "-") {
+            const [a, p] = anchorRaw.split("@");
+            anchor = +a;
+            if (!(anchor > 0)) { console.error(`坏锚 ${i + 1}: ${anchorRaw}`); bad++; continue; }
+            if (p !== undefined) { anchorPct = +p / 100; if (!(anchorPct > 0)) { console.error(`坏锚偏离 ${i + 1}: ${anchorRaw}`); bad++; continue; } }
+        }
+        // 拒落账闸: 挂单价 vs 前收偏离超板限 → 拒(取数失败=宁可拒, 防编锚漏网; 大亚案锚编 45% 的教训)
+        if (!(code in prevCloseCache)) {
+            try { prevCloseCache[code] = (await snap(code)).prevClose; } catch (e) { prevCloseCache[code] = null; console.error(`前收取数失败 ${code}: ${e.message}`); }
+            await jitter();
+        }
+        const pc = prevCloseCache[code];
+        if (!(pc > 0)) { console.error(`拒落账 ${i + 1}: ${code} 前收不可用, 无法过闸`); bad++; continue; }
+        const dev = Math.abs(+price - pc) / pc;
+        if (dev > boardLimit(code)) {
+            console.error(`拒落账 ${i + 1}: ${code} 挂${price} vs 前收${pc} 偏${(dev * 100).toFixed(1)}%>板限闸${(boardLimit(code) * 100).toFixed(0)}% → 锚飞了, 需链重锚重裁`);
+            bad++; continue;
+        }
         let cond;
-        try { cond = parseCond(condRaw); } catch (e) { console.error(`坏行 ${i + 1}: ${e.message}`); bad++; return; }
-        if (cond.stop_below && side !== "SELL") { console.error(`坏行 ${i + 1}: stop_below 仅 SELL 单可带`); bad++; return; }
+        try { cond = parseCond(condRaw); } catch (e) { console.error(`坏行 ${i + 1}: ${e.message}`); bad++; continue; }
+        if (cond.stop_below && side !== "SELL") { console.error(`坏行 ${i + 1}: stop_below 仅 SELL 单可带`); bad++; continue; }
         const id = `${date}-${src}-${String(b.orders.length + 1).padStart(3, "0")}`;
-        b.orders.push({ id, date, time, side, code, price: +price, qty: +qty, valid, cond, note, status: "open" });
+        b.orders.push({ id, date, time, side, code, price: +price, qty: +qty, valid, anchor, anchorPct, cond, note, status: "open" });
         b.imported.push(h);
         saveBook(b, `挂单 ${side} ${code}@${price}x${qty}${cond.cancel_below ? ` cancel<${cond.cancel_below}` : ""}${cond.stop_below ? ` stop<${cond.stop_below}` : ""}`);
         console.log(`挂单 ${src} #${id} ${side} ${code} @${price} x${qty}`);
         ok++;
-    });
+    }
     console.log(`JSON:${JSON.stringify({ ok, bad, dup })}`);
     if (bad) process.exit(1);
 }
@@ -107,6 +139,8 @@ function importFills(file) {
         const m = l.match(FILL);
         if (!m) { console.error(`坏行 ${i + 1}: ${l.slice(0, 60)}`); bad++; return; }
         const [, time, src, side, code, price, qty, feeReal, note] = m;
+        if (time >= "09:15" && time < "09:30")
+            console.warn(`WARN ${i + 1}行: 竞价时段成交=人工核销, 确认已过锚偏离检查(锚飞了=废单, 禁按开盘价机械成交——10/3 大亚教训)`);
         const b = loadBook(src);
         b.imported = b.imported || [];
         const h = crypto.createHash("sha1").update(l).digest("hex").slice(0, 12);
@@ -142,6 +176,9 @@ function seed(src, code, qty, cost, cash) {
 }
 
 // ---- 撮合 ----
+// 撮合时段窗(10/3 加宽: 旧版只挡 09:25-09:30, 09:15-09:25 竞价挂单期与 15:00 盘后仍会成交=违规):
+// 全域只允许 09:30-15:00 成交; 15:00 整点档保留=尾盘竞价(14:57-15:00)按收盘价成交是真实规则
+const inMatchWindow = (hm) => hm >= "09:30" && hm <= "15:00";
 const fee = (side, amt) => (side === "SELL" ? Math.max(CONFIG.minFee, amt * CONFIG.feeRate) + amt * CONFIG.stampTax : Math.max(CONFIG.minFee, amt * CONFIG.feeRate));
 function fill(b, o, px, why, dry, atPrice) { // atPrice=实际记账价(默认挂价; 止损哨兵按快照市价)
     const price = atPrice ?? o.price;
@@ -165,7 +202,10 @@ function fill(b, o, px, why, dry, atPrice) { // atPrice=实际记账价(默认�
 }
 async function once(dry) {
     const hm = new Date().toTimeString().slice(0, 5);
-    if (hm >= "09:25" && hm < "09:30") { console.log("竞价休止时段, 不撮合"); return; }
+    if (!inMatchWindow(hm)) {
+        if (!dry) { console.log(`非撮合时段 ${hm}(窗=09:30-15:00, 竞价/盘后禁撮合), 不撮合`); return; }
+        console.log(`WARN: 非撮合时段 ${hm}, dry 模式绕过时段闸(仅测试)`);
+    }
     const books = SOURCES.filter((s) => fs.existsSync(bookFile(s))).map(loadBook);
     const open = books.flatMap((b) => b.orders.filter((o) => o.status === "open").map((o) => ({ b, o })));
     if (!open.length) { console.log("无挂单"); return; }
@@ -205,6 +245,20 @@ async function once(dry) {
             if (!dry) saveBook(b, `价格锚拒单 ${o.id}`);
             console.log(`拒单 ${b.source} #${o.id} ${o.code}: 挂${o.price}超当日理论区间[${dn.toFixed(2)},${up.toFixed(2)}]`);
             continue;
+        }
+        // 锚偏离守卫(10/3): 链自报估算锚 vs 真实前收+现价, 双偏超阈=锚编了/市场变了 → 自动废单,
+        // 绝不按挂单价机械成交(10/3 大亚教训: 锚14.00 vs 实际前收7.6 偏45%, 失效条款只是注释没拦住)。
+        // 双条件都偏才废: 防大涨日盘中子链以现价为锚被前收误杀; matcher 只废单不改价, 重锚=链重裁
+        if (o.anchor && q.prevClose > 0) {
+            const devPC = Math.abs(q.prevClose - o.anchor) / o.anchor;
+            const devLast = Math.abs(q.last - o.anchor) / o.anchor;
+            if (devPC > o.anchorPct && devLast > o.anchorPct) {
+                o.status = "void";
+                o.note += ` | 锚偏离作废: 锚${o.anchor} vs 前收${q.prevClose}/现价${q.last} 偏${(Math.min(devPC, devLast) * 100).toFixed(1)}%>${(o.anchorPct * 100).toFixed(0)}% → 需链重锚重裁`;
+                console.log(`锚偏离作废 ${b.source} #${o.id} ${o.code}: 锚${o.anchor} 前收${q.prevClose} 现价${q.last}`);
+                if (!dry) saveBook(b, `锚偏离作废 ${o.id}`);
+                continue;
+            }
         }
         let hit = null;
         if (o.side === "BUY" && q.last <= o.price) hit = `现价${q.last}≤挂${o.price}`;
@@ -263,7 +317,7 @@ const MODE = process.argv.includes("--init") ? "init" : arg("import") ? "import"
     : arg("seed") ? "seed" : process.argv.includes("--once") ? "once" : process.argv.includes("--eod") ? "eod" : null;
 if (!MODE) { console.error("用法: --init | --import <file> | --import-fills <file> | --seed <src> <code> <qty> <cost> <cash> | --once [--dry] | --eod --date <d>"); process.exit(1); }
 if (MODE === "init") initBooks();
-else if (MODE === "import") importPlans(arg("import"));
+else if (MODE === "import") await importPlans(arg("import"));
 else if (MODE === "fills") importFills(arg("import-fills"));
 else if (MODE === "seed") { const v = process.argv.slice(process.argv.indexOf("--seed") + 1); if (v.length < 5) { console.error("--seed 需 5 参"); process.exit(1); } seed(...v); }
 else if (MODE === "once") await once(process.argv.includes("--dry"));
