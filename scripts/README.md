@@ -12,6 +12,8 @@
 | `fetch_holidays_cn.py` | 中国节假日抓取(年度) | `python scripts/fetch_holidays_cn.py` → inv-common/resources/holiday/{year}.json |
 | `venv/` | python 环境(ASR+7B+OCR; 已 gitignore) | 重建: `requirements-taoge.txt` / `requirements-cls.txt` |
 | `models/` | Qwen2.5-VL-7B(16G)+纠错字典+wheel(已 gitignore) | `process_video.py --download-model` 一次性下载 |
+| `models/local_llm.py` / `.mjs` | **本地 ollama 统一客户端**(10/7 第一梯队本地化) | 分工: qwen3:14b=ASR 谐音纠错 / qwen3:32b=推测层初稿(错峰, 与 VLM-7B 互斥) / bge-m3=rules_index 检索层; 模型实体在 `%USERPROFILE%\.ollama\models`; 冒烟 `python scripts/models/local_llm.py --smoke` |
+| `models/`（本地模型台账） | **全模型分工与显存预算见文件头注释** | whisper small=faster-whisper **CPU int8 零显存**(ollama 无 ASR 生态, 不迁); RapidOCR=onnx CPU(不迁); Qwen2.5-VL-7B **bf16 15.4G transformers**(行为真值层禁量化, 不迁 ollama; 除非未来要 VLM 与 32B 真并行才评估 Q4 省 9G) |
 | `dfcf/` | 实盘语料存档(snapshots/ 已 gitignore=隐私唯一落点) | 见文末「dfcf 线」 |
 | `taoge-chain/` | 决策链驱动器(按 skills/taoge-skill/workflows/chain.md 契约) | `scripts/venv/Scripts/python.exe scripts/taoge-chain/run_taoge_chain.py --slot 0915 [--date yyyymmdd] [--dry]` / `--review` / `--selftest`(不烧 token); 出口 0=完成 1=中止 3=ESCALATE_FULL_CHAIN |
 
@@ -24,7 +26,7 @@
 | 脚本 | 用法 | 产物/出口 |
 |---|---|---|
 | `fetch_bilibili_taoge.mjs` | `node scripts/bilibili/fetch_bilibili_taoge.mjs --list`(只发现, stdout 末行 `JSON:[...]`)<br>`node scripts/bilibili/fetch_bilibili_taoge.mjs [--bvid BVxxxx] [--out <目录>] [--video-only\|--audio-only]` | `<out>/<bvid>.mp4`+`.m4a`+`.json`; 幂等补缺; 0=就位 1=失败 |
-| `process_video.py` | `scripts/venv/Scripts/python.exe scripts/bilibili/process_video.py --bvid <bvid> --mp4 <路径> --m4a <路径> --out <结果目录>`<br>调试口: `--stage asr,correct,vision,aggregate` / `--keep-frames` / `--download-model` | `<bvid>.raw.txt`+`.tsv`+`.txt`(合成读的)+`.vision.json`; 幂等; GPU 串行(ASR 卸载再上 7B) |
+| `process_video.py` | `scripts/venv/Scripts/python.exe scripts/bilibili/process_video.py --bvid <bvid> --mp4 <路径> --m4a <路径> --out <结果目录>`<br>调试口: `--stage asr,correct,vision,aggregate` / `--keep-frames` / `--download-model` / `--local-correct`(10/7: correct 后追加本地 qwen3:14b 修词典漏网谐音, 等长替换护栏, ollama 不在=跳过不阻塞) | `<bvid>.raw.txt`+`.tsv`+`.txt`(合成读的)+`.vision.json`; 幂等; GPU 串行(ASR 卸载再上 7B) |
 
 **Java 驱动(生产唯一入口, 勿手工并行跑)**: `bilibiliVideoHandler` 单 job 三段(发现→下载→process_video), 状态机走 `bilibili_video` 表(VISION_DONE 后等 taoge-skill sum 合成→SUMMARIZED→30 天原料物理删除)。
 **依赖**: scripts/models/(字典+7B); 无 cookie 方案(search HTML+view/playurl API 不吃风控, 空间列表已风控勿用)。
@@ -43,7 +45,7 @@ node scripts/tzzb/gen_tzzb_md.mjs --ledger buchitudou0 --date <yyyy-MM-dd> --wri
 # ③tzzb-skill(sum 工作流): LLM 补【推测】层(逐条标【推测】, 不复述硬数据)
 # ④tzzb-skill(distill 工作流) 机械层(零 token, 每日必跑):
 scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_profile.py --ledger buchitudou0
-scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_review.py --ledger buchitudou0 --json scripts/backfill_taoge/review_cb_daily.json
+scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_review.py --ledger buchitudou0 --json scripts/backfill_bilibili/review_cb_daily.json
 scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_cases.py --all    # 六人 cases.md 双尾区(直连 review 引擎, 无需 json 前置)
 ```
 
@@ -52,6 +54,8 @@ scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_cases.py --all    # 六人
 | 脚本 | 用法 | 说明 |
 |---|---|---|
 | `fetch_tzzb.mjs` | `node scripts/tzzb/fetch_tzzb.mjs [--ledger <id>]` | 默认跑 `tzzb_ledgers.json` 全部账本; 产物=downloads/tzzb/<ledger>/(position_change/nav_daily/month/position/change_bs_*/state.json); 出口 0=正常 2=凭证失效 1=失败 |
+| `fetch_tzzb.mjs --rank` | `node scripts/tzzb/fetch_tzzb.mjs --rank <比赛key>[,<比赛key>...]` | **比赛榜单发现层**(10/7 建): match_ranking_by_share 拉全量榜单→downloads/tzzb/_ranks/<key>.json; (比赛key,user_key) 直通账本全链端点=同人换更早比赛视图可扩时间深度; 归档永远 by ledger(人), 比赛只做发现 |
+| `llm_batch_tzzb.py` | `scripts/venv/Scripts/python.exe scripts/tzzb/llm_batch_tzzb.py [--ledger <id\|all>] [--from-date/--to-date] [--dry]` | **推测层本地批量初稿**(10/7 建, 替代退役 sweep_tzzb_spec 的云端批量): qwen3:32b 错峰跑缺【推测】的小节, 每条带锚点+尾标 (32B初稿), 复核定稿归日常链 Claude; 显存闸>6G 外部占用让路; 幂等=有【推测】即跳过 |
 | `gen_tzzb_md.mjs` | `--ledger <id> --date <d> [--write]` / `--ledger <id> --all --write` | 硬数据层(零 token): 净值行+FIFO round-trip 明细+汇总; --write 整小节覆盖**保留【推测】行**; --all 全历史回填 |
 | `review_cb_daily.py` | `[--json out.json]` | K3 原作(全日内单土豆口径, 10/7 退役存档); 日常链用 gen_tzzb_review |
 | `gen_tzzb_profile.py --ledger buchitudou0` | `[--json out.json]` | 机械画像: 900腿统计+市况反向联动(T-1 口径) |
@@ -91,25 +95,25 @@ scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_cases.py --all    # 六人
 |---|---|---|
 | `format-markdown.mjs` | Java MarkdownFormatServiceImpl 调用 | prettier 格式化(需项目根 npm install prettier) |
 | `migrate_md_template.mjs` | `node scripts/md/migrate_md_template.mjs [--dry] [dir...]` | **模板迁移常备**: stock-template.md 变更后跑它批量同步历史 md(模板驱动/标题归一/缺节补骨架; 幂等) |
-| `gen_rules_index.mjs` | `node scripts/md/gen_rules_index.mjs` | B3 分级加载: rules.md ### Xnn 头→rules_index.md(134条 239KB→20.5KB, ✅⏳❌ 状态标+前 2 条正文要点备注防漏捞); 幂等; chain 驱动器每轮自动重建, distill 改 rules 后可手跑 |
+| `gen_rules_index.mjs` | `node scripts/md/gen_rules_index.mjs [--skill taoge] [--embed]` / `--query "文本" [--top N]` | B3 分级加载: rules.md ### Xnn 头→rules_index.md(✅⏳❌ 状态标+前 2 条要点备注); `--embed` 追加 bge-m3 向量层→rules_index.vec.json(本地零 token); `--query` 语义检索 top-N(标题捞不准时的兜底); 幂等; chain 驱动器每轮自动重建 |
 
 ---
 
-## backfill_taoge/ — 桃哥历史追溯(整目录已 gitignore, 只在本机跑)
+## backfill_bilibili/ — B站 UP 历史追溯(桃哥/天哥/卢本圆, 引擎 backfill_bilibili.py; 整目录已 gitignore, 只在本机跑)
 
-**全链路**: `backfill_taoge_index.mjs`(BFS 建待办索引 index.json) → `backfill_taoge.py` 守护(待办=索引-results 扫描; 时间窗/GPU/PAUSE 三守卫; 下载(先查 reuse/ 硬链复用)→process_video→state 记账) → results 四件套 → **两段式清账**: ①`--stage download` 视频段(纯 GPU, 零 LLM) ②`--llm-batch` 清账段(5 天/会话批量 taoge-skill sum 合成 md + taoge-skill distill 核销沉淀, distill_state.json 账本)。
+**全链路**: `backfill_taoge_index.mjs`(BFS 建待办索引 index.json) → `backfill_bilibili.py` 守护(多 UP 引擎, --up 选 taoge/qushitiange/lubenyuan, 旧名 backfill_bilibili.py=兼容垫片链落地后删; 待办=索引-results 扫描; 时间窗/GPU/PAUSE 三守卫; 下载(先查 reuse/ 硬链复用)→process_video→state 记账) → results 四件套 → **两段式清账**: ①`--stage download` 视频段(纯 GPU, 零 LLM) ②`--llm-batch` 清账段(5 天/会话批量 taoge-skill sum 合成 md + taoge-skill distill 核销沉淀, distill_state.json 账本)。
 
 **启动命令(两段式, 2026-10 起为默认路径)**:
 ```bash
 # ① 视频段(纯 GPU, 零 LLM): 下载+process_video, 产出 results 四件套
-scripts/venv/Scripts/python.exe scripts/backfill_taoge/backfill_taoge.py --stage download
+scripts/venv/Scripts/python.exe scripts/backfill_bilibili/backfill_bilibili.py --stage download
 # ② 清账段(5 天/会话, 批量 sum+distill): results→md→skill 沉淀一次清 5 天
-scripts/venv/Scripts/python.exe scripts/backfill_taoge/backfill_taoge.py --llm-batch
+scripts/venv/Scripts/python.exe scripts/backfill_bilibili/backfill_bilibili.py --llm-batch
 ```
 
 | 脚本 | 用法 |
 |---|---|
-| `backfill_taoge.py` | 守护模式(无参, 常驻); `--stage download` =视频段(纯 GPU); `--llm-batch` =清账段(5 天/会话批量 sum+distill, **默认走这个**); `--bvid <bvid>` 一次性插跑单视频; 旧路径 `--md-sweep --md-force --md-months <yyyy-MM,...> --md-max-minutes 110 --ignore-pause` =md 批量重合成(仅重合成 md 时用, 枚举 results 四件套齐备日倒序, 最新一期样板自动跳过) |
+| `backfill_bilibili.py` | 守护模式(无参, 常驻); `--stage download` =视频段(纯 GPU); `--llm-batch` =清账段(5 天/会话批量 sum+distill, **默认走这个**); `--bvid <bvid>` 一次性插跑单视频; 旧路径 `--md-sweep --md-force --md-months <yyyy-MM,...> --md-max-minutes 110 --ignore-pause` =md 批量重合成(仅重合成 md 时用, 枚举 results 四件套齐备日倒序, 最新一期样板自动跳过) |
 | `backfill_taoge_index.mjs` | 索引多跳 BFS 重建(产物 index.json) |
 | `reset_for_new_skill.py` | 归零器: skill 大改时归档 distill_state+重置, 配合"凡新加 skill 内容全量重跑"铁律 |
 | `gen_md_checklist.py` | md 覆盖核对清单生成 |

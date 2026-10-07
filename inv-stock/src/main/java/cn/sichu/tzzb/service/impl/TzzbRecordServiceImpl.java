@@ -168,6 +168,18 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
                 } else if (name.equals("position.json")) {
                     // month.json 只有月份列表无收益数值, 不入库
                     JsonNode list = data.get("position_list");
+                    /* 10/7 晚四修: snap 按日去重——原"快照语义可重复"立法作废(手动补 sync 会复制同日快照成脏数据)。
+                       正确语义=每 ledger 每交易日一份; 消费方=negstats/池子信号/profile 持仓维度。 */
+                    java.time.LocalDate snapDay = java.time.LocalDate.now();
+                    long todaySnaps = count(new LambdaQueryWrapper<TzzbRecord>()
+                        .eq(TzzbRecord::getLedger, ledger)
+                        .eq(TzzbRecord::getRecordType, "position_snap")
+                        .ge(TzzbRecord::getRecordTime, snapDay.atStartOfDay())
+                        .lt(TzzbRecord::getRecordTime, snapDay.plusDays(1).atStartOfDay()));
+                    if (todaySnaps > 0) {
+                        skip[2]++;
+                        continue;
+                    }
                     LocalDateTime snapTime = LocalDateTime.now().withNano(0);
                     if (list != null && list.isArray()) {
                         for (JsonNode t : list) {

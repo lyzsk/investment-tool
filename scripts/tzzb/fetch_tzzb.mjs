@@ -136,9 +136,62 @@ async function fetchLedger({ ledger, key, user_key }) {
     return { ledger, trades: total, pages, lastNavDate, bsLegs, ok: true };
 }
 
+// ---------- 比赛榜单模式(2026-10-07 建): 发现层, by 比赛只产元数据, 归档永远 by ledger ----------
+// 用法: node scripts/tzzb/fetch_tzzb.mjs --rank <比赛key>[,<比赛key>...] [--pages N]
+// 背景: (比赛key, user_key) 直通账本全链端点(10/7 实证: 与账本 key 返回同一数据, user_key=账本主键);
+//       榜单行自带 user_key/rank/score/total_profit_rate/win_rate/position_rate/enter_date = 正负样本筛料。
+// 产物: downloads/tzzb/_ranks/<比赛key>.json(全量榜单) + stdout 摘要; 零副作用不动 ledger 链。
+async function fetchRank(matchKey, maxPages = 20) {
+    const outDir = path.join(ROOT, "_ranks");
+    fs.mkdirSync(outDir, { recursive: true });
+    const rows = [];
+    for (let p = 1; p <= maxPages; p++) {
+        const url = `${BASE}/match_ranking_by_share?key=${matchKey}&page=${p}`;
+        let j;
+        for (let i = 0; ; i++) {
+            try {
+                const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+                j = await r.json();
+                break;
+            } catch (e) {
+                if (i >= 2) throw e;
+                await sleep(2000 * (i + 1));
+            }
+        }
+        const list = j?.ex_data?.rank_list || [];
+        if (!Array.isArray(list) || list.length === 0) break;
+        rows.push(...list);
+        if (list.length < 50) break;
+        await jitter();
+    }
+    fs.writeFileSync(path.join(outDir, `${matchKey}.json`), JSON.stringify({ match_key: matchKey, fetched_at: new Date().toISOString(), rows }, null, 1));
+    return rows;
+}
+
+async function rankMode(keys) {
+    const summary = [];
+    for (const k of keys) {
+        const rows = await fetchRank(k);
+        const uniq = new Map(rows.map((r) => [r.user_key, r]));   // 同人翻页去重
+        const profit = [...uniq.values()].map((r) => +r.total_profit_rate).filter((x) => !isNaN(x)).sort((a, b) => b - a);
+        summary.push({ match: k, players: uniq.size,
+            top: [...uniq.values()].sort((a, b) => b.score - a.score).slice(0, 3).map((r) => `${r.user_name}(${r.user_key}) ${(100 * +r.total_profit_rate).toFixed(1)}%`) });
+        console.log(`[rank] ${k}: ${rows.length} 行/${uniq.size} 人, 收益中位 ${profit.length ? (100 * profit[Math.floor(profit.length / 2)]).toFixed(1) + "%" : "?"}`);
+        await jitter();
+    }
+    console.log(`JSON:${JSON.stringify(summary)}`);
+}
+
 async function main() {
     const li = process.argv.indexOf("--ledger");
     const only = li > -1 ? process.argv[li + 1] : null;
+    const ri = process.argv.indexOf("--rank");
+    if (ri > -1) {
+        const keys = (process.argv[ri + 1] || "").split(",").filter(Boolean);
+        if (!keys.length) { console.error("用法: --rank <比赛key>[,<比赛key>...]"); process.exit(1); }
+        await rankMode(keys);
+        return;
+    }
     const targets = only ? LEDGERS.filter((l) => l.ledger === only) : LEDGERS;
     if (targets.length === 0) {
         console.error(`未知账本: ${only} (见 scripts/tzzb_ledgers.json)`);

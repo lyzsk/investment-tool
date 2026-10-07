@@ -2,11 +2,12 @@
 
 > 路由来源: SKILL.md。
 > **路由表**: `--ledger buchitudou0`(默认) = 土豆纯转债, 走下方机械统计+五闸门流程, 沉淀 → buchitudou0-skill/persona/buchitudou0/；
-> `--ledger liunianqing|lianghuaxiaohao|a658|bianbenling|xingjianye` = 五位混合高手, 走**LLM 提取流程**,
+> `--ledger liuyiqing|lianghuaxiaohao|a658|bianbenling|xingjianye` = 五位混合高手, 走**LLM 提取流程**,
 > 沉淀 → `skills/<ledger>-skill/persona/`（**skill 名==ledger id**, 10/7 命名立法, 无映射表）;
 > lianghuaxiaohao 产出标"(程序化嫌疑)"。本文件是唯一 tzzb 蒸馏入口。
 
 ## LLM 提取流程(--ledger 五人版)
+
 0. **机械层先行(10/6 立法, "超越 K3"重构)**: `python scripts/tzzb/gen_tzzb_profile.py --ledger <ledger>` 重跑统计底座——规则里的数字必须来自此输出(手写数字=违规); 桶胜率/出手率/首买通道漂移超阈才进 LLM 审议(对齐土豆分支形态: 机械日常, LLM 审漂移)
 1. 核销: 该高手 rules.md `[待验证]` vs 目标日 md(小节+收评/涨停分析/电报)——兑现/打脸/不动三态+样本数
 2. 提取: 硬数据+【推测】行分流——行为节奏→profile; 带态度操作→rules(市场/入场/出场/仓位四区); 反常操作→cases; 推测层择优并入证据链

@@ -13,6 +13,8 @@ import fs from 'fs';
 import path from 'path';
 import http from 'http';
 import https from 'https';
+import { fileURLToPath } from 'url';
+import { logHealth, latestPriorScan } from './quotes/client.mjs';  // 10/7 数据源治理: 健康台账+昨日降级
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' };
 const EM_REF = { Referer: 'https://quote.eastmoney.com/' };
@@ -195,18 +197,34 @@ async function main() {
       mdParts.push(`## ${name}\n来源: ${r.src}${r.warn ? ' ⚠️' + r.warn : ''} | ${note}\n${r.md}`);
       jsonOut[name] = { src: r.src, warn: r.warn || null, raw: r.raw ?? r.md };
       okCount++;
+      logHealth('scan', name, r.src, true);                       // 10/7: 健康台账
       console.log(`[scan] ${name} OK (${r.src})`);
     } catch (e) {
       mdParts.push(`## ${name}\n[本榜获取失败: ${String(e.message || e).slice(0, 200)}]`);
       jsonOut[name] = { src: null, error: String(e.message || e).slice(0, 200) };
+      logHealth('scan', name, null, false, e.message || e);       // 10/7: 失败也记账
       console.log(`[scan] ${name} FAIL: ${String(e.message || e).slice(0, 100)}`);
     }
     await jitter();  // 榜间抖动, 防固定节拍
   }
   fs.mkdirSync(outDir, { recursive: true });
+
+  // §5.5 对策(10/7): 全灭不再 exit 1(Java misfire=丢弃不重试, 链断)——降级续用最近历史产物+大标注, 链照跑
+  if (!okCount) {
+    const prior = latestPriorScan(path.dirname(outDir.replace(/[\\/]$/, '')), path.basename(outDir.replace(/[\\/]$/, '')));
+    if (prior) {
+      const warn = `# ⚠️ 降级: 今日六榜全灭(东财限频?), 续用 ${prior.from} 的 scan 产物——时效性降级, 02 市况判定须按 T-1 口径`;
+      fs.writeFileSync(path.join(outDir, 'scan.md'), warn + '\n\n' + (prior.md || JSON.stringify(prior.json)), 'utf8');
+      fs.writeFileSync(path.join(outDir, 'scan.json'), JSON.stringify({ ...prior.json, degraded_from: prior.from }, null, 1), 'utf8');
+      logHealth('scan', 'ALL', 'yesterday-fallback', true, '全灭降级续用 ' + prior.from);
+      console.log(`[scan] 全灭降级: 续用 ${prior.from} 产物(链不断)`);
+      process.exit(0);
+    }
+    logHealth('scan', 'ALL', null, false, '全灭且无历史可降级');
+  }
   fs.writeFileSync(path.join(outDir, 'scan.md'), mdParts.join('\n\n'), 'utf8');
   fs.writeFileSync(path.join(outDir, 'scan.json'), JSON.stringify(jsonOut, null, 1), 'utf8');
   console.log(`[scan] ${okCount}/${jobs.length} 榜成功 → ${path.join(outDir, 'scan.md')}`);
-  process.exit(okCount ? 0 : 1);  // 全灭才非零(失败闭环: 部分失败不影响 facts 组装, md 里已标注)
+  process.exit(okCount ? 0 : 1);  // 全灭且无历史才非零(部分失败不影响 facts 组装, md 里已标注)
 }
 main();

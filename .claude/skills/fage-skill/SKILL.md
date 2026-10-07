@@ -20,12 +20,16 @@ description: "Use when 处理红旗大街发哥盘前推演: 入口①盘前蒸�
 **hermes 清单(机械四步, 顺序不可换)**:
 
 ```bash
+
 # 1. 抓取+挂载(零 token, cwd=investment-tool 项目根)
+
 node scripts/wechat/fetch_wechat.mjs --url <url> --write
+
 #    exit 0=ok / 2=文章被GG(回执用户"已删, 下次早点贴") / 5=反爬(过5分钟重试1次) / 6=未知公众号(回执用户登记)
 # 2. 读 downloads/wechat/<account>/<date>/text.md, 按下面「蒸馏口径」产出【推演要点】
 # 3. 写进 downloads/wechat/<account>/<date>/spec.md(纯文本, 每行一条)
 # 4. 重挂载: node scripts/wechat/fetch_wechat.mjs --remount --account <account> --date <date> --write
+
 ```
 
 **回执用户**(一句话): `✅ <标题> | <五维度一句话定调> | 已挂载 <date>.md`; 失败=原因+不硬凑。
@@ -70,4 +74,5 @@ node scripts/wechat/fetch_wechat.mjs --url <url> --write
 4. alpha 未验证纪律: 攒 2-3 周核销样本前, 推演要点在 01 facts 只作参考不作依据
 
 ## 上下游
+
 > **架构方向(10/6 用户立法)**: 本 skill 未来接**独立决策链**(workflows/chain.md, 与 taoge-skill 同构; 七步暂定); persona 攒厚后启动。成长触发器: rules.md>15KB 建索引+references/ 放溯源全文。

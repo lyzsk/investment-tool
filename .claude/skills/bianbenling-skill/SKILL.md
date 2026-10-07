@@ -1,6 +1,6 @@
 ---
 name: bianbenling-skill
-description: "边学本领边实践(同花顺投资账本 ledger=bianbenling)人格画像与决策规则——10/5 建线, 原料 78 条流水。md 硬数据层已全历史回填(见 md 各日 #### 边学本领边实践 小节); persona 由 tzzb-distill --ledger bianbenling 逐日沉淀; 混合型选手(非纯转债), buchitudou0-skill 不适用。"
+description: "边学本领边实践(同花顺投资账本 ledger=bianbenling)人格画像与决策规则——10/5 建线, 原料 78 条流水。md 硬数据层已全历史回填(见 md 各日 #### 边学本领边实践 小节); persona 由 tzzb-distill --ledger bianbenling 逐日沉淀。"
 ---
 
 # bianbenling-skill · 边学本领边实践(2026-10-05 建线)

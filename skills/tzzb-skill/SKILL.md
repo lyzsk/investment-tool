@@ -17,7 +17,7 @@ description: "Use when 处理同花顺投资账本高手数据(六 ledger): ①s
 ## 上下游与标识
 
 - 上游 `tzzbFetchHandler`(quartz, cron `0 10 15-23 ? * *`, hasNavDay 幂等): fetch_tzzb.mjs → `downloads/tzzb/<ledger>/` → sync 入 `tzzb_record` 表
-- 高手清单 `scripts/tzzb/tzzb_ledgers.json`; **skill 名 == ledger id**（10/7 命名立法: liunianqing/lianghuaxiaohao/a658/bianbenling/xingjianye 各自 `<ledger>-skill`; buchitudou0 同律(10/7 用户纠正: K3 原拼 bchitudou0 丢 u, 全链已正名; 转债特化形态保留=persona/buchitudou0/ 子层+references/api.md)）; lianghuaxiaohao 产出一律标"(程序化嫌疑)"
+- 高手清单 `scripts/tzzb/tzzb_ledgers.json`; **skill 名 == ledger id**（10/7 命名立法: liuyiqing/lianghuaxiaohao/a658/bianbenling/xingjianye 各自 `<ledger>-skill`; buchitudou0 同律(10/7 用户纠正: K3 原拼 bchitudou0 丢 u, 全链已正名; 转债特化形态保留=persona/buchitudou0/ 子层+references/api.md)）; lianghuaxiaohao 产出一律标"(程序化嫌疑)"
 - 过程账: 本目录 `PROCESS.md`（跑批/格式变更/立法/事故各追加一行）
 
 ## 纪律（两条工作流共用）

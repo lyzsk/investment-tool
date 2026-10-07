@@ -99,7 +99,21 @@ function mount(date, meta) {
         const p = parse(html);
         if (p.err) { console.error(p.msg); process.exit(p.err); }
         if (!p.title.includes("早报")) console.warn(`⚠️ 标题不含"早报": ${p.title}`);
-        date = DATE_IN || (p.ctime || "").slice(0, 10) || new Date().toISOString().slice(0, 10);
+        // 10/7 修: ctime 提取失败(null)时不再回退到今天——早报讲的是昨天新闻, 回退今天必错;
+        // 改为从正文首段提取"X月X日"推算发布日(+1), 提不出则报错要求 --date
+        if (DATE_IN) { date = DATE_IN; }
+        else if (p.ctime) { date = p.ctime.slice(0, 10); }
+        else {
+            const m = p.text.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+            if (m) {
+                const d = new Date(+m[1], +m[2] - 1, +m[3] + 1);  // 早报=昨日新闻+1
+                date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                console.log(`ctime 空, 从正文"${m[0]}"推算发布日 → ${date}`);
+            } else {
+                console.error("❌ 无法确定早报日期: ctime 空 + 正文无日期线索; 请用 --date yyyy-MM-dd 指定");
+                process.exit(4);
+            }
+        }
         meta = { title: p.title, ctime: p.ctime, url: URL_IN, fetchedAt: new Date().toISOString(), chars: p.text.length };
         const dir = path.join("downloads", "cls_zaobao", date);
         fs.mkdirSync(dir, { recursive: true });

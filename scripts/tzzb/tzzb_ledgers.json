@@ -2,37 +2,173 @@
   {
     "ledger": "buchitudou0",
     "name": "不吃土豆0",
-    "key": "6Mk3xjj",
-    "user_key": "189268"
+    "user_key": "181000",
+    "kind": "pos",
+    "match": "板块必读&桃粉杯第二届",
+    "rank": "3",
+    "rate_pct": 50.3,
+    "rank_rate_pct": 2.8901,
+    "entered": "2026-01-05",
+    "key": "joonDP3"
   },
   {
-    "ledger": "liunianqing",
-    "name": "刘念青",
-    "key": "2OmTm72",
-    "user_key": "200240"
+    "ledger": "liuyiqing",
+    "name": "刘忆青",
+    "user_key": "179624",
+    "kind": "pos",
+    "match": "板块必读&桃粉杯第二届",
+    "rank": "1",
+    "rank_rate_pct": 3.8712,
+    "entered": "2026-01-05",
+    "key": "joonDP3"
   },
   {
     "ledger": "lianghuaxiaohao",
     "name": "量化短线小号实验",
-    "key": "yDYm2oX",
-    "user_key": "183921"
+    "user_key": "183921",
+    "kind": "pos",
+    "match": "待补",
+    "key": "yDYm2oX"
   },
   {
     "ledger": "a658",
     "name": "A658 正好蓝天",
-    "key": "6wQ3yXp",
-    "user_key": "187735"
+    "user_key": "168384",
+    "kind": "pos",
+    "match": "板块必读&桃粉杯第二届",
+    "rank": "2",
+    "rank_rate_pct": 3.1505,
+    "entered": "2025-12-22",
+    "key": "joonDP3"
   },
   {
     "ledger": "bianbenling",
     "name": "边学本领边实践",
-    "key": "wXNp67m",
-    "user_key": "181118"
+    "user_key": "181118",
+    "kind": "pos",
+    "match": "待补",
+    "key": "wXNp67m"
   },
   {
     "ledger": "xingjianye",
     "name": "星见野",
-    "key": "nWXkx6p",
-    "user_key": "172474"
+    "user_key": "138217",
+    "kind": "pos",
+    "match": "待补",
+    "rank": "4",
+    "rank_rate_pct": 2.0912,
+    "entered": "2025-09-26",
+    "key": "yNkQm2X"
+  },
+  {
+    "ledger": "daxingdaxingdadangxing",
+    "name": "大兴大兴大A当兴",
+    "user_key": "282340",
+    "kind": "pos",
+    "match": "待补",
+    "rank": "1",
+    "rank_rate_pct": 1.8642,
+    "entered": "2026-09-18",
+    "key": "73xX2pt"
+  },
+  {
+    "ledger": "gaogailvfuli",
+    "name": "高概率复利",
+    "user_key": "253353",
+    "kind": "pos",
+    "match": "待补",
+    "rank": "13",
+    "rank_rate_pct": 1.2625,
+    "entered": "2026-06-22",
+    "key": "7CK72My"
+  },
+  {
+    "ledger": "xuanqiucaijing",
+    "name": "宣秋财经",
+    "user_key": "268708",
+    "kind": "pos",
+    "match": "待补",
+    "rank": "",
+    "rank_rate_pct": 1.6635,
+    "entered": "2026-08-05",
+    "key": "73xX2pt"
+  },
+  {
+    "ledger": "stzhilang",
+    "name": "ST之狼",
+    "user_key": "154229",
+    "kind": "pos",
+    "match": "待补",
+    "rank": "17",
+    "rank_rate_pct": 1.1996,
+    "entered": "2025-11-06",
+    "key": "yNkQm2X"
+  },
+  {
+    "ledger": "chong5000w",
+    "name": "冲5000w",
+    "user_key": "165553",
+    "kind": "pos",
+    "match": "待补",
+    "rank": "",
+    "rank_rate_pct": 2.5635,
+    "entered": "2025-12-12",
+    "key": "yNkQm2X"
+  },
+  {
+    "ledger": "yangdaren",
+    "name": "洋大人",
+    "user_key": "140544",
+    "kind": "neg",
+    "match": "待补",
+    "rank": "968",
+    "rank_rate_pct": -0.9489,
+    "entered": "2025-09-30",
+    "key": "yNkQm2X"
+  },
+  {
+    "ledger": "liurenih",
+    "name": "猎人IH",
+    "user_key": "232343",
+    "kind": "neg",
+    "match": "待补",
+    "rank": "873",
+    "rank_rate_pct": -0.5665,
+    "entered": "2026-05-06",
+    "key": "yNkQm2X"
+  },
+  {
+    "ledger": "huweigang",
+    "name": "护卫港",
+    "user_key": "142875",
+    "kind": "neg",
+    "match": "待补",
+    "rank": "962",
+    "rank_rate_pct": -0.9042,
+    "entered": "2025-10-09",
+    "key": "yNkQm2X"
+  },
+  {
+    "ledger": "mairutaiji",
+    "name": "买入太急",
+    "key": "yNkQm2X",
+    "user_key": "147086",
+    "kind": "neg",
+    "match": "待补",
+    "rank": "971",
+    "rank_rate_pct": -0.9801,
+    "entered": "2025-10-16"
+  },
+  {
+    "ledger": "elangking",
+    "name": "鳄狼King",
+    "key": "73xX2pt",
+    "user_key": "237800",
+    "kind": "neg",
+    "match": "待补",
+    "rank": 498,
+    "rank_rate_pct": -0.103,
+    "entered": null,
+    "note": "小亏对照组(-10%档)"
   }
 ]

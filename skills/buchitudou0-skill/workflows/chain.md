@@ -1,7 +1,7 @@
 # cb 决策链 · workflows/chain.md（2026-10-04 建，盲区修复⑦：cb-skill 从"有眼睛"补"手脚"）
 
 > 对象 = A-cb 账本（10 万虚拟金）。人格 = 不吃土豆0 纯行为克隆（persona/rules.md R1-R7，全部过五闸门）。
-> 图纸与施工队分离：本文件是唯一契约源；驱动器 = scripts/taoge-chain/run_taoge_chain.py --skill cb（同一份驱动器，skill 参数化）。
+> 图纸与施工队分离：本文件是唯一契约源；驱动器 = scripts/taoge-chain/run_taoge_chain.py --skill buchitudou0（10/7 键正名，原 cb；同一份驱动器，skill 参数化）。
 > 与 taoge 链的差集：无 03 多空辩论（v1 砍，TODO 待补拆环）；R1 立法=88% 出手在 09:25-09:35 → 子链时刻集中在早盘；转债标的 code 必须是 11/12 开头。
 > 时间纪律（10/2 用户立法，R6）：决策原因只许用 T-1 及更早信息，当日盘前 facts 仅作状态确认，禁未来函数。
 
@@ -24,7 +24,9 @@
 ## 各步契约
 
 <!-- step:01 -->
+
 ### 01 事实采集
+
 - 输出：`01_facts.md`；contract=`{"date":"yyyy-MM-dd","sources":["facts"],"digest":"..."}`
 
 ````prompt
@@ -38,7 +40,9 @@
 ````
 
 <!-- step:02 -->
+
 ### 02 市况+选债方向
+
 - 输出：`02_analysis.md`；contract=`{"market_state":"有主线|无主线退潮|普跌","leading_layer":"板块层|资金惯性层","directions":["方向1",...]}`
 - 校验：同 taoge v02（枚举合法+directions 非空）
 
@@ -53,7 +57,9 @@
 ````
 
 <!-- step:04 -->
+
 ### 04 选债方案
+
 - 输出：`04_plan.md`；contract=`{"candidates":[{"name":"转债名","code":"11/12开头6位","direction":"属02某方向","group":"方向|遗留","trigger":"条件价"}...],"断链说明":null}`
 - 校验：同 taoge v04（direction ∈ 02.directions；断链说明兜底）；code 格式闸在 06 层
 
@@ -69,7 +75,9 @@
 ````
 
 <!-- step:05 -->
+
 ### 05 风控（五闸门执行层）
+
 - 输出：`05_risk.md`；contract=`{"verdicts":[{"name":"...","result":"批准|否决|条件批准","reason":"..."}]}`
 - 校验：名单必须=04 候选名单（同 taoge v05）
 
@@ -84,9 +92,11 @@
 ````
 
 <!-- step:06 -->
+
 ### 06 终裁
+
 - 输出：`06_verdict.md`；contract 同 taoge 06 骨架（actions[]+no_trade 三选一+supersedes），cb 差集：**code 必须 ^(11|12)\d{4}$（转债）**；rules 引用 id=R<n>；anchor 同立法（取 facts 快照价，禁凭印象编，matcher 锚偏离闸+拒落账闸对转债同样生效，板限 32%）
-- 校验：v06 cb 模式（驱动器按 --skill cb 切换 code 正则/规则 id 正则/仓位上限=全仓）
+- 校验：v06 cb 模式（驱动器按 --skill buchitudou0 切换 code 正则/规则 id 正则/仓位上限=全仓）
 
 ````prompt
 任务：对 {date} 执行 cb 决策链 06 终裁。读 {run_dir}/04_plan.md、{run_dir}/05_risk.md 与 {run_dir}/paper_state.json。
@@ -100,7 +110,9 @@
 ````
 
 <!-- step:blind -->
+
 ### 盲审（独立会话，不见 06 推理过程，只核产物与证据锚）
+
 - 输出：`validate_report.md`；contract=`{"verdict":"pass|fail","issues":[...]}`
 
 ````prompt
@@ -114,7 +126,9 @@
 ````
 
 <!-- step:07 -->
+
 ### 07 复盘（另跑，`--review`）
+
 - 输出：`07_review.md`；contract=`{"预案对照":"..."}`
 
 ````prompt

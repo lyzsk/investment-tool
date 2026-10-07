@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "bash .claude/hooks/post_md_fix.sh",
+        "timeout": 10
+      }
+    ]
+  }
+}

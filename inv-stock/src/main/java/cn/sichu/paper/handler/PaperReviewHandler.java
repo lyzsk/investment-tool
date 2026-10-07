@@ -20,15 +20,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * paper 模拟盘 07 复盘(当晚): 链产物 vs 当日实际结果逐条对照, 误判进 cases 候选队列。
- * 调 scripts/taoge-chain/run_taoge_chain.py --review --date <yyyymmdd>(LLM 步, 单次几分钟级)。
- * 防呆: 当日 run_dir 无 06_verdict.md(链没跑/未到盲审)则跳过, 不空跑烧 token。
- * sys_job: job_handler_name=paperReviewHandler, 无需 param, cron 建议 "0 0 20 * * ?"(20:00,
- * 收评/涨停分析 15:10 齐且 check-cls-md 晚间复核之后; TODO §G-5 遗漏修复, 2026/10/06)。
- * python 顺序: 先 scripts/venv/Scripts/python.exe 再 PATH(附录 B 立法, 同 bilibili 先例)。
  *
  * @author sichu huang
- * @since 2026/10/06
+ * @since 2026/10/06 15:13
  */
 @Component("paperReviewHandler")
 @RequiredArgsConstructor
@@ -43,15 +37,16 @@ public class PaperReviewHandler implements JobHandler {
             return "非交易日跳过 " + today;
         }
         String dateArg = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        Path runDir = Paths.get(projectConfig.getRootDir(), "results", "taoge_chain",
-            "live-" + dateArg);
+        Path runDir =
+            Paths.get(projectConfig.getRootDir(), "results", "taoge_chain", "live-" + dateArg);
         if (!Files.isRegularFile(runDir.resolve("06_verdict.md"))) {
             return "当日无 06_verdict.md(链未跑完), 跳过 07 复盘: " + runDir;
         }
         List<String> cmd = new ArrayList<>();
         cmd.add(python().toString());
-        cmd.add(Paths.get(projectConfig.getRootDir(), "scripts", "taoge-chain",
-            "run_taoge_chain.py").toString());
+        cmd.add(
+            Paths.get(projectConfig.getRootDir(), "scripts", "taoge-chain", "run_taoge_chain.py")
+                .toString());
         cmd.add("--review");
         cmd.add("--date");
         cmd.add(dateArg);
@@ -75,16 +70,18 @@ public class PaperReviewHandler implements JobHandler {
             throw new BusinessException("run_taoge_chain.py --review 超时 " + TIMEOUT_MIN + "min");
         }
         if (proc.exitValue() != 0) {
-            throw new BusinessException("--review 失败 exit=" + proc.exitValue()
-                + ", 输出尾部: " + tail);
+            throw new BusinessException(
+                "--review 失败 exit=" + proc.exitValue() + ", 输出尾部: " + tail);
         }
         return "paper 07 复盘完成 " + today;
     }
 
-    /** venv 优先, 无则 PATH python(与 BilibiliVideoServiceImpl 同款) */
+    /**
+     * venv 优先, 无则 PATH python(与 BilibiliVideoServiceImpl 同款)
+     */
     private Path python() {
-        Path venvPy = Paths.get(projectConfig.getRootDir(), "scripts", "venv", "Scripts",
-            "python.exe");
+        Path venvPy =
+            Paths.get(projectConfig.getRootDir(), "scripts", "venv", "Scripts", "python.exe");
         return Files.isRegularFile(venvPy) ? venvPy : Paths.get("python");
     }
 }

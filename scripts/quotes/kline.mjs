@@ -16,8 +16,8 @@ const mktSym = (code) => isIdx(code) ? (code.startsWith("1.") ? "sh" + code.slic
 const secid = (code) => isIdx(code) ? code : (/^(60|68|11[0138]|5)/.test(code) ? "1." : "0.") + code;
 
 // ---- 源实现: 统一返回 {bars:[{d,o,c,h,l,v,a}], src, adjusted} ----
-async function eastDaily(code, { beg = "19900101" } = {}) {  // 主源: 支持增量(beg=归档末日)
-    const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid(code)}&klt=101&fqt=1&beg=${beg}&end=20500101`
+async function eastDaily(code, { beg = "19900101", klt = 101 } = {}) {  // klt: 101日/102周/103月/60/30/15/5分(10/7 多周期立法: LLM 看图弱→机械算好喂)  // 主源: 支持增量(beg=归档末日)
+    const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid(code)}&klt=${klt}&fqt=1&beg=${beg}&end=20500101`
         + `&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55,f56,f57`;
     let lastErr;
     for (let a = 1; a <= 3; a++) {  // 防试错: 3 次退避(东财偶发 reset/限频, 10/5 实证)
@@ -75,7 +75,7 @@ export async function fetchDaily(code, opt = {}) {
 }
 
 // ---- 归档(幂等增量, 按日期去重合并; 复权口径不同拒混档) ----
-export async function archiveDaily(codes, { dir = "downloads/quotes/daily", src, gapMs = 600, full = false } = {}) {
+export async function archiveDaily(codes, { dir = "downloads/quotes/daily", src, gapMs = 600, full = false, klt = 101 } = {}) {
     fs.mkdirSync(dir, { recursive: true });
     let ok = 0, inc = 0, fail = [], mixed = [];
     for (const code of [...new Set(codes)]) {
@@ -84,7 +84,7 @@ export async function archiveDaily(codes, { dir = "downloads/quotes/daily", src,
         if (fs.existsSync(f)) { try { old = JSON.parse(fs.readFileSync(f, "utf8")); } catch { old = null; } }
         try {
             const beg = !full && old?.klines?.length ? old.klines[old.klines.length - 1].d.replaceAll("-", "") : "19900101";
-            const fresh = await fetchDaily(code, { src, beg });
+            const fresh = await fetchDaily(code, { src, beg, klt });
             if (old?.klines?.length && ((old.adjusted ?? true) !== fresh.adjusted)) {  // 老档无 adjusted 字段=前复权源写入, 视为 true
                 mixed.push(`${code}:${old.adjusted ? "前复权档" : "不复权档"}拒混${fresh.src}`);
                 continue;  // 不复权源不污染已有前复权档(收益计算会被除权段打歪)
@@ -120,7 +120,9 @@ if (isMain) {
         console.log(`JSON:${JSON.stringify({ codes: codes.size, ok: r.ok, inc: r.inc, fail: r.fail.length })}`);
     } else if (argv.includes("--codes")) {
         const codes = arg("codes").split(",").map((s) => s.trim()).filter(Boolean);
-        const r = await archiveDaily(codes, { src: arg("src") || undefined, dir: arg("dir") || undefined, full: argv.includes("--full") });
+        const kltd = arg("klt", "101");
+        const dirD = kltd === "101" ? undefined : "downloads/quotes/klt" + kltd;
+        const r = await archiveDaily(codes, { src: arg("src") || undefined, dir: arg("dir") || dirD, full: argv.includes("--full"), klt: +kltd });
         console.log(`JSON:${JSON.stringify({ ok: r.ok, inc: r.inc, fail: r.fail.length })}`);
         if (r.fail.length && !r.ok && !r.inc) process.exit(2);
     } else {

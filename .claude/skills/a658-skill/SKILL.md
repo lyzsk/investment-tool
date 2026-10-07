@@ -1,6 +1,6 @@
 ---
 name: a658-skill
-description: "A658 正好蓝天(同花顺投资账本 ledger=a658)人格画像与决策规则——10/5 建线, 原料 250 条流水/251 腿(含北交所票)。md 硬数据层已全历史回填(见 md 各日 #### A658 正好蓝天 小节); persona 由 tzzb-distill --ledger a658 逐日沉淀; 混合型选手(非纯转债), buchitudou0-skill 不适用。"
+description: "A658 正好蓝天(同花顺投资账本 ledger=a658)人格画像与决策规则——10/5 建线, 原料 250 条流水/251 腿(含北交所票)。md 硬数据层已全历史回填(见 md 各日 #### A658 正好蓝天 小节); persona 由 tzzb-distill --ledger a658 逐日沉淀。"
 ---
 
 # a658-skill · A658 正好蓝天(2026-10-05 建线)

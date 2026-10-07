@@ -37,22 +37,24 @@ public interface IBilibiliVideoService extends IService<BilibiliVideo> {
      * 下载所有 step=NEW 且未超重试上限的视频(mp4+m4a+json) → DOWNLOADED
      *
      * @param maxRetry 重试上限
+     * @param authorMid UP 隔离(10/7 晚二修): 只处理该 mid 的行, 防跨 UP 认领被归属闸拒绝空烧 retry
      * @return java.lang.String "下载成功 x/失败 y"
      * @author sichu huang
      * @since 2026/09/27 01:01:35
      */
-    String downloadPendingVideos(int maxRetry);
+    String downloadPendingVideos(int maxRetry, String authorMid);
 
     /**
      * 处理所有 step=DOWNLOADED 且未超重试上限的视频: 直链 process_video.py(ASR→纠错→视觉→聚合),
      * 产物到 results/bilibili/<作者mid>/<发布日>/ → VISION_DONE
      *
      * @param maxRetry 重试上限
+     * @param authorMid UP 隔离(同上)
      * @return java.lang.String "处理成功 x/失败 y"
      * @author sichu huang
      * @since 2026/09/27 13:10:38
      */
-    String processPendingVideos(int maxRetry);
+    String processPendingVideos(int maxRetry, String authorMid);
 
     /**
      * 物理删除 SUMMARIZED 且超过 retentionDays 天的视频原料(mp4+m4a+json 三件套,

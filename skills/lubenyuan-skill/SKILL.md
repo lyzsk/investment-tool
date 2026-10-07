@@ -1,6 +1,6 @@
 ---
 name: lubenyuan-skill
-description: "卢本圆复盘(B站 mid=550494308, 投稿273条/22.7万粉): ①persona(冷启动) ②sum: 视频产物按发布时刻五锚点路由挂载 md(盘前/早盘/午间/下午盘/复盘区, append 不固定模板槽)+markSummarized ③distill: 待建(攒样本后克隆)。签名「持仓透明充电是交割单」=晨报型实盘选手。按任务读 workflows/ 对应文件。2026-10-07 拼音全名立法更名(原 lby-skill)+目录结构化。"
+description: "卢本圆复盘(B站 mid=550494308, 投稿273条/22.7万粉): ①persona(冷启动) ②sum: 视频产物按发布时刻五锚点路由挂载 md(盘前/早盘/午间/下午盘/复盘区, append 不固定模板槽)+markSummarized ③distill: md ####卢本圆 小节→persona 核销+沉淀(哨兵 DISTILL_OK, 5 天/会话批量降序)。签名「持仓透明充电是交割单」=晨报型实盘选手。按任务读 workflows/ 对应文件。2026-10-07 拼音全名立法更名(原 lby-skill)+目录结构化。"
 ---
 
 # lubenyuan-skill · 卢本圆复盘
@@ -19,7 +19,7 @@ description: "卢本圆复盘(B站 mid=550494308, 投稿273条/22.7万粉): ①p
 | 任务 | 读 |
 |---|---|
 | 合成视频产物进 md | `workflows/sum.md`（五锚点挂载路由是本 skill 核心差异） |
-| 核销+沉淀 persona | `workflows/distill.md`（待建骨架, 攒样本后克隆 qushitiange 版） |
+| 核销+沉淀 persona | `workflows/distill.md`（已建: 克隆 qushitiange 骨架落地, L 系规则锚点积累制, 主料=持仓披露+交割单） |
 
 ## 上下游
 

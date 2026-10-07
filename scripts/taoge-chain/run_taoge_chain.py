@@ -33,6 +33,19 @@ if hasattr(sys.stdout, "reconfigure"):  # Windows GBK 控制台防乱码
 
 ROOT = Path(__file__).resolve().parents[2]
 CAP_SINGLE = _cap_single()  # B6: params.yaml 驱动, 见 _cap_single
+
+def _test_floor():
+    """10/7 晚定稿(分层): 首跑期总仓测试下限——真人拟人链 0.4 / tzzb 系 0.8(满仓文化), params.yaml 驱动; 缺省 (0,0)=不拦"""
+    try:
+        import yaml
+        cfg = yaml.safe_load((ROOT / "scripts/dfcf/paper/params.yaml").read_text(encoding="utf-8"))
+        tf = cfg.get("test_floor", {})
+        a = float(tf.get("min_total_position", 0))
+        b = float(tf.get("min_total_position_tzzb", a))
+        return (v if 0 <= v <= 1 else 0 for v in (a, b))
+    except Exception:
+        return (0, 0)
+TEST_FLOOR, TEST_FLOOR_TZZB = _test_floor()
 CHAIN_MD = ROOT / "skills/taoge-skill/workflows/chain.md"
 PAPER = ROOT / "scripts/dfcf/paper"
 TOKEN_LOG = PAPER / "token_log.csv"
@@ -43,8 +56,26 @@ _CLAUDE_EXE = os.path.join(os.environ.get("APPDATA", ""), r"npm\node_modules\@an
 CLAUDE = [(_CLAUDE_EXE if os.path.exists(_CLAUDE_EXE) else "claude"),
           "-p", "--output-format", "json", "--permission-mode", "acceptEdits"]
 
-# ---------- skill 参数化(10/4 盲区修复⑦: 同一驱动器跑 taoge/cb 两条链, 差集全在这张表) ----------
+# ---------- skill 参数化(10/4 盲区修复⑦: 同一驱动器多链, 差集全在这张表; 10/7 键正名 cb→buchitudou0) ----------
 _SUB = ["02", "04", "06"]
+_UP_SLOTS = {"0915": ["01", "02", "03", "04", "05", "06", "blind"],  # UP 链一期精简: 盘前全链+3 关键子链(10/7, token 预算约束; 可扩成 taoge 13 slot)
+             "0927": ["02", "04", "06"], "1000": ["02", "04", "06"], "1455": ["02", "04", "06"]}
+
+
+def _up_cfg(up: str) -> dict:
+    """bilibili UP 链配置工厂(10/7 A 级扩容): chain.md=taoge 模板盖章产物, 股票域 6 位码, A-E 规则 id。"""
+    return {
+        "chain_md": ROOT / f"skills/{up}-skill/workflows/chain.md",
+        "source": f"A-{up}", "results_dir": f"{up}_chain",
+        "slot_steps": dict(_UP_SLOTS),
+        "art": {"01": "01_facts.md", "02": "02_analysis.md", "03b": "03_debate_bull.md", "03s": "03_debate_bear.md",
+                "03j": "03_debate.md", "04": "04_plan.md", "05": "05_risk.md", "06": "06_verdict.md",
+                "07": "07_review.md", "blind": "validate_report.md"},
+        "expand": {"03": ["03b", "03s", "03j"]},
+        "rule_id": r"[A-Z]\d+", "high_pos": set(),  # UP 规则编号冷启动期不定型, 放宽为字母+数字; 高位档位待 persona 成型再收
+        "cap_ratio": CAP_SINGLE, "code_re": r"\d{6}", "floor_key": "like",
+    }
+
 SKILL_CFG = {
     "taoge": {
         "chain_md": ROOT / "skills/taoge-skill/workflows/chain.md",
@@ -57,20 +88,33 @@ SKILL_CFG = {
                 "07": "07_review.md", "blind": "validate_report.md"},
         "expand": {"03": ["03b", "03s", "03j"]},  # 03 拆环(10/4): 多/空独立会话真对抗, 裁判读双方陈词
         "rule_id": r"[A-E]\d+", "high_pos": {"A4", "B43", "B45", "C24"},  # 高位类规则引用必带周期档位(A23)
-        "cap_ratio": CAP_SINGLE, "code_re": r"\d{6}",  # B6(10/5): 单票上限 params.yaml 驱动
+        "cap_ratio": CAP_SINGLE, "code_re": r"\d{6}", "floor_key": "like",  # B6(10/5): 单票上限 params.yaml 驱动
     },
-    "cb": {
+    "buchitudou0": {   # 10/7 键正名(用户令): 原键 "cb", sys_job param cb:HHMM→buchitudou0:HHMM
         "chain_md": ROOT / "skills/buchitudou0-skill/workflows/chain.md",
-        "source": "A-cb", "results_dir": "cb_chain",
+        "source": "A-cb", "results_dir": "buchitudou0_chain",
         "slot_steps": {"0915": ["01", "02", "04", "05", "06", "blind"],  # 无 03(v1 砍, TODO 拆环)
                        "0927": ["02", "04", "06"], "0935": ["02", "04", "06"], "1000": ["02", "04", "06"]},
         "art": {"01": "01_facts.md", "02": "02_analysis.md", "04": "04_plan.md", "05": "05_risk.md",
                 "06": "06_verdict.md", "07": "07_review.md", "blind": "validate_report.md"},
         "expand": {},
         "rule_id": r"R\d+", "high_pos": set(),
-        "cap_ratio": 1.0,  # cb 仓位纪律(10/4 用户拍板): T+0 转债不做仓位管理——有把握全仓进, 没把握半仓+半仓; 上限=全仓
+        "cap_ratio": 1.0, "floor_key": "tzzb",  # cb 仓位纪律(10/4 用户拍板): T+0 转债不做仓位管理——有把握全仓进, 没把握半仓+半仓; 上限=全仓
         "code_re": r"(11|12)\d{4}",  # 转债代码闸: 禁拿正股冒充转债
     },
+    "qushitiange": _up_cfg("qushitiange"),   # 10/7 A 级扩容: 趋势天哥链(chain.md=taoge 模板盖章)
+    "lubenyuan": _up_cfg("lubenyuan"),       # 10/7 A 级扩容: 卢本圆链
+    "liuyiqing": _up_cfg("liuyiqing"),                    # 10/7 晚: tzzb 导师独立链
+    "lianghuaxiaohao": _up_cfg("lianghuaxiaohao"),                    # 10/7 晚: tzzb 导师独立链
+    "a658": _up_cfg("a658"),                    # 10/7 晚: tzzb 导师独立链
+    "bianbenling": _up_cfg("bianbenling"),                    # 10/7 晚: tzzb 导师独立链
+    "xingjianye": _up_cfg("xingjianye"),                    # 10/7 晚: tzzb 导师独立链
+    "daxingdaxingdadangxing": _up_cfg("daxingdaxingdadangxing"),                    # 10/7 晚: tzzb 导师独立链
+    "gaogailvfuli": _up_cfg("gaogailvfuli"),                    # 10/7 晚: tzzb 导师独立链
+    "xuanqiucaijing": _up_cfg("xuanqiucaijing"),                    # 10/7 晚: tzzb 导师独立链
+    "stzhilang": _up_cfg("stzhilang"),                    # 10/7 晚: tzzb 导师独立链
+    "chong5000w": _up_cfg("chong5000w"),                    # 10/7 晚: tzzb 导师独立链
+
 }
 def apply_skill(name):
     global SKILL, CHAIN_MD, SLOT_STEPS, ART, EXPAND, RESULTS_DIR
@@ -257,6 +301,12 @@ def v06(c, ctx):
             return f"{a.get('name')} 金额 {a['_px'] * a['qty']:.0f} 超单票上限 {cap:.0f}"
     if c.get("no_trade") and not acts:
         return "no_trade=true 但 actions 无进场条件单(三选一契约)"
+    # 10/7 晚定稿(分层): 首跑期测试下限——真人拟人链 0.4 / tzzb 系 0.8, 防空仓白测; 可多票凑足
+    _floor = {"tzzb": TEST_FLOOR_TZZB, "like": TEST_FLOOR}.get(sk.get("floor_key"), TEST_FLOOR)
+    if _floor and not c.get("no_trade"):
+        _total_buy = sum(a["_px"] * a["qty"] for a in acts if a.get("op") == "买")
+        if _total_buy < _floor * ctx["nav"]:
+            return f"总买仓 {_total_buy:.0f} < 测试下限 {_floor*100:.0f}% nav(10/7 分层令, 防空仓白测; 可多票凑足)——重裁"
     if ctx["sub"] and "首裁" not in str(c.get("supersedes", "")) \
             and not re.search(r"维持|取代", str(c.get("supersedes", ""))):
         return "盘中重跑 supersedes 未显式含 维持/取代"
@@ -297,11 +347,23 @@ def write_paper_state(book, run_dir):
     (run_dir / "paper_state.json").write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
 
 # ---------- claude -p 调用 + token 台账 ----------
+WINDOW_RE = re.compile(r"usage limit|5-hour|429|quota", re.I)   # 同 cruise_loop(k3 立法口径)
+WINDOW_DEFER_S = 2700                                           # 顺延 45min(10/4 用户: 顺延不跳过)
+
 def call_claude(prompt):
-    t0 = time.time()
-    r = subprocess.run(CLAUDE + [prompt], cwd=ROOT, capture_output=True, text=True,
-                       encoding="utf-8", errors="replace", timeout=1800)
-    dur = time.time() - t0
+    """10/7 晚修正(用户令: 模仿 k3 cruise_loop 语义): window 错误=顺延不跳过——
+    无限顺延(每次 45min)直到窗口重置, 不设次数上限, 欠账永远留账不丢。"""
+    while True:
+        t0 = time.time()
+        r = subprocess.run(CLAUDE + [prompt], cwd=ROOT, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=1800)
+        dur = time.time() - t0
+        blob = (r.stdout or "") + (r.stderr or "")
+        if WINDOW_RE.search(blob):
+            print(f"⚠ API window 限: 顺延 {WINDOW_DEFER_S // 60}min 后重试(欠账留账不跳过, k3 语义)")
+            time.sleep(WINDOW_DEFER_S)
+            continue
+        break
     usage, cost = {}, ""
     try:
         j = json.loads(r.stdout)
@@ -521,6 +583,8 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
 
 # ---------- 自测(不烧 token: 假产物喂校验器) ----------
 def selftest():
+    global TEST_FLOOR, TEST_FLOOR_TZZB
+    TEST_FLOOR, TEST_FLOOR_TZZB = 0, 0   # 闸单测不受首跑期仓位下限干扰(夹具仓位小; 进程终止无需恢复)
     tmp = ROOT / "results/taoge_chain/selftest-tmp"
     shutil.rmtree(tmp, ignore_errors=True)
     tmp.mkdir(parents=True)
@@ -653,14 +717,14 @@ def selftest():
     os.remove(pf)
 
     # cb 链(10/4 盲区修复⑦): 模板抽取 + v06 cb 模式(转债 code 闸/R 规则 id/3 成上限)
-    apply_skill("cb")
+    apply_skill("buchitudou0")
     tcb = load_templates()
     if set(tcb) < set(ART) - {"07"}:
         fails.append(f"cb chain.md 模板不全: {sorted(set(ART) - {'07'} - set(tcb))}")
     cctx = {"date_dash": "2026-09-30", "nav": 100000, "sub": False,
-            "contracts": {"05": {"verdicts": [{"name": "测试转债", "result": "批准"}]}}, "skill": SKILL_CFG["cb"]}
+            "contracts": {"05": {"verdicts": [{"name": "测试转债", "result": "批准"}]}}, "skill": SKILL_CFG["buchitudou0"]}
     if v06({"supersedes": "首裁", "actions": [{"name": "测试转债", "code": "123456", "op": "买", "trigger_price": "100",
-            "qty": 200, "anchor": "99.5", "rules": [{"id": "R1", "ctx": "情境判定: 当前 09:27 落在开盘主战场窗口内"}]}], "no_trade": False}, cctx):
+            "qty": 600, "anchor": "99.5", "rules": [{"id": "R1", "ctx": "情境判定: 当前 09:27 落在开盘主战场窗口内"}]}], "no_trade": False}, cctx):
         fails.append("cb 06 正例被误杀")
     for bad, tag in [
         ({"supersedes": "首裁", "actions": [{"name": "测试转债", "code": "002050", "op": "买", "trigger_price": "10", "qty": 100, "anchor": "10"}], "no_trade": False}, "cb 正股 code 未抓"),
@@ -670,7 +734,7 @@ def selftest():
     ]:
         if not v06(bad, cctx):
             fails.append(f"cb 06 {tag}")
-    apply_skill("taoge")  # 复位(防后续维护者在 cb 态下误加用例)
+    apply_skill("taoge")  # 复位(防后续维护者在转债链态下误加用例)
 
     shutil.rmtree(tmp, ignore_errors=True)
     if fails:

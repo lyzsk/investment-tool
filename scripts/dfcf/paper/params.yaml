@@ -25,3 +25,10 @@ cb:
 sim:
   price_cage: true              # 价格笼子 ±2%(连续竞价申报口径, 10/4 已落地 matcher)
   conservative_fill: true       # 触及≠成交, 买价须被现价击穿
+
+# ---- 首跑期测试下限(2026-10-07 晚定稿: 分层制, Claude 裁) ----
+# 目的: 防空仓白测; 效力=覆盖 stock.regime 总仓上限与 no_trade, 单票上限照旧
+# 实证: tzzb 榜单头部 position_rate 0.93-1.0 满仓文化(尾部亏货也满仓→满仓非alpha, 选股才是)
+test_floor:
+  min_total_position: 0.40        # 真人拟人链(taoge/天哥/卢本圆): 参与度线, 保 regime 防守空间
+  min_total_position_tzzb: 0.80   # tzzb 系(A-cb/A-tzzb 聚合): 满仓文化线

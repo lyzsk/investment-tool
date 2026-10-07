@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const BOOKS = path.join(DIR, "books");
-const COLORS = { "A-taoge": "#d62728", "A-cb": "#ff7f0e", "B-taoge": "#1f77b4", "B-cb": "#2ca02c", "C-taoge": "#9467bd", "C-cb": "#8c564b" };
+const COLORS = { "A-taoge": "#d62728", "A-cb": "#ff7f0e", "A-qushitiange": "#e377c2", "A-lubenyuan": "#17becf", "A-tzzb": "#bcbd22", "B-taoge": "#1f77b4", "B-cb": "#2ca02c", "C-taoge": "#9467bd", "C-cb": "#8c564b" };
 const INIT = 100000;
 
 const outArg = process.argv.indexOf("--out");
@@ -18,8 +18,12 @@ const OUT = outArg > 0 ? process.argv[outArg + 1] : path.join(DIR, "report.html"
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const pct = (x) => (x >= 0 ? "+" : "") + (x * 100).toFixed(2) + "%";
 
-// ---- 读账本, nav 为空的账本用当前估值补一个点(还没跑过 EOD) ----
-const books = fs.readdirSync(BOOKS).filter((f) => f.endsWith(".json") && !f.startsWith("_")).map((f) => {
+// ---- 读账本(10/7 用户令: 图上只留 A-xxx/B-xxx——旧导师个人书收编停用, C 线与杂书不进图) ----
+const SHOW = new Set(["A-taoge", "A-cb", "A-qushitiange", "A-lubenyuan",
+    "A-liuyiqing", "A-lianghuaxiaohao", "A-a658", "A-bianbenling", "A-xingjianye",
+    "A-daxingdaxingdadangxing", "A-gaogailvfuli", "A-xuanqiucaijing", "A-stzhilang", "A-chong5000w",
+    "B-taoge", "B-cb"]);
+const books = fs.readdirSync(BOOKS).filter((f) => f.endsWith(".json") && !f.startsWith("_") && SHOW.has(f.replace(/\.json$/, ""))).map((f) => {
     const b = JSON.parse(fs.readFileSync(path.join(BOOKS, f), "utf8"));
     const mvCost = Object.values(b.positions || {}).reduce((s, p) => s + p.qty * p.cost, 0);
     if (!b.nav.length) b.nav = [{ date: new Date().toISOString().slice(0, 10), cash: b.cash, mv: +mvCost.toFixed(2), nav: +(b.cash + mvCost).toFixed(2), orders: 0, filled: 0, voided: 0 }];

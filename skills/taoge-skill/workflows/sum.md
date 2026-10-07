@@ -30,7 +30,9 @@
 
 ```bash
 curl -s localhost:8888/api/bilibili/video/pendingSummary
+
 # Result.data = VISION_DONE 且 retry_count<3 的行: bvid/title/authorMid/publishTime
+
 ```
 
 空列表 = 没活, 直接结束(先确认上游 job 跑过: sys_job_log 看 bilibiliVideoHandler 回执)。
@@ -54,10 +56,12 @@ curl -s localhost:8888/api/bilibili/video/pendingSummary
 ### 3. 合成写 md
 
 挂载点: `md/<year>S<quarter>/<发布日 yyyy-MM-dd>.md` 的 `## 复盘` → `### bilibili` → `#### 股市 - 桃哥复盘` 小节
+- 周末/节假日发布: 改挂**下一个交易日**的 md(对齐 Java 交易日Markdown/加红电报的瞬移语义, 10/7 立法; 原"非交易日不新建只报告"条款保留为文件缺失兜底); 标题所指交易日冲突时按标题, 拿不准标 (待核)
 (桃哥只在交易日盘后发稿, 挂发布日当天; quarter=(月-1)/3+1, 9月=S3; 10/2 模板迁移后小节在 ### bilibili 下)
 
 小节结构(2026-09-24 用户定稿格式, 五大 bullet 全收在 #### 股市 - 桃哥复盘 下, 不用 ##### 子小节):
 ```markdown
+
 #### 股市 - 桃哥复盘
 
 **[视频标题](https://www.bilibili.com/video/<bvid>)** · HH:MM 发布 · N 分钟 ·（语音转写）
@@ -131,8 +135,10 @@ MACD 柱/RSI 超买超卖/KDJ 金叉死叉/CCI 极值/振幅带) → 回答"他�
 ```bash
 curl -X POST localhost:8888/api/bilibili/video/markSummarized \
   -H "Content-Type: application/json" -d '["<bvid1>","<bvid2>"]'
+
 # 回执: "推进SUMMARIZED x/跳过 y(非VISION_DONE)/未找到 z"
 # 跳过=已推进过(幂等), 不是错误; 推进时刻的 update_time = 30 天物理删除倒计时起点
+
 ```
 
 **批量改写分支(历史回填日期)**: backfill_taoge.py 回填的日期**不写 DB**(用户定:
@@ -142,7 +148,9 @@ curl -X POST localhost:8888/api/bilibili/video/markSummarized \
 ### 5. 批量改写(2026-09-29 用户修订: 旧 md 全部统一为**最新日期格式**)
 
 旧 md(~219 天, 2025-10 起)的 `#### 股市 - 桃哥复盘` 是旧格式(纯逐字稿 或 #### 解读/
+
 #### 画面 子小节), 全部按**最新一期有桃哥总结的 md 的小节格式**整小节覆盖重写
+
 (2026-09-29 用户定: 总结方式若更新, 最先更新的是最新日期的 md, 所以锚点跟随
 最新日期而非某个历史定稿日; 当前参照=2026-09-29 格式)。
 

@@ -32,6 +32,11 @@ if (!fs.existsSync(DIR)) { console.error(`${DIR} 不存在, 先跑 fetch_tzzb.mj
 const canon = (s) => s.replace(/^#+\s*/, "").replace(/\s+/g, "").toLowerCase();
 const LEDGERS = JSON.parse(fs.readFileSync("scripts/tzzb/tzzb_ledgers.json", "utf8"));
 const NAME = (LEDGERS.find((l) => l.ledger === LEDGER) || {}).name || LEDGER;
+// 负样本闸(10/7 用户立法): kind=neg 不进 md——语料留 downloads/, 反例规则走 gen_tzzb_negstats.py(待建)+05 风控
+if ((LEDGERS.find((l) => l.ledger === LEDGER) || {}).kind === "neg") {
+    console.error(`${LEDGER}(${NAME}) 是负样本: 不产 md 硬数据层(10/7 立法); 语料在 downloads/tzzb/${LEDGER}/`);
+    process.exit(1);
+}
 function sectionHeading() {
     const tpl = fs.readFileSync("inv-stock/src/main/resources/templates/stock-template.md", "utf8").split("\n");
     const zi = tpl.findIndex((l) => /^#{3} /.test(l) && canon(l) === canon("同花顺投资账本"));

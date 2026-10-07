@@ -1,6 +1,6 @@
 ---
 name: xingjianye-skill
-description: "星见野(同花顺投资账本 ledger=xingjianye)人格画像与决策规则——10/5 建线, 原料 160 条流水。md 硬数据层已全历史回填(见 md 各日 #### 星见野 小节); persona 由 tzzb-distill --ledger xingjianye 逐日沉淀; 混合型选手(非纯转债), buchitudou0-skill 不适用。"
+description: "星见野(同花顺投资账本 ledger=xingjianye)人格画像与决策规则——10/5 建线, 原料 160 条流水。md 硬数据层已全历史回填(见 md 各日 #### 星见野 小节); persona 由 tzzb-distill --ledger xingjianye 逐日沉淀。"
 ---
 
 # xingjianye-skill · 星见野(2026-10-05 建线)

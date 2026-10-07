@@ -183,7 +183,7 @@ function mentorDigest() {
     } catch { }
     // dir = skill 内 rules.md 所在目录(相对 skills/); 土豆在 persona/buchitudou0/ 子层
     // (10/7 修双 persona 死路径 bug: 原拼 .../persona/buchitudou0/persona/rules.md, ruleHeads 静默空→土豆规则从未进过速览)
-    const mentors = [["liunianqing-skill/persona", "刘念青(波段隔夜/板块簇, 日均+1.10%)"], ["lianghuaxiaohao-skill/persona", "量化实验(程序化嫌疑,只看不跟)"],
+    const mentors = [["liuyiqing-skill/persona", "刘忆青(波段隔夜/板块簇, 日均+1.10%)"], ["lianghuaxiaohao-skill/persona", "量化实验(程序化嫌疑,只看不跟)"],
         ["a658-skill/persona", "A658(ST/次新极端风险, 教训为主)"], ["bianbenling-skill/persona", "边学本领(无止损反面教材)"],
         ["xingjianye-skill/persona", "星见野(港/北交所重仓)"], ["buchitudou0-skill/persona/buchitudou0", "不吃土豆0(转债T+0, A-cb用)"]];
     for (const [dir, label] of mentors) {

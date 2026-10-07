@@ -62,7 +62,9 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ## 各步契约
 
 <!-- step:01 -->
+
 ### 01 事实采集
+
 - 输入：facts.txt（harness 写）+ 其指示的昨日 md 涨停分析 + paper_state.json
 - 输出：`01_facts.md`；contract=`{"date":"YYYY-MM-DD","sources":[...],"digest":"<=200字"}`
 - 校验：哨兵+date 字段（事实摘要无上游可比对）
@@ -70,7 +72,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````prompt
 任务：对 {date} 执行决策链 01 事实采集（元指令已随本任务下发：任务优先，禁反问；读 skills/taoge-skill/persona/profile.md 即可，本步不需要规则）。
 读 {run_dir}/facts.txt，按其指示读昨日涨停分析 md 与 paper_state.json，写成事实摘要（只陈述事实，不做判断）。
-两条硬规则：①**勘误表跳过**（10/6 立法）：昨日 md 涨停分析中含 `> ⚠️ 勘误` 标记的表是已证伪污染数据，禁止引用其任何内容（9/24 PCB 虚构表先例）；②**导师信号速览逐源回应**（G-1 聚合层， 10/6 立法"确保每个 skill 都别空仓"）：facts.txt 的「导师信号速览」节列出的每个信号源（桃哥/发哥/刘念青/量化实验/A658/边学本领/星见野/土豆/卢本圆/趋势天哥），摘要中必须各给一行"该源当日相关信号或'今日无信号'"——按状态标加权（✅已验证>⏳待验证>❌反例禁用），发哥回避信号单独标"刹车级"，量化实验标"只看不跟(程序化嫌疑)"。只摘录不判断。
+两条硬规则：①**勘误表跳过**（10/6 立法）：昨日 md 涨停分析中含 `> ⚠️ 勘误` 标记的表是已证伪污染数据，禁止引用其任何内容（9/24 PCB 虚构表先例）；②**导师信号速览逐源回应**（G-1 聚合层， 10/6 立法"确保每个 skill 都别空仓"）：facts.txt 的「导师信号速览」节列出的每个信号源（桃哥/发哥/刘忆青/量化实验/A658/边学本领/星见野/土豆/卢本圆/趋势天哥），摘要中必须各给一行"该源当日相关信号或'今日无信号'"——按状态标加权（✅已验证>⏳待验证>❌反例禁用），发哥回避信号单独标"刹车级"，量化实验标"只看不跟(程序化嫌疑)"。只摘录不判断。
 写入 {run_dir}/01_facts.md（Write 工具）：正文后接
 ```contract
 {"date":"{date_dash}","sources":["..."],"digest":"<=200字"}
@@ -79,7 +81,9 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````
 
 <!-- step:02 -->
+
 ### 02 分析（定市况）
+
 - 输入：01_facts.md + persona/rules
 - 输出：`02_analysis.md`；contract=`{"market_state":"有主线|无主线退潮|普跌","leading_layer":"板块层|资金惯性层","directions":["方向1",...]}`
 - 校验：market_state/leading_layer 枚举合法；directions 非空
@@ -99,7 +103,9 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````
 
 <!-- step:03b -->
+
 ### 03 多空辩论（10/4 拆环：独立上下文真对抗，不再是同一次生成自问自答）
+
 - 结构：**03b 多方（独立会话）→ 03s 空方（独立会话）→ 03j 裁判（读双方陈词裁决）**；03b/03s 互相看不到对方产物=真对抗（TradingAgents 式，10/4 用户立法：自辩没有对抗压力，03 必须拆环）；下游 04/05/06 仍只读 `03_debate.md`（裁判产物）
 - 输入：03b/03s=01+02；03j=01+02+03b+03s
 - 输出：`03_debate_bull.md`/`03_debate_bear.md`/`03_debate.md`；03j contract=`{"winner":"多|空","decisive_reason":"...","follows_leading_layer":true}`
@@ -117,6 +123,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````
 
 <!-- step:03s -->
+
 ### 03s 空方陈词（独立会话，不见多方）
 
 ````prompt
@@ -130,6 +137,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````
 
 <!-- step:03j -->
+
 ### 03j 裁判（读双方陈词裁决）
 
 ````prompt
@@ -143,7 +151,9 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````
 
 <!-- step:04 -->
+
 ### 04 交易方案
+
 - 输入：01+02+03
 - 输出：`04_plan.md`；contract=`{"candidates":[{"name":"票名","code":"002050","direction":"属02某方向","group":"遗留|方向","trigger":"条件价"}...],"断链说明":null}`
 - 校验：candidates 非空（B72：禁止空方向组）；group=方向 的 candidate.direction ∈ 02.directions；code 若填必须 6 位数字（04 后驱动器按 code 机械拉候选票价格锚快照 → `{run_dir}/cand_snap.md/.json`，06 挂单价必须锚定它）；两组齐全或"断链说明"写明断在哪环缺什么
@@ -156,6 +166,8 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 **双池制取数（10/4 用户立法，盲区修复⑤）**：方向组个股来源优先级=①pools.json 登记池（低吸池 B48，跨日有效）→ ②facts"竞价异动临时池"（接力池，仅当日有效，竞价后 slot 才有）→ ③池外新面孔（须注明"池外"+更强证据锚）。人格只管怎么买：买点/仓位/失效条件；**不许以"不在能力圈"整组删除 02 给出的方向**（可降置信度/缩仓位/给更严触发价，不可删方向）。
 **扩池提案义务**：facts 池子覆盖率 WARN（<70%）触发时，必须把池外涨停票按方向聚类给出扩池提案，写进 contract 的 pool_proposals——**驱动器校验后机械自动落 pools.json**（10/4 用户拍板，零 token；票名→代码走 smartbox 解析，解析失败的列 unresolved 存 run_dir 供人工补，不自作主张改代码）。
 每只候选给 6 位代码（从 facts 六榜/电报/state_digest 抄，查不到写 null）+条件价+仓位建议。写入 {run_dir}/04_plan.md，contract 块：
+
+**首跑期测试下限（10/7 用户令，防空仓白测）**：06 总买仓 ≥50% nav（可多票凑足），此下限优先于 regime 总仓上限，单票上限照旧，禁止 no_trade 空仓收场。
 ```contract
 {"candidates":[{"name":"...","code":"002050","direction":"...","group":"遗留|方向","trigger":"..."}],"断链说明":null,"pool_proposals":[{"direction":"...","names":["票名"]}]}
 ```
@@ -164,7 +176,9 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````
 
 <!-- step:05 -->
+
 ### 05 风控
+
 - 输入：01..04（**04 候选清单逐票过堂**，harness 信息流强制，0.5-B 立法）
 - 输出：`05_risk.md`；contract=`{"verdicts":[{"name":"票名","result":"批准|否决|条件批准","reason":"..."}...]}`
 - 校验：verdicts 的 name 集合 **==** 04 candidates 的 name 集合（缺票/多票=回炉）
@@ -180,7 +194,9 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````
 
 <!-- step:06 -->
+
 ### 06 终裁
+
 - 输入：01..05 + `{run_dir}/cand_snap.md`（候选票价格锚，04 后驱动器机械拉取；不存在=04 无 code 候选，跳过锚定）
 - 输出：`06_verdict.md`；contract=`{"supersedes":"首裁|取代盘前决策:...|维持盘前决策:...","actions":[{"name":"票名","code":"600127","op":"买|卖","trigger_price":"...","qty":800,"anchor":"12.40","cancel_below":6.95,"stop_below":null,"rules":[{"id":"A4","ctx":"情境判定: ..."}],"invalid_if":"..."}...],"no_trade":false}`
 - 校验：actions.name ⊆ 05 批准∪条件批准；**code 必须 6 位数字、qty 必须正整数、anchor 必须正数**（驱动器转 plans 的取数口，缺=回炉）；trigger_price=数值**或** `Z*系数` 公式（Z=cand_snap 前收，驱动器代换求值成数值才落 plans，其他文法=回炉）；**价格锚（C7-①）**：挂单价落在该票当日理论区间外=编造嫌疑回炉（区间=前收×(1±板限)，板限按代码分档 10/20/30%，主板 ST 同 10%）；cancel_below/stop_below 若填必须>0 且 stop_below 只许卖单；qty 由模型按 paper_state 现金+params 仓位规则换算，驱动器机械复检 qty×trigger_price ≤ 单票仓位上限×nav（超限=回炉）；no_trade=true ⇒ 04 两组已列齐且 actions 含进场条件单；盘中重跑 ⇒ supersedes 必须显式含"维持/取代"（决策版本号，0.7-3 立法）
@@ -202,7 +218,9 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````
 
 <!-- step:blind -->
+
 ### 盲审（06→01 反向验证 + 二次交叉验证）
+
 - 输入：**只给** 01_facts.md + 06_verdict.md + cand_snap.md（若存在；独立新会话，不给中间环节）
 - 输出：`validate_report.md`；contract=`{"verdict":"pass|fail","issues":["..."]}`
 - FAIL → 带 issues 回炉 06 一次 → 复审一次；再 FAIL=链中止 exit 1；回炉版若 contract 校验败**再给一次带原因回炉**（C9 修复：9/29 死链——公式价被数值校验器拒后直接 abort 无产出）
@@ -220,7 +238,9 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ````
 
 <!-- step:07 -->
+
 ### 07 复盘（另跑，`--review`）
+
 - 输入：当日实际结果（当日 md 收评/涨停分析+paper 成交）+ 当日 run_dir 全部产物
 - 输出：`07_review.md`；contract=`{"预案对照":[{"项":"...","结果":"命中|漏票|误判","教训":"..."}...]}`
 - 误判进 cases.md 候选队列；规则级教训标"单样本，待验证"不进 rules.md

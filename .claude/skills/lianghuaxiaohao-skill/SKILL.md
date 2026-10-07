@@ -1,6 +1,6 @@
 ---
 name: lianghuaxiaohao-skill
-description: "量化短线小号实验(同花顺投资账本 ledger=lianghuaxiaohao)人格画像与决策规则——10/5 建线, 原料 1185 条流水/1293 腿(净值 2.38, 程序化嫌疑——既学盘感也逆向工程, 工程研究单列 TODO C15)。md 硬数据层已全历史回填(见 md 各日 #### 量化短线小号实验 小节); persona 由 tzzb-distill --ledger lianghuaxiaohao 逐日沉淀; 混合型选手(非纯转债), buchitudou0-skill 不适用。"
+description: "量化短线小号实验(同花顺投资账本 ledger=lianghuaxiaohao)人格画像与决策规则——10/5 建线, 原料 1185 条流水/1293 腿(净值 2.38, 程序化嫌疑——既学盘感也逆向工程, 工程研究单列 TODO C15)。md 硬数据层已全历史回填(见 md 各日 #### 量化短线小号实验 小节); persona 由 tzzb-distill --ledger lianghuaxiaohao 逐日沉淀。"
 ---
 
 # lianghuaxiaohao-skill · 量化短线小号实验(2026-10-05 建线)

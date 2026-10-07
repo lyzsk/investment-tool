@@ -641,6 +641,90 @@ def download_model():
 ALL_STAGES = ("asr", "correct", "vision", "aggregate")
 
 
+def stage_llm_correct(out: Path, bvid: str):
+    """L4 追加纠错(2026-10-07 建 --local-correct 开; 同日二版并入 asr_correct_local 的召回+终审策略):
+    拼音 n-gram 召回筛出"疑似谐音"行块 → qwen3:14b 带候选映射做选择题(只烧有嫌疑的块, 无嫌疑块零成本跳过,
+    比逐行盲发快几个量级)。护栏: 每处修复须 orig 在行内+等长+差异位<=8; ollama 故障=abort 保留词典法
+    产物(fail-closed)。用完 keep_alive=0 卸载 14B。产物: 覆写 <bvid>.txt, 记录 <bvid>.llmcorrect.log。"""
+    sys.path.insert(0, str(ASSETS.parent))       # scripts/models/ (local_llm)
+    sys.path.insert(0, str(ASSETS.parent / "bilibili"))  # scripts/bilibili/ (asr_correct_local)
+    try:
+        from asr_correct_local import find_candidates, load_dicts
+        from local_llm import chat, LocalLLMError
+    except ImportError as e:
+        print(f"[llmcorrect] skip: 依赖不可用 {e}", file=sys.stderr)
+        return
+    txt = out / f"{bvid}.txt"
+    log_path = out / f"{bvid}.llmcorrect.log"
+    if log_path.exists():  # 幂等: 跑过(有 log)不重跑
+        print(f"[llmcorrect] skip (done): {log_path}", file=sys.stderr)
+        return
+    lines = txt.read_text(encoding="utf-8").splitlines()
+    if not any(re.search(r"[一-鿿]", l) for l in lines):
+        log_path.write_text("(no cjk lines)\n", encoding="utf-8")
+        return
+    idx, valid = load_dicts()
+    # 行分块(~1500 字/块): 上下文友好; 块内无召回候选=整块跳过(绝大多数块走这)
+    blocks, cur, cur_len = [], [], 0
+    for i, l in enumerate(lines):
+        if cur and cur_len + len(l) > 1500:
+            blocks.append(cur)
+            cur, cur_len = [], 0
+        cur.append(i)
+        cur_len += len(l) + 1
+    if cur:
+        blocks.append(cur)
+    log, n_fix, n_skip, n_block = [], 0, 0, 0
+    for blk in blocks:
+        chunk_lines = {n + 1: lines[i] for n, i in enumerate(blk)}
+        cands = find_candidates("\n".join(chunk_lines.values()), idx, valid)
+        if not cands:
+            continue
+        n_block += 1
+        cand_str = "\n".join(f"  「{k}」→ {'/'.join(v)}" for k, v in cands.items())
+        src_str = "\n".join(f"{n}| {t}" for n, t in chunk_lines.items())
+        prompt = (f"你是A股语音转写纠错器。下面原文块(行号|内容)里可能有金融实体(股票/指数/板块/机构)的谐音错字。\n"
+                  f"召回候选(拼音归一化匹配, 优先采用):\n{cand_str}\n"
+                  f"规则: 只改金融实体谐音错字, 口语标点数字一字不动; 每处修复给 行号/原词/正名。\n"
+                  f"原文块:\n{src_str}\n"
+                  f'只输出 JSON: {{"fixes":[{{"line":<行号>,"orig":"<原词>","fix":"<正名>"}}]}}, 无修复则 {{"fixes":[]}}')
+        try:
+            got = chat("qwen3:14b", prompt, timeout=300)
+        except LocalLLMError as e:
+            print(f"[llmcorrect] abort: {e} (保留词典法产物)", file=sys.stderr)
+            return  # fail-closed: 不写 txt 不落 log, 下次可续
+        m = re.search(r"\{.*\}", got, re.S)
+        if not m:
+            n_skip += 1
+            continue
+        try:
+            fixes = json.loads(m.group(0)).get("fixes", [])
+        except json.JSONDecodeError:
+            n_skip += 1
+            continue
+        for f in fixes:
+            ln, orig, fix = f.get("line"), f.get("orig", ""), f.get("fix", "")
+            src_line = chunk_lines.get(ln)
+            # 机械护栏: 行在块内 + 原词在行内 + 等长(中文谐音替换天然等长) + 差异位<=8
+            if (src_line is None or orig not in src_line or len(orig) != len(fix)
+                    or orig == fix or sum(a != b for a, b in zip(orig, fix)) > 8):
+                n_skip += 1
+                continue
+            gi = blk[ln - 1]
+            lines[gi] = src_line.replace(orig, fix, 1)
+            log.append(f"L{gi+1}\t{orig} -> {fix}\t(候选)")
+            n_fix += 1
+    try:
+        import urllib.request
+        urllib.request.urlopen("http://127.0.0.1:11434/api/generate",
+                               data=json.dumps({"model": "qwen3:14b", "keep_alive": 0}).encode(), timeout=10)
+    except Exception:
+        pass  # 立即卸载 14B: keep_alive 默认驻留 5min, 15.4G VLM 紧随其后会撞 24.7>24G
+    txt.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    log_path.write_text("\n".join(log) + ("\n" if log else ""), encoding="utf-8")
+    print(f"[llmcorrect] saved: {txt} (嫌疑块 {n_block}, 改 {n_fix} 处, 拒收 {n_skip})", file=sys.stderr)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--bvid")
@@ -651,6 +735,9 @@ def main():
                     help="逗号分隔: asr,correct,vision,aggregate (默认 all)")
     ap.add_argument("--keep-frames", action="store_true", help="保留抽帧中间产物(调试用)")
     ap.add_argument("--download-model", action="store_true")
+    ap.add_argument("--local-correct", action="store_true",
+                    help="correct 后追加 L4: 本地 qwen3:14b 修词典漏网谐音(2026-10-07 建; "
+                         "ollama 不在=跳过不阻塞)")
     args = ap.parse_args()
     if args.download_model:
         download_model()
@@ -671,6 +758,8 @@ def main():
         stage_asr(Path(args.m4a), out, bvid)
     if "correct" in stages:
         stage_correct(out, bvid)
+        if args.local_correct:
+            stage_llm_correct(out, bvid)
     if "vision" in stages:
         if not args.mp4 or not Path(args.mp4).exists():
             sys.exit(f"mp4 not found: {args.mp4}")

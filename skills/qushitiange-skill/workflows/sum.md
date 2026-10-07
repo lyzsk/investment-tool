@@ -17,8 +17,10 @@
 1. 发现: `curl -s localhost:8888/api/bilibili/video/pendingSummary`, **过滤 authorMid==1372241958**; 空列表=没活结束
 2. 产物定位: `results/bilibili/1372241958/<发布日 yyyy.MM.dd>/<bvid>.{txt,vision.json}`; 三态判定同 taoge sum(全齐/仅txt/全缺不合成)
 3. 合成挂载: `md/<year>S<quarter>/<发布日>.md` → `## 复盘` → `### bilibili` → `#### 趋势天哥`(10/5 模板已加骨架, migrate 已补历史)
+- 周末/节假日发布: 改挂**下一个交易日**的 md(对齐 Java 交易日Markdown/加红电报的瞬移语义, 10/7 立法; 原"非交易日不新建只报告"条款保留为文件缺失兜底); 标题所指交易日冲突时按标题, 拿不准标 (待核)
 4. 小节结构(**冷启动简化版, 样本≥10 天后按实际风格修订**——他是趋势视角, 预期重心=方向/趋势票/仓位节奏, 但以产物实证为准不许预设):
 ```markdown
+
 #### 趋势天哥
 
 **[视频标题](https://www.bilibili.com/video/<bvid>)** · HH:MM 发布 · N 分钟 ·（语音转写）

@@ -5,6 +5,7 @@ import cn.sichu.bilibili.mapper.BilibiliVideoMapper;
 import cn.sichu.bilibili.service.IBilibiliVideoService;
 import cn.sichu.system.config.ProjectConfig;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -52,50 +53,125 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
         return baseMapper.selectByStep(step, maxRetry);
     }
 
+    /* ===== 10/7 双开事故修复三件套 =====
+       事故: 桃哥 job(cron 0 30 15-23)与卢本圆 job(0 0/30 7-22)同秒触发, 两个 handler 同时
+       selectByStep 全局队列(无 UP 过滤无锁), 对同一视频各 spawn 一个 process_video.py
+       (16.6G+8.3G 双开)叠加 32B llama-server(14.3G) → 63G 内存打爆全机卡死。
+       @DisallowConcurrentExecution 只防同 job 自重叠, 防不了跨 job 抢队列。 */
+
     @Override
-    public String downloadPendingVideos(int maxRetry) {
-        int downloaded = 0, failed = 0;
+    public String downloadPendingVideos(int maxRetry, String authorMid) {
+        reclaimStale("DOWNLOADING", LocalDateTime.now().minusMinutes(30), "NEW");
+        int downloaded = 0, failed = 0, skipped = 0;
         for (BilibiliVideo v : baseMapper.selectByStep("NEW", maxRetry)) {
+            if (!authorMid.equals(v.getAuthorMid())) {
+                continue;           /* UP 隔离: 跨 UP 认领必被归属闸拒(卢本圆10稿三轮全灭实证) */
+            }
+            if (!claim(v, "NEW", "DOWNLOADING")) {
+                skipped++;        // 并行 job 已抢走
+                continue;
+            }
             try {
                 downloadOne(v);
                 downloaded++;
             } catch (Exception e) {
-                  /* 失败: step 原地不动(保留死在哪个阶段), status=1, retry_count+1,
-                     下个周期 listByStep 自动重捞, >=3 沉底 */
+                  /* 失败: step 回退保重试, status=1, retry_count+1, >=3 沉底 */
                 String reason = e instanceof BusinessException ? e.getMessage() :
                     ExceptionUtils.getStacktrace(e, 480);
-                markFail(v, reason);
+                markFailAndRevert(v, reason, "NEW");
                 failed++;
             }
         }
-        return String.format("下载成功 %d/失败 %d", downloaded, failed);
+        return String.format("下载成功 %d/失败 %d/被占跳过 %d", downloaded, failed, skipped);
     }
 
     @Override
-    public String processPendingVideos(int maxRetry) {
+    public String processPendingVideos(int maxRetry, String authorMid) {
         /* 0=无venv 1=仅CPU 2=全配 */
         int cap = detectCapability();
         if (cap == 0) {
             return "未检测到 scripts/venv, 处理全部跳过(下载不受影响; 安装见 README Quick Start: "
                 + "pip install -r scripts/requirements-taoge.txt)";
         }
-        int processed = 0, failed = 0, partial = 0;
+        reclaimStale("PROCESSING", LocalDateTime.now().minusMinutes(90), "DOWNLOADED");
+        int processed = 0, failed = 0, partial = 0, skipped = 0;
         for (BilibiliVideo v : baseMapper.selectByStep("DOWNLOADED", maxRetry)) {
+            if (!authorMid.equals(v.getAuthorMid())) {
+                continue;           /* UP 隔离同上 */
+            }
+            /* 显存闸(事故教训): 拉视觉进程前查空闲显存, <17G(模型 15G+余量)本轮不拉新视频
+               ——这同时挡住 32B/另一 job 的 process_video 正在跑的情况(串行化) */
+            if (cap == 2) {
+                long free = freeVramBytes();
+                if (free >= 0 && free < MIN_VRAM_BYTES + 2_000_000_000L) {
+                    return String.format("处理成功 %d/失败 %d/被占跳过 %d/显存不足本轮止(空闲 %dG)",
+                        processed, failed, skipped, free / 1_000_000_000L);
+                }
+            }
+            if (!claim(v, "DOWNLOADED", "PROCESSING")) {
+                skipped++;
+                continue;
+            }
             try {
                 if (processOne(v, cap == 2)) {
                     processed++;
                 } else {
                     partial++;
+                    revertStep(v, "DOWNLOADED");   // 仅 CPU 完成一半, 退回等全配机器
                 }
             } catch (Exception e) {
                 String reason = e instanceof BusinessException ? e.getMessage() :
                     ExceptionUtils.getStacktrace(e, 480);
-                markFail(v, reason);
+                markFailAndRevert(v, reason, "DOWNLOADED");
                 failed++;
             }
         }
-        return String.format("处理成功 %d/失败 %d%s", processed, failed,
+        return String.format("处理成功 %d/失败 %d/被占跳过 %d%s", processed, failed, skipped,
             cap == 1 ? "/仅CPU部分完成 " + partial + "(无GPU, 视觉留待有显卡的机器)" : "");
+    }
+
+    /** 原子认领 step from→to(条件 UPDATE, affected=0=已被并行 job 抢走) */
+    private boolean claim(BilibiliVideo v, String from, String to) {
+        return update(new LambdaUpdateWrapper<BilibiliVideo>()
+            .eq(BilibiliVideo::getId, v.getId())
+            .eq(BilibiliVideo::getStep, from)
+            .set(BilibiliVideo::getStep, to)
+            .set(BilibiliVideo::getUpdateTime, LocalDateTime.now()));
+    }
+
+    /** 回收僵尸租约: 卡在中间态超过租期的行退回 backTo(进程被杀/宕机护栏, 今日事故实证需要) */
+    private void reclaimStale(String leaseStep, LocalDateTime before, String backTo) {
+        update(new LambdaUpdateWrapper<BilibiliVideo>()
+            .eq(BilibiliVideo::getStep, leaseStep)
+            .lt(BilibiliVideo::getUpdateTime, before)
+            .set(BilibiliVideo::getStep, backTo)
+            .set(BilibiliVideo::getUpdateTime, LocalDateTime.now()));
+    }
+
+    private void revertStep(BilibiliVideo v, String backTo) {
+        v.setStep(backTo);
+        updateById(v);
+    }
+
+    private void markFailAndRevert(BilibiliVideo v, String reason, String backTo) {
+        v.setStep(backTo);
+        markFail(v, reason);    // markFail 内 updateById 一并落回退后的 step
+    }
+
+    /** 空闲显存字节(nvidia-smi MiB→B); 无卡/查询失败=-1(不拦, 交给 detectCapability) */
+    private long freeVramBytes() {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("nvidia-smi",
+                "--query-gpu=memory.free", "--format=csv,noheader,nounits");
+            pb.redirectErrorStream(true);
+            Process proc = pb.start();
+            String out = new String(proc.getInputStream().readAllBytes(),
+                StandardCharsets.UTF_8).trim();
+            proc.waitFor(15, TimeUnit.SECONDS);
+            return Long.parseLong(out.split("\\R+")[0].trim()) * 1024L * 1024L;
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     /**

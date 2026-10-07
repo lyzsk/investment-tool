@@ -23,7 +23,11 @@ import { snapMany, limitOf, isSealed } from "./snapshot.mjs"; // 多源快照+�
 const DIR = path.dirname(fileURLToPath(import.meta.url));   // 锚脚本自身, 不吃 cwd(10/3 教训: 错 cwd 会在幻影路径建账)
 const BOOKS = path.join(DIR, "books");
 const CONFIG = { initCash: 100000, feeRate: 0.00025, minFee: 5, stampTax: 0.0005, slippage: 0 }; // 费率=参数化占位, 待与用户券商实收对账
-const SOURCES = ["A-taoge", "A-cb", "B-taoge", "B-cb", "C-taoge", "C-cb"];
+const SOURCES = [  // 10/7 两级制扩容: A=纯机械(3UP全链+cb+10导师盘前), B=机械+人工
+    "A-taoge", "A-qushitiange", "A-lubenyuan", "A-cb", "A-liuyiqing", "A-lianghuaxiaohao", "A-a658", "A-bianbenling", "A-xingjianye", "A-daxingdaxingdadangxing", "A-gaogailvfuli", "A-xuanqiucaijing", "A-stzhilang", "A-chong5000w",
+    "A-liuyiqing", "A-lianghuaxiaohao", "A-a658", "A-bianbenling", "A-xingjianye",
+    "A-daxingdaxingdadangxing", "A-gaogailvfuli", "A-xuanqiucaijing", "A-stzhilang", "A-chong5000w",
+    "B-taoge", "B-cb"];  // C 线 10/7 作废(并入 B=机械+人工), books/C-*.json 留档只读
 const arg = (k) => { const i = process.argv.indexOf("--" + k); return i > -1 ? process.argv[i + 1] : null; };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); // 节流已内置 snapshot.mjs(snapMany gapMs)
 
