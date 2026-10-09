@@ -22,10 +22,12 @@ buchitudou0, liuyiqing, lianghuaxiaohao, a658, bianbenling, xingjianye, daxingda
 串行逐人处理(不要并发), 每完成一人 stdout 打印一行 "DISTILL_OK <ledger>"。全部完成后打印 "ALL_DISTILL_DONE"。"""
 
 print(f"=== distill_daily {target} (单会话 x 11 人) ===", flush=True)
-r = subprocess.run(["cmd", "/c", "claude", "-p", "--dangerously-skip-permissions", "--model", "glm-5.3"],
+# 10/9 用户令: 不限模型——去掉 --model 与 ANTHROPIC_MODEL 覆写, 跟随宿主环境
+_env = {**__import__("os").environ}
+_env.pop("ANTHROPIC_MODEL", None)
+r = subprocess.run(["cmd", "/c", "claude", "-p", "--dangerously-skip-permissions"],
                    input=prompt, cwd=str(ROOT), capture_output=True, text=True,
-                   encoding="utf-8", errors="replace", timeout=3600,
-                   env={**__import__("os").environ, "ANTHROPIC_MODEL": "glm-5.3"})  # 10/8 修: 绕开 shell 里 k3 环境变量
+                   encoding="utf-8", errors="replace", timeout=3600, env=_env)
 out = (r.stdout or "")
 ok = [l.replace("DISTILL_OK", "").strip() for l in out.splitlines() if "DISTILL_OK" in l and "ALL" not in l]
 print(f"哨兵: {len(ok)}/11 OK → {ok}", flush=True)

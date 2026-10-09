@@ -140,6 +140,13 @@ async function importPlans(file) {
         let cond;
         try { cond = parseCond(condRaw); } catch (e) { console.error(`坏行 ${i + 1}: ${e.message}`); bad++; continue; }
         if (cond.stop_below && side !== "SELL") { console.error(`坏行 ${i + 1}: stop_below 仅 SELL 单可带`); bad++; continue; }
+        // 防重复挂单闸(10/9 双成交案): 同 code 同向已有 open 单 → 先 CXL 旧单再挂新单
+        // (链回炉重 emit 时新行哈希不同绕过行级幂等; plans 语义本就=同票新单取代旧单)
+        const dupOpen = b.orders.find((o) => o.code === code && o.side === side && o.status === "open");
+        if (dupOpen) {
+            dupOpen.status = "cxl"; dupOpen.note += ` | import防重CXL(被同日新单取代)`;
+            console.log(`防重撤单 ${src} ${code} #${dupOpen.id}(旧单 ${dupOpen.price}x${dupOpen.qty} → 新 ${price}x${qty})`);
+        }
         const id = `${date}-${src}-${String(b.orders.length + 1).padStart(3, "0")}`;
         b.orders.push({ id, date, time, side, code, price: +price, qty: +qty, valid, anchor, anchorPct, cond, note, status: "open" });
         b.imported.push(h);
@@ -224,6 +231,34 @@ function fill(b, o, px, why, dry, atPrice) { // atPrice=实际记账价(默认�
     b.trades.push({ id: o.id, side: o.side, code: o.code, price, qty: o.qty, fee: o.fee, why });
     return `成交 ${b.source} #${o.id} ${o.side} ${o.code} @${price} x${o.qty} (现价${px}, ${why})`;
 }
+// ---- 回放(10/9 用户令: bug 日"假装记录进去") ----
+// --replay --date yyyy-MM-dd: 对该日 open 单按日线高低价判定(买: 当日最低≤挂价=成交; 卖: 当日最高≥挂价=成交),
+// 成交价=挂单价, note 打 replay 标。分钟级时序不可考, 报告口径=回放估算, 与实时撮合数字分列。
+async function replay(date, dry) {
+    const books = SOURCES.filter((s) => fs.existsSync(bookFile(s))).map(loadBook);
+    const open = books.flatMap((b) => b.orders.filter((o) => o.status === "open" && o.date === date).map((o) => ({ b, o })));
+    if (!open.length) { console.log(`${date} 无 open 单可回放`); return; }
+    const kdir = path.join(DIR, "..", "..", "..", "downloads", "quotes", "daily");
+    let filled = 0, missed = 0, noData = 0;
+    for (const { b, o } of open) {
+        let row = null;
+        try {
+            const kl = JSON.parse(fs.readFileSync(path.join(kdir, `${o.code}.json`), "utf8")).klines || [];
+            row = kl.find((k) => k.d === date);
+        } catch { /* 文件缺 */ }
+        if (!row || !(row.l > 0) || !(row.h > 0)) { noData++; console.log(`回放缺线 ${o.code} ${date}(跳过, 单留 open)`); continue; }
+        const hit = o.side === "BUY" ? row.l <= o.price : row.h >= o.price;
+        if (hit) {
+            console.log(fill(b, o, o.price, `回放成交@${date} [${row.l}-${row.h}]`, dry, o.price) + " [replay]");
+            filled++;
+        } else {
+            missed++;
+            console.log(`回放未触 ${b.source} #${o.id} ${o.side} ${o.code} 挂${o.price} 当日[${row.l}-${row.h}]`);
+        }
+        if (!dry) saveBook(b, `replay ${date}`);
+    }
+    console.log(`回放 ${date}: 成交 ${filled} / 未触 ${missed} / 缺线 ${noData}${dry ? " (dry)" : ""}`);
+}
 async function once(dry) {
     const hm = new Date().toTimeString().slice(0, 5);
     if (!inMatchWindow(hm)) {
@@ -231,6 +266,18 @@ async function once(dry) {
         console.log(`WARN: 非撮合时段 ${hm}, dry 模式绕过时段闸(仅测试)`);
     }
     const books = SOURCES.filter((s) => fs.existsSync(bookFile(s))).map(loadBook);
+    // 10/9 修: day 单跨日泄漏——open 单 date<今日 的 day 单当日已失效, 不再参与撮合, 顺手标 void
+    // (10/9 实录: liuyiqing 10/8 的 22 张 open 单 10/9 继续被撮合并成交双份)
+    const today = new Date().toISOString().slice(0, 10);
+    for (const b of books) {
+        for (const o of b.orders) {
+            if (o.status === "open" && (o.valid || "day") === "day" && o.date !== today) {
+                o.status = "void"; o.note += ` | 跨日过期作废(${o.date}的day单, ${today}不再撮合)`;
+                if (!dry) saveBook(b, `跨日作废 ${o.id}`);
+                console.log(`跨日作废 ${b.source} #${o.id} ${o.code}(${o.date}的day单)`);
+            }
+        }
+    }
     const open = books.flatMap((b) => b.orders.filter((o) => o.status === "open").map((o) => ({ b, o })));
     if (!open.length) { console.log("无挂单"); return; }
     const codes = [...new Set(open.map((x) => x.o.code))];
@@ -345,11 +392,12 @@ async function eod(date) {
 
 // ---- main ----
 const MODE = process.argv.includes("--init") ? "init" : arg("import") ? "import" : arg("import-fills") ? "fills"
-    : arg("seed") ? "seed" : process.argv.includes("--once") ? "once" : process.argv.includes("--eod") ? "eod" : null;
-if (!MODE) { console.error("用法: --init | --import <file> | --import-fills <file> | --seed <src> <code> <qty> <cost> <cash> | --once [--dry] | --eod --date <d>"); process.exit(1); }
+    : arg("seed") ? "seed" : process.argv.includes("--once") ? "once" : process.argv.includes("--replay") ? "replay" : process.argv.includes("--eod") ? "eod" : null;
+if (!MODE) { console.error("用法: --init | --import <file> | --import-fills <file> | --seed <src> <code> <qty> <cost> <cash> | --once [--dry] | --replay --date <d> [--dry] | --eod --date <d>"); process.exit(1); }
 if (MODE === "init") initBooks();
 else if (MODE === "import") await importPlans(arg("import"));
 else if (MODE === "fills") importFills(arg("import-fills"));
 else if (MODE === "seed") { const v = process.argv.slice(process.argv.indexOf("--seed") + 1); if (v.length < 5) { console.error("--seed 需 5 参"); process.exit(1); } seed(...v); }
 else if (MODE === "once") await once(process.argv.includes("--dry"));
+else if (MODE === "replay") { const d = arg("date"); if (!d) { console.error("--replay 需 --date yyyy-MM-dd"); process.exit(1); } await replay(d, process.argv.includes("--dry")); }
 else if (MODE === "eod") { const d = arg("date"); if (!d) { console.error("--eod 需 --date"); process.exit(1); } await eod(d); }

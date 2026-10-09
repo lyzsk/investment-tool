@@ -421,6 +421,11 @@ def emit_plans(date_dash, slot, source, contract, book):
     plans_dir = PAPER / "plans"
     plans_dir.mkdir(exist_ok=True)
     f = plans_dir / f"{date_dash}_{source}.md"
+    # 10/9 修双成交案: 同 slot 回炉重 emit 时, 先删本 slot 旧行再 append(废版 plans 不得残留;
+    # 行首 "- HH:MM |" 的 HH:MM=slot 标识)。matcher import 侧另有防重 CXL 闸双保险
+    if f.exists():
+        old = [l for l in f.read_text(encoding="utf-8").splitlines() if not l.startswith(f"- {hm} |")]
+        f.write_text("\n".join(old) + ("\n" if old else ""), encoding="utf-8")
     lines = []
     for a in acts:
         side = "BUY" if a["op"] == "买" else "SELL"
@@ -466,6 +471,19 @@ def neg_warn() -> str:
     except Exception:
         return ""
 
+def reject_rules() -> str:
+    """否决条款池全量注入(10/9 用户令: hermes 错题泛化; fail-open 同 neg_warn)。"""
+    f = ROOT / "skills" / "tzzb-skill" / "references" / "reject_rules.md"
+    try:
+        text = f.read_text(encoding="utf-8")
+        rows = [l for l in text.splitlines() if l.startswith("| RJ")]
+        if not rows:
+            return ""
+        return ("\n\n# 否决条款池(形态级, 仅当证据满足才可用作否决依据; 仓位类永不在此):\n"
+                + "\n".join(rows))
+    except Exception:
+        return ""
+
 # ---------- 主链 ----------
 def run_chain(date, date_dash, slot, steps, source, dry=False):
     run_dir = ROOT / "results" / RESULTS_DIR / f"live-{date}"
@@ -473,6 +491,19 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
     sub = steps != SLOT_STEPS["0915"] and steps != ["07"]
     book = load_book(source)
     ctx = {"date_dash": date_dash, "nav": book_nav(book), "sub": sub, "contracts": {}, "skill": SKILL}
+    # 中段起跑(手动 --steps 回炉)预载上游 contract: v04 查 02.directions / v05 查 04.candidates /
+    # v06 查 05 批准集——不预载则跨步闸对空集误判(10/10 lianghuaxiaohao 04 假拒实录: direction
+    # 逐字节命中 02.directions 仍报 ∉, 因该进程 --steps 03,04,... 未跑 02、ctx["02"] 缺位)。
+    # 全链/盘中子链照常跑时 run_set 覆盖本进程要跑的步, 对应键不被预载(跑完以新 contract 覆盖), 行为不变。
+    _run_set = {s for x in steps for s in EXPAND.get(x, [x])}
+    for _s, _art in ART.items():
+        if _s in _run_set or _s == "07":
+            continue
+        _f = run_dir / _art
+        if _f.exists():
+            _c, _ = contract_of(_f.read_text(encoding="utf-8"))
+            if _c:
+                ctx["contracts"][_s] = _c
 
     facts = build_facts(date_dash, slot)
     shutil.copy(facts, run_dir / "facts.txt")  # 01 的输入口(chain.md: harness 写 facts.txt)
@@ -499,8 +530,8 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
             continue
         prompt = templates[step].replace("{date_dash}", date_dash) \
             .replace("{date}", date).replace("{run_dir}", str(run_dir).replace("\\", "/"))
-        if step == "05":  # 负例警示注入(TODO §1.3 钩子): fail-open, negstats 不在=零追加
-            prompt += neg_warn()
+        if step == "05":  # 05 双注入(10/9): 负例警示(neg_warn) + 否决条款池(reject_rules), 均 fail-open
+            prompt += neg_warn() + reject_rules()
         fail_reason, done = None, False
         for attempt in range(1, MAX_RETRY + 2):
             p = prompt if not fail_reason else \

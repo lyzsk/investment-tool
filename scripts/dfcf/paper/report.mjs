@@ -9,7 +9,18 @@ import { fileURLToPath } from "node:url";
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const BOOKS = path.join(DIR, "books");
-const COLORS = { "A-taoge": "#d62728", "A-cb": "#ff7f0e", "A-qushitiange": "#e377c2", "A-lubenyuan": "#17becf", "A-tzzb": "#bcbd22", "B-taoge": "#1f77b4", "B-cb": "#2ca02c", "C-taoge": "#9467bd", "C-cb": "#8c564b" };
+// 配色(10/10 用户令: 3 原始线醒目粗线, 11 tzzb 导师线细线区分色)
+// 原始四线(A-taoge/A-cb/A-qushitiange/A-lubenyuan)=宽3+高饱和; 导师线=宽1.2+错开色相; B 线虚线灰
+const COLORS = {
+    "A-taoge": "#e60012", "A-cb": "#ff7f0e", "A-qushitiange": "#c000ff", "A-lubenyuan": "#00a0e9",
+    "A-liuyiqing": "#1f77b4", "A-lianghuaxiaohao": "#2ca02c", "A-a658": "#9467bd",
+    "A-bianbenling": "#8c564b", "A-xingjianye": "#e377c2", "A-daxingdaxingdadangxing": "#7f7f7f",
+    "A-gaogailvfuli": "#bcbd22", "A-xuanqiucaijing": "#17becf", "A-stzhilang": "#d62728",
+    "A-chong5000w": "#393b79",
+    "B-taoge": "#1f77b4", "B-cb": "#2ca02c", "C-taoge": "#9467bd", "C-cb": "#8c564b",
+};
+const LINE_W = { "A-taoge": 3, "A-cb": 3, "A-qushitiange": 3, "A-lubenyuan": 3 };
+const DASH = { "B-taoge": "6,4", "B-cb": "6,4" };
 const INIT = 100000;
 
 const outArg = process.argv.indexOf("--out");
@@ -68,7 +79,7 @@ function chart() {
             return nav == null ? null : { i, d, nav };
         }).filter(Boolean);
         const pts = ptsArr.map((p) => `${X(p.i).toFixed(1)},${Y(p.nav).toFixed(1)}`);
-        if (pts.length > 1) parts.push(`<polyline points="${pts.join(" ")}" fill="none" stroke="${c}" stroke-width="2"/>`);
+        if (pts.length > 1) parts.push(`<polyline points="${pts.join(" ")}" fill="none" stroke="${c}" stroke-width="${LINE_W[b.source] || 1.2}"${DASH[b.source] ? ` stroke-dasharray="${DASH[b.source]}"` : ""}/>`);
         else if (pts.length === 1) parts.push(`<circle cx="${pts[0].split(",")[0]}" cy="${pts[0].split(",")[1]}" r="4" fill="${c}"/>`);
         // hover 探针: 每交易日一个透明圆点, title=日期/净值/收益率/当日现金+市值
         for (const p of ptsArr) {
@@ -77,7 +88,7 @@ function chart() {
             parts.push(`<circle cx="${X(p.i).toFixed(1)}" cy="${Y(p.nav).toFixed(1)}" r="7" fill="${c}" fill-opacity="0" stroke="none"><title>${esc(tip)}</title></circle>`);
         }
     }
-    books.forEach((b, i) => { const c = COLORS[b.source] || "#333"; parts.push(`<rect x="${PL + i * 90}" y="6" width="10" height="10" fill="${c}"/><text x="${PL + i * 90 + 14}" y="15" fill="#333">${b.source}</text>`); });
+    books.forEach((b, i) => { const c = COLORS[b.source] || "#333"; const w = LINE_W[b.source] || 1.2; const bold = w >= 3; parts.push(`<rect x="${PL + i * 90}" y="6" width="${bold ? 14 : 10}" height="${bold ? 6 : 10}" fill="${c}"${DASH[b.source] ? ` opacity="0.7"` : ""}/><text x="${PL + i * 90 + (bold ? 18 : 14)}" y="15" fill="#333" ${bold ? 'font-weight="bold"' : ""}>${b.source}</text>`); });
     return parts.join("") + "</svg>";
 }
 

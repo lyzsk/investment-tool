@@ -23,6 +23,16 @@ public interface IBilibiliVideoService extends IService<BilibiliVideo> {
     BilibiliVideo getByBvid(String bvid);
 
     /**
+     * 注册发现(幂等): bvid 已存在=跳过; 不存在=insert, step=SUMMARIZED(仅限产物已齐的手工补录场景)
+     *
+     * @param v 完整实体
+     * @return "已存在跳过" / "注册为 SUMMARIZED"
+     * @author Claude
+     * @since 2026/10/09
+     */
+    String registerIfAbsent(BilibiliVideo v);
+
+    /**
      * 下一阶段 job 取待处理列表: step 匹配且未超重试上限的行
      *
      * @param step     step

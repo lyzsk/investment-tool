@@ -398,6 +398,16 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
     }
 
     @Override
+    public String registerIfAbsent(BilibiliVideo v) {
+        if (getByBvid(v.getBvid()) != null) {
+            return "已存在跳过 " + v.getBvid();
+        }
+        v.setStep("SUMMARIZED");   // 仅限产物已齐的手工补录(见 controller register 注释)
+        save(v);
+        return "注册为 SUMMARIZED " + v.getBvid();
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public String markSummarized(List<String> bvids) {
         int advanced = 0, skipped = 0, notFound = 0;

@@ -37,6 +37,19 @@ public class BilibiliVideoController {
     }
 
     /**
+     * 注册发现(10/9 加): sum/distill 工作流与手工管线补录"fetch 发现窗漏掉的当日新发视频"。
+     * 幂等: 已存在(bvid 唯一)直接返回; step 直接置 SUMMARIZED 仅限产物已齐的场景——
+     * 调用方须保证 downloads/+results/ 产物已落盘, 否则状态机语义失真。
+     *
+     * @param v 完整 BilibiliVideo(bvid/authorMid/title/publishTime/duration/url 必填)
+     * @return "已存在跳过" 或 "注册为 SUMMARIZED"
+     */
+    @PostMapping("/register")
+    public Result<String> register(@RequestBody BilibiliVideo v) {
+        return Result.success(bilibiliVideoService.registerIfAbsent(v));
+    }
+
+    /**
      * /taoge-sum skill 发现入口: 返回待合成的 VISION_DONE 列表(retry_count<3)
      * 例: curl localhost:8888/api/bilibili/video/pendingSummary
      *

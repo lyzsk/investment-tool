@@ -39,11 +39,13 @@ public class SchedulerManager {
             throw new IllegalArgumentException(
                 ResultCode.INVALID_CRON_EXPRESSION.getMsg() + ": " + sysJob.getCronExpression());
         }
-        String jobName = sysJob.getJobHandlerName();
+        /* 10/9 修复: JobKey/TriggerKey 原用 handler bean 名, 同 handler 多任务(13 条 paper 链/3 个 B站发现)
+           全部撞 key 静默跳过只剩第一个——改用任务 id 唯一化 */
+        String jobKey = jobKeyOf(sysJob);
         String jobGroup = sysJob.getJobGroup();
         JobDetail jobDetail =
-            JobBuilder.newJob(JobHandlerInvoker.class).withIdentity(jobName, jobGroup)
-                .usingJobData("JOB_ID", sysJob.getId()).usingJobData("JOB_HANDLER_NAME", jobName)
+            JobBuilder.newJob(JobHandlerInvoker.class).withIdentity(jobKey, jobGroup)
+                .usingJobData("JOB_ID", sysJob.getId()).usingJobData("JOB_HANDLER_NAME", sysJob.getJobHandlerName())
                 .usingJobData("JOB_HANDLER_PARAM", sysJob.getJobHandlerParam()).storeDurably()
                 .build();
 
@@ -51,7 +53,7 @@ public class SchedulerManager {
             CronScheduleBuilder.cronSchedule(sysJob.getCronExpression());
         applyMisfirePolicy(scheduleBuilder, sysJob.getMisfirePolicy());
 
-        Trigger trigger = TriggerBuilder.newTrigger().withIdentity(jobName, jobGroup)
+        Trigger trigger = TriggerBuilder.newTrigger().withIdentity("TRG_" + jobKey, jobGroup)
             .withSchedule(scheduleBuilder).usingJobData("RETRY_COUNT", sysJob.getRetryCount())
             .usingJobData("RETRY_INTERVAL", sysJob.getRetryInterval()).build();
         scheduler.scheduleJob(jobDetail, trigger);
@@ -77,7 +79,7 @@ public class SchedulerManager {
      * @since 2025/12/21 11:58:49
      */
     public void deleteJob(SysJob sysJob) throws SchedulerException {
-        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName(), sysJob.getJobGroup());
+        JobKey jobKey = JobKey.jobKey(jobKeyOf(sysJob), sysJob.getJobGroup());
         if (scheduler.checkExists(jobKey)) {
             scheduler.deleteJob(jobKey);
         }
@@ -91,7 +93,7 @@ public class SchedulerManager {
      * @since 2025/12/21 11:59:12
      */
     public void pauseJob(SysJob sysJob) throws SchedulerException {
-        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName(), sysJob.getJobGroup());
+        JobKey jobKey = JobKey.jobKey(jobKeyOf(sysJob), sysJob.getJobGroup());
         if (scheduler.checkExists(jobKey)) {
             scheduler.pauseJob(jobKey);
         }
@@ -105,7 +107,7 @@ public class SchedulerManager {
      * @since 2025/12/21 11:59:52
      */
     public void resumeJob(SysJob sysJob) throws SchedulerException {
-        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName(), sysJob.getJobGroup());
+        JobKey jobKey = JobKey.jobKey(jobKeyOf(sysJob), sysJob.getJobGroup());
         if (scheduler.checkExists(jobKey)) {
             scheduler.resumeJob(jobKey);
         }
@@ -119,7 +121,7 @@ public class SchedulerManager {
      * @since 2025/12/21 12:01:26
      */
     public void triggerJob(SysJob sysJob) throws SchedulerException {
-        JobKey jobKey = JobKey.jobKey(sysJob.getJobHandlerName(), sysJob.getJobGroup());
+        JobKey jobKey = JobKey.jobKey(jobKeyOf(sysJob), sysJob.getJobGroup());
         if (scheduler.checkExists(jobKey)) {
             JobDataMap dataMap = new JobDataMap();
             dataMap.put("JOB_ID", sysJob.getId());
@@ -128,7 +130,7 @@ public class SchedulerManager {
             scheduler.triggerJob(jobKey, dataMap);
         } else {
             throw new SchedulerException(
-                "任务 [" + sysJob.getJobHandlerName() + "] 不存在，无法触发");
+                "任务 [" + sysJob.getJobName() + "] 不存在，无法触发");
         }
     }
 
@@ -140,7 +142,12 @@ public class SchedulerManager {
      */
     public boolean exists(SysJob sysJob) throws SchedulerException {
         return scheduler.checkExists(
-            JobKey.jobKey(sysJob.getJobHandlerName(), sysJob.getJobGroup()));
+            JobKey.jobKey(jobKeyOf(sysJob), sysJob.getJobGroup()));
+    }
+
+    /** 任务唯一 key(10/9: handler 名→任务 id, 同 handler 多任务共存) */
+    private String jobKeyOf(SysJob sysJob) {
+        return "JOB_" + sysJob.getId();
     }
 
     /**

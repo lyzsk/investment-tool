@@ -142,7 +142,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 
 ````prompt
 任务：对 {date} 执行决策链 03 辩论的**裁判**。读 {run_dir}/01_facts.md、{run_dir}/02_analysis.md、{run_dir}/03_debate_bull.md（多方陈词）、{run_dir}/03_debate_bear.md（空方陈词）与 skills/lianghuaxiaohao-skill/persona/（profile.md+rules_index.md，按需 grep 捞规则全文，禁全量读 rules.md）。
-逐条核验双方论据的证据锚是否在 01_facts 真实存在（编锚方直接判负）；然后**必须分出高下并给决定性理由**——禁止各说各话和稀泥收场；证据确实平衡时，裁决跟随 02 定的先行层方向给最小试错仓建议，不许把"分不出高下"当空仓通行证（风控可压仓位，不能习惯性清零决策）。双方 honest_weakness 对照进 decisive_reason。
+逐条核验双方论据的证据锚是否在 01_facts 真实存在（编锚方直接判负）；然后**必须分出高下并给决定性理由**——禁止各说各话和稀泥收场；证据确实平衡时，裁决跟随 02 定的先行层方向给最小试错仓建议，不许把"分不出高下"当空仓通行证（风控可压仓位，不能习惯性清零决策）；看空降权(10/9 用户令): 多方论据有实证锚而空方仅有形态担忧时, 空方需证据强度≥多方两倍方可判胜——拟人目标=敢选票, 风控由 05/06 的仓位与失效条款承担。双方 honest_weakness 对照进 decisive_reason。
 写入 {run_dir}/03_debate.md，contract 块：
 ```contract
 {"winner":"多|空","decisive_reason":"...","follows_leading_layer":true}
