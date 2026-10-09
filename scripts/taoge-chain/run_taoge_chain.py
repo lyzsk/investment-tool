@@ -58,8 +58,11 @@ CLAUDE = [(_CLAUDE_EXE if os.path.exists(_CLAUDE_EXE) else "claude"),
 
 # ---------- skill 参数化(10/4 盲区修复⑦: 同一驱动器多链, 差集全在这张表; 10/7 键正名 cb→buchitudou0) ----------
 _SUB = ["02", "04", "06"]
-_UP_SLOTS = {"0915": ["01", "02", "03", "04", "05", "06", "blind"],  # UP 链一期精简: 盘前全链+3 关键子链(10/7, token 预算约束; 可扩成 taoge 13 slot)
-             "0927": ["02", "04", "06"], "1000": ["02", "04", "06"], "1455": ["02", "04", "06"]}
+_UP_SLOTS = {"0915": ["01", "02", "03", "04", "05", "06", "blind"],  # 盘前全链+盘中子链(10/7 4档→10/9 用户令扩9档对齐 taoge 时刻表)
+             "0927": ["02", "04", "06"], "0945": ["02", "04", "06"], "1000": ["02", "04", "06"],
+             "1030": ["02", "04", "06"], "1100": ["02", "04", "06"], "1127": ["02", "04", "06"],
+             "1230": ["02", "04", "06"], "1300": ["02", "04", "06"],
+             "1400": ["02", "04", "06"], "1430": ["02", "04", "06"], "1455": ["02", "04", "06"]}
 
 
 def _up_cfg(up: str) -> dict:
@@ -310,8 +313,8 @@ def v06(c, ctx):
     if ctx["sub"] and "首裁" not in str(c.get("supersedes", "")) \
             and not re.search(r"维持|取代", str(c.get("supersedes", ""))):
         return "盘中重跑 supersedes 未显式含 维持/取代"
-    if not ctx["sub"] and "首裁" not in str(c.get("supersedes", "")):
-        return "盘前首裁 supersedes 应含'首裁'"
+    if not ctx["sub"] and not re.search(r"首[裁日次]|回炉|首日建链", str(c.get("supersedes", ""))):
+        return "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)"
 
 def v07(c, ctx):
     if not c.get("预案对照"):
@@ -447,6 +450,22 @@ def emit_plans(date_dash, slot, source, contract, book):
     if r.returncode != 0:
         print("WARN: import 有坏行, plans 已落盘待人工看(链不中止)")
 
+def neg_warn() -> str:
+    """负例警示卡随机 2 条(TODO §1.3 的 05 消费钩子, 10/8 夜)。
+    negstats.md(gen_tzzb_negstats.py 产出)缺失/坏=空串, fail-open 零影响链。"""
+    import random
+    f = ROOT / "skills" / "tzzb-skill" / "references" / "negstats.md"
+    try:
+        text = f.read_text(encoding="utf-8")
+        seg = text.split("## 05 注入警示卡", 1)[1].split("##", 1)[0]
+        cards = [l.strip("- \r\n") for l in seg.splitlines() if l.strip().startswith("- **")]
+        if not cards:
+            return ""
+        pick = random.sample(cards, min(2, len(cards)))
+        return "\n\n# 负例警示(真实亏家实录, 决策须自证不犯同类):\n- " + "\n- ".join(pick)
+    except Exception:
+        return ""
+
 # ---------- 主链 ----------
 def run_chain(date, date_dash, slot, steps, source, dry=False):
     run_dir = ROOT / "results" / RESULTS_DIR / f"live-{date}"
@@ -480,6 +499,8 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
             continue
         prompt = templates[step].replace("{date_dash}", date_dash) \
             .replace("{date}", date).replace("{run_dir}", str(run_dir).replace("\\", "/"))
+        if step == "05":  # 负例警示注入(TODO §1.3 钩子): fail-open, negstats 不在=零追加
+            prompt += neg_warn()
         fail_reason, done = None, False
         for attempt in range(1, MAX_RETRY + 2):
             p = prompt if not fail_reason else \

@@ -11,7 +11,9 @@ const FROM = arg("from"), TO = arg("to");
 const WRITE_BOOKS = process.argv.includes("--write-books");
 if (!FROM || !TO) { console.error("用法: --from yyyy-MM-dd --to yyyy-MM-dd"); process.exit(1); }
 const DIR = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1"));
-const BOOKS = ["A-taoge", "A-cb", "A-qushitiange", "A-lubenyuan", "A-tzzb"];
+const BOOKS = ["A-taoge", "A-cb", "A-qushitiange", "A-lubenyuan",
+    "A-liuyiqing", "A-lianghuaxiaohao", "A-a658", "A-bianbenling", "A-xingjianye",
+    "A-daxingdaxingdadangxing", "A-gaogailvfuli", "A-xuanqiucaijing", "A-stzhilang", "A-chong5000w"];
 const NAV0 = 100000, FEE = 0.00025, MINFEE = 5, STAMP = 0.0005;
 
 const klineCache = {};

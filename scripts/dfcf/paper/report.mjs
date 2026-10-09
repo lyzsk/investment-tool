@@ -30,7 +30,17 @@ const books = fs.readdirSync(BOOKS).filter((f) => f.endsWith(".json") && !f.star
     return b;
 }).sort((a, b) => a.source.localeCompare(b.source));
 
-const dates = [...new Set(books.flatMap((b) => b.nav.map((n) => n.date)))].sort();
+// 10/8 修: x 轴只用交易日(从 md 文件名取, 排除周末/节假日), 非交易日数据跳过
+const tradingDays = (() => {
+    const td = new Set();
+    const mdRoot = path.resolve(DIR, "..", "..", "..", "md");
+    if (fs.existsSync(mdRoot)) for (const sub of fs.readdirSync(mdRoot)) {
+        const p = path.join(mdRoot, sub);
+        if (fs.statSync(p).isDirectory()) for (const f of fs.readdirSync(p)) if (f.endsWith(".md")) td.add(f.replace(".md",""));
+    }
+    return td;
+})();
+const dates = [...new Set(books.flatMap((b) => b.nav.map((n) => n.date)))].filter(d => tradingDays.has(d)).sort();
 
 // ---- 净值曲线 SVG(日期并集 x 轴, 缺日账本向前取平) ----
 function chart() {
@@ -51,8 +61,9 @@ function chart() {
     dates.forEach((d, i) => { if (dates.length < 8 || i % Math.ceil(dates.length / 8) === 0) parts.push(`<text x="${X(i)}" y="${H - PB + 16}" text-anchor="middle" fill="#666">${d.slice(5)}</text>`); });
     for (const b of books) {
         const c = COLORS[b.source] || "#333";
+        const navMap = new Map(b.nav.filter(n => tradingDays.has(n.date)).map(n => [n.date, n.nav]));
         const ptsArr = dates.map((d, i) => {
-            let nav = null;
+            let nav = navMap.get(d) || null;
             for (const n of b.nav) { if (n.date <= d) nav = n.nav; if (n.date === d) break; }
             return nav == null ? null : { i, d, nav };
         }).filter(Boolean);

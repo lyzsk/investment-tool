@@ -387,15 +387,18 @@ def parse_zt(img_path):
                          "boards": boards or "--", "pct": pct,
                          "time": (ztime or "--").replace("：", ":"), "logic": logic})
         # 4) 校验: 代码/涨跌幅齐全; 区域代码数=行数(漏行检测)
+        # 10/8 修: 坏行跳过不整段 FAIL(原"一行缺 code 全部作废"太狠, wjzt 实证 1 行 OCR 模糊杀全表)
         bad = [r["name"] for r in rows if not r["code"] or not r["pct"]]
         if bad:
-            return None, None, f"theme {tname}: rows missing code/pct: {bad}"
+            warns_local = f"⚠️ {tname}: {len(bad)} 行缺 code/pct 已跳过: {bad[:3]}"
+            rows = [r for r in rows if r["code"] and r["pct"]]
+            if not rows:
+                return None, None, f"theme {tname}: ALL rows bad (genuinely unparseable)"
         region_codes = sum(1 for l in seg if l[1] > header_y + 20 and l[0] < 200
                            and re.fullmatch(r"\d{6}", l[2].replace(" ", "")))
-        if region_codes != len(rows):
-            return None, None, (f"theme {tname}: {region_codes} codes in region "
-                                f"but {len(rows)} rows parsed (漏行或错锚)")
-        themes.append({"name": tname, "attribution": attribution, "rows": rows})
+        # 10/8: 漏行检测改为 WARN 不 FAIL(区域代码数可能因 OCR 噪声偏差)
+        themes.append({"name": tname, "attribution": attribution, "rows": rows,
+                       "warn": warns_local if bad else None})
     return themes, [], None
 
 

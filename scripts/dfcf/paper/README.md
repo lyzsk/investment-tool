@@ -35,7 +35,7 @@
 | `matcher.mjs` | `--init` | 建 6 账本各 10 万（books/<source>.json：现金/持仓/挂单/流水/哈希链） |
 | | `--import <planfile>` | 解析 plans 行→对应账本挂单（格式校验，坏行显式报错不猜；anchor+cond 列解析、stop_below 仅 SELL 校验、拒落账闸=挂价 vs 前收超板限直接拒） |
 | | `--once [--dry]` | 单轮撮合：多源快照（snapshot.mjs）→**撮合前五哨兵**（C10 顶一字涨停拒买 / 锚偏离守卫=自报锚 vs 前收+现价双偏超阈作废 / C7-② cancel_below 失效撤单 / stop_below 止损市价出 / C7-① 挂价出当日理论区间拒单）→保守成交（买: 现价≤挂价才成 / 卖: 现价≥挂价；撮合窗=09:30-15:00，窗外一律不撮合，竞价成交只走 --import-fills 人工核销；尾盘竞价 14:57-15:00 按收盘价判）→落账+哈希链 |
-| | `--eod --date <d>` | 日终：废单核销→nav 结算→nav_<source>.csv 追加→state_digest.md 更新（次日 facts 用，含哨兵拦截数）；尾挂自动跑 report.mjs 刷新人读视图（失败仅 WARN） |
+| | `--eod --date <d>` | 日终：废单核销→nav 结算→nav/nav_<source>.csv 同日替换(幂等)→state_digest.md 更新（次日 facts 用，含哨兵拦截数）；尾挂自动跑 report.mjs 刷新人读视图（失败仅 WARN） |
 | `scorecard.mjs` | | 账本归因记分卡（零 token）：nav csv×6 账本+token_log 成本+废单率→scorecard.md/json（10/4） |
 | `pool_merge.mjs` | （驱动器内部） | 扩池提案机械落账：v04 contract pool_proposals 校验后 merge 进 pools.json，票名→代码走 smartbox，失败记 unresolved（10/4） |
 | `report.mjs` | `[--out <路径>]` | 人读视图（零 token 机械）：books/*.json → report.html 单文件（净值曲线内联 SVG 无 CDN/账本汇总+收益率+回撤+废单率/持仓/挂单/近 80 笔成交），浏览器直接开 |

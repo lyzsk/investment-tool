@@ -1,0 +1,282 @@
+{
+ "builtAt": "2026-10-08T15:33:55.647Z",
+ "books": [
+  {
+   "src": "C-taoge",
+   "days": 3,
+   "nav": 106711.64,
+   "ret": 0.06711639999999996,
+   "mdd": 0,
+   "sharpe": 12.418984408168168,
+   "filled": 3,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0.5031128750340638
+  },
+  {
+   "src": "C-cb",
+   "days": 3,
+   "nav": 105153.97,
+   "ret": 0.051539699999999966,
+   "mdd": 0,
+   "sharpe": 12.784295471731703,
+   "filled": 6,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-a658",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-bianbenling",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-cb",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-chong5000w",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-daxingdaxingdadangxing",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-gaogailvfuli",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-lianghuaxiaohao",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-liuyiqing",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-lubenyuan",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-qushitiange",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-stzhilang",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-taoge",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-xingjianye",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-xuanqiucaijing",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "B-cb",
+   "days": 3,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "B-taoge",
+   "days": 4,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  }
+ ],
+ "cost": {
+  "usd": 508.4973,
+  "tokens": 38943331,
+  "byStep": {
+   "01": {
+    "cost": 43.17634399999999,
+    "tokens": 3558132,
+    "n": 48
+   },
+   "02": {
+    "cost": 66.73631600000002,
+    "tokens": 5742456,
+    "n": 88
+   },
+   "03": {
+    "cost": 1.706143,
+    "tokens": 204323,
+    "n": 4
+   },
+   "04": {
+    "cost": 87.99432250000001,
+    "tokens": 6228812,
+    "n": 52
+   },
+   "05": {
+    "cost": 56.566172999999985,
+    "tokens": 4314073,
+    "n": 43
+   },
+   "06": {
+    "cost": 123.86622999999997,
+    "tokens": 8511578,
+    "n": 78
+   },
+   "blind": {
+    "cost": 29.628016499999998,
+    "tokens": 2328594,
+    "n": 39
+   },
+   "03b": {
+    "cost": 30.356784,
+    "tokens": 2538220,
+    "n": 33
+   },
+   "03s": {
+    "cost": 30.264786,
+    "tokens": 2421994,
+    "n": 32
+   },
+   "03j": {
+    "cost": 33.918294,
+    "tokens": 2871058,
+    "n": 32
+   },
+   "07": {
+    "cost": 4.283855,
+    "tokens": 224091,
+    "n": 4
+   }
+  }
+ }
+}

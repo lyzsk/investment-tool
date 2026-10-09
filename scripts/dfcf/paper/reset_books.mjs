@@ -17,13 +17,13 @@ for (const b of BOOKS) {
     const navHist = book.nav?.filter?.(n => n.date && !DEAD_DATES.has(n.date)) || [];
     const before = book.nav?.length || 0;
     book.cash = 100000;
-    book.positions = [];
+    book.positions = {};   // 10/8 修: 必须是 dict 不是 list(驱动器 book_nav 用 .values())
     book.orders = [];
     book.trades = [];
     book.nav = navHist;
     console.log(`${b}: nav ${before}→${navHist.length} 行(删 9/28-30), 现金/持仓/挂单/成交 清零 → 10 万发令枪`);
     if (!DRY) fs.writeFileSync(f, JSON.stringify(book, null, 1));
-    const csv = path.join(DIR, `nav_${b}.csv`);
+    const csv = path.join(DIR, "nav", `nav_${b}.csv`);   // 10/8 起 nav csv 在 nav/ 子目录
     if (fs.existsSync(csv)) {
         const lines = fs.readFileSync(csv, "utf8").split("\n");
         const kept = lines.filter(l => !DEAD_DATES.has(l.slice(0, 10)));

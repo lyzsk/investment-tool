@@ -82,3 +82,8 @@ scripts/models/
 
 ### backfill_bilibili 追溯(只在本机跑, 索引/状态/日志/备份全本地) ###
 scripts/backfill_bilibili/
+
+### temp文件
+
+temp/
+**/temp/

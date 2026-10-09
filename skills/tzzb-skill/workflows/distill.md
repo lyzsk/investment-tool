@@ -38,7 +38,7 @@
 
 ```bash
 scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_profile.py --ledger buchitudou0          # 画像全量重跑(435 腿统计+T-1联动)
-scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_review.py --ledger buchitudou0 --json scripts/backfill_taoge/review_cb_daily.json   # 10/7 泛化版(六人含跨日; 原 review_cb_daily=K3 日内单土豆口径, 退役存档)
+scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_review.py --ledger <ledger> --json scripts/temp/review_<ledger>_<MMDD>.json   # 10/8 修: 原 scripts/backfill_taoge/ 目录已随重构删除(写彼路径=FileNotFoundError); 现 JSON 工件落 scripts/temp/(如 review_buchitudou0_1008.json)
 scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_cases.py --all            # 六人 cases.md 双尾区(直连 review 引擎; 土豆 curated/五人 LLM 叙事区保留)
 ```
 

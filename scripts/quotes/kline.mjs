@@ -120,7 +120,7 @@ if (isMain) {
         console.log(`JSON:${JSON.stringify({ codes: codes.size, ok: r.ok, inc: r.inc, fail: r.fail.length })}`);
     } else if (argv.includes("--codes")) {
         const codes = arg("codes").split(",").map((s) => s.trim()).filter(Boolean);
-        const kltd = arg("klt", "101");
+        const kltd = arg("klt") || "101";  // 10/8 修: 原默认参写法 arg("klt","101") 恒 null → 不带 --klt 时误落 klt+null 目录
         const dirD = kltd === "101" ? undefined : "downloads/quotes/klt" + kltd;
         const r = await archiveDaily(codes, { src: arg("src") || undefined, dir: arg("dir") || dirD, full: argv.includes("--full"), klt: +kltd });
         console.log(`JSON:${JSON.stringify({ ok: r.ok, inc: r.inc, fail: r.fail.length })}`);

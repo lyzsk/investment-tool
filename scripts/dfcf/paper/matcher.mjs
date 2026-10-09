@@ -58,7 +58,7 @@ function initBooks() {
 // anchor 列(10/3 PC1)=链自报估算锚(可选, 兼容旧 8 字段行; 新单应必填): 数字 或 数字@允许偏离%(默认3) 或 "-"
 // cond 列(C7-②)=cancel_below=<价>(跌破即撤) / stop_below=<价>(SELL 止损=跌破按市价出), `;` 可组合, `-`=无
 // 两列都在时 anchor 在前 cond 在后(内容文法可区分, 正则天然分流不歧义)
-const LINE = /^-\s*(\d{1,2}:\d{2})\s*\|\s*([ABC]-(?:taoge|cb))\s*\|\s*(BUY|SELL|CXL)\s*\|\s*(\d{6})\s*\|\s*([\d.]+|-)\s*\|\s*(\d+|-)\s*\|\s*(\S+)\s*\|\s*(?:(\d+(?:\.\d+)?(?:@\d+(?:\.\d+)?)?|-)\s*\|\s*)?(?:((?:cancel_below|stop_below)=[\d.]+(?:;(?:cancel_below|stop_below)=[\d.]+)*|-)\s*\|\s*)?(.+)$/;
+const LINE = /^-\s*(\d{1,2}:\d{2})\s*\|\s*(A-\w+|B-\w+|C-\w+)\s*\|\s*(BUY|SELL|CXL|买|卖)\s*\|\s*(\d{6})\s*\|\s*([\d.]+|-)\s*\|\s*(\d+|-)\s*\|\s*(\S+)\s*\|\s*(?:(\d+(?:\.\d+)?(?:@\d+(?:\.\d+)?)?|-)\s*\|\s*)?(?:((?:cancel_below|stop_below)=[\d.]+(?:;(?:cancel_below|stop_below)=[\d.]+)*|-)\s*\|\s*)?(.+)$/;
 function parseCond(s) {
     const o = {};
     if (!s || s === "-") return o;
@@ -106,9 +106,29 @@ async function importPlans(file) {
             if (p !== undefined) { anchorPct = +p / 100; if (!(anchorPct > 0)) { console.error(`坏锚偏离 ${i + 1}: ${anchorRaw}`); bad++; continue; } }
         }
         // 拒落账闸: 挂单价 vs 前收偏离超板限 → 拒(取数失败=宁可拒, 防编锚漏网; 大亚案锚编 45% 的教训)
+        // 10/8 修: snap/jitter 从未定义(原始 bug), 改用已导入的 snapMany + 直接延时
+        // 10/8 晚二修: 盘后 API 空返回 → 回退日线 kline 取前收(否则首跑全零成交)
         if (!(code in prevCloseCache)) {
-            try { prevCloseCache[code] = (await snap(code)).prevClose; } catch (e) { prevCloseCache[code] = null; console.error(`前收取数失败 ${code}: ${e.message}`); }
-            await jitter();
+            try {
+                const snaps = await snapMany([code], 200);
+                prevCloseCache[code] = snaps[0]?.prevClose ?? snaps[0]?.price ?? null;
+            } catch (e) { prevCloseCache[code] = null; }
+            if (!(prevCloseCache[code] > 0)) {
+                // 回退: 日线 kline 的前一日收盘 = 前收
+                try {
+                    const dailyFile = path.join(DIR, "..", "..", "..", "downloads", "quotes", "daily", `${code}.json`);
+                    if (fs.existsSync(dailyFile)) {
+                        const kl = JSON.parse(fs.readFileSync(dailyFile, "utf8")).klines || [];
+                        const prev = kl.filter(k => k.d < date).pop();
+                        if (prev && prev.c > 0) {
+                            prevCloseCache[code] = prev.c;
+                            console.log(`前收回退日线: ${code}=${prev.c} (${prev.d})`);
+                        }
+                    }
+                } catch (e2) { /* 日线也缺=真拒 */ }
+            }
+            if (!(prevCloseCache[code] > 0)) console.error(`前收取数失败 ${code}: API+日线均不可用`);
+            await new Promise(r => setTimeout(r, 200));
         }
         const pc = prevCloseCache[code];
         if (!(pc > 0)) { console.error(`拒落账 ${i + 1}: ${code} 前收不可用, 无法过闸`); bad++; continue; }
@@ -132,7 +152,7 @@ async function importPlans(file) {
 }
 
 // ---- 回放专用: 真实成交直接记账(不走撮合, C 线照抄 snapshots 用) + 期初种子 ----
-const FILL = /^-\s*(\d{1,2}:\d{2})\s*\|\s*([ABC]-(?:taoge|cb))\s*\|\s*(BUY|SELL)\s*\|\s*(\d{6})\s*\|\s*([\d.]+)\s*\|\s*(\d+)\s*\|\s*([\d.]+)\s*\|\s*(.*)$/;
+const FILL = /^s*(d{1,2}:d{2})s*|s*(A-w+|B-w+|C-w+)s*|s*(BUY|SELL)s*|s*(d{6})s*|s*([d.]+)s*|s*(d+)s*|s*([d.]+)s*|s*(.*)$/;
 function importFills(file) {
     const date = path.basename(file).match(/^(\d{4}-\d{2}-\d{2})/)?.[1];
     if (!date) { console.error("文件名须以 yyyy-MM-dd 开头"); process.exit(1); }
@@ -302,9 +322,16 @@ async function eod(date) {
         }
         const mv = Object.entries(b.positions).reduce((s, [c, p]) => s + p.qty * (close[c] || p.cost), 0);
         const nav = +(b.cash + mv).toFixed(2);
+        b.nav = b.nav.filter((n) => n.date !== date);   // EOD 同日重跑=覆盖(10/8 双跑产重复行修复)
         b.nav.push({ date, cash: +b.cash.toFixed(2), mv: +mv.toFixed(2), nav, orders: b.orders.filter((o) => o.date === date).length, filled, voided, blocked });
         saveBook(b, `EOD ${date} nav=${nav}`);
-        fs.appendFileSync(path.join(DIR, `nav_${b.source}.csv`), `${date},${b.cash.toFixed(2)},${mv.toFixed(2)},${nav},${filled},${voided},${blocked}\n`);
+        // nav csv 落 nav/ 子目录(10/8 用户令归拢), 同日行替换=幂等(旧 appendFileSync 双跑重复行修复)
+        const NAV_DIR = path.join(DIR, "nav");
+        fs.mkdirSync(NAV_DIR, { recursive: true });
+        const navCsv = path.join(NAV_DIR, `nav_${b.source}.csv`);
+        const row = `${date},${b.cash.toFixed(2)},${mv.toFixed(2)},${nav},${filled},${voided},${blocked}`;
+        const prev = fs.existsSync(navCsv) ? fs.readFileSync(navCsv, "utf8").split("\n").filter((l) => l.trim()) : [];
+        fs.writeFileSync(navCsv, [...prev.filter((l) => !l.startsWith(date + ",")), row].join("\n") + "\n");
         const pos = Object.entries(b.positions).map(([c, p]) => `${c} ${p.qty}股@成本${p.cost.toFixed(2)}`).join("; ") || "空仓";
         digest.push(`## ${b.source}: nav ${nav} (现金${b.cash.toFixed(0)}) | 持仓: ${pos} | 当日 ${filled}成交/${voided}废单/${blocked}哨兵拦截(一字/失效/价格锚)`);
     }

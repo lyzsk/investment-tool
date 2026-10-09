@@ -15,9 +15,10 @@ const readCsv = (f) => fs.existsSync(f) ? fs.readFileSync(f, "utf8").trim().spli
 
 // ---- 账本指标 ----
 const books = [];
-for (const f of fs.readdirSync(DIR).filter((x) => /^nav_.+\.csv$/.test(x))) {
+const NAV_DIR = path.join(DIR, "nav");   // 10/8 起 nav csv 归拢子目录(matcher EOD 写入同路径)
+for (const f of fs.readdirSync(fs.existsSync(NAV_DIR) ? NAV_DIR : DIR).filter((x) => /^nav_.+\.csv$/.test(x))) {
     const src = f.slice(4, -4);
-    const rows = readCsv(path.join(DIR, f)).map(([date, cash, mv, nav, filled, voided]) => ({ date, cash: +cash, mv: +mv, nav: +nav, filled: +filled, voided: +voided }));
+    const rows = readCsv(path.join(fs.existsSync(NAV_DIR) ? NAV_DIR : DIR, f)).map(([date, cash, mv, nav, filled, voided]) => ({ date, cash: +cash, mv: +mv, nav: +nav, filled: +filled, voided: +voided }));
     if (!rows.length) continue;
     const navs = rows.map((r) => r.nav);
     const last = rows[rows.length - 1];

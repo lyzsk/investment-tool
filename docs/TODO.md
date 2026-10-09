@@ -1,88 +1,77 @@
-# investment-tool TODO（唯一工作清单, 2026-10-07 晚定稿版）
+# investment-tool TODO（v3, 2026-10-09 00:30 用户令重构: 删已做 / 提炼 / 对齐 TradingAgents）
 
-> 目标函数: 策略收益养活 Claude 订阅费（10 万本金: Pro≈年化 1.8% / Max$100≈9.1% / Max$200≈19%）
-> 消费约定: **人读=前半（§1-§3）, AI 读=后半（§4 起）**; ✅ 项不存 git, 细节看 git log + bugs.md
-> 优先级: ★★★=10/8 首跑必须 / ★★= 窗口期 / ★= 等触发; 【PC1】= 绑本机 / 【PC2✓】= 笔记本可干 / 【用户】= 人动手
+> 目标函数: **paper=导师筛选器**（看出 A-xxx 谁收益率高）→ 策略收益养活订阅费; 终极= 对齐 TradingAgents 级多 agent 金融决策平台
+> 消费约定: 人读=§1-§3, AI 读=§0 起+§4; ✅ 项不存 git; 【PC1】本机 /【PC2✓】笔记本 /【用户】人动手
 
 ---
 
-# §1 待建（已拍板, 排 10/8 后）
+# §0 模型分工 + GLM 行为立法（AI 每轮开工先读）
 
-**paper 两级制**（10/7 拍板+大部分已落: matcher 17 账本/驱动器泛化/seed/8 UP job）, ⏳剩三件:
-1. **盘前档引擎**: 10 导师单会话精简链, 32B 本地+抽检, bge-m3 捞规则（quota 14万/周撑不起 11 条云端日链）
-2. **相似度 scorer**: 持仓 Jaccard + 操作对齐 → scorecard（用户令: 至少给个相似度百分比）
-3. **负样本 gen_tzzb_negstats.py + 05 消费钩子**（负例 5 人语料已全量入库: 大亏3+中亏1+小亏对照1）
+**K3=蒸馏终审/06 终裁/盲审/人格链（语义级）| GLM=工程/批量/机械执行（字面级）| 32B 本地=推测初稿批量（零 token）**
 
-**选手管线终态（10/7 定稿, 见 skills/tzzb-skill/references/ledgers.md）**: 16 人=11 正+5 负; 选正例三闸=每场总榜前20+出手≥30日/腿≥100+持续性≥0.15%/日; 观察池=前20宽进(⏳players.json 建档待做, 周期榜面复查零管线成本), 三闸转正严出; 速览现役=土豆+五人+发哥+两UP, 新 5 正例等盘前档引擎接入。
+补丁①-⑪（10/8-10/9 立法, 全文见 git log TODO 历史）: ①改名必跑 grep_verify.sh ②改 skills/ 必跑 sync_skills.mjs ③先落盘验证再汇报 ④覆盖前必查已有 ⑤新消息追加不清空队列 ⑥活动队列落盘 §0.5 ⑦做了必报(尾三行) ⑧收尾①②二连不等催 ⑨用户忘了→原样重贴不造文件 ⑩**开工三问**(沉淀在哪/前置数据看了吗/契约对过吗——10/9 实证: 查沉淀全一次过, 求快全翻车) ⑪**DB/不可逆操作需无歧义动词授权**("可以啊/对吗?"=讨论非授权, 10/9 00:5x 立法当晚再犯案)。
 
-# §2 10/8 首跑（A 级, 无人值守）
+# §0.5 活动队列（⑥载体: 开工先读/收工更新）
 
-- 盘前 09:07 Claude 自动醒（durable cron）: `node scripts/dfcf/paper/reset_books.mjs`（A 线四本 10 万发令枪, 幂等, 已 dry 验证）→ 核昨晚收尾任务 → 必要时单独重跑 9/28（下午双驱动污染过）
-- 09:13 卢本圆链 → 09:15 桃哥+转债+天哥全时刻表; **观察点**: ①速览逐源回应 ②发哥刹车被 02 回应 ③cand_snap 价格锚 ④废单率 ⑤20:00 07 复盘 ⑥勘误表跳过
-- 收盘后: 15:05 EOD → 明晚第一份真 report/scorecard（撮合+nav 当日新鲜出炉）
-- ⚠用户睡前最后一步: **IDEA 最后 rebuild+rerun 一次**（第四刀: position_snap 按日去重——不 rebuild 则明天 15:10 起 job 对缺 9/30 nav 的账本每小时失血几十行 snap, 今天已洗 123 行）
+> **夜班调度(10/9 00:5x 用户令)**: backfill 最后。6 线补跑完→恢复 backfill 15 个(天哥8+卢本圆7, 含 sum+distill)→若完成且 **未到 10/9 08:00**: 倒序继续, **一次只加 3 个**; **07:57 cron 硬截止: 无论如何 PAUSE 两 UP 的 backfill**(已设 durable d157cd53)。08:00 后优先=①paper 重跑核验(6 线 b70l8iswz)②视频 sum+distill 线。
 
-# §3 今晚在跑（自动, log=scripts/taoge-chain/resume_1007_night.log）
+- [🔥跑着] **backfill 15 个恢复跑**(PAUSE 已删 01:2x, 引擎自续; 完且<08:00→每批+3 倒序)
+- [⏰07:57] 硬截止 cron d157cd53(PAUSE backfill+核两任务); [⏰09:07] 盘前例行 cron 5ed0286b(reset+首跑监控)
+- [🔥08:00 后 P0] **6 线盘前档重跑**: 首轮(b70l8iswz 01:15)格式层全过(哨兵/截断/围栏✓)但值层全 ESCALATE=3 条卡线超限(15021~19530 vs 15000)+1 条公式价; 修正已落=①单票上限 2% 容差 ②校验败回炉 1 次(错误原因喂回 32B); 编译+dry 过, 待 08:00 后重跑六线(账本零污染, ESCALATE 未落 plans)
+- [○候选] 08:00 后第二任务=视频 sum+distill 线(候选: 夜跑 distill 断点 0707 / taoge-sum 当日补全)
+- [✅10/9 夜] 盘前档四处修复+实弹诊断/负例+05钩子/相似度v0/审计/弹窗根治/牧原v2/holdings_ask/9档已回滚(§2-1 重议)/§0补丁⑪/回炉+容差修正
+- [✅10/8] 首跑+五修/07复盘✅/csv治理/负例落地
 
-- 9/28-30 A-taoge 回放（云端 claude token, 非本地模型; 每天约 30-60min）→ 天哥 10/3 补账; 9/28 结束后需单跑一次（下午孤儿驱动污染）
-- 视频管线: 桃哥 2 稿处理中（17:30 job 起, ASR CPU 全核=whisper 物理特性非事故; 显存闸+单实例已上）; 卢本圆 10 稿待其 job 下载（retry 已复位）
+# §1 接下来做什么（按优先级）
 
-# §4 持续线（日常/等发令）
+1. **【今天】盘前档全线验证+report 日产化**: 6 线补跑结果核验 → tzzb 导师 0915 档切 32B(盘中档观察 quota 实账再切) → 15:05 EOD → 首份 A-xxx 收益排行 report/scorecard
+2. **【本周】正例规则蒸馏线**: llm_batch_tzzb 32B 初稿(16 人全量, 幂等续跑)→ gen_tzzb_cases → 各导师 rules.md → gen_rules_index --embed——填 tzzb 导师"零规则"真空, 盘前档规则通道从 profile 升 rules
+3. **【本周】拟人度 v2**: 盘中 facts 注入"导师今晨动仓"(审计#2: 卖众捷买传艺 vs 我挂买众楷)→ scorer 分型(做T型=核心票覆盖度, 计划型=Jaccard+方向)+负例距离(像洋大人标红)
+4. **【后排·对齐 TradingAgents】**: ①回测 replay 真 mode(matcher 现为活快照, 回放数字不算数=最大缺口) ②消息面 agent: akshare 资金流/龙虎榜/业绩预告(冬测 3/4 通)接进 facts 公告层 ③03 拆环升分层辩论(trader/portfolio manager 层) ④组合级风控(VaP/相关性)
+
+# §2 需要你裁决
+
+1. tzzb 导师盘中 slot 频率: 现 4 档, 是否对齐 taoge 9 档?（token 翻倍, 换拟人度颗粒度）
+2. 正例蒸馏预算: 32B 全历史 16 人≈46h, 限量近 60 日还是全量挂机?
+3. TradingAgents 对齐优先项排序: 回测 > 消息面 > 辩论分层, 认可还是重排?
+4. 新 5 正例 distill 准入 + 观察池 players.json 建档（§4-13 遗留, 半小时活）
+
+# §3 项目进度: 已做基础上接什么
+
+**已落（浓缩）**:
+- **数据层**: tzzb 16 账本(正11负5, 全量入库)/B站 3UP 视频管线(ASR+14B 纠错)/CLS 电报 5min/fage/quotes 多源/facts 素材引擎(6 榜+watch)
+- **决策层**: 17 账本 paper 全链(七步链+03 多空拆环+05 风控+blind 盲审+负例注入)/驱动器泛化 13 skill/Quartz 69 任务全装载/盘前档 32B(验证中)
+- **评价层**: scorecard+score.json+相似度 v0+negstats 反模式+token_log 计费透明
+- **工程层**: 三模型本地梯队/审计与立法(补丁①-⑩)/quota 实测校准(9.4M/天无撞窗)
+
+**对齐 TradingAgents 的差距映射**（它=多 agent 分层: 分析师团队→多空辩论→交易员→风控辩论→基金经理, 附回测）:
+
+| TradingAgents 组件 | 我方现状 | 差距动作 |
+|---|---|---|
+| 分析师团队(基本面/情绪/新闻/技术) | CLS/fage/视频 ASR/6 榓 facts ✅ | akshare 资金流+龙虎榜+公告日历接入(§1-4②) |
+| 多空辩论 | 03 拆环 bull/bear 真对抗 ✅雏形 | 升分层(trader/portfolio 层), 辩论记忆跨日 |
+| 风险管理辩论 | 05+负例注入+blind ✅ | 组合级(VaP/簇相关性), 现只有票级 |
+| 回测框架 | ❌ replay 未建(matcher=活快照) | **最大缺口**, §1-4① |
+| 多 LLM 协作 | 云端+32B 两级 ✅(本地化程度反超) | 抽检层(云端复核 32B 产物) |
+
+**一句话路线**: 数据层已平齐, 决策层有雏形但规则真空(§1-2 填), 评价层刚起(§1-3), 回测层为零(§1-4①)——按 1→2→3→4 顺序补齐即达 TA 级。
+
+# §4 持续线（日常/等发令, 未做保留）
 
 | # | 项 | 归属 |
 |---|---|---|
-| 1 | backfill 下载层 45 待办（PAUSE 开关; 引擎=scripts/backfill_bilibili/backfill_bilibili.py --up 三UP） | PC1 用户 |
-| 2 | 夜跑 distill 断点 2026-07-07（distill_state.json） | PC1 |
-| 3 | 回放帧 16 例+taoge-sum 回放帧过滤+distill 人工审核 | PC2✓ |
-| 4 | tzzb: ①五闸门审议首跑 ②op 字段破译 ③转债情绪 ④cb 分时验证 | PC1 |
-| 5 | cls wjzt 解析器 23 天 PARSE_FAIL | PC1 |
-| 6 | PaperChainHandler exit 3 频率→自动续链? | 等首跑 |
-| 7 | persona 反问（方案 B 已落） | 等首跑 |
-| 8 | fage 权重定级（核销 alpha 后） | 等 2-3 周 |
-| 9 | 牧原做 T（30 日振幅现算/R-PNL-TRUE） | PC1 用户 |
-| 10 | TODO 0.7 缺日回填两洞 | PC2✓ |
-| 11 | §F 残留: **①数据源共享工具层(用户令, 仿 inv-common)**: `scripts/lib/`=`sources.mjs` 注册表+`ak.py` akshare 统一出口, client.mjs 升格单一入口, kline/matcher/snapshot 改 import ②跷跷板矩阵/转债域 facts 榜单/seed.json 校对/异构对抗/matcher 核销操作卡 | PC2✓ |
-| 12 | 本地化梯队: 14b 纠错/32b 推测/bge-m3 检索（模型在 ~/.ollama/models）; **32B B' 欠账=stzhilang 尾段+chong5000w, ollama 重开后 llm_batch_tzzb 幂等续跑** | PC1 |
-| 13 | tzzb 样本一期收尾: 16 人全量入库+注源完成; 待=数据质量核→新 5 正例 distill 准入裁决; players.json 观察池建档 | PC1 |
-| 14 | venv 正名 scripts/venv→.venv: **不能 mv**（pyvenv.cfg/launcher 硬编码绝对路径）, 需重建+freeze 装回（akshare 等）+冒烟+删旧; gitignore:79+Java python() 硬路径联动 | PC1 |
-| 15 | PC2 清理测试账本: `rm -rf scripts/dfcf/paper/{books,plans,facts}` | PC2✓ |
-| 16 | hermes 微信桥: 微信主客户端(Weixin.exe)死于内存事故, 需杀 8 个 WeChatAppEx 孤儿+重登微信+重启桥（用户手机操作） | 用户 |
+| 1 | backfill 45 待办(PAUSE 闸; 主线完喊"继续") | PC1 |
+| 2 | 夜跑 distill 断点 2026-07-07; 回放帧 16 例+人工审核 | PC1/PC2✓ |
+| 3 | tzzb: 五闸门首跑/op 破译/转债情绪/cb 分时 | PC1 |
+| 4 | cls wjzt 23 天 PARSE_FAIL; 东财限频对策 | PC1 |
+| 5 | PaperChainHandler exit3 频率→自动续链?; persona 反问观察 | 等首跑数据 |
+| 6 | 数据源共享工具层 scripts/lib(sources.mjs+ak.py akshare 出口) | PC2✓ |
+| 7 | venv→.venv 正名(需重建非 mv); PC2 测试账本清理 | PC1/PC2✓ |
+| 8 | hermes 微信桥重登(Weixin.exe 内存事故遗留) | 用户 |
 
----
+# §5 架构快照（详见 git 历史）
 
-# §5 批判性审视（10/6 自审, 按危害排序）
-
-1. **目标函数偏离（最重）**: 100% 工程投入, 零产出在"明天买什么"。10/8 首跑=硬 deadline。
-2. 推测层质量债: 盲审 40 段 good30/fair8/poor2; 剩 3 冲突段修正。
-3. rules 重审: 剩五人 rules 重审（持仓行为类, LLM 活晚链做）。
-4. 东财限频: scan 挂=链中止; 对策=首跑日盯 facts, 中期降级昨日数据+标注。
-5. 速览信噪比未实测（9241 字六源）: 10/8 观察项。
-6. IC 样本量小, 权重全标"暂定", n≥30 再定。
-7. 两套账本风险: matcher --init 签名确认。
-8. TODO 治理: 活跃+存档一行, 历史靠 git log。
-
-# §6 架构立法 → 已归档 git（10/7 整章删除）
-
-**终裁**: tzzb=仿 arena 加权（等权速览+IC 晋升盘前档轻量链, 三闸选人）; bilibili=决策链（paper 账本即验证装置）。法条落点: switch-case=§4.11 / md 记录=gen_tzzb_md 头注 / skill 结构=各 SKILL.md / 纪律+git禁写=memory。
-
-# §7 paper 设计（§E 精存）
-
-> 目录 scripts/dfcf/paper/（状态 gitignore）。架构: 事实层共用(零token)→决策层分账(稀疏LLM)→执行层全自动。A级时刻表: 09:15全链→09:27纠偏→09:45/10:00/10:30确认→11:27定位→12:30午间链→14:00/14:30→14:55尾盘。契约: 条件单主形态, 废单率=质量度量。参数: 总仓≤3成/单票≤1.5成/留≥4成现金; 转债=全仓单票。回放记录(旧栈): C-taoge+6.71%/C-cb+5.15%/A-taoge-0.75%(9/28-30)。**已知不自信**: matcher 撮合=活快照, 真 replay 模式未建——回放成交数字不算数(10/4 记档)。
-
-# §8 后排大活【全 ★】
-
-1. 存储层 Phase 1 → 2. TaogeAnalysisController → 3. 账户感知（等语料）→ 4. 第5梯队语料（moni/tgb）→ 5. 结构件 P1 → 6. hermes 链路+全量回测+拟人化 → 7. watchlist 桥。
-
----
-
-# 短板清单（hermes 10/6 审视）
-
-**总评: 记忆系统 A 级, 神经系统 D 级**——沉淀解决"他是谁", 解决不了"他此刻怎么想"。
-🔴①实时层断层(盘中人格全是昨天的)→补丁=盘前人格转条件单式预案, 盘中只做条件匹配
-🔴②信号聚合层=0(谁赢靠拍脑袋, 全项目最贵的洞)
-🔴③验证闭环没跑过(建议→记账→核销→调权, 一天都没转)
-🟡④执行层最后一公里(废单率/失效条款机器执行)
-🟡⑤失败样本库=0(用户认领)
-🟡⑥基本面全盲——**方案 10/7 定稿**: akshare 主力(冬测 3/4 通: 同花顺资金流✓/东财龙虎榜✓/业绩预告✓, 解禁参数待校)+全 switch-case 加 akshare 源; 底线=妙想MCP/同花顺AI/WIND 不用; 龙虎榜 scripts/fund/ 双源脚本化; 窗口分层制=资金{1,3,5}+趋势态扩{10,20}/量能{1,5,10}/池级{20}; 池子=pools.json+ZT池+tzzb position_snap+自选; 顺序=公告层(含业绩预告日历)→资金流+龙虎榜→财务静态季更; 05 禁手先行; 排期 10/8 后。
-
-**venv 模型 vs ollama**: venv 侧=Qwen2.5-VL-7B(16G HF 权重, process_video 视觉真值, 进程内加载独占15.4G显存); ollama 侧=qwen3 14b/32b+bge-m3(GGUF, 常驻服务 11434: 14b=ASR纠错/32b=tzzb推测/bge-m3=检索)。显存互斥→错峰立法。
+- paper: scripts/dfcf/paper/(gitignore); 事实层共用→决策分账→执行全自动; 总仓≤3成/单票≤1.5成(转债全仓单票); 条件单主形态, 废单率=质量度量
+- 终裁(10/7): tzzb=仿 arena 加权三闸选人; bilibili=决策链(paper=验证装置); 归档 by ledger 比赛只做发现层
+- venv(VL-7B 视觉, 独占 15.4G) vs ollama(14b 纠错/32b 推测/bge-m3 检索): 显存互斥错峰立法
+- 短板遗留(10/6 hermes 审视未解项): 信号聚合层=0(全项目最贵的洞)/验证闭环一天没转/执行最后一公里(废单率机器度量)
