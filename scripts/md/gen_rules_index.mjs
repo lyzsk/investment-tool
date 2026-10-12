@@ -10,8 +10,10 @@ import fs from "node:fs";
 
 const arg = (k, d) => { const i = process.argv.indexOf("--" + k); return i > -1 ? process.argv[i + 1] : d; };
 const SKILL = arg("skill", "taoge");
-const RULES = `skills/${SKILL}-skill/persona/rules.md`;
-const OUT = `skills/${SKILL}-skill/persona/rules_index.md`;
+// 10/11 土豆 persona 子层已拍平(用户令), 全员统一 skills/<skill>-skill/persona/, 原子目录回落逻辑已删
+const _base = `skills/${SKILL}-skill/persona`;
+const RULES = `${_base}/rules.md`;
+const OUT = `${_base}/rules_index.md`;
 
 const text = fs.readFileSync(RULES, "utf8");
 const rows = [];
@@ -20,7 +22,16 @@ let lineNo = 0;
 for (const raw of text.split("\n")) {
     lineNo++;
     const line = raw.replace(/\r$/, "");   // PC2 git autocrlf=CRLF, .不匹配\r 会全灭(10/4 实测)
-    const m = line.match(/^### ([A-Z]\d+) (.*)$/);
+    // 10/11 兼容三种规则头: "### R1 标题 [标签]"(桃哥/多数导师) | "#### R1 …"(量化小号, ### 作分区) |
+    //   列表式 "- **A1 标题** `[标签]` 正文" / "- **L1 标题**: 正文"(天哥/卢本圆)
+    const m = line.match(/^#{3,4} ([A-Z]+\d+) (.*)$/);
+    const li = !m && line.match(/^- \*\*([A-Z]+\d+) ([^*]+)\*\*\s*(?:`\[([^\]]*)\]`)?\s*:?\s*(.*)$/);
+    if (li) {
+        const [, id, title, tags, body] = li;
+        cur = { id, title: title.trim(), tags: tags || "", notes: body ? [body.length > 48 ? body.slice(0, 48) + "…" : body] : [], line: lineNo };
+        rows.push(cur);
+        continue;
+    }
     if (m) {
         const [, id, rest] = m;
         const t = rest.match(/^(.*?)\s*\[([^\[\]]*)\]\s*$/);   // 末组 [...]=验证状态标签
@@ -40,9 +51,9 @@ const cls = (tags) => /已证伪|已失效/.test(tags) ? "❌" : /md 验证|plan
 const groups = {};
 for (const r of rows) (groups[r.id[0]] = groups[r.id[0]] || []).push(r);
 
-const out = [`# rules_index.md — 桃哥决策规则索引(B3 分级加载; 生成于 ${new Date().toISOString().slice(0, 16).replace("T", " ")})`,
+const out = [`# rules_index.md — ${SKILL} 决策规则索引(B3 分级加载; 生成于 ${new Date().toISOString().slice(0, 16).replace("T", " ")})`,
     `> 源: rules.md(${rows.length} 条/${(text.length / 1024).toFixed(0)}KB)。本索引=常驻; **禁全量读 rules.md**。`,
-    `> 捞全文: grep -n "^### <编号>" skills/taoge-skill/persona/rules.md 得行号, 读到下一个 ### 前。`,
+    `> 捞全文: grep -n "<编号> " ${RULES} 得行号, 读到下一条规则前(10/11 修: 原写死 taoge 路径)。`,
     `> 标记: ✅=已验证(md/plan-a) ⏳=待验证/话术 ❌=已证伪/已失效(反例优先, 保留)`, ""];
 for (const letter of Object.keys(groups).sort()) {
     out.push(`## ${letter} 类(${groups[letter].length} 条)`);

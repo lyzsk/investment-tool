@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.market.mapper.SecurityMasterMapper">
+
+    <!-- 新标的批量插入; 已有标的由 service 比对后走 MyBatis-Plus updateById(只更新变化的) -->
+    <insert id="insertBatch">
+        INSERT INTO investment_market.security_master
+        (symbol, code, exchange, sec_type, board_type, name, is_st, list_date, delist_date,
+        underlying_symbol, source, status, create_by, create_time, is_deleted)
+        VALUES
+        <foreach collection="list" item="s" separator=",">
+            (#{s.symbol}, #{s.code}, #{s.exchange}, #{s.secType}, #{s.boardType}, #{s.name},
+            #{s.isSt},
+            #{s.listDate}, #{s.delistDate}, #{s.underlyingSymbol}, #{s.source},
+            0, #{s.createBy}, #{s.createTime}, 0)
+        </foreach>
+    </insert>
+</mapper>

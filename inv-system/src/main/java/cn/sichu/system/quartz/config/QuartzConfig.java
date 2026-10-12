@@ -27,6 +27,13 @@ public class QuartzConfig {
     public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory) {
         SchedulerFactoryBean schedulerFactory = new SchedulerFactoryBean();
         schedulerFactory.setJobFactory(jobFactory);
+        /* 10/11: 自建 SchedulerFactoryBean 不吃 yml 的 spring.quartz 配置, 原为 Quartz 默认 10 线程+5s misfire 阈值——
+           盘前 15 条 paper 链(各占线程 45min+)+每分钟撮合+CLS 5 分钟同时起, 线程不够=链被静默丢弃、撮合被饿死。
+           40 线程; misfire 阈值 10min(排队超 10min 才算错过, 期间等到线程即执行) */
+        java.util.Properties props = new java.util.Properties();
+        props.setProperty("org.quartz.threadPool.threadCount", "40");
+        props.setProperty("org.quartz.jobStore.misfireThreshold", "600000");
+        schedulerFactory.setQuartzProperties(props);
         return schedulerFactory;
     }
 

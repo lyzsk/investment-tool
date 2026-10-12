@@ -49,8 +49,14 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
     }
 
     @Override
+    public boolean existsAnyByBvid(String bvid) {
+        return baseMapper.countAnyByBvid(bvid) > 0;
+    }
+
+    @Override
     public List<BilibiliVideo> listByStep(String step, int maxRetry) {
-        return baseMapper.selectByStep(step, maxRetry);
+        /* 10/12: 待 sum 清单只给每日队列, 补跑行的 sum 由 backfill_bilibili.py --llm-batch 按天做 */
+        return baseMapper.selectByStep(step, maxRetry, ORIGIN_DAILY);
     }
 
     /* ===== 10/7 双开事故修复三件套 =====
@@ -61,14 +67,23 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
 
     @Override
     public String downloadPendingVideos(int maxRetry, String authorMid) {
+        return downloadPendingVideos(maxRetry, authorMid, ORIGIN_DAILY, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public String downloadPendingVideos(int maxRetry, String authorMid, String origin, int limit) {
         reclaimStale("DOWNLOADING", LocalDateTime.now().minusMinutes(30), "NEW");
         int downloaded = 0, failed = 0, skipped = 0;
-        for (BilibiliVideo v : baseMapper.selectByStep("NEW", maxRetry)) {
+        for (BilibiliVideo v : baseMapper.selectByStep("NEW", maxRetry, origin)) {
+            if (downloaded + failed >= limit) {
+                break;
+            }
             if (!authorMid.equals(v.getAuthorMid())) {
                 continue;           /* UP 隔离: 跨 UP 认领必被归属闸拒(卢本圆10稿三轮全灭实证) */
             }
             if (!claim(v, "NEW", "DOWNLOADING")) {
-                skipped++;        // 并行 job 已抢走
+                /* 并行 job 已抢走 */
+                skipped++;
                 continue;
             }
             try {
@@ -87,6 +102,11 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
 
     @Override
     public String processPendingVideos(int maxRetry, String authorMid) {
+        return processPendingVideos(maxRetry, authorMid, ORIGIN_DAILY, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public String processPendingVideos(int maxRetry, String authorMid, String origin, int limit) {
         /* 0=无venv 1=仅CPU 2=全配 */
         int cap = detectCapability();
         if (cap == 0) {
@@ -95,7 +115,10 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
         }
         reclaimStale("PROCESSING", LocalDateTime.now().minusMinutes(90), "DOWNLOADED");
         int processed = 0, failed = 0, partial = 0, skipped = 0;
-        for (BilibiliVideo v : baseMapper.selectByStep("DOWNLOADED", maxRetry)) {
+        for (BilibiliVideo v : baseMapper.selectByStep("DOWNLOADED", maxRetry, origin)) {
+            if (processed + failed + partial >= limit) {
+                break;
+            }
             if (!authorMid.equals(v.getAuthorMid())) {
                 continue;           /* UP 隔离同上 */
             }
@@ -117,7 +140,8 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
                     processed++;
                 } else {
                     partial++;
-                    revertStep(v, "DOWNLOADED");   // 仅 CPU 完成一半, 退回等全配机器
+                    /* 仅 CPU 完成一半, 退回等全配机器 */
+                    revertStep(v, "DOWNLOADED");
                 }
             } catch (Exception e) {
                 String reason = e instanceof BusinessException ? e.getMessage() :
@@ -155,7 +179,8 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
 
     private void markFailAndRevert(BilibiliVideo v, String reason, String backTo) {
         v.setStep(backTo);
-        markFail(v, reason);    // markFail 内 updateById 一并落回退后的 step
+        /* markFail 内 updateById 一并落回退后的 step */
+        markFail(v, reason);
     }
 
     /** 空闲显存字节(nvidia-smi MiB→B); 无卡/查询失败=-1(不拦, 交给 detectCapability) */
@@ -228,7 +253,11 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
         Path outDir = Paths.get(projectConfig.getFile().getDownload().getRootDir(), "bilibili",
             v.getAuthorMid(), day);
         Files.createDirectories(outDir);
-        runNode("bilibili/fetch_bilibili.mjs", "--bvid", v.getBvid(), "--out", outDir.toString());
+        /* 10/11 修: 必须透传本行 author_mid——fetch_bilibili.mjs 缺 --mid 时默认按桃哥(625315686)校验归属,
+           天哥/卢本圆的稿下载全被归属闸拒绝(10/6~10/9 共 14 稿 retry=3 沉底)。
+           mid 对照表(B站 card 接口 10/11 实核): 625315686=股市-桃哥复盘 / 550494308=卢本圆复盘 / 1372241958=趋势天哥 */
+        runNode("bilibili/fetch_bilibili.mjs", "--bvid", v.getBvid(), "--mid", v.getAuthorMid(), "--out",
+            outDir.toString());
         v.setStep("DOWNLOADED");
         v.setStatus(0);
         v.setRetryCount(0);
@@ -360,7 +389,7 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
            2026-09-29 用户定: source_files 列已删, 路径从 bvid/author_mid/publish_time 按命名约定派生
            (磁盘是唯一事实, 顺带消除"写库路径硬编码 vs 下载目录配置"双真相分叉隐患);
            幂等=三件套全不在则视为已清理, 跳过且不动 remark */
-        List<BilibiliVideo> list = lambdaQuery().eq(BilibiliVideo::getStep, "SUMMARIZED")
+        List<BilibiliVideo> list = lambdaQuery().in(BilibiliVideo::getStep, "SUMMARIZED", "DISTILLED")
             .lt(BilibiliVideo::getUpdateTime, threshold).list();
         int cleaned = 0, failed = 0, already = 0;
         for (BilibiliVideo v : list) {
@@ -402,7 +431,8 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
         if (getByBvid(v.getBvid()) != null) {
             return "已存在跳过 " + v.getBvid();
         }
-        v.setStep("SUMMARIZED");   // 仅限产物已齐的手工补录(见 controller register 注释)
+        /* 仅限产物已齐的手工补录(见 controller register 注释) */
+        v.setStep("SUMMARIZED");
         save(v);
         return "注册为 SUMMARIZED " + v.getBvid();
     }

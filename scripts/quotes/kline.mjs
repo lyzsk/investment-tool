@@ -53,11 +53,53 @@ async function sinaDaily(code) {  // 兜底2: 新浪日K(不复权!) — 仅前�
     if (!arr?.length) throw new Error("sina 空数组");
     return { bars: arr.map((x) => ({ d: x.day, o: +x.open, c: +x.close, h: +x.high, l: +x.low, v: +x.volume, a: 0 })), src: "sina", adjusted: false };
 }
+// 兜底1.5(10/12 凌晨加): 东财+腾讯同时封 IP 时(10/11-12 实况), 新浪不复权 × 新浪 hfq.js 复权因子现算前复权, 可与前复权档合并
+// 口径: 等比前复权 = 原价 × F(当日)/F(最新); 东财/腾讯是等差(减分红), 10/12 实测 24 只近 250 根: 除权后的段逐根一致,
+// 早于最近除权日的老段差 ≤1%(0.36 元@35 元)——指标层可忽略; 一次返回 1023 根, 合并后重叠段口径统一
+// 只做股票日线: 指数无需复权直接用; ETF/转债新浪无累积因子 → 抛错回落到新浪不复权; 量: 新浪给股 → ÷100 与归档"手"对齐
+async function sinaQfqDaily(code, { klt = 101 } = {}) {
+    if (+klt !== 101) throw new Error("sina-qfq 只支持日线");
+    const sym = mktSym(code);
+    if (!isIdx(code) && /^(5|1[0-9])/.test(code)) throw new Error("sina-qfq 不支持 ETF/转债(无累积因子)");
+    const raw = await sinaDaily(code);
+    if (isIdx(code)) {   // 指数不复权; 量股→手、价 2 位, 与东财归档同口径(10/12 实测上证 10/09: 东财 535149921 手 vs 新浪 53514992100 股)
+        const r2 = (p) => Math.round(p * 100) / 100;
+        return { bars: raw.bars.map((b) => ({ d: b.d, o: r2(b.o), c: r2(b.c), h: r2(b.h), l: r2(b.l), v: Math.round(b.v / 100), a: 0 })),
+            src: "sina-qfq", adjusted: true };
+    }
+    const fac = await sinaFactors(sym);
+    const F = (d) => { let v = fac.length ? fac[0][1] : 1; for (const [x, f] of fac) if (x <= d) v = f; return v; };
+    const fl = F(raw.bars.at(-1).d);
+    const adj = (p, d) => Math.round(p * F(d) / fl * 100) / 100;
+    return { bars: raw.bars.map((b) => ({ d: b.d, o: adj(b.o, b.d), c: adj(b.c, b.d), h: adj(b.h, b.d), l: adj(b.l, b.d), v: Math.round(b.v / 100), a: 0 })),
+        src: "sina-qfq", adjusted: true };
+}
+// 新浪因子按天落盘缓存(downloads/quotes/factors/<sym>.json): 东财+腾讯同封时 15 条链会一起打新浪, 新浪又是收盘采集主源, 不能被封
+async function sinaFactors(sym) {
+    const dir = path.join("downloads", "quotes", "factors");
+    const f = path.join(dir, sym + ".json");
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+        const c = JSON.parse(fs.readFileSync(f, "utf8"));
+        if (c.day === today) return c.fac;
+    } catch { /* 无缓存/坏缓存: 现拉 */ }
+    const r = await fetch(`https://finance.sina.com.cn/realstock/company/${sym}/hfq.js`, { headers: { ...UA, Referer: "https://finance.sina.com.cn/" } });
+    if (!r.ok) throw new Error(`sina hfq HTTP ${r.status}`);
+    const t = await r.text();
+    const body = t.includes("/*") ? t.slice(0, t.indexOf("/*")) : t;
+    const data = JSON.parse(body.slice(body.indexOf("{"), body.lastIndexOf("}") + 1)).data || [];
+    if (data.some((x) => "u" in x)) throw new Error("sina hfq 非累积因子格式");
+    const fac = data.map((x) => [x.d, +x.f]).filter(([, v]) => v > 0).sort((a, b) => (a[0] < b[0] ? -1 : 1));
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(f, JSON.stringify({ day: today, fac }));
+    return fac;
+}
 
 // ---- 源注册表(顺序=fallback 顺序) ----
 export const KLINE_SRCS = [
     { id: "east", label: "东财push2his", adjusted: true, fn: eastDaily },
     { id: "tencent", label: "腾讯ifzq", adjusted: true, fn: txDaily },
+    { id: "sina-qfq", label: "新浪不复权×新浪因子", adjusted: true, fn: sinaQfqDaily },
     { id: "sina", label: "新浪不复权", adjusted: false, fn: sinaDaily },
 ];
 

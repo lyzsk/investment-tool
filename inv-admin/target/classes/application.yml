@@ -17,7 +17,18 @@ project:
   markdown:
     root-dir: ${project.root-dir}/md
     template-path: classpath:templates/stock-template.md
-
+  market:
+    output-dir: ${project.file.download.root-dir}/market
+    collect-timeout-min: 30
+    catch-up-timeout-min: 180
+    reconcile-start-date: 2026-10-09
+    auction-start-date: 2026-10-13
+    reconcile-lookback-days: 10
+    reconcile-on-startup-delay-min: 3
+  notify:
+    hermes-exe: ${user.home}/AppData/Local/hermes/hermes-agent/bin/hermes.exe
+    hermes-to: weixin
+    
 server:
   port: 8888
 

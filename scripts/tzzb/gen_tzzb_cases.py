@@ -14,8 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from gen_tzzb_review import build, LEDGERS  # build(ledger) -> (R, trips); import 时自动载六人日线
 
 ROOT = Path(__file__).resolve().parents[2]
-PERSONA_DIR = {lg: ROOT / "skills" / f"{lg}-skill" / "persona" / ("buchitudou0" if lg == "buchitudou0" else ".")
-               for lg in LEDGERS}
+PERSONA_DIR = {lg: ROOT / "skills" / f"{lg}-skill" / "persona" for lg in LEDGERS}  # 10/11 土豆子层拍平, 全员统一
 SEC = "## 执行质量双尾样本库(机械全量, gen_tzzb_cases.py 重生成, 勿手改)"
 
 

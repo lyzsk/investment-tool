@@ -11,6 +11,9 @@ import java.util.List;
  * @since 2026/09/26 21:24
  */
 public interface IBilibiliVideoService extends IService<BilibiliVideo> {
+    /* 10/12 来源: 每日任务 48h 发现 / 补跑登记 */
+    String ORIGIN_DAILY = "DAILY";
+    String ORIGIN_BACKFILL = "BACKFILL";
 
     /**
      * 按 bvid 查重
@@ -21,6 +24,16 @@ public interface IBilibiliVideoService extends IService<BilibiliVideo> {
      * @since 2026/09/26 21:25:03
      */
     BilibiliVideo getByBvid(String bvid);
+
+    /**
+     * bvid 是否登记过(含已逻辑删除), 发现/补跑登记去重用
+     *
+     * @author sichu huang
+     * @param bvid bvid
+     * @since 2026/10/12
+     * @return boolean
+     **/
+    boolean existsAnyByBvid(String bvid);
 
     /**
      * 注册发现(幂等): bvid 已存在=跳过; 不存在=insert, step=SUMMARIZED(仅限产物已齐的手工补录场景)
@@ -67,7 +80,33 @@ public interface IBilibiliVideoService extends IService<BilibiliVideo> {
     String processPendingVideos(int maxRetry, String authorMid);
 
     /**
-     * 物理删除 SUMMARIZED 且超过 retentionDays 天的视频原料(mp4+m4a+json 三件套,
+     * 同 downloadPendingVideos, 但只取 origin 来源的行, 本轮最多处理 limit 条(补跑队列限量, 不挡每日任务)
+     *
+     * @author sichu huang
+     * @param maxRetry maxRetry
+     * @param authorMid authorMid
+     * @param origin DAILY / BACKFILL
+     * @param limit limit
+     * @since 2026/10/12
+     * @return java.lang.String
+     **/
+    String downloadPendingVideos(int maxRetry, String authorMid, String origin, int limit);
+
+    /**
+     * 同 processPendingVideos, 但只取 origin 来源的行, 本轮最多处理 limit 条
+     *
+     * @author sichu huang
+     * @param maxRetry maxRetry
+     * @param authorMid authorMid
+     * @param origin DAILY / BACKFILL
+     * @param limit limit
+     * @since 2026/10/12
+     * @return java.lang.String
+     **/
+    String processPendingVideos(int maxRetry, String authorMid, String origin, int limit);
+
+    /**
+     * 物理删除 SUMMARIZED/DISTILLED 且超过 retentionDays 天的视频原料(mp4+m4a+json 三件套,
      * 路径按命名约定从 bvid/author_mid/publish_time 派生), remark 记删除时间,
      * DB 行保留(防重复下载)
      *

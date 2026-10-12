@@ -1,0 +1,4 @@
+# 行情库采集(scripts/market/)依赖, 2026-10-11 建
+# 安装: scripts/venv/Scripts/pip install -r scripts/requirements-market.txt
+baostock==0.9.4   # 历史日线(不复权)+复权因子+证券基本资料(上市/退市日)
+pytdx==1.72       # 通达信行情服务器(分时)

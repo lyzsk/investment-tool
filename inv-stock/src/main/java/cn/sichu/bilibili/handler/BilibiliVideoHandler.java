@@ -36,8 +36,9 @@ public class BilibiliVideoHandler implements JobHandler {
 
     @Override
     public String execute(String params) {
+        /* 10/7 修: 10/2 域目录化迁入 scripts/bilibili/, 旧路径致 10/2 后视频发现全败 */
         Path script =
-            Paths.get(projectConfig.getRootDir(), "scripts", "bilibili", "fetch_bilibili.mjs"); // 10/7 修: 10/2 域目录化迁入 scripts/bilibili/, 旧路径致 10/2 后视频发现全败
+            Paths.get(projectConfig.getRootDir(), "scripts", "bilibili", "fetch_bilibili.mjs");
         /* 多UP化: job 的 job_handler_param 透传给脚本(如 "--mid 550494308 --name 卢本圆复盘"),
            桃哥 job param 为空=默认(向后兼容); 脚本侧 --mid/--name 决定发现目标 */
         java.util.List<String> cmd = new java.util.ArrayList<>();
@@ -84,7 +85,8 @@ public class BilibiliVideoHandler implements JobHandler {
         try {
             for (JsonNode v : OM.readTree(jsonLine)) {
                 String bvid = v.get("bvid").asText();
-                if (bilibiliVideoService.getByBvid(bvid) != null) {
+                /* 10/12: 含已逻辑删除的行(用户删除的误捞 2020 旧稿不再重新入队) */
+                if (bilibiliVideoService.existsAnyByBvid(bvid)) {
                     skipped++;
                     continue;
                 }
@@ -113,7 +115,12 @@ public class BilibiliVideoHandler implements JobHandler {
         }
         /* UP 隔离(10/7 晚二修): 从 job param 解析本 job 的目标 mid, 队列只处理自己 UP 的行
            ——此前全局队列让桃哥 job 捞卢本圆的稿, 被 fetch 脚本归属闸拒绝空烧 retry(10 稿×3 轮全灭) */
-        String authorMid = "625315686";   // 桃哥=job param 为空的默认
+        /* mid 对照表(B站 card 接口 10/11 实核; job_handler_param 用 --mid 指定, 为空=桃哥):
+           625315686  = 股市-桃哥复盘(md 小节 "#### 股市 - 桃哥复盘")
+           550494308  = 卢本圆复盘
+           1372241958 = 趋势天哥 */
+        /* 桃哥=job param 为空的默认 */
+        String authorMid = "625315686";
         if (params != null) {
             java.util.regex.Matcher m =
                 java.util.regex.Pattern.compile("--mid\\s+(\\d+)").matcher(params);

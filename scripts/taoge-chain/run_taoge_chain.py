@@ -11,9 +11,12 @@ C6 方案 B: persona 反问修复=01 模板头已有"任务优先, 禁反问"元
   python scripts/taoge-chain/run_taoge_chain.py --slot 0915 [--date 20261002] [--source A-taoge]
   python scripts/taoge-chain/run_taoge_chain.py --review --date 20261002
   python scripts/taoge-chain/run_taoge_chain.py --selftest     # 不烧 token 的机械自测
+  python scripts/taoge-chain/run_taoge_chain.py --skill liuyiqing --slot 0915 --date 20260928 --asof <沙盒>  # as-of 回放(10/10)
 出口: 0=链完成 1=链中止(回炉耗尽/校验败) 2=用法/环境错 3=ESCALATE_FULL_CHAIN(市况变, 子链升级)
 """
 import argparse, json, os, re, shutil, subprocess, sys, time
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[1] / "claude_profile"))
+import rotation  # 10/11 多 key 轮换(scripts/claude_profile/rotation.py)
 
 def _cap_single():
     """B6(10/5): 单票仓位上限从 scripts/dfcf/paper/params.yaml 读(stock.cap_single), 缺文件/无 yaml 库回退 0.15"""
@@ -49,6 +52,15 @@ TEST_FLOOR, TEST_FLOOR_TZZB = _test_floor()
 CHAIN_MD = ROOT / "skills/taoge-skill/workflows/chain.md"
 PAPER = ROOT / "scripts/dfcf/paper"
 TOKEN_LOG = PAPER / "token_log.csv"
+# 10/10 as-of 回放(9/28-30 补跑语义修复): --asof <沙盒目录> 时 books/plans/facts 走沙盒, 行情走 D 前一交易日日线;
+# token_log/params.yaml 仍走真目录。ASOF=链日 YYYY-MM-DD(None=实盘)
+PAPER_DATA = PAPER
+ASOF = None
+ASOF_NOTE = ("[as-of 回放声明·最高优先级] 本链为历史回放: 视当前时刻为 {date_dash} 09:15 盘前, 本链生效日=当日 {date_dash}"
+             "(不是系统真实日期, 禁止推算成其他生效日)。禁止读取或引用 {date_dash} 09:15 之后才可能知道的任何信息: "
+             "md/ 下 {date_dash} 及更晚日期的文件、results/ 下其他日期目录、scripts/dfcf/paper/ 下的实盘账本与 plans。"
+             "前一交易日 md 中'【核销 T+1】'之类事后补记行(会引用 {date_dash} 及以后的行情)一律忽略。"
+             "价格锚以 facts.txt/cand_snap.md 为准(=前一交易日收盘口径)。\n\n")
 MAX_RETRY = 2
 # headless 权限: acceptEdits=允许写产物文件不逐次询问; 模型只有 Write 需求, 不给 bash
 # claude 入口=npm 全局 native exe(.cmd 走 cmd /c 有 8k 字符+转义坑, shim 是 sh 脚本 python 调不动)
@@ -117,11 +129,12 @@ SKILL_CFG = {
     "xuanqiucaijing": _up_cfg("xuanqiucaijing"),                    # 10/7 晚: tzzb 导师独立链
     "stzhilang": _up_cfg("stzhilang"),                    # 10/7 晚: tzzb 导师独立链
     "chong5000w": _up_cfg("chong5000w"),                    # 10/7 晚: tzzb 导师独立链
+    "control": _up_cfg("control"),                          # 10/11: 对照组(persona 恒空=裸模型基准, skill 贡献=该链−本链)
 
 }
 def apply_skill(name):
-    global SKILL, CHAIN_MD, SLOT_STEPS, ART, EXPAND, RESULTS_DIR
-    SKILL = SKILL_CFG[name]
+    global SKILL, CHAIN_MD, SLOT_STEPS, ART, EXPAND, RESULTS_DIR, SKILL_NAME
+    SKILL, SKILL_NAME = SKILL_CFG[name], name
     CHAIN_MD, SLOT_STEPS, ART, EXPAND = SKILL["chain_md"], SKILL["slot_steps"], SKILL["art"], SKILL["expand"]
     RESULTS_DIR = SKILL["results_dir"]
 apply_skill("taoge")  # 默认 taoge, main 里按 --skill 重挂
@@ -179,11 +192,24 @@ def v01(c, ctx):
     if not c.get("digest"):
         return "digest 空"
 
+MARKET_STATES, LEADING_LAYERS = ("有主线", "无主线退潮", "普跌"), ("板块层", "资金惯性层")
+
+
+def norm_enum(v, allowed):
+    """10/12: 模型常在枚举后加注释('有主线(修复初段)'/'板块层先行'), 原先直接判非法回炉(10/12 07:39 实录 3 次);
+    现以枚举值开头即归一为标准值, 其余仍判非法"""
+    s = str(v or "").strip()
+    hits = [a for a in allowed if s.startswith(a)]
+    return max(hits, key=len) if hits else None
+
+
 def v02(c, ctx):
-    if c.get("market_state") not in ("有主线", "无主线退潮", "普跌"):
-        return f"market_state 非法: {c.get('market_state')}"
-    if c.get("leading_layer") not in ("板块层", "资金惯性层"):
-        return f"leading_layer 非法: {c.get('leading_layer')}"
+    ms, ll = norm_enum(c.get("market_state"), MARKET_STATES), norm_enum(c.get("leading_layer"), LEADING_LAYERS)
+    if not ms:
+        return f"market_state 非法: {c.get('market_state')}(只许 有主线/无主线退潮/普跌 之一, 注释写正文不写进字段)"
+    if not ll:
+        return f"leading_layer 非法: {c.get('leading_layer')}(只许 板块层/资金惯性层 之一)"
+    c["market_state"], c["leading_layer"] = ms, ll
     if not c.get("directions"):
         return "directions 空"
 
@@ -326,21 +352,49 @@ def vblind(c, ctx):
 
 VALIDATORS = {"01": v01, "02": v02, "03b": v03side("多"), "03s": v03side("空"), "03j": v03, "04": v04, "05": v05, "06": v06, "07": v07, "blind": vblind}
 
+class BlindDowngrade(Exception):
+    """盲审失败降级信号(10/11): 捕获后不中止链, 照发 06 并标【未过盲审】"""
+
 # ---------- 机械层对接 ----------
 def build_facts(date_dash, slot):
-    r = subprocess.run(["node", "scripts/dfcf/paper/facts.mjs", "--slot", slot, "--date", date_dash],
-                       cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    out = PAPER_DATA / "facts" / date_dash / slot / "facts.md"
+    if ASOF and out.exists():  # as-of: 编排脚本每日预建一次, 并发链复用(防同目录竞写+东财封 IP)
+        return out
+    # 10/11 实盘共享: 同日同 slot 的 15 条链只由首个抢到锁的构建, 其余等锁释放后复用(原 15 进程同写一目录+齐打东财)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    lock, fresh = out.parent / ".build.lock", lambda: out.exists() and time.time() - out.stat().st_mtime < 1200
+    if fresh():
+        return out
+    try:
+        fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY); os.close(fd)
+    except FileExistsError:
+        for _ in range(60):   # 等构建者 ≤10min; 锁残留(构建者崩)则超时后自建
+            if not lock.exists() and fresh():
+                print(f"facts 复用同 slot 他链构建: {out}")
+                return out
+            time.sleep(10)
+        lock.unlink(missing_ok=True)
+        return build_facts(date_dash, slot)
+    try:
+        r = subprocess.run(["node", "scripts/dfcf/paper/facts.mjs", "--slot", slot, "--date", date_dash],
+                           cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    finally:
+        lock.unlink(missing_ok=True)
     if r.returncode != 0:
         sys.exit(f"facts 构建败: {r.stderr[-300:] if r.stderr else r.stdout[-300:]}")
-    return PAPER / "facts" / date_dash / slot / "facts.md"
+    return out
 
 def load_book(source):
-    f = PAPER / "books" / f"{source}.json"
+    f = PAPER_DATA / "books" / f"{source}.json"
     if not f.exists():
         sys.exit(f"账本不存在: {f}(先 matcher.mjs --init)")
     return json.loads(f.read_text(encoding="utf-8"))
 
 def book_nav(book):
+    """10/11 修: 优先最近一次 EOD 市值 nav(含浮盈亏); 原口径=现金+持仓成本≈恒为初始资金(浮盈亏不进仓位帽/测试下限)。
+    无 EOD 记录(新账本首日)才退回成本口径"""
+    if book.get("nav"):
+        return book["nav"][-1]["nav"]
     return book["cash"] + sum(p["qty"] * p["cost"] for p in book["positions"].values())
 
 def write_paper_state(book, run_dir):
@@ -350,26 +404,88 @@ def write_paper_state(book, run_dir):
     (run_dir / "paper_state.json").write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
 
 # ---------- claude -p 调用 + token 台账 ----------
-WINDOW_RE = re.compile(r"usage limit|5-hour|429|quota", re.I)   # 同 cruise_loop(k3 立法口径)
+# 10/11 修 429 误判: 原对 stdout+stderr 全文搜 "429" → 模型正文里的金额(如 42976)命中 → 整链白等 45min
+# (10/9 taoge 0915 链 197min 元凶之一)。现仅在调用失败(非 0 退出或 JSON is_error)时, 查 stderr+错误正文, 且 429 须为独立数字
+WINDOW_RE = re.compile(r"usage limit|5-hour limit|rate.?limit|\b429\b|quota exceeded|overloaded", re.I)
 WINDOW_DEFER_S = 2700                                           # 顺延 45min(10/4 用户: 顺延不跳过)
+# 10/11 全局并发闸: 跨进程最多 N 个 claude -p 同时跑(9:15 曾 14 链齐发, 额度窗口被瞬间打满); 槽=文件锁, 持有进程死亡即回收
+# 10/12 用户令: 每条链各自串行=一条车道, 15 条链(14 skill+对照)同时各占一条 → 默认 15(6 时 9 条链排队, 0915 拖 2h+)
+# 切回订阅制时 15 并发吃不消: 改 scripts/claude_profile/max_concurrency.txt 一个数字即可(下次链运行生效, 不用重启应用); 环境变量优先
+def _max_concurrency():
+    if os.environ.get("CLAUDE_MAX_CONCURRENCY"):
+        return int(os.environ["CLAUDE_MAX_CONCURRENCY"])
+    f = Path(__file__).resolve().parents[1] / "claude_profile" / "max_concurrency.txt"
+    try:
+        return max(1, int(f.read_text(encoding="utf-8").split()[0]))
+    except (OSError, ValueError, IndexError):
+        return 15
+
+
+MAX_CLAUDE = _max_concurrency()
+SLOT_DIR = Path(__file__).resolve().parent / ".claude_slots"
+
+def _claude_json(stdout):
+    """10/11: claude -p 经网关时会在 JSON 前打印提示横幅(如 auto mode 计费说明), 只取最后一个 JSON 对象行"""
+    for line in reversed((stdout or "").strip().splitlines()):
+        if line.lstrip().startswith("{"):
+            return json.loads(line)
+    return json.loads(stdout or "")
+
+
+def _acquire_slot():
+    import psutil
+    SLOT_DIR.mkdir(exist_ok=True)
+    waited = 0
+    while True:
+        for i in range(MAX_CLAUDE):
+            f = SLOT_DIR / f"slot_{i}.lock"
+            try:
+                fd = os.open(str(f), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(fd, str(os.getpid()).encode()); os.close(fd)
+                if waited:
+                    print(f"并发闸: 等待 {waited}s 后取得槽 {i}")
+                return f
+            except FileExistsError:
+                try:
+                    if not psutil.pid_exists(int(f.read_text() or 0)):
+                        f.unlink(missing_ok=True)   # 持有者已死=回收, 下一轮重抢
+                except (ValueError, OSError):
+                    pass
+        time.sleep(10); waited += 10
 
 def call_claude(prompt):
     """10/7 晚修正(用户令: 模仿 k3 cruise_loop 语义): window 错误=顺延不跳过——
-    无限顺延(每次 45min)直到窗口重置, 不设次数上限, 欠账永远留账不丢。"""
+    无限顺延(每次 45min)直到窗口重置, 不设次数上限, 欠账永远留账不丢。
+    10/11: 本机有 scripts/claude_profile/rotation.txt 时多 key 轮换——撞窗先切下一套立即重试, 全部耗尽才顺延"""
     while True:
+        slot = _acquire_slot()
         t0 = time.time()
-        r = subprocess.run(CLAUDE + [prompt], cwd=ROOT, capture_output=True, text=True,
-                           encoding="utf-8", errors="replace", timeout=1800)
+        try:
+            rotation.log_use(f"chain:{SKILL_NAME}")
+            r = subprocess.run(CLAUDE + rotation.settings_args() + [prompt], cwd=ROOT, capture_output=True, text=True,
+                               encoding="utf-8", errors="replace", timeout=1800)
+        except subprocess.TimeoutExpired:   # 原未捕获=整链崩溃; 现记失败交给回炉
+            r = subprocess.CompletedProcess(CLAUDE, -1, "", "claude -p 超时 1800s")
+        finally:
+            slot.unlink(missing_ok=True)
         dur = time.time() - t0
-        blob = (r.stdout or "") + (r.stderr or "")
-        if WINDOW_RE.search(blob):
-            print(f"⚠ API window 限: 顺延 {WINDOW_DEFER_S // 60}min 后重试(欠账留账不跳过, k3 语义)")
+        is_err = r.returncode != 0
+        try:
+            j = _claude_json(r.stdout)
+            is_err = is_err or bool(j.get("is_error"))
+            err_text = (r.stderr or "") + (str(j.get("result", "")) if j.get("is_error") else "")
+        except json.JSONDecodeError:
+            err_text = (r.stderr or "") + (r.stdout or "")[-500:]
+        if is_err and WINDOW_RE.search(err_text):
+            if rotation.on_window_limit():
+                continue
+            print(f"⚠ API window 限: 顺延 {WINDOW_DEFER_S // 60}min 后重试(欠账留账不跳过, k3 语义): {err_text[-120:]}")
             time.sleep(WINDOW_DEFER_S)
             continue
         break
     usage, cost = {}, ""
     try:
-        j = json.loads(r.stdout)
+        j = _claude_json(r.stdout)
         usage = j.get("usage", {})
         cost = j.get("total_cost_usd", "")
     except json.JSONDecodeError:
@@ -384,6 +500,19 @@ def log_tokens(date, slot, step, attempt, usage, cost, dur):
         f.write(f"{date},{slot},{step},{attempt},{usage.get('input_tokens', '')},"
                 f"{usage.get('output_tokens', '')},{cost},{dur:.0f}\n")
 
+
+def log_retry(run_dir, date, slot, step, attempt, reason):
+    """10/12: 回炉原因 → run_dir/retry_log.jsonl + 全局 scripts/dfcf/paper/retry_log.jsonl(按 skill 汇总统计用) + stdout"""
+    rec = {"ts": datetime.now().isoformat(timespec="seconds"), "skill": SKILL_NAME, "date": date, "slot": slot,
+           "step": step, "attempt": attempt, "reason": str(reason)[:500]}
+    print(f"step {step} 回炉 {attempt}/{MAX_RETRY} 原因: {rec['reason'][:200]}", flush=True)
+    for f in (Path(run_dir) / "retry_log.jsonl", PAPER / "retry_log.jsonl"):
+        try:
+            with f.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        except OSError:
+            pass
+
 # ---------- 06 actions → plans 行(机械转换, LLM 不直接写 plans) ----------
 def snap_candidates(run_dir, c04):
     """C7-①: 04 后按候选票 code 机械拉价格锚快照(snapshot.mjs 多源 fallback)→ cand_snap.md/.json
@@ -395,7 +524,7 @@ def snap_candidates(run_dir, c04):
         return {}
     js, md = run_dir / "cand_snap.json", run_dir / "cand_snap.md"
     r = subprocess.run(["node", "scripts/dfcf/paper/snapshot.mjs", "--codes", ",".join(codes),
-                        "--json", str(js), "--md", str(md)],
+                        "--json", str(js), "--md", str(md)] + (["--asof", ASOF] if ASOF else []),
                        cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
     if r.returncode == 2:
         print(f"WARN: 候选票快照源全灭, 06 价格锚校验降级: {(r.stdout or r.stderr or '')[-150:]}")
@@ -408,7 +537,7 @@ def snap_candidates(run_dir, c04):
     print(f"cand_snap: {len(snaps)}/{len(codes)} 票有价格锚 → {md.name}")
     return snaps
 
-def emit_plans(date_dash, slot, source, contract, book):
+def emit_plans(date_dash, slot, source, contract, book, blind_note=""):
     acts = contract.get("actions") or []
     if not acts:
         print("06 无 actions(条件单在 no_trade 契约内或纯空仓), 不写 plans")
@@ -418,7 +547,7 @@ def emit_plans(date_dash, slot, source, contract, book):
     for o in book["orders"]:
         if o["status"] == "open":
             open_by_code.setdefault(o["code"], o)
-    plans_dir = PAPER / "plans"
+    plans_dir = PAPER_DATA / "plans"
     plans_dir.mkdir(exist_ok=True)
     f = plans_dir / f"{date_dash}_{source}.md"
     # 10/9 修双成交案: 同 slot 回炉重 emit 时, 先删本 slot 旧行再 append(废版 plans 不得残留;
@@ -438,7 +567,7 @@ def emit_plans(date_dash, slot, source, contract, book):
             conds.append(f"cancel_below={float(a['cancel_below']):g}")
         if a.get("stop_below"):
             conds.append(f"stop_below={float(a['stop_below']):g}")
-        note = f"链终裁: 触发{px:g}" + (f"(公式 {a['_formula']})" if a.get("_formula") else "")
+        note = blind_note + f"链终裁: 触发{px:g}" + (f"(公式 {a['_formula']})" if a.get("_formula") else "")
         if a.get("invalid_if"):
             note += f" 失效:{a['invalid_if']}"
         # plans 行第 8/9 字段=结构化 anchor+cond(matcher 锚偏离守卫+失效哨兵的取数口; v06 已保证 anchor 数值)
@@ -485,10 +614,48 @@ def reject_rules() -> str:
         return ""
 
 # ---------- 主链 ----------
+def record_rules_version(run_dir, slot, steps, dry):
+    """10/11 N1(推进分析口径): 每次链运行记下所用 persona 版本 → run_dir/run_meta.jsonl 追加一行。
+    事后可分样本内/外(规则是否已含该日信息)、统计规则变动次数(同 skill 跨运行 rules sha 变化数)。
+    只读 persona, 失败只告警不阻断链。"""
+    import hashlib
+    try:
+        pdir = ROOT / "skills" / f"{SKILL_NAME}-skill" / "persona"
+        files = {}
+        for name in ("rules.md", "profile.md", "cases.md", "language.md"):
+            f = pdir / name
+            if f.exists():
+                b = f.read_bytes()
+                files[name] = {"sha12": hashlib.sha256(b).hexdigest()[:12], "bytes": len(b),
+                               "mtime": datetime.fromtimestamp(f.stat().st_mtime).isoformat(timespec="seconds")}
+        rules = pdir / "rules.md"
+        n_rules = len(re.findall(r"^### ", rules.read_text(encoding="utf-8"), re.M)) if rules.exists() else 0
+        rec = {"ts": datetime.now().isoformat(timespec="seconds"), "skill": SKILL_NAME, "slot": slot,
+               "steps": steps, "asof": ASOF, "dry": dry, "rules_count": n_rules, "persona": files,
+               "chain_md_sha12": hashlib.sha256(CHAIN_MD.read_bytes()).hexdigest()[:12]}
+        with (run_dir / "run_meta.jsonl").open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception as e:  # noqa: BLE001
+        print(f"WARN: rules 版本记录失败(不阻断): {e}")
+
+
 def run_chain(date, date_dash, slot, steps, source, dry=False):
-    run_dir = ROOT / "results" / RESULTS_DIR / f"live-{date}"
+    run_dir = ROOT / "results" / RESULTS_DIR / f"{'asof' if ASOF else 'live'}-{date}"  # as-of 不覆盖旧 live-D 档
     run_dir.mkdir(parents=True, exist_ok=True)
     sub = steps != SLOT_STEPS["0915"] and steps != ["07"]
+    # 10/11 同导师互斥: 盘前全链(45min+)未完时, 同 skill 盘中子链跳过(原=子链覆盖全链 02/04/06 产物); 持锁进程死亡=回收
+    import atexit, psutil
+    clock = run_dir / ".chain.lock"
+    if clock.exists():
+        try:
+            holder = int(clock.read_text() or 0)
+        except ValueError:
+            holder = 0
+        if holder and psutil.pid_exists(holder):
+            print(f"同 skill 链在跑(pid {holder}), 本次 {slot} {'子链跳过' if sub else '全链跳过'}(防覆盖产物)")
+            sys.exit(0)
+    clock.write_text(str(os.getpid()))
+    atexit.register(lambda: clock.unlink(missing_ok=True) if clock.exists() and clock.read_text() == str(os.getpid()) else None)
     book = load_book(source)
     ctx = {"date_dash": date_dash, "nav": book_nav(book), "sub": sub, "contracts": {}, "skill": SKILL}
     # 中段起跑(手动 --steps 回炉)预载上游 contract: v04 查 02.directions / v05 查 04.candidates /
@@ -509,10 +676,12 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
     shutil.copy(facts, run_dir / "facts.txt")  # 01 的输入口(chain.md: harness 写 facts.txt)
     write_paper_state(book, run_dir)
     # B3: 每轮起跑前重建 rules_index(rules.md 可能刚被 distill 改过, 索引不许 stale; 失败=用旧索引不致命)
-    r = subprocess.run(["node", "scripts/md/gen_rules_index.mjs"], cwd=ROOT,
-                       capture_output=True, text=True, encoding="utf-8", errors="replace")
-    if r.returncode != 0:
+    # as-of: 编排脚本每日建一次, 并发链不重复写(防竞写)
+    r = subprocess.run(["node", "scripts/md/gen_rules_index.mjs", "--skill", SKILL_NAME], cwd=ROOT,  # 10/11: 原不带 --skill=只建 taoge 且 15 进程同写
+                       capture_output=True, text=True, encoding="utf-8", errors="replace") if not ASOF else None
+    if r is not None and r.returncode != 0:
         print(f"WARN: rules_index 重建失败(用旧索引继续): {(r.stderr or r.stdout)[-200:]}")
+    record_rules_version(run_dir, slot, steps, dry)
 
     templates = load_templates()
     if sub:  # 盘中重跑归档: 旧产物改名 *.prev.md(chain.md 通用规范; 只留最近一版不连环套娃)
@@ -530,96 +699,110 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
             continue
         prompt = templates[step].replace("{date_dash}", date_dash) \
             .replace("{date}", date).replace("{run_dir}", str(run_dir).replace("\\", "/"))
+        if ASOF:
+            prompt = ASOF_NOTE.replace("{date_dash}", date_dash) + prompt
         if step == "05":  # 05 双注入(10/9): 负例警示(neg_warn) + 否决条款池(reject_rules), 均 fail-open
             prompt += neg_warn() + reject_rules()
-        fail_reason, done = None, False
-        for attempt in range(1, MAX_RETRY + 2):
-            p = prompt if not fail_reason else \
-                prompt + f"\n\n[驱动器回炉 {attempt - 1}/{MAX_RETRY}] 上次失败原因: {fail_reason}。只修此问题, 产物要求不变。"
-            since = time.time()
-            rc, usage, cost, dur = call_claude(p)
-            log_tokens(date, slot, step, attempt, usage, cost, dur)
-            text, err = read_artifact(run_dir, step, since)
-            if err:
-                fail_reason = err
-                continue
-            so = sentinel_ok(text, step, date)
-            if step == "blind" and so == "FAIL":
-                c, _ = contract_of(text)
-                issues = (c or {}).get("issues", [])
-                if attempt > MAX_RETRY:
-                    sys.exit("盲审复审仍 FAIL, 链中止")
-                # 盲审 FAIL → 带意见回炉 06 一次, 再复审
-                c06, _ = contract_of((run_dir / ART["06"]).read_text(encoding="utf-8"))
-                p06 = templates["06"].replace("{date_dash}", date_dash).replace("{date}", date) \
-                    .replace("{run_dir}", str(run_dir).replace("\\", "/")) + \
-                    f"\n\n[盲审驳回] issues: {';'.join(issues)}。修订 06_verdict.md 回应这些意见。"
+        try:  # 10/11 用户令: 盲审失败=降级照发(打【未过盲审】标), 不再整链中止; 06 用最后一版过机械校验的 contract
+            fail_reason, done = None, False
+            for attempt in range(1, MAX_RETRY + 2):
+                p = prompt if not fail_reason else \
+                    prompt + f"\n\n[驱动器回炉 {attempt - 1}/{MAX_RETRY}] 上次失败原因: {fail_reason}。只修此问题, 产物要求不变。"
+                if fail_reason:   # 10/12: 每次回炉原因落盘(此前只在终败时打印, 02/06 约半数要回炉却查不到原因)
+                    log_retry(run_dir, date, slot, step, attempt - 1, fail_reason)
                 since = time.time()
-                _, u2, c2, d2 = call_claude(p06)
-                log_tokens(date, slot, "06", attempt, u2, c2, d2)
-                # 回炉 06 必须重验+换约再进盲审复审(10/3 实录 bug: 旧约 emit plans=废版下单)
-                t06, e06 = read_artifact(run_dir, "06", since)
-                if e06 or sentinel_ok(t06 or "", "06", date) is not True:
-                    sys.exit(f"盲审回炉 06 产物/哨兵异常({e06 or '哨兵缺失'}), 链中止(未 emit)")
-                c06n, cerr06 = contract_of(t06)
-                if cerr06:
-                    sys.exit(f"盲审回炉 06 contract 异常({cerr06}), 链中止(未 emit)")
-                v06fail = VALIDATORS["06"](c06n, ctx)
-                if v06fail:
-                    # C9-①(10/4): 死链修复——回炉版校验败不再直接 abort(9/29 实证: 公式价被数值校验拒→链中止无产出),
-                    # 再给一次带失败原因的回炉; 仍败才中止。公式价合法性本体由 C9-② resolve_px 支持。
-                    print(f"盲审回炉 06 校验败({v06fail}), 再给一次带原因回炉")
-                    p06r = templates["06"].replace("{date_dash}", date_dash).replace("{date}", date) \
+                rc, usage, cost, dur = call_claude(p)
+                log_tokens(date, slot, step, attempt, usage, cost, dur)
+                text, err = read_artifact(run_dir, step, since)
+                if err:
+                    fail_reason = err
+                    continue
+                so = sentinel_ok(text, step, date)
+                if step == "blind" and so == "FAIL":
+                    c, _ = contract_of(text)
+                    issues = (c or {}).get("issues", [])
+                    if attempt > MAX_RETRY:
+                        raise BlindDowngrade(f"盲审复审仍 FAIL: {';'.join(issues)[:300]}")
+                    # 盲审 FAIL → 带意见回炉 06 一次, 再复审
+                    c06, _ = contract_of((run_dir / ART["06"]).read_text(encoding="utf-8"))
+                    p06 = (ASOF_NOTE.replace("{date_dash}", date_dash) if ASOF else "") + templates["06"].replace("{date_dash}", date_dash).replace("{date}", date) \
                         .replace("{run_dir}", str(run_dir).replace("\\", "/")) + \
-                        f"\n\n[驱动器回炉] 上版 contract 校验败: {v06fail}。只修此问题, 重写 06_verdict.md。"
-                    since2 = time.time()
-                    _, u3, c3, d3 = call_claude(p06r)
-                    log_tokens(date, slot, "06", attempt, u3, c3, d3)
-                    t06b, e06b = read_artifact(run_dir, "06", since2)
-                    if e06b or sentinel_ok(t06b or "", "06", date) is not True:
-                        sys.exit(f"盲审回炉 06 二版产物/哨兵异常({e06b or '哨兵缺失'}), 链中止(未 emit)")
-                    c06b, cerr06b = contract_of(t06b)
-                    if cerr06b:
-                        sys.exit(f"盲审回炉 06 二版 contract 异常({cerr06b}), 链中止(未 emit)")
-                    v06fb = VALIDATORS["06"](c06b, ctx)
-                    if v06fb:
-                        sys.exit(f"盲审回炉 06 二次校验仍败({v06fb}), 链中止(未 emit)")
-                    c06n = c06b
-                ctx["contracts"]["06"] = c06n
-                continue
-            if so is not True:
-                fail_reason = f"哨兵缺失/错位(末行非 STEP_OK {step} {date})"
-                continue
-            c, cerr = contract_of(text)
-            if cerr:
-                fail_reason = cerr
-                continue
-            vfail = VALIDATORS[step](c, ctx)
-            if vfail:
-                fail_reason = vfail
-                continue
-            ctx["contracts"][step] = c
-            if step == "04":  # C7-①: 04 落地即拉候选票价格锚(v06 校验+盲审⑥维度消费)
-                ctx["snap"] = snap_candidates(run_dir, c)
-            # 回溯重验 01..当前(机械零 token, chain.md 交叉验证表)
-            for done_step in ctx["contracts"]:
-                t2 = (run_dir / ART[done_step]).read_text(encoding="utf-8")
-                if sentinel_ok(t2, done_step, date) is not True:
-                    sys.exit(f"回溯重验败: {done_step} 哨兵消失, 链中止")
-            print(f"step {step} ✅ (attempt {attempt}, {dur:.0f}s)")
-            done = True
-            break
-        if not done:
-            sys.exit(f"step {step} 回炉 {MAX_RETRY} 次仍败({fail_reason}), 链中止 exit 1")
+                        f"\n\n[盲审驳回] issues: {';'.join(issues)}。修订 06_verdict.md 回应这些意见。"
+                    since = time.time()
+                    _, u2, c2, d2 = call_claude(p06)
+                    log_tokens(date, slot, "06", attempt, u2, c2, d2)
+                    # 回炉 06 必须重验+换约再进盲审复审(10/3 实录 bug: 旧约 emit plans=废版下单)
+                    t06, e06 = read_artifact(run_dir, "06", since)
+                    if e06 or sentinel_ok(t06 or "", "06", date) is not True:
+                        raise BlindDowngrade(f"盲审回炉 06 产物/哨兵异常({e06 or '哨兵缺失'})")
+                    c06n, cerr06 = contract_of(t06)
+                    if cerr06:
+                        raise BlindDowngrade(f"盲审回炉 06 contract 异常({cerr06})")
+                    v06fail = VALIDATORS["06"](c06n, ctx)
+                    if v06fail:
+                        # C9-①(10/4): 死链修复——回炉版校验败不再直接 abort(9/29 实证: 公式价被数值校验拒→链中止无产出),
+                        # 再给一次带失败原因的回炉; 仍败才中止。公式价合法性本体由 C9-② resolve_px 支持。
+                        print(f"盲审回炉 06 校验败({v06fail}), 再给一次带原因回炉")
+                        p06r = (ASOF_NOTE.replace("{date_dash}", date_dash) if ASOF else "") + templates["06"].replace("{date_dash}", date_dash).replace("{date}", date) \
+                            .replace("{run_dir}", str(run_dir).replace("\\", "/")) + \
+                            f"\n\n[驱动器回炉] 上版 contract 校验败: {v06fail}。只修此问题, 重写 06_verdict.md。"
+                        since2 = time.time()
+                        _, u3, c3, d3 = call_claude(p06r)
+                        log_tokens(date, slot, "06", attempt, u3, c3, d3)
+                        t06b, e06b = read_artifact(run_dir, "06", since2)
+                        if e06b or sentinel_ok(t06b or "", "06", date) is not True:
+                            raise BlindDowngrade(f"盲审回炉 06 二版产物/哨兵异常({e06b or '哨兵缺失'})")
+                        c06b, cerr06b = contract_of(t06b)
+                        if cerr06b:
+                            raise BlindDowngrade(f"盲审回炉 06 二版 contract 异常({cerr06b})")
+                        v06fb = VALIDATORS["06"](c06b, ctx)
+                        if v06fb:
+                            raise BlindDowngrade(f"盲审回炉 06 二次校验仍败({v06fb})")
+                        c06n = c06b
+                    ctx["contracts"]["06"] = c06n
+                    continue
+                if so is not True:
+                    fail_reason = f"哨兵缺失/错位(末行非 STEP_OK {step} {date})"
+                    continue
+                c, cerr = contract_of(text)
+                if cerr:
+                    fail_reason = cerr
+                    continue
+                vfail = VALIDATORS[step](c, ctx)
+                if vfail:
+                    fail_reason = vfail
+                    continue
+                ctx["contracts"][step] = c
+                if step == "04":  # C7-①: 04 落地即拉候选票价格锚(v06 校验+盲审⑥维度消费)
+                    ctx["snap"] = snap_candidates(run_dir, c)
+                # 回溯重验 01..当前(机械零 token, chain.md 交叉验证表)
+                for done_step in ctx["contracts"]:
+                    t2 = (run_dir / ART[done_step]).read_text(encoding="utf-8")
+                    if sentinel_ok(t2, done_step, date) is not True:
+                        sys.exit(f"回溯重验败: {done_step} 哨兵消失, 链中止")
+                print(f"step {step} ✅ (attempt {attempt}, {dur:.0f}s)")
+                done = True
+                break
+            if not done:
+                if step == "blind":
+                    raise BlindDowngrade(f"盲审步回炉 {MAX_RETRY} 次仍败({fail_reason})")
+                sys.exit(f"step {step} 回炉 {MAX_RETRY} 次仍败({fail_reason}), 链中止 exit 1")
+        except BlindDowngrade as e:
+            ctx["blind_fail"] = str(e)
+            print(f"⚠ 盲审未通过 → 降级照发(单子标【未过盲审】): {e}")
+            (run_dir / "BLIND_FAILED.txt").write_text(
+                f"{datetime.now():%Y-%m-%d %H:%M} 盲审未通过, 降级照发(单子标【未过盲审】)\n原因: {e}\n", encoding="utf-8")
 
         if step == "02" and sub and prev02:  # 升级规则: 市况变→全链
-            if ctx["contracts"]["02"].get("market_state") != prev02.get("market_state"):
+            if norm_enum(ctx["contracts"]["02"].get("market_state"), MARKET_STATES) != norm_enum(prev02.get("market_state"), MARKET_STATES):
                 print(f"ESCALATE_FULL_CHAIN {date}: 市况 {prev02.get('market_state')}→{ctx['contracts']['02'].get('market_state')}")
                 sys.exit(3)
 
     # 扩池提案自动落 pools.json(10/4 用户拍板: 04 提案 v04 校验后机械 merge 零 token; 失败仅 WARN 不中止链)
     props = (ctx["contracts"].get("04") or {}).get("pool_proposals")
-    if props:
+    if props and ASOF:
+        print("as-of: 扩池提案不落 pools.json(回放不改实盘 persona 池)")
+    elif props:
         pf = run_dir / "pool_proposals.json"
         pf.write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
         r = subprocess.run(["node", "scripts/dfcf/paper/pool_merge.mjs", "--file", str(pf)],
@@ -630,12 +813,13 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
             print("WARN: 扩池提案落 pools.json 失败(链不中止, 提案已存 run_dir/pool_proposals.json)")
 
     if "06" in steps:
-        emit_plans(date_dash, slot, source, ctx["contracts"].get("06", {}), book)
+        emit_plans(date_dash, slot, source, ctx["contracts"].get("06", {}), book,
+                   "【未过盲审】" if ctx.get("blind_fail") else "")
     print(f"链完成 {date} slot {slot} steps {'→'.join(steps)}")
 
 # ---------- 自测(不烧 token: 假产物喂校验器) ----------
 def selftest():
-    global TEST_FLOOR, TEST_FLOOR_TZZB
+    global TEST_FLOOR, TEST_FLOOR_TZZB, PAPER_DATA
     TEST_FLOOR, TEST_FLOOR_TZZB = 0, 0   # 闸单测不受首跑期仓位下限干扰(夹具仓位小; 进程终止无需恢复)
     tmp = ROOT / "results/taoge_chain/selftest-tmp"
     shutil.rmtree(tmp, ignore_errors=True)
@@ -753,20 +937,23 @@ def selftest():
     a_form["_px"], a_form["_formula"] = resolve_px("Z*1.02", 7.6)  # 模拟 v06 回填后的取数口
     c06 = {"supersedes": "取代盘前决策:纠偏", "actions": [
         {"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "12.5", "qty": 800, "anchor": "12.4", "invalid_if": "破12"}, a_form]}
-    pf = PAPER / "plans" / "2026-09-30_A-taoge.md"
-    # emit_plans 现在会自动调 matcher --import, 自测打桩防污染真账本
+    # 10/11: plans 落临时目录(原写真 plans/ 再删=若真文件同名会被删); emit_plans 会调 matcher --import, 打桩防污染真账本
+    import tempfile
+    orig_data, PAPER_DATA = PAPER_DATA, Path(tempfile.mkdtemp(prefix="selftest_paper_"))
+    pf = PAPER_DATA / "plans" / "2026-09-30_A-taoge.md"
     orig_run = subprocess.run
     subprocess.run = lambda *a, **k: type("R", (), {"returncode": 0, "stdout": "JSON:{}\n", "stderr": ""})()
     try:
         emit_plans("2026-09-30", "0927", "A-taoge", c06, book)
     finally:
         subprocess.run = orig_run
+        PAPER_DATA = orig_data
     got = pf.read_text(encoding="utf-8")
     if "CXL | 002050" not in got or "BUY | 002050 | 12.5 | 800 | day | 12.4 |" not in got:
         fails.append("plans 转换缺 CXL/BUY 行(或 anchor 字段)")
     if "SELL | 000910 | 7.752 | 1000 | day | 7.55 | stop_below=8.1 |" not in got:
         fails.append("plans 公式价代换/anchor/stop_below cond 列缺失")
-    os.remove(pf)
+    shutil.rmtree(pf.parent.parent, ignore_errors=True)
 
     # cb 链(10/4 盲区修复⑦): 模板抽取 + v06 cb 模式(转债 code 闸/R 规则 id/3 成上限)
     apply_skill("buchitudou0")
@@ -806,6 +993,7 @@ def main():
     ap.add_argument("--source")  # 缺省=skill 默认账本(A-taoge/A-cb)
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--dry", action="store_true", help="走全流程但不调 claude(冒烟用)")
+    ap.add_argument("--asof", metavar="SANDBOX", help="as-of 回放: 沙盒数据根(books/plans/facts), 链日=--date, 行情=前一交易日日线")
     a = ap.parse_args()
     if a.selftest:
         selftest()
@@ -814,6 +1002,15 @@ def main():
     source = a.source or SKILL["source"]
     date = a.date
     date_dash = f"{date[:4]}-{date[4:6]}-{date[6:]}"
+    if a.asof:  # 10/10: 子进程(facts/snapshot/matcher)经 env 同步切沙盒+回放口径
+        global PAPER_DATA, ASOF
+        PAPER_DATA, ASOF = Path(a.asof).resolve(), date_dash
+        if not (PAPER_DATA / "books").is_dir():
+            sys.exit(f"沙盒无 books/: {PAPER_DATA}(先 PAPER_ROOT=<沙盒> node scripts/dfcf/paper/matcher.mjs --init)")
+        os.environ["PAPER_ROOT"], os.environ["PAPER_ASOF"] = str(PAPER_DATA), date_dash
+    else:  # 实盘: 清掉残留的沙盒变量, 防 facts/matcher 子进程写沙盒而驱动器读实盘(10/11 预检实录)
+        os.environ.pop("PAPER_ROOT", None)
+        os.environ.pop("PAPER_ASOF", None)
     if a.review:
         run_chain(date, date_dash, "review", ["07"], source, a.dry)
         return

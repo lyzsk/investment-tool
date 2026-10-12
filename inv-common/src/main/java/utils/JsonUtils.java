@@ -5,11 +5,20 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -20,7 +29,9 @@ import java.util.regex.Pattern;
 public class JsonUtils {
     @Getter
     public static final ObjectMapper objectMapper =
-        new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true)
+        new ObjectMapper().registerModule(new JavaTimeModule())
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .configure(JsonParser.Feature.ALLOW_COMMENTS, true)
             .configure(JsonReadFeature.ALLOW_TRAILING_COMMA.mappedFeature(), true)
             .configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -85,5 +96,27 @@ public class JsonUtils {
         } catch (URISyntaxException e) {
             return null;
         }
+    }
+
+    /**
+     * 读 jsonl 文件(一行一个 JSON 对象, 字段名=目标类驼峰属性名), 空行跳过; 未知字段忽略
+     *
+     * @author sichu huang
+     * @param file 文件路径
+     * @param type 目标类型
+     * @since 2026/10/11
+     * @return java.util.List<T>
+     **/
+    public static <T> List<T> readJsonl(Path file, Class<T> type) throws IOException {
+        List<T> list = new ArrayList<>();
+        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (StringUtils.isNotEmpty(line.trim())) {
+                    list.add(objectMapper.readValue(line, type));
+                }
+            }
+        }
+        return list;
     }
 }

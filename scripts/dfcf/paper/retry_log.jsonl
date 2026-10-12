@@ -1,0 +1,3 @@
+{"ts": "2026-10-12T07:39:07", "skill": "xuanqiucaijing", "date": "20261012", "slot": "0915", "step": "02", "attempt": 1, "reason": "market_state 非法: 有主线(修复初段/弱确认,隔夜加息压制,防御兜底启用)"}
+{"ts": "2026-10-12T07:39:18", "skill": "lubenyuan", "date": "20261012", "slot": "0915", "step": "02", "attempt": 1, "reason": "market_state 非法: 有主线（多主题并行，强度中上）"}
+{"ts": "2026-10-12T07:39:49", "skill": "lubenyuan", "date": "20261012", "slot": "0915", "step": "02", "attempt": 2, "reason": "leading_layer 非法: 板块层先行"}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.paper.mapper.ChainDecisionRuleMapper">
+
+    <!-- 重新入库幂等第 1 步: 物理删除(不是逻辑删除, 见 Mapper 接口注释) -->
+    <delete id="physicalDeleteByRunIds">
+        DELETE FROM chain_decision_rule WHERE run_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+</mapper>

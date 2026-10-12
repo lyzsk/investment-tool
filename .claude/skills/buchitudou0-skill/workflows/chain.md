@@ -47,7 +47,7 @@
 - 校验：同 taoge v02（枚举合法+directions 非空）
 
 ````prompt
-任务：对 {date} 执行 cb 决策链 02 市况判定。读 {run_dir}/01_facts.md 与 skills/buchitudou0-skill/persona/buchitudou0/（profile.md+rules.md 全量）。
+任务：对 {date} 执行 cb 决策链 02 市况判定。读 {run_dir}/01_facts.md 与 skills/buchitudou0-skill/persona/（profile.md+rules.md 全量）。
 ①大盘三态判定（有主线/无主线退潮/普跌）+先行层（口径同 taoge 链 02）；②**转债域适配**：大盘状态→转债情绪推断（R7：深亏全部来自开盘抢筹通道——普跌日 0927 重裁应倾向不开仓）；③输出选债方向清单=按 R6 从 T-1 热点方向取（facts 轮动位置节的方向是首选输入；方向必须能落到"有转债的正股板块"）。
 写入 {run_dir}/02_analysis.md，contract 块：
 ```contract
@@ -64,7 +64,7 @@
 - 校验：同 taoge v04（direction ∈ 02.directions；断链说明兜底）；code 格式闸在 06 层
 
 ````prompt
-任务：对 {date} 执行 cb 决策链 04 选债方案。读 {run_dir}/01_facts.md、{run_dir}/02_analysis.md 与 skills/buchitudou0-skill/persona/buchitudou0/（全量）。
+任务：对 {date} 执行 cb 决策链 04 选债方案。读 {run_dir}/01_facts.md、{run_dir}/02_analysis.md 与 skills/buchitudou0-skill/persona/（全量）。
 按 R6 从 02 方向清单选债：方向→有转债的正股→转债标的（R4 滚动熟票池优先：近期操作过的熟票列依据）。每只候选给：条件价（R1 开盘双通道=竞价强确认价/开盘回踩价）、失效条件、引用规则（结构化 {"id":"R<n>","ctx":"情境判定..."}，引用必须先答该规则情境当前是否满足）。
 推不出转债标的就写断链说明（缺什么数据），禁止拿正股冒充转债候选。
 写入 {run_dir}/04_plan.md，contract 块：
@@ -82,7 +82,7 @@
 - 校验：名单必须=04 候选名单（同 taoge v05）
 
 ````prompt
-任务：对 {date} 执行 cb 决策链 05 风控。读 {run_dir}/04_plan.md 与 skills/buchitudou0-skill/persona/buchitudou0/rules.md 全量。
+任务：对 {date} 执行 cb 决策链 05 风控。读 {run_dir}/04_plan.md 与 skills/buchitudou0-skill/persona/rules.md 全量。
 逐只过闸：R1（开仓时段：本方案的开仓窗口是否落在 09:25-09:35 主战场/午后不开新仓）、**仓位纪律（10/4 用户拍板，覆盖 R5 纸面适配）**：T+0 转债不做仓位管理——有把握全仓进（日内可解套/获利了结），没把握=半仓+半仓（首半仓+确认后第二半仓）+止损/获利了结/平出；仓位管理只对 T+1 股票有效，转债线不设成数闸、上限=全仓、R7（普跌/退潮日开盘抢筹=深亏源，压仓位或否决）。每只给 批准/否决/条件批准+reason（引用规则编号）。
 写入 {run_dir}/05_risk.md，contract 块：
 ```contract

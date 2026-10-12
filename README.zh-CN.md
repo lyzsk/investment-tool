@@ -16,98 +16,162 @@
 
 > **_喜欢，或者对你有帮助的话，记得点赞哦_** :star:
 
+个人 A 股研究与模拟交易系统: Spring Boot + Quartz 驱动每日数据采集(财联社电报、B 站复盘视频、同花顺投资账本、行情), Claude Code skills 从这些语料里蒸馏每位导师的交易规则, 多 skill 决策链在模拟账户上交易, 再与导师真人账本对照打分。
+
 # 🌐 Environment
 
-- Java 17
-- SpringBoot3.3.4
-- MyBatis-Plus 3.5.7
-- MySQL 8.0.28
-- Python 3.10.16
+- Java 17 / Spring Boot 3.3.4 / MyBatis-Plus 3.5.7 / Quartz
+- MySQL 8.0 — 同一实例两个库: `investment_tool`(业务库) + `investment_market`(行情库)
+- Node.js 24(采集脚本、决策链驱动、paper 撮合/报告)
+- Python 3.13 venv(`scripts/venv/`, ASR / VLM / OCR / tzzb 工具)
+- Claude Code(skills + headless `claude -p` 决策链); 可选本地 ollama(qwen3 / bge-m3)
 
 # ✨ Features
 
-- [x] 申购 / 赎回交易自动记账: 根据输入值 (买入交易: 基金代码, 金额, 交易申请日, 交易平台; 卖出交易: 基金代码, 份额, 交易申请日, 交易平台), 自动推算交易所属日 / 交易确认日 / 交易到账日 / 手续费 / 净值 / 份额 / 交易状态等
-- [x] 自动更新持仓数据: 合计金额 / 合计手续费 / 持仓份额 / 持有天数, 每日 00:00 更新交易状态和对应数据, 每日 20:00 - 23:00 每小时自动爬取数据更新净值
-- [x] 根据 template 自动导出 excel: 交易账单工作簿, 交易分析工作簿
-- [ ] 交易自动计算收益, 自动分析
-- [x] OCR 识别图片转化为数据和表格
-- [x] 自动抓取财联社电报, 并且下载午评, 午间涨停分析, 收评, 涨停分析图片到本地
-- [x] 自动生成 yyyy-MM-dd.md(交易日.md) 并将加红电报写入 md
+- [x] **Quartz 定时任务系统** — 任务统一由 `sys_job` 管理(cron、misfire 策略、立即执行、暂停/恢复), 执行日志异步写入 `sys_job_log`
+- [x] **财联社电报** — 每 5 分钟抓加红电报写入当日 md; 午评/收评/涨停分析图片 OCR 后填入 md 对应小节(`scripts/cls/cls_image_ocr.py`)
+- [x] **交易日 md** — 每个交易日按模板生成 `md/<年>S<季度>/yyyy-MM-dd.md`, 是所有 skill 优先查阅的信息聚合层
+- [x] **B 站复盘视频管线** — 发现 → 下载 → ASR(faster-whisper) → 股名纠错 → 抽帧 OCR + Qwen2.5-VL-7B 画面识别 → `results/bilibili/<mid>/<日期>/`(桃哥 / 趋势天哥 / 卢本圆)
+- [x] **同花顺投资账本(tzzb)** — 11+ 位导师的调仓/净值/持仓写入 `tzzb_record` + `downloads/tzzb/<账本>/`
+- [x] **导师 skills** — 一位导师一个 Claude skill(`skills/<id>-skill/persona/{rules,cases,profile}.md`), 由每日 `sum`(语料 → md) 和 `distill`(md → 核销/沉淀规则) 两个工作流喂养
+- [x] **paper 模拟盘(A 线)** — 14 个 skill 账户 + 1 个对照组; 每个时点跑 01→06 决策链 + 盲审(07:30 盘前全链 … 14:35 尾盘), 每分钟撮合, 收盘 EOD 净值, 与导师真人持仓比对拟人度, `report.html`(绝对收益 / 相对对照组 / 相对上证 / 相对导师真人)
+- [x] **行情库** — `investment_market`: 每日收盘全市场日线(A 股 / 转债 / ETF / 指数, 不复权原始价) + 除权日复权因子 + 关注集(~300 只)1 分钟分时与开盘/收盘集合竞价过程 + 外围 16 个品种(美股指数/中概/港股/A50 与美股期货/黄金原油/离岸人民币); 历史日线由腾讯 + 新浪因子回补
+- [x] **对账** — 行情库每日核对日线/分时/竞价/因子, 缺了自动补采(含应用重启后补停机期间错过的收盘采集); UP 主视频管线逐视频核对 results → md → distill 账本并把 `bilibili_video` 同步到文件事实; 结果进 `reconcile_result`, 有缺口经 hermes 推微信
+- [x] **链路入库** — 每次决策链运行结束即把运行目录解析进 `chain_run / chain_step / chain_decision / chain_decision_rule`(步骤产物版本、契约、终裁单、引用规则; 文件仍是唯一事实, 表是索引)
+- [x] **hermes(微信 agent)** — 微信里盘中问答、盘前蒸馏; 对话本地留档(隐私区)
+- [x] 早期功能: 基金申购/赎回自动记账、excel 导出、持仓截图 OCR
 
 # 🚀 Quick Start
 
-1. create mysql table using: `/sql/tables.sql`
+1. 建库建表
+    ```bash
+    # 业务库
+    mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS investment_tool DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci"
+    for f in sql/investment_tool/*.sql; do mysql -uroot -p investment_tool < $f; done
+    # 行情库(建表后再执行 kline_minute 的按年分区脚本)
+    mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS investment_market DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci"
+    for f in sql/investment_market/*.sql; do mysql -uroot -p investment_market < $f; done
+    mysql -uroot -p investment_market < sql/investment_market/partition/kline_minute_partition.sql
+    ```
 2. `mvn clean install` and `mvn package spring-boot:repackage`
-3. install enviroment for scripts
+3. 脚本环境
     ```bash
-    cd investment-tool/
-    npm init -y
-    npm install prettier`
+    npm install                                                   # node 采集脚本 / paper 工具
+    python scripts/fetch_holidays_cn.py                           # 生成 inv-common holiday/<年>.json
+    # python venv(ASR + VLM + OCR); torch cu124 需先装本地 wheel, 见文件头注释
+    python -m venv scripts/venv
+    scripts/venv/Scripts/pip install -r scripts/requirements-taoge.txt -r scripts/requirements-cls.txt
+    scripts/venv/Scripts/python.exe scripts/bilibili/process_video.py --download-model   # Qwen2.5-VL-7B → scripts/models/
     ```
-    requirements for fetch_holidays_cn.py: `pip install requests`
-    requirements for cls/cls_image_ocr.py: `pip install -r scripts/requirements-cls.txt`
-    requirements for 桃哥管线 ASR+7B(bilibili/process_video.py): 先建 venv 到 `scripts/venv/`, 再 `pip install -r scripts/requirements-taoge.txt`(torch cu124 需先装本地 wheel, 见文件头注释)
-    下载 Qwen2.5-VL-7B 到 `scripts/models/`: `scripts/venv/Scripts/python.exe scripts/bilibili/process_video.py --download-model`
-    ```bash
-    cd investment-tool/
-    python scripts/fetch_holidays_cn.py
-    ```
-4. run `/start.bat`
+4. 运行 `/start.bat`(先把 `start.bat` 里的 `JAVA_HOME` 改成本机路径)
 
-> Note: change `start.bat` `JAVA_HOME` to your local path
+# 🗓️ Daily Pipeline
+
+## 时刻表(交易日; 未注明的都是 Quartz 任务)
+
+| 时间 | 任务(handler) | 做什么 |
+|---|---|---|
+| 00:00 | `tradingDayMarkdownHandler` | 按模板生成当日 `md/<yyyy>S<q>/<日期>.md` |
+| 00:00 / 03:00 | `downloadCleanupHandler` / `ocrCleanupHandler` | 物理删除过期原料(B 站 30 天, 财联社 90 天) / 清理已处理的 OCR 图片 |
+| 每 5 分钟 | `clsRedTelegraphHandler` | 财联社加红电报 → `cls_telegraph` + md; 复盘图片 → OCR → md 小节 |
+| 早上(hermes) | 微信 agent | 盘前蒸馏(发哥线)、盘中问答 |
+| 07:30 | `paperChainHandler` ×15(0915 时点) | 每个 skill 账户跑完整 01→06 决策链 + 盲审; 结束即入库 `chain_*` |
+| 08:30 | `marketGlobalHandler` | `scripts/market/collect_global.py` → 外围隔夜收盘(按当地交易日)入 `kline_day` |
+| 09:14 / 14:56 | `marketAuctionHandler`(OPEN / CLOSE) | `scripts/market/collect_auction.py` 关注集开盘/收盘集合竞价过程 → `call_auction` |
+| 09:27 … 14:35 | `paperChainHandler`(0927/0935/0945/1000/1030/1100/1127/1230/1300/1400/1430/1455 时点) | 按各导师习惯时点跑盘中子链(02→04→06) |
+| 09:00–14:59 每分钟 | `paperMatchHandler` | 挂单 × 实时行情撮合 → 账本 |
+| 15:05 | `paperEodHandler` | 日终: 废单、净值、拟人度、`report.html`、次日 facts 用的 state digest |
+| 15:10–23:10 每小时 | `tzzbFetchHandler` | 抓导师账本 → `downloads/tzzb/` + `tzzb_record` |
+| 15:30 / 16:30 … 23:30, 07:00–22:30 每 30 分钟 | `bilibiliVideoHandler` ×3 | 发现并处理新复盘视频(桃哥 / 趋势天哥 / 卢本圆) |
+| 15:35 | `marketDailyHandler` | 收盘流水线: `collect_daily.mjs` 全市场日线 → `refresh_factors.py` 除权检测 → `collect_minute.py` 关注集分时 → `investment_market` |
+| 16:40(+ 应用启动 3 分钟后) | `marketReconcileHandler` / `MarketStartupRunner` | 回看 10 个交易日对账, 缺日线/分时自动补采 → `reconcile_result` |
+| 20:00 | `paperReviewHandler` | 07 盘后复盘 |
+| 23:50 | `bilibiliReconcileHandler` | UP 主视频管线对账 + `bilibili_video` 同步 → `reconcile_result` |
+| 晚上(手动) | Claude Code 里说 "check md" | check-cls-md → 桃哥 sum → 桃哥 distill → tzzb sum → tzzb distill → 发哥 T+1 核销 |
+
+## 调用链(谁调用谁)
+
+```
+Quartz(sys_job) ──► JobHandler(inv-stock) ──► ProcessUtils.run(node|python 脚本) ──► 文件 ──► Java 写库
+  paperChainHandler ─► scripts/taoge-chain/run_taoge_chain.py --skill <id> --slot <HHMM>
+                           ├─ scripts/dfcf/paper/facts.mjs(scan.mjs 六榜 + snapshot.mjs 行情 + md + rules_index)
+                           ├─ claude -p × 01..06 步 + 盲审(提示词 = skills/<id>-skill/workflows/chain.md)
+                           └─ 计划单 → scripts/dfcf/paper/plans/<日期>/
+  paperMatchHandler ─► scripts/dfcf/paper/matcher.mjs(计划单 × snapshot.mjs 行情 → 账本)
+  paperEodHandler   ─► matcher.mjs --eod → 净值 / similarity.mjs / report.mjs / daily_digest.mjs
+  bilibiliVideoHandler ─► scripts/bilibili/fetch_bilibili.mjs → process_video.py(ASR→纠错→OCR→VLM→聚合)
+  tzzbFetchHandler  ─► scripts/tzzb/fetch_tzzb.mjs → TzzbRecordService(JSON → tzzb_record)
+  clsRedTelegraphHandler ─► 财联社 API → ClsTelegraphService → md;  图片 → scripts/cls/cls_image_ocr.py
+  marketDailyHandler ─► MarketPipelineService: collect_daily.mjs(新浪 → 东财兜底) → refresh_factors.py → collect_minute.py(通达信逐笔)
+                        → MarketImportService;  对账补采/启动补采共用同一流水线(一把锁), 往日日线用 backfill_history.py --day
+  marketAuctionHandler / marketGlobalHandler ─► collect_auction.py / collect_global.py → MarketImportService
+  paperChainHandler 结束 ─► ChainIngestService(运行目录 → chain_*);  reconcile 类 handler ─► reconcile_result + hermes 推送
+Claude Code(晚上) ─► skills: check-cls-md / <id>-skill 的 sum 与 distill / tzzb-skill / fage-skill
+```
+
+## 数据流
+
+```
+外部来源                      原料(downloads/, 不进 git)              结果 / md(永久保留)                            知识与决策
+财联社 API + 图片     ───────►  downloads/cls/<日期>/            ───►  md/<yyyy>S<q>/<日期>.md  ─┐
+B 站视频              ───────►  downloads/bilibili/<mid>/<日期>/ ───►  results/bilibili/<mid>/<日期>/(txt + vision.json) ─► sum ─┤
+同花顺投资账本        ───────►  downloads/tzzb/<账本>/  + tzzb_record ────────────────────────────────────────────────► sum ─┤
+微信文章(hermes)      ───────►  downloads/wechat/, cls_zaobao/ ───────────────────────────────────────────────────────► spec ┤
+                                                                                                                             ▼
+                                                              md(每日枢纽) ─► distill ─► skills/<id>-skill/persona/{rules,cases,profile}.md
+                                                                                                                             │
+行情(新浪/东财/腾讯) ─► downloads/quotes/daily(JSON) ─┐                                                                     ▼
+                                                      ├─► facts.mjs ─► 决策链(claude -p) ─► 计划单 ─► 撮合 ─► 账本 ─► 净值 ─► report.html
+行情快照 ─► downloads/market/<日期>/*.jsonl ─► investment_market(security_master / kline_day / adjustment_factor / kline_minute / call_auction / watchlist_info)   (下一步: kline.mjs 以行情库为第一数据源)
+决策链运行目录 results/<skill>_chain/{live|asof}-<日期>/ ─► investment_tool.chain_*(索引, inv-ui 链路追踪的数据底座)
+```
 
 # 🏗️ Project Structure
 
 ```
 investment-tool
-├── inv-admin          # 主应用入口：Spring Boot 启动类、全局配置、Web 控制器
-├── inv-common         # 通用模块：工具类、常量、异常处理、响应封装等
-├── inv-stock          # 股票数据相关功能
-│   ├── cls            # 财联社（CLS）电报抓取与解析, 自动生成yyyy-MM-dd.md(交易日.md)到 md/<year>S<quarter>/ 路径, 自动写入加红电报
-│   ├── ocr            # 图片 OCR 识别（用于解析涨停分析/收评图片）
-│   ├── bilibili       # B站视频管线驱动（下载 → ASR 转写 → 股名纠错 → VLM 视觉提取）
-│   └── tzzb           # 同花顺投资账本抓取与同步（转债高手跟踪）
-├── inv-system         # 系统支撑服务
-│   ├── file           # 文件上传、存储管理
-│   └── quartz         # 定时任务调度（如每日自动抓取）
-├── sql                # 数据库初始化与更新脚本
-├── uploads            # 用户或系统上传的文件（按日期自动归档）
-│   └── category/yyyy-MM-dd
-├── downloads          # 系统自动下载的外部资源（已 gitignore）
-│   ├── cls/yyyy-MM-dd           # 财联社电报配图（按日期组织）
-│   ├── bilibili/<mid>/<yyyy.MM.dd>  # 视频原料 mp4/m4a（30 天自动物理清理）
-│   ├── tzzb/<ledger>            # 投资账本原始 JSON（证据层）
-│   ├── wechat/<account>/<yyyy-MM-dd>  # 微信文章 raw/text/meta/spec（发哥线）
-│   ├── cls_zaobao/<yyyy-MM-dd>  # 财联社早报文章 raw/text/meta/spec
-│   └── quotes/{cb/{kline,trends},stock/trends} # 行情归档（转债日线/分钟, 个股分钟）
-├── results            # 管线产物（永久保留）
-│   └── bilibili/<mid>/<yyyy.MM.dd>  # 纠错逐字稿 + vision.json
-├── scripts            # 按域组织的工具脚本, 全链路用法见 scripts/README.md
-│   ├── scan.mjs               # 大盘六榜扫描（涨跌/连板梯队/跌停/次新/板块）
-│   ├── fetch_holidays_cn.py   # 自动抓取中国大陆节假日到 inv-common/src/main/resources/holiday/year.json
-│   ├── bilibili/              # 桃哥视频管线（fetch_bilibili_taoge.mjs + process_video.py）
-│   ├── tzzb/                  # 转债高手线（账本抓取 / md 生成 / 复盘 / 画像）
-│   ├── quotes/                # 行情获取（fetch_cb_quotes.mjs 转债日线+分时 / fetch_stock_trends.mjs 个股分时）
-│   ├── cls/                   # 财联社图 OCR（cls_image_ocr.py, Java 调用）+ 早报线（fetch_cls_zaobao.mjs）
-│   ├── md/                    # Markdown 工具（format-markdown.mjs / migrate_md_template.mjs / gen_scorecard.mjs 记分卡）
-│   ├── wechat/                # 微信公众号盘前语料线（fetch_wechat.mjs, 人工贴链接入口）
-│   ├── backfill_taoge/        # 桃哥历史回填守护（只在本机跑, 已 gitignore）
-│   ├── models/                # Qwen2.5-VL-7B + 纠错字典（已 gitignore）
-│   └── venv/                  # python 环境（已 gitignore）
-├── skills             # Claude Code skills（双副本, 编辑后同步 .claude/skills/）
-│   ├── taoge-skill/   # 桃哥 persona（盘后复盘规则, 核销样本沉淀）
-│   ├── taoge-sum/     # 每日: results 逐字稿 → md 桃哥小节
-│   ├── taoge-distill/ # 每日: md 桃哥小节 → persona 核销沉淀
-│   ├── buchitudou0-skill/   # 转债高手（不吃土豆0）persona 规则
-│   ├── tzzb-skill/    # 每日: 账本腿 → md 小节（【推测】层）+ persona 蒸馏
-│   ├── fage-skill/    # 发哥盘前线（hermes 蒸馏 spec / Claude T+1 核销 / persona）
-│   └── check-cls-md/  # 晚间例程: 对照图片复核财联社 OCR 小节
-├── md                 # 每日生成的股票分析 Markdown 报告
-│   └── <year>S<quarter>/yyyy-MM-dd.md
-└── logs               # 应用运行日志
+├── inv-admin          # Spring Boot 启动入口、全局配置(application.yml)
+├── inv-common         # 公共: BaseEntity、枚举、BusinessException、工具类(DateTime/Json/Collection/Process/TradingDay…)
+├── inv-system         # 基础设施: 文件上传、Quartz(sys_job / JobHandler / SchedulerManager)、ProjectConfig
+├── inv-stock          # 业务域(cn.sichu.*)
+│   ├── cls            # 财联社电报、交易日 md 生成、图片 OCR 交接
+│   ├── bilibili       # 复盘视频管线驱动(bilibili_video 状态机: 每日发现 DAILY / 补跑登记 BACKFILL 分队列) + 对账
+│   ├── tzzb           # 同花顺投资账本抓取与同步
+│   ├── paper          # paper 模拟盘 handler(决策链 / 撮合 / 日终 / 复盘) + 链路入库(chain_*)
+│   ├── market         # 行情库: 收盘流水线 / 对账补采 / 竞价 / 外围 / 历史回补入库
+│   ├── reconcile      # 对账结果(reconcile_result, 行情库与 B 站管线共用)
+│   ├── notify         # hermes 微信推送
+│   ├── ocr / download / calc
+├── sql
+│   ├── investment_tool/     # 业务表(一表一文件)
+│   └── investment_market/   # 行情表 + partition/kline_minute_partition.sql
+├── scripts            # 按域分目录的脚本, 完整用法见 scripts/README.md
+│   ├── market/        # 行情采集: collect_daily / refresh_factors / collect_minute / collect_auction / collect_global / backfill_history
+│   ├── lib/           # 公共模块: claude_call.py(无头 claude -p 统一调用: stdin/json 信封/哨兵/schema/成本账本)
+│   ├── quotes/        # kline.mjs 多源日线 / indicators.mjs / fetch_quotes.mjs(转债与分时归档)
+│   ├── dfcf/paper/    # paper 模拟盘: facts / matcher / report / similarity / scorecard(状态目录不进 git)
+│   ├── dfcf/snapshots/# 实盘与 hermes 对话存档(隐私区, 不进 git)
+│   ├── taoge-chain/   # 决策链驱动 run_taoge_chain.py(+ pre_market.py)
+│   ├── bilibili/      # fetch_bilibili.mjs + process_video.py
+│   ├── backfill_bilibili/ # B 站历史追溯引擎(只在本机跑, 不进 git)
+│   ├── tzzb/          # 账本抓取 / md / 复盘 / 画像 / 蒸馏工具
+│   ├── cls/           # cls_image_ocr.py + 财联社早报线
+│   ├── md/            # md 工具(rules_index、模板迁移、grep_verify)
+│   ├── wechat/ hermes/ claude_profile/   # 微信公众号线 / hermes 桥接 / 多 key 轮换
+│   ├── scan.mjs       # 市场六榜扫描
+│   ├── models/ venv/  # 本地模型与 python 环境(不进 git)
+├── skills             # Claude Code skills(主副本; 用 scripts/sync_skills.mjs 同步到 .claude/skills/)
+│   ├── taoge-skill / qushitiange-skill / lubenyuan-skill            # B 站 UP 主导师
+│   ├── buchitudou0-skill / liuyiqing-skill / …(11 位 tzzb 导师)      # 账本导师
+│   ├── control-skill  # 对照组(persona 为空 = 裸模型基准)
+│   ├── tzzb-skill / fage-skill / check-cls-md                       # 公共工作流
+├── md                 # 每日枢纽: <年>S<季度>/yyyy-MM-dd.md
+├── downloads/         # 外部原料(不进 git, 定期物理删除)
+├── results/           # 永久产物(视频转写、决策链运行档)
+└── docs/TODO.md       # 唯一工作清单
 ```
 
-> trained data is from: https://github.com/tesseract-ocr/tessdata
+> tessdata 训练数据来自: https://github.com/tesseract-ocr/tessdata
 
 # 免责声明
 

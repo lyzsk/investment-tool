@@ -4,7 +4,7 @@
 // 实测淘汰记录(10/5): 网易163 chddata=502死, 网易实时feed=空, 雪球=匿名cookie 400016, 东财92镜像=空响应。
 // 出错语义: 逐源尝试首个可用即返; 全灭=该票 {code, error}(显式失败不编数据); 残缺(last/prevClose缺)=换源。
 // 导出: snapOne/snapMany/limitOf/isSealed —— matcher 撮合/驱动器验价/facts 共用同一真源
-// CLI: node scripts/dfcf/paper/snapshot.mjs --codes 600127,002050 [--src tencent] [--json <f>] [--md <f>]
+// CLI: node scripts/dfcf/paper/snapshot.mjs --codes 600127,002050 [--src tencent] [--asof yyyy-MM-dd] [--json <f>] [--md <f>]
 const SRC_TIMEOUT = 8000;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -80,7 +80,8 @@ export const SNAPSHOT_SRCS = [
 // 源返回残缺(如东财对已切换票 last=null)=视为失败换下一源, 不让半截数据冒充价格锚
 const usable = (s) => s && s.name && s.last > 0 && s.prevClose > 0;
 
-export async function snapOne(code, opt = {}) {
+// 直连单票(无缓存; 多源 fallback): 缓存层补缺/强制单源排障时用
+async function snapOneLive(code, opt = {}) {
     let chain;
     if (opt.src) {  // 强制单源: 不回落, 败=败(排障要的就是这个语义)
         const s = SNAPSHOT_SRCS.find((x) => x.id === opt.src);
@@ -102,13 +103,106 @@ export async function snapOne(code, opt = {}) {
     return { code, error: errs.join(" | ") };
 }
 
-export async function snapMany(codes, gapMs = 400, opt = {}) {
+// ---- 行情共享缓存(10/11 用户提: "所有查实时行情共用同一份文件") ----
+// 读穿缓存: 新鲜(盘中 20s / 盘外 10min)直接用; 缺的合并成一次腾讯批量请求(实测 50 只≈75ms, 逐只 10 只≈670ms),
+//   批量缺失/北交所再逐只多源兜底; 写回 downloads/quotes/live/snap_cache.json(临时文件+原子改名, 多进程安全)。
+// 效果: 15 条链+每分钟撮合+报告同时查价, 对外只发一次请求(东财/腾讯不再因并发被限流); 每条结果带 age_s=距抓取秒数。
+// 偏差: 盘中最多落后 20s(撮合本就 1 分钟一轮)。opt.src(强制单源)/opt.noCache 绕过缓存。
+const CACHE = new URL("../../../downloads/quotes/live/snap_cache.json", import.meta.url);
+const ttlMs = () => {
+    const d = new Date(), hm = d.getHours() * 100 + d.getMinutes(), wd = d.getDay();
+    return wd >= 1 && wd <= 5 && hm >= 915 && hm <= 1505 ? 20_000 : 600_000;
+};
+async function readCache() {
+    const fs = await import("node:fs");
+    try { return JSON.parse(fs.readFileSync(CACHE, "utf8")); } catch { return {}; }
+}
+async function writeCache(upd) {
+    const fs = await import("node:fs");
+    const { fileURLToPath } = await import("node:url");
+    const f = fileURLToPath(CACHE);
+    fs.mkdirSync(f.replace(/[\\/][^\\/]+$/, ""), { recursive: true });
+    const cur = await readCache();   // 读-合并-写: 保留他进程刚写入的更新鲜条目
+    for (const [c, s] of Object.entries(upd)) if (!cur[c] || (cur[c].ts || 0) < s.ts) cur[c] = s;
+    const tmp = `${f}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(cur));
+    try { fs.renameSync(tmp, f); } catch { try { fs.unlinkSync(tmp); } catch { } }
+}
+async function tencentBatch(codes) {   // 腾讯 qt 一次查多只: q=sh600000,sz000001,...
     const out = {};
-    for (const c of [...new Set(codes)]) {
-        out[c] = await snapOne(c, opt);
-        await sleep(gapMs);
+    for (let i = 0; i < codes.length; i += 50) {
+        const part = codes.slice(i, i + 50);
+        try {
+            const r = await fetchWithTimeout(`https://qt.gtimg.cn/q=${part.map((c) => tencentMkt(c) + c).join(",")}`, { Referer: "https://gu.qq.com/" });
+            const txt = new TextDecoder("gbk").decode(await r.arrayBuffer());
+            for (const m of txt.matchAll(/v_(?:sh|sz)(\d{6})="([^"]*)"/g)) {
+                const s = qtParse(m[1], m[2].split("~"), "tencent_batch");
+                if (usable(s)) out[m[1]] = s;
+            }
+        } catch { /* 整批失败=全部走逐只兜底 */ }
     }
     return out;
+}
+
+export async function snapMany(codes, gapMs = 400, opt = {}) {
+    const uniq = [...new Set(codes)], out = {};
+    if (opt.src || opt.noCache) {
+        for (const c of uniq) { out[c] = await snapOneLive(c, opt); await sleep(gapMs); }
+        return out;
+    }
+    const now = Date.now(), ttl = ttlMs(), cache = await readCache(), upd = {};
+    const miss = uniq.filter((c) => !(cache[c] && now - cache[c].ts < ttl));
+    const got = await tencentBatch(miss.filter((c) => !isBJ(c)));
+    for (const c of miss) {
+        let s = got[c];
+        if (!s) { s = await snapOneLive(c, opt); await sleep(gapMs); }   // 批量缺/北交所 → 逐只多源
+        if (!s.error) upd[c] = { ...s, ts: Date.now() };
+        else out[c] = s;
+    }
+    if (Object.keys(upd).length) await writeCache(upd);
+    for (const c of uniq) {
+        if (out[c]) continue;
+        const s = upd[c] || cache[c];
+        out[c] = { ...s, age_s: Math.round((Date.now() - s.ts) / 1000) };
+    }
+    return out;
+}
+
+export async function snapOne(code, opt = {}) {
+    if (opt.src || opt.noCache) return snapOneLive(code, opt);
+    return (await snapMany([code], 0, opt))[code];
+}
+
+// ---- as-of 回放快照(10/10: 9/28-30 补跑语义修复) ----
+// 链日 D 盘前视角=D 的前一交易日日线, 读 downloads/quotes/daily 归档(前复权; 缺档/未覆盖 D-1 则 kline.mjs 补档)
+// 日历=上证指数归档 1_000001 的交易日序列。两种口径:
+//   默认(facts 关注票): D-1 日线本身 → last=D-1 收, prevClose=D-2 收, pct/高低=D-1 当日(盘前看昨日K线)
+//   premarket(cand_snap/拒落账): D 盘前 → last=prevClose=D-1 收, 高低开=0(D 未开盘), sealedPrev=D-1 是否一字
+const KDIR = new URL("../../../downloads/quotes/daily/", import.meta.url);
+async function readKl(code) {
+    const fs = await import("node:fs");
+    try { return JSON.parse(fs.readFileSync(new URL(code.replace(".", "_") + ".json", KDIR), "utf8")).klines || []; }
+    catch { return []; }
+}
+export async function prevTradeDay(D) {
+    const d = (await readKl("1.000001")).map((k) => k.d).filter((x) => x < D).pop();
+    if (!d) throw new Error(`交易日历(1_000001 归档)无 ${D} 之前的交易日`);
+    return d;
+}
+export async function snapAsof(code, D, { premarket = false } = {}) {
+    const d1 = await prevTradeDay(D);
+    let kl = (await readKl(code)).filter((k) => k.d < D);
+    if (kl.at(-1)?.d !== d1) {  // 归档缺或未覆盖 D-1 → 增量补档(真实历史数据, 幂等合并)
+        const { fileURLToPath } = await import("node:url");
+        const { archiveDaily } = await import("../../quotes/kline.mjs");
+        await archiveDaily([code], { dir: fileURLToPath(KDIR), gapMs: 300 });
+        kl = (await readKl(code)).filter((k) => k.d < D);
+    }
+    const b = kl.at(-1), p = kl.at(-2);
+    if (b?.d !== d1 || !(b.c > 0) || !(p?.c > 0)) return { code, error: `asof 日线缺 ${d1}(停牌/未上市/取数失败)` };
+    const day = { code, name: "", prevClose: p.c, last: b.c, open: b.o, high: b.h, low: b.l, pct: +((b.c / p.c - 1) * 100).toFixed(2), src: `asof-daily(${d1})` };
+    if (!premarket) return day;
+    return { code, name: "", prevClose: b.c, last: b.c, open: 0, high: 0, low: 0, pct: 0, sealedPrev: isSealed(day), src: `asof-premarket(${D}, 前收=${d1}收)` };
 }
 
 // ---- CLI ----
@@ -116,10 +210,13 @@ const argv = process.argv.slice(2);
 const arg = (k) => { const i = argv.indexOf("--" + k); return i > -1 ? argv[i + 1] : null; };
 if (argv.includes("--codes")) {
     const codes = arg("codes").split(",").map((s) => s.trim()).filter(Boolean);
-    const res = await snapMany(codes, 400, { src: arg("src") });
+    // --asof D: 链日 D 盘前口径(日线归档), 不碰实时源(9/28-30 补跑语义修复)
+    const res = {};
+    if (arg("asof")) for (const c of [...new Set(codes)]) res[c] = await snapAsof(c, arg("asof"), { premarket: true });
+    else Object.assign(res, await snapMany(codes, 400, { src: arg("src") }));
     const ok = Object.values(res).filter((s) => !s.error);
     const fail = Object.values(res).filter((s) => s.error);
-    const json = JSON.stringify({ at: new Date().toISOString(), src: arg("src") || "auto(fallback)", snaps: Object.values(res) }, null, 1);
+    const json = JSON.stringify({ at: new Date().toISOString(), src: arg("asof") ? `asof ${arg("asof")}` : arg("src") || "auto(fallback)", snaps: Object.values(res) }, null, 1);
     if (arg("json")) {
         const fs = await import("node:fs");
         fs.writeFileSync(arg("json"), json);
@@ -128,7 +225,7 @@ if (argv.includes("--codes")) {
         const fs = await import("node:fs");
         const rows = Object.values(res).map((s) => s.error
             ? `- ${s.code}: ⚠快照失败(${s.error})`
-            : `- ${s.code} ${s.name}: 前收${s.prevClose} 现${s.last} (${s.pct > 0 ? "+" : ""}${s.pct}%) 高${s.high} 低${s.low}${isSealed(s) ? " 🔒一字封死·禁入候选" : ""} [${s.src}]`);
+            : `- ${s.code} ${s.name}: 前收${s.prevClose} 现${s.last} (${s.pct > 0 ? "+" : ""}${s.pct}%) 高${s.high} 低${s.low}${isSealed(s) || s.sealedPrev ? " 🔒一字封死·禁入候选" : ""} [${s.src}]`);
         fs.writeFileSync(arg("md"), `# cand_snap 候选票价格锚（机械拉取, 驱动器 04 后生成; LLM 挂单价必须锚定此表前收/现价）\n\n${rows.join("\n")}\n`);
     }
     console.log(json);

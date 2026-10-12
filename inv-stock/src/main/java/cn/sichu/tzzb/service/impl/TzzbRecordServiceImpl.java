@@ -74,26 +74,30 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
                 "downloads/tzzb/" + ledger + " 不存在, 先跑 node scripts/fetch_tzzb.mjs --ledger "
                     + ledger);
         }
+        /* 0=trade 1=nav_day 2=position_snap 3=bs_leg (nav_month 实测不可行已移除) */
         int[] ins = new int[4], skip =
-            new int[4];   // 0=trade 1=nav_day 2=position_snap 3=bs_leg (nav_month 实测不可行已移除)
+            new int[4];
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(dir, "*.json")) {
             for (Path f : ds) {
                 String name = f.getFileName().toString();
                 JsonNode root = OM.readTree(Files.readString(f));
-                JsonNode data = root.has("ex_data") ? root.get("ex_data") : root;   // 实测信封=ex_data
+                /* 实测信封=ex_data */
+                JsonNode data = root.has("ex_data") ? root.get("ex_data") : root;
                 if (name.startsWith("position_change_p")) {
                     JsonNode list = data.get("change_list");
                     if (list == null || !list.isArray()) {
                         continue;
                     }
                     for (JsonNode t : list) {
-                        String time = text(t, "trans_date");   // "2026-09-30 09:30:03"
+                        /* "2026-09-30 09:30:03" */
+                        String time = text(t, "trans_date");
                         if (time == null) {
                             continue;
                         }
                         LocalDateTime recordTime = DateTimeUtils.parseLenient(time);
                         String code = text(t, "stock_code");
-                        String side = text(t, "buy_sell");   // 全"9"未破译[?], 存原值
+                        /* 全"9"未破译[?], 存原值 */
+                        String side = text(t, "buy_sell");
                         if (exists(ledger, "trade", recordTime, code, side)) {
                             skip[0]++;
                             continue;
@@ -103,8 +107,9 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
                         e.setStockName(text(t, "stock_name"));
                         e.setSide(side);
                         e.setPrice(dec(t, "trans_price"));
-                        e.setQty(dec(t, "trans_count"));     // 分享视图全空串→NULL
-                        e.setAmount(dec(t, "trans_amount")); // 分享视图全空串→NULL
+                        /* 分享视图全空串→NULL */
+                        e.setQty(dec(t, "trans_count"));
+                        e.setAmount(dec(t, "trans_amount"));
                         save(e);
                         ins[0]++;
                     }
@@ -113,9 +118,11 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
                     if (list == null || !list.isArray()) {
                         continue;
                     }
-                    BigDecimal prevIndex = null;   // 逐日收益无现成字段, 由 index 链算
+                    /* 逐日收益无现成字段, 由 index 链算 */
+                    BigDecimal prevIndex = null;
                     for (JsonNode t : list) {
-                        String day = text(t, "date");   // "20260109"
+                        /* "20260109" */
+                        String day = text(t, "date");
                         if (day == null) {
                             continue;
                         }
@@ -123,7 +130,8 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
                         BigDecimal index = dec(t, "index");
                         if (exists(ledger, "nav_day", recordTime, null, null)) {
                             skip[1]++;
-                            prevIndex = index;   // 已入库的也要维护链算前值
+                            /* 已入库的也要维护链算前值 */
+                            prevIndex = index;
                             continue;
                         }
                         TzzbRecord e = base(ledger, "nav_day", recordTime, t);
@@ -136,14 +144,14 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
                         prevIndex = index;
                     }
                 } else if (name.startsWith("change_bs_")) {
-                    // 逐笔买卖腿(change_bs_<code>_p<n>.json): op 实测 1=买入腿 2=卖出腿;
-                    // qty/amount 此口径有真值(与 trade 日汇总全空不同); trans_date 秒级
+                    /* 逐笔买卖腿(change_bs_<code>_p<n>.json): op 实测 1=买入腿 2=卖出腿; qty/amount 此口径有真值(与 trade 日汇总全空不同); trans_date 秒级 */
                     JsonNode list = data.get("change_list");
                     if (list == null || !list.isArray()) {
                         continue;
                     }
                     for (JsonNode t : list) {
-                        String time = text(t, "trans_date");   // "2026-09-30 09:30:03"
+                        /* "2026-09-30 09:30:03" */
+                        String time = text(t, "trans_date");
                         if (time == null) {
                             continue;
                         }
@@ -166,7 +174,7 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
                         ins[3]++;
                     }
                 } else if (name.equals("position.json")) {
-                    // month.json 只有月份列表无收益数值, 不入库
+                    /* month.json 只有月份列表无收益数值, 不入库 */
                     JsonNode list = data.get("position_list");
                     /* 10/7 晚四修: snap 按日去重——原"快照语义可重复"立法作废(手动补 sync 会复制同日快照成脏数据)。
                        正确语义=每 ledger 每交易日一份; 消费方=negstats/池子信号/profile 持仓维度。 */
@@ -186,8 +194,7 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
                             TzzbRecord e = base(ledger, "position_snap", snapTime, t);
                             e.setStockCode(text(t, "stock_code"));
                             e.setStockName(text(t, "stock_name"));
-                            // position_percent 无专用列, 留 payload_json;
-                            // 空仓快照照常入表(10/1 用户定: 日内选手每日归零是纪律信号)
+                            /* position_percent 无专用列, 留 payload_json; 空仓快照照常入表(10/1 用户定: 日内选手每日归零是纪律信号) */
                             save(e);
                             ins[2]++;
                         }

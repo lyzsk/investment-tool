@@ -59,7 +59,7 @@ async function cbKline(code) {
     try {
         const j = await fetchJson(`https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${CB_SECID(code)}` +
             `&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57&klt=101&fqt=1&beg=20250101&end=20500101`);
-        lines = (j?.data?.klines || []).map((x) => x.slice(0, 33));
+        lines = j?.data?.klines || [];  // 10/11: 原 x.slice(0,33) 按字符截断会砍掉 l/vol/amt(h 也被截), 整档写成 null
     } catch { /* 东财限频/挂→腾讯兜底 */ }
     if (lines.length === 0) {  // 兜底: 腾讯(退市债数据保留更久, 10/2 实测)
         const prefix = /^(11[0138])/.test(code) ? "sh" : "sz";

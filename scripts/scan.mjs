@@ -8,7 +8,7 @@
 //   连板/跌停池/次新/板块=东财单源(被封时该榜闭环标 [失败], 不编数据)。
 // 封禁教训(同日实测): push2 对测试性连发(~25 次/5min)会 IP 级 ECONNRESET 全客户端静默,
 //   生产节奏=每日几次×~10 请求, 榜间抖动已加大到 0.8-2s。
-// 用法: node scan.mjs --out <run_dir> [--date YYYYMMDD] [--top 30]
+// 用法: node scan.mjs --out <run_dir> [--date YYYYMMDD] [--top 30] [--asof YYYYMMDD(历史数据日=回放口径, 零实时源)]
 import fs from 'fs';
 import path from 'path';
 import http from 'http';
@@ -77,7 +77,7 @@ async function emPool(type /* 'ZT'|'DT' */, date, maxBack = 5) {
     const d = new Date(date.slice(0, 4) + '-' + date.slice(4, 6) + '-' + date.slice(6) + 'T12:00:00');
     d.setDate(d.getDate() - i);
     const ymd = d.toISOString().slice(0, 10).replaceAll('-', '');
-    const u = `https://push2ex.eastmoney.com/getTopic${type}Pool?ut=${POOL_UT}&dpt=wz.ztzt&Pageindex=0&pagesize=200&sort=fbt:asc&date=${ymd}`;
+    const u = `https://push2ex.eastmoney.com/getTopic${type}Pool?ut=${POOL_UT}&dpt=wz.ztzt&Pageindex=0&pagesize=200&sort=${type === 'DT' ? 'fund:asc' : 'fbt:asc'}&date=${ymd}`;  // 10/10 修: DT 池无 fbt 字段, 按 fbt 排序=空池(跌停榜此前一直降级新浪)
     const j = await fetchJson(u, EM_REF);
     const pool = (j.data && j.data.pool) || [];
     if (pool.length) return { pool, tradeDate: ymd };
@@ -129,8 +129,8 @@ async function rankBoard(asc, top, label) {
 }
 const board涨跌幅 = top => rankBoard(0, top);
 const board跌幅 = top => rankBoard(1, top);
-async function board连板(date) {
-  const { pool, tradeDate } = await emPool('ZT', date);
+async function board连板(date, maxBack = 5) {
+  const { pool, tradeDate } = await emPool('ZT', date, maxBack);
   // zttj.ct=连板数, zttj.days=统计天数; 按连板数降序织梯队
   const rows = pool.map(x => ({ code: x.c, name: x.n, lb: x.zttj ? x.zttj.ct : 1, hy: x.hybk || '', fund: x.fund }))
     .sort((a, b) => b.lb - a.lb);
@@ -140,13 +140,14 @@ async function board连板(date) {
     .concat(Object.keys(tiers).sort((a, b) => b - a).map(k => `${k}连板[${tiers[k].length}]: ${tiers[k].join(' ')}`));
   return { src: 'eastmoney-ztpool', md: md.join('\n'), raw: rows, tradeDate };
 }
-async function board跌停(date, top) {
+async function board跌停(date, top, noFallback = false) {
   try {
-    const { pool, tradeDate } = await emPool('DT', date);
+    const { pool, tradeDate } = await emPool('DT', date, noFallback ? 1 : 5);
     const md = [`(跌停池日期=${tradeDate}, 跌停 ${pool.length} 只)`]
       .concat(pool.slice(0, top).map((x, i) => `${i + 1}. ${x.n}(${x.c}) ${x.hybk || ''}`));
     return { src: 'eastmoney-dtpool', md: md.join('\n'), raw: pool };
   } catch (e) {  // 兜底: 新浪跌幅榜近似(跌幅 Top N 不等于跌停, 标注降级)
+    if (noFallback) throw e;  // as-of 禁降级: 新浪只有实时数据
     const rows = await sinaRank(1, top);
     return { src: 'sina(降级:跌幅榜非跌停池)', warn: e.message,
       md: rows.map((r, i) => `${i + 1}. ${r.name}(${r.code}) ${fmtPct(r.pct)}`).join('\n'), raw: rows };
@@ -160,15 +161,60 @@ async function board次新(top) {
   return { src: 'eastmoney', md: md.join('\n'), raw: rows };
 }
 async function board板块() {
-  const hy = await emClist2x({ fs: 'm:90+t:2', fid: 'f3', po: 1, pz: 8, fields: 'f14,f3' });
-  await jitter();
-  const hyDn = await emClist2x({ fs: 'm:90+t:2', fid: 'f3', po: 0, pz: 8, fields: 'f14,f3' });
-  await jitter();
-  const gn = await emClist2x({ fs: 'm:90+t:3', fid: 'f3', po: 1, pz: 8, fields: 'f14,f3' });
-  const line = (tag, rows) => `${tag}: ` + rows.map(x => `${x.f14}${fmtPct(x.f3)}`).join(' ');
-  return { src: 'eastmoney', md: [line('行业涨幅Top8', hy), line('行业跌幅Top8', hyDn), line('概念涨幅Top8', gn)].join('\n'),
-    raw: { hy, hyDn, gn } };
+  try {
+    const hy = await emClist2x({ fs: 'm:90+t:2', fid: 'f3', po: 1, pz: 8, fields: 'f14,f3' });
+    await jitter();
+    const hyDn = await emClist2x({ fs: 'm:90+t:2', fid: 'f3', po: 0, pz: 8, fields: 'f14,f3' });
+    await jitter();
+    const gn = await emClist2x({ fs: 'm:90+t:3', fid: 'f3', po: 1, pz: 8, fields: 'f14,f3' });
+    const line = (tag, rows) => `${tag}: ` + rows.map(x => `${x.f14}${fmtPct(x.f3)}`).join(' ');
+    return { src: 'eastmoney', md: [line('行业涨幅Top8', hy), line('行业跌幅Top8', hyDn), line('概念涨幅Top8', gn)].join('\n'),
+      raw: { hy, hyDn, gn } };
+  } catch (e) {
+    // 10/11 夜: 东财 push2/push2delay 整个 IP 被断连时板块榜整榜缺失 → 新浪行业/概念板块兜底(多源切换铁律)
+    await jitter();
+    return await sina板块(e.message);
+  }
 }
+// 新浪板块: "var X = {"id":"id,名称,家数,均价,涨跌额,涨跌幅%,量,额,领涨代码,领涨涨幅,..."}"; 板块划分与东财不同, 输出标注口径
+async function sina板块(emErr) {
+  const parse = buf => {
+    const t = new TextDecoder('gbk').decode(buf);
+    const obj = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1));
+    return Object.values(obj).map(v => v.split(',')).map(f => ({ name: f[1], pct: +f[5] })).filter(x => x.name && Number.isFinite(x.pct));
+  };
+  const hyAll = parse(await fetchBuf('https://vip.stock.finance.sina.com.cn/q/view/newSinaHy.php', { Referer: 'https://finance.sina.com.cn' }));
+  await jitter();
+  const gnAll = parse(await fetchBuf('https://money.finance.sina.com.cn/q/view/newFLJK.php?param=class', { Referer: 'https://finance.sina.com.cn' }));
+  if (!hyAll.length || !gnAll.length) throw new Error('新浪板块空; 东财: ' + emErr);
+  const top = (rows, asc) => [...rows].sort((a, b) => asc ? a.pct - b.pct : b.pct - a.pct).slice(0, 8);
+  const line = (tag, rows) => `${tag}: ` + rows.map(x => `${x.name}${fmtPct(x.pct)}`).join(' ');
+  return { src: 'sina', md: ['(东财断连, 新浪板块口径兜底: 行业/概念划分与东财不同)', line('行业涨幅Top8', top(hyAll)),
+    line('行业跌幅Top8', top(hyAll, true)), line('概念涨幅Top8', top(gnAll))].join('\n') };
+}
+
+// ---------- as-of 回放榜(10/10 9/28-30 补跑语义修复) ----------
+// 历史日能取到的只有 东财涨停/跌停池(按日期) + 日线归档; 涨跌幅榜=归档样本内(~750 只, 非全市场)按该日涨跌幅排序;
+// 次新/板块榜无历史源 → 显式标不可得, 禁编
+function archiveRank(date8, asc, top) {
+  const d = `${date8.slice(0, 4)}-${date8.slice(4, 6)}-${date8.slice(6)}`;
+  const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'downloads', 'quotes', 'daily');
+  const rows = [];
+  for (const f of fs.readdirSync(dir)) {
+    if (!/^\d{6}\.json$/.test(f)) continue;
+    try {
+      const k = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')).klines || [];
+      const i = k.findIndex(x => x.d === d);
+      if (i > 0 && k[i - 1].c > 0) rows.push({ code: f.slice(0, 6), pct: (k[i].c / k[i - 1].c - 1) * 100, amt: k[i].a });
+    } catch { /* 坏档跳过 */ }
+  }
+  if (!rows.length) throw new Error(`归档无 ${d} 日线`);
+  rows.sort((a, b) => (asc ? a.pct - b.pct : b.pct - a.pct));
+  const md = [`(as-of 近似: 日线归档样本 ${rows.length} 只内排序, 非全市场; 归档无票名)`]
+    .concat(rows.slice(0, top).map((r, i) => `${i + 1}. (${r.code}) ${fmtPct(r.pct)}${r.amt > 0 ? ' 额' + fmtAmt(r.amt) : ''}`));  // 腾讯源归档 a=0
+  return { src: 'asof-archive', md: md.join('\n'), raw: rows.slice(0, top) };
+}
+const NA_ASOF = async () => { throw new Error('as-of 回放: 该榜无历史数据源, 不可得(禁编)'); };
 
 // ---------- 主流程: 逐榜采集, 独立闭环, 汇总落盘 ----------
 async function main() {
@@ -177,9 +223,17 @@ async function main() {
   const outDir = get('--out', null);
   const date = get('--date', new Date().toISOString().slice(0, 10).replaceAll('-', ''));
   const top = +get('--top', 30);
-  if (!outDir) { console.error('用法: node scan.mjs --out <run_dir> [--date YYYYMMDD] [--top 30]'); process.exit(2); }
+  const asof = get('--asof', null);  // YYYYMMDD=历史数据日(链日前一交易日): 全榜改历史口径, 零实时源
+  if (!outDir) { console.error('用法: node scan.mjs --out <run_dir> [--date YYYYMMDD] [--top 30] [--asof YYYYMMDD]'); process.exit(2); }
 
-  const jobs = [
+  const jobs = asof ? [
+    ['涨跌幅榜', `涨幅 Top${top}(as-of 归档样本近似)`, async () => archiveRank(asof, false, top)],
+    ['跌幅榜', `跌幅 Top${top}(as-of 归档样本近似)`, async () => archiveRank(asof, true, top)],
+    ['连板梯队', '东财涨停池(历史日期)按连板数织梯队', () => board连板(asof, 1)],
+    ['跌停榜', '东财跌停池(历史日期, as-of 无降级)', () => board跌停(asof, top, true)],
+    ['次新区间跌幅榜', 'as-of 不可得', NA_ASOF],
+    ['板块榜', 'as-of 不可得', NA_ASOF],
+  ] : [
     ['涨跌幅榜', '涨幅 Top' + top + '(竞价时段运行=竞价榜语义, 快照源不分时段)', () => board涨跌幅(top)],
     ['跌幅榜', '跌幅 Top' + top, () => board跌幅(top)],
     ['连板梯队', '东财涨停池按连板数织梯队', () => board连板(date)],
@@ -187,8 +241,11 @@ async function main() {
     ['次新区间跌幅榜', 'BK0959 按60日涨跌幅升序', () => board次新(top)],
     ['板块榜', '行业涨跌Top8+概念涨幅Top8', () => board板块()],
   ];
-  const mdParts = [`# 市场扫描(${date}, scan.mjs ${new Date().toTimeString().slice(0, 5)} 现场拉取)`,
+  const mdParts = [asof
+    ? `# 市场扫描(as-of 回放: 数据日=${asof} 收盘, 链日盘前视角; scan.mjs ${new Date().toTimeString().slice(0, 5)} 历史构建)`
+    : `# 市场扫描(${date}, scan.mjs ${new Date().toTimeString().slice(0, 5)} 现场拉取)`,
     `> 采集层只采全; 哪层先行归 02 市况判定(9-28 立法)\n`];
+  const health = asof ? () => {} : logHealth;  // as-of 不记实时源健康台账(历史口径不代表源当下状态)
   const jsonOut = {};
   let okCount = 0;
   for (const [name, note, fn] of jobs) {
@@ -197,12 +254,12 @@ async function main() {
       mdParts.push(`## ${name}\n来源: ${r.src}${r.warn ? ' ⚠️' + r.warn : ''} | ${note}\n${r.md}`);
       jsonOut[name] = { src: r.src, warn: r.warn || null, raw: r.raw ?? r.md };
       okCount++;
-      logHealth('scan', name, r.src, true);                       // 10/7: 健康台账
+      health('scan', name, r.src, true);                       // 10/7: 健康台账
       console.log(`[scan] ${name} OK (${r.src})`);
     } catch (e) {
       mdParts.push(`## ${name}\n[本榜获取失败: ${String(e.message || e).slice(0, 200)}]`);
       jsonOut[name] = { src: null, error: String(e.message || e).slice(0, 200) };
-      logHealth('scan', name, null, false, e.message || e);       // 10/7: 失败也记账
+      health('scan', name, null, false, e.message || e);       // 10/7: 失败也记账
       console.log(`[scan] ${name} FAIL: ${String(e.message || e).slice(0, 100)}`);
     }
     await jitter();  // 榜间抖动, 防固定节拍
@@ -210,7 +267,7 @@ async function main() {
   fs.mkdirSync(outDir, { recursive: true });
 
   // §5.5 对策(10/7): 全灭不再 exit 1(Java misfire=丢弃不重试, 链断)——降级续用最近历史产物+大标注, 链照跑
-  if (!okCount) {
+  if (!okCount && !asof) {  // as-of 禁降级续用他日产物(会混入实时数据)
     const prior = latestPriorScan(path.dirname(outDir.replace(/[\\/]$/, '')), path.basename(outDir.replace(/[\\/]$/, '')));
     if (prior) {
       const warn = `# ⚠️ 降级: 今日六榜全灭(东财限频?), 续用 ${prior.from} 的 scan 产物——时效性降级, 02 市况判定须按 T-1 口径`;

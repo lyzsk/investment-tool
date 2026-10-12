@@ -28,7 +28,7 @@
 | `fetch_bilibili_taoge.mjs` | `node scripts/bilibili/fetch_bilibili_taoge.mjs --list`(只发现, stdout 末行 `JSON:[...]`)<br>`node scripts/bilibili/fetch_bilibili_taoge.mjs [--bvid BVxxxx] [--out <目录>] [--video-only\|--audio-only]` | `<out>/<bvid>.mp4`+`.m4a`+`.json`; 幂等补缺; 0=就位 1=失败 |
 | `process_video.py` | `scripts/venv/Scripts/python.exe scripts/bilibili/process_video.py --bvid <bvid> --mp4 <路径> --m4a <路径> --out <结果目录>`<br>调试口: `--stage asr,correct,vision,aggregate` / `--keep-frames` / `--download-model` / `--local-correct`(10/7: correct 后追加本地 qwen3:14b 修词典漏网谐音, 等长替换护栏, ollama 不在=跳过不阻塞) | `<bvid>.raw.txt`+`.tsv`+`.txt`(合成读的)+`.vision.json`; 幂等; GPU 串行(ASR 卸载再上 7B) |
 
-**Java 驱动(生产唯一入口, 勿手工并行跑)**: `bilibiliVideoHandler` 单 job 三段(发现→下载→process_video), 状态机走 `bilibili_video` 表(VISION_DONE 后等 taoge-skill sum 合成→SUMMARIZED→30 天原料物理删除)。
+**Java 驱动(生产唯一入口, 勿手工并行跑)**: `bilibiliVideoHandler` 单 job 三段(发现→下载→process_video), 状态机走 `bilibili_video` 表(VISION_DONE 后等 taoge-skill sum 合成→SUMMARIZED→DISTILLED→30 天原料物理删除)。10/12 起: 表加 `origin`(DAILY=每日 48h 发现 / BACKFILL=补跑登记), 每日任务只处理 DAILY; 历史补跑由 `bilibiliBackfillHandler`(`--up X [--enqueue N --from --to] [--process N]`)限量处理, 替代 backfill_bilibili.py 的逐视频下载/处理(其 `--llm-batch` 清账段照用); `bilibiliReconcileHandler`(23:50)逐视频核 results→md→distill 账本并把表同步到文件事实。
 **依赖**: scripts/models/(字典+7B); 无 cookie 方案(search HTML+view/playurl API 不吃风控, 空间列表已风控勿用)。
 
 ---
@@ -76,6 +76,25 @@ scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_cases.py --all    # 六人
 | `fetch_cls_zaobao.mjs` | `node scripts/cls/fetch_cls_zaobao.mjs --url <api3.cls.cn/share/article/...> [--date <d>] [--write] [--force]`<br>`--remount --date <d> [--write]` | **早报线(10/2 建)**: 早报=文章通道不在电报端点(Java 爬不到=端点问题); 发现层=人工贴链接(hermes 语法 "早报+链接"); 产物 downloads/cls_zaobao/<date>/{raw.html,text.md,meta.json,spec.md}; 挂载 md `## 盘前`→`### 财联社早报`(原文不进 md, spec.md=【早报要点】五栏唯一真源, hermes 蒸馏) |
 
 ---
+
+## market/ — 行情库 investment_market 采集域(2026-10-11 建, 10/12 凌晨补齐 2b/4/5/6 段)
+
+**链路**: Quartz `marketDailyHandler`(15:35) → Java `MarketPipelineService`: `collect_daily.mjs` → `refresh_factors.py` → `collect_minute.py` → `downloads/market/<交易日>/*.jsonl`+`manifest.json`+`DONE_<stage>` → Java `MarketImportService` 入库(表结构 `sql/investment_market/`); 对账 `marketReconcileHandler`(16:40 + 应用启动 3 分钟后)缺哪天补哪天, 共用同一流水线和锁。脚本都不直接写库。
+
+| 脚本 | 用法 | 说明 |
+|---|---|---|
+| `collect_daily.mjs` | `node scripts/market/collect_daily.mjs [--expect yyyy-MM-dd] [--stages security,kline_day] [--force] [--src sina\|em]` | 第 1 段: 证券主数据+全市场日线快照(A股/转债/ETF/指数); 新浪主/东财 clist 备, 整节点单源; 单位归一(沪市指数手→股); 涨跌停按板块算; 盘中拒跑; DONE 断点; 出口 0/1 失败或交易日不符/2 盘中 |
+| `backfill_history.py` | `scripts/venv/Scripts/python.exe -X utf8 scripts/market/backfill_history.py [--until 06:30] [--max-pages 1] [--gap 2.0,3.0] [--codes/--codes-file] [--force]`<br>`--day yyyy-MM-dd`(补采单日全市场) / `--source baostock`(备选) | 第 2 段: 腾讯不复权日线(按日期翻页, 单页 ≤2000 根)+新浪 hfq 复权因子+推导昨收 → `downloads/market/history/`(Java `marketHistoryHandler` 入库, 只导上线日 2026-10-09 之前); **腾讯 ifzq ~1.6 次/秒 6 分钟即封 IP(10/12 实测), 默认 0.4 次/秒**; `--max-pages 1` 截断的记 `truncated.txt` 以后补全; 出口 0/1 有失败/2 熔断或到点 |
+| `refresh_factors.py` | `scripts/venv/Scripts/python.exe -X utf8 scripts/market/refresh_factors.py --date yyyy-MM-dd` | 第 2b 段: 快照昨收≠上一日收盘 → 拉新浪因子, 因子比与收盘/昨收比对 <0.2% 才落 `adjustment_factor.jsonl`, 不过记 `factor_pending.json` 重试 5 天; ETF 只留痕 |
+| `collect_minute.py` | `scripts/venv/Scripts/python.exe -X utf8 scripts/market/collect_minute.py --date yyyy-MM-dd` | 第 3 段: 关注集(持仓/计划/池/导师/涨跌停/md/固定/粘滞 10 日) + 通达信逐笔聚合 1 分钟线; 往日可补 |
+| `collect_auction.py` | `scripts/venv/Scripts/python.exe -X utf8 scripts/market/collect_auction.py --phase OPEN\|CLOSE [--now]` | 第 5 段: 新浪批量报文轮询集合竞价过程(OPEN 09:15~09:25:40 每 15s / CLOSE 14:57~15:00:40 每 10s), 原始报文全留档; 竞价不可事后补 |
+| `collect_global.py` | `scripts/venv/Scripts/python.exe -X utf8 scripts/market/collect_global.py [--force]` | 第 4 段: 外围 16 品种收盘(美股指数/中概/港股/日英/A50·美股期货/金油/离岸人民币), 按当地交易日, symbol 如 `us.NDX` |
+
+## lib/ — 公共模块
+
+| 模块 | 用法 | 说明 |
+|---|---|---|
+| `claude_call.py` | `sys.path.insert(0, "scripts/lib"); from claude_call import call` → `call(prompt, tag=..., permission="skip", sentinels=[...], json_schema=..., expect_files=[...])`<br>自测: `python -X utf8 scripts/lib/claude_call.py --selftest` | 无头 `claude -p` 统一调用(10/12): prompt 按字节走 stdin / json 信封判 is_error+subtype / 限流只在错误文本匹配+rotation 切 key / 哨兵整行匹配 / ```json 块+迷你 schema 校验 / 应写文件 mtime 核验 / 成本账本 `scripts/lib/claude_cost.csv`(gitignore) |
 
 ## quotes/ — 行情获取域(转债+个股)
 

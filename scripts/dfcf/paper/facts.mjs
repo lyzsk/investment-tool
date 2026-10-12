@@ -14,13 +14,19 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { snapOne, limitOf, isSealed } from "./snapshot.mjs"; // 快照/板限/一字判据统一多源真源(10/5)
+import { snapOne, snapAsof, prevTradeDay, limitOf, isSealed } from "./snapshot.mjs"; // 快照/板限/一字判据统一多源真源(10/5)
 
-const DIR = path.resolve("scripts/dfcf/paper");
+// 10/10 as-of 回放(9/28-30 补跑语义修复): env PAPER_ROOT=沙盒(books/state_digest/facts 全走沙盒, 不碰实盘),
+// PAPER_ASOF=链日 D(须=--date): 全部行情改 D 前一交易日(D1)收盘口径, 零实时源; 导师当日小节改读 D1 md(D 的 md 含盘后复盘=后见之明)
+const DIR = process.env.PAPER_ROOT ? path.resolve(process.env.PAPER_ROOT) : path.resolve("scripts/dfcf/paper");
 const arg = (k) => { const i = process.argv.indexOf("--" + k); return i > -1 ? process.argv[i + 1] : null; };
 const SLOT = arg("slot");
 if (!SLOT) { console.error("用法: --slot <HHMM> [--date d]"); process.exit(1); }
 const date = arg("date") || new Date().toISOString().slice(0, 10);
+const ASOF = process.env.PAPER_ASOF || null;
+if (ASOF && (ASOF !== date || !process.env.PAPER_ROOT)) { console.error(`as-of 须 PAPER_ASOF=--date(${ASOF} vs ${date}) 且设 PAPER_ROOT 沙盒`); process.exit(1); }
+const D1 = ASOF ? await prevTradeDay(ASOF) : null;
+const snapAt = (c) => (ASOF ? snapAsof(c, ASOF) : snapOne(c));
 const OUT = path.join(DIR, "facts", date, SLOT);
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -29,9 +35,9 @@ const sealTag = (s) => (s.pct > 0 ? "🔒一字涨停" : "🔒一字跌停");
 async function sealMap(codes) {  // 一字封死检测(10/3 立法 §C.10): 开=高=低=现价且达板限; 多源快照(snapOne 全灭=显式 error 不编数据)
     const map = new Map();
     for (const c of [...new Set(codes)].slice(0, 60)) {
-        const s = await snapOne(c);
+        const s = await snapAt(c);
         if (!s.error && isSealed(s)) map.set(c, sealTag(s));
-        await sleep(400);
+        await sleep(ASOF ? 50 : 400);
     }
     return map;
 }
@@ -39,7 +45,7 @@ async function sealMap(codes) {  // 一字封死检测(10/3 立法 §C.10): 开=
 // ①六榜(复用 scan.mjs; 非交易时段=最近交易日收盘数据)
 let scanMd = "(六榜获取失败)";
 try {
-    execFileSync("node", ["scripts/scan.mjs", "--out", OUT], { stdio: "pipe", timeout: 120000 });
+    execFileSync("node", ["scripts/scan.mjs", "--out", OUT, ...(ASOF ? ["--asof", D1.replaceAll("-", "")] : [])], { stdio: "pipe", timeout: 120000 });
     scanMd = fs.readFileSync(path.join(OUT, "scan.md"), "utf8");
 } catch (e) { console.error(`scan 失败: ${e.message.slice(0, 120)}`); process.exit(2); }
 
@@ -68,16 +74,17 @@ for (const f of fs.existsSync(path.join(DIR, "books")) ? fs.readdirSync(path.joi
 }
 const snaps = [];
 for (const [code, tag] of watch) {
-    const s = await snapOne(code);
+    const s = await snapAt(code);
     if (s.error) console.error(`快照失败 ${code}: ${s.error}`);
     else snaps.push({ ...s, tag });
-    await sleep(500);
+    await sleep(ASOF ? 50 : 500);
 }
 
 // ②b 关注票日线锚(A2 接线 10/5): 日线归档存在时补 近120日区间位置%(零 token; 文件缺失静默跳过=未回补)
 function dailyAnchor(code) {
     try {
-        const k = JSON.parse(fs.readFileSync(path.join("downloads", "quotes", "daily", code + ".json"), "utf8")).klines;
+        const k = JSON.parse(fs.readFileSync(path.join("downloads", "quotes", "daily", code + ".json"), "utf8")).klines
+            .filter((x) => !ASOF || x.d < ASOF);  // as-of: 只用链日前的K线
         if (!k?.length) return "";
         const last = k[k.length - 1], win = k.slice(-120);
         const hi = Math.max(...win.map((x) => x.h)), lo = Math.min(...win.map((x) => x.l));
@@ -133,7 +140,7 @@ const tmp = tempPool();
 // ①d 轮动位置(rotation.mjs --digest, 纯本地零网络; 10/4 盲区修复⑥: "科技回避"粗话消失=资金从哪向哪迁移+证据锚)
 let rotationMd = "(rotation 历史未建: node scripts/rotation.mjs --backfill)";
 try {
-    rotationMd = execFileSync("node", ["scripts/rotation.mjs", "--digest"], { stdio: "pipe", timeout: 15000 }).toString("utf8").trim();
+    rotationMd = execFileSync("node", ["scripts/rotation.mjs", "--digest", ...(ASOF ? ["--asof", ASOF] : [])], { stdio: "pipe", timeout: 15000 }).toString("utf8").trim();
 } catch (e) { rotationMd = `(轮动位置获取失败: ${String(e.message).slice(0, 120)})`; }
 
 // ③state_digest
@@ -181,25 +188,26 @@ function mentorDigest() {
         out.push(`### 发哥(刹车: 回避信号一票否决级) 近20日纯命中 ${sc.last20.pureHitRate}\n` +
             seg.replace(/^## [^\n]*\n+/, "").trim().split("\n").filter((l) => /^\d+\./.test(l.trim())).join("\n"));
     } catch { }
-    // dir = skill 内 rules.md 所在目录(相对 skills/); 土豆在 persona/buchitudou0/ 子层
+    // dir = skill 内 rules.md 所在目录(相对 skills/); 10/11 土豆 persona 子层已拍平, 全员统一 <skill>/persona
     // (10/7 修双 persona 死路径 bug: 原拼 .../persona/buchitudou0/persona/rules.md, ruleHeads 静默空→土豆规则从未进过速览)
     const mentors = [["liuyiqing-skill/persona", "刘忆青(波段隔夜/板块簇, 日均+1.10%)"], ["lianghuaxiaohao-skill/persona", "量化实验(程序化嫌疑,只看不跟)"],
         ["a658-skill/persona", "A658(ST/次新极端风险, 教训为主)"], ["bianbenling-skill/persona", "边学本领(无止损反面教材)"],
-        ["xingjianye-skill/persona", "星见野(港/北交所重仓)"], ["buchitudou0-skill/persona/buchitudou0", "不吃土豆0(转债T+0, A-cb用)"]];
+        ["xingjianye-skill/persona", "星见野(港/北交所重仓)"], ["buchitudou0-skill/persona", "不吃土豆0(转债T+0, A-cb用)"]];
     for (const [dir, label] of mentors) {
         const heads = ruleHeads(`skills/${dir}/rules.md`, /^###\s/).slice(0, 8);
         if (heads.length) out.push("### " + label + "\n" + heads.join("\n"));
     }
-    const [y, m] = date.split("-");
+    const mdDate = D1 || date;  // as-of: D 的 md 复盘节=D 盘后才写入(后见之明), 改读 D1 的(D 盘前已存在)
+    const [y, m] = mdDate.split("-");
     try {
-        const text = fs.readFileSync(path.join("md", `${y}S${Math.ceil(+m / 3)}`, `${date}.md`), "utf8");
+        const text = fs.readFileSync(path.join("md", `${y}S${Math.ceil(+m / 3)}`, `${mdDate}.md`), "utf8");
         for (const [name, tag] of [["卢本圆复盘", "卢本圆(盘中实战, 晨报型)"], ["趋势天哥", "趋势天哥(趋势视角)"]]) {
             const si = text.indexOf("#### " + name);
             if (si === -1) continue;
             const rest = text.slice(si);
             const endM = rest.slice(10).match(/^#{2,4} /m);
             const sec = (endM ? rest.slice(0, 10 + endM.index) : rest).replace(/\s+/g, " ").slice(0, 400);
-            out.push("### 当日 " + tag + " 小节速览(截断)\n" + sec);
+            out.push(`### ${D1 ? `前一交易日(${D1})` : "当日"} ` + tag + " 小节速览(截断)\n" + sec);
         }
     } catch { }
     return out.length ? out.join("\n\n") : "(导师速览构建失败, 各源信号本次缺席)";
@@ -207,6 +215,7 @@ function mentorDigest() {
 
 // ---- 拼 facts.md(LLM 读, 目标 2-4k token) ----
 const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${SLOT}）`, "",
+    ...(ASOF ? [`> ⏪ as-of 回放构建(${new Date().toISOString().slice(0, 16)}Z): 行情=${D1} 收盘口径(日线归档+东财历史涨跌停池), 账本=沙盒; 次新/板块榜无历史源; 涨跌幅榜=归档样本近似`, ""] : []),
     "## 昨日账本状态", digest, "",
     "## 选股层硬过滤(机械规则, 优先级高于一切候选)", seals.size ? "🔒=一字封死(开=高=低=现价且达板限): 当日禁入候选, 无论买卖方向; 已在六榜行尾标注, 04/06 层不得将其列为可交易标的(等炸板分歧也不行——连续一字票进候选=废单制造机)" : "(今日无一字封死票)", "",
     "## 导师信号速览(G-1 聚合: 全员规则标题+记分+当日晨报; 01 需逐源回应, 权重按状态标 ✅>⏳>❌)", mentorDigest(), "",

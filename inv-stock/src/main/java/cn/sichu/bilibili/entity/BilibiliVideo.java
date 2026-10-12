@@ -46,4 +46,8 @@ public class BilibiliVideo extends BaseEntity {
 
     @TableField("retry_count")
     private Integer retryCount;
+
+    /* DAILY=每日任务 48h 发现 / BACKFILL=补跑登记 */
+    @TableField("origin")
+    private String origin;
 }

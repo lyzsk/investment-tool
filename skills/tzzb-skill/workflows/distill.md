@@ -1,7 +1,7 @@
 # tzzb-skill · distill 工作流（高手行为 → persona 反向沉淀, 统一入口）
 
 > 路由来源: SKILL.md。
-> **路由表**: `--ledger buchitudou0`(默认) = 土豆纯转债, 走下方机械统计+五闸门流程, 沉淀 → buchitudou0-skill/persona/buchitudou0/；
+> **路由表**: `--ledger buchitudou0`(默认) = 土豆纯转债, 走下方机械统计+五闸门流程, 沉淀 → buchitudou0-skill/persona/；
 > `--ledger liuyiqing|lianghuaxiaohao|a658|bianbenling|xingjianye` = 五位混合高手, 走**LLM 提取流程**,
 > 沉淀 → `skills/<ledger>-skill/persona/`（**skill 名==ledger id**, 10/7 命名立法, 无映射表）;
 > lianghuaxiaohao 产出标"(程序化嫌疑)"。本文件是唯一 tzzb 蒸馏入口。
@@ -30,7 +30,7 @@
 | 原料 | 语言(他说了什么) | 行为(他做了什么, 秒级腿) |
 | 核销主体 | LLM 逐条读 md 判断 | **机械统计重跑+阈值比对**(零 token) |
 | LLM 出场 | 每日 | 仅漂移/新标的/证伪触发时 |
-| 目的地 | taoge-skill/persona | buchitudou0-skill/persona/buchitudou0/(rules.md + cases.md) |
+| 目的地 | taoge-skill/persona | buchitudou0-skill/persona/(rules.md + cases.md) |
 
 ## 流程(两步, 顺序不可换)
 
@@ -52,7 +52,7 @@ scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_cases.py --all            
 
 ### 第二步: 核销层(LLM, 仅触发时)
 
-1. 对触发涉及的规则逐条过五闸门(buchitudou0-skill/persona/buchitudou0/rules.md §五闸门), 结论只许:
+1. 对触发涉及的规则逐条过五闸门(buchitudou0-skill/persona/rules.md §五闸门), 结论只许:
    兑现(样本数+1, 追加验证记录行) / 打脸(降级或作废但不删除, 移 cases.md curated 区立案) / 欠定保留
 2. 新模式要进 rules.md 必须过完整五闸门模板(竞争假设≥2 + 可证伪条款), 否则只进 cases.md
 3. **反例优先**: 他违反自己规则的操作优先记 cases.md curated——反例比正例更校准画像

@@ -4,7 +4,7 @@
 // 用法:
 //   node scripts/rotation.mjs --backfill [--days 40]   回填历史(幂等, 空日=节假日或数据洞, 记 holes 跳过)
 //   node scripts/rotation.mjs --matrix                 由 history 重算转移矩阵
-//   node scripts/rotation.mjs --digest                 当前位置判定(纯本地, facts.mjs 每 slot 调)
+//   node scripts/rotation.mjs --digest [--asof yyyy-MM-dd] 当前位置判定(纯本地, facts.mjs 每 slot 调; asof=只用该日前历史)
 //   node scripts/rotation.mjs --belong 603200          个股→板块/概念归属(F10 核心题材, ad hoc 查询)
 // 已知数据洞: 20260925 东财 ZT 池单日为空(邻居日正常, 实测 2026-10-04); push2 系须强制 IPv4(scan.mjs 教训)
 import fs from 'fs';
@@ -116,7 +116,8 @@ function directionOf(board, alias) {  // 板块→方向(seed alias 子串匹配
 function digest() {
   const hist = load(HIST, { days: {} });
   const seed = load(SEED, { families: {}, edges: [], board_alias: {} });
-  const ds = tradeDays(hist);
+  const asof = arg('asof');  // yyyy-MM-dd: as-of 回放只看该日之前的涨停池(10/10 9/28-30 补跑语义修复)
+  const ds = tradeDays(hist).filter(d => !asof || d < asof);
   if (ds.length < 3) { console.log('(rotation 历史不足 3 日, 先 node scripts/rotation.mjs --backfill)'); return; }
   const [d0, d1, d2] = ds.slice(-3);  // 最新三日
   const B = d => hist.days[d].boards;

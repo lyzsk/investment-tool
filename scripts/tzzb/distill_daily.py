@@ -19,19 +19,19 @@ buchitudou0, liuyiqing, lianghuaxiaohao, a658, bianbenling, xingjianye, daxingda
 
 每个 ledger: 只处理 {target} 这一天(当日增量, 不追历史), 核销+增补 persona(profile/rules/language, 全带锚点, 修订记录带日期)。当天无操作=空仓纪律信号, 也是正常结果。
 
-串行逐人处理(不要并发), 每完成一人 stdout 打印一行 "DISTILL_OK <ledger>"。全部完成后打印 "ALL_DISTILL_DONE"。"""
+串行逐人处理(不要并发), 每完成一人 stdout 打印一行 "DISTILL_OK <ledger>"。全部完成后打印 "ALL_DISTILL_DONE"。
+最终回复(会话最后一条消息)的开头必须逐行重新列出全部 "DISTILL_OK <ledger>" 行, 再写总结, 最后一行 "ALL_DISTILL_DONE"——驱动器只看得到最后一条消息, 中途打印的行会丢。"""
 
 print(f"=== distill_daily {target} (单会话 x 11 人) ===", flush=True)
-# 10/9 用户令: 不限模型——去掉 --model 与 ANTHROPIC_MODEL 覆写, 跟随宿主环境
-_env = {**__import__("os").environ}
-_env.pop("ANTHROPIC_MODEL", None)
-r = subprocess.run(["cmd", "/c", "claude", "-p", "--dangerously-skip-permissions"],
-                   input=prompt, cwd=str(ROOT), capture_output=True, text=True,
-                   encoding="utf-8", errors="replace", timeout=3600, env=_env)
-out = (r.stdout or "")
+# 10/9 用户令: 不限模型——不传 --model, ANTHROPIC_MODEL 覆写由 claude_call 剔除(drop_env 默认), 跟随宿主环境
+# 10/12 §5.3: 改走公共模块 claude_call(stdin 传 prompt/json 信封判错/哨兵整行匹配/成本账本 scripts/lib/claude_cost.csv)
+sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+from claude_call import call as claude_call
+r = claude_call(prompt, tag="tzzb-distill-daily", permission="skip", timeout=3600, sentinels=["ALL_DISTILL_DONE"])
+out = r.result
 ok = [l.replace("DISTILL_OK", "").strip() for l in out.splitlines() if "DISTILL_OK" in l and "ALL" not in l]
 print(f"哨兵: {len(ok)}/11 OK → {ok}", flush=True)
-if "ALL_DISTILL_DONE" in out:
+if r.sentinels.get("ALL_DISTILL_DONE"):
     print("=== ALL_DISTILL_DONE ===", flush=True)
 else:
-    print(f"=== 未全部完成(末行: {out.strip().splitlines()[-1][:80] if out.strip() else '空'}) ===", flush=True)
+    print(f"=== 未全部完成(末行: {out.strip().splitlines()[-1][:80] if out.strip() else '空'}; {' | '.join(r.errors)[:200]}) ===", flush=True)

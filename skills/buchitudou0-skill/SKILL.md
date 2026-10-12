@@ -3,15 +3,13 @@ name: buchitudou0-skill
 description: "Use when 分析转债高手'不吃土豆0'的操作数据(投资账本 tzzb API): 行为统计画像/决策规则反推/当日调仓解读, 写 md ### 转债 小节"
 ---
 
-# buchitudou0-skill · 转债高手行为画像与决策规则（多选手分区版）
+# buchitudou0-skill · 转债高手行为画像与决策规则
 
-## 选手分区立法（2026-10-06 用户令）
+## persona 结构（2026-10-11 用户令拍平, 废止 10/6「选手分区立法」）
 
-persona/ 按选手分区：**每个目录=一位选手**，禁止混写：
-- `persona/buchitudou0/` = **不吃土豆0（纯转债选手, 核心区）**——buchitudou0-skill 的 T+0 套利核心人格，主权重唯一来源
-- 未来新选手：**只做转债的**（土豆同类）→ 新建 `persona/<拼音名>/` 直接进核心区（与土豆平权，规则可进 rules 主逻辑）
-- **顺带做转债的混合选手**（如量化实验有 6 天转债腿）→ 其转债相关沉淀可放 `persona/<名>/observations.md`（观察区），**标注"非纯转债选手"且不进 rules 主逻辑**——防 buchitudou0-skill 偏离转债 T+0 核心；其完整画像在他自己的 `skills/<id>-skill/`
-- 调用时先读选手分区再套用：给转债决策加权只认核心区，观察区只作旁证
+- `persona/` 平铺 = **不吃土豆0（纯转债选手）** 的人格: profile.md / rules.md / cases.md / rules_index.md，与其余导师 skill 同构
+- 废止原因(用户 10/11): 10/6 分区立法(persona/<选手>/ 子层, 多转债选手共处一 skill)与 10/7「skill 名 == ledger id, 一导师一 skill」冲突, 属项目初期设计未想清; 子层致 7 处路径特判与 10/7 土豆规则未进 facts 的静默 bug
+- 未来新转债选手: 按一导师一 skill 新建 `skills/<ledger>-skill/`，不再进本 skill 子目录
 
 > 骨架建立: 2026-09-27 (Claude Code 晚间重会话, 用户拍板设计)。
 > ⚠️ 状态: **骨架预填, 数据管道未建**——fetch_tzzb.mjs / cb_tudou 表 / Java handler 均未写(见 docs/TODO.md 4b 节, 用户有空再落地)。persona/ 下内容除"已核实事实"外全是待填框架。

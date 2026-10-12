@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.market.mapper.CallAuctionMapper">
+
+    <!-- 幂等重导第 1 步: 物理删除该交易日该竞价段(不是逻辑删除, 见 Mapper 接口注释) -->
+    <delete id="physicalDeleteByTradeDateAndPhase">
+        DELETE FROM investment_market.call_auction WHERE trade_date = #{tradeDate} AND phase = #{phase}
+    </delete>
+
+    <!-- 幂等重导第 2 步: 批量插入 -->
+    <insert id="insertBatch">
+        INSERT INTO investment_market.call_auction
+        (symbol, trade_date, phase, snap_time, price, matched_volume, matched_amount, unmatched_volume,
+        source, status, create_by, create_time, is_deleted)
+        VALUES
+        <foreach collection="list" item="a" separator=",">
+            (#{a.symbol}, #{a.tradeDate}, #{a.phase}, #{a.snapTime}, #{a.price}, #{a.matchedVolume},
+            #{a.matchedAmount}, #{a.unmatchedVolume}, #{a.source}, 0, #{a.createBy}, #{a.createTime}, 0)
+        </foreach>
+    </insert>
+</mapper>

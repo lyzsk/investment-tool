@@ -15,6 +15,7 @@
         <result column="url" property="url"/>
         <result column="step" property="step"/>
         <result column="retry_count" property="retryCount"/>
+        <result column="origin" property="origin"/>
         <result column="status" property="status"/>
         <result column="create_by" property="createBy"/>
         <result column="create_time" property="createTime"/>
@@ -28,19 +29,31 @@
 
     <!-- 下一阶段 job 取待处理: step 匹配且未超重试上限。
          失败=step原地不动+status=1+retry_count+1, 下个周期被本查询自动重捞; retry_count>=3 沉底 -->
+    <!-- 10/12: 发现去重, 含已逻辑删除的行(用户删掉的误捞旧稿不再被重新插入) -->
+    <select id="countAnyByBvid" resultType="long">
+        SELECT COUNT(*) FROM bilibili_video WHERE bvid = #{bvid}
+    </select>
+
+    <!-- 10/12: origin 非空时按来源过滤(DAILY 每日队列 / BACKFILL 补跑队列), 补跑按发布时间倒序(先补近的) -->
     <select id="selectByStep" resultMap="BilibiliVideoMap">
         <![CDATA[
           SELECT
               id, bvid, author_mid, title, publish_time, trade_date, duration, url,
-              step, retry_count,
+              step, retry_count, origin,
               status, create_by, create_time, update_by, update_time,
               is_deleted, delete_by, delete_time, remark
           FROM bilibili_video
           WHERE is_deleted = 0
             AND step = #{step}
             AND retry_count < #{maxRetry}
-          ORDER BY id ASC
           ]]>
+        <if test="origin != null">
+            AND origin = #{origin}
+        </if>
+        <choose>
+            <when test="origin == 'BACKFILL'">ORDER BY publish_time DESC, id ASC</when>
+            <otherwise>ORDER BY id ASC</otherwise>
+        </choose>
     </select>
 
 </mapper>

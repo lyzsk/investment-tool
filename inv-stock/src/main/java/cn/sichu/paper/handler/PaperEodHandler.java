@@ -5,15 +5,12 @@ import cn.sichu.system.quartz.handler.JobHandler;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import utils.ProcessUtils;
 import utils.TradingDayUtils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -32,31 +29,22 @@ public class PaperEodHandler implements JobHandler {
         if (!TradingDayUtils.isTradingDay(today)) {
             return "非交易日跳过 " + today;
         }
+        /* --date 参数格式 yyyy-MM-dd */
         ProcessBuilder pb = new ProcessBuilder("node",
             Paths.get(projectConfig.getRootDir(), "scripts", "dfcf", "paper", "matcher.mjs")
                 .toString(), "--eod", "--date",
-            today.format(DateTimeFormatter.ISO_LOCAL_DATE));   // yyyy-MM-dd
+            today.format(DateTimeFormatter.ISO_LOCAL_DATE));
         pb.directory(Paths.get(projectConfig.getRootDir()).toFile());
-        pb.redirectErrorStream(true);
-        StringBuilder tail = new StringBuilder();
-        Process proc = pb.start();
-        try (BufferedReader br = new BufferedReader(
-            new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                tail.append(line).append('\n');
-                if (tail.length() > 4000) {
-                    tail.delete(0, tail.length() - 4000);
-                }
-            }
-        }
-        if (!proc.waitFor(TIMEOUT_MIN, TimeUnit.MINUTES)) {
-            proc.destroyForcibly();
-            throw new BusinessException("matcher.mjs --eod 超时 " + TIMEOUT_MIN + "min");
-        }
-        if (proc.exitValue() != 0) {
+        /* 10/11: ProcessUtils 独立线程读输出, 超时真生效(原先读到 EOF 才 waitFor, 子进程挂住则超时永不触发) */
+        ProcessUtils.Result res = ProcessUtils.run(pb, TIMEOUT_MIN);
+        String tail = res.tail();
+        if (res.timedOut()) {
             throw new BusinessException(
-                "matcher.mjs --eod 失败 exit=" + proc.exitValue() + ", 输出尾部: " + tail);
+                "matcher.mjs --eod 超时 " + TIMEOUT_MIN + "min" + "(进程树已杀)");
+        }
+        if (res.exit() != 0) {
+            throw new BusinessException(
+                "matcher.mjs --eod 失败 exit=" + res.exit() + ", 输出尾部: " + tail);
         }
         return "paper EOD 完成 " + today;
     }

@@ -28,7 +28,8 @@ import java.util.concurrent.TimeUnit;
 @Component("tzzbFetchHandler")
 @RequiredArgsConstructor
 public class TzzbFetchHandler implements JobHandler {
-    private static final long TIMEOUT_MIN = 15;   // 10/2 起含 change_bs 全历史分页(51标的~400请求), 5min 不够
+    /* 10/2 起含 change_bs 全历史分页(51标的~400请求), 5min 不够 */
+    private static final long TIMEOUT_MIN = 15;
     private final ITzzbRecordService tzzbRecordService;
     private final ProjectConfig projectConfig;
     private final ObjectMapper om = new ObjectMapper();
