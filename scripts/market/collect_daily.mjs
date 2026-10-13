@@ -142,6 +142,7 @@ async function main() {
     fs.mkdirSync(dir, { recursive: true });
     const mfFile = path.join(dir, "manifest.json");
     const mf = fs.existsSync(mfFile) ? JSON.parse(fs.readFileSync(mfFile, "utf8")) : { tradeDate, stages: {} };
+    mf.stages = mf.stages || {};   // 10/12 修: 同目录 manifest 可能先由 collect_global/collect_auction 建(无 stages 键), 原先直接崩在写 stages 处
     const saveMf = () => fs.writeFileSync(mfFile, JSON.stringify(mf, null, 1));
     log(`交易日 ${tradeDate}(取自 ${dateSrc}), 输出 ${path.relative(ROOT, dir)}, 阶段 ${STAGES.join(",")}`);
 

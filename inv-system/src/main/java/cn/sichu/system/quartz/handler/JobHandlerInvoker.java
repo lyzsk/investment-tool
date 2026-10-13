@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import utils.ExceptionUtils;
+import utils.StringUtils;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -58,6 +59,9 @@ public class JobHandlerInvoker extends QuartzJobBean {
             sysJobLog.setJobMessage("执行失败：" + e.getMessage());
             throw new JobExecutionException(e);
         } finally {
+            /* 10/12 修: job_message 是 varchar(500), 脚本失败的异常消息带 4000 字输出尾部, 超长导致整条日志插入失败、失败记录静默丢失
+               (10/12 15:35 marketDailyHandler 实录); 截断到 500, 完整内容仍在 exception_message(2000) */
+            sysJobLog.setJobMessage(StringUtils.maxLength(sysJobLog.getJobMessage(), 500));
             /* 异步保存日志, 防止线程阻塞 */
             CompletableFuture.runAsync(() -> {
                 try {

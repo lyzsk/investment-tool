@@ -167,16 +167,23 @@ def sticky_until(day, wl_reasons):
 
 
 # ---------- 通达信 ----------
-def connect():
+def connect(ymd=None):
+    """连第一个可用的通达信服务器; 给了 ymd 时还要求该服务器有这一天的逐笔(探 002714/600000),
+    10/12 实录: 上证云成都电信一能连但收盘后当日逐笔为空, 396 只缺 390"""
     for name, ip, port in hq_hosts:
         api = TdxHq_API(raise_exception=False)
         try:
             if api.connect(ip, port, time_out=3) and api.get_security_count(1):
+                if ymd and not (api.get_history_transaction_data(0, "002714", 0, 5, ymd)
+                                or api.get_history_transaction_data(1, "600000", 0, 5, ymd)):
+                    log(f"通达信 {name} {ip}:{port} 无 {ymd} 逐笔, 换下一台")
+                    api.disconnect()
+                    continue
                 log(f"通达信 {name} {ip}:{port}")
                 return api
         except Exception:   # noqa: BLE001
             continue
-    raise RuntimeError("通达信服务器全部不可用")
+    raise RuntimeError("通达信服务器全部不可用" + (f"(或都没有 {ymd} 逐笔)" if ymd else ""))
 
 
 def tdx_market(sym):
@@ -296,7 +303,8 @@ def main():
         return 0
 
     kl = {k["symbol"]: k for k in read_jsonl(out / "kline_day.jsonl")}
-    api, ymd, bars, miss, t0 = connect(), int(day.replace("-", "")), [], [], dt.datetime.now()
+    ymd = int(day.replace("-", ""))
+    api, bars, miss, t0 = connect(ymd), [], [], dt.datetime.now()
     try:
         for i, r in enumerate(recs, 1):
             sym = r["symbol"]
@@ -320,7 +328,7 @@ def main():
                     api.disconnect()
                 except Exception:   # noqa: BLE001
                     pass
-                api = connect()
+                api = connect(ymd)
             if i % 100 == 0:
                 log(f"进度 {i}/{len(recs)} 分钟线 {len(bars)} 根 缺 {len(miss)}")
     finally:

@@ -214,6 +214,24 @@ function mentorDigest() {
 }
 
 // ---- 拼 facts.md(LLM 读, 目标 2-4k token) ----
+// 10/12 用户令: 隔夜外围进事实包——只读 collect_global.py 的落盘(downloads/market/<北京日期>/global_kline.jsonl, 每日 07:15 采), 零额外请求;
+// 当日未采到=取最近一份并标采集日; as-of 回放=不可得(该文件只有实时口径, 禁混入)
+function overseas() {
+    if (ASOF) return "(as-of 回放: 外围隔夜数据无历史快照, 不可得)";
+    const root = path.resolve("downloads/market");
+    let dir = null;
+    try { dir = fs.readdirSync(root).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d <= date && fs.existsSync(path.join(root, d, "global_kline.jsonl"))).sort().pop(); } catch { }
+    if (!dir) return "(外围数据未采集: downloads/market/*/global_kline.jsonl 不存在)";
+    const rows = fs.readFileSync(path.join(root, dir, "global_kline.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+    const name = {};
+    try { for (const l of fs.readFileSync(path.join(root, dir, "global_security.jsonl"), "utf8").split("\n").filter(Boolean)) { const s = JSON.parse(l); name[s.symbol] = s.name; } } catch { }
+    const fmt = (r) => { const pct = r.preClose ? ((r.close / r.preClose - 1) * 100).toFixed(2) : "?"; return `${name[r.symbol] || r.symbol} ${r.close}(${pct > 0 ? "+" : ""}${pct}%)`; };
+    const groups = [["美股", /^us\.(NDX|IXIC|SPX|DJI)$/], ["中概", /^us\.(HXC|KWEB)$/], ["港股", /^hk\./], ["日英", /^(jp\.|gl\.UKX)/], ["期货", /^gl\.(A50|ES|NQ)$/], ["商品汇率", /^gl\.(GC|CL|USDCNH)$/]];
+    const days = [...new Set(rows.map((r) => r.tradeDate))].sort();
+    return [`(采集日 ${dir}${dir !== date ? " ⚠️非当日, 可能缺最新隔夜" : ""}; 各品种=当地最近交易日 ${days.join("/")} 收盘, 期货汇率=北京时间凌晨收盘口径)`,
+        ...groups.map(([g, re]) => { const rs = rows.filter((r) => re.test(r.symbol)); return rs.length ? `- ${g}: ${rs.map(fmt).join(" / ")}` : null; }).filter(Boolean)].join("\n");
+}
+
 const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${SLOT}）`, "",
     ...(ASOF ? [`> ⏪ as-of 回放构建(${new Date().toISOString().slice(0, 16)}Z): 行情=${D1} 收盘口径(日线归档+东财历史涨跌停池), 账本=沙盒; 次新/板块榜无历史源; 涨跌幅榜=归档样本近似`, ""] : []),
     "## 昨日账本状态", digest, "",
@@ -222,6 +240,7 @@ const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${S
     "## 池子覆盖率(最近涨停池 vs pools.json 登记簿)", coverage.md, "",
     "## 轮动位置(rotation.mjs 机械判定)", rotationMd, "",
     ...(tmp ? ["## 竞价异动临时池(接力池取数口, 当日有效)", tmp.md, ""] : []),
+    "## 隔夜外围(美股/中概/港股/日英/A50·美股期货/金油/离岸人民币)", overseas(), "",
     "## 新到电报(自上一 slot)", telegraph(), "",
     "## 关注票实时快照", snaps.length ? snaps.map((s) => `- ${s.code} ${s.name}(${s.tag}): ${s.last} (${s.pct > 0 ? "+" : ""}${s.pct}%) 高${s.high} 低${s.low}${isSealed(s) ? " " + sealTag(s) + "·禁入候选" : ""}${dailyAnchor(s.code)}`).join("\n") : "(无持仓无挂单)", "",
     "## 大盘六榜", scanMd].join("\n");

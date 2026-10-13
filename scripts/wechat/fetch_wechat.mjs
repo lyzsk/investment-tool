@@ -78,7 +78,7 @@ function mount(date, acc, meta, text) {
     let hEnd = lines.length;
     for (let i = hi + 1; i < lines.length; i++) if (/^#{2,4} /.test(lines[i])) { hEnd = i; break; }
     const old = lines.slice(hi + 1, hEnd);
-    const carryReview = old.filter((l) => l.includes("【核销】"));
+    const carryReview = old.filter((l) => l.startsWith("【核销"));   // 10/12 修: 实际行是【核销 T+1】/【核销 当日】, 原 includes("【核销】") 一个都不匹配=重挂就丢核销
     const specFile = path.join("downloads", "wechat", acc.id, date, "spec.md");
     let specLines = null;
     if (fs.existsSync(specFile)) specLines = fs.readFileSync(specFile, "utf8").split("\n").map((l) => l.trimEnd()).filter((l) => l.trim());

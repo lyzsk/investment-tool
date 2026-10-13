@@ -62,11 +62,25 @@ def poll(sess, syms):
     return out
 
 
-def to_row(sym, f, day, phase):
+MATCH_AT = {"OPEN": "09:25:00", "CLOSE": "15:00:00"}
+
+
+def to_row(sym, f, day, phase, base_vol=None):
     """新浪 A 股报文: 0名 1今开 2昨收 3现价 4最高 5最低 6买一价 7卖一价 8量(股) 9额 10买一量 11买一价 12买二量 13买二价 ...
-    20卖一量 21卖一价 22卖二量 23卖二价 ... 30日期 31时间"""
+    20卖一量 21卖一价 22卖二量 23卖二价 ... 30日期 31时间
+    竞价中(10/12 实测核对): 买一价=卖一价=虚拟匹配价, 买一量=虚拟匹配量, 买二/卖二价为 0 时其量=买方(+)/卖方(-)未匹配量
+    撮合后(OPEN ≥09:25:00 / CLOSE ≥15:00:00)报文已是连续竞价盘口, 改取 现价=撮合价, 成交量: OPEN=当日累计量, CLOSE=累计量-收盘竞价前累计量(base_vol)
+    (10/12 修: 原先撮合后一行误把盘口买一 41.09×900 当竞价, 实际开盘 41.10/224400 股)"""
     if len(f) < 32 or f[30] != day:
         return None
+    if f[31] >= MATCH_AT[phase]:
+        price, total = float(f[3] or 0), int(float(f[8] or 0))
+        if price <= 0:
+            return None
+        vol = total if phase == "OPEN" else (total - base_vol if base_vol is not None else None)
+        return {"symbol": sym, "tradeDate": day, "phase": phase, "snapTime": f"{f[30]}T{f[31]}", "price": price,
+                "matchedVolume": vol, "matchedAmount": round(price * vol, 2) if vol is not None else None,
+                "unmatchedVolume": None, "source": "sina"}
     price = float(f[11] or 0) or float(f[21] or 0) or float(f[3] or 0)
     if price <= 0:
         return None
@@ -85,11 +99,25 @@ def main():
     ap.add_argument("--phase", required=True, choices=list(PHASES))
     ap.add_argument("--date", default=dt.date.today().isoformat())
     ap.add_argument("--now", action="store_true", help="不等竞价时刻立即轮询 3 轮(测试报文格式用)")
+    ap.add_argument("--rebuild", action="store_true", help="不轮询, 从已存的 call_auction_<phase>_raw.jsonl 按当前口径重算 jsonl(口径修正后补救用)")
     a = ap.parse_args()
     day, phase = a.date, a.phase
     start, end, gap = PHASES[phase]
     out = MARKET / day
     out.mkdir(parents=True, exist_ok=True)
+    if a.rebuild:
+        raw_f = out / f"call_auction_{phase.lower()}_raw.jsonl"
+        rows, base = {}, {}
+        for r in read_jsonl(raw_f):
+            f = r["fields"]
+            base.setdefault(r["symbol"], int(float(f[8] or 0)) if len(f) > 8 else None)
+            row = to_row(r["symbol"], f, day, phase, base.get(r["symbol"]))
+            if row:
+                rows[(r["symbol"], row["snapTime"])] = row
+        recs = sorted(rows.values(), key=lambda x: (x["symbol"], x["snapTime"]))
+        write_jsonl(out / f"call_auction_{phase.lower()}.jsonl", recs)
+        log(f"重算 {phase}: {len(recs)} 行")
+        return 0
     syms, wl_from = targets(day)
     if not syms:
         log("无关注集")
@@ -102,7 +130,7 @@ def main():
         while dt.datetime.now().time() < start:
             time.sleep(min(5.0, max(0.5, (dt.datetime.combine(dt.date.today(), start) - dt.datetime.now()).total_seconds())))
     sess = requests.Session()
-    rows, raw, rounds, errors = {}, [], 0, 0
+    rows, raw, rounds, errors, base = {}, [], 0, 0, {}
     while True:
         t0 = time.time()
         try:
@@ -111,7 +139,8 @@ def main():
             at = dt.datetime.now().isoformat(timespec="seconds")
             for sym, f in snap.items():
                 raw.append({"at": at, "symbol": sym, "fields": f})
-                row = to_row(sym, f, day, phase)
+                base.setdefault(sym, int(float(f[8] or 0)) if len(f) > 8 else None)   # 首轮累计量=收盘竞价前的量
+                row = to_row(sym, f, day, phase, base.get(sym))
                 if row:
                     rows[(sym, row["snapTime"])] = row   # 同一报文时刻重复轮询去重
         except Exception as e:   # noqa: BLE001  单轮失败继续下一轮(竞价只有 10 分钟, 不能整段放弃)

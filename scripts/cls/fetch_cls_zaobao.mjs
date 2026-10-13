@@ -42,7 +42,11 @@ function parse(html) {
     const text = decode(body[1].replace(/<br[^>]*>/gi, "\n").replace(/<\/(p|section|h[1-6]|li)>/gi, "\n")
         .replace(/<[^>]+>/g, "")).replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
     if (text.length < 100) return { err: 3, msg: `正文过短(${text.length}字), 疑解析错位` };
-    const ctime = (html.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/) || [])[1] || null;
+    // 10/13 修: 页面时间改为 data-time="<unix 秒>"(原 "yyyy-MM-dd HH:mm:ss" 文本匹配不到 → ctime=null → 正文推算误取
+    // 新闻里的"2027年4月1日起…"算成 2027-04-02); 先认文本时间, 再认 data-time(按北京时间格式化)
+    let ctime = (html.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/) || [])[1] || null;
+    const dt = html.match(/data-time="(\d{10})"/);
+    if (!ctime && dt) ctime = new Date(+dt[1] * 1000).toLocaleString("sv-SE", { timeZone: "Asia/Shanghai" });
     return { title, ctime, text };
 }
 
@@ -105,12 +109,12 @@ function mount(date, meta) {
         else if (p.ctime) { date = p.ctime.slice(0, 10); }
         else {
             const m = p.text.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
-            if (m) {
-                const d = new Date(+m[1], +m[2] - 1, +m[3] + 1);  // 早报=昨日新闻+1
+            const d = m ? new Date(+m[1], +m[2] - 1, +m[3] + 1) : null;  // 早报=昨日新闻+1
+            if (d && Math.abs(d - Date.now()) <= 3 * 86400000) {   // 10/13: 离今天 >3 天=多半是新闻里的政策生效日等, 不可信
                 date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
                 console.log(`ctime 空, 从正文"${m[0]}"推算发布日 → ${date}`);
             } else {
-                console.error("❌ 无法确定早报日期: ctime 空 + 正文无日期线索; 请用 --date yyyy-MM-dd 指定");
+                console.error(`❌ 无法确定早报日期: ctime 空 + 正文日期线索${m ? `"${m[0]}"离今天超过 3 天(疑为新闻内容日期)` : "缺失"}; 请用 --date yyyy-MM-dd 指定`);
                 process.exit(4);
             }
         }

@@ -1,5 +1,6 @@
 // B站 UP 视频发现 + 产物下载(2026-09-27 合并建; 10/5 多UP参数化 --mid/--name, 默认=桃哥 625315686; 10/6 更名 fetch_bilibili.mjs 去 taoge 专属命名)
-// 方案B: 无cookie。用 search.bilibili.com HTML 页(不风控)发现视频, view/playurl API 取详情和流地址。
+// 方案(10/12 晚改): 无登录。发现主路=UP 投稿列表 x/space/wbi/arc/search(WBI 签名+buvid 指纹), 失败降级旧方案B
+// (search.bilibili.com HTML 页发现); 详情和流地址走 view/playurl API。
 // 用法:
 //   node fetch_bilibili.mjs --list        # 只发现不下载, stdout 末行 "JSON:[...]" (Java BilibiliVideoHandler 发现段消费)
 //   node fetch_bilibili.mjs [--bvid BVxxxx] [--out <目录>] [--video-only|--audio-only]
@@ -10,8 +11,8 @@
 import fs from "fs";
 import path from "path";
 
-/* B站请求头: 伪装桌面 Chrome。无 cookie 方案的前提 = search HTML / view / playurl / related
-   这几个接口不吃风控; 作者空间列表(x/space/wbi/arc/search)和动态 feed 已上 -352 风控用不了(9/27 实测) */
+/* B站请求头: 伪装桌面 Chrome。search HTML / view / playurl / related 不吃风控; 作者空间列表(x/space/wbi/arc/search)
+   9/27 不签名直接调被 -352 挡, 10/12 补 WBI 签名+buvid 后可用(见 spaceList); 动态 feed 仍未试 */
 const UA = {
   "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
   "Accept-Language": "zh-CN,zh;q=0.9",
@@ -63,9 +64,76 @@ function existsNonEmpty(p) {
   return fs.existsSync(p) && fs.statSync(p).size > 0;
 }
 
-/* 发现: 搜索页 HTML 抠候选 → view API 验明正身 → related BFS 一跳补漏 → 时效窗过滤
+/* ── 主路(10/12 晚): UP 投稿列表 x/space/wbi/arc/search, WBI 签名 + buvid 指纹, 无需登录 ──
+   病灶: 原发现只靠搜索页 HTML, 搜索索引对新稿延迟 1-3 天 + 营销号蹭词挤位 → 10/12 天哥 18:01 稿
+   18:31 任务"跳过 10"(拉到的全是旧稿), 23:2x 再拉更是 80 候选 0 本人。9/27 当时没签名直接调被 -352 风控挡,
+   补上 WBI 签名(nav 接口 img/sub key → 固定重排表取 mixin key → 参数排序后 md5)+ finger/spi 发的 buvid3/4 后可用。
+   失败(风控/改版/签名表变)=返回 null, discover() 自动降级旧的搜索+BFS 路(多源切换铁律) */
+const WBI_MIXIN = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13,
+  37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52];
+async function spaceList(mid, n) {
+  try {
+    const crypto = await import("node:crypto");
+    const spi = await (await fetch("https://api.bilibili.com/x/frontend/finger/spi", { headers: UA })).json();
+    const cookie = `buvid3=${spi.data.b_3}; buvid4=${encodeURIComponent(spi.data.b_4)}`;
+    await jitter();
+    const nav = await (await fetch("https://api.bilibili.com/x/web-interface/nav", { headers: { ...UA, Cookie: cookie } })).json();
+    const key = (u) => u.split("/").pop().split(".")[0];
+    const raw = key(nav.data.wbi_img.img_url) + key(nav.data.wbi_img.sub_url);
+    const mixin = WBI_MIXIN.map((i) => raw[i]).join("").slice(0, 32);
+    const p = { mid: String(mid), ps: String(n), pn: "1", order: "pubdate", platform: "web", web_location: "1550101",
+      dm_img_list: "[]", dm_img_str: "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ", dm_cover_img_str: "QU5HTEUgKEludGVsKQ",
+      dm_img_inter: '{"ds":[],"wh":[0,0,0],"of":[0,0,0]}', wts: String(Math.floor(Date.now() / 1000)) };
+    const q = Object.keys(p).sort().map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(String(p[k]).replace(/[!'()*]/g, ""))}`).join("&");
+    const w_rid = crypto.createHash("md5").update(q + mixin).digest("hex");
+    await jitter();
+    const j = await (await fetch(`https://api.bilibili.com/x/space/wbi/arc/search?${q}&w_rid=${w_rid}`,
+      { headers: { ...UA, Cookie: cookie, Referer: `https://space.bilibili.com/${mid}/video`, Origin: "https://space.bilibili.com" } })).json();
+    if (j.code !== 0 || !Array.isArray(j.data?.list?.vlist)) {
+      console.error(`spaceList 主路失败 code=${j.code} ${j.message || ""}(降级搜索路)`);
+      return null;
+    }
+    return j.data.list.vlist.map((v) => ({ bvid: v.bvid, title: v.title, pubdate: v.created }));
+  } catch (e) {
+    console.error(`spaceList 主路异常(降级搜索路): ${e.message}`);
+    return null;
+  }
+}
+
+/* 发现: 主路=UP 投稿列表(WBI) → view API 补 cid/duration/原始元数据; 主路失败才走旧路:
+   搜索页 HTML 抠候选 → view API 验明正身 → related BFS 一跳补漏 → 时效窗过滤
    返回按发布时间倒序的本人视频数组 [{bvid,title,pubdate,mid,cid,desc,duration}] */
 async function discover() {
+  let sl = await spaceList(MID, RECENT_KEEP);
+  if (!sl) {   // 偶发风控 HTML 页(10/12 实测连发后第一次撞上, 2s 后即恢复): 主路自己先重试一次, 再降级慢的搜索路(~60s)
+    await new Promise((s) => setTimeout(s, 2000));
+    sl = await spaceList(MID, RECENT_KEEP);
+  }
+  if (sl && sl.length) {
+    const his = [];
+    for (const c of sl) {
+      try {
+        const v = await getJson(`https://api.bilibili.com/x/web-interface/view?bvid=${c.bvid}`);
+        if (v.code === 0 && v.data.owner.mid === MID) {
+          his.push({ ...c, pubdate: v.data.pubdate, mid: String(MID), cid: v.data.cid, desc: v.data.desc, duration: v.data.duration, title: v.data.title, _raw: v.data });
+        }
+      } catch (e) {
+        console.error(`view fail ${c.bvid}: ${e.message}`);
+      }
+      await jitter();
+    }
+    if (his.length) {
+      const out = his.sort((a, b) => b.pubdate - a.pubdate).slice(0, RECENT_KEEP);
+      console.error(`discover(主路 space/wbi): list=${sl.length} his=${his.length} final=${out.length}`);
+      return out;
+    }
+    console.error("主路列表非空但 view 校验 0 条, 降级搜索路");
+  }
+  return discoverBySearch();
+}
+
+/* 旧路(9/27 方案B, 10/12 起为降级备用): 搜索页 HTML 抠候选 → view 验明正身 → related BFS 补漏 */
+async function discoverBySearch() {
   // ── 第 1 段: 搜索页 HTML 内嵌 JSON 正则抠 {bvid,title,pubdate,up}(pubdate=Unix秒, B站原字段名) ──
   const found = new Map(); // bvid -> {bvid,title,pubdate,up}; up=true 表示来自 UP 主全名搜索(高可信)
   for (const kw of KEYWORDS) {

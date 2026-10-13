@@ -170,6 +170,52 @@ function stats(a) {
 
 const lastClose = (code) => { const k = readKl(code); return k.length ? k.at(-1) : null; };
 
+// ---- 10/12 晚: 按市况分组的各线收益("什么市况听谁的"的数据底座; 只统计, 不改链) ----
+// 标签=各链 0915 盘前 02 的 market_state(决策时已知, 无后见之明), 当日共识=15 链多数票; 对照看=上证当日实际涨跌(事后, 客观)。
+// 0915 版取数优先级: run_dir/slots/0915/02_analysis.md(10/13 起驱动器存档) → 顶层 02(无 .prev=当日没跑盘中子链, 顶层即盘前版)
+//   → regime_0915_backfill.json(被子链覆盖的日子从 chain_step 库导出, 目前只有 10/12)
+const RESULTS = path.resolve(SCRIPT_DIR, "../../../results");
+const STATES = ["有主线", "无主线退潮", "普跌"];
+const normState = (v) => {   // 与驱动器 norm_enum 同口径: 以标准值开头 或 某标准值的唯一前缀
+    const s = String(v || "").trim(), hit = STATES.filter((a) => s.startsWith(a));
+    if (hit.length) return hit.sort((a, b) => b.length - a.length)[0];
+    const pre = s.length >= 2 ? STATES.filter((a) => a.startsWith(s)) : [];
+    return pre.length === 1 ? pre[0] : null;
+};
+const skillOf = (src) => (src === "A-cb" ? "buchitudou0" : src.replace(/^A-/, ""));
+let BACKFILL = {};
+try { BACKFILL = JSON.parse(fs.readFileSync(path.join(SCRIPT_DIR, "regime_0915_backfill.json"), "utf8")); } catch { /* 无补录 */ }
+function state0915(skill, runKey) {
+    const dir = path.join(RESULTS, `${skill}_chain`, runKey);
+    const read = (f) => { try { const b = [...fs.readFileSync(f, "utf8").matchAll(/```contract\s*\n([\s\S]*?)```/g)]; return b.length ? normState(JSON.parse(b.at(-1)[1]).market_state) : null; } catch { return null; } };
+    const s = read(path.join(dir, "slots", "0915", "02_analysis.md"));
+    if (s) return s;
+    if (!fs.existsSync(path.join(dir, "02_analysis.prev.md"))) { const t = read(path.join(dir, "02_analysis.md")); if (t) return t; }
+    return normState(BACKFILL[runKey]?.[skill]);
+}
+function regimeStats(merged) {
+    const days = merged.dates.map((d, i) => {
+        const runKey = `${merged.quality[d] === "as-of回放" ? "asof" : "live"}-${d.replace(/-/g, "")}`;
+        const own = Object.fromEntries(merged.series.map((s) => [s.src, state0915(skillOf(s.src), runKey)]));
+        const votes = {};
+        for (const v of Object.values(own)) if (v) votes[v] = (votes[v] || 0) + 1;
+        const top = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+        const cons = !top.length ? null : top.length > 1 && top[0][1] === top[1][1] ? "分歧" : top[0][0];
+        const b = merged.bench?.pts[i]?.day;
+        const mkt = b == null ? null : b >= 0.005 ? "上证涨≥0.5%" : b <= -0.005 ? "上证跌≥0.5%" : "上证震荡";
+        return { d, i, cons, votes, mkt, bench: b };
+    });
+    const groups = (key) => [...new Set(days.map((x) => x[key]).filter(Boolean))];
+    const cell = (src, key, g) => {   // 该组日的平均日收益 + 天数 + 跑赢上证天数
+        const rs = days.filter((x) => x[key] === g).map((x) => {
+            const p = src === "BENCH" ? merged.bench?.pts[x.i] : merged.series.find((s) => s.src === src)?.pts[x.i];
+            return p && p.day != null ? { r: p.day, beat: x.bench != null ? p.day > x.bench : null } : null;
+        }).filter(Boolean);
+        return rs.length ? { avg: rs.reduce((a, x) => a + x.r, 0) / rs.length, n: rs.length, beat: src === "BENCH" ? null : rs.filter((x) => x.beat).length } : null;
+    };
+    return { days, groups, cell };
+}
+
 async function main() {
     if (ASOF) {  // 10/11 用户令: 不出沙盒独立报告, 回放已并入主报告(matcher --eod 在沙盒尾挂调用时安静退出)
         console.log("as-of 沙盒不出独立报告(已并入主报告 scripts/dfcf/paper/report.html), 跳过");
@@ -225,13 +271,30 @@ async function main() {
 
     const openRows = all.flatMap((a) => a.b.orders.filter((o) => o.status === "open").map((o) => `<tr><td>${esc(a.name)}</td><td>${o.date}</td><td class="${o.side === "BUY" ? "up" : "dn"}">${o.side === "BUY" ? "买" : "卖"}</td><td>${esc(nm(o.code))}</td><td class="num">${o.price}</td><td class="num">${o.qty}</td><td class="muted small">${esc((o.note || "").slice(0, 120))}</td></tr>`)).join("") || `<tr><td colspan="7" class="muted">无挂单</td></tr>`;
 
+    // 按市况分组(10/12 晚): 逐日标签条 + 两张分组表(盘前共识 / 上证实际)
+    const rg = regimeStats(merged);
+    const dayRows = rg.days.map((x) => `<tr><td>${x.d}</td><td class="muted small">${esc(merged.quality[x.d] || "")}</td><td><b>${esc(x.cons ?? "无标签")}</b></td>`
+        + `<td class="muted small">${esc(Object.entries(x.votes).map(([k, v]) => `${k} ${v}`).join(" / "))}</td><td class="num ${cls(x.bench ?? 0)}">${x.bench == null ? "—" : sign(x.bench)}</td></tr>`).join("");
+    const groupTable = (key, title) => {
+        const gs = rg.groups(key);
+        if (!gs.length) return `<p class="muted">${title}: 暂无数据</p>`;
+        const head = `<tr><th>账户</th>${gs.map((g) => `<th class="num">${esc(g)}</th>`).join("")}</tr>`;
+        const fmt = (c) => (c ? `<span class="${cls(c.avg)}"><b>${sign(c.avg)}</b></span><span class="muted small"> ${c.n}天${c.beat == null ? "" : "·胜上证" + c.beat}</span>` : `<span class="muted">—</span>`);
+        const body = [...merged.series.map((s) => [s.src, s.name]), ["BENCH", "上证指数(基准)"]].map(([src, name]) =>
+            `<tr><td>${esc(name)}${src === "BENCH" ? "" : `<span class="muted"> ${src}</span>`}</td>${gs.map((g) => `<td class="num">${fmt(rg.cell(src, key, g))}</td>`).join("")}</tr>`).join("");
+        return `<h3 style="font-size:13px;margin:12px 0 6px">${title}</h3><div class="scroll"><table class="t">${head}${body}</table></div>`;
+    };
+    const REGIME = `<details><summary>逐日市况标签(${rg.days.length} 个交易日)</summary><div class="scroll"><table class="t"><tr><th>日期</th><th>数据来源</th><th>0915 共识市况</th><th>各链票数</th><th class="num">上证当日</th></tr>${dayRows}</table></div></details>`
+        + groupTable("cons", "按 0915 盘前共识市况分组(决策时已知, 将来「什么市况听谁的」权重就看这张)")
+        + groupTable("mkt", "按上证当日实际涨跌分组(事后客观口径, 对照看)");
+
     const trades = [...all.flatMap((a) => a.b.trades.map((t) => ({ ...t, who: a.name }))), ...sbTrades].sort((x, y) => String(y.id).localeCompare(String(x.id)));
     const tradeRows = trades.map((t) => `<tr><td>${String(t.id).slice(0, 10)}</td><td>${esc(t.who)}</td><td class="${t.side === "BUY" ? "up" : "dn"}">${t.side === "BUY" ? "买" : "卖"}</td><td>${esc(nm(t.code))}</td><td class="num">${t.price}</td><td class="num">${t.qty}</td><td class="num">${(+t.price * t.qty).toFixed(0)}</td><td class="muted small">${esc(String(t.why || "").slice(0, 80))}</td></tr>`).join("") || `<tr><td colspan="8" class="muted">无成交</td></tr>`;
 
     const dataJson = JSON.stringify(DATA).replace(/</g, "\\u003c");
     const fill = { TITLE: ASOF ? "paper 模拟盘 · as-of 回放(沙盒)" : "paper 模拟盘 · 收益率走势", GEN: DATA.generated,
         NACC: String(DATA.live.series.length), NDAY: String(DATA.live.dates.length), SUM: sumRows, POS: posRows, OPEN: openRows,
-        TRADES: tradeRows, NTRADE: String(trades.length), DATA: dataJson, SIM: simRows, SIMUPD: simUpd };
+        TRADES: tradeRows, NTRADE: String(trades.length), DATA: dataJson, SIM: simRows, SIMUPD: simUpd, REGIME };
     const html = TEMPLATE.replace(/%%(\w+)%%/g, (m, k) => (k in fill ? fill[k] : m));  // 函数式替换: 数据里的 $ 不被当替换模式
     fs.writeFileSync(OUT, html);
     console.log(`report.html 已生成: ${merged.series.length} 条收益线, ${merged.dates.length} 个交易日(含回放 ${merged.dates.filter((d) => merged.quality[d] === "as-of回放").length} 日), ${OUT}`);
@@ -292,6 +355,8 @@ details summary{cursor:pointer;color:var(--text-secondary);font-size:13px;margin
 <div class="card"><h2>拟人度 <span class="muted small">(模拟操作 vs 导师真人当日持仓/操作; 对照组=裸模型同口径; 差值=skill 真实贡献; %%SIMUPD%%)</span></h2><div class="scroll"><table class="t"><tr><th>导师</th><th class="num">拟人度</th><th class="num">对照组</th><th class="num">skill−对照(百分点)</th><th class="num">有效天数</th></tr>%%SIM%%</table></div></div>
 
 <div class="card"><h2>账户排行(按累计收益)</h2><div class="scroll"><table class="t"><tr><th class="num">#</th><th>账户</th><th>类型</th><th class="num">累计收益</th><th class="num">最新一日</th><th class="num">净值</th><th class="num">最大回撤</th><th class="num">现金占比</th><th class="num">持仓数</th><th class="num">成交笔数</th><th class="num">废单率</th><th>截至</th></tr>%%SUM%%</table></div></div>
+
+<div class="card"><h2>按市况分组的各线收益 <span class="muted small">(格内=该组日的平均日收益 · 天数 · 其中跑赢上证的天数; 样本少时只看方向不看大小, 至少每组 10 天以上才有参考意义)</span></h2>%%REGIME%%</div>
 
 <div class="card"><h2>当前持仓</h2><div class="scroll"><table class="t"><tr><th>账户</th><th>股票</th><th class="num">数量</th><th class="num">成本</th><th class="num">最近收盘</th><th class="num">浮盈亏</th><th class="num">市值</th></tr>%%POS%%</table></div></div>
 

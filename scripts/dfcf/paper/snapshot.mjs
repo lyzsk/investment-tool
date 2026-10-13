@@ -22,7 +22,9 @@ export function isSealed(s) {
 const isBJ = (c) => /^(8|4|920)/.test(c);
 const tencentMkt = (c) => (/^(60|68|11[0138]|5)/.test(c) ? "sh" : "sz");
 const sinaMkt = (c) => (/^(60|68|11[0138]|5)/.test(c) ? "sh" : isBJ(c) ? "bj" : "sz");
-const qtParse = (code, f, src) => ({ code, name: f[1], last: +f[3], prevClose: +f[4], open: +f[5], high: +f[33], low: +f[34], pct: +f[32], src });
+// 10/12 加 vol(手)/amt(元)/qtTime: 盘中盯盘(live_watch.mjs)算均价与量能节奏用; 只新增字段, 撮合/验价不受影响
+const qtParse = (code, f, src) => ({ code, name: f[1], last: +f[3], prevClose: +f[4], open: +f[5], high: +f[33], low: +f[34], pct: +f[32],
+    vol: +f[6] || null, amt: f[37] ? +f[37] * 10000 : null, qtTime: f[30] || null, src });
 
 async function fetchWithTimeout(url, headers) {
     const ctl = new AbortController();

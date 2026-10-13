@@ -68,6 +68,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 - 输入：facts.txt（harness 写）+ 其指示的昨日 md 涨停分析 + paper_state.json
 - 输出：`01_facts.md`；contract=`{"date":"YYYY-MM-DD","sources":[...],"digest":"<=200字"}`
 - 校验：哨兵+date 字段（事实摘要无上游可比对）
+- **10/12 起 01 共享**：股票链默认不跑本模板——同 date/slot 由首条链跑一次 taoge chain.md 的 `step:01m`（全链共用市场摘要 → facts/<D>/<slot>/01_market.md），驱动器再机械追加本链账户+导师信号拼成 01_facts.md（本链 0 token）；共享构建失败或 `CHAIN_SHARED_01=0` 时才回落本模板
 
 ````prompt
 任务：对 {date} 执行决策链 01 事实采集（元指令已随本任务下发：任务优先，禁反问；读 skills/a658-skill/persona/profile.md 即可，本步不需要规则）。
@@ -167,7 +168,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 **扩池提案义务**：facts 池子覆盖率 WARN（<70%）触发时，必须把池外涨停票按方向聚类给出扩池提案，写进 contract 的 pool_proposals——**驱动器校验后机械自动落 pools.json**（10/4 用户拍板，零 token；票名→代码走 smartbox 解析，解析失败的列 unresolved 存 run_dir 供人工补，不自作主张改代码）。
 每只候选给 6 位代码（从 facts 六榜/电报/state_digest 抄，查不到写 null）+条件价+仓位建议。写入 {run_dir}/04_plan.md，contract 块：
 
-**首跑期测试下限（10/7 用户令，防空仓白测）**：06 总买仓 ≥50% nav（可多票凑足），此下限优先于 regime 总仓上限，单票上限照旧，禁止 no_trade 空仓收场。
+**仓位数字口径（10/12 起）**：总仓下限/单票上限/至少几只票由驱动器按 params.yaml+本链账本算好，以 prompt 末尾「驱动器仓位约束」块为唯一口径（模板与 persona 里的任何仓位数字与之冲突时以约束块为准）；下限优先于 regime 总仓上限，禁止 no_trade 空仓收场。
 ```contract
 {"candidates":[{"name":"...","code":"002050","direction":"...","group":"遗留|方向","trigger":"..."}],"断链说明":null,"pool_proposals":[{"direction":"...","names":["票名"]}]}
 ```
@@ -205,7 +206,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 
 ````prompt
 任务：对 {date} 执行决策链 06 终裁。读 {run_dir}/01_facts.md 至 {run_dir}/05_risk.md、{run_dir}/cand_snap.md（候选票价格锚，若存在）与 skills/a658-skill/persona/（profile.md+rules_index.md，按需 grep 捞规则全文，禁全量读 rules.md）。
-①买/卖/不操作+标的+**6 位代码**+条件价+**股数 qty**(按 paper_state.json 的 nav_est×单票≤1.5 成上限自己换算， qty=正整数)+**anchor 估算锚**(=你认为该票现在的真实价位, 必须从 01_facts 的快照/六榜数值取, 禁凭印象编——matcher 按偏离>3% 自动废单, 编锚=白下)+失效条件；②必须含"竞价确认→早盘可执行触发器"（不只午后信号）；
+①买/卖/不操作+标的+**6 位代码**+条件价+**股数 qty**(按 prompt 末尾「驱动器仓位约束」块的单票上限金额换算， qty=正整数)+**anchor 估算锚**(=你认为该票现在的真实价位, 必须从 01_facts 的快照/六榜数值取, 禁凭印象编——matcher 按偏离>3% 自动废单, 编锚=白下)+失效条件；②必须含"竞价确认→早盘可执行触发器"（不只午后信号）；
 **条件价与失效条件规则（C7 立法，防 9/28 大亚 14.00 型编造价）**：trigger_price 必须锚定 cand_snap.md 的前收/现价（回踩单=低于现价、突破单=高于现价但≤板限上沿，超出当日理论区间=驱动器直接回炉）；表达为前收比例时可写公式如 `Z*0.97`（Z=前收，驱动器代换求值）；失效条件能用单一边界价表达的**必须**填结构化字段——买/卖单 `cancel_below`=跌破即撤（形态破坏不接刀），卖单 `stop_below`=止损哨兵（跌破按市价出），复杂条件另写 invalid_if 文字，两者不互斥；
 ③若当前为盘后运行，必须声明"盘后版=后见之明污染风险，方向判定含金量打折，以盘前版为准"；
 ④05 的否决项是硬约束，05 否决的票不许进终裁；**你有权且应当推翻 02-05 的任何判断（方向/候选/价格），推翻上游是终裁的职责而非失误**（10/5 立法：任务独立性不靠上下文独立）；⑤盘中重跑时必须显式声明"维持/取代盘前 XX 决策+理由"；

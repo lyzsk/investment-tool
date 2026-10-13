@@ -14,7 +14,18 @@ from datetime import datetime
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-CS = Path(os.environ.get("CLAUDE_SWITCH_DIR") or HERE.parents[2] / "switch-claude-settings") / "cs.mjs"
+def _find_cs():
+    """切换工具位置: 环境变量 CLAUDE_SWITCH_DIR > <dev>/switch-claude-settings > <dev>/dev-notes/others/switch-claude-settings(10/12 用户挪入)"""
+    dev = HERE.parents[2]
+    cands = ([Path(os.environ["CLAUDE_SWITCH_DIR"])] if os.environ.get("CLAUDE_SWITCH_DIR") else []) + \
+        [dev / "switch-claude-settings", dev / "dev-notes" / "others" / "switch-claude-settings"]
+    for c in cands:
+        if (c / "cs.mjs").exists():
+            return c / "cs.mjs"
+    return cands[0] / "cs.mjs"
+
+
+CS = _find_cs()
 ROT_FILE, STATE, USE_LOG = HERE / "rotation.txt", HERE / ".rotation_state.json", HERE / "profile_log.csv"
 COOLDOWN_S = 5 * 3600
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)

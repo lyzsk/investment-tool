@@ -1,5 +1,5 @@
 ### Java / Maven ###
-/target/
+**/target/
 !.mvn/wrapper/maven-wrapper.jar
 *.class
 *.jar
@@ -51,7 +51,6 @@ yarn-error.log*
 .npm
 .yarn
 results/
-inv-stock/target/
 **/tessdata/
 backups/
 
