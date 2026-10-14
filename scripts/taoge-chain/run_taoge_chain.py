@@ -52,6 +52,26 @@ TEST_FLOOR, TEST_FLOOR_TZZB = _test_floor()
 CHAIN_MD = ROOT / "skills/taoge-skill/workflows/chain.md"
 PAPER = ROOT / "scripts/dfcf/paper"
 TOKEN_LOG = Path(os.environ["PAPER_TOKEN_LOG"]) if os.environ.get("PAPER_TOKEN_LOG") else PAPER / "token_log.csv"  # 10/12: env 覆盖=A/B 回放另记
+# 10/13 链改造 F/G 开关(10/13 晚用户拍板 G+F 上线): 默认值读 scripts/claude_profile/chain_flags.txt(一行一个 名=0/1, 改文件下次跑链生效, 不用重启应用),
+# 环境变量优先(=1 强开, =0 强关; 回放对照用)。文件缺失=全关=改造前行为。
+#   CHAIN_COMPACT       G: 04/05/06 改用 chain.md 的 04c/05c/06c 精简模板(模型只写推理+contract), 人看表由驱动器从 contract 渲染
+#   CHAIN_PROFILE_INDEX F: 按 persona/profile_index.md 把「适用步骤」含本步的画像节原文机械拼进 02~06 prompt(gen_profile_index.py 生成)
+def _flag(name):
+    v = os.environ.get(name)
+    if v in ("0", "1"):
+        return v == "1"
+    try:
+        for line in (Path(__file__).resolve().parents[1] / "claude_profile" / "chain_flags.txt").read_text(encoding="utf-8").splitlines():
+            k, _, val = line.split("#")[0].partition("=")
+            if k.strip() == name:
+                return val.strip() == "1"
+    except OSError:
+        pass
+    return False
+
+
+COMPACT = _flag("CHAIN_COMPACT")
+PROFILE_IDX = _flag("CHAIN_PROFILE_INDEX")
 # 10/10 as-of 回放(9/28-30 补跑语义修复): --asof <沙盒目录> 时 books/plans/facts 走沙盒, 行情走 D 前一交易日日线;
 # token_log/params.yaml 仍走真目录。ASOF=链日 YYYY-MM-DD(None=实盘)
 PAPER_DATA = PAPER
@@ -223,6 +243,31 @@ def v02(c, ctx):
     c["market_state"], c["leading_layer"] = ms, ll
     if not c.get("directions"):
         return "directions 空"
+    # 10/14 §3-A 第 8 条: 盘前态度 多/中立/空(可选; 缺省或写法不认识=按"多", 打 WARN 不回炉, 兼容旧模板与转债链)
+    st = norm_enum(c.get("stance"), STANCES)
+    if c.get("stance") and not st:
+        print(f"WARN: 02 stance 写法不认识({c.get('stance')}), 按'多'处理")
+    c["stance"] = st or "多"
+
+
+STANCES = ("多", "中立", "空")
+STANCE_FACTOR = {"多": 1.0, "中立": 0.5, "空": 0.0}
+
+
+def apply_stance(ctx):
+    """10/14 §3-A 第 8 条(用户 10/13 定 B): 总仓下限再乘态度系数(多=1/中立=0.5/空=0), 单票上限不变; 转债链不适用。
+    纯观望仍违规——空也要给进场条件单(v06 三选一契约照旧)"""
+    pc, c02 = ctx.get("pc"), ctx["contracts"].get("02") or {}
+    if not pc or SKILL_NAME == "buchitudou0" or "base_floor" in pc:
+        return
+    import math
+    st = c02.get("stance") or "多"
+    pc["base_floor"], pc["stance"] = pc["floor"], st
+    pc["floor"] = round(pc["floor"] * STANCE_FACTOR.get(st, 1.0) * 20) / 20
+    pc["gap"] = round(max(0.0, pc["floor"] * pc["nav"] - sum(pc["held"].values()) - sum(pc["open_buy"].values())), 2)
+    pc["need_n"] = math.ceil(pc["gap"] / (pc["cap"] * 0.9)) if pc["gap"] > 0 and pc["cap"] > 0 else 0
+    if st != "多":
+        print(f"态度={st}: 总仓下限 {pc['base_floor']:.0%} → {pc['floor']:.0%}")
 
 def v03(c, ctx):
     if c.get("winner") not in ("多", "空"):
@@ -299,10 +344,24 @@ def resolve_px(v, prev):
         return round(prev * coef, 3), s
     return None, None
 
+def _verdict_caps(ctx):
+    """10/14 §3-A 第 3 条: 05 verdicts 里逐票的 cap(元, 可选, 正数)→ {票名: cap}"""
+    out = {}
+    for v in ctx["contracts"].get("05", {}).get("verdicts") or []:
+        try:
+            cv = float(v.get("cap"))
+        except (TypeError, ValueError):
+            continue
+        if cv > 0:
+            out[v.get("name")] = cv
+    return out
+
+
 def v06(c, ctx):
     acts = c.get("actions") or []
     approved = {v["name"] for v in (ctx["contracts"].get("05", {}).get("verdicts") or [])
                 if v.get("result") in ("批准", "条件批准")}
+    vcaps = _verdict_caps(ctx)
     snaps = ctx.get("snap") or {}
     sk = ctx["skill"]  # skill 差集(10/4 参数化): 规则 id 正则/高位类集合/code 闸/仓位上限
     for a in acts:
@@ -347,15 +406,25 @@ def v06(c, ctx):
                 return f"{a.get('name')} {k} 非正数: {a.get(k)}"
         if a.get("stop_below") is not None and a.get("op") != "卖":
             return f"{a.get('name')} stop_below 只许卖单带(止损哨兵)"
-        cap = sk["cap_ratio"] * ctx["nav"]  # 单票上限(skill 差集: taoge=params.yaml / cb=1.0 全仓; 驱动器重算非模型自声明)
+        cap = (ctx.get("pc") or {}).get("cap") or sk["cap_ratio"] * ctx["nav"]  # 单票上限: 10/13 起=pos_constraints 按导师习惯算的动态值(无 pc=旧固定口径)
+        tight = vcaps.get(a.get("name"))
+        if a.get("op") == "买" and tight and tight < cap and a["_px"] * a["qty"] > tight:
+            return f"{a.get('name')} 金额 {a['_px'] * a['qty']:.0f} 超 05 给该票定的上限 {tight:.0f}(05 风控意见是硬约束; 要凑总仓请加别的批准票)"
         if a.get("op") == "买" and a["_px"] * a["qty"] > cap:
             return f"{a.get('name')} 金额 {a['_px'] * a['qty']:.0f} 超单票上限 {cap:.0f}"
+    # 10/13 F: 可选字段 persona_sections(依据了画像哪几节)——仅 F 开启(ctx 有 profile_ids)时校验编号存在; 不填不拦
+    ps = c.get("persona_sections")
+    if ctx.get("profile_ids") is not None and ps is not None:
+        bad = [x for x in (ps if isinstance(ps, list) else [ps]) if str(x) not in ctx["profile_ids"]]
+        if bad or not isinstance(ps, list):
+            return f"persona_sections 须为画像目录编号列表(如 [\"S05\"]), 不存在的编号: {bad or ps}"
     if c.get("no_trade") and not acts:
         return "no_trade=true 但 actions 无进场条件单(三选一契约)"
     # 10/7 晚定稿(分层): 首跑期测试下限——真人拟人链 0.4 / tzzb 系 0.8, 防空仓白测; 可多票凑足
     # 10/12 修: 口径=总仓(现有持仓市值+未成交买单+本次买单−本次卖单), 原只算本次买单(子链对已近满仓账户逼买);
     # 05 批准集按单票上限都凑不满时=不可达, 放行+WARN(回炉也无解, 白烧 token)
-    _floor = {"tzzb": TEST_FLOOR_TZZB, "like": TEST_FLOOR}.get(sk.get("floor_key"), TEST_FLOOR)
+    _floor = (ctx["pc"]["floor"] if ctx.get("pc") and "floor" in ctx["pc"]
+              else {"tzzb": TEST_FLOOR_TZZB, "like": TEST_FLOOR}.get(sk.get("floor_key"), TEST_FLOOR))   # 10/13 起=动态下限
     if _floor and not c.get("no_trade"):
         pc = ctx.get("pc") or {"held": {}, "open_buy": {}}
         new_codes = {str(a["code"]) for a in acts}
@@ -371,9 +440,10 @@ def v06(c, ctx):
         _base = sum(held.values()) + _ob
         _total, _req = _base + _total_buy, _floor * ctx["nav"]
         if _total < _req:
-            _cap = sk["cap_ratio"] * ctx["nav"]
-            if _base + len(approved) * _cap < _req:
-                print(f"WARN: 总仓下限不可达(05 批准 {len(approved)} 只×单票上限 {_cap:.0f} + 现有 {_base:.0f} < {_req:.0f}), 放行不回炉")
+            _cap = (ctx.get("pc") or {}).get("cap") or sk["cap_ratio"] * ctx["nav"]
+            _room = sum(min(_cap, vcaps.get(n, _cap)) for n in approved)   # 10/14: 05 逐票更严上限计入可达性
+            if _base + _room < _req:
+                print(f"WARN: 总仓下限不可达(05 批准 {len(approved)} 只按逐票上限可买 {_room:.0f} + 现有 {_base:.0f} < {_req:.0f}), 放行不回炉")
             else:
                 return (f"总仓 {_total:.0f}(持仓≈{sum(pc['held'].values()):.0f}+未成交买单{_ob:.0f}+本次买{_total_buy:.0f}−本次卖{_sell:.0f}) "
                         f"< 测试下限 {_floor*100:.0f}% nav={_req:.0f}, 还差 {_req - _total:.0f}——从 05 批准集加买单凑足(单票≤{_cap:.0f})")
@@ -381,7 +451,9 @@ def v06(c, ctx):
             and not re.search(r"维持|取代", str(c.get("supersedes", ""))):
         return "盘中重跑 supersedes 未显式含 维持/取代"
     if not ctx["sub"] and not re.search(r"首[裁日次]|回炉|首日建链", str(c.get("supersedes", ""))):
-        return "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)"
+        # 10/13 bug 修复(用户令, 直接生效): 盘前首裁不再因 supersedes 措辞回炉(10/13 实盘 4 次回炉 3 次是这个)——驱动器归一为"首裁"
+        print(f"WARN: 盘前首裁 supersedes 缺'首裁/首日/回炉'字样, 驱动器归一为'首裁'(原文: {str(c.get('supersedes', ''))[:80]})")
+        c["supersedes"] = "首裁"
 
 def v07(c, ctx):
     if not c.get("预案对照"):
@@ -469,12 +541,66 @@ def _px_of(w):
     return (w or {}).get("last") or (w or {}).get("prevClose")
 
 
+# ---------- 动态仓位(10/13 用户定: 按各导师真实持仓习惯学单票上限与总仓下限, 见 params.yaml dynamic_position) ----------
+DYNAMIC_POS = True    # selftest 关掉(夹具按固定 15%/40% 写)
+TZZB_LEDGERS = {"liuyiqing", "lianghuaxiaohao", "a658", "bianbenling", "xingjianye", "daxingdaxingdadangxing",
+                "gaogailvfuli", "xuanqiucaijing", "stzhilang", "chong5000w"}
+
+
+def mentor_pos_params(skill):
+    """返回 {cap, floor, src}: 有 tzzb 账本的导师按其最近 window 日真实持仓分位算; 无账本=默认; 土豆/关闭=原固定口径。
+    as-of 回放只用回放日之前的记录(防后见之明)"""
+    fixed = {"cap": SKILL_CFG[skill]["cap_ratio"],
+             "floor": {"tzzb": TEST_FLOOR_TZZB, "like": TEST_FLOOR}.get(SKILL_CFG[skill].get("floor_key"), TEST_FLOOR), "src": "固定口径"}
+    try:
+        import yaml
+        cfg = (yaml.safe_load((ROOT / "scripts/dfcf/paper/params.yaml").read_text(encoding="utf-8")) or {}).get("dynamic_position") or {}
+    except Exception:
+        cfg = {}
+    if not DYNAMIC_POS or not cfg.get("enabled") or skill == "buchitudou0":
+        return fixed
+    default = {"cap": float(cfg.get("default_cap", 0.25)), "floor": float(cfg.get("default_floor", 0.4)), "src": "默认(无导师账本)"}
+    if skill not in TZZB_LEDGERS:
+        return default
+    f = ROOT / "downloads" / "tzzb" / skill / "day_positions.json"
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return default
+    cut = (ASOF or datetime.now().strftime("%Y-%m-%d")).replace("-", "")
+    days = sorted(k for k in d if k < cut)[-int(cfg.get("window", 120)):]
+    mx, tot = [], []
+    for day in days:
+        ps = []
+        for p in (d[day] or {}).get("list") or []:
+            code = str(p.get("code") or p.get("stock_code") or "")
+            if code.startswith(("204", "1318")):        # 逆回购不算持仓
+                continue
+            try:
+                v = float(p.get("position_percent"))
+            except (TypeError, ValueError):
+                continue
+            if v > 0:
+                ps.append(v)
+        tot.append(min(1.0, sum(ps)))
+        if ps:
+            mx.append(min(1.0, max(ps)))
+    if len(days) < 10 or not mx:
+        return {**default, "src": f"默认(导师账本仅 {len(days)} 日)"}
+    q = lambda a, p: sorted(a)[min(len(a) - 1, int(len(a) * p))]
+    r5 = lambda x: round(x * 20) / 20
+    cap = max(float(cfg.get("cap_min", 0.25)), min(1.0, r5(q(mx, float(cfg.get("cap_pct", 0.75))))))
+    floor = min(float(cfg.get("floor_max", 0.8)), r5(q(tot, float(cfg.get("floor_pct", 0.25)))))
+    return {"cap": cap, "floor": floor, "src": f"导师真实持仓 {days[0]}~{days[-1]} 共 {len(days)} 日(单票最大仓位 P{int(float(cfg.get('cap_pct', .75)) * 100)}, 收盘总仓 P{int(float(cfg.get('floor_pct', .25)) * 100)})"}
+
+
 def pos_constraints(book, nav, snaps):
     """总仓口径=现有持仓市值+未成交买单+本次买单−本次卖单(10/12 修: 原只算本次买单)。need_n=凑满下限至少要几只买入票
     (单票上限按 0.9 打折: 100 股取整后很难贴满上限)"""
     import math
-    floor = {"tzzb": TEST_FLOOR_TZZB, "like": TEST_FLOOR}.get(SKILL.get("floor_key"), TEST_FLOOR)
-    cap = SKILL["cap_ratio"] * nav
+    mp = mentor_pos_params(SKILL_NAME)
+    floor, cap_ratio = mp["floor"], mp["cap"]
+    cap = cap_ratio * nav
     held = {c: p["qty"] * (_px_of(snaps.get(c)) or p["cost"]) for c, p in book["positions"].items()}
     open_buy = {}
     for o in book["orders"]:
@@ -482,7 +608,7 @@ def pos_constraints(book, nav, snaps):
             open_buy[o["code"]] = open_buy.get(o["code"], 0) + o["price"] * o["qty"]
     gap = max(0.0, floor * nav - sum(held.values()) - sum(open_buy.values()))
     need_n = math.ceil(gap / (cap * 0.9)) if gap > 0 and cap > 0 else 0
-    return {"floor": floor, "cap_ratio": SKILL["cap_ratio"], "cap": round(cap, 2), "nav": round(nav, 2),
+    return {"floor": floor, "cap_ratio": cap_ratio, "cap": round(cap, 2), "nav": round(nav, 2), "src": mp["src"],
             "cash": round(book["cash"], 2), "held": {c: round(v, 2) for c, v in held.items()},
             "open_buy": {c: round(v, 2) for c, v in open_buy.items()}, "gap": round(gap, 2), "need_n": need_n}
 
@@ -490,18 +616,27 @@ def pos_constraints(book, nav, snaps):
 def constraint_text(pc, step):
     """注入 04/05/06 prompt 末尾的约束块(数字全由驱动器算, 模型不再自己换算口径)"""
     h, ob = sum(pc["held"].values()), sum(pc["open_buy"].values())
-    lines = [f"\n\n# 驱动器仓位约束(10/12 起按 params.yaml+本链账本机械算好, 本链唯一数字口径; 模板/persona/profile 里任何仓位数字与此冲突一律以此为准)",
+    lines = [f"\n\n# 驱动器仓位约束(10/13 起按本导师真实持仓习惯动态算: {pc.get('src', 'params.yaml')}; 本链唯一数字口径, 模板/persona/profile 里任何仓位数字与此冲突一律以此为准)",
              f"- nav={pc['nav']:.0f} 元(最近 EOD 市值口径), 现金 {pc['cash']:.0f}",
              f"- 单票上限: 每只买单 qty×挂单价 ≤ {pc['cap']:.0f} 元({pc['cap_ratio']:.0%} nav), 超限=驱动器回炉"]
+    if pc.get("base_floor") is not None and pc.get("stance") != "多":
+        lines.append(f"- 今日态度(02 判定): {pc['stance']} → 总仓下限按态度调整 {pc['base_floor']:.0%} → {pc['floor']:.0%}(多=原值/中立=减半/空=0)")
+    if not pc["floor"]:
+        lines.append("- 总仓下限: 无(本导师常空仓收盘或今日态度为空, 可以不买); 但纯观望=违规——不买时也必须给进场条件单(三选一契约)")
     if pc["floor"]:
-        lines.append(f"- 总仓下限(首跑期测试令, 防空仓白测): 现有持仓市值+未成交买单+本次买单−本次卖单 ≥ {pc['floor'] * pc['nav']:.0f} 元"
+        lines.append(f"- 总仓下限(按导师习惯, 防空仓白测): 现有持仓市值+未成交买单+本次买单−本次卖单 ≥ {pc['floor'] * pc['nav']:.0f} 元"
                      f"({pc['floor']:.0%} nav); 下限优先于 regime 总仓上限, 禁止 no_trade 空仓收场")
         lines.append(f"- 现状: 持仓市值≈{h:.0f}({len(pc['held'])} 只) + 未成交买单 {ob:.0f} → "
                      + (f"还差 {pc['gap']:.0f} 元, 按单票上限至少需要 {pc['need_n']} 只买入票" if pc["gap"] > 0
                         else "已满足下限, 本次无最低买入要求(卖出后仍须不低于下限)"))
-    caps = _regime_caps() if pc["cap_ratio"] < 1 else {}
+    # 10/14 修(动态仓位回放发现): regime 总仓上限是桃哥规则(A1/A2), 按导师真实持仓定仓位的 tzzb 链不再注入——
+    # 否则下限为 0 的链(刘忆青/ST之狼)被"普跌 5%/退潮 15%"压成轻仓, 离真人重仓习惯更远(10/13 回放实证)
+    caps = _regime_caps() if pc["cap_ratio"] < 1 and not str(pc.get("src", "")).startswith("导师真实持仓") else {}
     if caps:
         lines.append("- regime 总仓上限参考(params.yaml): " + " / ".join(f"{k} {v:.0%}" for k, v in caps.items()) + "(低于下限时下限优先)")
+    if step == "05":   # 10/14 §3-A 第 3 条: 05 对个别票要更严的仓位, 写进 contract, 驱动器在 06 按较小值校验(原只写正文, 06 为凑下限会突破)
+        lines.append("- 逐票上限(可选): 某只票你要求比上面单票上限更严的仓位(如 ETF/高位票只给小仓), 就在 verdicts 该票加 \"cap\": <金额元, 正数>; "
+                     "驱动器在 06 按 min(单票上限, 你给的 cap) 校验, 06 超了会回炉")
     if pc["need_n"]:
         lines.append({"04": f"- 本步: 可买候选(遗留+方向组)至少 {pc['need_n'] + 2} 只, 给 05 否决留余量; 少于 {pc['need_n']} 只=驱动器回炉",
                       "05": f"- 本步: 批准+条件批准 至少 {pc['need_n']} 只, 否则 06 必然凑不满下限; 不够=驱动器在本步当场回炉。"
@@ -538,6 +673,72 @@ def _claude_json(stdout):
     return json.loads(stdout or "")
 
 
+# ---------- 10/13 工具调用留痕(CHAIN_TRACE_TOOLS=1, 默认关; 回放打开, 实盘先不开) ----------
+# 开启时 claude -p 改 --output-format stream-json --verbose, 每步的工具调用(Read/Grep 了哪些文件/行)落 run_dir/tool_calls/<step>.jsonl,
+# 用于统计"06 引用了规则编号却没捞过原文"的比例、验证 F(画像节到底被读了没有)。结果/usage 解析两种输出格式都兼容
+TRACE_TOOLS = _flag("CHAIN_TRACE_TOOLS")
+_SLIM_KEYS = ("content", "new_string", "old_string")   # 写入类工具的大段正文只记长度
+# 10/14 §3-A 第 6 条 决策日志+延迟结算+反思回注(默认关; 关=驱动器行为逐字节不变): CHAIN_REFLECTION=1 且 skill ∈ CHAIN_REFLECTION_SKILLS
+# (逗号白名单, '*'=全部, 缺省/空=无) 时: 06 出单后每个 action 落 decisions/<skill>.jsonl; 04/06 prompt 末尾注入本链已结算反思。
+# 结算/反思由 scripts/dfcf/paper/settle_decisions.py 收盘后跑; 读写逻辑在 scripts/dfcf/paper/decision_memory.py(仅开启时懒加载)
+REFLECT = _flag("CHAIN_REFLECTION")
+
+
+def _claude_result(stdout):
+    """stream-json(多行事件, 取末个 type=result) 与 json(单个结果对象) 通吃; 无 JSON=抛 JSONDecodeError(与 _claude_json 同口径)"""
+    objs = []
+    for line in (stdout or "").splitlines():
+        s = line.strip()
+        if s.startswith("{"):
+            try:
+                objs.append(json.loads(s))
+            except json.JSONDecodeError:
+                pass
+    for o in reversed(objs):
+        if o.get("type") == "result":
+            return o
+    if objs:
+        return objs[-1]
+    raise json.JSONDecodeError("stdout 无 JSON 对象", stdout or "", 0)
+
+
+def _dump_tool_calls(stdout, trace):
+    """stream-json 事件 → tool_calls jsonl: 每个 tool_use 一行(含工具结果是否报错) + 一行 result 汇总(含 is_error/末段报错文本, 便于查'会话没写产物')"""
+    path, meta = trace
+    try:
+        recs, by_id = [], {}
+        for line in (stdout or "").splitlines():
+            s = line.strip()
+            if not s.startswith("{"):
+                continue
+            try:
+                o = json.loads(s)
+            except json.JSONDecodeError:
+                continue
+            content = ((o.get("message") or {}).get("content") or []) if isinstance(o.get("message"), dict) else []
+            if o.get("type") == "assistant":
+                for c in content:
+                    if isinstance(c, dict) and c.get("type") == "tool_use":
+                        inp = {k: (f"<{len(str(v))} chars>" if k in _SLIM_KEYS else v) for k, v in (c.get("input") or {}).items()}
+                        rec = {**meta, "tool": c.get("name"), "input": inp, "error": False}
+                        by_id[c.get("id")] = rec
+                        recs.append(rec)
+            elif o.get("type") == "user":
+                for c in content:
+                    if isinstance(c, dict) and c.get("type") == "tool_result" and c.get("is_error") and c.get("tool_use_id") in by_id:
+                        by_id[c["tool_use_id"]]["error"] = True
+            elif o.get("type") == "result":
+                recs.append({**meta, "type": "result", "is_error": o.get("is_error"), "subtype": o.get("subtype"),
+                             "num_turns": o.get("num_turns"), "usage": o.get("usage"), "cost": o.get("total_cost_usd"),
+                             "result_tail": str(o.get("result", ""))[-300:] if o.get("is_error") else ""})
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a", encoding="utf-8") as fh:
+            for r in recs:
+                fh.write(json.dumps(r, ensure_ascii=False) + "\n")
+    except Exception as e:  # noqa: BLE001  留痕失败不影响链
+        print(f"WARN: 工具调用留痕失败: {e}")
+
+
 def _acquire_slot():
     import psutil
     SLOT_DIR.mkdir(exist_ok=True)
@@ -559,25 +760,31 @@ def _acquire_slot():
                     pass
         time.sleep(10); waited += 10
 
-def call_claude(prompt):
+def call_claude(prompt, trace=None):
     """10/7 晚修正(用户令: 模仿 k3 cruise_loop 语义): window 错误=顺延不跳过——
     无限顺延(每次 45min)直到窗口重置, 不设次数上限, 欠账永远留账不丢。
-    10/11: 本机有 scripts/claude_profile/rotation.txt 时多 key 轮换——撞窗先切下一套立即重试, 全部耗尽才顺延"""
+    10/11: 本机有 scripts/claude_profile/rotation.txt 时多 key 轮换——撞窗先切下一套立即重试, 全部耗尽才顺延
+    10/13: trace=(jsonl 路径, 元信息) 且 CHAIN_TRACE_TOOLS=1 时走 stream-json 并落工具调用; 否则与原来完全相同"""
+    traced = bool(TRACE_TOOLS and trace)
+    cmd = ([CLAUDE[0], "-p", "--verbose"] + ["stream-json" if x == "json" else x for x in CLAUDE[2:]]) if traced else CLAUDE
+    parse = _claude_result if traced else _claude_json
     while True:
         slot = _acquire_slot()
         t0 = time.time()
         try:
             rotation.log_use(f"chain:{SKILL_NAME}")
-            r = subprocess.run(CLAUDE + rotation.settings_args(), input=prompt, cwd=ROOT, capture_output=True, text=True,
+            r = subprocess.run(cmd + rotation.settings_args(), input=prompt, cwd=ROOT, capture_output=True, text=True,
                                encoding="utf-8", errors="replace", timeout=1800)
         except subprocess.TimeoutExpired:   # 原未捕获=整链崩溃; 现记失败交给回炉
-            r = subprocess.CompletedProcess(CLAUDE, -1, "", "claude -p 超时 1800s")
+            r = subprocess.CompletedProcess(cmd, -1, "", "claude -p 超时 1800s")
         finally:
             slot.unlink(missing_ok=True)
         dur = time.time() - t0
+        if traced:
+            _dump_tool_calls(r.stdout, trace)
         is_err = r.returncode != 0
         try:
-            j = _claude_json(r.stdout)
+            j = parse(r.stdout)
             is_err = is_err or bool(j.get("is_error"))
             err_text = (r.stderr or "") + (str(j.get("result", "")) if j.get("is_error") else "")
         except json.JSONDecodeError:
@@ -591,7 +798,7 @@ def call_claude(prompt):
         break
     usage, cost = {}, ""
     try:
-        j = _claude_json(r.stdout)
+        j = parse(r.stdout)
         usage = j.get("usage", {})
         cost = j.get("total_cost_usd", "")
     except json.JSONDecodeError:
@@ -788,7 +995,7 @@ def ensure_shared_01(date, date_dash, slot):
             if fail:
                 log_retry(d, date, slot, "01m", attempt - 1, fail)
             since = time.time()
-            rc, usage, cost, dur = call_claude(p)
+            rc, usage, cost, dur = call_claude(p, trace=(d / "tool_calls" / "01m.jsonl", {"slot": slot, "step": "01m", "attempt": attempt}))
             log_tokens(date, slot, "01m", attempt, usage, cost, dur)
             t = _market_ok(out, date, date_dash, max(fm, since))
             if t:
@@ -811,17 +1018,24 @@ def assemble_01(run_dir, market_text, date, date_dash, slot, book, snaps):
            "## 一、市场事实(全链共用摘要)", body, "",
            f"## 二、本链账户({book['source']}, paper_state.json 机械摘录)",
            f"- nav≈{book_nav(book):.0f}(最近 EOD 市值口径) / 现金 {book['cash']:.0f} / 持仓 {len(book['positions'])} 只"]
+    facts = (run_dir / "facts.txt").read_text(encoding="utf-8")
     if book["positions"]:
+        # 10/13 修: as-of 回放 facts.json watch 无 name → 从 facts.txt「关注票实时快照」节按代码抠票名(行式: "- 000692 惠天热电(持仓): ...")
+        qs = facts.split("## 关注票实时快照", 1)[1].split("\n## ", 1)[0] if "## 关注票实时快照" in facts else ""
+        def _name(code, w):
+            if w.get("name"):
+                return w["name"]
+            m = re.search(rf"^- {code} ([^\s(（:：]+)", qs, re.M)
+            return m.group(1) if m else ""
         out += ["", "| 代码 | 名称 | 股数 | 成本 | 现价(facts 快照) | 市值≈ |", "|---|---|---|---|---|---|"]
         for code, p in book["positions"].items():
             w = snaps.get(code) or {}
             px = _px_of(w)
-            out.append(f"| {code} | {w.get('name', '')} | {p['qty']} | {p['cost']:.3f} | {px if px else '无快照'} | {p['qty'] * (px or p['cost']):.0f} |")
+            out.append(f"| {code} | {_name(code, w)} | {p['qty']} | {p['cost']:.3f} | {px if px else '无快照'} | {p['qty'] * (px or p['cost']):.0f} |")
     opens = [o for o in book["orders"] if o.get("status") == "open"]
     out.append("- 未成交挂单: " + ("; ".join(f"{o['side']} {o['code']} {o['qty']}@{o['price']}" for o in opens) if opens else "无"))
     out += ["", "## 三、本链导师信号(facts.txt「导师信号速览」本导师小节原文)"]
     kw, sec = MENTOR_HEAD.get(SKILL_NAME), ""
-    facts = (run_dir / "facts.txt").read_text(encoding="utf-8")
     i = facts.find("## 导师信号速览")
     if kw and i >= 0:
         seg = facts[i:]
@@ -838,6 +1052,246 @@ def assemble_01(run_dir, market_text, date, date_dash, slot, book, snaps):
     out += ["", "```contract", json.dumps(contract, ensure_ascii=False), "```", f"STEP_OK 01 {date}", ""]
     _write_lf(run_dir / ART["01"], "\n".join(out))
     return contract
+
+
+# ---------- 10/13 链改造 G: 精简模板选择 + 人看表机械渲染(仅 CHAIN_COMPACT=1) ----------
+_COMPACT_WARNED = set()
+
+
+def tpl_key(step, templates):
+    """G 开且本链 chain.md 有 <step>c 模板 → 用精简版; 否则原模板(缺模板只告警一次, 不中止)"""
+    if COMPACT and step in ("04", "05", "06"):
+        if f"{step}c" in templates:
+            return f"{step}c"
+        if step not in _COMPACT_WARNED:
+            _COMPACT_WARNED.add(step)
+            print(f"WARN: CHAIN_COMPACT=1 但 {CHAIN_MD.name} 缺 step:{step}c 模板, 本步回落原模板")
+    return step
+
+
+def _cell(v, n=200):
+    s = "" if v is None else str(v)
+    s = s.replace("|", "／").replace("\r", " ").replace("\n", " ").strip()
+    return s if len(s) <= n else s[:n] + "…"
+
+
+def _render_04(c, ctx):
+    pc, snaps, book = ctx.get("pc") or {}, ctx.get("snap") or {}, ctx.get("book") or {}
+    pos = book.get("positions") or {}
+    cands = c.get("candidates") or []
+    n_leg = sum(1 for x in cands if x.get("group") == "遗留")
+    out = ["## 驱动器渲染 · 04 候选表(CHAIN_COMPACT: contract 校验通过后机械生成, 零 token; 内容以 contract 为准)", "",
+           f"- 候选 {len(cands)} 只(遗留 {n_leg} / 方向 {len(cands) - n_leg}); 驱动器约束: 单票上限 {pc.get('cap', 0):.0f} 元, "
+           f"总仓下限缺口 {pc.get('gap', 0):.0f} 元 → 至少 {pc.get('need_n', 0)} 只买入票"]
+    if c.get("断链说明"):
+        out.append(f"- 断链说明: {_cell(c['断链说明'], 400)}")
+    out += ["", "| 组 | 代码 | 票 | 方向 | 条件价/挂法 | 仓位 | 置信 | 前收(cand_snap) | 账本持仓 | 理由 |",
+            "|---|---|---|---|---|---|---|---|---|---|"]
+    for x in cands:
+        code = str(x.get("code") or "")
+        p = pos.get(code)
+        ps = f"{p['qty']}股@{p['cost']:.2f}" if p else "—"
+        out.append(f"| {_cell(x.get('group'))} | {_cell(code) or '—'} | {_cell(x.get('name'))} | {_cell(x.get('direction'), 40)} | "
+                   f"{_cell(x.get('trigger'), 160)} | {_cell(x.get('pos'), 40)} | {_cell(x.get('conf'), 8)} | "
+                   f"{(snaps.get(code) or {}).get('prevClose') or '—'} | {ps} | {_cell(x.get('why'), 160)} |")
+    for pp in c.get("pool_proposals") or []:
+        out.append(f"- 扩池提案: {_cell(pp.get('direction'))} ← {', '.join(map(str, pp.get('names') or []))}")
+    return out
+
+
+def _render_05(c, ctx):
+    pc = ctx.get("pc") or {}
+    c04 = {x.get("name"): x for x in (ctx["contracts"].get("04", {}).get("candidates") or [])}
+    vs = c.get("verdicts") or []
+    cnt = {k: sum(1 for v in vs if v.get("result") == k) for k in ("批准", "条件批准", "否决")}
+    out = ["## 驱动器渲染 · 05 逐票结论(CHAIN_COMPACT: contract 校验通过后机械生成, 零 token; 内容以 contract 为准)", "",
+           f"- 批准 {cnt['批准']} / 条件批准 {cnt['条件批准']} / 否决 {cnt['否决']}(共 {len(vs)} 只 = 04 候选); "
+           f"驱动器要求批准+条件批准 ≥ {pc.get('need_n', 0)} 只", "",
+           "| 票 | 代码 | 04 组 | 结论 | 理由/条件 |", "|---|---|---|---|---|"]
+    for v in vs:
+        x = c04.get(v.get("name")) or {}
+        out.append(f"| {_cell(v.get('name'))} | {_cell(x.get('code')) or '—'} | {_cell(x.get('group'))} | {_cell(v.get('result'))} | {_cell(v.get('reason'), 240)} |")
+    if c.get("portfolio"):
+        out += ["", "组合级约束:"] + [f"- {_cell(p, 300)}" for p in (c["portfolio"] if isinstance(c["portfolio"], list) else [c["portfolio"]])]
+    return out
+
+
+def _render_06(c, ctx):
+    pc, snaps = ctx.get("pc") or {"held": {}, "open_buy": {}}, ctx.get("snap") or {}
+    acts = c.get("actions") or []
+    out = ["## 驱动器渲染 · 06 挂单表与总仓算账(CHAIN_COMPACT: contract 校验通过后机械生成, 零 token; 落 plans 以 contract 为准)", "",
+           f"- supersedes: {_cell(c.get('supersedes'), 200)} | no_trade={c.get('no_trade')} | {len(acts)} 笔", "",
+           "| # | 操作 | 代码 | 票 | 挂价 | qty | 金额 | anchor | 前收 | cancel_below | stop_below | 规则 | 失效 | 理由 |",
+           "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    held, buy, sell = dict(pc.get("held") or {}), 0.0, 0.0
+    for i, a in enumerate(acts, 1):
+        px = a.get("_px")
+        amt = px * a["qty"] if px and isinstance(a.get("qty"), int) else None
+        if amt and a.get("op") == "买":
+            buy += amt
+        elif amt and a.get("op") == "卖":
+            v = min(amt, held.get(str(a.get("code")), 0.0))
+            held[str(a.get("code"))] = held.get(str(a.get("code")), 0.0) - v
+            sell += v
+        pxs = (f"{px:g}" + (f"({a['_formula']})" if a.get("_formula") else "")) if px else _cell(a.get("trigger_price"))
+        rules = ",".join(str(r.get("id")) for r in (a.get("rules") or []) if isinstance(r, dict))
+        amts = f"{amt:,.0f}" if amt else "—"
+        prev = (snaps.get(str(a.get("code"))) or {}).get("prevClose") or "—"
+        out.append(f"| {i} | {_cell(a.get('op'))} | {_cell(a.get('code'))} | {_cell(a.get('name'))} | {pxs} | {a.get('qty')} | "
+                   f"{amts} | {_cell(a.get('anchor'))} | {prev} | "
+                   f"{_cell(a.get('cancel_below')) or '—'} | {_cell(a.get('stop_below')) or '—'} | {rules or '—'} | "
+                   f"{_cell(a.get('invalid_if'), 160) or '—'} | {_cell(a.get('why'), 160)} |")
+    new_codes = {str(a.get("code")) for a in acts}
+    ob = sum(v for k, v in (pc.get("open_buy") or {}).items() if k not in new_codes)
+    h0 = sum((pc.get("held") or {}).values())
+    total = h0 - sell + ob + buy
+    out += ["", f"- 总仓算账(驱动器口径, 同 v06): 持仓≈{h0:,.0f} − 本次卖 {sell:,.0f} + 未成交买单 {ob:,.0f} + 本次买 {buy:,.0f} = **{total:,.0f}**"
+            + (f"; 下限 {pc['floor'] * pc['nav']:,.0f}({pc['floor']:.0%} nav) → {'达标' if total >= pc['floor'] * pc['nav'] else '未达(驱动器已判不可达放行或末次放行)'}" if pc.get("floor") else "")
+            + (f"; 单票上限 {pc['cap']:,.0f}; 现金 {pc['cash']:,.0f}" if pc.get("cap") else "")]
+    if c.get("persona_sections"):
+        out.append(f"- 依据画像节(persona_sections): {', '.join(map(str, c['persona_sections']))}")
+    return out
+
+
+def render_into(run_dir, step, c, ctx):
+    """G: 人看表插到产物文件 contract 块之前(哨兵仍是末行、contract 仍是末个块); 先删旧渲染段(盲审回炉 06 可能抄回旧段)。失败只告警"""
+    try:
+        f = run_dir / ART[step]
+        t = f.read_text(encoding="utf-8")
+        t = re.sub(r"\n*<!-- render:begin -->[\s\S]*?<!-- render:end -->\n*", "\n\n", t)
+        i = t.rfind("```contract")
+        if i < 0:
+            return
+        body = {"04": _render_04, "05": _render_05, "06": _render_06}[step](c, ctx)
+        block = "\n".join(["<!-- render:begin -->"] + body + ["<!-- render:end -->"])
+        _write_lf(f, t[:i].rstrip() + "\n\n" + block + "\n\n" + t[i:])
+    except Exception as e:  # noqa: BLE001  渲染失败不影响链(contract 已校验通过)
+        print(f"WARN: {step} 人看表渲染失败: {e}")
+
+
+# ---------- 10/13 链改造 F: 导师画像按目录+按步注入(仅 CHAIN_PROFILE_INDEX=1) ----------
+PROFILE_STEP_CAP = 30000   # 单步注入画像原文上限(字节); 超出的节只列目录供按行号补读
+_PROFILE_CACHE = {}
+
+
+def profile_pack(pdir=None):
+    """读 profile_index.md + 当前 profile.md, 按(节标题, sha8)重新定位(profile 被 distill 改过的节=stale 跳过, 不注入错位原文)。
+    返回 {summary, rows[含当前行号/原文], stale[id], new[未标注新节]}; 无索引/解析败=None(调用方回落原行为)"""
+    pdir = Path(pdir) if pdir else ROOT / "skills" / f"{SKILL_NAME}-skill" / "persona"
+    if str(pdir) in _PROFILE_CACHE:
+        return _PROFILE_CACHE[str(pdir)]
+    pack = None
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "md"))
+        import gen_profile_index as gpi
+        idx = gpi.read_index(pdir / "profile_index.md")
+        if not idx or not idx[2]:
+            print(f"WARN: CHAIN_PROFILE_INDEX=1 但 {pdir.name}/profile_index.md 缺失/无目录行, 本链不注入画像(先跑 gen_profile_index.py)")
+        else:
+            cur = gpi.parse_sections((pdir / "profile.md").read_text(encoding="utf-8"))
+            by = {(s["title"], s["sha8"]): s for s in cur}
+            rows, stale = [], []
+            for r in idx[2]:
+                s = by.get((r["title"], r["sha8"]))
+                if s:
+                    rows.append({**r, "start": s["start"], "end": s["end"], "text": s["text"], "bytes": s["bytes"]})
+                else:
+                    stale.append(r)
+            known = {(r["title"], r["sha8"]) for r in idx[2]}
+            pack = {"summary": idx[1], "rows": rows, "stale": stale, "new": [s for s in cur if (s["title"], s["sha8"]) not in known]}
+            if stale or pack["new"]:
+                print(f"WARN: profile_index 与当前 profile.md 有 {len(stale)} 节失配/{len(pack['new'])} 节未标注(profile 改过), 失配节不注入; 重跑 gen_profile_index.py 可增量补标")
+    except Exception as e:  # noqa: BLE001
+        print(f"WARN: profile_index 读取失败, 本链不注入画像: {e}")
+    _PROFILE_CACHE[str(pdir)] = pack
+    return pack
+
+
+def profile_block(step, ctx, pdir=None):
+    """F: 本步注入块 = 核心摘要 + 适用本步的节原文(按优先级装到上限, 再按原文顺序排) + 其余节目录; 关闭/不适用=空串"""
+    if not PROFILE_IDX or SKILL_NAME in SHARED01_SKIP:
+        return ""
+    key = "03" if step.startswith("03") else step
+    if key not in ("02", "03", "04", "05", "06"):
+        return ""
+    pack = profile_pack(pdir)
+    if not pack:
+        return ""
+    ctx["profile_ids"] = {r["id"] for r in pack["rows"]}
+    inj, rest, used = [], [], 0
+    for r in sorted(pack["rows"], key=lambda r: (r["prio"], r["start"])):
+        if key in r["steps"] and (used + r["bytes"] <= PROFILE_STEP_CAP or not inj):
+            inj.append(r); used += r["bytes"]
+        else:
+            rest.append(r)
+    pf = f"skills/{SKILL_NAME}-skill/persona/profile.md"
+    out = [f"\n\n# 导师画像按步注入(CHAIN_PROFILE_INDEX=1, 驱动器从 {pf} 机械摘录原文, 非转述)",
+           f"- 本块=画像核心摘要 + 「适用步骤」含本步({key})的 {len(inj)} 节原文({used / 1024:.1f}KB)。**本步不必再整读 profile.md**(模板里\"读 profile.md\"由本块替代); "
+           f"下方目录里的其余节确有需要时按行号 Read {pf} 补读(offset=起行, limit=行数)。rules_index.md 照常读。",
+           "", "## 画像核心摘要", pack["summary"] or "(无)", "", "## 本步注入节(原文)"]
+    for r in sorted(inj, key=lambda r: r["start"]):
+        out += ["", f"### 【{r['id']}】{r['title']}(profile.md L{r['start']}-{r['end']})", r["text"]]
+    out += ["", "## 画像目录(未注入节; 需要时按行号补读)"]
+    for r in sorted(rest, key=lambda r: r["start"]):
+        out.append(f"- {r['id']} {r['title']} L{r['start']}-{r['end']} {r['bytes'] / 1024:.1f}KB: {r['about']}"
+                   f"(适用 {','.join(r['steps']) or '—'}{'; 超本步注入上限未注入' if key in r['steps'] else ''})")
+    for s in pack["new"]:
+        out.append(f"- (未标注新节) {s['title']} L{s['start']}-{s['end']} {s['bytes'] / 1024:.1f}KB")
+    if key == "06":
+        out += ["", "- contract 可选字段 `persona_sections`: 本裁决实际依据了画像哪几节, 填上面的编号列表如 [\"S05\",\"S12\"]"
+                    "(驱动器校验编号存在, 填不存在的编号=回炉; 没依据画像可不填)"]
+    return "\n".join(out)
+
+
+# ---------- 10/14 决策日志 + 反思回注(仅 CHAIN_REFLECTION=1 且本 skill 在白名单; 关闭=全部空操作) ----------
+def _dm():
+    d = str(Path(__file__).resolve().parents[1] / "dfcf" / "paper")   # 固定真目录(PAPER 可被回放/自测改指沙盒)
+    if d not in sys.path:
+        sys.path.insert(0, d)
+    import decision_memory
+    return decision_memory
+
+
+def reflect_on():
+    if not REFLECT:
+        return False
+    try:
+        return _dm().skill_enabled(SKILL_NAME)
+    except Exception as e:  # noqa: BLE001  模块坏=当关闭处理, 不阻断链
+        print(f"WARN: decision_memory 加载失败, 反思回注按关闭处理: {e}")
+        return False
+
+
+def reflection_block(step, ctx):
+    """04/06 prompt 末尾的已结算反思块: 同票(持仓+未成交挂单+06 时加 04 候选)每票 ≤5 条 + 本链其他票 ≤3 条;
+    只取反思 resolved < 链运行日(as-of 防偷看未来)。读 PAPER_DATA/decisions, as-of 回放再并上实盘 decisions。关闭/失败=空串"""
+    if step not in ("04", "06") or not reflect_on():
+        return ""
+    try:
+        book = ctx.get("book") or {}
+        codes = list((book.get("positions") or {}).keys()) + [str(o.get("code")) for o in book.get("orders") or [] if o.get("status") == "open"]
+        if step == "06":
+            codes += [str(x.get("code")) for x in (ctx["contracts"].get("04") or {}).get("candidates") or [] if x.get("code")]
+        dirs = [PAPER_DATA / "decisions"] + ([PAPER / "decisions"] if PAPER_DATA != PAPER else [])
+        text, ns, nc = _dm().past_context(dirs, SKILL_NAME, codes, ctx["date_dash"])
+        ctx.setdefault("reflect_n", {})[step] = (ns, nc)
+        return text
+    except Exception as e:  # noqa: BLE001
+        print(f"WARN: 反思回注失败(本步不注入): {e}")
+        return ""
+
+
+def log_decisions(date_dash, slot, source, contract, ctx):
+    """06 出单(emit_plans 之后)每个 action 落一条待结算记录 → PAPER_DATA/decisions/<skill>.jsonl。失败只告警"""
+    try:
+        dm = _dm()
+        recs = dm.records_from_contract(contract, skill=SKILL_NAME, source=source, date=date_dash, slot=slot, sub=ctx.get("sub"),
+                                        blind_fail=bool(ctx.get("blind_fail")), asof=bool(ASOF))
+        dm.write_decisions(PAPER_DATA / "decisions", SKILL_NAME, recs)
+        if recs:
+            print(f"决策日志: {len(recs)} 条待结算 → {PAPER_DATA / 'decisions' / (SKILL_NAME + '.jsonl')}")
+    except Exception as e:  # noqa: BLE001
+        print(f"WARN: 决策日志写入失败(不影响出单): {e}")
 
 
 # ---------- 主链 ----------
@@ -860,6 +1314,10 @@ def record_rules_version(run_dir, slot, steps, dry):
         rec = {"ts": datetime.now().isoformat(timespec="seconds"), "skill": SKILL_NAME, "slot": slot,
                "steps": steps, "asof": ASOF, "dry": dry, "rules_count": n_rules, "persona": files,
                "chain_md_sha12": hashlib.sha256(CHAIN_MD.read_bytes()).hexdigest()[:12]}
+        if COMPACT or PROFILE_IDX:   # 10/13 F/G 开关(默认关=不加此键, run_meta 行与改造前一致)
+            rec["flags"] = {"compact": COMPACT, "profile_index": PROFILE_IDX}
+        if reflect_on():   # 10/14 反思回注(关闭=不加键)
+            rec.setdefault("flags", {})["reflection"] = True
         with (run_dir / "run_meta.jsonl").open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
     except Exception as e:  # noqa: BLE001
@@ -908,7 +1366,7 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
     atexit.register(lambda: clock.unlink(missing_ok=True) if clock.exists() and clock.read_text() == str(os.getpid()) else None)
     atexit.register(archive_slot, run_dir, slot, steps, t0)   # 正常结束/链中止(sys.exit)都存档; 后注册先执行, 锁仍在
     book = load_book(source)
-    ctx = {"date_dash": date_dash, "nav": book_nav(book), "sub": sub, "contracts": {}, "skill": SKILL}
+    ctx = {"date_dash": date_dash, "nav": book_nav(book), "sub": sub, "contracts": {}, "skill": SKILL, "book": book}
     # 中段起跑(手动 --steps 回炉)预载上游 contract: v04 查 02.directions / v05 查 04.candidates /
     # v06 查 05 批准集——不预载则跨步闸对空集误判(10/10 lianghuaxiaohao 04 假拒实录: direction
     # 逐字节命中 02.directions 仍报 ∉, 因该进程 --steps 03,04,... 未跑 02、ctx["02"] 缺位)。
@@ -928,6 +1386,9 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
     write_paper_state(book, run_dir)
     snaps = watch_snaps(date_dash, slot)
     ctx["pc"] = pos_constraints(book, ctx["nav"], snaps)   # 10/12: 仓位约束机械算好, 注入 04/05/06 + v04/v05/v06 共用
+    if "02" in ctx["contracts"] and "02" not in _run_set:   # 10/14: 中段起跑(不重跑 02)时用已有 02 的态度
+        v02(ctx["contracts"]["02"], ctx)
+        apply_stance(ctx)
     _write_lf(run_dir / "pos_constraints.json", json.dumps(ctx["pc"], ensure_ascii=False, indent=1))
     # B3: 每轮起跑前重建 rules_index(rules.md 可能刚被 distill 改过, 索引不许 stale; 失败=用旧索引不致命)
     # as-of: 编排脚本每日建一次, 并发链不重复写(防竞写)
@@ -950,6 +1411,9 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
     for step in [s for x in steps for s in EXPAND.get(x, [x])]:  # 03→03b/03s/03j 拆环展开(10/4)
         if dry:
             print(f"[dry] 跳过 claude 调用 step {step}")
+            if step in ("04", "06") and reflect_on():   # 10/14: 冒烟可见回注条数(关闭=不打印, dry 输出不变)
+                rb = reflection_block(step, ctx)
+                print(f"[dry] 反思回注 {step}: 同票 {ctx.get('reflect_n', {}).get(step, (0, 0))[0]} 条 / 跨票 {ctx.get('reflect_n', {}).get(step, (0, 0))[1]} 条, {len(rb)} 字")
             continue
         if step == "01" and SKILL_NAME not in SHARED01_SKIP and os.environ.get("CHAIN_SHARED_01", "1") != "0":
             mt = ensure_shared_01(date, date_dash, slot)
@@ -958,14 +1422,16 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                 print("step 01 ✅ (共享市场摘要+本链账户/导师信号机械追加, 本链 0 token)")
                 continue
             print("WARN: 01 共享摘要不可用, 回落本链 01 LLM 步")
-        prompt = templates[step].replace("{date_dash}", date_dash) \
+        prompt = templates[tpl_key(step, templates)].replace("{date_dash}", date_dash) \
             .replace("{date}", date).replace("{run_dir}", str(run_dir).replace("\\", "/"))
         if ASOF:
             prompt = ASOF_NOTE.replace("{date_dash}", date_dash) + prompt
         if step == "05":  # 05 双注入(10/9): 负例警示(neg_warn) + 否决条款池(reject_rules), 均 fail-open
             prompt += neg_warn() + reject_rules()
+        prompt += profile_block(step, ctx)   # 10/13 F: 关闭/不适用=空串
         if step in ("04", "05", "06"):
             prompt += constraint_text(ctx["pc"], step)
+        prompt += reflection_block(step, ctx)   # 10/14 §3-A 第 6 条: 关闭/非 04·06=空串
         try:  # 10/11 用户令: 盲审失败=降级照发(打【未过盲审】标), 不再整链中止; 06 用最后一版过机械校验的 contract
             fail_reason, done = None, False
             for attempt in range(1, MAX_RETRY + 2):
@@ -975,7 +1441,7 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                 if fail_reason:   # 10/12: 每次回炉原因落盘(此前只在终败时打印, 02/06 约半数要回炉却查不到原因)
                     log_retry(run_dir, date, slot, step, attempt - 1, fail_reason)
                 since = time.time()
-                rc, usage, cost, dur = call_claude(p)
+                rc, usage, cost, dur = call_claude(p, trace=(run_dir / "tool_calls" / f"{step}.jsonl", {"slot": slot, "step": step, "attempt": attempt}))
                 log_tokens(date, slot, step, attempt, usage, cost, dur)
                 text, err = read_artifact(run_dir, step, since)
                 if err:
@@ -989,11 +1455,11 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                         raise BlindDowngrade(f"盲审复审仍 FAIL: {';'.join(issues)[:300]}")
                     # 盲审 FAIL → 带意见回炉 06 一次, 再复审
                     c06, _ = contract_of((run_dir / ART["06"]).read_text(encoding="utf-8"))
-                    p06 = (ASOF_NOTE.replace("{date_dash}", date_dash) if ASOF else "") + templates["06"].replace("{date_dash}", date_dash).replace("{date}", date) \
-                        .replace("{run_dir}", str(run_dir).replace("\\", "/")) + constraint_text(ctx["pc"], "06") + \
+                    p06 = (ASOF_NOTE.replace("{date_dash}", date_dash) if ASOF else "") + templates[tpl_key("06", templates)].replace("{date_dash}", date_dash).replace("{date}", date) \
+                        .replace("{run_dir}", str(run_dir).replace("\\", "/")) + profile_block("06", ctx) + constraint_text(ctx["pc"], "06") + reflection_block("06", ctx) + \
                         f"\n\n[盲审驳回] issues: {';'.join(issues)}。修订 06_verdict.md 回应这些意见。"
                     since = time.time()
-                    _, u2, c2, d2 = call_claude(p06)
+                    _, u2, c2, d2 = call_claude(p06, trace=(run_dir / "tool_calls" / "06.jsonl", {"slot": slot, "step": "06", "attempt": f"blind-rej{attempt}"}))
                     log_tokens(date, slot, "06", attempt, u2, c2, d2)
                     # 回炉 06 必须重验+换约再进盲审复审(10/3 实录 bug: 旧约 emit plans=废版下单)
                     t06, e06 = read_artifact(run_dir, "06", since)
@@ -1007,11 +1473,11 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                         # C9-①(10/4): 死链修复——回炉版校验败不再直接 abort(9/29 实证: 公式价被数值校验拒→链中止无产出),
                         # 再给一次带失败原因的回炉; 仍败才中止。公式价合法性本体由 C9-② resolve_px 支持。
                         print(f"盲审回炉 06 校验败({v06fail}), 再给一次带原因回炉")
-                        p06r = (ASOF_NOTE.replace("{date_dash}", date_dash) if ASOF else "") + templates["06"].replace("{date_dash}", date_dash).replace("{date}", date) \
-                            .replace("{run_dir}", str(run_dir).replace("\\", "/")) + constraint_text(ctx["pc"], "06") + \
+                        p06r = (ASOF_NOTE.replace("{date_dash}", date_dash) if ASOF else "") + templates[tpl_key("06", templates)].replace("{date_dash}", date_dash).replace("{date}", date) \
+                            .replace("{run_dir}", str(run_dir).replace("\\", "/")) + profile_block("06", ctx) + constraint_text(ctx["pc"], "06") + reflection_block("06", ctx) + \
                             f"\n\n[驱动器回炉] 上版 contract 校验败: {v06fail}。只修此问题, 重写 06_verdict.md。"
                         since2 = time.time()
-                        _, u3, c3, d3 = call_claude(p06r)
+                        _, u3, c3, d3 = call_claude(p06r, trace=(run_dir / "tool_calls" / "06.jsonl", {"slot": slot, "step": "06", "attempt": f"blind-rej{attempt}b"}))
                         log_tokens(date, slot, "06", attempt, u3, c3, d3)
                         t06b, e06b = read_artifact(run_dir, "06", since2)
                         if e06b or sentinel_ok(t06b or "", "06", date) is not True:
@@ -1024,6 +1490,8 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                             raise BlindDowngrade(f"盲审回炉 06 二次校验仍败({v06fb})")
                         c06n = c06b
                     ctx["contracts"]["06"] = c06n
+                    if COMPACT:   # 10/13 G: 盲审回炉版 06 重渲染人看表(复审读到的是新版)
+                        render_into(run_dir, "06", c06n, ctx)
                     continue
                 if so is not True:
                     fail_reason = f"哨兵缺失/错位(末行非 STEP_OK {step} {date})"
@@ -1037,8 +1505,13 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                     fail_reason = vfail
                     continue
                 ctx["contracts"][step] = c
+                if step == "02":   # 10/14 §3-A 第 8 条: 02 定了态度, 立刻按态度调总仓下限(04/05/06 的约束块与校验都用调后的)
+                    apply_stance(ctx)
+                    _write_lf(run_dir / "pos_constraints.json", json.dumps(ctx["pc"], ensure_ascii=False, indent=1))
                 if step == "04":  # C7-①: 04 落地即拉候选票价格锚(v06 校验+盲审⑥维度消费)
                     ctx["snap"] = snap_candidates(run_dir, c)
+                if COMPACT and step in ("04", "05", "06"):   # 10/13 G: 人看表从 contract 机械渲染插进产物(contract 前)
+                    render_into(run_dir, step, c, ctx)
                 # 回溯重验 01..当前(机械零 token, chain.md 交叉验证表)
                 for done_step in ctx["contracts"]:
                     t2 = (run_dir / ART[done_step]).read_text(encoding="utf-8")
@@ -1079,12 +1552,18 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
     if "06" in steps:
         emit_plans(date_dash, slot, source, ctx["contracts"].get("06", {}), book,
                    "【未过盲审】" if ctx.get("blind_fail") else "")
+        if reflect_on():   # 10/14 §3-A 第 6 条: 每个 action 落待结算记录(关闭=不调用)
+            log_decisions(date_dash, slot, source, ctx["contracts"].get("06", {}), ctx)
     print(f"链完成 {date} slot {slot} steps {'→'.join(steps)}")
 
 # ---------- 自测(不烧 token: 假产物喂校验器) ----------
 def selftest():
-    global TEST_FLOOR, TEST_FLOOR_TZZB, PAPER_DATA
+    global TEST_FLOOR, TEST_FLOOR_TZZB, PAPER_DATA, COMPACT, PROFILE_IDX, TRACE_TOOLS, DYNAMIC_POS, REFLECT, PAPER
     TEST_FLOOR, TEST_FLOOR_TZZB = 0, 0   # 闸单测不受首跑期仓位下限干扰(夹具仓位小; 进程终止无需恢复)
+    DYNAMIC_POS = False                  # 夹具按固定 15%/40% 口径写; 动态仓位另有专门用例(见末尾)
+    COMPACT = PROFILE_IDX = TRACE_TOOLS = False   # 10/13 晚 G/F 实盘默认开(chain_flags.txt); 自测从"全关"基线起, 用例内按需临时打开
+    REFLECT = False   # 10/14 反思回注: chain_flags.txt 对 control 开着, 自测同样从全关基线起
+    _env_refl = {k: os.environ.pop(k, None) for k in ("CHAIN_REFLECTION", "CHAIN_REFLECTION_SKILLS")}
     tmp = ROOT / "results/taoge_chain/selftest-tmp"
     shutil.rmtree(tmp, ignore_errors=True)
     tmp.mkdir(parents=True)
@@ -1237,11 +1716,135 @@ def selftest():
     if v01(c01, ctx) or sentinel_ok(t01, "01", "20260930") is not True or "A1 三态" not in t01 or "回避" in t01 \
             or "| 002050 | 三花智控 | 4000 |" not in t01 or contract_of(t01)[0] != c01:
         fails.append("assemble_01 拼装错(哨兵/契约/导师小节截取/持仓表)")
+    # 10/14 §3-A 第 3 条: 05 逐票 cap 比单票上限更严 → 06 超了要回炉; 没超/没给 cap 不误杀
+    cv = dict(ctx2, contracts={**ctx2["contracts"], "05": {"verdicts": [{"name": "三花智控", "result": "条件批准", "cap": 5000}]}})
+    if not v06({"supersedes": "首裁", "actions": [{"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "12.5", "qty": 800, "anchor": "12.6"}], "no_trade": False}, cv):
+        fails.append("v06 未按 05 逐票 cap(5000)拦下 10000 的买单")
+    if v06({"supersedes": "首裁", "actions": [{"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "12.5", "qty": 400, "anchor": "12.6"}], "no_trade": False}, cv):
+        fails.append("v06 05 逐票 cap 内(5000)的买单被误杀")
+    # 10/14: 按导师真实持仓定仓位的链不注入桃哥 regime 总仓上限
+    if "regime 总仓上限参考" in constraint_text({**pc_empty, "cap_ratio": 0.95, "src": "导师真实持仓 x"}, "06") or \
+            "regime 总仓上限参考" not in constraint_text({**pc_empty, "src": "默认(无导师账本)"}, "06"):
+        fails.append("regime 总仓上限注入口径错(导师链不该有/默认链该有)")
+    # 10/14 §3-A 第 8 条: 态度系数(多=1/中立=0.5/空=0), 缺省=多
+    cs = dict(ctx, pc=dict(pc_empty), contracts={"02": {"market_state": "普跌", "leading_layer": "资金惯性层", "directions": ["x"], "stance": "中立"}})
+    v02(cs["contracts"]["02"], cs); apply_stance(cs)
+    if abs(cs["pc"]["floor"] - 0.2) > 1e-9 or cs["pc"]["need_n"] != 2:
+        fails.append(f"态度=中立 下限应 40%→20%/need_n=2, 实际 {cs['pc']['floor']}/{cs['pc']['need_n']}")
+    ce0 = dict(ctx, pc=dict(pc_empty), contracts={"02": {"market_state": "普跌", "leading_layer": "资金惯性层", "directions": ["x"], "stance": "空"}})
+    v02(ce0["contracts"]["02"], ce0); apply_stance(ce0)
+    if ce0["pc"]["floor"] != 0 or ce0["pc"]["need_n"] != 0 or "可以不买" not in constraint_text(ce0["pc"], "06"):
+        fails.append("态度=空 下限应为 0 且约束块说明可以不买")
+    cm = {"market_state": "有主线", "leading_layer": "板块层", "directions": ["x"]}
+    if v02(cm, ctx) or cm["stance"] != "多":
+        fails.append("02 缺 stance 应按'多'放行")
 
     # 盲审哨兵 REVIEW_FAIL 分支
     mk("blind", {"verdict": "fail", "issues": ["编造证据"]}, sentinel="REVIEW_FAIL 20260930")
     if sentinel_ok((tmp / ART["blind"]).read_text(encoding="utf-8"), "blind", "20260930") != "FAIL":
         fails.append("REVIEW_FAIL 分支未识别")
+
+    # 10/13 链改造 G/F(开关默认关; 此处临时打开测完复位)
+    if COMPACT or PROFILE_IDX:
+        fails.append("selftest 须在开关默认关闭的环境跑(CHAIN_COMPACT/CHAIN_PROFILE_INDEX 未设)")
+    if tpl_key("04", t) != "04" or profile_block("02", {}) != "":
+        fails.append("开关关闭时 tpl_key/profile_block 改变了默认行为")
+    for cm in sorted((ROOT / "skills").glob("*-skill/workflows/chain.md")):
+        if cm.parts[-3] == "buchitudou0-skill":
+            continue
+        tt = _templates_of(cm)
+        if not all(k in tt and "{run_dir}" in tt[k] and f"STEP_OK {k[:2]} {{date}}" in tt[k] for k in ("04c", "05c", "06c")):
+            fails.append(f"{cm.parts[-3]} chain.md 缺 04c/05c/06c 精简模板或占位符/哨兵")
+    COMPACT = True
+    if tpl_key("05", t) != "05c" or tpl_key("02", t) != "02":
+        fails.append("CHAIN_COMPACT tpl_key 选模板错")
+    gctx = dict(ctx2, pc=pc_empty, book=bk, contracts={**ctx2["contracts"], "04": {"candidates": [
+        {"name": "三花智控", "code": "002050", "group": "方向", "direction": "机器人", "trigger": "12.5|回踩", "why": "理由\n换行"}]}})
+    for st, cc in (("04", gctx["contracts"]["04"]), ("05", {"verdicts": [{"name": "三花智控", "result": "批准", "reason": "r"}], "portfolio": ["簇帽 30%"]}),
+                   ("06", {"supersedes": "首裁", "actions": [dict(name="三花智控", code="002050", op="买", trigger_price="Z*0.97", qty=800,
+                                                                 anchor="12.5", _px=12.222, _formula="Z*0.97", why="w")], "no_trade": False})):
+        mk(st, cc)
+        render_into(tmp, st, cc, gctx)
+        render_into(tmp, st, cc, gctx)   # 幂等: 二次渲染不叠段
+        tr = (tmp / ART[st]).read_text(encoding="utf-8")
+        if tr.count("<!-- render:begin -->") != 1 or sentinel_ok(tr, st, "20260930") is not True or contract_of(tr)[0] != cc \
+                or tr.find("<!-- render:end -->") > tr.rfind("```contract") or "三花智控" not in tr.split("<!-- render:end -->")[0]:
+            fails.append(f"G 渲染 {st} 错(段数/哨兵/contract/位置)")
+    if "| 机器人 | 12.5／回踩 |" not in (tmp / ART["04"]).read_text(encoding="utf-8"):
+        fails.append("G 渲染 04 单元格转义错")
+    if "本次买 9,778" not in (tmp / ART["06"]).read_text(encoding="utf-8"):
+        fails.append("G 渲染 06 总仓算账错")
+    COMPACT = False
+    # F: 假画像+假索引 → 按步注入/失配节跳过/persona_sections 校验
+    sys.path.insert(0, str(ROOT / "scripts" / "md"))
+    import gen_profile_index as gpi
+    pd = tmp / "persona"
+    pd.mkdir()
+    prof = "# 画像\n简介\n\n## 打法\n- 低吸\n\n## 风控\n- 止损 3%\n\n## 修订记录\n- 10/1 改\n"
+    (pd / "profile.md").write_text(prof, encoding="utf-8")
+    secs = gpi.parse_sections(prof)
+    if [s["title"] for s in secs] != ["画像", "打法", "风控", "修订记录"] or secs[1]["start"] != 4 or secs[1]["end"] != 5:
+        fails.append(f"gen_profile_index.parse_sections 切节/行号错: {[(s['title'], s['start'], s['end']) for s in secs]}")
+    stp = {"画像": "02,03,04,05,06", "打法": "04,06", "风控": "05", "修订记录": "—"}
+    rows = [f"| S{k + 1:02d} | {s['title']} | x | L{s['start']}-{s['end']} | 0.1 | {stp[s['title']]} | 1 | {s['sha8'] if s['title'] != '风控' else '0' * 8} |"
+            for k, s in enumerate(secs)]
+    (pd / "profile_index.md").write_text("# idx\n> sha12=000000000000\n\n## 核心摘要\n摘要X\n\n## 目录\n| h |\n|---|\n" + "\n".join(rows) + "\n", encoding="utf-8")
+    PROFILE_IDX = True
+    fctx = {}
+    b04, b05, b06 = (profile_block(s, fctx, pd) for s in ("04", "05", "06"))
+    if "摘要X" not in b04 or "- 低吸" not in b04 or "- 10/1 改" in b04 or "【S02】打法" not in b04:
+        fails.append("F 04 注入节错")
+    if "止损 3%" in b05:   # 风控节 sha8 失配(profile 改过)=不注入
+        fails.append("F 失配节仍被注入")
+    if "persona_sections" not in b06 or fctx.get("profile_ids") != {"S01", "S02", "S04"}:
+        fails.append(f"F 06 提示/profile_ids 错: {fctx.get('profile_ids')}")
+    ok06 = {"supersedes": "首裁", "actions": [{"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "12.5", "qty": 800, "anchor": "12.4"}], "no_trade": False}
+    fc = dict(ctx, profile_ids=fctx["profile_ids"])
+    if v06(dict(ok06, persona_sections=["S02"]), fc) or v06(ok06, fc) or not v06(dict(ok06, persona_sections=["S09"]), fc) \
+            or v06(dict(ok06, persona_sections=["S09"]), ctx):
+        fails.append("v06 persona_sections 校验错(合法误杀/非法未抓/F 关时误拦)")
+    PROFILE_IDX = False
+    _PROFILE_CACHE.clear()
+    # 10/13 修复: 盘前 supersedes 措辞不回炉而归一 / as-of 01 账户表名称从 facts 抠
+    sp = {"supersedes": "今日盘前决策", "actions": [{"name": "三花智控", "code": "002050", "op": "买", "trigger_price": "12.5", "qty": 800, "anchor": "12.4"}], "no_trade": False}
+    if v06(sp, ctx) or sp["supersedes"] != "首裁":
+        fails.append("v06 盘前 supersedes 缺字样未归一为首裁(仍回炉)")
+    if not v06(dict(sp, supersedes="今日决策"), dict(ctx, sub=True)):
+        fails.append("v06 盘中 supersedes 缺维持/取代 不应被归一(仍须回炉)")
+    (tmp / "facts.txt").write_text("## 导师信号速览(x)\n### 桃哥 ✅\nA1\n## 关注票实时快照\n- 002050 三花智控(持仓): 12.5 (+1%)\n## 大盘六榜\n- 002050 别名(榜): x\n", encoding="utf-8")
+    assemble_01(tmp, mtxt, "20260930", "2026-09-30", "0915", bk, {"002050": {"last": 12.5}})
+    if "| 002050 | 三花智控 | 4000 |" not in (tmp / ART["01"]).read_text(encoding="utf-8"):
+        fails.append("assemble_01 无 name 快照时未从 facts 关注票节补票名")
+    # 10/13 工具调用留痕(CHAIN_TRACE_TOOLS): 两种输出格式解析 + 留痕落盘 + 命令行切换; 关闭时命令行不变
+    js = '{"type":"result","is_error":false,"result":"ok","usage":{"output_tokens":5},"total_cost_usd":0.1}'
+    sj = "\n".join(['banner', '{"type":"system","subtype":"init"}',
+                    '{"type":"assistant","message":{"content":[{"type":"tool_use","id":"t1","name":"Read","input":{"file_path":"a/profile.md","offset":10,"limit":5}},'
+                    '{"type":"tool_use","id":"t2","name":"Write","input":{"file_path":"x.md","content":"很长正文"}}]}}',
+                    '{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"t1","is_error":true}]}}', js])
+    if _claude_result(js) != json.loads(js) or _claude_result(sj).get("total_cost_usd") != 0.1 or _claude_json("banner\n" + js) != json.loads(js):
+        fails.append("stream-json/json 结果解析不兼容")
+    _dump_tool_calls(sj, (tmp / "tool_calls" / "04.jsonl", {"step": "04", "attempt": 1}))
+    tc = [json.loads(l) for l in (tmp / "tool_calls" / "04.jsonl").read_text(encoding="utf-8").splitlines()]
+    if len(tc) != 3 or tc[0]["input"]["offset"] != 10 or not tc[0]["error"] or tc[1]["input"]["content"] != "<4 chars>" or tc[2].get("type") != "result":
+        fails.append(f"工具调用留痕记录错: {tc}")
+    seen = []
+    orig_run, orig_slot, orig_log = subprocess.run, _acquire_slot, rotation.log_use
+    rotation.log_use = lambda tag: None   # 不往真 key 轮换日志写测试行
+    subprocess.run = lambda args, **k: (seen.append(list(args)), type("R", (), {"returncode": 0, "stdout": sj, "stderr": ""})())[1]
+    globals()["_acquire_slot"] = lambda: tmp / "slot.fake"
+    try:
+        rc0 = call_claude("p", trace=(tmp / "tool_calls" / "06.jsonl", {"step": "06"}))   # 关: 命令行=原 CLAUDE
+        TRACE_TOOLS = True
+        rc1 = call_claude("p", trace=(tmp / "tool_calls" / "06.jsonl", {"step": "06"}))
+        rc2 = call_claude("p")   # 开但无 trace 参数=原命令行
+    finally:
+        subprocess.run, TRACE_TOOLS, rotation.log_use = orig_run, False, orig_log
+        globals()["_acquire_slot"] = orig_slot
+    cl = [s for s in seen if s and s[0] == CLAUDE[0]]   # rotation.settings_args 自己也调 subprocess(切 key), 只看 claude 命令
+    n_tc = len((tmp / "tool_calls" / "06.jsonl").read_text(encoding="utf-8").splitlines())
+    if len(cl) != 3 or cl[0][:len(CLAUDE)] != CLAUDE or cl[2][:len(CLAUDE)] != CLAUDE or "stream-json" not in cl[1] \
+            or "--verbose" not in cl[1] or "json" in cl[1] or rc1[2] != 0.1 or n_tc != 3:
+        fails.append(f"CHAIN_TRACE_TOOLS 命令行切换/解析/留痕错: {[c[:5] for c in cl]} / rc1={rc1}")
 
     # plans 机械转换(假账本; 公式价+cond 列断言)
     book = {"source": "A-taoge", "cash": 100000, "positions": {},
@@ -1267,6 +1870,55 @@ def selftest():
     if "SELL | 000910 | 7.752 | 1000 | day | 7.55 | stop_below=8.1 |" not in got:
         fails.append("plans 公式价代换/anchor/stop_below cond 列缺失")
     shutil.rmtree(pf.parent.parent, ignore_errors=True)
+
+    # 10/14 §3-A 第 6 条: 决策日志+反思回注——关闭=空操作 / 白名单外不注入 / 只注入运行日前已结算 / 同票≤5 跨票≤3 / 护栏拦下的不注入
+    import tempfile
+    rctx = {"date_dash": "2026-10-13", "sub": False, "contracts": {"04": {"candidates": [{"code": "600001"}]}},
+            "book": {"positions": {"002050": {"qty": 100, "cost": 10}}, "orders": []}}
+    if reflect_on() or reflection_block("04", rctx) or reflection_block("06", rctx):
+        fails.append("CHAIN_REFLECTION 关闭时 reflect_on 为真/反思块非空")
+    orig_paper, orig_data = PAPER, PAPER_DATA
+    PAPER = PAPER_DATA = Path(tempfile.mkdtemp(prefix="selftest_refl_"))   # 隔离: 不读实盘 decisions
+    os.environ["CHAIN_REFLECTION"], os.environ["CHAIN_REFLECTION_SKILLS"] = "1", "control"
+    REFLECT = True
+    try:
+        dmod, dd = _dm(), PAPER_DATA / "decisions"
+        mkd = lambda date, code, slot="0915": dmod.records_from_contract(
+            {"actions": [{"name": "票" + code, "code": code, "op": "买", "trigger_price": "10", "qty": 100, "anchor": "10"}]},
+            skill="control", source="A-control", date=date, slot=slot, sub=False, blind_fail=False, asof=False, ts=f"{date}T09:15:00")[0]
+        same = [mkd(f"2026-09-{d:02d}", "002050") for d in (22, 23, 24, 25, 26, 29)] + [mkd("2026-10-08", "002050"), mkd("2026-10-12", "002050")]
+        cross = [mkd(f"2026-09-{d:02d}", "600999") for d in (22, 23, 24)] + [mkd("2026-10-09", "600888"), mkd("2026-10-09", "600777", "1000")]
+        dmod.write_decisions(dd, "control", same + cross)
+        nxt = {"2026-10-08": "2026-10-09", "2026-10-09": "2026-10-12", "2026-10-12": "2026-10-13"}
+        refl = [{"id": r["id"], "resolved": nxt.get(r["date"], "2026-09-30"), "text": f"反思{r['date']}{r['code']}", "guard": "ok"} for r in same + cross]
+        refl[-1]["guard"], refl[-1]["text"] = "rejected", "规则错了应改"
+        dmod.append_reflects(dd, "control", refl)
+        apply_skill("taoge")
+        if reflect_on() or reflection_block("04", dict(rctx)):
+            fails.append("白名单外(taoge)仍注入反思")
+        apply_skill("control")
+        c4 = dict(rctx)
+        b4 = reflection_block("04", c4)
+        if not reflect_on() or "反思2026-10-08002050" not in b4 or "反思2026-10-12002050" in b4 or "2026-10-13 之前" not in b4                 or c4.get("reflect_n", {}).get("04") != (5, 3) or "规则错了" in b4 or "反思2026-10-09600888" not in b4:
+            fails.append(f"反思回注 as-of 过滤/条数/护栏错: n={c4.get('reflect_n')}")
+        if "反思2026-10-12002050" not in reflection_block("04", dict(rctx, date_dash="2026-10-14")):
+            fails.append("运行日之后应能看到 10/13 已结算的反思")
+        if reflection_block("05", dict(rctx)) or reflection_block("02", dict(rctx)):
+            fails.append("反思块注入了 04/06 以外的步")
+        c06 = {"supersedes": "首裁", "actions": [dict(name="三花智控", code="002050", op="买", trigger_price="Z*0.97", qty=800, anchor="12.5",
+                                                     _px=12.222, why="回踩", rules=[{"id": "A4", "ctx": "情境判定 xxxxxxxx"}])]}
+        log_decisions("2026-10-13", "1000", "A-control", c06, dict(rctx, sub=True, blind_fail="x"))
+        lg = [r for r in dmod.load_decisions(dd, "control").values() if r["date"] == "2026-10-13"]
+        if len(lg) != 1 or lg[0]["px"] != 12.222 or lg[0]["slot"] != "1000" or not lg[0]["sub"] or not lg[0]["blind_fail"] or lg[0]["rules"] != ["A4"]:
+            fails.append(f"决策日志记录错: {lg}")
+    finally:
+        shutil.rmtree(PAPER_DATA, ignore_errors=True)
+        PAPER, PAPER_DATA, REFLECT = orig_paper, orig_data, False
+        os.environ.pop("CHAIN_REFLECTION", None); os.environ.pop("CHAIN_REFLECTION_SKILLS", None)
+        apply_skill("taoge")
+    for k, v in _env_refl.items():
+        if v is not None:
+            os.environ[k] = v
 
     # cb 链(10/4 盲区修复⑦): 模板抽取 + v06 cb 模式(转债 code 闸/R 规则 id/3 成上限)
     apply_skill("buchitudou0")
@@ -1294,7 +1946,7 @@ def selftest():
         for f in fails:
             print(" -", f)
         sys.exit(1)
-    print("SELFTEST PASS: 模板抽取/哨兵/contract 校验器(正例不误杀+反例全抓, 含 C7 价格锚 5 反例+公式价+20cm 分档)/盲审 FAIL 分支/plans 转换(anchor+cond 列+公式价代换)/cb 链(模板+v06 转债闸)")
+    print("SELFTEST PASS: 模板抽取/哨兵/contract 校验器(正例不误杀+反例全抓, 含 C7 价格锚 5 反例+公式价+20cm 分档)/盲审 FAIL 分支/plans 转换(anchor+cond 列+公式价代换)/cb 链(模板+v06 转债闸)/10/13 F·G(开关默认关不变+14 链精简模板+人看表渲染幂等+画像按步注入/失配节跳过/persona_sections 校验)+10/13 修复(盘前 supersedes 归一/01 名称补齐)+工具调用留痕(json·stream-json 双解析/命令行开关)+10/14 反思回注(关闭空操作/白名单/as-of 过滤/条数上限/护栏/决策日志)")
 
 def main():
     ap = argparse.ArgumentParser()

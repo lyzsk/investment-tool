@@ -60,6 +60,7 @@ scripts/dfcf/snapshots/
 scripts/dfcf/paper/facts/
 scripts/dfcf/paper/plans/
 scripts/dfcf/paper/books/
+scripts/dfcf/paper/decisions/
 scripts/dfcf/paper/books.bak-*/
 scripts/dfcf/paper/sandbox/
 scripts/dfcf/paper/nav_*.csv

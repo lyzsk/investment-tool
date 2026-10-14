@@ -213,6 +213,73 @@ function mentorDigest() {
     return out.length ? out.join("\n\n") : "(导师速览构建失败, 各源信号本次缺席)";
 }
 
+// 10/13 用户令(0915 改 07:50 开跑的配套): 当日财联社早报要点 + 发哥盘前推演要点进事实包——此前事实包完全不读当日这两样,
+// 只读发哥历史规则标题。只读盘前蒸馏产物 spec.md(证据层, 零请求零 token); 两者都在 09:15 前发布, as-of 回放同样可用
+function premarket() {
+    const part = (label, f, tag) => {
+        try {
+            const rows = fs.readFileSync(f, "utf8").split("\n").map((l) => l.trim()).filter((l) => l.startsWith(tag));
+            return rows.length ? [`### ${label}`, ...rows] : [`### ${label}`, "(当日 spec.md 无要点行)"];
+        } catch { return [`### ${label}`, "(今日尚未挂载: 链接未贴或盘前蒸馏未做, 本次缺席)"]; }
+    };
+    return [...part("财联社早报要点(宏观/行业/公司/环球/机会)", path.join("downloads", "cls_zaobao", date, "spec.md"), "【早报要点】"), "",
+        ...part("红旗大街发哥 盘前推演要点(刹车级信号源)", path.join("downloads", "wechat", "fage", date, "spec.md"), "【推演要点】")].join("\n");
+}
+
+// 10/14 龙虎榜消费①(零 token): 读 downloads/lhb/<最近一个 < 链日 的交易日>/ 的落盘 json(fetch_lhb.mjs 每晚采, 盘后 17 点前后出, D 盘前必已存在→as-of 无后见之明)
+// 只摘: 一行概况 + 关注票(持仓/挂单)若上榜 + 净买前 6 / 净卖前 4, 每票一行(机构净额/游资名); 目标 ≤1.5k 字
+function lhbDigest() {
+    const root = path.join("downloads", "lhb");
+    if (!fs.existsSync(root)) return "(龙虎榜未采集)";
+    const day = fs.readdirSync(root).filter((d) => /^\d{4}\.\d{2}\.\d{2}$/.test(d) && d.replace(/\./g, "-") < date).sort().pop();
+    if (!day) return "(无前一交易日龙虎榜)";
+    let list;
+    try { list = JSON.parse(fs.readFileSync(path.join(root, day, "list.json"), "utf8")).rows || []; } catch { return `(${day} 龙虎榜 list.json 读失败)`; }
+    let yz = {};
+    try { yz = JSON.parse(fs.readFileSync(path.join("scripts", "lhb", "youzi.json"), "utf8")).map || {}; } catch { /* 无游资表=不标 */ }
+    const amt = (x) => { const a = Math.abs(x); const s = x < 0 ? "-" : "+"; return a >= 1e8 ? `${s}${(a / 1e8).toFixed(2)}亿` : `${s}${Math.round(a / 1e4)}万`; };
+    const short = (n) => n.replace(/股份有限公司|有限责任公司|有限公司/g, "").replace(/证券营业部|营业部|分公司/g, "").replace(/证券/, " ").replace(/\s+/g, " ").trim();
+    const by = new Map();
+    for (const r of list) {   // 一票多上榜原因=多行, 合并(金额取最大那行, 原因拼接)
+        const o = by.get(r.SECURITY_CODE);
+        if (!o) by.set(r.SECURITY_CODE, { ...r, reasons: [r.EXPLANATION] });
+        else { o.reasons.push(r.EXPLANATION); if (Math.abs(r.BILLBOARD_NET_AMT) > Math.abs(o.BILLBOARD_NET_AMT)) Object.assign(o, r, { reasons: o.reasons }); }
+    }
+    const seats = (code) => {
+        try {
+            const d = JSON.parse(fs.readFileSync(path.join(root, day, `detail_${code}.json`), "utf8"));
+            const all = new Map();
+            for (const s of [...(d.buy || []), ...(d.sell || [])]) all.set(s.OPERATEDEPT_NAME + "|" + (s.OPERATEDEPT_CODE || ""), s);
+            let inst = 0, ni = 0; const hot = new Map();   // 同名游资(如拉萨天团多席)合并净额
+            for (const s of all.values()) {
+                if (s.OPERATEDEPT_NAME === "机构专用") { inst += s.NET || 0; ni++; continue; }
+                const k = short(s.OPERATEDEPT_NAME), y = yz[k] || Object.entries(yz).find(([kk]) => k.includes(kk))?.[1];
+                if (y) { const nm = typeof y === "string" ? y : y.name || k; hot.set(nm, (hot.get(nm) || 0) + (s.NET || 0)); }
+            }
+            return { inst, ni, hot: [...hot].sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).map(([n, v]) => `${n}${amt(v)}`) };
+        } catch { return null; }
+    };
+    const rows = [...by.values()];
+    const watch = new Set(snaps.map((s) => s.code));
+    const sorted = [...rows].sort((a, b) => b.BILLBOARD_NET_AMT - a.BILLBOARD_NET_AMT);
+    const pick = [...rows.filter((r) => watch.has(r.SECURITY_CODE)), ...sorted.slice(0, 6), ...sorted.slice(-4).reverse()];
+    const seen = new Set(), L = [];
+    const insts = rows.map((r) => ({ r, s: seats(r.SECURITY_CODE) })).filter((x) => x.s && x.s.ni);
+    insts.sort((a, b) => b.s.inst - a.s.inst);
+    const top = (xs) => xs.map((x) => `${x.r.SECURITY_NAME_ABBR}${amt(x.s.inst)}`).join("、") || "无";
+    L.push(`${day.replace(/\./g, "-")} 上榜 ${rows.length} 只; 机构净买前三: ${top(insts.filter((x) => x.s.inst > 0).slice(0, 3))}; 机构净卖前三: ${top(insts.filter((x) => x.s.inst < 0).slice(-3).reverse())}`);
+    for (const r of pick) {
+        if (seen.has(r.SECURITY_CODE)) continue;
+        seen.add(r.SECURITY_CODE);
+        const s = seats(r.SECURITY_CODE);
+        const tag = watch.has(r.SECURITY_CODE) ? "【关注票】" : "";
+        L.push(`- ${tag}${r.SECURITY_NAME_ABBR} ${r.SECURITY_CODE} ${r.CHANGE_RATE > 0 ? "+" : ""}${r.CHANGE_RATE?.toFixed(1)}% | ${[...new Set(r.reasons.map((x) => x.replace(/^无价格涨跌幅限制的证券.*/, "无涨跌幅限制").replace(/^有价格涨跌幅限制的/, "").replace(/的前[\d五三]+只证券|的证券$/g, "").replace(/^日收盘价格/, "日")))].join("/").slice(0, 40)} | 净额${amt(r.BILLBOARD_NET_AMT)}(占成交${r.DEAL_NET_RATIO?.toFixed(1)}%)`
+            + (s ? ` | 机构${s.ni ? amt(s.inst) + `(${s.ni}席)` : "无"}${s.hot.length ? " | 游资 " + s.hot.slice(0, 3).join("、") : ""}` : ""));
+    }
+    L.push(`(全量: downloads/lhb/${day}/ 与当日 md「### 龙虎榜」节; 龙虎榜=盘后公布的上榜席位, 只说明昨日资金结构, 不预示今日涨跌)`);
+    return L.join("\n");
+}
+
 // ---- 拼 facts.md(LLM 读, 目标 2-4k token) ----
 // 10/12 用户令: 隔夜外围进事实包——只读 collect_global.py 的落盘(downloads/market/<北京日期>/global_kline.jsonl, 每日 07:15 采), 零额外请求;
 // 当日未采到=取最近一份并标采集日; as-of 回放=不可得(该文件只有实时口径, 禁混入)
@@ -241,6 +308,8 @@ const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${S
     "## 轮动位置(rotation.mjs 机械判定)", rotationMd, "",
     ...(tmp ? ["## 竞价异动临时池(接力池取数口, 当日有效)", tmp.md, ""] : []),
     "## 隔夜外围(美股/中概/港股/日英/A50·美股期货/金油/离岸人民币)", overseas(), "",
+    "## 今日盘前资讯(当日早报+发哥推演, 盘前蒸馏要点原文)", premarket(), "",
+    "## 昨日龙虎榜(机械摘录: 概况+关注票+净买/净卖前列)", lhbDigest(), "",
     "## 新到电报(自上一 slot)", telegraph(), "",
     "## 关注票实时快照", snaps.length ? snaps.map((s) => `- ${s.code} ${s.name}(${s.tag}): ${s.last} (${s.pct > 0 ? "+" : ""}${s.pct}%) 高${s.high} 低${s.low}${isSealed(s) ? " " + sealTag(s) + "·禁入候选" : ""}${dailyAnchor(s.code)}`).join("\n") : "(无持仓无挂单)", "",
     "## 大盘六榜", scanMd].join("\n");

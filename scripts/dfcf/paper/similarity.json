@@ -1,5 +1,5 @@
 {
- "updated": "20261009",
+ "updated": "20261012",
  "window": 20,
  "summary": [
   {
@@ -13,15 +13,15 @@
   {
    "book": "A-liuyiqing",
    "name": "刘忆青",
-   "days": 3,
-   "comp": 0.1139,
+   "days": 4,
+   "comp": 0.13542500000000002,
    "ctrl": 0,
-   "delta": 0.1139
+   "delta": 0.13542500000000002
   },
   {
    "book": "A-lianghuaxiaohao",
    "name": "量化短线小号实验",
-   "days": 3,
+   "days": 4,
    "comp": 0,
    "ctrl": 0,
    "delta": 0
@@ -45,25 +45,25 @@
   {
    "book": "A-xingjianye",
    "name": "星见野",
-   "days": 2,
-   "comp": 0.1,
-   "ctrl": 0.2,
-   "delta": -0.1
+   "days": 3,
+   "comp": 0.06666666666666667,
+   "ctrl": 0.13333333333333333,
+   "delta": -0.06666666666666667
   },
   {
    "book": "A-daxingdaxingdadangxing",
    "name": "大兴大兴大A当兴",
-   "days": 3,
-   "comp": 0.13333333333333333,
-   "ctrl": 0.13333333333333333,
+   "days": 4,
+   "comp": 0.1,
+   "ctrl": 0.1,
    "delta": 0
   },
   {
    "book": "A-gaogailvfuli",
    "name": "高概率复利",
-   "days": 2,
-   "comp": 0.2,
-   "ctrl": 0.2,
+   "days": 3,
+   "comp": 0.13333333333333333,
+   "ctrl": 0.13333333333333333,
    "delta": 0
   },
   {
@@ -77,10 +77,10 @@
   {
    "book": "A-stzhilang",
    "name": "ST之狼",
-   "days": 0,
-   "comp": null,
-   "ctrl": null,
-   "delta": null
+   "days": 1,
+   "comp": 0.2,
+   "ctrl": 0.2,
+   "delta": 0
   },
   {
    "book": "A-chong5000w",

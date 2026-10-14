@@ -5,7 +5,7 @@
 // 失败段写 [本榜获取失败] 不抛给上层; 全灭才 exit 1)。
 // 双源实测(2026-10-01): 东财 push2 clist(主) + 新浪 getHQNodeData(备, 涨跌榜);
 //   腾讯排行双源计划破产——rank.php 302→空 data、ifzq rankAction 未定义, 均已死, 勿再试。
-//   连板/跌停池/次新/板块=东财单源(被封时该榜闭环标 [失败], 不编数据)。
+//   连板梯队=东财涨停池→财联社涨停池(10/14)→md 电报解析; 跌停池/次新/板块=东财单源(被封时该榜闭环标 [失败], 不编数据)。
 // 封禁教训(同日实测): push2 对测试性连发(~25 次/5min)会 IP 级 ECONNRESET 全客户端静默,
 //   生产节奏=每日几次×~10 请求, 榜间抖动已加大到 0.8-2s。
 // 用法: node scan.mjs --out <run_dir> [--date YYYYMMDD] [--top 30] [--asof YYYYMMDD(历史数据日=回放口径, 零实时源)]
@@ -100,14 +100,15 @@ function telegraphLianban(date8) {
     if (!fs.existsSync(p)) continue;
     const c = fs.readFileSync(p, 'utf8');
     const sec = c.slice(c.indexOf('## 加红电报'));
-    for (const m2 of sec.matchAll(/【[^】]*涨停分析[^】]*】[^]]*/g)) {
+    for (const m2 of sec.matchAll(/【[^】]*涨停分析[^】]*】[^\]]*/g)) {  // 10/14 修: 原 [^]]* 在 JS 里=任意 1 字符+若干 ], 只截到标题
       const txt = m2[0];
       const clean = s => {  // 剥概念前缀: "并购重组的新华传媒"/"机器人概念股襄阳轴承"/"纺织板块泰慕士"→纯票名
         for (const sep of ['的', '概念股', '板块']) { const i = s.indexOf(sep); if (i >= 0 && i + sep.length < s.length) s = s.slice(i + sep.length); }
         return s.replace(/[0-9]+$/, '');  // '中新赛克1'→'中新赛克'(正则把板数尾巴吸进名的偶发)
       };
-      for (const g of txt.matchAll(/([一-龥A-Za-z0-9*ST]+)[s,，]*(?:d+天)?(d+)s*连板/g)) results.push({ name: clean(g[1]), lb: +g[2] });
-      for (const g of txt.matchAll(/([一-龥A-Za-z0-9*ST]+)[s,，]*(d+)s*天s*(d+)s*板/g)) results.push({ name: clean(g[1]), lb: +g[3] });
+      // 10/14 修: 原两条正则的反斜杠在 10/6 写入时被 heredoc 吃掉(\s→s, \d→d), 从未匹配过; 此前未接线所以没暴露
+      for (const g of txt.matchAll(/([一-龥A-Za-z0-9*ST]+)[\s,，]*(?:\d+天)?(\d+)\s*连板/g)) results.push({ name: clean(g[1]), lb: +g[2] });
+      for (const g of txt.matchAll(/([一-龥A-Za-z0-9*ST]+)[\s,，]*(\d+)\s*天\s*(\d+)\s*板/g)) results.push({ name: clean(g[1]), lb: +g[3] });
     }
   }
   const seen = new Set();
@@ -129,16 +130,45 @@ async function rankBoard(asc, top, label) {
 }
 const board涨跌幅 = top => rankBoard(0, top);
 const board跌幅 = top => rankBoard(1, top);
-async function board连板(date, maxBack = 5) {
-  const { pool, tradeDate } = await emPool('ZT', date, maxBack);
-  // zttj.ct=连板数, zttj.days=统计天数; 按连板数降序织梯队
-  const rows = pool.map(x => ({ code: x.c, name: x.n, lb: x.zttj ? x.zttj.ct : 1, hy: x.hybk || '', fund: x.fund }))
-    .sort((a, b) => b.lb - a.lb);
+// 连板梯队备源①(10/14 REA 调研): 财联社涨停池 x-quote.cls.cn up_down_analysis?type=up_pool, 公开免签名, 全量池
+// (10/13 实测 70 只=收评涨停数), limit_up_days=连板数, up_reason "题材|归因" 取竖线前作题材; 只有实时/最近一个交易日,
+// 故 as-of 历史口径不可用。口径差: 东财 zttj.ct=统计窗内涨停次数("17天10板"记 10), 财联社=连续涨停天数, 标注在 src
+async function clsLianban() {
+  const j = await fetchJson('https://x-quote.cls.cn/quote/index/up_down_analysis?app=CailianpressWeb&os=web&rever=1&sv=8.7.9&type=up_pool&way=last_px',
+    { Referer: 'https://www.cls.cn/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36' });
+  if (j.code !== 200 || !Array.isArray(j.data) || !j.data.length) throw new Error(`财联社涨停池空/异常 code=${j.code}`);
+  const tradeDate = j.data.map(x => x.time || '').sort().pop().slice(0, 10).replaceAll('-', '');
+  return j.data.map(x => ({ code: x.secu_code.replace(/^(sh|sz|bj)/, ''), name: x.secu_name.trim(), lb: x.limit_up_days || 1,
+    hy: String(x.up_reason || '').includes('|') ? String(x.up_reason).split('|')[0].trim() : (x.is_st ? 'ST' : '') })).map(r => ({ ...r, tradeDate }));
+}
+function tiersMd(rows, head) {
   const tiers = {};
-  for (const r of rows) (tiers[r.lb] = tiers[r.lb] || []).push(`${r.name}(${r.hy})`);
-  const md = [`(涨停池日期=${tradeDate}, 涨停 ${rows.length} 只)`]
-    .concat(Object.keys(tiers).sort((a, b) => b - a).map(k => `${k}连板[${tiers[k].length}]: ${tiers[k].join(' ')}`));
-  return { src: 'eastmoney-ztpool', md: md.join('\n'), raw: rows, tradeDate };
+  for (const r of rows.sort((a, b) => b.lb - a.lb)) (tiers[r.lb] = tiers[r.lb] || []).push(`${r.name}(${r.hy})`);
+  return [head].concat(Object.keys(tiers).sort((a, b) => b - a).map(k => `${k}连板[${tiers[k].length}]: ${tiers[k].join(' ')}`)).join('\n');
+}
+// 故障转移(10/14): 东财涨停池(主) → 财联社涨停池(备①, 仅实时口径) → md 加红电报解析(备②, 只含焦点股, 10/6 写好但此前未接线)
+// SCAN_DRILL=ztpool 环境变量=演练开关(模拟东财失败, 验备源; 生产不设)
+async function board连板(date, maxBack = 5, asof = false) {
+  let emErr;
+  try {
+    if (process.env.SCAN_DRILL === 'ztpool') throw new Error('演练: 模拟东财涨停池失败');
+    const { pool, tradeDate } = await emPool('ZT', date, maxBack);
+    // zttj.ct=连板数, zttj.days=统计天数; 按连板数降序织梯队
+    const rows = pool.map(x => ({ code: x.c, name: x.n, lb: x.zttj ? x.zttj.ct : 1, hy: x.hybk || '', fund: x.fund }));
+    return { src: 'eastmoney-ztpool', md: tiersMd(rows, `(涨停池日期=${tradeDate}, 涨停 ${rows.length} 只)`), raw: rows, tradeDate };
+  } catch (e) { emErr = e; }
+  if (asof) throw emErr;  // as-of 禁降级: 备源都只有实时/当日数据
+  try {
+    const rows = await clsLianban();
+    const tradeDate = rows[0].tradeDate;
+    return { src: 'cls-uppool(连板=连续涨停天数口径)', warn: '东财涨停池失败: ' + String(emErr.message || emErr).slice(0, 80),
+      md: tiersMd(rows, `(财联社涨停池日期=${tradeDate}, 涨停 ${rows.length} 只)`), raw: rows, tradeDate };
+  } catch (e2) {
+    const tl = telegraphLianban(date);
+    if (!tl.length) throw new Error(`东财: ${String(emErr.message || emErr).slice(0, 60)} | 财联社: ${String(e2.message || e2).slice(0, 60)} | 电报解析: 无`);
+    return { src: 'md-telegraph(降级: 只含电报点名的焦点股, 非全量池)', warn: `东财+财联社均失败: ${String(e2.message || e2).slice(0, 60)}`,
+      md: tiersMd(tl.map(r => ({ ...r, hy: '' })), `(加红电报涨停分析解析, ${tl.length} 只焦点股)`), raw: tl };
+  }
 }
 async function board跌停(date, top, noFallback = false) {
   try {
@@ -229,14 +259,14 @@ async function main() {
   const jobs = asof ? [
     ['涨跌幅榜', `涨幅 Top${top}(as-of 归档样本近似)`, async () => archiveRank(asof, false, top)],
     ['跌幅榜', `跌幅 Top${top}(as-of 归档样本近似)`, async () => archiveRank(asof, true, top)],
-    ['连板梯队', '东财涨停池(历史日期)按连板数织梯队', () => board连板(asof, 1)],
+    ['连板梯队', '东财涨停池(历史日期)按连板数织梯队', () => board连板(asof, 1, true)],
     ['跌停榜', '东财跌停池(历史日期, as-of 无降级)', () => board跌停(asof, top, true)],
     ['次新区间跌幅榜', 'as-of 不可得', NA_ASOF],
     ['板块榜', 'as-of 不可得', NA_ASOF],
   ] : [
     ['涨跌幅榜', '涨幅 Top' + top + '(竞价时段运行=竞价榜语义, 快照源不分时段)', () => board涨跌幅(top)],
     ['跌幅榜', '跌幅 Top' + top, () => board跌幅(top)],
-    ['连板梯队', '东财涨停池按连板数织梯队', () => board连板(date)],
+    ['连板梯队', '东财涨停池按连板数织梯队(备: 财联社涨停池→电报解析)', () => board连板(date)],
     ['跌停榜', '东财跌停池(失败降级=跌幅榜近似并标注)', () => board跌停(date, top)],
     ['次新区间跌幅榜', 'BK0959 按60日涨跌幅升序', () => board次新(top)],
     ['板块榜', '行业涨跌Top8+概念涨幅Top8', () => board板块()],

@@ -511,6 +511,11 @@ async function eod(date) {
             try { execFileSync(process.execPath, [path.join(SCRIPT_DIR, "similarity.mjs"), "--date", prevD.replaceAll("-", "")], { stdio: "inherit", env: process.env, windowsHide: true }); }
             catch (e) { console.warn("WARN similarity 失败(不致命):", e.message); }
         }
+        // 10/14 §3-A 第 7 条: 按步归因等权基准(只读链产物/账本/本地行情 → baselines.json, report 读); 实盘日 D+1=今天的收盘价行情库 15:35 才入库, 用 --snap-today 取今日快照补
+        if (!ASOF) {
+            try { execFileSync(process.execPath, [path.join(SCRIPT_DIR, "baselines.mjs"), ...(live ? ["--snap-today"] : [])], { stdio: "inherit", env: process.env, windowsHide: true, timeout: 180000 }); }
+            catch (e) { console.warn("WARN baselines 失败(不致命):", e.message); }
+        }
         execFileSync(process.execPath, [path.join(SCRIPT_DIR, "report.mjs")], { stdio: "inherit" });
         // 10/11 用户令: 实盘 EOD 后推微信日报(沙盒/补算历史日不推)
         if (live) {

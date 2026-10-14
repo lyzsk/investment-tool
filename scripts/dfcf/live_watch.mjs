@@ -6,15 +6,19 @@
 //   ③ 个股: --codes 持仓/关注票, 每只自建 1 分钟线/均价/量能节奏(相对昨日同进度)/行情类型(趋势上涨/震荡/趋势下跌)
 // 信号(去重, 落 alerts): 个股 突破昨高/跌破昨低/日内新高/站回或跌破均价/量能翻倍/类型切换; 大盘 指数翻红翻绿/涨停家数骤变 —— 即"挂单该动"的触发点
 // Claude 被问挂单时直接读 .md, 一分钟内出方案; 交易日盘中跑, 午休空转, --until 到点退出
-// 用法: node scripts/dfcf/live_watch.mjs --stocks 002714[,600xxx] [--every 15] [--until 1501] [--once]
+// 用法: node scripts/dfcf/live_watch.mjs [--stocks 002714[,600xxx]] [--every 15] [--until 1501] [--once]
+//   --stocks 缺省=读 scripts/dfcf/snapshots/live/watchlist.txt(逗号/换行分隔, 隐私区), 再缺省=002714
+//   10/14 起交易日 09:10 由 Windows 计划任务 LiveWatch 自动启动(wscript //B 无窗口); 非交易日(当天 md 不存在)直接退出; 同日已有一个在跑则退出
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { snapMany } from "./paper/snapshot.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const arg = (k, d) => { const i = process.argv.indexOf("--" + k); return i > 0 ? process.argv[i + 1] : d; };
-const CODES = arg("stocks", "002714")   // 不能叫 --codes: import snapshot.mjs 时它的 CLI 见 --codes 就会执行并退出
+const WL = path.join(ROOT, "scripts", "dfcf", "snapshots", "live", "watchlist.txt");
+const CODES = arg("stocks", fs.existsSync(WL) ? fs.readFileSync(WL, "utf8").split(/[,\s]+/).filter((x) => /^\d{6}$/.test(x)).join(",") || "002714" : "002714")   // 不能叫 --codes: import snapshot.mjs 时它的 CLI 见 --codes 就会执行并退出
 .split(",").filter(Boolean);
 const EVERY = +arg("every", 15) * 1000;
 const UNTIL = +arg("until", 1501);
@@ -77,7 +81,15 @@ function chainConsensus() {
     }
     return { states, directions: Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 10) };
 }
-// 个股 30 日股性 + 昨日(归档 downloads/quotes/daily/<code>.json; 缺档=只给实时)
+// 个股 30 日股性 + 昨日 + 结构位(归档 downloads/quotes/daily/<code>.json; 缺档=只给实时)
+// 10/14: 启动时先用 kline.mjs 增量刷新归档(原归档停在 10/09, "昨高"一直显示 10/09 的 41.70 而非 10/12 的 42.22)
+function refreshDaily(codes) {
+    try {
+        execFileSync("node", [path.join(ROOT, "scripts", "quotes", "kline.mjs"), "--codes", codes.join(",")],
+            { cwd: ROOT, stdio: "ignore", timeout: 120_000, windowsHide: true });
+    } catch { /* 刷新失败=用旧档, 下面会标注日线截止日 */ }
+}
+const MA_N = [5, 10, 20, 30, 60, 120, 144, 300];   // 10/14 用户定
 function stockStats(code) {
     const f = path.join(ROOT, "downloads", "quotes", "daily", `${code}.json`);
     if (!fs.existsSync(f)) return null;
@@ -86,7 +98,26 @@ function stockStats(code) {
     const amp = [], oh = [], ol = [];
     for (let i = 1; i < w.length; i++) { const p = w[i - 1].c, c = w[i]; amp.push((c.h - c.l) / p * 100); oh.push((c.h / c.o - 1) * 100); ol.push((c.l / c.o - 1) * 100); }
     const last = k[k.length - 1];
-    return { prevHigh: last.h, prevLow: last.l, prevVol: last.v, amp50: q(amp, .5), amp75: q(amp, .75), oh50: q(oh, .5), oh75: q(oh, .75), ol50: q(ol, .5), ol25: q(ol, .25) };
+    const ma = (n) => (k.length >= n ? r2(k.slice(-n).reduce((s, x) => s + x.c, 0) / n) : null);
+    const k5 = k.slice(-5);
+    return { prevHigh: last.h, prevLow: last.l, prevVol: last.v, lastDay: last.d, amp50: q(amp, .5), amp75: q(amp, .75), oh50: q(oh, .5), oh75: q(oh, .75), ol50: q(ol, .5), ol25: q(ol, .25),
+        ma: Object.fromEntries(MA_N.map((n) => [n, ma(n)])),
+        hi5: Math.max(...k5.map((x) => x.h)), lo5: Math.min(...k5.map((x) => x.l)) };
+}
+
+// 10/14: 今日 UP 视频(卢本圆常 08:00 前后发盘中实战稿, 转写在 results 里, 要到晚上 check md 才进 md——盘中挂单靠这里看到)
+const UP_MIDS = [["625315686", "桃哥"], ["1372241958", "趋势天哥"], ["550494308", "卢本圆"]];
+function todayVideos() {
+    const dir = day.replace(/-/g, "."), out = [];
+    for (const [mid, nm] of UP_MIDS) {
+        const d = path.join(ROOT, "results", "bilibili", mid, dir);
+        if (!fs.existsSync(d)) continue;
+        for (const f of fs.readdirSync(d).filter((x) => /^BV\w+\.txt$/.test(x))) {
+            const txt = fs.readFileSync(path.join(d, f), "utf8").replace(/\s+/g, " ").trim();
+            if (txt) out.push({ who: nm, path: path.relative(ROOT, path.join(d, f)).replace(/\\/g, "/"), head: txt.slice(0, 300) });
+        }
+    }
+    return out;
 }
 function elapsed() {
     const d = new Date(), m = d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
@@ -96,6 +127,7 @@ function elapsed() {
 const state = { day, stocks: {}, alerts: [], market: {}, consensus: chainConsensus(), updated: null };
 let consensusAt = Date.now();
 if (fs.existsSync(fJson)) { try { const old = JSON.parse(fs.readFileSync(fJson, "utf8")); state.stocks = old.stocks || {}; state.alerts = old.alerts || []; state.market = old.market || {}; } catch { /* 重建 */ } }
+refreshDaily(CODES);
 const stats = Object.fromEntries(CODES.map((c) => [c, stockStats(c)]));
 const seen = new Set(state.alerts.map((a) => a.key));
 const alert = (key, msg) => { if (seen.has(key)) return; seen.add(key); const a = { t: new Date().toTimeString().slice(0, 8), key, msg }; state.alerts.push(a); console.log(`[${a.t}] ⚠ ${msg}`); };
@@ -117,6 +149,7 @@ async function tick() {
     if (now - slowAt > 60_000) {   // ② paper 线市场扫描 + 链共识(只读文件, 零请求)
         slowAt = now;
         state.market.scan = paperScan();
+        state.videos = todayVideos();
         if (now - consensusAt > 900_000) { state.consensus = chainConsensus(); consensusAt = now; }
     }
     // ③ 个股
@@ -152,7 +185,16 @@ async function tick() {
 }
 
 function render() {
-    const m = state.market, L = [`# 盘中盯盘 ${day} 更新 ${state.updated}`, "", "## ① 大盘"];
+    const m = state.market, L = [`# 盘中盯盘 ${day} 更新 ${state.updated}`, ""];
+    // 10/14: 顶部结构位表(挂单「快版 30 秒」直接读, 不再现算)
+    L.push("## ⓪ 结构位(日线截止前一交易日)", "| 股票 | 日线截止 | 昨高/昨低 | 前5日高/低 | " + MA_N.map((n) => `MA${n}`).join(" | ") + " | 振幅中位/P75 | 开→高 中位/P75 | 开→低 中位/P25 |",
+        "|" + "---|".repeat(7 + MA_N.length));
+    for (const code of CODES) {
+        const st = stats[code], nm = state.stocks[code]?.quote?.name || code;
+        if (!st) { L.push(`| ${nm} | 无日线归档 |||||||||||| `); continue; }
+        L.push(`| ${nm} ${code} | ${st.lastDay} | ${st.prevHigh}/${st.prevLow} | ${st.hi5}/${st.lo5} | ${MA_N.map((n) => st.ma[n]).join(" | ")} | ${st.amp50}%/${st.amp75}% | +${st.oh50}%/+${st.oh75}% | ${st.ol50}%/${st.ol25}% |`);
+    }
+    L.push("", "## ① 大盘");
     L.push((m.indexes || []).map((x) => `${x.name} ${x.last}(${x.pct}%, 额${x.amtYi}亿)`).join(" | ") || `指数失败 ${m.indexErr || ""}`);
     L.push("", "## ② 方向");
     L.push(m.scan ? `(paper 线 ${m.scan.slot} 时段 scan.mjs)\n${m.scan.md}` : "(paper 当日 facts 尚无)");
@@ -167,11 +209,24 @@ function render() {
         if (st) L.push(`  股性30日: 振幅中位 ${st.amp50}% P75 ${st.amp75}% | 开→高 中位 +${st.oh50}% P75 +${st.oh75}% | 开→低 中位 ${st.ol50}% P25 ${st.ol25}% | 昨高 ${st.prevHigh} 昨低 ${st.prevLow}`);
         L.push(`  近 12 分钟: ${keys.map((k) => { const x = o.bars[k]; return `${k} ${x.c}(${x.v1 && x.v0 ? x.v1 - x.v0 : "?"}手)`; }).join(" | ")}`);
     }
+    L.push("", "## 今日 UP 视频(转写已出、尚未进 md 的盘中稿; 挂单前要读全文)");
+    L.push(...((state.videos || []).length ? state.videos.map((v) => `- **${v.who}** ${v.path}\n  > ${v.head}…`) : ["(暂无)"]));
     L.push("", "## 信号(最近 10 条)", ...state.alerts.slice(-10).map((a) => `- ${a.t} ${a.msg}`));
     return L.join("\n");
 }
 
 if (process.argv.includes("--once")) { await tick(); console.log(render()); process.exit(0); }
+// 10/14: 自动启动保护——非交易日(当天 md 不存在)退出; 同日已有实例在跑则退出(锁=pid)
+{
+    const [y, mo] = day.split("-"), md = path.join(ROOT, "md", `${y}S${Math.ceil(+mo / 3)}`, `${day}.md`);
+    if (!fs.existsSync(md)) { console.log(`${day} 非交易日(无当天 md), 退出`); process.exit(0); }
+    const lock = path.join(OUT, `${day}.lock`);
+    if (fs.existsSync(lock)) {
+        const pid = +fs.readFileSync(lock, "utf8");
+        try { process.kill(pid, 0); console.log(`今天已有盯盘在跑(pid ${pid}), 退出`); process.exit(0); } catch { /* 旧锁, 进程已死 */ }
+    }
+    fs.writeFileSync(lock, String(process.pid));
+}
 console.log(`live_watch 持仓/关注 ${CODES.join(",")} 每 ${EVERY / 1000}s → ${fMd}`);
 while (hm() < UNTIL) {
     const h = hm();

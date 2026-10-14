@@ -32,3 +32,18 @@ sim:
 test_floor:
   min_total_position: 0.40        # 真人拟人链(taoge/天哥/卢本圆): 参与度线, 保 regime 防守空间
   min_total_position_tzzb: 0.80   # tzzb 系(A-cb/A-tzzb 聚合): 满仓文化线
+
+# ---- 动态仓位(2026-10-13 用户定: 按各导师真实持仓习惯学, 动态上限+动态下限, 替代上面固定的 15% 单票 / 40% 下限) ----
+# 数据: downloads/tzzb/<导师>/day_positions.json 最近 window 个有记录的交易日(收盘口径, 剔逆回购); tzzb 每晚抓取后自动变 = 动态
+# 单票上限 = 每日最大单票仓位的 cap_pct 分位(取整到 5%, 夹在 [cap_min, 1]); 总仓下限 = 每日收盘总仓的 floor_pct 分位(取整到 5%, ≤ floor_max)
+# 下限为 0(导师常空仓收盘)时: 不设最低买入, 但"纯观望=违规"不变——不买也须给进场条件单
+# 无账本的链(B站 UP/对照组)用 default_*; 土豆(转债 T+0, 收盘只剩逆回购, 收盘口径不适用)维持全仓 1.0 + test_floor.min_total_position_tzzb
+dynamic_position:
+  enabled: true
+  window: 120
+  cap_pct: 0.75
+  floor_pct: 0.25
+  cap_min: 0.25
+  floor_max: 0.80
+  default_cap: 0.25          # 用户 10/13: "一般 25% 开一仓"
+  default_floor: 0.40

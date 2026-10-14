@@ -216,6 +216,39 @@ function regimeStats(merged) {
     return { days, groups, cell };
 }
 
+// ---- 10/14: 按步归因的等权基准(baselines.mjs 产物 baselines.json; matcher --eod 尾挂先跑 baselines 再跑本脚本) ----
+function attrSection(esc, sign, cls) {
+    let B;
+    try { B = JSON.parse(fs.readFileSync(path.join(SCRIPT_DIR, "baselines.json"), "utf8")); }
+    catch { return `<div class="card"><h2>按步归因(等权基准)</h2><p class="muted">尚无 baselines.json(node scripts/dfcf/paper/baselines.mjs 生成)</p></div>`; }
+    const v = (x) => (x == null ? `<span class="muted">—</span>` : `<span class="${cls(x)}">${sign(x)}</span>`);
+    const win = (k, n) => (n ? `<span class="muted small"> ${k}/${n}</span>` : "");
+    const row = (name, x, strong) => `<tr><td>${strong ? `<b>${esc(name)}</b>` : esc(name)}</td><td class="num">${x.days}${x.pending ? `<span class="muted small">+${x.pending}待</span>` : ""}</td>`
+        + `<td class="num">${v(x.a06)}</td><td class="num">${v(x.s06)}</td><td class="num">${v(x.b04)}</td><td class="num">${v(x.b02)}</td>`
+        + `<td class="num"><b>${v(x.v0506)}</b>${win(x.win0506, x.n0506)}</td><td class="num">${v(x.vSel)}</td><td class="num">${v(x.vExec)}</td><td class="num"><b>${v(x.v04)}</b>${win(x.win04, x.n04)}</td></tr>`;
+    const head = `<tr><th>账户</th><th class="num">已结算链日</th><th class="num">06 实际</th><th class="num">06 选股·开盘买</th><th class="num">04 全候选等权</th><th class="num">02 方向板块等权</th>`
+        + `<th class="num">05+06 增值<span class="muted small"> 胜天数</span></th><th class="num">其中 选股</th><th class="num">其中 挂价执行</th><th class="num">04 增值<span class="muted small"> 胜天数</span></th></tr>`;
+    const body = B.byChain.map((x) => row(x.name, x)).join("") + row("全部链合计", B.total, true);
+    // 命中率: 02 市况 × 买/卖(全部链合并)
+    const hc = (h) => (h ? `<b>${((h.hit / h.n) * 100).toFixed(0)}%</b><span class="muted small"> ${h.hit}/${h.n}</span>` : `<span class="muted">—</span>`);
+    const hitRows = Object.entries(B.hits.all).map(([g, x]) => `<tr><td>${esc(g)}</td><td class="num">${hc(x["06买"])}</td><td class="num">${hc(x["04候选"])}</td><td class="num">${hc(x["06卖"])}</td></tr>`).join("")
+        || `<tr><td colspan="4" class="muted">尚无已结算样本</td></tr>`;
+    const q = {};
+    for (const d of B.days) if (!d.pending) q[d.quality] = (q[d.quality] || 0) + 1;
+    const nDates = new Set(B.days.filter((d) => !d.pending).map((d) => d.d)).size;
+    const dayRows = [...B.days].reverse().map((d) => `<tr><td>${d.d}</td><td class="muted small">${esc(d.quality)}</td><td>${esc(d.name)}</td><td>${esc(d.regime ?? "无标签")}</td>`
+        + (d.pending ? `<td colspan="4" class="muted">待结算(需 ${d.d1 ?? "下一交易日"} 收盘)</td>` : `<td class="num">${v(d.a06)}</td><td class="num">${v(d.s06)}</td><td class="num">${v(d.b04)}</td><td class="num">${v(d.b02)}</td>`)
+        + `<td class="num muted small">${d.n.buy06filled}/${d.n.buy06}</td><td class="num muted small">${d.n.c04buyable}/${d.n.c04}</td><td class="num muted small">${d.n.dirsMapped}/${d.n.dirs}→${d.n.etfs}只ETF</td></tr>`).join("");
+    return `<div class="card"><h2>按步归因(等权基准) <span class="muted small">(⚠ 样本少: ${B.settled} 个已结算链日 / ${nDates} 个交易日, 其中 ${Object.entries(q).map(([k, n]) => `${k} ${n}`).join(" · ")}; 只看方向不看大小, 每链 ≥10 天再定权重; 更新 ${esc(B.updated)})</span></h2>`
+        + `<p class="legend-note">每格=已结算链日的平均收益(D 日买入→D+1 收盘, 已扣往返 0.1%)。<b>06 实际</b>=0915 盘前终裁买单按下单金额加权, 成交按账本成交价, 没成交=现金 0; `
+        + `<b>06 选股·开盘买</b>=06 买的那些票改成开盘等权买; <b>04 全候选等权</b>=04 提的全部非遗留候选开盘等权买(开盘涨停没开板=买不到); <b>02 方向板块等权</b>=02 的方向按关键词映射到板块 ETF 开盘等权买(映射不到的方向不计)。`
+        + `<b>05+06 增值</b>=06 实际−04 等权, 拆成 选股(06 选股−04 等权)+挂价执行(06 实际−06 选股); <b>04 增值</b>=04 等权−02 方向等权; 胜天数=该链日前者跑赢后者的天数/可比天数。9/28-30=as-of 回放、10/8-9=回放估算(日线撮合), 只有 10/12 起是实盘撮合。</p>`
+        + `<div class="scroll"><table class="t">${head}${body}</table></div>`
+        + `<h3 style="font-size:13px;margin:12px 0 6px">命中率: 按 02 市况(各链自己 0915 判的)× 买/卖 <span class="muted small">(06 买=成交后到 D+1 收盘赚钱; 06 卖=卖出后到 D+1 收盘价格更低=卖对; 04 候选=开盘买同口径, 作对照; 打分公式原料)</span></h3>`
+        + `<div class="scroll"><table class="t"><tr><th>02 市况</th><th class="num">06 买单命中</th><th class="num">04 候选命中(对照)</th><th class="num">06 卖单命中</th></tr>${hitRows}</table></div>`
+        + `<details><summary>逐链日明细(${B.days.length} 行)</summary><div class="scroll"><table class="t"><tr><th>日期</th><th>数据来源</th><th>账户</th><th>02 市况</th><th class="num">06 实际</th><th class="num">06 选股</th><th class="num">04 等权</th><th class="num">02 方向</th><th class="num">06 买 成交/挂</th><th class="num">04 可买/候选</th><th class="num">02 映射/方向</th></tr>${dayRows}</table></div></details></div>`;
+}
+
 async function main() {
     if (ASOF) {  // 10/11 用户令: 不出沙盒独立报告, 回放已并入主报告(matcher --eod 在沙盒尾挂调用时安静退出)
         console.log("as-of 沙盒不出独立报告(已并入主报告 scripts/dfcf/paper/report.html), 跳过");
@@ -288,13 +321,15 @@ async function main() {
         + groupTable("cons", "按 0915 盘前共识市况分组(决策时已知, 将来「什么市况听谁的」权重就看这张)")
         + groupTable("mkt", "按上证当日实际涨跌分组(事后客观口径, 对照看)");
 
+    const ATTR = attrSection(esc, sign, cls);
+
     const trades = [...all.flatMap((a) => a.b.trades.map((t) => ({ ...t, who: a.name }))), ...sbTrades].sort((x, y) => String(y.id).localeCompare(String(x.id)));
     const tradeRows = trades.map((t) => `<tr><td>${String(t.id).slice(0, 10)}</td><td>${esc(t.who)}</td><td class="${t.side === "BUY" ? "up" : "dn"}">${t.side === "BUY" ? "买" : "卖"}</td><td>${esc(nm(t.code))}</td><td class="num">${t.price}</td><td class="num">${t.qty}</td><td class="num">${(+t.price * t.qty).toFixed(0)}</td><td class="muted small">${esc(String(t.why || "").slice(0, 80))}</td></tr>`).join("") || `<tr><td colspan="8" class="muted">无成交</td></tr>`;
 
     const dataJson = JSON.stringify(DATA).replace(/</g, "\\u003c");
     const fill = { TITLE: ASOF ? "paper 模拟盘 · as-of 回放(沙盒)" : "paper 模拟盘 · 收益率走势", GEN: DATA.generated,
         NACC: String(DATA.live.series.length), NDAY: String(DATA.live.dates.length), SUM: sumRows, POS: posRows, OPEN: openRows,
-        TRADES: tradeRows, NTRADE: String(trades.length), DATA: dataJson, SIM: simRows, SIMUPD: simUpd, REGIME };
+        TRADES: tradeRows, NTRADE: String(trades.length), DATA: dataJson, SIM: simRows, SIMUPD: simUpd, REGIME, ATTR };
     const html = TEMPLATE.replace(/%%(\w+)%%/g, (m, k) => (k in fill ? fill[k] : m));  // 函数式替换: 数据里的 $ 不被当替换模式
     fs.writeFileSync(OUT, html);
     console.log(`report.html 已生成: ${merged.series.length} 条收益线, ${merged.dates.length} 个交易日(含回放 ${merged.dates.filter((d) => merged.quality[d] === "as-of回放").length} 日), ${OUT}`);
@@ -357,6 +392,8 @@ details summary{cursor:pointer;color:var(--text-secondary);font-size:13px;margin
 <div class="card"><h2>账户排行(按累计收益)</h2><div class="scroll"><table class="t"><tr><th class="num">#</th><th>账户</th><th>类型</th><th class="num">累计收益</th><th class="num">最新一日</th><th class="num">净值</th><th class="num">最大回撤</th><th class="num">现金占比</th><th class="num">持仓数</th><th class="num">成交笔数</th><th class="num">废单率</th><th>截至</th></tr>%%SUM%%</table></div></div>
 
 <div class="card"><h2>按市况分组的各线收益 <span class="muted small">(格内=该组日的平均日收益 · 天数 · 其中跑赢上证的天数; 样本少时只看方向不看大小, 至少每组 10 天以上才有参考意义)</span></h2>%%REGIME%%</div>
+
+%%ATTR%%
 
 <div class="card"><h2>当前持仓</h2><div class="scroll"><table class="t"><tr><th>账户</th><th>股票</th><th class="num">数量</th><th class="num">成本</th><th class="num">最近收盘</th><th class="num">浮盈亏</th><th class="num">市值</th></tr>%%POS%%</table></div></div>
 

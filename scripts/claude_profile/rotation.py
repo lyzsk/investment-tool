@@ -15,10 +15,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 def _find_cs():
-    """切换工具位置: 环境变量 CLAUDE_SWITCH_DIR > <dev>/switch-claude-settings > <dev>/dev-notes/others/switch-claude-settings(10/12 用户挪入)"""
+    """切换工具位置: 环境变量 CLAUDE_SWITCH_DIR > <dev>/dev-notes/others/mini-cc-switch(10/13 两工具合并) > 旧位置(兼容未 pull 的机器)"""
     dev = HERE.parents[2]
     cands = ([Path(os.environ["CLAUDE_SWITCH_DIR"])] if os.environ.get("CLAUDE_SWITCH_DIR") else []) + \
-        [dev / "switch-claude-settings", dev / "dev-notes" / "others" / "switch-claude-settings"]
+        [dev / "dev-notes" / "others" / "mini-cc-switch", dev / "switch-claude-settings",
+         dev / "dev-notes" / "others" / "switch-claude-settings"]
     for c in cands:
         if (c / "cs.mjs").exists():
             return c / "cs.mjs"

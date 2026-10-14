@@ -19,3 +19,36 @@
 {"ts": "2026-10-13T08:03:24", "skill": "chong5000w", "date": "20261013", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": false}
 {"ts": "2026-10-13T08:04:12", "skill": "xingjianye", "date": "20261013", "slot": "0915", "step": "06", "attempt": 1, "reason": "上工申贝 挂单价 9.03 出当日理论区间 [7.35,9.01](前收8.18, 板限9.7%)=编造嫌疑 C7-①", "asof": false}
 {"ts": "2026-10-13T08:08:30", "skill": "taoge", "date": "20261013", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": false}
+{"ts": "2026-10-13T10:22:41", "skill": "liuyiqing", "date": "20261013", "slot": "1000", "step": "06", "attempt": 1, "reason": "总仓 14700(持仓≈0+未成交买单0+本次买14700−本次卖0) < 测试下限 40% nav=41196, 还差 26496——从 05 批准集加买单凑足(单票≤15449)", "asof": false}
+{"ts": "2026-10-13T20:46:44", "skill": "xingjianye", "date": "20261009", "slot": "0915", "step": "04", "attempt": 1, "reason": "04_plan.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:46:48", "skill": "liuyiqing", "date": "20261012", "slot": "0915", "step": "04", "attempt": 1, "reason": "04_plan.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:46:54", "skill": "xingjianye", "date": "20261013", "slot": "0915", "step": "04", "attempt": 1, "reason": "04_plan.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:46:57", "skill": "taoge", "date": "20261013", "slot": "0915", "step": "04", "attempt": 1, "reason": "04_plan.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:47:04", "skill": "taoge", "date": "20261013", "slot": "0915", "step": "04", "attempt": 1, "reason": "04_plan.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:47:52", "skill": "taoge", "date": "20261012", "slot": "0915", "step": "04", "attempt": 1, "reason": "04_plan.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:47:53", "skill": "liuyiqing", "date": "20261009", "slot": "0915", "step": "04", "attempt": 1, "reason": "04_plan.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:47:59", "skill": "taoge", "date": "20261012", "slot": "0915", "step": "04", "attempt": 1, "reason": "04_plan.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:47:59", "skill": "taoge", "date": "20261009", "slot": "0915", "step": "03j", "attempt": 1, "reason": "03_debate.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:48:21", "skill": "xingjianye", "date": "20261012", "slot": "0915", "step": "04", "attempt": 1, "reason": "04_plan.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:48:24", "skill": "liuyiqing", "date": "20261013", "slot": "0915", "step": "04", "attempt": 1, "reason": "04_plan.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:48:43", "skill": "taoge", "date": "20261009", "slot": "0915", "step": "03j", "attempt": 1, "reason": "03_debate.md 不存在", "asof": true}
+{"ts": "2026-10-13T20:48:59", "skill": "taoge", "date": "20261013", "slot": "0915", "step": "03j", "attempt": 1, "reason": "03_debate.md 不存在", "asof": true}
+{"ts": "2026-10-13T21:08:49", "skill": "taoge", "date": "20261012", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:09:09", "skill": "taoge", "date": "20261009", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:09:25", "skill": "taoge", "date": "20261009", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:09:42", "skill": "xingjianye", "date": "20261012", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:11:13", "skill": "taoge", "date": "20261013", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:12:26", "skill": "taoge", "date": "20261012", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:12:32", "skill": "taoge", "date": "20261013", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:12:41", "skill": "taoge", "date": "20261012", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:15:46", "skill": "taoge", "date": "20261009", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:20:51", "skill": "liuyiqing", "date": "20261009", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:38:50", "skill": "taoge", "date": "20261009", "slot": "0915", "step": "06", "attempt": 1, "reason": "传艺科技 引用高位类规则 A4 未给周期档位(冰点/修复/主升, A23)", "asof": true}
+{"ts": "2026-10-13T21:39:01", "skill": "liuyiqing", "date": "20261009", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:40:06", "skill": "taoge", "date": "20261009", "slot": "0915", "step": "06", "attempt": 2, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:40:47", "skill": "xingjianye", "date": "20261009", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:43:36", "skill": "liuyiqing", "date": "20261012", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:44:25", "skill": "xingjianye", "date": "20261012", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:45:10", "skill": "xingjianye", "date": "20261013", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T21:51:55", "skill": "taoge", "date": "20261013", "slot": "0915", "step": "06", "attempt": 1, "reason": "盘前首裁 supersedes 应含'首裁/首日/回炉'(10/8 修: 模型常用'回炉N版'表述首日, 不再只认'首裁'二字)", "asof": true}
+{"ts": "2026-10-13T23:15:39", "skill": "taoge", "date": "20261013", "slot": "0915", "step": "02", "attempt": 1, "reason": "哨兵缺失/错位(末行非 STEP_OK 02 20261013)", "asof": true}

@@ -4,23 +4,28 @@
 // 用法(同 fetch_wechat.mjs 模式, 发现层=人工贴链接, hermes 语法 "早报+链接"):
 //   node scripts/cls/fetch_cls_zaobao.mjs --url <api3.cls.cn/share/article/...> [--date yyyy-MM-dd] [--write] [--force]
 //   node scripts/cls/fetch_cls_zaobao.mjs --remount --date <d> [--write]   # spec.md 更新后重挂
+//   node scripts/cls/fetch_cls_zaobao.mjs --discover [--date d] [--write]  # 10/14 自动发现: 不用贴链接, 从早报专题页找当日【早报】
+//     发现源= api3.cls.cn/share/subject/1151(财联社 App 分享用的 H5 专题页, 公开无签名无鉴权; 1151=早报专题, 文章页 subjectid=1151 实证)
+//     取页内第一条【早报】→ 抓文章 → 校验文章日期=目标日(默认今天), 不符=当日早报尚未发布(出口 6, 不落产物)
+//     共 2 个请求/天; 失败照旧可人工贴链接(--url 路保留)
 // 产物: downloads/cls_zaobao/<yyyy-MM-dd>/{raw.html,text.md,meta.json,spec.md}
 //   spec.md = hermes 蒸馏要点(五栏: 宏观/行业/公司/环球/机会, 每行一条 【早报要点】<栏>: <内容>)
 // 挂载: md/<y>S<q>/<date>.md 的 ## 盘前 → ### 财联社早报(整小节覆盖幂等, spec 不存在时保旧【早报要点】行)
 //   原文不进 md(同发哥线口径: 原文住证据层, md 只放加工产物)
-// 出口: 0=ok 1=抓取失败 3=解析失败 4=无md 5=反爬
+// 出口: 0=ok 1=抓取失败 3=解析失败 4=无md 5=反爬 6=--discover 未找到目标日早报(未发布/专题页改版)
 // 防封铁律: 伪装桌面 Chrome + 3 次退避重试 + 抖动 ×0.75~1.25; 失败显式非0, 不编数据
 import fs from "node:fs";
 import path from "node:path";
 
 const ARGS = process.argv.slice(2);
 const opt = (k) => { const i = ARGS.indexOf(k); return i === -1 ? null : ARGS[i + 1]; };
-const URL_IN = opt("--url");
+let URL_IN = opt("--url");
+const DISCOVER = process.argv.includes("--discover");
 const DATE_IN = opt("--date");
 const WRITE = ARGS.includes("--write");
 const FORCE = ARGS.includes("--force");
 const REMOUNT = ARGS.includes("--remount");
-if (!URL_IN && !REMOUNT) {
+if (!URL_IN && !REMOUNT && !DISCOVER) {
     console.error("用法: node scripts/cls/fetch_cls_zaobao.mjs --url <url> [--date d] [--write] [--force]\n      node scripts/cls/fetch_cls_zaobao.mjs --remount --date <d> [--write]");
     process.exit(1);
 }
@@ -90,6 +95,23 @@ function mount(date, meta) {
         const dir = path.join("downloads", "cls_zaobao", date);
         meta = JSON.parse(fs.readFileSync(path.join(dir, "meta.json"), "utf8"));
     } else {
+        const today = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Shanghai" }).slice(0, 10);
+        if (DISCOVER) {   // 10/14: 早报专题页找最新一条【早报】(页面按时间倒序)
+            let sub = null, e1 = "";
+            for (let i = 1; i <= 3 && !sub; i++) {
+                try {
+                    const r = await fetch("https://api3.cls.cn/share/subject/1151?os=android&sv=884", { headers: UA });
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    sub = await r.text();
+                } catch (e) { e1 = e.message; if (i < 3) await sleep(jitter(1000 * i)); }
+            }
+            if (!sub) { console.error(`专题页抓取失败: ${e1}`); process.exit(1); }
+            const m = sub.match(/share\/article\/(\d+)[^"]*">\s*<span[^>]*>\s*(【早报】[^<]*)</);
+            if (!m) { console.error("专题页未找到【早报】条目(改版?), 请人工贴链接走 --url"); process.exitCode = 6; return; }  // exitCode+return: Windows 下有未关连接时 process.exit 会触发 libuv 断言(10/11 collect_daily 同坑)
+            URL_IN = `https://api3.cls.cn/share/article/${m[1]}?os=android&sv=884&app=cailianpress`;
+            console.log(`发现: ${m[2].slice(0, 40)} → ${URL_IN}`);
+            await sleep(jitter(1200));
+        }
         let html = null, lastErr = "";
         for (let i = 1; i <= 3; i++) {
             try {
@@ -117,6 +139,10 @@ function mount(date, meta) {
                 console.error(`❌ 无法确定早报日期: ctime 空 + 正文日期线索${m ? `"${m[0]}"离今天超过 3 天(疑为新闻内容日期)` : "缺失"}; 请用 --date yyyy-MM-dd 指定`);
                 process.exit(4);
             }
+        }
+        if (DISCOVER && date !== (DATE_IN || today)) {   // 专题页最新一条不是目标日=当日早报还没发(07:00 发)
+            console.error(`最新早报日期 ${date} ≠ 目标日 ${DATE_IN || today}: 当日早报尚未发布(或 --date 指定的不是最新一期), 不落产物`);
+            process.exitCode = 6; return;
         }
         meta = { title: p.title, ctime: p.ctime, url: URL_IN, fetchedAt: new Date().toISOString(), chars: p.text.length };
         const dir = path.join("downloads", "cls_zaobao", date);

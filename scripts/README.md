@@ -77,6 +77,16 @@ scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_cases.py --all    # 六人
 
 ---
 
+## lhb/ — 每日龙虎榜(2026-10-14 建, 东财 datacenter-web 公开接口, 零 token)
+
+| 脚本 | 用法 | 说明 |
+|---|---|---|
+| `fetch_lhb.mjs` | `node scripts/lhb/fetch_lhb.mjs --date <d> [--write] [--force]` | 一天 3 次请求(总表+买五整批+卖五整批; 某记录两边全缺才按个股补); 产物 downloads/lhb/yyyy.MM.dd/{list.json,detail_<code>.json}(18:00 后抓且齐=完整, 再跑走缓存零请求); --write 整节覆盖 md `## 复盘`→`### 龙虎榜`(总表表头从 stock-template.md 现读; 缺骨架先调 migrate_md_template 补; 无 `## 复盘` 的早期 md 只存 json); 出口 0/1 抓取失败/3 当日未出/4 无md/5 反爬 |
+| `backfill_lhb.mjs` | `node scripts/lhb/backfill_lhb.mjs --from 2025-01-07 --to <d> [--max-days N] [--write] [--until HH:MM] [--gap 秒]`<br>`--remount`(零请求按当前格式重写已有 json 的天) | 倒序回填; 反爬即停/连续 2 天失败即停; 开始结束各探一次东财 push2 金丝雀; 日志 scripts/lhb/logs/; check md 00:00 轮末尾自动调(--max-days 150 --until 06:40) |
+| `youzi.json` | 手工维护 | 席位简称→游资名(只收确定的), 命中在 md 席位后标"(游资名)" |
+
+---
+
 ## market/ — 行情库 investment_market 采集域(2026-10-11 建, 10/12 凌晨补齐 2b/4/5/6 段)
 
 **链路**: Quartz `marketDailyHandler`(15:35) → Java `MarketPipelineService`: `collect_daily.mjs` → `refresh_factors.py` → `collect_minute.py` → `downloads/market/<交易日>/*.jsonl`+`manifest.json`+`DONE_<stage>` → Java `MarketImportService` 入库(表结构 `sql/investment_market/`); 对账 `marketReconcileHandler`(16:40 + 应用启动 3 分钟后)缺哪天补哪天, 共用同一流水线和锁。脚本都不直接写库。

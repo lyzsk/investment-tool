@@ -78,29 +78,37 @@ function migrate(file, skel) {
         }
     }
 
-    // ③ 缺节补骨架: 按模板顺序, 缺的挂到复盘末尾(保持模板相对顺序)
+    // ③ 缺节补骨架: 10/14 修——按模板顺序插到"模板里排在它后面、且本文件已有的第一个骨架节"之前
+    //   (原=一律挂复盘末尾, 新增 ### 龙虎榜 会被挂到 ### 同花顺投资账本 之后, 顺序错); 后面都没有才挂复盘末尾
     const present = new Set();
     for (let i = fv + 1; i < fvEnd; i++) {
         if (/^#{3,4} /.test(work[i])) present.add(canon(work[i]));
     }
     const missing = skel.filter((h) => !present.has(canon(h)));
     if (missing.length) {
-        // 重定位复盘尾(归一不改行数, fvEnd 仍有效)
-        let ins = fvEnd;
-        while (ins > fv + 1 && work[ins - 1].trim() === "") ins--;
-        const block = [""];
+        const levelOf = (h) => h.match(/^#+/)[0].length;
         for (const h of missing) {
-            block.push(h, "");
-            // 桃哥节补骨架时, 遗产内容一并挂进去
+            // 复盘区当前范围(每次插入后重算)
+            let end = work.length;
+            for (let i = fv + 1; i < work.length; i++) if (/^## /.test(work[i])) { end = i; break; }
+            const after = skel.slice(skel.indexOf(h) + 1).filter((x) => present.has(canon(x)) && levelOf(x) <= levelOf(h));
+            let ins = -1;
+            for (const nx of after) {
+                ins = work.findIndex((l, i) => i > fv && i < end && canon(l) === canon(nx) && /^#{3,4} /.test(l));
+                if (ins !== -1) break;
+            }
+            if (ins === -1) { ins = end; while (ins > fv + 1 && work[ins - 1].trim() === "") ins--; }
+            const block = [h, ""];
             if (legacy.length && canon(h).includes("桃哥复盘")) {
                 block.push(...legacy, "");
                 acts.push(`遗产内容挂入${h}`);
                 legacy = [];
             }
+            if (ins === end || (ins > 0 && work[ins - 1].trim() !== "")) block.unshift("");
+            work.splice(ins, 0, ...block);
+            present.add(canon(h));
         }
-        work.splice(ins, 0, ...block);
         acts.push(`补骨架:${missing.map((h) => canon(h)).join("/")}`);
-        // fvEnd 之后可能还有内容, 插空行已在 block 里
     }
     if (legacy.length) return "异常:遗产桃哥无处挂(模板缺桃哥节)";
 

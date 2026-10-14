@@ -1,0 +1,11 @@
+# 决策链开关(10/13 建; 改完下次跑链生效, 不用重启应用; 环境变量 =0/=1 优先)
+# G: 04/05/06 去冗余(10/13 晚用户拍板上线)
+CHAIN_COMPACT=1
+# F: 导师画像按目录+按步骤注入(10/13 晚用户拍板上线)
+CHAIN_PROFILE_INDEX=1
+# 工具调用留痕(攒样本用; 实盘暂不开)
+CHAIN_TRACE_TOOLS=0
+# 反思回注(10/14 §3-A 第 6 条): 06 出单记决策日志 + 04/06 注入本链已结算反思; 只对白名单 skill 生效(逗号分隔, *=全部, 空=无)
+# 结算/反思= scripts/dfcf/paper/settle_decisions.py(收盘后跑); 先只在对照组试
+CHAIN_REFLECTION=1
+CHAIN_REFLECTION_SKILLS=control

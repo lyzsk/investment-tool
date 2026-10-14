@@ -1,0 +1,18 @@
+{
+  "_说明": "cli_relay.py 用的三台机器清单(10/13 建)。ssh=user@Tailscale 地址(免密已配); repo=该机 investment-tool 目录; python=该机跑 cli_inject.py 的 python(只用标准库): PC1/PC2=Anaconda, PC3=用户目录下的 Python 3.14(10/13 经 ssh 核实, 非应用商店假壳)",
+  "pc1": {
+    "ssh": "admin@100.126.73.77",
+    "repo": "C:\\Users\\admin\\dev\\investment-tool",
+    "python": "C:\\Users\\admin\\anaconda3\\python.exe"
+  },
+  "pc2": {
+    "ssh": "Administrator@100.111.59.0",
+    "repo": "C:\\Users\\Administrator\\dev\\investment-tool",
+    "python": "C:\\ProgramData\\Anaconda3\\python.exe"
+  },
+  "pc3": {
+    "ssh": "Sichu Huang@100.79.46.1",
+    "repo": "D:\\dev\\investment-tool",
+    "python": "C:\\Users\\Sichu Huang\\AppData\\Local\\Programs\\Python\\Python314\\python.exe"
+  }
+}
