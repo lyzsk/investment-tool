@@ -113,7 +113,7 @@ function limits(node, r, boardType) {
 // ---- 交易日: 上证指数最后一根日线(kline.mjs 多源: 东财 push2his → 腾讯 → 新浪) ----
 async function latestTradeDate() {
     const begin = new Date(Date.now() - 20 * 864e5).toISOString().slice(0, 10).replaceAll("-", "");
-    const { bars, src } = await fetchDaily("1.000001", { beg: begin });
+    const { bars, src } = await fetchDaily("1.000001", { beg: begin, noDb: true });   // 10/15: 定交易日必须看网络(库里是昨天的), 跳过行情库源
     const d = bars.at(-1)?.d;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d || "")) throw new Error("取交易日失败: " + JSON.stringify(bars.at(-1)));
     return { date: d, src };

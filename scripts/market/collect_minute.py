@@ -231,6 +231,19 @@ def price_scale(ticks, day_close):
     return 0.1 if 8 < r < 12 else 0.01 if 80 < r < 120 else 1.0
 
 
+def ticks_ok(ticks, k, scale):
+    """逐笔与当日日线对得上才算本票的数据: 末笔(缩放后)≈收盘 ±1%, 全部价格在 [最低, 最高] ±1% 内"""
+    ps = [x["price"] * scale for x in ticks if x["vol"] > 0]
+    if not ps:
+        return True
+    c, h, l = k.get("close"), k.get("high"), k.get("low")
+    if c and abs(ps[-1] / c - 1) > 0.01:
+        return False
+    if h and l and (max(ps) > h * 1.01 or min(ps) < l * 0.99):
+        return False
+    return True
+
+
 def bars_from_ticks(sym, day, ticks, unit, pre_close, scale=1.0):
     if scale != 1.0:
         ticks = [{**x, "price": round(x["price"] * scale, 4)} for x in ticks]
@@ -305,6 +318,7 @@ def main():
     kl = {k["symbol"]: k for k in read_jsonl(out / "kline_day.jsonl")}
     ymd = int(day.replace("-", ""))
     api, bars, miss, t0 = connect(ymd), [], [], dt.datetime.now()
+    bad = []
     try:
         for i, r in enumerate(recs, 1):
             sym = r["symbol"]
@@ -314,9 +328,25 @@ def main():
                     b = bars_from_minute_time(api, sym, day, ymd)
                 else:
                     unit = 10 if s.get("secType") == "CB" else 100
-                    ticks = all_ticks(api, sym, ymd)
                     k = kl.get(sym) or {}
-                    b = bars_from_ticks(sym, day, ticks, unit, k.get("preClose"), price_scale(ticks, k.get("close"))) if ticks else []
+                    # 10/14 修: 通达信 TCP 流在超时/重连后会错位, 读到的是上一只票的回包(10/14 184 只里 107 只价格串票, 如 002172
+                    #   收 5.65 被写成 13.07)。校验: 缩放后末笔≈日线收盘(±1%)且全部成交价落在日线[最低, 最高]±1% 内;
+                    #   不过=断开重连重取一次, 仍不过=记缺失不写(宁缺毋错)
+                    for _try in range(2):
+                        ticks = all_ticks(api, sym, ymd)
+                        sc = price_scale(ticks, k.get("close")) if ticks else 1.0
+                        if not ticks or not k.get("close") or ticks_ok(ticks, k, sc):
+                            break
+                        log(f"校验不过 {sym}(疑通达信流错位), 重连重取")
+                        try:
+                            api.disconnect()
+                        except Exception:   # noqa: BLE001
+                            pass
+                        api = connect(ymd)
+                    else:
+                        ticks = []
+                        bad.append(sym)
+                    b = bars_from_ticks(sym, day, ticks, unit, k.get("preClose"), sc) if ticks else []
                 if b:
                     bars.extend(b)
                 else:
@@ -338,10 +368,11 @@ def main():
     mf = out / "manifest.json"
     m = json.loads(mf.read_text("utf-8")) if mf.exists() else {}
     m.setdefault("stages", {})["kline_minute"] = {"symbols": len(recs), "bars": len(bars), "missing": miss[:50],
-                                                  "missingCount": len(miss), "finishedAt": dt.datetime.now().isoformat()}
+                                                  "missingCount": len(miss), "badRejected": bad[:50], "badCount": len(bad),
+                                                  "finishedAt": dt.datetime.now().isoformat()}
     m["stages"]["watchlist"] = {"count": len(recs), "byReason": cnt}
     mf.write_text(json.dumps(m, ensure_ascii=False, indent=1), "utf-8")
-    log(f"完成 {day}: 关注集 {len(recs)} 只, 分钟线 {len(bars)} 根, 无数据 {len(miss)} 只, 用时 {(dt.datetime.now() - t0).seconds}s")
+    log(f"完成 {day}: 关注集 {len(recs)} 只, 分钟线 {len(bars)} 根, 无数据 {len(miss)} 只(其中校验不过丢弃 {len(bad)} 只), 用时 {(dt.datetime.now() - t0).seconds}s")
     return 0
 
 

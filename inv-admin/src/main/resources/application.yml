@@ -72,5 +72,5 @@ mybatis-plus:
       strict: true # 如果实体字段在 DB 中不存在, 启动时报错
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 开启 SQL 日志
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl  # 10/14: SQL 改走日志框架(原 StdOutImpl 直打控制台, 淹没报错); 要看 SQL 把 logback-spring.xml 里 cn.sichu 的 mapper 包调 DEBUG
     auto-mapping-behavior: FULL # 显式启用自动映射带 typeHandler 的字段

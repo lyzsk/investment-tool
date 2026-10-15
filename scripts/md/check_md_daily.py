@@ -237,6 +237,29 @@ def step_lhb(c, state):
     return f"失败(exit {rc}{', 反爬' if rc == 5 else ''}: {str(j.get('msg', ''))[:120]})"
 
 
+def step_ztpool(c, state):
+    """10/14 用户定: 财联社涨停池 → md ## 涨停梯队(fetch_cls_pool.mjs --write; 只覆盖空小节或本脚本写过的, 人工内容不动)。
+    注意: 财联社池子只给"最近一个交易日", 只能当天(或次日开盘前)抓, 补不了历史"""
+    sec = section(c.md_text(), "## 涨停梯队") or ""
+    if f"> 财联社涨停池 {c.d.isoformat()}" in sec:
+        return "已完成"
+    if sec.strip():
+        return "跳过(小节已有人工内容)"
+    import datetime as _dt
+    if c.d != _dt.date.today() and not (c.d == _dt.date.today() - _dt.timedelta(days=1) and _dt.datetime.now().hour < 9):
+        return "跳过(财联社池只给最近一个交易日, 补不了历史)"
+    if c.dry:
+        return "dry: 将跑 fetch_cls_pool --write"
+    rc, out = run(["node", "scripts/cls/fetch_cls_pool.mjs", "--write"], "涨停梯队 fetch_cls_pool --write", 300)
+    j = _json_tail(out)
+    if rc == 0 and j.get("tradeDate") != c.d.isoformat():
+        return f"未就绪(池子交易日={j.get('tradeDate')}, 不是 {c.d})"
+    if rc == 0 and j.get("md") == "已写":
+        mark_done(state, c.d, "ztpool", f"涨停 {j.get('zt')} / 炸板 {j.get('zb')} / 跌停 {j.get('dt')}")
+        return f"完成(涨停 {j.get('zt')} 只)"
+    return f"失败(exit {rc}: {j.get('md') or str(out[-1:])[:120]})"
+
+
 # ---------- ②③ 三 UP sum + distill(复用 backfill_bilibili --llm-batch, 自带幂等与 distill 锁) ----------
 def step_up(c, b):
     lo = (c.d - dt.timedelta(days=UP_WINDOW_DAYS)).isoformat()
@@ -463,7 +486,8 @@ def main():
                 log(f"md 不存在: {c.md}(Java 交易日 md 生成任务没跑?), 跳过这一天")
                 summary[day.isoformat()] = {"skip": "md 不存在"}
                 continue
-            steps = [("cls", lambda: step_cls(c, state)), ("lhb", lambda: step_lhb(c, state)), ("up", lambda: step_up(c, b)),
+            steps = [("cls", lambda: step_cls(c, state)), ("lhb", lambda: step_lhb(c, state)),
+                     ("ztpool", lambda: step_ztpool(c, state)), ("up", lambda: step_up(c, b)),
                      ("tzzb_sum", lambda: step_tzzb_sum(c)),
                      ("tzzb_distill", lambda: step_tzzb_distill(c, state, morning)), ("fage", lambda: step_fage(c))]
             if day != d:   # 遗留日: UP 步由今天那天的 3 天窗口一并覆盖, 不重复扫
@@ -492,6 +516,12 @@ def main():
             log("[lhb_backfill]")
             summary["lhb_backfill"] = step_lhb_backfill(d, a.dry)
             log(f"[lhb_backfill] → {summary['lhb_backfill']}")
+        # 10/14 用户令(爬虫要主动报问题, 不能等用户发现): 每轮末尾零 token 采集健康巡检, 红/黄写进本轮摘要, 报告 scripts/health/reports/<日>.md
+        if not a.dry:
+            rc_h, out_h = run([PY, "-X", "utf8", "scripts/health/daily_health.py"], "采集健康巡检", 300)
+            hj = _json_tail(out_h)
+            summary["health"] = f"红 {hj.get('red', '?')} / 黄 {hj.get('yellow', '?')}(详见 {hj.get('report', 'scripts/health/reports/')})"
+            log(f"[health] → {summary['health']}")
         log(f"===== 本轮结束: {json.dumps(summary, ensure_ascii=False)} =====")
         print("JSON:" + json.dumps(summary, ensure_ascii=False))
         return 1 if failed else 0

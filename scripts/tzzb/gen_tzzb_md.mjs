@@ -49,14 +49,24 @@ function sectionHeading() {
 const HEADING = sectionHeading();
 
 const legsByDate = {};          // day -> [腿](去重, 时序)
+// 10/15 两处修(antoo 两融账户暴露, chong5000w"W1 腿方向疑失真"/宣秋同根):
+//   ①方向: op 只认 "1"=买, 其余全当卖 → 融资买入(op 252)/担保品买入(235)被当成卖; 改按 buy_sell(1/3/7=买类, 2/4/8=卖类)归一 op, 原值留 op_raw
+//   ②去重键: trans_date|op|code 会把同一秒(或手录 00:00:00)不同量价的腿吞掉(宣秋 6 腿/antoo 387 腿) → 加 trans_count|trans_price
+const normOp = (t) => {
+    if (t.op === "1" || t.op === "2") return t.op;
+    if (["1", "3", "7"].includes(String(t.buy_sell))) return "1";
+    if (["2", "4", "8"].includes(String(t.buy_sell))) return "2";
+    return ["252", "235"].includes(t.op) ? "1" : t.op === "256" ? "2" : t.op;
+};
 {
     const seen = new Set();
     for (const f of fs.readdirSync(DIR).filter((f) => f.startsWith("change_bs_"))) {
         const list = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8"))?.ex_data?.change_list || [];
-        for (const t of list) {
+        for (const t0 of list) {
+            const t = t0.op === "1" || t0.op === "2" ? t0 : { ...t0, op: normOp(t0), op_raw: t0.op };
             const day = (t.trans_date || "").slice(0, 10);
             if (!day) continue;
-            const k = `${t.trans_date}|${t.op}|${t.stock_code}`;
+            const k = `${t.trans_date}|${t.op}|${t.stock_code}|${t.trans_count}|${t.trans_price}`;
             if (seen.has(k)) continue;
             seen.add(k);
             (legsByDate[day] ||= []).push(t);
@@ -71,6 +81,25 @@ const navByDay = {};            // day -> {cur, prev}
         const d = x.date;
         navByDay[`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`] = { cur: +x.index, prev: i > 0 ? +nl[i - 1].index : null };
     });
+}
+// 10/15 TODO A11②: A/B 层都挂时 C 层(渲染后页面文字, fetch_tzzb 落 layerC_*.json)兜底——只补 nav_daily 没有的日子:
+//   净值=前一日净值×(1+页面当日收益率)(推算, 行内标注); 持仓=layerC_day_position(只补 day_positions 缺的那天); 交易=layerC 交易记录(无时刻/数量)
+const layerC = { days: new Set(), trades: {} };
+{
+    const rd = (f) => { try { return JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8")); } catch { return null; } };
+    const cd = rd("layerC_daily.json");
+    for (const x of (cd?.ex_data?.index_list || []).slice().sort((a, b) => (a.date < b.date ? -1 : 1))) {
+        const d = `${x.date.slice(0, 4)}-${x.date.slice(4, 6)}-${x.date.slice(6, 8)}`;
+        if (navByDay[d] || x.daily_rate == null) continue;
+        const prevDay = Object.keys(navByDay).filter((k) => k < d).sort().pop();
+        if (!prevDay) continue;
+        const p = navByDay[prevDay].cur;
+        navByDay[d] = { cur: p * (1 + +x.daily_rate), prev: p, layerC: cd.fetched_at || true };
+        layerC.days.add(d);
+    }
+    for (const t of rd("layerC_position_change.json")?.ex_data?.change_list || [])
+        if (t.trans_date && layerC.days.has(t.trans_date)) (layerC.trades[t.trans_date] ||= []).push(t);
+    layerC.pos = rd("layerC_day_position.json");
 }
 const summDates = {};           // 分页截断哨兵原料(10/2 立法: 脚本数数, LLM 不许算)
 for (const f of fs.readdirSync(DIR).filter((f) => f.startsWith("position_change_p"))) {
@@ -118,6 +147,10 @@ for (const d of Object.keys(legsByDate)) for (const lg of legsByDate[d]) codeNam
 // 真实历史持仓(day_position_by_share, 10/6 破译): {date8: {list:[{code,name,position_percent,rate}]}}——百分比取代推算股数(1074股类残差禁现)
 let dayPos = null;
 { const f = path.join(DIR, "day_positions.json"); if (fs.existsSync(f)) { try { dayPos = JSON.parse(fs.readFileSync(f, "utf8")); } catch {} } }
+if (layerC.pos?.date && layerC.days.has(`${layerC.pos.date.slice(0, 4)}-${layerC.pos.date.slice(4, 6)}-${layerC.pos.date.slice(6, 8)}`)
+    && !(dayPos || {})[layerC.pos.date]?.list?.length) {   // C 层持仓只补 A 层缺的那天(字段 code/name/position_percent 与 day_position 同名)
+    (dayPos ||= {})[layerC.pos.date] = { list: (layerC.pos.ex_data?.list || []).filter((x) => x.position_percent != null), layerC: true };
+}
 function realPos(day) {
     if (!dayPos) return null;
     const rec = dayPos[day.replaceAll("-", "")];
@@ -160,7 +193,12 @@ function renderDay(day) {
     const legs = legsByDate[day] || [];
     const nav = navByDay[day];
     if (legs.length === 0 && !nav) return null;
-    const navLine = nav ? `净值 ${nav.cur.toFixed(4)}` + (nav.prev ? ` · 日收益 ${fmtPct(nav.cur / nav.prev - 1)}` : "") : "";
+    const navLine = nav ? `净值 ${nav.cur.toFixed(4)}` + (nav.prev ? ` · 日收益 ${fmtPct(nav.cur / nav.prev - 1)}` : "")
+        + (nav.layerC ? "(⚠️C层兜底: A/B 层没抓到, 净值按页面当日收益率推算)" : "") : "";
+    if (legs.length === 0 && nav?.layerC && layerC.trades[day]?.length) {   // C 层交易记录: 只有名称/操作/成交价, 无时刻/数量, 不配对
+        const tr = layerC.trades[day].map((t) => `- ${t.stock_name}(${t.stock_code}): ${t.op_text} @${t.trans_price ?? "?"}(C层交易记录, 无时刻/数量)`);
+        return [`${navLine} · ${positionTag(day, true)}`, "", ...tr.slice(0, 10), ...(tr.length > 10 ? [`- …另有 ${tr.length - 10} 笔`] : []), "", `汇总: C层交易记录 ${tr.length} 笔(逐笔腿待 A 层恢复后重跑本脚本覆盖)`].join("\n");
+    }
     if (legs.length === 0) return navLine ? `${navLine} · ${positionTag(day, false)}` : null;
 
     const cls = dayClass[day];

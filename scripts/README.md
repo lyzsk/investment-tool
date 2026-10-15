@@ -105,6 +105,7 @@ scripts/venv/Scripts/python.exe scripts/tzzb/gen_tzzb_cases.py --all    # 六人
 | 模块 | 用法 | 说明 |
 |---|---|---|
 | `claude_call.py` | `sys.path.insert(0, "scripts/lib"); from claude_call import call` → `call(prompt, tag=..., permission="skip", sentinels=[...], json_schema=..., expect_files=[...])`<br>自测: `python -X utf8 scripts/lib/claude_call.py --selftest` | 无头 `claude -p` 统一调用(10/12): prompt 按字节走 stdin / json 信封判 is_error+subtype / 限流只在错误文本匹配+rotation 切 key / 哨兵整行匹配 / ```json 块+迷你 schema 校验 / 应写文件 mtime 核验 / 成本账本 `scripts/lib/claude_cost.csv`(gitignore) |
+| `req_guard.mjs` / `req_guard.py` + `req_guard_sources.json` | `import { gfetch, gcall, guard } from "../lib/req_guard.mjs"` / `from req_guard import gfetch, gcall, guard`; 状态: `node scripts/lib/req_guard.mjs --status`, 人工解熔断 `--clear <源id>`, 冷却中探测 `REQ_GUARD_PROBE=<源id>` | 统一请求层(10/15): 按域名路由到源, 跨进程限速+抖动/滑动窗口/熔断(连败 N 或封禁特征→`downloads/_guard/<id>.ban.json` 冷却内不发请求)/日预算/失败分类 BLOCKED·AUTH·RATE_LIMIT·NO_DATA·UNAVAILABLE·PARSE/每日计数 `<id>_requests_<日>.json`; daily_health 巡检红黄。已接: bilibili/lhb/cls 早报+涨停池/kline/snapshot/scan(tzzb 用自带 `downloads/tzzb/_guard`) |
 
 ## quotes/ — 行情获取域(转债+个股)
 

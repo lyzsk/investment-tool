@@ -23,7 +23,7 @@ CHUNK = 6000          # 无子标题的超长节切片上限(字节)
 SMALL = 8000          # 画像总大小 ≤ 此值 = 不调模型, 全注入
 STEPS = ("02", "03", "04", "05", "06")
 STOCK_SKILLS = ["taoge", "qushitiange", "lubenyuan", "liuyiqing", "lianghuaxiaohao", "a658", "bianbenling", "xingjianye",
-                "daxingdaxingdadangxing", "gaogailvfuli", "xuanqiucaijing", "stzhilang", "chong5000w", "control"]
+                "daxingdaxingdadangxing", "gaogailvfuli", "xuanqiucaijing", "stzhilang", "chong5000w", "antoo", "zhiyingjuexin", "control"]
 HEAD_RE = re.compile(r"^(#{1,4})\s+(.+?)\s*$")
 
 

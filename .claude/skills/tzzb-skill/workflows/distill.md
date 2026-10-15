@@ -2,7 +2,7 @@
 
 > 路由来源: SKILL.md。
 > **路由表**: `--ledger buchitudou0`(默认) = 土豆纯转债, 走下方机械统计+五闸门流程, 沉淀 → buchitudou0-skill/persona/；
-> `--ledger liuyiqing|lianghuaxiaohao|a658|bianbenling|xingjianye` = 五位混合高手, 走**LLM 提取流程**,
+> `--ledger liuyiqing|lianghuaxiaohao|a658|bianbenling|xingjianye` = 五位混合高手(10/7 起陆续扩到 tzzb_ledgers.json 全部 kind=pos 非土豆账本, 10/15 新增 antoo/zhiyingjuexin), 走**LLM 提取流程**,
 > 沉淀 → `skills/<ledger>-skill/persona/`（**skill 名==ledger id**, 10/7 命名立法, 无映射表）;
 > lianghuaxiaohao 产出标"(程序化嫌疑)"。本文件是唯一 tzzb 蒸馏入口。
 

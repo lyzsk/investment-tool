@@ -139,3 +139,14 @@
 ```
 末行只写：STEP_OK 07 {date}
 ````
+
+## 盘中子链修复字段（10/14 晚新增；只新增可选字段，驱动器开关见 scripts/claude_profile/chain_flags.txt，开关关=旧行为）
+
+- 本段不是 prompt 模板（无 step 标记），只登记契约新增字段；模型看到的说明由驱动器在开关打开时机械追加到 prompt 末尾「驱动器补充约束」块。
+- **06 actions[].exit_kind**（可选，`CHAIN_FIX_FLOOR_EXIT`）：`stop`=止损 / `protect`=保护线·移动止盈 / `invalid`=买入逻辑失效 / `discretionary`=主动调仓（缺省）。前三种只许用于**现有持仓的卖单**：不计入总仓下限口径、不受 05 批准集约束（离场纪律优先于下限）；主动减仓照旧受下限约束。
+- **不许交用户**（`CHAIN_FIX_NO_DEFER`）：paper 链没有用户，02/04/06 contract 出现"交用户/待用户/用户裁"类字样=回炉，规则内自己裁决（拿不准取保守一侧）。
+- **06 escalate**（可选布尔，`CHAIN_FIX_ESC_RERUN`）：子链 06 判市况变到盘前框架失效时写 `"escalate":true`；驱动器在本 slot 带"市况已重判"提示重跑 02→04→06 一次（02 市况三态变同样触发）；重跑后仍升级=单照发 + exit 3。时间预算见 params.yaml `subchain_gate.esc_rerun_max_elapsed_s`。
+- **子链名单**（`CHAIN_FIX_SUB_APPROVED`）：子链没有 05，04/06 标的只能 ⊆ 0915-05 批准∪条件批准 ∪ 持仓 ∪ 未成交挂单（驱动器把名单注入 prompt，v04 校验，名单外=回炉，末次机械剔除）。
+- **06 holds / no_trade_reason**（可选，`CHAIN_FIX_HOLDS`）：actions 为空时二选一必填——`"holds":[{"order_id":"挂单号" 或 "code":"6位代码","why":"为何维持"}]` 或 `"no_trade_reason":"一句话"`。报表/入库不依赖它。
+- **零 token 触发闸**（`CHAIN_SUBCHAIN_GATE`）：自上一已跑 slot 以来无账本事件/价格指数异动/命中电报且非 1000/1455 → 驱动器不调模型，机械写 06 维持产物（contract 含 `"gate_skipped":true` + holds + no_trade_reason）。
+- **子链合并**（`CHAIN_SUBCHAIN_MERGE`）：02/04/06 三段模板拼成一次调用（同会话依次写三个文件），驱动器分块校验，坏块用 `--resume` 同会话只重写那块；产物文件名/契约不变。

@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-09T14:04:09.057Z",
+ "generated_at": "2026-10-14T19:22:12.207Z",
  "rules": "现役=三闸严出(总榜前20+出手≥30日/腿≥100+持续≥0.15%/日); 观察池=每场榜前20宽进+同人跨场去重留最早窗口; 周期榜面复查=重跑本脚本 diff",
  "active": [
   {
@@ -39,8 +39,8 @@
    "ledger": "a658",
    "name": "A658 正好蓝天",
    "kind": "pos",
-   "match_key": "joonDP3",
-   "user_key": "168384",
+   "match_key": "CM3ntt2",
+   "user_key": "187735",
    "entered": "2025-12-22",
    "rank_at_pick": 2,
    "rate_pct_at_pick": 3.1505,
@@ -124,6 +124,28 @@
    "note": "待补"
   },
   {
+   "ledger": "antoo",
+   "name": "antoo",
+   "kind": "pos",
+   "match_key": "Kp6wnjo",
+   "user_key": "173113",
+   "entered": "2025-12-31",
+   "rank_at_pick": 2,
+   "rate_pct_at_pick": 3.4704,
+   "note": "待补"
+  },
+  {
+   "ledger": "zhiyingjuexin",
+   "name": "芷影攫心",
+   "kind": "pos",
+   "match_key": "yNkQm2X",
+   "user_key": "137148",
+   "entered": "2025-09-24",
+   "rank_at_pick": null,
+   "rate_pct_at_pick": 3.0813,
+   "note": "待补"
+  },
+  {
    "ledger": "yangdaren",
    "name": "洋大人",
    "kind": "neg",
@@ -189,7 +211,7 @@
    "position_rate": 0.9924,
    "enter_date": "2025-12-17",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -200,7 +222,7 @@
    "position_rate": null,
    "enter_date": "2026-01-08",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "yNkQm2X",
@@ -211,7 +233,7 @@
    "position_rate": 0.7075,
    "enter_date": "2025-10-21",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -222,7 +244,7 @@
    "position_rate": 1,
    "enter_date": "2026-01-05",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -233,7 +255,7 @@
    "position_rate": 1,
    "enter_date": "2025-12-22",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -244,7 +266,7 @@
    "position_rate": 1.2312,
    "enter_date": "2026-01-16",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -255,7 +277,7 @@
    "position_rate": 0.8461,
    "enter_date": "2026-04-10",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -266,7 +288,7 @@
    "position_rate": 0.5906,
    "enter_date": "2026-04-02",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -277,7 +299,7 @@
    "position_rate": 0.9987,
    "enter_date": "2026-09-18",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -288,7 +310,7 @@
    "position_rate": 0.9688,
    "enter_date": "2026-01-05",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -299,7 +321,7 @@
    "position_rate": 0.3979,
    "enter_date": "2026-04-21",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "yNkQm2X",
@@ -310,7 +332,7 @@
    "position_rate": null,
    "enter_date": "2025-11-26",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "yNkQm2X",
@@ -321,7 +343,7 @@
    "position_rate": null,
    "enter_date": "2025-11-14",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -332,7 +354,7 @@
    "position_rate": 0.9853,
    "enter_date": "2026-01-06",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -343,7 +365,7 @@
    "position_rate": 0.9972,
    "enter_date": "2026-01-05",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -354,7 +376,7 @@
    "position_rate": null,
    "enter_date": "2026-05-12",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -365,7 +387,7 @@
    "position_rate": 0.999,
    "enter_date": "2026-08-07",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "yNkQm2X",
@@ -376,7 +398,7 @@
    "position_rate": 1.8372,
    "enter_date": "2025-09-27",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -387,7 +409,7 @@
    "position_rate": null,
    "enter_date": "2026-05-31",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -398,7 +420,7 @@
    "position_rate": 0.8387,
    "enter_date": "2026-04-12",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -409,7 +431,7 @@
    "position_rate": null,
    "enter_date": "2025-12-22",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "yNkQm2X",
@@ -420,7 +442,7 @@
    "position_rate": 0.9959,
    "enter_date": "2025-11-06",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -431,7 +453,7 @@
    "position_rate": 0.9756,
    "enter_date": "2026-04-04",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -442,7 +464,7 @@
    "position_rate": null,
    "enter_date": "2026-06-01",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -453,7 +475,7 @@
    "position_rate": 0.8412,
    "enter_date": "2026-04-15",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -464,7 +486,7 @@
    "position_rate": 1,
    "enter_date": "2026-04-02",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "yNkQm2X",
@@ -475,7 +497,7 @@
    "position_rate": 0.9989,
    "enter_date": "2026-01-08",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -486,7 +508,7 @@
    "position_rate": null,
    "enter_date": "2026-02-27",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -497,7 +519,7 @@
    "position_rate": null,
    "enter_date": "2026-06-24",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -508,7 +530,7 @@
    "position_rate": 0.9974,
    "enter_date": "2026-01-05",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -519,7 +541,7 @@
    "position_rate": 0.9963,
    "enter_date": "2026-01-03",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -530,7 +552,7 @@
    "position_rate": 0.7075,
    "enter_date": "2026-01-01",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -541,7 +563,7 @@
    "position_rate": 0.6282,
    "enter_date": "2026-06-26",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -552,7 +574,7 @@
    "position_rate": null,
    "enter_date": "2026-06-11",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -563,7 +585,7 @@
    "position_rate": 0.9974,
    "enter_date": "2026-01-08",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "joonDP3",
@@ -574,7 +596,7 @@
    "position_rate": 0.9996,
    "enter_date": "2026-08-13",
    "snapshot_at": "2026-10-06T21:36:51.705Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -585,7 +607,7 @@
    "position_rate": 0.9994,
    "enter_date": "2026-02-24",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -596,7 +618,7 @@
    "position_rate": null,
    "enter_date": "2026-05-23",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -607,7 +629,7 @@
    "position_rate": 1.2312,
    "enter_date": "2026-03-10",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "yNkQm2X",
@@ -618,7 +640,7 @@
    "position_rate": null,
    "enter_date": "2026-01-23",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -629,7 +651,7 @@
    "position_rate": 1,
    "enter_date": "2025-12-31",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -640,7 +662,7 @@
    "position_rate": 0.4471,
    "enter_date": "2026-04-02",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "yNkQm2X",
@@ -651,7 +673,7 @@
    "position_rate": 0.9978,
    "enter_date": "2025-11-28",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -662,7 +684,7 @@
    "position_rate": 0.9606,
    "enter_date": "2026-07-15",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -673,7 +695,7 @@
    "position_rate": null,
    "enter_date": "2026-03-26",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "yNkQm2X",
@@ -684,7 +706,7 @@
    "position_rate": 0.9956,
    "enter_date": "2026-01-04",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -695,7 +717,7 @@
    "position_rate": null,
    "enter_date": "2026-01-12",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "yNkQm2X",
@@ -706,7 +728,7 @@
    "position_rate": 0.1621,
    "enter_date": "2025-10-12",
    "snapshot_at": "2026-10-06T21:37:51.308Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -717,7 +739,7 @@
    "position_rate": 0.1422,
    "enter_date": "2026-04-13",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -728,7 +750,7 @@
    "position_rate": 0.9959,
    "enter_date": "2026-01-07",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -739,7 +761,7 @@
    "position_rate": null,
    "enter_date": "2026-01-14",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -750,7 +772,7 @@
    "position_rate": 0.7075,
    "enter_date": "2026-03-22",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -761,7 +783,7 @@
    "position_rate": 0.9989,
    "enter_date": "2026-01-01",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -772,7 +794,7 @@
    "position_rate": null,
    "enter_date": "2026-05-31",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -783,7 +805,7 @@
    "position_rate": 1,
    "enter_date": "2026-09-10",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -794,7 +816,7 @@
    "position_rate": 0.8824,
    "enter_date": "2026-01-21",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -805,7 +827,7 @@
    "position_rate": 0.9998,
    "enter_date": "2026-03-31",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -816,7 +838,7 @@
    "position_rate": 0.9959,
    "enter_date": "2026-02-25",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "7CK72My",
@@ -827,7 +849,7 @@
    "position_rate": 0.5249,
    "enter_date": "2026-09-15",
    "snapshot_at": "2026-10-06T21:36:30.211Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -838,7 +860,7 @@
    "position_rate": 0.9871,
    "enter_date": "2026-08-07",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -849,7 +871,7 @@
    "position_rate": 1.1082,
    "enter_date": "2026-09-07",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -860,7 +882,7 @@
    "position_rate": 0.607,
    "enter_date": "2026-07-16",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -871,7 +893,7 @@
    "position_rate": 0.9968,
    "enter_date": "2026-01-08",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -882,7 +904,7 @@
    "position_rate": 0.9993,
    "enter_date": "2026-01-05",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -893,7 +915,7 @@
    "position_rate": 0.9668,
    "enter_date": "2026-09-17",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -904,7 +926,7 @@
    "position_rate": 1,
    "enter_date": "2026-06-29",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -915,7 +937,7 @@
    "position_rate": 1.4648,
    "enter_date": "2026-09-21",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -926,7 +948,7 @@
    "position_rate": 0.999,
    "enter_date": "2026-05-31",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -937,7 +959,7 @@
    "position_rate": null,
    "enter_date": "2026-01-07",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -948,7 +970,7 @@
    "position_rate": null,
    "enter_date": "2026-05-31",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -959,7 +981,7 @@
    "position_rate": null,
    "enter_date": "2026-02-25",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "Yp6WWwx",
@@ -970,7 +992,7 @@
    "position_rate": null,
    "enter_date": "2026-04-27",
    "snapshot_at": "2026-10-06T21:37:11.139Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -981,7 +1003,7 @@
    "position_rate": 0.942,
    "enter_date": "2026-08-21",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "CM3ntt2",
@@ -992,7 +1014,7 @@
    "position_rate": 0.3298,
    "enter_date": "2026-01-27",
    "snapshot_at": "2026-10-06T21:36:08.031Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -1003,7 +1025,7 @@
    "position_rate": 2.4641,
    "enter_date": "2026-08-04",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -1014,7 +1036,7 @@
    "position_rate": 0.9909,
    "enter_date": "2026-09-14",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -1025,7 +1047,7 @@
    "position_rate": null,
    "enter_date": "2026-06-29",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -1036,7 +1058,7 @@
    "position_rate": 0.9996,
    "enter_date": "2026-07-01",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -1047,7 +1069,7 @@
    "position_rate": 0.9932,
    "enter_date": "2026-08-13",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -1058,7 +1080,7 @@
    "position_rate": null,
    "enter_date": "2026-08-14",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -1069,7 +1091,7 @@
    "position_rate": 0.999,
    "enter_date": "2026-06-02",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -1080,7 +1102,7 @@
    "position_rate": 0.9207,
    "enter_date": "2026-07-16",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -1091,7 +1113,7 @@
    "position_rate": 0.9982,
    "enter_date": "2026-06-17",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   },
   {
    "match_key": "73xX2pt",
@@ -1102,7 +1124,7 @@
    "position_rate": 0.9416,
    "enter_date": "2026-06-18",
    "snapshot_at": "2026-10-06T21:37:30.895Z",
-   "stale_days": 2
+   "stale_days": 7
   }
  ]
 }

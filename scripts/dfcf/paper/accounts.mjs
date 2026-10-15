@@ -6,6 +6,7 @@ export const ACCOUNTS = [
     ["A-a658", "A658", "导师"], ["A-bianbenling", "边学本领", "导师"], ["A-xingjianye", "星见野", "导师"],
     ["A-daxingdaxingdadangxing", "大兴大A", "导师"], ["A-gaogailvfuli", "高概率复利", "导师"], ["A-xuanqiucaijing", "宣秋财经", "导师"],
     ["A-stzhilang", "ST之狼", "导师"], ["A-chong5000w", "冲5000w", "导师"],
+    ["A-antoo", "antoo", "导师"], ["A-zhiyingjuexin", "芷影攫心", "导师"],   // 10/15 新增(槽 15/16)
     ["A-control", "对照组", "对照"],
 ];
 export const TABLE_ONLY = [["B-taoge", "桃哥·人工", "B线"], ["B-cb", "土豆·人工", "B线"]];

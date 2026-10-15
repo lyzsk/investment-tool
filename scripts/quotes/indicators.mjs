@@ -1,6 +1,6 @@
 // indicators.mjs — 技术指标机械层(2026-10-07 建, 回应"LLM 看K线能力弱": 不让 LLM 看图, 算好喂结论)
 // 输入: downloads/quotes/daily/<code>.json (kline.mjs 日线档) + 可选 klt60/30/15 分K档
-// 计算: MA5/10/20/60 · MACD(12,26,9) · RSI14 · 量能(5日量比+20日分位) · 信号:
+// 计算: MA5/10/20/60 · MACD(12,26,9) · RSI6/12/24(Wilder) · 量能(5日量比+20日分位) · 信号:
 //   均线多排/空排 · MA5×MA10 金叉死叉(近3根) · MACD 金叉死叉+顶/底背离(价创20日极值而柱不创=背离)
 //   收盘 vs MA20(破位/收复) · 20日箱体突破 · 60分K EMA20 方向(日内趋势)
 // 用法: node scripts/quotes/indicators.mjs --codes 002714,600519 [--json]
@@ -27,18 +27,19 @@ function macd(cs) {
     const hist = dif.map((x, i) => (x - dea[i]) * 2);
     return { dif, dea, hist };
 }
+// 10/14 改 Wilder 平滑(=东财/同花顺 SMA(x,N,1)), 参数 6/12/24(国内软件默认, 导师屏幕上看到的就是这三条); 原=RSI14 简单均值(Cutler), 噪声大且与软件差 2~9 点
 function rsi(cs, n = 14) {
-    if (cs.length < n + 1) return null;
+    if (cs.length < n * 4) return null;   // Wilder 递推需要预热, 至少 4n 根
     let up = 0, dn = 0;
-    for (let i = cs.length - n; i < cs.length; i++) { const ch = cs[i] - cs[i - 1]; ch >= 0 ? up += ch : dn -= ch; }
-    return dn === 0 ? 100 : 100 - 100 / (1 + (up / n) / (dn / n));
+    for (let i = 1; i < cs.length; i++) { const ch = cs[i] - cs[i - 1]; up = (Math.max(ch, 0) + (n - 1) * up) / n; dn = (Math.max(-ch, 0) + (n - 1) * dn) / n; }
+    return dn === 0 ? 100 : 100 * up / (up + dn);
 }
 function analyze(code) {
     const d = load('downloads/quotes/daily', code);
     if (!d || d.length < 60) return { code, err: '日线档不足60根(先 kline.mjs --codes)' };
     const cs = d.map(x => x.c), vs = d.map(x => x.v), last = d.at(-1);
     const m5 = ma(cs, 5), m10 = ma(cs, 10), m20 = ma(cs, 20), m60 = ma(cs, 60);
-    const M = macd(cs), r = rsi(cs);
+    const M = macd(cs), r6 = rsi(cs, 6), r12 = rsi(cs, 12), r24 = rsi(cs, 24);
     const v5 = ma(vs, 5), vAvg20 = vs.slice(-20);
     const vPct = vAvg20.filter(v => v <= vs.at(-1)).length / 20;  // 当日量在20日里的分位
     const sig = [];
@@ -71,7 +72,7 @@ function analyze(code) {
     }
     return { code, close: last.c, date: last.d,
         line: `${code} 收${last.c}(${last.d}) MA5=${m5?.toFixed(2)} MA10=${m10?.toFixed(2)} MA20=${m20?.toFixed(2)} MA60=${m60?.toFixed(2)}; `
-            + `MACD柱=${M ? M.hist.at(-1).toFixed(3) : '?'} RSI14=${r ? r.toFixed(0) : '?'}; `
+            + `MACD柱=${M ? M.hist.at(-1).toFixed(3) : '?'} RSI6/12/24=${[r6, r12, r24].map((x) => (x == null ? '?' : x.toFixed(0))).join('/')}; `
             + `量比5/20=${v5 && vAvg20 ? (v5 / (vAvg20.reduce((a, b) => a + b, 0) / 20)).toFixed(2) : '?'} 量分位=${(vPct * 100).toFixed(0)}%; `
             + (sig.length ? '信号: ' + sig.join('; ') : '信号: 无') + (intraday ? '; ' + intraday : '') };
 }

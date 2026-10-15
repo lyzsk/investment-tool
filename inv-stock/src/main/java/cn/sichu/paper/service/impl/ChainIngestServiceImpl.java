@@ -28,15 +28,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HexFormat;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -80,22 +75,28 @@ public class ChainIngestServiceImpl implements IChainIngestService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String ingest(String skill, String mode, LocalDate runDate, String slot, Integer exitCode,
-        LocalDateTime startedAt, LocalDateTime finishedAt) throws Exception {
+    public String ingest(String skill, String mode, LocalDate runDate, String slot,
+        Integer exitCode, LocalDateTime startedAt, LocalDateTime finishedAt) throws Exception {
         String dirName = mode.toLowerCase() + "-" + runDate.format(DateTimeUtils.YYYYMMDD);
-        Path dir = Paths.get(projectConfig.getFile().getResult().getRootDir(), skill + "_chain", dirName);
+        Path dir =
+            Paths.get(projectConfig.getFile().getResult().getRootDir(), skill + "_chain", dirName);
         if (!Files.isDirectory(dir)) {
             throw new BusinessException("链运行目录不存在: " + dir);
         }
-        deleteRuns(new LambdaQueryWrapper<ChainRun>().eq(ChainRun::getSkill, skill).eq(ChainRun::getMode, mode)
-            .eq(ChainRun::getRunDate, runDate).eq(ChainRun::getSlot, slot));
+        /* 盘中子链会覆盖同目录步骤文件, 驱动器每个时段另存 slots/<slot>/; 有存档优先读存档, 防入库读到后面时段的产物 */
+        Path slotDir = dir.resolve("slots").resolve(slot);
+        Path stepDir = !FINAL.equals(slot) && Files.isDirectory(slotDir) ? slotDir : dir;
+        deleteRuns(new LambdaQueryWrapper<ChainRun>().eq(ChainRun::getSkill, skill)
+            .eq(ChainRun::getMode, mode).eq(ChainRun::getRunDate, runDate)
+            .eq(ChainRun::getSlot, slot));
         String yyyymmdd = runDate.format(DateTimeUtils.YYYYMMDD);
         ChainRun run = new ChainRun();
         run.setSkill(skill);
         run.setMode(mode);
         run.setRunDate(runDate);
         run.setSlot(slot);
-        run.setRunDir(Paths.get(projectConfig.getRootDir()).relativize(dir).toString().replace('\\', '/'));
+        run.setRunDir(
+            Paths.get(projectConfig.getRootDir()).relativize(dir).toString().replace('\\', '/'));
         run.setExitCode(exitCode);
         run.setStartedAt(startedAt);
         run.setBlindFailed(Files.exists(dir.resolve("BLIND_FAILED.txt")) ? 1 : 0);
@@ -106,13 +107,13 @@ public class ChainIngestServiceImpl implements IChainIngestService {
         List<String> touched = new ArrayList<>();
         LocalDateTime latest = null;
         for (Map.Entry<String, String> e : STEP_FILES.entrySet()) {
-            Path f = dir.resolve(e.getValue());
+            Path f = stepDir.resolve(e.getValue());
             if (!Files.isRegularFile(f)) {
                 continue;
             }
             String text = Files.readString(f, StandardCharsets.UTF_8);
-            LocalDateTime mtime =
-                LocalDateTime.ofInstant(Files.getLastModifiedTime(f).toInstant(), ZoneId.systemDefault());
+            LocalDateTime mtime = LocalDateTime.ofInstant(Files.getLastModifiedTime(f).toInstant(),
+                ZoneId.systemDefault());
             latest = latest == null || mtime.isAfter(latest) ? mtime : latest;
             /* 盘中子链只重跑 02/04/06, 其余是盘前留下的旧文件: steps 只记本次进程期间改过的 */
             if (startedAt == null || !mtime.isBefore(startedAt)) {
@@ -122,7 +123,7 @@ public class ChainIngestServiceImpl implements IChainIngestService {
             s.setStep(e.getKey());
             s.setFileName(e.getValue());
             s.setFileMtime(mtime);
-            s.setBytes((int) Files.size(f));
+            s.setBytes((int)Files.size(f));
             s.setSha12(sha12(text));
             s.setSentinelOk(sentinelOk(text, e.getKey(), yyyymmdd) ? 1 : 0);
             Matcher m = CONTRACT.matcher(text);
@@ -145,7 +146,7 @@ public class ChainIngestServiceImpl implements IChainIngestService {
         }
         run.setFinishedAt(finishedAt != null ? finishedAt : latest);
         if (startedAt != null && run.getFinishedAt() != null) {
-            run.setDurationS((int) Duration.between(startedAt, run.getFinishedAt()).getSeconds());
+            run.setDurationS((int)Duration.between(startedAt, run.getFinishedAt()).getSeconds());
         }
         run.setSteps(String.join(",", touched));
         JsonNode c02 = contracts.get("02");
@@ -185,7 +186,8 @@ public class ChainIngestServiceImpl implements IChainIngestService {
                 d.setCode(text(a, "code", 16));
                 d.setOp(text(a, "op", 8));
                 d.setTriggerPrice(text(a, "trigger_price", 64));
-                d.setQty(a.path("qty").canConvertToInt() || a.path("qty").isTextual() ? toInt(a.path("qty")) : null);
+                d.setQty(a.path("qty").canConvertToInt() || a.path("qty").isTextual() ?
+                    toInt(a.path("qty")) : null);
                 d.setAnchor(text(a, "anchor", 64));
                 d.setCancelBelow(decimal(a.path("cancel_below")));
                 d.setStopBelow(decimal(a.path("stop_below")));
@@ -209,8 +211,8 @@ public class ChainIngestServiceImpl implements IChainIngestService {
                 }
             }
         }
-        return "链入库 " + skill + " " + dirName + " slot=" + slot + ": 步骤 " + steps.size() + " / 终裁单 " + decisions
-            + " / 规则引用 " + rules;
+        return "链入库 " + skill + " " + dirName + " slot=" + slot + ": 步骤 " + steps.size()
+            + " / 终裁单 " + decisions + " / 规则引用 " + rules;
     }
 
     @Override
@@ -218,11 +220,13 @@ public class ChainIngestServiceImpl implements IChainIngestService {
         Path root = Paths.get(projectConfig.getFile().getResult().getRootDir());
         List<Path> dirs = new ArrayList<>();
         try (Stream<Path> chains = Files.list(root)) {
-            for (Path chain : chains.filter(p -> Files.isDirectory(p) && p.getFileName().toString().endsWith("_chain"))
-                .sorted().toList()) {
+            for (Path chain : chains.filter(
+                    p -> Files.isDirectory(p) && p.getFileName().toString().endsWith("_chain")).sorted()
+                .toList()) {
                 try (Stream<Path> runs = Files.list(chain)) {
-                    runs.filter(p -> Files.isDirectory(p) && RUN_DIR.matcher(p.getFileName().toString()).matches())
-                        .sorted().forEach(dirs::add);
+                    runs.filter(
+                        p -> Files.isDirectory(p) && RUN_DIR.matcher(p.getFileName().toString())
+                            .matches()).sorted().forEach(dirs::add);
                 }
             }
         }
@@ -239,8 +243,9 @@ public class ChainIngestServiceImpl implements IChainIngestService {
             String mode = m.group(1).toUpperCase();
             LocalDate day = LocalDate.parse(m.group(2), DateTimeUtils.YYYYMMDD);
             long live = chainRunMapper.selectCount(
-                new LambdaQueryWrapper<ChainRun>().eq(ChainRun::getSkill, skill).eq(ChainRun::getMode, mode)
-                    .eq(ChainRun::getRunDate, day).ne(ChainRun::getSlot, FINAL));
+                new LambdaQueryWrapper<ChainRun>().eq(ChainRun::getSkill, skill)
+                    .eq(ChainRun::getMode, mode).eq(ChainRun::getRunDate, day)
+                    .ne(ChainRun::getSlot, FINAL));
             if (live > 0) {
                 skipped++;
                 continue;
@@ -259,8 +264,10 @@ public class ChainIngestServiceImpl implements IChainIngestService {
                 failed.add(skill + "/" + dir.getFileName());
             }
         }
-        String summary = "链历史补导: 目录 " + dirs.size() + " / 入库 " + done + " / 已有实盘时段跳过 " + skipped + (failed.isEmpty() ?
-            "" : " / 失败 " + failed.size() + " " + failed.stream().limit(20).toList());
+        String summary =
+            "链历史补导: 目录 " + dirs.size() + " / 入库 " + done + " / 已有实盘时段跳过 " + skipped
+                + (failed.isEmpty() ? "" :
+                " / 失败 " + failed.size() + " " + failed.stream().limit(20).toList());
         log.info(summary);
         return summary;
     }
@@ -268,8 +275,8 @@ public class ChainIngestServiceImpl implements IChainIngestService {
     /**
      * 删运行及其下属行(物理删除)
      *
-     * @author sichu huang
      * @param q q
+     * @author sichu huang
      * @since 2026/10/12
      **/
     private void deleteRuns(LambdaQueryWrapper<ChainRun> q) {
@@ -286,9 +293,9 @@ public class ChainIngestServiceImpl implements IChainIngestService {
     /**
      * run_meta.jsonl 末行(10/11 起 driver 每次运行追加: persona 版本/规则条数/chain.md 版本), 没有就跳过
      *
-     * @author sichu huang
      * @param dir dir
      * @param run run
+     * @author sichu huang
      * @since 2026/10/12
      **/
     private void readRunMeta(Path dir, ChainRun run) {
@@ -297,12 +304,15 @@ public class ChainIngestServiceImpl implements IChainIngestService {
             return;
         }
         try {
-            List<String> lines = Files.readAllLines(f, StandardCharsets.UTF_8).stream().filter(l -> !l.isBlank()).toList();
+            List<String> lines =
+                Files.readAllLines(f, StandardCharsets.UTF_8).stream().filter(l -> !l.isBlank())
+                    .toList();
             if (lines.isEmpty()) {
                 return;
             }
             JsonNode meta = JsonUtils.objectMapper.readTree(lines.get(lines.size() - 1));
-            run.setRulesCount(meta.path("rules_count").isNumber() ? meta.path("rules_count").asInt() : null);
+            run.setRulesCount(
+                meta.path("rules_count").isNumber() ? meta.path("rules_count").asInt() : null);
             run.setChainMdSha12(text(meta, "chain_md_sha12", 12));
             run.setPersonaJson(meta.has("persona") ? meta.path("persona").toString() : null);
         } catch (Exception e) {
@@ -313,11 +323,13 @@ public class ChainIngestServiceImpl implements IChainIngestService {
     private boolean sentinelOk(String text, String step, String yyyymmdd) {
         String[] lines = text.strip().split("\\R");
         String last = lines.length == 0 ? "" : lines[lines.length - 1].strip();
-        return "blind".equals(step) ? last.equals("REVIEW_OK " + yyyymmdd) : last.equals("STEP_OK " + step + " " + yyyymmdd);
+        return "blind".equals(step) ? last.equals("REVIEW_OK " + yyyymmdd) :
+            last.equals("STEP_OK " + step + " " + yyyymmdd);
     }
 
     private String sha12(String text) throws Exception {
-        byte[] d = MessageDigest.getInstance("SHA-256").digest(text.getBytes(StandardCharsets.UTF_8));
+        byte[] d =
+            MessageDigest.getInstance("SHA-256").digest(text.getBytes(StandardCharsets.UTF_8));
         return HexFormat.of().formatHex(d).substring(0, 12);
     }
 

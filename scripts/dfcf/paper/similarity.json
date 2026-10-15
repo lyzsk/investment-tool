@@ -1,27 +1,27 @@
 {
- "updated": "20261012",
+ "updated": "20261013",
  "window": 20,
  "summary": [
   {
    "book": "A-cb",
    "name": "不吃土豆0",
-   "days": 3,
-   "comp": 0.3333333333333333,
-   "ctrl": 0.6,
-   "delta": -0.3
+   "days": 4,
+   "comp": 0.4,
+   "ctrl": 0.39999999999999997,
+   "delta": 0
   },
   {
    "book": "A-liuyiqing",
    "name": "刘忆青",
-   "days": 4,
-   "comp": 0.13542500000000002,
+   "days": 5,
+   "comp": 0.10834000000000002,
    "ctrl": 0,
-   "delta": 0.13542500000000002
+   "delta": 0.10834000000000002
   },
   {
    "book": "A-lianghuaxiaohao",
    "name": "量化短线小号实验",
-   "days": 4,
+   "days": 5,
    "comp": 0,
    "ctrl": 0,
    "delta": 0
@@ -37,49 +37,49 @@
   {
    "book": "A-bianbenling",
    "name": "边学本领边实践",
-   "days": 2,
-   "comp": 0.30000000000000004,
-   "ctrl": 0.4,
-   "delta": -0.1
+   "days": 3,
+   "comp": 0.26666666666666666,
+   "ctrl": 0.3333333333333333,
+   "delta": -0.06666666666666667
   },
   {
    "book": "A-xingjianye",
    "name": "星见野",
-   "days": 3,
-   "comp": 0.06666666666666667,
-   "ctrl": 0.13333333333333333,
-   "delta": -0.06666666666666667
+   "days": 4,
+   "comp": 0.05,
+   "ctrl": 0.1,
+   "delta": -0.05
   },
   {
    "book": "A-daxingdaxingdadangxing",
    "name": "大兴大兴大A当兴",
+   "days": 5,
+   "comp": 0.08,
+   "ctrl": 0.08,
+   "delta": 0
+  },
+  {
+   "book": "A-gaogailvfuli",
+   "name": "高概率复利",
    "days": 4,
    "comp": 0.1,
    "ctrl": 0.1,
    "delta": 0
   },
   {
-   "book": "A-gaogailvfuli",
-   "name": "高概率复利",
-   "days": 3,
-   "comp": 0.13333333333333333,
-   "ctrl": 0.13333333333333333,
-   "delta": 0
-  },
-  {
    "book": "A-xuanqiucaijing",
    "name": "宣秋财经",
-   "days": 3,
-   "comp": 0,
-   "ctrl": 0,
+   "days": 4,
+   "comp": 0.05,
+   "ctrl": 0.05,
    "delta": 0
   },
   {
    "book": "A-stzhilang",
    "name": "ST之狼",
-   "days": 1,
-   "comp": 0.2,
-   "ctrl": 0.2,
+   "days": 2,
+   "comp": 0.1,
+   "ctrl": 0.1,
    "delta": 0
   },
   {

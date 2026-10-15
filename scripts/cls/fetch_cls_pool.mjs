@@ -13,6 +13,7 @@
 // 出口: 0=ok 1=涨停池抓取失败(炸板/跌停池失败只降级不阻断) 3=返回结构异常
 import fs from "node:fs";
 import path from "node:path";
+import { gfetch } from "../lib/req_guard.mjs";   // 10/15 统一请求层: 按域名记账/熔断/日预算(scripts/lib/req_guard_sources.json)
 
 const ARGS = process.argv.slice(2);
 const opt = (k, d) => { const i = ARGS.indexOf(k); return i === -1 ? d : ARGS[i + 1]; };
@@ -28,7 +29,7 @@ async function getText(url, headers = UA) {
         try {
             const ctl = new AbortController();
             const t = setTimeout(() => ctl.abort(), 10000);
-            const r = await fetch(url, { headers, signal: ctl.signal }).finally(() => clearTimeout(t));
+            const r = await gfetch(url, { headers, signal: ctl.signal }).finally(() => clearTimeout(t));
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             return r;
         } catch (e) { last = e.message; if (i < 3) await sleep(1000 * i * (0.75 + Math.random() * 0.5)); }
@@ -64,6 +65,23 @@ async function mcapOf(items) {   // 腾讯 qt 批量: 字段 44=流通市值(亿
     }
     const items = zt.data.map((x) => ({ ...x, secu_name: x.secu_name.trim() }));
     const tradeDate = (items.map((x) => x.time).sort().pop() || "").slice(0, 10) || "unknown";
+    // 10/14 用户定连板口径=窗口内涨停次数("N天M板", 3天2板也可能): 财联社 limit_up_days 只是连续天数, 用东财涨停池 zttj{days,ct} 覆盖(1 个请求);
+    //   东财失败=降级为连续口径 N天N板, 并在梯队头注明
+    let emTj = null;
+    try {
+        await sleep(1000 + Math.random() * 1000);
+        const r = await getText(`https://push2ex.eastmoney.com/getTopicZTPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=300&sort=fbt:asc&date=${tradeDate.replace(/-/g, "")}`,
+            { Referer: "https://quote.eastmoney.com/" });
+        const ej = JSON.parse(await r.text());
+        emTj = Object.fromEntries((ej.data?.pool || []).filter((x) => x.zttj).map((x) => [x.c, { days: x.zttj.days, ct: x.zttj.ct }]));
+        if (!Object.keys(emTj).length) emTj = null;
+    } catch (e) { console.error(`东财涨停统计失败(降级连续口径): ${e.message}`); }
+    for (const x of items) {
+        const t = emTj?.[code6(x.secu_code)];
+        x.days = t ? t.days : x.limit_up_days || 1;
+        x.ct = t ? t.ct : x.limit_up_days || 1;
+    }
+    const boardLab = (x) => (x.days <= 1 && x.ct <= 1 ? "首板" : `${x.days} 天 ${x.ct} 板`);
 
     // ── ### ST 股: 照用户手抄格式 "序. 名 | 价 | 幅 | 涨停时刻 | 流通市值 | 代码 | 归因", 连板数降序→首次涨停时刻(10/13 手抄顺序同此) ──
     const st = items.filter((x) => x.is_st === 1).sort((a, b) => (b.limit_up_days || 1) - (a.limit_up_days || 1) || a.time.localeCompare(b.time));
@@ -76,18 +94,19 @@ async function mcapOf(items) {   // 腾讯 qt 批量: 字段 44=流通市值(亿
         ? st.map((x, i) => `${i + 1}. ${x.secu_name} | ${x.last_px} | ${pct(x.change)} | ${x.time.slice(11)} | ${mcap[x.secu_code] || "?"} | ${code6(x.secu_code)} | ${(x.up_reason || "").replace(/\s+/g, " ").trim()}`)
         : ["(当日无 ST 涨停)"]);
 
-    // ── ## 涨停梯队: 按连板数(limit_up_days)降序分档, 档内按首次涨停时刻; 题材=up_reason 竖线前的标签 ──
+    // ── ## 涨停梯队: 按"N天M板"分档(M 降序, 同 M 天数少的在前), 档内按首次涨停时刻; 题材=up_reason 竖线前的标签 ──
     const tiers = {};
-    for (const x of items) (tiers[x.limit_up_days || 1] ||= []).push(x);
+    for (const x of items) (tiers[boardLab(x)] ||= []).push(x);
     const theme = (x) => { const r = (x.up_reason || "").trim(); return r.includes("|") ? r.split("|")[0].trim().slice(0, 12) : x.is_st ? "ST" : (r.slice(0, 8) || "?"); };
     const zb = res.up_open_pool?.data?.length, dt = res.down_pool?.data?.length;
+    const top = items.reduce((a, x) => (x.ct > a.ct || (x.ct === a.ct && x.days < a.days) ? x : a), items[0]);
     const lad = ["## 涨停梯队", "",
         `> 财联社涨停池 ${tradeDate}: 涨停 ${items.length} 只(含 ST ${st.length}) / 炸板 ${zb ?? "?"} / 跌停 ${dt ?? "?"}` +
         (zb != null ? ` / 封板率 ${(items.length / (items.length + zb) * 100).toFixed(0)}%` : "") +
-        ` · 最高 ${Math.max(...Object.keys(tiers).map(Number))} 连板 · 源 x-quote.cls.cn`, ""];
-    for (const k of Object.keys(tiers).map(Number).sort((a, b) => b - a)) {
-        const arr = tiers[k].sort((a, b) => a.time.localeCompare(b.time));
-        lad.push(`- **${k === 1 ? "首板" : k + " 连板"}(${arr.length})**: ` + arr.map((x) => `${x.secu_name}(${code6(x.secu_code)} ${theme(x)})`).join("、"));
+        ` · 最高 ${boardLab(top)}(${top.secu_name}) · 板数口径=${emTj ? "窗口内涨停次数(东财涨停统计)" : "连续涨停天数(东财统计失败降级)"} · 源 x-quote.cls.cn`, ""];
+    for (const [k, arr] of Object.entries(tiers).sort((a, b) => b[1][0].ct - a[1][0].ct || a[1][0].days - b[1][0].days)) {
+        arr.sort((a, b) => a.time.localeCompare(b.time));
+        lad.push(`- **${k}(${arr.length})**: ` + arr.map((x) => `${x.secu_name}(${code6(x.secu_code)} ${theme(x)})`).join("、"));
     }
     const md = [...stMd, "", ...lad, ""].join("\n");
 
@@ -96,5 +115,52 @@ async function mcapOf(items) {   // 腾讯 qt 批量: 字段 44=流通市值(亿
     for (const [k, v] of Object.entries(res)) fs.writeFileSync(path.join(dir, `${k}.json`), JSON.stringify({ fetchedAt: new Date().toISOString(), ...v }));
     fs.writeFileSync(path.join(dir, "pool.md"), md);
     console.log(md);
-    console.log(`JSON:${JSON.stringify({ tradeDate, zt: items.length, zb: zb ?? null, dt: dt ?? null, st: st.length, dir })}`);
+    // 10/14 用户定: --write 把「## 涨停梯队」挂进该交易日 md 的 ## 涨停梯队 小节(### ST 股 暂不挂, 待用户核对一周再定)
+    //   只覆盖 空小节 或 本脚本写过的(首行带 "> 财联社涨停池"); 有人工内容 → 不动, 报"保留人工内容"
+    let mounted = null;
+    if (process.argv.includes("--write")) {
+        const [y, mo] = tradeDate.split("-"), f = path.join("md", `${y}S${Math.ceil(+mo / 3)}`, `${tradeDate}.md`);
+        if (!fs.existsSync(f)) mounted = "无md";
+        else {
+            const raw = fs.readFileSync(f, "utf8"), eol = raw.includes("\r\n") ? "\r\n" : "\n", L = raw.split(/\r?\n/);
+            const s = L.findIndex((l) => /^## 涨停梯队\s*$/.test(l));
+            if (s === -1) mounted = "md无##涨停梯队小节";
+            else {
+                let e = L.length;
+                for (let i = s + 1; i < L.length; i++) if (/^## /.test(L[i])) { e = i; break; }
+                const body = L.slice(s + 1, e).filter((l) => l.trim());
+                if (body.length && !body[0].startsWith("> 财联社涨停池")) mounted = "保留人工内容(小节非空且非本脚本所写)";
+                else {
+                    L.splice(s, e - s, ...lad, "");
+                    mounted = "已写";
+                }
+                // 10/14 用户定: ### ST 股 挂在 ## 涨停分析 末尾, 表格同涨停分析(一行一票); 只覆盖 空/本脚本写的(首行=表头 "| 股票名称"), 人工内容不动
+                const a = L.findIndex((l) => /^## 涨停分析\s*$/.test(l));
+                if (a !== -1) {
+                    let b = L.length;
+                    for (let i = a + 1; i < L.length; i++) if (/^## /.test(L[i])) { b = i; break; }
+                    const sti = L.findIndex((l, i) => i > a && i < b && /^### ST ?股\s*$/.test(l));
+                    const board = boardLab;
+                    const why = (x) => { const r = (x.up_reason || "").split("|").pop().replace(/\s+/g, " ").replace(/\|/g, "/").trim(); const s1 = r.split("。")[0]; return (s1.length > 80 ? s1.slice(0, 80) + "…" : s1) || "-"; };
+                    const tbl = ["### ST 股", "", "| 股票名称 | 板数 | 涨跌幅 | 涨停时间 | 上涨逻辑 |", "| :------- | :--- | :----- | :------- | :------- |",
+                        ...(st.length ? st.map((x) => `| ${x.secu_name} <br>${code6(x.secu_code)} | ${board(x)} | ${(x.change * 100).toFixed(2)}% | ${x.time.slice(11, 16)} | ${why(x)} |`)
+                            : ["| (当日无 ST 涨停) | | | | |"]), ""];
+                    if (sti === -1) {
+                        let ins = b; while (ins > a + 1 && !L[ins - 1].trim()) ins--;
+                        L.splice(ins, 0, "", ...tbl);
+                        mounted += "+ST股已写";
+                    } else {
+                        let se = b;
+                        for (let i = sti + 1; i < b; i++) if (/^#{1,3} /.test(L[i])) { se = i; break; }
+                        const first = L.slice(sti + 1, se).find((l) => l.trim());
+                        if (!first || first.startsWith("| 股票名称")) { L.splice(sti, se - sti, ...tbl); mounted += "+ST股已写"; }
+                        else mounted += "+ST股保留人工内容";
+                    }
+                }
+                fs.writeFileSync(f, L.join(eol));
+            }
+        }
+        console.error(`[ztpool] ${tradeDate} md: ${mounted}`);
+    }
+    console.log(`JSON:${JSON.stringify({ tradeDate, zt: items.length, zb: zb ?? null, dt: dt ?? null, st: st.length, dir, md: mounted })}`);
 })();

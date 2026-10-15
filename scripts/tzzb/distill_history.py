@@ -17,6 +17,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 from llm_batch_tzzb import md_path, canon, extract_section  # 小节口径与 32B 初稿同源(禁另立)
+sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+from claude_call import call as claude_call  # noqa: E402
+LEAN_ARGS = ["--exclude-dynamic-system-prompt-sections", "--disable-slash-commands", "--strict-mcp-config",
+             "--tools", "Read,Write,Edit,Grep,Glob"]   # 10/15 A13①(同 settle_decisions._call / 链驱动器 CLAUDE 口径)
 
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
@@ -31,7 +35,7 @@ _EXE = os.path.join(os.environ.get("APPDATA", ""), r"npm\node_modules\@anthropic
 CLAUDE = [_EXE if os.path.exists(_EXE) else "claude", "-p", "--output-format", "json", "--permission-mode", "acceptEdits"]
 # 土豆(转债)走机械五闸门分支不在此列; 数据少的排后, chong5000w 源 07-06 停更但历史可蒸
 DEFAULT = ["stzhilang", "xingjianye", "lianghuaxiaohao", "a658", "bianbenling", "liuyiqing",
-           "gaogailvfuli", "xuanqiucaijing", "daxingdaxingdadangxing", "chong5000w"]
+           "gaogailvfuli", "xuanqiucaijing", "daxingdaxingdadangxing", "chong5000w", "antoo", "zhiyingjuexin"]
 
 PROMPT = """任务: 对 tzzb 导师「{name}」(ledger={ledger}) 做**历史回溯蒸馏**(一次性覆盖全部历史), 产出新版规则库草稿。元指令: 任务优先, 禁反问。
 
@@ -108,21 +112,20 @@ def main():
         extra = "\n  本导师产出须标\"(程序化嫌疑)\"。" if lg == "lianghuaxiaohao" else ""
         prompt = PROMPT.format(name=L["name"], ledger=lg, out=str(out).replace("\\", "/"), ndays=n, extra=extra)
         t0 = time.time()
-        r = subprocess.run(CLAUDE + [prompt], cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
-                           errors="replace", timeout=3600, creationflags=NOWIN)
+        # 10/15 A13①: 改走公共 claude_call(prompt 走 stdin/信封判错/成本记 scripts/lib/claude_cost.csv/key 轮换) + 精简参数
+        #   (去动态系统提示/斜杠命令/MCP, 工具白名单只给读写检索——本任务只读证据写两个文件, 不需要 Bash)
+        r = claude_call(prompt, tag=f"tzzb-distill-history:{lg}", permission="acceptEdits", timeout=3600,
+                        extra_args=LEAN_ARGS, expect_files=[out / "report.md", out / "rules.md"])
         rep = out / "report.md"
-        ok = rep.exists() and rep.read_text(encoding="utf-8").strip().splitlines()[-1].strip() == f"DISTILL_HIST_OK {lg}" \
+        ok = r.ok and rep.exists() and rep.read_text(encoding="utf-8").strip().splitlines()[-1].strip() == f"DISTILL_HIST_OK {lg}" \
             and (out / "rules.md").exists()
-        cost = ""
-        try:
-            cost = _claude_json(r.stdout).get("total_cost_usd", "")
-        except Exception:
-            pass
-        log(f"{lg}: {'OK' if ok else 'FAIL'} ({time.time() - t0:.0f}s, cost={cost}, exit={r.returncode})")
+        u = r.usage or {}
+        log(f"{lg}: {'OK' if ok else 'FAIL'} ({time.time() - t0:.0f}s, cost={r.cost_usd:.2f}, rc={r.returncode}, "
+            f"cache_create={u.get('cache_creation_input_tokens', '?')}, errors={'|'.join(r.errors)[:160]})")
         if ok:
             (out / "DONE").write_text(datetime.now().isoformat(), encoding="utf-8")
         else:
-            (out / "claude_stdout.txt").write_text((r.stdout or "")[-5000:] + "\n" + (r.stderr or "")[-2000:], encoding="utf-8")
+            (out / "claude_stdout.txt").write_text((r.stdout_tail or "")[-5000:] + "\n" + (r.stderr_tail or "")[-2000:], encoding="utf-8")
     log("ALL_DONE")
 
 

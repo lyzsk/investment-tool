@@ -9,7 +9,7 @@
   - 超对照组 = 买单收益 − 对照组账本(A-control) nav 同窗收益(卖单/对照组自己不算)
   行情只读本地: downloads/market/<日>/kline_day.jsonl(15:35 收盘采集, 不复权原始价) → 次日 preClose → downloads/quotes/daily/<code>.json(前复权缓存, 兜底)
   收盘价拿不到=留待下次(不会用盘中价); 重复跑幂等(已结的 (id, 窗口) 跳过)。
-反思(每 skill 每次运行一次 claude -p, 每批 ≤12 单): 只对白名单 skill(chain_flags.txt CHAIN_REFLECTION=1 + CHAIN_REFLECTION_SKILLS)、
+反思(10/14 起: 每次运行只开 1 个 claude -p, 所有 skill 合并, ≤40 单): 只对白名单 skill(chain_flags.txt CHAIN_REFLECTION=1 + CHAIN_REFLECTION_SKILLS)、
   只基于 T+1 结算(point-in-time: 反思只看得到 T+1 收盘为止的数), 2~4 句只谈执行细节; 谈改/否定导师规则的反思被机械护栏拦下不入库。
 
 用法:
@@ -39,7 +39,7 @@ PLANS = HERE / "plans"
 IDX = "IDX:sh000001"
 INIT_NAV = 100000.0
 WINDOWS = (1, 3)
-BATCH = 12
+BATCH = 40   # 10/14 用户: 每天只开 1 个 claude -p——所有 skill 的待反思单合进一次调用, 上限 40 单, 余下留到下次
 
 
 # ---------- 行情(只读本地, 零网络) ----------
@@ -218,7 +218,8 @@ def reflect_prompt(skill, items):
     """items=[(决策, T+1 结算)]; 只给 T+1 为止的数(point-in-time)"""
     st_cn = {"filled": "已成交", "void": "未成交(收盘作废)", "cxl": "未成交即被后续时段撤单/改单", "invalid": "失效条件(cancel_below)触发撤单",
              "reject": "matcher 拒单(如一字板买不到/锚偏离)", "open": "未成交", "unknown": "账本里找不到这笔挂单"}
-    out = [f"你是模拟盘决策链「{skill}」的执行复盘员。下面 {len(items)} 笔挂单已过 T+1, 附机械结算结果。",
+    who = f"「{skill}」" if skill else "(多条链, 每笔标明所属链)"
+    out = [f"你是模拟盘决策链{who}的执行复盘员。下面 {len(items)} 笔挂单已过 T+1, 附机械结算结果。各链独立, 不要互相比较。",
            "为每笔写 2~4 句中文反思: 这单在**执行上**对/错在哪, 下次同类情境**执行上**怎么做。",
            "硬性约束:",
            "1. 只谈执行细节: 挂价(离前收/开盘/当日高低点多远, 是否因挂价没成交或成交太贵)、仓位大小、下单时段(盘前 09:15 还是盘中哪个时点)、止损/失效条件(cancel_below/stop_below 设紧了还是松了)。",
@@ -231,7 +232,7 @@ def reflect_prompt(skill, items):
         day = s.get("day") or {}
         dline = (f"开{day.get('o')} 高{day.get('h')} 低{day.get('l')} 收{day.get('c')}" if day else "无当日行情")
         slot = f"{d['slot'][:2]}:{d['slot'][2:]}" if d["slot"].isdigit() else d["slot"]
-        out += [f"[{n}] id={d['id']}",
+        out += [f"[{n}] id={d['id']}" + ("" if skill else f" | 链={d['id'].split('|')[1]}"),
                 f"    {d['date']} {slot}({'盘中子链' if d.get('sub') else '盘前全链'}) {side} {d.get('name') or ''} {d['code']} 挂 {d['px']:g} × {d['qty']}"
                 f" | 自报锚 {d.get('anchor')} | cancel_below {d.get('cancel_below') or '-'} | stop_below {d.get('stop_below') or '-'}"
                 + (" | 【未过盲审】" if d.get("blind_fail") else ""),
@@ -256,40 +257,43 @@ def _call(prompt, skill):
 
 
 def reflect_all(dir_, skills, max_calls, caller=_call, dry=False):
+    """10/14 改: 所有 skill 合并成一次 claude -p(原=每 skill 每 12 单一次); 结果按 id 第二段(skill)分回各自 reflect.jsonl"""
     calls, fails, wrote, blocked = 0, 0, 0, 0
+    todo = []
     for sk in skills:
         decs, sets, refs = dm.load_decisions(dir_, sk), dm.load_settles(dir_, sk), dm.load_reflects(dir_, sk)
-        todo = [(d, sets[i][1]) for i, d in sorted(decs.items(), key=lambda kv: (kv[1]["date"], kv[1]["slot"]))
-                if 1 in sets.get(i, {}) and i not in refs]
-        for k in range(0, len(todo), BATCH):
-            if calls >= max_calls:
-                print(f"反思: 已达本次调用上限 {max_calls}, {sk} 余 {len(todo) - k} 单留到下次")
-                break
-            items = todo[k:k + BATCH]
-            prompt = reflect_prompt(sk, items)
-            if dry:
-                print(f"--- [dry] {sk} 反思 prompt({len(prompt)} 字) ---\n{prompt}\n")
-                continue
-            calls += 1
-            r = caller(prompt, sk)
-            if not r.ok:
-                fails += 1
-                print(f"WARN: {sk} 反思调用失败(留到下次): {r.errors[:2]}")
-                continue
-            got = {str(x.get("id")): str(x.get("text") or "").strip() for x in (r.parsed or {}).get("reflections") or []}
-            cost = round(float(r.cost_usd or 0) / max(1, len(items)), 4)
-            recs = []
-            for d, s in items:
-                t = got.get(d["id"])
-                if not t:
-                    continue
-                ok = dm.guard_ok(t)
-                blocked += 0 if ok else 1
-                recs.append({"id": d["id"], "resolved": s["resolved"], "text": t[:400], "guard": "ok" if ok else "rejected",
-                             "ts": datetime.now().isoformat(timespec="seconds"), "cost_usd": cost})
-            dm.append_reflects(dir_, sk, recs)
-            wrote += len(recs)
-            print(f"反思 {sk}: {len(recs)}/{len(items)} 条入库(护栏拦 {sum(1 for x in recs if x['guard'] != 'ok')}), ${r.cost_usd}")
+        todo += [(d, sets[i][1]) for i, d in sorted(decs.items(), key=lambda kv: (kv[1]["date"], kv[1]["slot"]))
+                 if 1 in sets.get(i, {}) and i not in refs]
+    if not todo or max_calls < 1:
+        return calls, fails, wrote, blocked
+    items = todo[:BATCH]
+    if len(todo) > BATCH:
+        print(f"反思: 待反思 {len(todo)} 单, 本次取 {BATCH}, 余下留到下次")
+    one = skills[0] if len({d["id"].split("|")[1] for d, _ in items}) == 1 else None
+    prompt = reflect_prompt(one, items)
+    if dry:
+        print(f"--- [dry] 反思 prompt({len(prompt)} 字, {len(items)} 单) ---\n{prompt}\n")
+        return calls, fails, wrote, blocked
+    calls = 1
+    r = caller(prompt, one or "multi")
+    if not r.ok:
+        print(f"WARN: 反思调用失败(留到下次): {r.errors[:2]}")
+        return calls, 1, wrote, blocked
+    got = {str(x.get("id")): str(x.get("text") or "").strip() for x in (r.parsed or {}).get("reflections") or []}
+    cost = round(float(r.cost_usd or 0) / max(1, len(items)), 4)
+    by = {}
+    for d, s in items:
+        t = got.get(d["id"])
+        if not t:
+            continue
+        ok = dm.guard_ok(t)
+        blocked += 0 if ok else 1
+        by.setdefault(d["id"].split("|")[1], []).append({"id": d["id"], "resolved": s["resolved"], "text": t[:400], "guard": "ok" if ok else "rejected",
+                                                           "ts": datetime.now().isoformat(timespec="seconds"), "cost_usd": cost})
+    for sk, recs in by.items():
+        dm.append_reflects(dir_, sk, recs)
+        wrote += len(recs)
+    print(f"反思: 1 次调用, {wrote}/{len(items)} 条入库(护栏拦 {blocked}), ${r.cost_usd}")
     return calls, fails, wrote, blocked
 
 

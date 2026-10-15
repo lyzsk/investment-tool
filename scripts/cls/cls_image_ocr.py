@@ -314,6 +314,75 @@ def _red_ratio(img, box):
     return float(red.mean())
 
 
+# 10/15 修 B1-①「涨停时间并进上涨逻辑列」: 原列边界写死 200/420/600/800(按 1000px 宽图), 10/12 起财联社出 1170px 宽图,
+#   涨停时间列中心 x≈807 > 800 → 被当成逻辑拼进去。改为按本题材表头(股票名称/板数/涨跌幅/涨停时间/上涨逻辑)中心点取相邻中点作列界;
+#   表头缺字时按图宽等比缩放旧常数兜底。返回各列右边界 {name, boards, pct, time}(time 右界=逻辑列左界)
+_HEADS = ("股票名称", "板数", "涨跌幅", "涨停时间", "上涨逻辑")
+_DEF_BOUNDS = {"name": 200, "boards": 420, "pct": 600, "time": 800}   # 1000px 宽图的旧常数
+
+
+def _col_bounds(seg, header_y, w):
+    cx = {}
+    for l in seg:
+        t = l[2].replace(" ", "")
+        if t in _HEADS and abs(l[1] - header_y) < 30:
+            cx.setdefault(t, l[0])
+    scale = w / 1000.0
+    out = {k: v * scale for k, v in _DEF_BOUNDS.items()}
+    for key, (a, b) in zip(("name", "boards", "pct", "time"), zip(_HEADS, _HEADS[1:])):
+        if a in cx and b in cx and cx[b] > cx[a]:
+            out[key] = (cx[a] + cx[b]) / 2
+    return out
+
+
+# 10/15 修 B1-②「换行只剩一个字时丢字」: 逻辑列折行后第二行只有 1 个字时, 检测器不出框(孤立单字, 与 reocr_cell 同病),
+#   该字直接丢失(如 "军工+燃气轮" + 漏 "机")。做法: 在逻辑列、本行已识别文字的最后一行下方(到行带底)找未被 OCR 框覆盖的深色字形,
+#   裁出来用识别器直读(同 reocr_cell 思路); 只接受 1~3 个汉字/字母/数字, 读不出就不补(宁缺勿编)
+def _logic_tail(img, toks, x_left, w, y_bot, others=()):
+    try:
+        import numpy as np
+        if not toks:
+            return ""
+        last = max(toks, key=lambda l: l[1])
+        y1 = int(max(p[1] for p in last[4])) + 2
+        lh = max(20, int(max(p[1] for p in last[4]) - min(p[1] for p in last[4])))
+        y2 = int(min(y_bot, y1 + lh * 1.6))
+        # 10/15 二修: 搜索区不得伸进别的 OCR 框(下一行的逻辑首行可能在行带中线之上, 10/12 亚香股份误补 "EC")
+        ids = {id(t) for t in toks}
+        for o in others:
+            if id(o) in ids:
+                continue
+            top = min(p[1] for p in o[4])
+            if top >= y1 - 2:
+                y2 = min(y2, int(top) - 2)
+        x1 = int(x_left)
+        if y2 - y1 < lh * 0.6:
+            return ""
+        crop = img[y1:y2, x1:w].astype(np.int16)
+        dark = (crop[:, :, 0] < 140) & (crop[:, :, 1] < 140) & (crop[:, :, 2] < 140)
+        rows_on = np.where(dark.sum(axis=1) >= 2)[0]
+        cols_on = np.where(dark.sum(axis=0) >= 2)[0]
+        if len(rows_on) < lh * 0.4 or len(cols_on) < 6:
+            return ""
+        gy1, gy2 = rows_on.min(), rows_on.max()
+        gx1, gx2 = cols_on.min(), cols_on.max()
+        if (gy2 - gy1) < lh * 0.4 or (gx2 - gx1) > lh * 4:   # 太矮=分隔线/噪点; 太宽=不是单字残行(多字行检测器不会漏)
+            return ""
+        left0 = min(min(p[0] for p in t[4]) for t in toks)   # 折行左对齐: 残字起点须与逻辑各行起点对齐
+        if abs((x1 + gx1) - left0) > lh * 0.8:
+            return ""
+        import cv2
+        glyph = img[y1 + gy1:y1 + gy2 + 1, x1 + gx1:x1 + gx2 + 1]
+        glyph = cv2.copyMakeBorder(glyph, 12, 12, 12, 12, cv2.BORDER_CONSTANT, value=(255, 255, 255))
+        out, _ = _recognizer()(glyph)
+        # 单字识别分天然低(10/14 实测 "胶"/"人" ≈0.49; reocr_cell 同理放到 0.25)
+        if out and out[0][1] >= 0.3 and re.fullmatch(r"[一-鿿A-Za-z0-9]{1,3}", out[0][0]):
+            return out[0][0]
+    except Exception:  # noqa: BLE001
+        pass
+    return ""
+
+
 def parse_zt(img_path):
     """涨停分析长图 -> (themes, warns, err)。themes = [{name, attribution, rows:[...]}]
     行硬校验: 代码(6位)+涨跌幅 缺一不可; 区域代码总数必须=解析行数(防漏行)"""
@@ -341,7 +410,21 @@ def parse_zt(img_path):
     themes_y.sort()
     if not themes_y:
         return None, None, "no theme anchors"
-    bounds = [y for y, _ in themes_y] + [h - 260]  # 版权尾
+    # 10/15: 版权尾起点——原写死 h-260(1000px 宽图), 1170px 图尾部更高, 二维码区的 "EC" 等碎字被并进最后一行逻辑(10/12 亚香股份)
+    #   优先用尾部固定文案("长按右侧二维码"/"阅读原文"/"准确快速权威专业")的上沿, 找不到再按图宽等比缩放
+    foot = [min(p[1] for p in l[4]) for l in lines if re.search(r"长按|二维码|阅读原文|准确快速", l[2]) and l[1] > h * 0.5]
+    tail_y = min([h - 260 * w / 1000.0] + [f - 40 for f in foot])
+    # 10/15: 假锚点剔除——红色 logo/水印(如 "CLS"/"CILIS"/"CLS贝", 9/14 zt、9/30 wjzt+zt 实证)被当成题材名, 其段内无表头
+    #   → 整张图 "no table header" PARSE_FAIL。规则: 某锚点到下一锚点之间既无 "股票名称" 表头也无 6 位代码 = 不是题材, 丢掉(不会丢行)
+    def _seg_has_table(k):
+        y0 = themes_y[k][0]
+        y1 = themes_y[k + 1][0] if k + 1 < len(themes_y) else tail_y
+        seg = [l for l in lines if y0 < l[1] < y1]
+        return any(l[2].replace(" ", "") == "股票名称" or re.fullmatch(r"\d{6}", l[2].replace(" ", "")) for l in seg)
+    keep = [themes_y[k] for k in range(len(themes_y)) if _seg_has_table(k)]
+    if keep and len(keep) < len(themes_y):
+        themes_y = keep
+    bounds = [y for y, _ in themes_y] + [tail_y]  # 版权尾
     themes = []
     for i, (ty, tname) in enumerate(themes_y):
         seg = [l for l in lines if ty < l[1] < bounds[i + 1]]
@@ -350,6 +433,7 @@ def parse_zt(img_path):
         if not header:
             return None, None, f"theme {tname}: no table header"
         header_y = header[0][1]
+        cb = _col_bounds(seg, header_y, w)
         attr_toks = sorted((l for l in seg if ty + 30 < l[1] < header_y - 20),
                            key=lambda l: l[1])
         attribution = "".join(l[2].replace(" ", "") for l in attr_toks)
@@ -358,7 +442,7 @@ def parse_zt(img_path):
         #    (h 不设高阈值: 紧贴表头的首行名称 OCR 框可能畸形, 实测有 h=23;
         #     漏锚=漏行, 错锚会被代码缺失/行数校验拦住, 宁宽勿漏)
         name_anchors = sorted((l for l in seg if l[1] > header_y + 20
-                               and l[0] < 200
+                               and l[0] < cb["name"]
                                and abs(l[4][3][1] - l[4][0][1]) >= 18
                                and not re.fullmatch(r"\d{6}", l[2].replace(" ", ""))
                                and l[2].replace(" ", "") not in ("股票名称", "板数", "涨跌幅", "涨停时间", "上涨逻辑")
@@ -371,18 +455,24 @@ def parse_zt(img_path):
             y_bot = (nl[1] + nys[j + 1]) / 2 if j + 1 < len(nys) else bounds[i + 1]
             band = [l for l in seg if y_top <= l[1] < y_bot]
             code = next((l[2].replace(" ", "") for l in band
-                         if l[0] < 200 and re.fullmatch(r"\d{6}", l[2].replace(" ", ""))), None)
+                         if l[0] < cb["name"] and re.fullmatch(r"\d{6}", l[2].replace(" ", ""))), None)
             boards = next((l[2].replace(" ", "") for l in band
-                           if 200 < l[0] < 420
+                           if cb["name"] < l[0] < cb["boards"]
                            and re.fullmatch(r"(首板|\d+天\d+板|ST|退市)", l[2].replace(" ", ""))), None)
-            pct = next((l[2].replace(" ", "") for l in band
-                        if 420 < l[0] < 600
-                        and re.fullmatch(r"\d{1,3}\.\d{2}%", l[2].replace(" ", ""))), None)
+            # 10/15: 涨跌幅偶发 OCR 丢 "%" 或把 "%" 读成 "70"(10/14 富春股份 "20.07"、10/12 果麦文化 "20.0170", 框高 23 被截),
+            #   列位置已锁定 → 取前面的 x.xx 再补 %
+            pct = next((m.group(1) + "%" for l in band
+                        if cb["boards"] < l[0] < cb["pct"]
+                        for m in [re.fullmatch(r"(-?\d{1,3}\.\d{2})(?:%|70|7o)?", l[2].replace(" ", ""))] if m), None)
             ztime = next((l[2].replace(" ", "") for l in band
-                          if 600 < l[0] < 800
+                          if cb["pct"] < l[0] < cb["time"]
                           and re.fullmatch(r"\d{1,2}[:：]\d{2}", l[2].replace(" ", ""))), None)
-            logic = "".join(l[2].replace(" ", "") for l in sorted(band, key=lambda l: l[1])
-                            if l[0] >= 800)
+            logic_toks = sorted((l for l in band if l[0] >= cb["time"] and l[2].replace(" ", "") not in _HEADS),
+                                key=lambda l: (l[1], l[0]))   # 排除表头字(首行行带上沿可能含 "上涨逻辑")
+            logic = "".join(l[2].replace(" ", "") for l in logic_toks)
+            logic = re.sub(r"Al(?=[+＋、]|[一-鿿]|$)", "AI", logic)   # OCR 把 AI 的 I 读成 l(10/14 "Al+短剧")
+            logic += _logic_tail(img, logic_toks, cb["time"], w, y_bot,
+                                 [l for l in seg if l[0] >= cb["time"]])
             rows.append({"name": nl[2].replace(" ", ""), "code": code,
                          "boards": boards or "--", "pct": pct,
                          "time": (ztime or "--").replace("：", ":"), "logic": logic})
@@ -394,7 +484,7 @@ def parse_zt(img_path):
             rows = [r for r in rows if r["code"] and r["pct"]]
             if not rows:
                 return None, None, f"theme {tname}: ALL rows bad (genuinely unparseable)"
-        region_codes = sum(1 for l in seg if l[1] > header_y + 20 and l[0] < 200
+        region_codes = sum(1 for l in seg if l[1] > header_y + 20 and l[0] < cb["name"]
                            and re.fullmatch(r"\d{6}", l[2].replace(" ", "")))
         # 10/8: 漏行检测改为 WARN 不 FAIL(区域代码数可能因 OCR 噪声偏差)
         themes.append({"name": tname, "attribution": attribution, "rows": rows,

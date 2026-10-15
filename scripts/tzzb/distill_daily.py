@@ -8,7 +8,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.stdout.reconfigure(encoding="utf-8")
 ALL_LEDGERS = ["buchitudou0", "liuyiqing", "lianghuaxiaohao", "a658", "bianbenling", "xingjianye",
-               "daxingdaxingdadangxing", "gaogailvfuli", "xuanqiucaijing", "stzhilang", "chong5000w"]
+               "daxingdaxingdadangxing", "gaogailvfuli", "xuanqiucaijing", "stzhilang", "chong5000w",
+               "antoo", "zhiyingjuexin"]   # 10/15 +2 新导师
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--date", default=None)

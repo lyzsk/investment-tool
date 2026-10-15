@@ -1,10 +1,11 @@
 // live_watch.mjs — 盘中盯盘(2026-10-12 建; 同日用户令: 不只盯持仓, 要看指数/方向/板块, 与 skill 链"先市况→再方向→后个股"同理; 项目目的=短线)
 // 三层, **不另起行情请求, 复用 paper 线**(用户 10/12: 整个项目一体, 高内聚低耦合): 状态落 scripts/dfcf/snapshots/live/<日期>.json + .md(隐私区)
 //   ① 大盘: 读 paper 当日最新时段 facts/<日期>/<时段>/facts.md 的「市场扫描」段(scan.mjs 每个时段现拉: 涨跌幅榜/连板梯队/跌停/板块), 零额外请求;
-//      指数暂由本脚本每分钟 1 次腾讯 qt(snapshot.mjs 尚不支持指数代码; TODO: 收盘后把指数并进 snapshot.mjs 共享缓存, 本处改调它)
+//      指数: 10/15 起走 snapshot.mjs 共享缓存(带前缀代码 sh000001 等, 与 paper 线同一份缓存/同一套请求层), 本脚本不再自发指数请求
 //   ② 方向: 同上 facts 的板块榜 + 当日链 02 共识方向(results/*_chain/live-<日>/02_analysis.md, 15 分钟重读)
 //   ③ 个股: --codes 持仓/关注票, 每只自建 1 分钟线/均价/量能节奏(相对昨日同进度)/行情类型(趋势上涨/震荡/趋势下跌)
 // 信号(去重, 落 alerts): 个股 突破昨高/跌破昨低/日内新高/站回或跌破均价/量能翻倍/类型切换; 大盘 指数翻红翻绿/涨停家数骤变 —— 即"挂单该动"的触发点
+//   10/15 均价穿越去抖(贴线反复刷屏): 偏离均价 ≥VW_BAND 才算换边(滞回), 同方向 VW_COOL_MIN 分钟内只报一次
 // Claude 被问挂单时直接读 .md, 一分钟内出方案; 交易日盘中跑, 午休空转, --until 到点退出
 // 用法: node scripts/dfcf/live_watch.mjs [--stocks 002714[,600xxx]] [--every 15] [--until 1501] [--once]
 //   --stocks 缺省=读 scripts/dfcf/snapshots/live/watchlist.txt(逗号/换行分隔, 隐私区), 再缺省=002714
@@ -29,29 +30,33 @@ const fJson = path.join(OUT, `${day}.json`), fMd = path.join(OUT, `${day}.md`);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const hm = () => { const d = new Date(); return d.getHours() * 100 + d.getMinutes(); };
 const r2 = (x) => Math.round(x * 100) / 100;
-const UA = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" };
 const INDEXES = [["sh000001", "上证"], ["sz399001", "深成"], ["sz399006", "创业板"], ["sh000688", "科创50"], ["sh000300", "沪深300"]];
 
-async function get(url, headers = {}, enc = "utf8") {
-    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 8000);
-    try {
-        const r = await fetch(url, { headers: { ...UA, ...headers }, signal: ctl.signal });
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        return new TextDecoder(enc).decode(await r.arrayBuffer());
-    } finally { clearTimeout(t); }
-}
-// 指数: 腾讯 qt 带前缀批量(snapshot.mjs 只认 6 位个股代码, 000001 会撞平安银行)
+// 指数: 10/15 改走 snapshot.mjs 共享缓存(带前缀代码; 000001 不带前缀=平安银行), 腾讯批量→多源兜底, 与 paper 线共用请求层
 async function indexes() {
-    const t = await get(`https://qt.gtimg.cn/q=${INDEXES.map((x) => x[0]).join(",")}`, { Referer: "https://gu.qq.com/" }, "gbk");
+    const snaps = await snapMany(INDEXES.map((x) => x[0]), 0);
     const out = [];
     for (const [sym, name] of INDEXES) {
-        const m = t.match(new RegExp(`v_${sym}="([^"]*)"`));
-        if (!m) continue;
-        const f = m[1].split("~");
-        const vol = +f[6], amt = +f[37] * 10000;
-        out.push({ sym, name, last: +f[3], pct: +f[32], high: +f[33], low: +f[34], amtYi: r2(amt / 1e8) });
+        const s = snaps[sym];
+        if (!s || s.error || !(s.last > 0)) continue;
+        out.push({ sym, name, last: s.last, pct: s.pct, high: s.high, low: s.low, amtYi: s.amt ? r2(s.amt / 1e8) : null });
     }
+    if (!out.length) throw new Error(Object.values(snaps).map((s) => s?.error).filter(Boolean)[0] || "指数快照全空");
     return out;
+}
+
+// 均价穿越去抖(10/15): 滞回带+同方向冷却。返回 null 或 "上"/"下"(该报的新方向); o 上记 vwapSide/vwAlertAt
+const VW_BAND = 0.002, VW_COOL_MIN = 10;
+function vwapCross(o, last, vwap, nowMs = Date.now()) {
+    if (!(vwap > 0) || !(last > 0)) return null;
+    const side = last >= vwap * (1 + VW_BAND) ? "上" : last <= vwap * (1 - VW_BAND) ? "下" : o.vwapSide || null;   // 贴线(±0.2% 内)=维持原边
+    const prev = o.vwapSide;
+    o.vwapSide = side;
+    if (!prev || !side || side === prev) return null;
+    o.vwAlertAt = o.vwAlertAt || {};
+    if (nowMs - (o.vwAlertAt[side] || 0) < VW_COOL_MIN * 60e3) return null;   // 同方向冷却内不再报
+    o.vwAlertAt[side] = nowMs;
+    return side;
 }
 // paper 线最新时段的市场扫描(scan.mjs 产物, facts.mjs 拼进 facts.md); 返回 {slot, md}
 function paperScan() {
@@ -174,9 +179,10 @@ async function tick() {
         if (st && s.high > st.prevHigh) alert(`${code}-brkH`, `${nm} 突破昨高 ${st.prevHigh} → 卖档上移/末档改跟随`);
         if (st && s.low < st.prevLow) alert(`${code}-brkL`, `${nm} 跌破昨低 ${st.prevLow} → 接回档下移`);
         if (o.lastHigh && s.high > o.lastHigh + 0.001) alert(`${code}-nh-${s.high}`, `${nm} 日内新高 ${s.high}`);
-        if (o.vwapSide && vwap && (s.last > vwap ? "上" : "下") !== o.vwapSide) alert(`${code}-vw-${key}`, `${nm} ${s.last > vwap ? "站回" : "跌破"}均价 ${vwap}`);
+        const vx = vwapCross(o, s.last, vwap);
+        if (vx) alert(`${code}-vw-${key}`, `${nm} ${vx === "上" ? "站回" : "跌破"}均价 ${vwap}(偏离≥${VW_BAND * 100}%, 同向 ${VW_COOL_MIN} 分钟内不重报)`);
         if ((pace || 0) >= 2) alert(`${code}-pace2`, `${nm} 量能 ${pace} 倍(昨日同进度 2 倍+)`);
-        Object.assign(o, { regime, lastHigh: s.high, vwapSide: vwap ? (s.last > vwap ? "上" : "下") : null,
+        Object.assign(o, { regime, lastHigh: s.high,   // vwapSide 由 vwapCross 维护(滞回)
             quote: { name: nm, last: s.last, prevClose: s.prevClose, open: s.open, high: s.high, low: s.low, pct: s.pct, vol: s.vol, vwap, pace, src: s.src } });
     }
     state.updated = new Date().toTimeString().slice(0, 8);

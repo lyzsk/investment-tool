@@ -10,6 +10,8 @@
 // 幂等: 产物已存在(size>0)则跳过, 重试只补缺不重下; 退出码 0=所求产物全部就位, 1=任一失败
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+import { gfetch } from "../lib/req_guard.mjs";   // 10/15 统一请求层: 限速/熔断/日预算/失败分类(见 scripts/lib/req_guard.mjs)
 
 /* B站请求头: 伪装桌面 Chrome。search HTML / view / playurl / related 不吃风控; 作者空间列表(x/space/wbi/arc/search)
    9/27 不签名直接调被 -352 挡, 10/12 补 WBI 签名+buvid 后可用(见 spaceList); 动态 feed 仍未试 */
@@ -45,7 +47,9 @@ function jitter() {
 
 /* GET JSON: 风控页/验证页是 HTML("<" 开头)而非 JSON, 直接抛错让调用方走 catch 降级 */
 async function getJson(url, referer = "https://www.bilibili.com") {
-  const r = await fetch(url, { headers: { ...UA, Referer: referer } });
+  let r;
+  try { r = await gfetch(url, { headers: { ...UA, Referer: referer } }); }
+  catch (e) { if (e.kind === "BLOCKED") throw new Error("risk-blocked(熔断中): " + url.slice(0, 80)); throw e; }
   const t = await r.text();
   if (t.startsWith("<")) throw new Error("risk-blocked: " + url.slice(0, 80));
   return JSON.parse(t);
@@ -53,7 +57,7 @@ async function getJson(url, referer = "https://www.bilibili.com") {
 
 /* 下载二进制到本地(视频/音频流用), Referer 必须带 bilibili.com 否则 403 */
 async function download(url, out) {
-  const r = await fetch(url, { headers: { ...UA, Referer: "https://www.bilibili.com" } });
+  const r = await gfetch(url, { headers: { ...UA, Referer: "https://www.bilibili.com" } });
   if (!r.ok) throw new Error("download http " + r.status);
   fs.writeFileSync(out, Buffer.from(await r.arrayBuffer()));
   console.log("saved:", out, fs.statSync(out).size, "bytes");
@@ -78,7 +82,7 @@ const WBI_MIXIN = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 
   37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52];
 /* buvid 指纹 cookie: 两源共用一份(finger/spi 无需登录) */
 async function buvidCookie() {
-  const spi = await (await fetch("https://api.bilibili.com/x/frontend/finger/spi", { headers: UA })).json();
+  const spi = await (await gfetch("https://api.bilibili.com/x/frontend/finger/spi", { headers: UA })).json();
   return `buvid3=${spi.data.b_3}; buvid4=${encodeURIComponent(spi.data.b_4)}`;
 }
 /* "mm:ss" / "h:mm:ss" → 秒(投稿列表的 length 字段是字符串) */
@@ -87,7 +91,7 @@ const lenSec = (s) => String(s || "0").split(":").reduce((a, x) => a * 60 + (+x 
 async function spaceList(mid, n, cookie) {
   try {
     const crypto = await import("node:crypto");
-    const nav = await (await fetch("https://api.bilibili.com/x/web-interface/nav", { headers: { ...UA, Cookie: cookie } })).json();
+    const nav = await (await gfetch("https://api.bilibili.com/x/web-interface/nav", { headers: { ...UA, Cookie: cookie } })).json();
     const key = (u) => u.split("/").pop().split(".")[0];
     const raw = key(nav.data.wbi_img.img_url) + key(nav.data.wbi_img.sub_url);
     const mixin = WBI_MIXIN.map((i) => raw[i]).join("").slice(0, 32);
@@ -97,7 +101,7 @@ async function spaceList(mid, n, cookie) {
     const q = Object.keys(p).sort().map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(String(p[k]).replace(/[!'()*]/g, ""))}`).join("&");
     const w_rid = crypto.createHash("md5").update(q + mixin).digest("hex");
     await jitter();
-    const r = await fetch(`https://api.bilibili.com/x/space/wbi/arc/search?${q}&w_rid=${w_rid}`,
+    const r = await gfetch(`https://api.bilibili.com/x/space/wbi/arc/search?${q}&w_rid=${w_rid}`,
       { headers: { ...UA, Cookie: cookie, Referer: `https://space.bilibili.com/${mid}/video`, Origin: "https://space.bilibili.com" } });
     const t = await r.text();
     if (t.startsWith("<")) throw new Error(`风控 HTML 页 http ${r.status}`);
@@ -113,7 +117,7 @@ async function spaceList(mid, n, cookie) {
 /* ② 免签名的稿件列表(按发布时间倒序; state<0=删除/审核中, 剔除) */
 async function recList(mid, n, cookie) {
   try {
-    const r = await fetch(`https://api.bilibili.com/x/series/recArchivesByKeywords?mid=${mid}&keywords=&ps=${n}&pn=1&orderby=pubdate`,
+    const r = await gfetch(`https://api.bilibili.com/x/series/recArchivesByKeywords?mid=${mid}&keywords=&ps=${n}&pn=1&orderby=pubdate`,
       { headers: { ...UA, Cookie: cookie, Referer: `https://space.bilibili.com/${mid}/video`, Origin: "https://space.bilibili.com" } });
     const t = await r.text();
     if (t.startsWith("<")) throw new Error(`风控 HTML 页 http ${r.status}`);
@@ -174,7 +178,7 @@ async function discoverBySearch() {
       if (page === 1) urls.push(`https://search.bilibili.com/video?keyword=${encodeURIComponent(kw)}`);
       for (const url of urls) {
       try {
-        const r = await fetch(url, { headers: UA });
+        const r = await gfetch(url, { headers: UA });
         const html = await r.text();
         /* 搜索页嵌数据有三种渲染格式(2026-09-27 实测同 URL 不同次/不同条目随机切换):
            ① 紧凑式 bvid:"...",title:"...",pubdate:1758...
@@ -300,6 +304,8 @@ async function downloadProducts(video, outDir, wantVideo, wantAudio) {
     const v = await getJson(`https://api.bilibili.com/x/web-interface/view?bvid=${video.bvid}`);
     if (v.code === 0) raw = v.data;
   }
+  // 10/15 多 P 告警(TODO A4: 三 UP 抽样 181 条 0 条多 P, 不做逐 P 下载; 真出现时这里报出来再做)
+  if ((raw?.pages?.length || 1) > 1) console.error(`⚠多P稿: ${video.bvid} 共 ${raw.pages.length} P, 本脚本只下了 P1(cid=${video.cid}), 其余 P 未下载——见 TODO A4`);
   const metaPath = path.join(outDir, `${video.bvid}.json`);
   fs.writeFileSync(metaPath, JSON.stringify({
     api: `https://api.bilibili.com/x/web-interface/view?bvid=${video.bvid}`,
@@ -307,6 +313,60 @@ async function downloadProducts(video, outDir, wantVideo, wantAudio) {
     data: raw ?? video,
   }, null, 2));
   console.log("meta:", metaPath);
+}
+
+/* ── 删改重发判重(10/15, TODO A4): UP 删稿改一改重新投 = 新 bvid, 原先会被当新稿再下载/转写/写一遍 md ──
+   规则: 发布时间相差 ≤48h + 标题相似(去标点后 bigram Dice ≥0.8 或互相包含) + 时长差 <10% → 判为同一稿。
+   比对对象: 本轮发现列表 + 本地已下载的元数据(downloads/bilibili/<mid>/<日期>/<bvid>.json, 近 3 天目录; 旧稿删了就不在列表里了)。
+   处理: 旧稿本地已有产物 → 新稿从 --list 输出剔除(Java 不入库=不下载不写 md), 保留旧稿产物; 两版都在列表且都没处理 → 只留较新的一版。
+   一律 stderr 告警(进 sys_job_log), 文字带两个 bvid 便于人工复核; BILI_DEDUP=0 关闭。 */
+const normTitle = (s) => String(s || "").replace(/<[^>]+>/g, "").replace(/[\s\p{P}\p{S}]/gu, "").toLowerCase();
+function titleSim(a, b) {
+  a = normTitle(a); b = normTitle(b);
+  if (!a || !b) return 0;
+  if (a === b || a.includes(b) || b.includes(a)) return 1;
+  const bg = (s) => { const m = new Map(); for (let i = 0; i < s.length - 1; i++) { const k = s.slice(i, i + 2); m.set(k, (m.get(k) || 0) + 1); } return m; };
+  const A = bg(a), B = bg(b);
+  let inter = 0;
+  for (const [k, n] of A) inter += Math.min(n, B.get(k) || 0);
+  return (2 * inter) / Math.max(1, a.length - 1 + b.length - 1);
+}
+export function isRepost(x, y) {
+  const dt = Math.abs((+x.pubdate || 0) - (+y.pubdate || 0));
+  const d1 = +x.duration || 0, d2 = +y.duration || 0;
+  // 系列稿(②③④/上下篇/第N期/日期不同)不算重发: 标题里的编号/数字集合必须一致
+  const nums = (t) => (normTitle(t).match(/\d+|[①-⑳❶-❿]|[上中下](?=篇|集|期)?$/g) || []).join(",");
+  if (nums(x.title) !== nums(y.title)) return false;
+  return x.bvid !== y.bvid && dt <= 48 * 3600 && d1 > 0 && d2 > 0 && Math.abs(d1 - d2) / Math.max(d1, d2) < 0.1 && titleSim(x.title, y.title) >= 0.8;
+}
+function localHistory(mid, base = path.join(process.cwd(), "downloads", "bilibili")) {
+  const dir = path.join(base, String(mid)), out = [];
+  if (!fs.existsSync(dir)) return out;
+  for (const d of fs.readdirSync(dir).filter((x) => /^\d{4}\.\d\d\.\d\d$/.test(x)).sort().slice(-3)) {
+    for (const f of fs.readdirSync(path.join(dir, d)).filter((x) => /^BV\w+\.json$/.test(x))) {
+      try {
+        const v = JSON.parse(fs.readFileSync(path.join(dir, d, f), "utf8")).data || {};
+        const bvid = f.replace(/\.json$/, "");
+        const done = ["m4a", "mp4"].some((e) => existsNonEmpty(path.join(dir, d, `${bvid}.${e}`)));
+        out.push({ bvid, title: v.title, pubdate: v.pubdate, duration: v.duration, done });
+      } catch { /* 坏元数据跳过 */ }
+    }
+  }
+  return out;
+}
+export function dedupRepost(list, local = []) {
+  if (process.env.BILI_DEDUP === "0") return list;
+  const drop = new Set();
+  for (const v of list) {
+    const old = local.find((h) => h.done && isRepost(v, h) && h.pubdate <= v.pubdate);
+    if (old) { drop.add(v.bvid); console.error(`⚠删改重发判重: ${v.bvid}「${v.title}」≈ 已处理旧稿 ${old.bvid}「${old.title}」(48h 内/标题相似/时长差<10%), 新稿跳过不入库不写 md`); }
+  }
+  for (const v of list) for (const w of list) {
+    if (drop.has(v.bvid) || drop.has(w.bvid) || !isRepost(v, w) || !(v.pubdate < w.pubdate)) continue;
+    if (local.some((h) => h.bvid === v.bvid && h.done)) { drop.add(w.bvid); console.error(`⚠删改重发判重: ${w.bvid} ≈ 已处理 ${v.bvid}, 新稿跳过`); }
+    else { drop.add(v.bvid); console.error(`⚠删改重发判重: ${v.bvid}「${v.title}」与较新的 ${w.bvid} 同稿, 只留新版`); }
+  }
+  return list.filter((v) => !drop.has(v.bvid));
 }
 
 async function main() {
@@ -321,6 +381,7 @@ async function main() {
       await new Promise(s => setTimeout(s, 2000));
       his = await discover();
     }
+    his = dedupRepost(his, localHistory(MID));   // 10/15 删改重发判重(剔除的稿 stderr 告警)
     console.log("JSON:" + JSON.stringify(his));
     return;
   }
@@ -358,4 +419,6 @@ async function main() {
   await downloadProducts(video, outDir, wantVideo, wantAudio);
 }
 
-main().catch((e) => { console.error("FATAL:", e.message); process.exit(1); });
+// 10/15: 只在直接执行时跑(被 import 做单测/复用判重函数时不跑)
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))
+  main().catch((e) => { console.error("FATAL:", e.message); process.exit(1); });

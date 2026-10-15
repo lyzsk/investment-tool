@@ -47,3 +47,16 @@ dynamic_position:
   floor_max: 0.80
   default_cap: 0.25          # 用户 10/13: "一般 25% 开一仓"
   default_floor: 0.40
+
+# ---- 盘中子链零 token 触发闸 A(2026-10-14 晚; 开关 chain_flags.txt CHAIN_SUBCHAIN_GATE; 消费方 run_taoge_chain.py gate_decide) ----
+# 子链开跑前机械判断, 自上一个已跑 slot 以来下列都不成立 → 跳过本 slot(写 06 维持产物+run_meta skipped, 不调 claude):
+#   a 本链账本有新成交/止损/挂单失效(撤单工具单的自失效不算)   b 持仓/挂单/0915 候选任一现价变动 ≥ min(price_move_pct, 近 amp_window 日振幅中位 × amp_half_factor)
+#   c 上证/创业板指数变动 ≥ index_move_pt 个百分点             d 新加红电报命中持仓/候选票名或代码/02 方向关键词      e 本 slot ∈ force_slots(强制跑)
+# 另: 无上一已跑 slot / 上一已跑 slot 没出 06 / 取数失败 → 一律照跑(fail-open)
+subchain_gate:
+  price_move_pct: 1.5
+  amp_half_factor: 0.5
+  amp_window: 30
+  index_move_pt: 0.8
+  force_slots: ["1000", "1455"]
+  esc_rerun_max_elapsed_s: 900    # 修④: 子链 ESCALATE 后本 slot 重跑一次的时间预算(进程已跑秒数超过则不重跑直接 exit 3; Java 子链超时 40min)

@@ -12,6 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { guard } from "../lib/req_guard.mjs";   // 10/15 统一请求层(源 em_datacenter: 熔断/日预算/计数, 见 scripts/lib/req_guard_sources.json)
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 process.chdir(ROOT);
@@ -46,6 +47,7 @@ const HDR = {
     Referer: "https://data.eastmoney.com/stock/lhb.html",
 };
 class Ban extends Error {}
+const G = guard("em_datacenter");
 let lastReq = 0;
 async function getJson(url) {
     let lastErr = null;
@@ -56,7 +58,9 @@ async function getJson(url) {
         lastReq = Date.now();
         out.requests++;
         try {
-            const r = await fetch(url, { headers: HDR, signal: AbortSignal.timeout(20000) });
+            let r;
+            try { r = await G.fetch(url, { headers: HDR, signal: AbortSignal.timeout(20000) }); }
+            catch (e) { if (e.name === "ReqError" && (e.kind === "BLOCKED" || e.local)) throw new Ban(e.message); throw e; }   // 熔断中/命中 403·429/超预算: 不重试, 直接按反爬停
             const txt = await r.text();
             if (r.status === 403 || r.status === 429) { lastErr = new Ban(`HTTP ${r.status}`); continue; }
             if (!r.ok) { lastErr = new Error(`HTTP ${r.status}`); continue; }
@@ -64,9 +68,11 @@ async function getJson(url) {
             try { j = JSON.parse(txt); } catch { lastErr = new Ban(`非 JSON 响应(疑反爬页): ${txt.slice(0, 80)}`); continue; }
             return j;
         } catch (e) {
+            if (e instanceof Ban && /熔断|BLOCKED|RATE_LIMIT/.test(e.message)) throw e;
             lastErr = e;
         }
     }
+    if (lastErr instanceof Ban) G.ban(lastErr.message);   // 4 次都是反爬页=熔断该源(冷却见配置), 后续进程不再硬打
     throw lastErr;
 }
 
@@ -153,6 +159,8 @@ function save(list, details) {
 
 // ---------- 加工 ----------
 const YOUZI = (readJson("scripts/lhb/youzi.json") || {}).map || {};
+// 10/14 用户定: 拉萨天团算游资(有游资故意用拉萨席位), 但标出具体营业部, 不合并成一个"拉萨天团"
+const yzName = (s) => { const y = YOUZI[s]; return y === "拉萨天团" ? `${s.replace(/^东方财富 /, "")}证券营业部` : y; };   // 用户: 直接写营业部原名, 如 拉萨金融城南环路证券营业部
 function seatShort(n) {
     n = (n || "").trim();
     const m = n.match(/^(.*?)(股份有限公司|有限责任公司|有限公司)(.*)$/);
@@ -214,7 +222,7 @@ function build(list, details) {
         const jg = (x) => /^机构(专用|投资者)?$/.test(x.OPERATEDEPT_NAME);              // 主板=机构专用; 北交所/可转债榜写法=机构投资者/机构
         const bx = (x) => /^(深股通|沪股通)(专用|投资者)?$/.test(x.OPERATEDEPT_NAME);
         const yz = new Map();
-        for (const x of uniq) { const n = YOUZI[seatShort(x.OPERATEDEPT_NAME)]; if (n) yz.set(n, (yz.get(n) || 0) + (+x.NET || 0)); }
+        for (const x of uniq) { const n = yzName(seatShort(x.OPERATEDEPT_NAME)); if (n) yz.set(n, (yz.get(n) || 0) + (+x.NET || 0)); }
         stocks.push({
             code, name: prim.SECURITY_NAME_ABBR, prim, rows, buy, sell,
             reasons: [...new Set(rows.map((r) => shortReason(r.EXPLANATION)))],
@@ -259,7 +267,7 @@ function templateTable() {
     return { head, sep, fns: head.map((h) => COL_VALUE[h] || (() => "-")) };
 }
 
-const seatLabel = (x) => { const s = seatShort(x.OPERATEDEPT_NAME); const y = YOUZI[s]; return esc(s) + (y ? `(${y})` : ""); };
+const seatLabel = (x) => { const s = seatShort(x.OPERATEDEPT_NAME); const y = YOUZI[s]; return esc(s) + (y ? `(${y})` : ""); };   // 明细里席位名本身已含营业部
 const yzCell = (m) => [...m].map(([n, v]) => `${n}${amt(v, true)}`).join(" ") || "-";
 
 function render(stocks, nRecords) {

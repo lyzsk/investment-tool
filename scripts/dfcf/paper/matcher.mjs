@@ -31,7 +31,7 @@ const BOOKS = path.join(DIR, "books");
 const CONFIG = { initCash: 100000, feeRate: 0.00025, minFee: 5, stampTax: 0.0005, slippage: 0 }; // 费率=参数化占位, 待与用户券商实收对账
 const SOURCES = [...new Set([  // 10/10 去重: 原名单 10 本重复列两次 → replay/eod/once 同账本载入两份副本各自存盘(后写覆盖, 成交统计翻倍)
     // 10/7 两级制扩容: A=纯机械(3UP全链+cb+10导师盘前), B=机械+人工
-    "A-taoge", "A-qushitiange", "A-lubenyuan", "A-cb", "A-liuyiqing", "A-lianghuaxiaohao", "A-a658", "A-bianbenling", "A-xingjianye", "A-daxingdaxingdadangxing", "A-gaogailvfuli", "A-xuanqiucaijing", "A-stzhilang", "A-chong5000w", "A-control",  // A-control=对照组(10/11)
+    "A-taoge", "A-qushitiange", "A-lubenyuan", "A-cb", "A-liuyiqing", "A-lianghuaxiaohao", "A-a658", "A-bianbenling", "A-xingjianye", "A-daxingdaxingdadangxing", "A-gaogailvfuli", "A-xuanqiucaijing", "A-stzhilang", "A-chong5000w", "A-antoo", "A-zhiyingjuexin", "A-control",  // A-control=对照组(10/11)
     "A-liuyiqing", "A-lianghuaxiaohao", "A-a658", "A-bianbenling", "A-xingjianye",
     "A-daxingdaxingdadangxing", "A-gaogailvfuli", "A-xuanqiucaijing", "A-stzhilang", "A-chong5000w",
     "B-taoge", "B-cb"])];  // C 线 10/7 作废(并入 B=机械+人工), books/C-*.json 留档只读

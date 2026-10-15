@@ -6,7 +6,11 @@
 // 导出: snapOne/snapMany/limitOf/isSealed —— matcher 撮合/驱动器验价/facts 共用同一真源
 // CLI: node scripts/dfcf/paper/snapshot.mjs --codes 600127,002050 [--src tencent] [--asof yyyy-MM-dd] [--json <f>] [--md <f>]
 const SRC_TIMEOUT = 8000;
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// 10/15 统一请求层(scripts/lib/req_guard.mjs): 按域名记账/熔断/日预算; 盘中盯盘在用 → maxWaitMs=0(源被限速/熔断就立刻换下一源, 绝不排队等),
+//   腾讯 qt 阈值宽(连败 8 次才停 3 分钟), 熔断只让本源让位, 其余 4 源照常
+import { gfetch } from "../../lib/req_guard.mjs";
+// 10/14: 所有等待自带 ±25% 抖动(固定间隔=机器指纹, 反爬最容易认); 调用处不用改
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms * (0.75 + Math.random() * 0.5)));
 
 // ---- 板限分档(2026-07-06 起主板 ST 同为 10%, 无需 ST 特判; 阈值留 0.3pt 余量防四舍五入漏判) ----
 export function limitOf(code) {
@@ -19,9 +23,12 @@ export function isSealed(s) {
 }
 
 // ---- 源实现: 统一返回 {code,name,prevClose,last,open,high,low,pct,src} ----
-const isBJ = (c) => /^(8|4|920)/.test(c);
-const tencentMkt = (c) => (/^(60|68|11[0138]|5)/.test(c) ? "sh" : "sz");
-const sinaMkt = (c) => (/^(60|68|11[0138]|5)/.test(c) ? "sh" : isBJ(c) ? "bj" : "sz");
+// 10/15: 支持带前缀代码(sh000001/sz399006 等指数, 也可 sh600000), 进同一份共享缓存; 6 位代码行为不变(000001=平安银行)
+const isPre = (c) => /^(sh|sz|bj)\d{6}$/.test(c);
+const isBJ = (c) => (isPre(c) ? c.startsWith("bj") : /^(8|4|920)/.test(c));
+const tencentMkt = (c) => (isPre(c) ? "" : /^(60|68|11[0138]|5)/.test(c) ? "sh" : "sz");   // 前缀代码自带市场, 拼接时前缀为空
+const sinaMkt = (c) => (isPre(c) ? "" : /^(60|68|11[0138]|5)/.test(c) ? "sh" : isBJ(c) ? "bj" : "sz");
+const emSecid = (c) => (isPre(c) ? `${c.startsWith("sh") ? 1 : 0}.${c.slice(2)}` : `${/^(60|68|11[0138]|5)/.test(c) ? 1 : 0}.${c}`);
 // 10/12 加 vol(手)/amt(元)/qtTime: 盘中盯盘(live_watch.mjs)算均价与量能节奏用; 只新增字段, 撮合/验价不受影响
 const qtParse = (code, f, src) => ({ code, name: f[1], last: +f[3], prevClose: +f[4], open: +f[5], high: +f[33], low: +f[34], pct: +f[32],
     vol: +f[6] || null, amt: f[37] ? +f[37] * 10000 : null, qtTime: f[30] || null, src });
@@ -30,7 +37,7 @@ async function fetchWithTimeout(url, headers) {
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), SRC_TIMEOUT);
     try {
-        const r = await fetch(url, { headers, signal: ctl.signal });
+        const r = await gfetch(url, { headers, signal: ctl.signal }, { maxWaitMs: 0 });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r;
     } finally { clearTimeout(t); }
@@ -43,7 +50,7 @@ async function fromTencent(code) {
     return qtParse(code, m[1].split("~"), "tencent");
 }
 const eastGet = (host, label) => async (code) => {  // 东财系两域名共用 API(push2 实时 / push2delay 延迟15分)
-    const secid = `${/^(60|68|11[0138]|5)/.test(code) ? 1 : 0}.${code}`;
+    const secid = emSecid(code);
     const r = await fetchWithTimeout(
         `https://${host}/api/qt/stock/get?secid=${secid}&fields=f43,f44,f45,f46,f57,f58,f60,f170&invt=2&fltt=2`,
         { Referer: "https://quote.eastmoney.com/" });
@@ -137,9 +144,12 @@ async function tencentBatch(codes) {   // 腾讯 qt 一次查多只: q=sh600000,
         try {
             const r = await fetchWithTimeout(`https://qt.gtimg.cn/q=${part.map((c) => tencentMkt(c) + c).join(",")}`, { Referer: "https://gu.qq.com/" });
             const txt = new TextDecoder("gbk").decode(await r.arrayBuffer());
-            for (const m of txt.matchAll(/v_(?:sh|sz)(\d{6})="([^"]*)"/g)) {
-                const s = qtParse(m[1], m[2].split("~"), "tencent_batch");
-                if (usable(s)) out[m[1]] = s;
+            const want = new Map(part.map((c) => [tencentMkt(c) + c, c]));   // 返回的 v_<sym> → 调用方给的代码(6 位或带前缀)
+            for (const m of txt.matchAll(/v_((?:sh|sz)\d{6})="([^"]*)"/g)) {
+                const c = want.get(m[1]);
+                if (!c) continue;
+                const s = qtParse(c, m[2].split("~"), "tencent_batch");
+                if (usable(s)) out[c] = s;
             }
         } catch { /* 整批失败=全部走逐只兜底 */ }
     }

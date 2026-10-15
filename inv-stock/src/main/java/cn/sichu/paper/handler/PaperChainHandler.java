@@ -66,8 +66,11 @@ public class PaperChainHandler implements JobHandler {
            给 180min; 盘中子链(02/04/06)与 review 40min。原 30min 一刀切从未生效过, 直接生效会误杀全部全链 */
         long timeoutMin = "0915".equals(slot) ? FULL_TIMEOUT_MIN : TIMEOUT_MIN;
         LocalDateTime startedAt = LocalDateTime.now();
+        trace(skill, slot, "start");
         ProcessUtils.Result res = ProcessUtils.run(pb, timeoutMin);
+        trace(skill, slot, "process-end exit=" + res.exit() + " timedOut=" + res.timedOut());
         ingest(skill, slot, today, res.timedOut() ? -1 : res.exit(), startedAt);
+        trace(skill, slot, "ingest-end");
         String tail = res.tail();
         if (res.timedOut()) {
             throw new BusinessException(
@@ -85,7 +88,21 @@ public class PaperChainHandler implements JobHandler {
                 "run_taoge_chain.py 失败 skill=" + skill + " slot=" + slot + " exit=" + exit
                     + ", 输出尾部: " + tail);
         }
+        trace(skill, slot, "return ok");
         return "paper 链完成 skill=" + skill + " slot=" + slot;
+    }
+
+    /**
+     * 10/14 排查 0915 调度日志缺 14 条: 每个阶段打一行 INFO(logback-spring.xml 落 logs/inv-admin.log, 重启不丢)
+     *
+     * @author sichu huang
+     * @param skill skill
+     * @param slot slot
+     * @param stage stage
+     * @since 2026/10/14
+     **/
+    private void trace(String skill, String slot, String stage) {
+        log.info("[paper-trace] {}:{} {}", skill, slot, stage);
     }
 
     /**

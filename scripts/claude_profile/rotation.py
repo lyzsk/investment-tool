@@ -28,16 +28,19 @@ def _find_cs():
 
 CS = _find_cs()
 ROT_FILE, STATE, USE_LOG = HERE / "rotation.txt", HERE / ".rotation_state.json", HERE / "profile_log.csv"
+# 10/15: rotation.txt 里写一行 follow-settings 就开启"跟随本机默认"(首选=用户 cs 切的那套; 撞额度窗口再按名单往后切)
 COOLDOWN_S = 5 * 3600
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 _files = {}
 
 
+FOLLOW_SETTINGS = ROT_FILE.exists() and any(l.strip() == "follow-settings" for l in ROT_FILE.read_text(encoding="utf-8").splitlines())
+
 def profiles():
     if not ROT_FILE.exists():
         return []
     raw = ROT_FILE.read_text(encoding="utf-8")
-    return [p.strip() for line in raw.splitlines() if not line.strip().startswith("#") for p in line.split(",") if p.strip()]
+    return [p.strip() for line in raw.splitlines() if not line.strip().startswith("#") for p in line.split(",") if p.strip() and p.strip() != "follow-settings"]
 
 
 def _state():
@@ -57,11 +60,38 @@ def _alive(s, p):
     return time.time() - s["exhausted"].get(p, 0) > COOLDOWN_S
 
 
+def _settings_profile():
+    """10/15 用户令: 自动化 claude -p 跟随本机默认(~/.claude/settings.json 现用哪套, 用户用 cs 切换的那套)。
+    只读: 调 mini-cc-switch 的 `cs current`(按 key 识别), 不读写 settings 本体; 识别不出=None(退回名单顺序)"""
+    if _settings_cache.get("t", 0) > time.time() - 60:
+        return _settings_cache.get("p")
+    p = None
+    if CS and CS.exists():
+        try:
+            r = subprocess.run(["node", str(CS), "current"], capture_output=True, text=True, encoding="utf-8",
+                               errors="replace", timeout=20, creationflags=NOWIN)
+            p = (r.stdout or "").strip().splitlines()[-1].strip() if r.stdout.strip() else None
+        except Exception:  # noqa: BLE001
+            p = None
+    _settings_cache.update(t=time.time(), p=p)
+    return p
+
+
+_settings_cache = {}
+
+
 def current_profile():
     ps = profiles()
     if not ps:
         return None
     s = _state()
+    # 跟随本机默认: 名单里有它且没撞额度窗口 → 优先用它(撞了窗口照常按名单往后切)
+    fp = _settings_profile() if FOLLOW_SETTINGS else None
+    if fp in ps and _alive(s, fp):
+        if s.get("current") != fp:
+            s["current"] = fp
+            _save(s)
+        return fp
     if s.get("current") in ps and _alive(s, s["current"]):
         return s["current"]
     for p in ps:   # 当前不在名单或已耗尽 → 名单里第一个可用的(优先级=名单顺序)

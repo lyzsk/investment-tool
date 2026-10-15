@@ -14,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { gfetch } from "../lib/req_guard.mjs";   // 10/15 统一请求层(金丝雀走 em_push2 源记账/熔断)
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 process.chdir(ROOT);
@@ -84,7 +85,7 @@ function mdSettled(date) {
 
 async function canary(tag) {
     try {
-        const r = await fetch("https://push2.eastmoney.com/api/qt/stock/get?secid=1.000001&fields=f43,f58", {
+        const r = await gfetch("https://push2.eastmoney.com/api/qt/stock/get?secid=1.000001&fields=f43,f58", {
             headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0 Safari/537.36" }, signal: AbortSignal.timeout(10000) });
         const j = await r.json();
         const ok = r.ok && j?.data?.f58;

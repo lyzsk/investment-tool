@@ -188,29 +188,65 @@ function mentorDigest() {
         out.push(`### 发哥(刹车: 回避信号一票否决级) 近20日纯命中 ${sc.last20.pureHitRate}\n` +
             seg.replace(/^## [^\n]*\n+/, "").trim().split("\n").filter((l) => /^\d+\./.test(l.trim())).join("\n"));
     } catch { }
-    // dir = skill 内 rules.md 所在目录(相对 skills/); 10/11 土豆 persona 子层已拍平, 全员统一 <skill>/persona
-    // (10/7 修双 persona 死路径 bug: 原拼 .../persona/buchitudou0/persona/rules.md, ruleHeads 静默空→土豆规则从未进过速览)
-    const mentors = [["liuyiqing-skill/persona", "刘忆青(波段隔夜/板块簇, 日均+1.10%)"], ["lianghuaxiaohao-skill/persona", "量化实验(程序化嫌疑,只看不跟)"],
-        ["a658-skill/persona", "A658(ST/次新极端风险, 教训为主)"], ["bianbenling-skill/persona", "边学本领(无止损反面教材)"],
-        ["xingjianye-skill/persona", "星见野(港/北交所重仓)"], ["buchitudou0-skill/persona", "不吃土豆0(转债T+0, A-cb用)"]];
-    for (const [dir, label] of mentors) {
-        const heads = ruleHeads(`skills/${dir}/rules.md`, /^###\s/).slice(0, 8);
-        if (heads.length) out.push("### " + label + "\n" + heads.join("\n"));
-    }
+    // 10/14 F3 修: 原表只接 6 位(大兴/高概率/宣秋/ST之狼/冲5000w 缺席, 卢本圆/天哥只读当日 md 小节), 且 /^###\s/ 抓进分区标题
+    // (量化"一、出场区"/边学"`[可跟]` 区")与模板占位(土豆"R<n>")。现: 全员统一一节, 每节=规则行+(B站导师)最近 md 小节;
+    // 节标题须含 run_taoge_chain.py MENTOR_HEAD 关键词(各链 01 按它切本导师小节, 同导师只能一个 ### 块)
+    const mentors = [["liuyiqing", "刘忆青(波段隔夜/板块簇, 日均+1.10%)"], ["lianghuaxiaohao", "量化实验(程序化嫌疑,只看不跟)"],
+        ["a658", "A658(ST/次新极端风险, 教训为主)"], ["bianbenling", "边学本领(无止损反面教材)"],
+        ["xingjianye", "星见野(港/北交所重仓)"], ["buchitudou0", "不吃土豆0(转债T+0, A-cb用)"],
+        ["daxingdaxingdadangxing", "大兴(最热连板/妖股, 单核集中)"], ["gaogailvfuli", "高概率(尾盘建仓博次日竞价/熟票反T)"],
+        ["xuanqiucaijing", "宣秋(两融满仓, 杠杆放大回撤)"], ["stzhilang", "ST之狼(ST 尾盘建仓隔夜)"],
+        ["chong5000w", "冲5000w(两融单核重仓; ⚠️W1 腿方向数据疑失真)"],
+        ["antoo", "antoo(高风险型: 融资重仓主线高频做T)"], ["zhiyingjuexin", "芷影攫心(早盘情绪接力/打板)"],   // 10/15 新增
+        ["lubenyuan", "卢本圆(盘中实战, 晨报型)", "卢本圆复盘"], ["qushitiange", "趋势天哥(趋势视角)", "趋势天哥"]];
     const mdDate = D1 || date;  // as-of: D 的 md 复盘节=D 盘后才写入(后见之明), 改读 D1 的(D 盘前已存在)
-    const [y, m] = mdDate.split("-");
-    try {
-        const text = fs.readFileSync(path.join("md", `${y}S${Math.ceil(+m / 3)}`, `${mdDate}.md`), "utf8");
-        for (const [name, tag] of [["卢本圆复盘", "卢本圆(盘中实战, 晨报型)"], ["趋势天哥", "趋势天哥(趋势视角)"]]) {
-            const si = text.indexOf("#### " + name);
-            if (si === -1) continue;
-            const rest = text.slice(si);
-            const endM = rest.slice(10).match(/^#{2,4} /m);
-            const sec = (endM ? rest.slice(0, 10 + endM.index) : rest).replace(/\s+/g, " ").slice(0, 400);
-            out.push(`### ${D1 ? `前一交易日(${D1})` : "当日"} ` + tag + " 小节速览(截断)\n" + sec);
-        }
-    } catch { }
+    for (const [skill, label, mdName] of mentors) {
+        const lines = ruleLines(skill, !!mdName);
+        const s = mdName ? latestMdSection(mdName, mdDate) : null;
+        if (s) lines.push(`- ${s.day === date ? "当日" : s.day} md 小节速览(截断): ${s.sec}`);
+        out.push("### " + label + "\n" + (lines.length ? lines.join("\n") : `(skills/${skill}-skill/persona/rules.md 无可读规则行)`));
+    }
     return out.length ? out.join("\n\n") : "(导师速览构建失败, 各源信号本次缺席)";
+}
+// 规则行: tzzb 导师只认编号标题(### / #### Rn), B站导师只认 "- **L1 名**" 列表(tzzb 正文里 "- **W1 注**/**H1 口径警示**" 是注释非规则), 跳过停用/打脸/证伪条;
+// 排序 [可跟]/md验证 > [教训] > 其余(原文序稳定)
+// as-of: 行内任一日期 ≥ 链日=规则状态含后见之明, 整行剔除并计数。只防得住"状态日期", 防不住"规则出生日"(出生日不在标题行,
+// 如 liuyiqing R6 生于 10/11)——这一口子同既有 tzzb 速览, 仍须 06/盲审按 rules_index 披露
+const RULE_HEAD = /^#{3,4}\s+R\d+\s/, RULE_BULLET = /^- \*\*[A-Z]\d+\s/;
+const RULE_DEAD = /停用|~~|\|已打脸\]|\[已证伪/;
+function ruleLines(skill, bullet = false, cap = 8) {
+    let text;
+    try { text = fs.readFileSync(`skills/${skill}-skill/persona/rules.md`, "utf8"); } catch { return []; }
+    const re = bullet ? RULE_BULLET : RULE_HEAD;
+    let rows = text.split("\n").filter((l) => re.test(l) && !RULE_DEAD.test(l))
+        .map((l) => l.replace(/^#+\s*|^- /, "").replace(/\*\*:?|`/g, "").replace(/\s*(（[^）]*）|【[^】]*】)\s*$/, "").trim());
+    let leak = 0;
+    if (ASOF) rows = rows.filter((l) => !(l.match(/20\d\d-\d\d-\d\d/g) || []).some((d) => d >= ASOF) || !++leak);
+    const rank = (l) => (/\[可跟|md 验证|✅/.test(l) ? 0 : /\[教训/.test(l) ? 1 : 2);
+    rows = rows.map((l, i) => [rank(l), i, l]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map((x) => x[2]);
+    const out = rows.slice(0, cap).map((l) => l.slice(0, 90));
+    if (rows.length > cap) out.push(`(另 ${rows.length - cap} 条未列, 见 skills/${skill}-skill/persona/rules.md)`);
+    if (leak) out.push(`(as-of: ${leak} 条规则状态日期 ≥ ${ASOF}, 已剔除)`);
+    return out;
+}
+// B站导师 md 小节: 天哥 17:45 盘后发稿、卢本圆 08:08 晨报, 均晚于 07:50 开跑 → 当日小节常空; 取 ≤upto 最近 5 份 md 里首个非空小节并标日期
+function latestMdSection(name, upto) {
+    let files = [];
+    try {
+        for (const q of fs.readdirSync("md").filter((d) => /^\d{4}S\d$/.test(d)))
+            for (const f of fs.readdirSync(path.join("md", q))) if (/^\d{4}-\d\d-\d\d\.md$/.test(f) && f.slice(0, 10) <= upto) files.push(path.join("md", q, f));
+    } catch { return null; }
+    files = files.sort((a, b) => path.basename(b).localeCompare(path.basename(a))).slice(0, 5);
+    for (const f of files) {
+        const text = fs.readFileSync(f, "utf8");
+        const si = text.indexOf("#### " + name);
+        if (si === -1) continue;
+        const rest = text.slice(si);
+        const endM = rest.slice(10).match(/^#{2,4} /m);
+        const sec = (endM ? rest.slice(0, 10 + endM.index) : rest).replace(/^#### [^\n]*\n/, "").replace(/\s+/g, " ").trim();
+        if (sec.length >= 20) return { day: path.basename(f, ".md"), sec: sec.slice(0, 400) };
+    }
+    return null;
 }
 
 // 10/13 用户令(0915 改 07:50 开跑的配套): 当日财联社早报要点 + 发哥盘前推演要点进事实包——此前事实包完全不读当日这两样,
@@ -254,7 +290,7 @@ function lhbDigest() {
             for (const s of all.values()) {
                 if (s.OPERATEDEPT_NAME === "机构专用") { inst += s.NET || 0; ni++; continue; }
                 const k = short(s.OPERATEDEPT_NAME), y = yz[k] || Object.entries(yz).find(([kk]) => k.includes(kk))?.[1];
-                if (y) { const nm = typeof y === "string" ? y : y.name || k; hot.set(nm, (hot.get(nm) || 0) + (s.NET || 0)); }
+                if (y) { let nm = typeof y === "string" ? y : y.name || k; if (nm === "拉萨天团") nm = `${k.replace(/^东方财富 /, "")}证券营业部`; hot.set(nm, (hot.get(nm) || 0) + (s.NET || 0)); }   // 10/14: 拉萨标营业部
             }
             return { inst, ni, hot: [...hot].sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).map(([n, v]) => `${n}${amt(v)}`) };
         } catch { return null; }

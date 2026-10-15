@@ -14,7 +14,8 @@ import path from 'path';
 import http from 'http';
 import https from 'https';
 import { fileURLToPath } from 'url';
-import { logHealth, latestPriorScan } from './quotes/client.mjs';  // 10/7 数据源治理: 健康台账+昨日降级
+import { logHealth, latestPriorScan } from './quotes/client.mjs';
+import { gcall } from './lib/req_guard.mjs';  // 10/15 统一请求层: 按域名记账/熔断/窗口(push2 18 次/5min), 熔断中的源直接抛错走本脚本已有的备源  // 10/7 数据源治理: 健康台账+昨日降级
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' };
 const EM_REF = { Referer: 'https://quote.eastmoney.com/' };
@@ -25,6 +26,9 @@ const jitter = () => sleep(800 + Math.random() * 1200);  // 绝不打固定节�
 // 强制 IPv4(family:4) 即通 —— 全脚本统一走 https/http 模块 family:4, 不用全局 fetch。
 // (push2ex 的 v6 恰好是通的所以涨停池首测"侥幸"成功, 别被误导; python urllib 默认 v4 所以 board_rank 一直没事)
 function fetchBuf(url, headers = {}, timeoutMs = 8000) {
+  return gcall(url, () => fetchBufRaw(url, headers, timeoutMs), { maxWaitMs: 15000 });  // facts.mjs 给 scan 120s 总时限, 限速等待封顶 15s
+}
+function fetchBufRaw(url, headers = {}, timeoutMs = 8000) {
   return new Promise((resolve, reject) => {
     const mod = url.startsWith('https') ? https : http;
     const req = mod.get(url, { family: 4, headers: { ...UA, ...headers }, timeout: timeoutMs }, res => {
@@ -141,10 +145,12 @@ async function clsLianban() {
   return j.data.map(x => ({ code: x.secu_code.replace(/^(sh|sz|bj)/, ''), name: x.secu_name.trim(), lb: x.limit_up_days || 1,
     hy: String(x.up_reason || '').includes('|') ? String(x.up_reason).split('|')[0].trim() : (x.is_st ? 'ST' : '') })).map(r => ({ ...r, tradeDate }));
 }
+// 10/14 用户定口径: 窗口内涨停次数 = "N天M板"(3天3板/3天2板都可能); 东财 zttj.days/ct 直接给; 财联社备源只有连续天数, 记作 N天N板
 function tiersMd(rows, head) {
   const tiers = {};
-  for (const r of rows.sort((a, b) => b.lb - a.lb)) (tiers[r.lb] = tiers[r.lb] || []).push(`${r.name}(${r.hy})`);
-  return [head].concat(Object.keys(tiers).sort((a, b) => b - a).map(k => `${k}连板[${tiers[k].length}]: ${tiers[k].join(' ')}`)).join('\n');
+  const lab = (r) => ((r.days || r.lb) <= 1 && r.lb <= 1 ? '首板' : `${r.days || r.lb}天${r.lb}板`);
+  for (const r of rows.sort((a, b) => b.lb - a.lb || (a.days || a.lb) - (b.days || b.lb))) (tiers[lab(r)] = tiers[lab(r)] || []).push(`${r.name}(${r.hy})`);
+  return [head].concat(Object.entries(tiers).map(([k, v]) => `${k}[${v.length}]: ${v.join(' ')}`)).join('\n');
 }
 // 故障转移(10/14): 东财涨停池(主) → 财联社涨停池(备①, 仅实时口径) → md 加红电报解析(备②, 只含焦点股, 10/6 写好但此前未接线)
 // SCAN_DRILL=ztpool 环境变量=演练开关(模拟东财失败, 验备源; 生产不设)
@@ -154,7 +160,7 @@ async function board连板(date, maxBack = 5, asof = false) {
     if (process.env.SCAN_DRILL === 'ztpool') throw new Error('演练: 模拟东财涨停池失败');
     const { pool, tradeDate } = await emPool('ZT', date, maxBack);
     // zttj.ct=连板数, zttj.days=统计天数; 按连板数降序织梯队
-    const rows = pool.map(x => ({ code: x.c, name: x.n, lb: x.zttj ? x.zttj.ct : 1, hy: x.hybk || '', fund: x.fund }));
+    const rows = pool.map(x => ({ code: x.c, name: x.n, lb: x.zttj ? x.zttj.ct : 1, days: x.zttj ? x.zttj.days : 1, hy: x.hybk || '', fund: x.fund }));
     return { src: 'eastmoney-ztpool', md: tiersMd(rows, `(涨停池日期=${tradeDate}, 涨停 ${rows.length} 只)`), raw: rows, tradeDate };
   } catch (e) { emErr = e; }
   if (asof) throw emErr;  // as-of 禁降级: 备源都只有实时/当日数据

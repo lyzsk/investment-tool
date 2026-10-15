@@ -9,3 +9,25 @@ CHAIN_TRACE_TOOLS=0
 # 结算/反思= scripts/dfcf/paper/settle_decisions.py(收盘后跑); 先只在对照组试
 CHAIN_REFLECTION=1
 CHAIN_REFLECTION_SKILLS=control
+# 10/14 晚 盘中子链修复(§3-A; 驱动器 run_taoge_chain.py; selftest 强制全关; 全关=逐字节旧行为, 证明见 scripts/temp/subfix_1014/identity_check.py)
+# ① 总仓下限只约束主动减仓: 止损/保护线/失效离场卖单(06 action exit_kind=stop|protect|invalid)放行且不受 05 批准集约束
+CHAIN_FIX_FLOOR_EXIT=1
+# ② contract 把决定交用户(交用户/待用户/用户裁…)=回炉(末次放行)
+CHAIN_FIX_NO_DEFER=1
+# ④ 子链 ESCALATE(02 市况变 / 06 escalate)=本 slot 带"市况已重判"重跑 02→04→06 一次; 仍升级=单照发+exit 3; 预算 params.yaml subchain_gate.esc_rerun_max_elapsed_s
+CHAIN_FIX_ESC_RERUN=1
+# ⑤ 子链 04/06 注入 0915-05 批准名单+持仓+挂单, v04 校验候选 ⊆ 名单(末次机械剔除)
+CHAIN_FIX_SUB_APPROVED=1
+# 06 actions 空 ⇒ holds 或 no_trade_reason 二选一(末次放行)
+CHAIN_FIX_HOLDS=1
+# 零 token 触发闸 A(阈值 params.yaml subchain_gate; fail-open; 10/13~14 回算只会跳过 ~2%)
+CHAIN_SUBCHAIN_GATE=1
+# 子链合并 D(02/04/06 一次调用+分块 resume); 回放验收见 docs/TODO.md §3-A
+CHAIN_SUBCHAIN_MERGE=1
+# 10/14 夜 §3-A6 0915 降本三改造(驱动器 run_taoge_chain.py; 只管 0915 全链+非转债链; 全关=逐字节旧行为, 证明见 scripts/temp/a6_1014/identity_check.py)
+# 1 材料内联: 每步模板要读的文件由驱动器原文附进 prompt(保留 Read)
+CHAIN_INLINE_CTX=0
+# 2 共用开头(需 1): facts.md+01_market+通用规范=同 slot 全链共享首会话, 各步 --fork-session 分叉
+CHAIN_SHARED_PREFIX=0
+# 3 A6 主会话(需 1): 02→04→06 同会话 --resume; 03/05/盲审独立会话, 产物已附回注
+CHAIN_MAIN_SESSION=0

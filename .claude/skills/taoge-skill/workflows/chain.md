@@ -351,3 +351,22 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ```
 末行只写：STEP_OK 06 {date}
 ````
+
+## 盘中子链修复字段（10/14 晚新增；只新增可选字段，驱动器开关见 scripts/claude_profile/chain_flags.txt，开关关=旧行为）
+
+- 本段不是 prompt 模板（无 step 标记），只登记契约新增字段；模型看到的说明由驱动器在开关打开时机械追加到 prompt 末尾「驱动器补充约束」块。
+- **06 actions[].exit_kind**（可选，`CHAIN_FIX_FLOOR_EXIT`）：`stop`=止损 / `protect`=保护线·移动止盈 / `invalid`=买入逻辑失效 / `discretionary`=主动调仓（缺省）。前三种只许用于**现有持仓的卖单**：不计入总仓下限口径、不受 05 批准集约束（离场纪律优先于下限）；主动减仓照旧受下限约束。
+- **不许交用户**（`CHAIN_FIX_NO_DEFER`）：paper 链没有用户，02/04/06 contract 出现"交用户/待用户/用户裁"类字样=回炉，规则内自己裁决（拿不准取保守一侧）。
+- **06 escalate**（可选布尔，`CHAIN_FIX_ESC_RERUN`）：子链 06 判市况变到盘前框架失效时写 `"escalate":true`；驱动器在本 slot 带"市况已重判"提示重跑 02→04→06 一次（02 市况三态变同样触发）；重跑后仍升级=单照发 + exit 3。时间预算见 params.yaml `subchain_gate.esc_rerun_max_elapsed_s`。
+- **子链名单**（`CHAIN_FIX_SUB_APPROVED`）：子链没有 05，04/06 标的只能 ⊆ 0915-05 批准∪条件批准 ∪ 持仓 ∪ 未成交挂单（驱动器把名单注入 prompt，v04 校验，名单外=回炉，末次机械剔除）。
+- **06 holds / no_trade_reason**（可选，`CHAIN_FIX_HOLDS`）：actions 为空时二选一必填——`"holds":[{"order_id":"挂单号" 或 "code":"6位代码","why":"为何维持"}]` 或 `"no_trade_reason":"一句话"`。报表/入库不依赖它。
+- **零 token 触发闸**（`CHAIN_SUBCHAIN_GATE`）：自上一已跑 slot 以来无账本事件/价格指数异动/命中电报且非 1000/1455 → 驱动器不调模型，机械写 06 维持产物（contract 含 `"gate_skipped":true` + holds + no_trade_reason）。
+- **子链合并**（`CHAIN_SUBCHAIN_MERGE`）：02/04/06 三段模板拼成一次调用（同会话依次写三个文件），驱动器分块校验，坏块用 `--resume` 同会话只重写那块；产物文件名/契约不变。
+
+## 0915 降本三改造登记（10/14 夜新增，§3-A6；驱动器开关见 scripts/claude_profile/chain_flags.txt，开关关=旧行为；10/14 夜回放未过，三个开关均为 0）
+
+- 本段不是 prompt 模板（无 step 标记），只登记驱动器行为；各步模板文字不变，开启时驱动器在模板前机械加「驱动器已附材料」块。只管 0915 全链 + 股票链（转债链 buchitudou0 排除，盘中子链不动）。
+- `CHAIN_INLINE_CTX`（材料内联）：每步模板里"读 xxx"的文件（01~05 产物、本链 rules_index.md、cand_snap.md、paper_state.json）由驱动器读原文附进 prompt（`<file path=...>` 块，同一份只附一次），视为已读；保留 Read/Grep，规则全文仍按编号 grep。盲审只附 01+06+cand_snap+rules_index（不给中间环节）。
+- `CHAIN_SHARED_PREFIX`（共用开头，需内联）：同 date/slot 由首条链建"共享开头会话"（facts.md + 01_market.md + 本文通用规范，只回 OK），各链再分叉建"本链开头会话"（01_facts.md 去掉与 01_market 逐字相同的正文 + rules_index.md），各步 `--resume <本链开头> --fork-session` 分叉。
+- `CHAIN_MAIN_SESSION`（A6 主会话，需内联）：02→04→06 同一会话 `--resume` 续接（04/06 只附会话里没出现过的新材料：03 裁判、05、cand_snap），contract 不过=同会话只重写那一块；03 多/空/裁判、05、盲审各自独立会话。
+- 记账：`--resume`（含 fork）时 claude 返回的 total_cost_usd 是"父会话累计+本次"，驱动器 A6 路径已扣父会话累计。

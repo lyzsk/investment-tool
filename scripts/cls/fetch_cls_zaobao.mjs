@@ -16,6 +16,7 @@
 // 防封铁律: 伪装桌面 Chrome + 3 次退避重试 + 抖动 ×0.75~1.25; 失败显式非0, 不编数据
 import fs from "node:fs";
 import path from "node:path";
+import { gfetch } from "../lib/req_guard.mjs";   // 10/15 统一请求层: 按域名记账/熔断/日预算(scripts/lib/req_guard_sources.json)
 
 const ARGS = process.argv.slice(2);
 const opt = (k) => { const i = ARGS.indexOf(k); return i === -1 ? null : ARGS[i + 1]; };
@@ -100,7 +101,7 @@ function mount(date, meta) {
             let sub = null, e1 = "";
             for (let i = 1; i <= 3 && !sub; i++) {
                 try {
-                    const r = await fetch("https://api3.cls.cn/share/subject/1151?os=android&sv=884", { headers: UA });
+                    const r = await gfetch("https://api3.cls.cn/share/subject/1151?os=android&sv=884", { headers: UA });
                     if (!r.ok) throw new Error(`HTTP ${r.status}`);
                     sub = await r.text();
                 } catch (e) { e1 = e.message; if (i < 3) await sleep(jitter(1000 * i)); }
@@ -115,7 +116,7 @@ function mount(date, meta) {
         let html = null, lastErr = "";
         for (let i = 1; i <= 3; i++) {
             try {
-                const r = await fetch(URL_IN, { headers: UA, redirect: "follow" });
+                const r = await gfetch(URL_IN, { headers: UA, redirect: "follow" });
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
                 html = await r.text();
                 break;
@@ -127,7 +128,9 @@ function mount(date, meta) {
         if (!p.title.includes("早报")) console.warn(`⚠️ 标题不含"早报": ${p.title}`);
         // 10/7 修: ctime 提取失败(null)时不再回退到今天——早报讲的是昨天新闻, 回退今天必错;
         // 改为从正文首段提取"X月X日"推算发布日(+1), 提不出则报错要求 --date
-        if (DATE_IN) { date = DATE_IN; }
+        // 10/15 修: --discover 时日期必须取页面 ctime 再和 --date 比对; 原先 --date 直接覆盖 → 下面的"不是目标日"检查永远通过,
+        // 07:00:27 专题页最新一条还是 10/14 早报, 被当成 10/15 落盘+蒸馏(01 发现要点与昨日逐条重合)
+        if (DATE_IN && !DISCOVER) { date = DATE_IN; }
         else if (p.ctime) { date = p.ctime.slice(0, 10); }
         else {
             const m = p.text.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);

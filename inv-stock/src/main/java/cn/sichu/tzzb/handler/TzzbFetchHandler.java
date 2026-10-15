@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,16 +39,43 @@ public class TzzbFetchHandler implements JobHandler {
     public String execute(String params) throws Exception {
         LocalDate expect = expectedNavDay();
         StringBuilder sb = new StringBuilder();
+        /* 10/14: 原先任一账本失败就整轮抛异常, 排在后面的账本全不抓(10/14 15:13 起 16 个账本只抓到 2 个);
+           改为: 凭证失效=跳过该账本继续; IP 被封=立即停本轮(再抓只会延长封禁); 其余失败=记下继续 */
+        List<String> failed = new ArrayList<>();
+        boolean first = true;
         for (String ledger : loadLedgers()) {
             if (tzzbRecordService.hasNavDay(ledger, expect)) {
                 sb.append(ledger).append("已最新,跳过; ");
                 continue;
             }
-            runNode(ledger);
+            /* 10/15: 真正要抓的账本之间隔 30~60 秒随机(像人逐个点开, 防同花顺反爬按频率识别); 已最新跳过的不等 */
+            if (!first) {
+                TimeUnit.SECONDS.sleep(30 + ThreadLocalRandom.current().nextInt(31));
+            }
+            first = false;
+            try {
+                runNode(ledger);
+            } catch (IpBannedException e) {
+                throw new BusinessException("tzzb[" + expect + "] 同花顺封了本机 IP, 本轮停止(已完成: " + sb + "): " + e.getMessage());
+            } catch (BusinessException e) {
+                failed.add(ledger);
+                sb.append(ledger).append(": 失败(").append(e.getMessage()).append("); ");
+                continue;
+            }
             sb.append(ledger).append(": ").append(tzzbRecordService.syncFromRawJson(ledger))
                 .append("; ");
         }
+        if (!failed.isEmpty()) {
+            throw new BusinessException("tzzb[" + expect + "] 有 " + failed.size() + " 个账本失败 " + failed + ", 其余已抓: " + sb);
+        }
         return "tzzb[" + expect + "] " + sb;
+    }
+
+    /** fetch_tzzb.mjs 退出码 5: 同花顺 WAF 返回 Nginx forbidden(封 IP) */
+    private static class IpBannedException extends RuntimeException {
+        IpBannedException(String msg) {
+            super(msg);
+        }
     }
 
     private LocalDate expectedNavDay() {
@@ -100,6 +128,9 @@ public class TzzbFetchHandler implements JobHandler {
         } catch (Exception e) {
             throw new BusinessException(
                 "调 fetch_tzzb.mjs 异常 ledger=" + ledger + ": " + e.getMessage());
+        }
+        if (exit == 5) {
+            throw new IpBannedException("ledger=" + ledger + " 输出尾部: " + tail.toString().trim());
         }
         if (exit == 2) {
             throw new BusinessException("tzzb 凭证失效 ledger=" + ledger

@@ -34,21 +34,29 @@ def run_on(target, args, timeout=90):
     return out.strip()
 
 
-def wait_reply(target, mark, wait):
-    """看守: 每 10 秒读一次对方会话记录, 答完(turn_duration)即返回; 超过 wait 秒返回已写出的部分"""
+def wait_reply(target, mark, wait, first=False, skip=""):
+    """看守: 每 10 秒读一次对方会话记录, 答完(turn_duration)即返回; 超过 wait 秒返回已写出的部分。
+    10/14 两段式: first=True 时对方一写出第一段文字(快版)就先返回(exit 3), 调用方转述后再 --fetch --rest 等完整版;
+    skip=已转述过的快版文字, 完整版只打印它之后的部分"""
     t0, last = time.time(), {}
     while time.time() - t0 < wait:
-        time.sleep(10)
+        time.sleep(5 if first else 10)
         try:
             last = json.loads(run_on(target, ["read", mark]).splitlines()[-1])
         except (ValueError, IndexError, subprocess.TimeoutExpired):
             continue
         if last.get("status") == "done":
             break
+        if first and (last.get("text") or "").strip():
+            print(f"---- {target} 快版(完整版还在写; 转述后后台跑: cli_relay.py {target} --fetch \"{mark}\" --rest) ----\n{last['text']}")
+            return 3
     st = last.get("status", "not_found")
     note = {"done": "", "pending": f"(等了 {wait} 秒还没答完, 以下是目前已写出的部分; 稍后取: cli_relay.py {target} --fetch \"{mark}\")",
             "not_found": "(对方会话记录里没找到这条消息: 可能没发出去、输入框里卡着, 或对方窗口不是 Claude Code)"}[st]
-    print(f"---- {target} 回复 {note}----\n{last.get('text') or '(无)'}")
+    text = last.get("text") or ""
+    if skip and text.startswith(skip.strip()):
+        text = text[len(skip.strip()):].strip() or "(复核无补充)"
+    print(f"---- {target} 回复 {note}----\n{text or '(无)'}")
     return 0 if st == "done" else 1
 
 
@@ -58,6 +66,8 @@ def main():
     ap.add_argument("message", nargs="?")
     ap.add_argument("--wait", type=int, default=1800, help="最长等多少秒(默认 30 分钟; 对方忙时消息排在它手上任务后面)")
     ap.add_argument("--fetch", metavar="标记", help="不发消息, 只按标记取回之前那条的回复(超时后补取用)")
+    ap.add_argument("--rest", action="store_true", help="配 --fetch: 等到对方答完(最长 15 分钟), 只打印快版之后的完整版部分")
+    ap.add_argument("--one-shot", action="store_true", help="不分两段, 答完一次性返回(旧行为)")
     a = ap.parse_args()
     target, msg = a.target.strip(), a.message
     m = re.match(r"^\s*(pc\d)\s*cli\s*[:：]\s*(.+)$", target, re.S | re.I)
@@ -65,6 +75,12 @@ def main():
         target, msg = m.group(1).lower(), m.group(2).strip()
     target = target.lower()
     if target in HOSTS and a.fetch:
+        if a.rest:   # 两段式第二段: 先取快版文字作 skip, 再等答完
+            try:
+                first = json.loads(run_on(target, ["read", a.fetch]).splitlines()[-1]).get("text", "").split("\n\n")[0]
+            except (ValueError, IndexError, subprocess.TimeoutExpired):
+                first = ""
+            return wait_reply(target, a.fetch, min(a.wait, 900), skip=first)
         return wait_reply(target, a.fetch, 15)
     if target not in HOSTS or not msg:
         print(f"用法: cli_relay.py \"pcN cli: 消息\" [--wait 秒] | cli_relay.py pcN --fetch \"<标记>\"(可用: {', '.join(k for k in HOSTS if k.startswith('pc'))})")
@@ -75,7 +91,7 @@ def main():
     print(f"送达 {target}: {sent} 标记 {mark}", flush=True)
     if not sent.startswith("SENT"):
         return 1
-    return wait_reply(target, mark, a.wait)
+    return wait_reply(target, mark, a.wait, first=not a.one_shot)
 
 
 if __name__ == "__main__":

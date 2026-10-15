@@ -15,13 +15,23 @@ LEDGERS = json.loads((ROOT / "scripts/tzzb/tzzb_ledgers.json").read_text(encodin
 NAME_OF = {l["ledger"]: l["name"] for l in LEDGERS}
 
 # ============ 共享层 ============
+def norm_leg(t):
+    """10/15(同 gen_tzzb_md normOp): 两融账户 op=252 融资买入/235 担保品买入/256 卖券还款, 原逻辑只认 op=="1" 为买 → 融资买入被当卖;
+    按 buy_sell(1/3/7=买类, 2/4/8=卖类)归一成 "1"/"2", 原值留 op_raw"""
+    op = t.get("op")
+    if op in ("1", "2"): return t
+    bs = str(t.get("buy_sell"))
+    n = "1" if bs in ("1", "3", "7") else "2" if bs in ("2", "4", "8") else ("1" if op in ("252", "235") else "2" if op == "256" else op)
+    return {**t, "op": n, "op_raw": op}
+
 def load_legs(ledger):
-    """载腿(去重键 trans_date|op|stock_code)"""
+    """载腿(去重键 trans_date|op|stock_code|trans_count|trans_price; 10/15 加量价: 原三元键吞掉同秒/手录 00:00:00 的不同腿)"""
     d = ROOT / "downloads/tzzb" / ledger
     legs, seen = [], set()
     for f in d.glob("change_bs_*.json"):
         for t in json.loads(f.read_text(encoding="utf-8"))["ex_data"]["change_list"]:
-            k = (t["trans_date"], t["op"], t["stock_code"])
+            t = norm_leg(t)
+            k = (t["trans_date"], t["op"], t["stock_code"], t.get("trans_count"), t.get("trans_price"))
             if k in seen: continue
             seen.add(k); legs.append(t)
     return legs

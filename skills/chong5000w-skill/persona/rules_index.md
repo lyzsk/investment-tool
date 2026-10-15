@@ -1,4 +1,4 @@
-# rules_index.md — chong5000w 决策规则索引(B3 分级加载; 生成于 2026-10-13 23:51)
+# rules_index.md — chong5000w 决策规则索引(B3 分级加载; 生成于 2026-10-14 06:36)
 > 源: rules.md(10 条/10KB)。本索引=常驻; **禁全量读 rules.md**。
 > 捞全文: grep -n "<编号> " skills/chong5000w-skill/persona/rules.md 得行号, 读到下一条规则前(10/11 修: 原写死 taoge 路径)。
 > 标记: ✅=已验证(md/plan-a) ⏳=待验证/话术 ❌=已证伪/已失效(反例优先, 保留)

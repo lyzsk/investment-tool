@@ -7,13 +7,51 @@
 // CLI: node scripts/quotes/kline.mjs --codes 002428,1.000001 [--src east] [--dir <d>] [--full]
 import fs from "node:fs";
 import path from "node:path";
+import { gfetch } from "../lib/req_guard.mjs";   // 10/15 统一请求层: 按域名记账/熔断/窗口(腾讯 ifzq ≤25 次/分), 熔断中的源直接抛错 → 注册表下一源
 
 const UA = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36", Referer: "https://quote.eastmoney.com/" };
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// 10/14: 所有等待自带 ±25% 抖动(固定间隔=机器指纹, 反爬最容易认); 调用处不用改
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms * (0.75 + Math.random() * 0.5)));
 const isIdx = (code) => code.includes(".");
 const mktSym = (code) => isIdx(code) ? (code.startsWith("1.") ? "sh" + code.slice(2) : "sz" + code.slice(2))
     : (/^(60|68|11[0138]|5)/.test(code) ? "sh" : "sz") + code;
 const secid = (code) => isIdx(code) ? code : (/^(60|68|11[0138]|5)/.test(code) ? "1." : "0.") + code;
+
+// ---- 行情库源(10/15, TODO §3-B-3): 只读查 investment_market.kline_day + adjustment_factor(经 scripts/quotes/kline_db.py, pymysql 只 SELECT) ----
+// 口径: 前复权=原价×F(当日)/F(最新)(等比, 与 sina-qfq 同; 东财/腾讯是等差, 早于最近除权日的老段差 ≤1%, 见 sinaQfqDaily 注释);
+//   指数/无因子标的=原价; 量 股→手(÷100), 额=元; 价 2 位(ETF/转债 3 位)——与东财归档同格式。
+// 新鲜度闸(不新鲜=抛错, fetchDaily 自动落到网络源, 输出格式不变):
+//   ①该票末根日期 ≠ 库内交易日历最新日(上证指数末根)=缺数/停牌 → 走网络; ②工作日 09:30 后库内最新日 < 今天=今天的 K 线(盘中实时/收盘未入库)只有网络有 → 走网络
+//   ③klt≠101(周/月/分钟)库里没有 → 走网络; ④请求起点早于库首根且库首根不是上市日(库只回补到 2018-07)=历史截断 → 走网络。--src db 强制只用库(排障); opt.noDb / 环境 KLINE_NO_DB=1 跳过本源。
+import { spawnSync } from "node:child_process";
+import { fileURLToPath as _f2p } from "node:url";
+const _QDIR = path.dirname(_f2p(import.meta.url));
+const _PY = path.resolve(_QDIR, "../venv/Scripts/python.exe");
+const dbSym = (code) => isIdx(code) ? mktSym(code) : (/^(8|4|920)/.test(code) ? "bj" + code : mktSym(code));
+async function dbDaily(code, { beg = "19900101", klt = 101 } = {}) {
+    if (+klt !== 101) throw new Error("db 只有日线");
+    const sym = dbSym(code);
+    const r = spawnSync(_PY, ["-X", "utf8", path.join(_QDIR, "kline_db.py"), sym, "--beg", beg], { encoding: "utf8", windowsHide: true, timeout: 30000 });
+    if (r.status !== 0) throw new Error(`db 查询失败: ${(r.stderr || r.error?.message || "").trim().split("\n").pop()?.slice(0, 120)}`);
+    const j = JSON.parse(r.stdout);
+    const x = j.data?.[sym];
+    if (!x?.bars?.length) throw new Error(`db 无 ${sym}`);
+    const last = x.bars.at(-1)[0], first = x.firstDate || x.bars[0][0];   // first=该票在库里的最早一根(不受 beg 影响)
+    // 库里多数票只有 2018-07 起的 8 年(深翻补全是 TODO B5): 请求更早且库首根不是上市首日 → 历史被截断, 走网络(全量档不能比网络短)
+    const begD = `${beg.slice(0, 4)}-${beg.slice(4, 6)}-${beg.slice(6, 8)}`;
+    if (begD < first && !(x.listDate && Date.parse(x.listDate) >= Date.parse(first) - 15 * 864e5) && process.env.KLINE_OFFLINE !== "1")   // 离线回放只要近段, 库史截断也收
+        throw new Error(`db ${sym} 历史只从 ${first} 起(上市 ${x.listDate || "?"}), 请求自 ${begD} → 走网络`);
+    if (last !== j.maxDate) throw new Error(`db ${sym} 末根 ${last} ≠ 库最新 ${j.maxDate}(缺数/停牌)`);
+    const now = new Date(), wd = now.getDay(), hm = now.getHours() * 100 + now.getMinutes(), today = now.toLocaleDateString("sv-SE");
+    if (wd >= 1 && wd <= 5 && hm >= 930 && j.maxDate < today && process.env.KLINE_OFFLINE !== "1") throw new Error(`db 最新 ${j.maxDate} < 今天 ${today}(盘中/未入库, 今日 K 线走网络)`);
+    const fac = x.factors || [];
+    const F = (d) => { let v = fac.length ? fac[0][1] : 1; for (const [dd, f] of fac) if (dd <= d) v = f; return v; };
+    const fl = fac.length ? F(last) : 1;
+    const dp = !isIdx(code) && /^(5|1[0-9])/.test(code) ? 1000 : 100;
+    const adj = (p, d) => Math.round((fac.length ? p * F(d) / fl : p) * dp) / dp;
+    return { bars: x.bars.map(([d, o, h, l, c, v, a]) => ({ d, o: adj(o, d), c: adj(c, d), h: adj(h, d), l: adj(l, d), v: Math.round(v / 100), a })),
+        src: "db", adjusted: true };
+}
 
 // ---- 源实现: 统一返回 {bars:[{d,o,c,h,l,v,a}], src, adjusted} ----
 async function eastDaily(code, { beg = "19900101", klt = 101 } = {}) {  // klt: 101日/102周/103月/60/30/15/5分(10/7 多周期立法: LLM 看图弱→机械算好喂)  // 主源: 支持增量(beg=归档末日)
@@ -22,7 +60,7 @@ async function eastDaily(code, { beg = "19900101", klt = 101 } = {}) {  // klt: 
     let lastErr;
     for (let a = 1; a <= 3; a++) {  // 防试错: 3 次退避(东财偶发 reset/限频, 10/5 实证)
         try {
-            const r = await fetch(url, { headers: UA });
+            const r = await gfetch(url, { headers: UA });
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             const j = JSON.parse(await r.text());
             const kl = j?.data?.klines;
@@ -34,7 +72,7 @@ async function eastDaily(code, { beg = "19900101", klt = 101 } = {}) {  // klt: 
 }
 async function txDaily(code) {  // 兜底1: 腾讯 fqkline(qfq 前复权), 忽略 beg 全量 900 根
     const sym = mktSym(code);
-    const r = await fetch(`https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${sym},day,,,900,qfq`, { headers: UA });
+    const r = await gfetch(`https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${sym},day,,,900,qfq`, { headers: UA });
     if (!r.ok) throw new Error(`tx HTTP ${r.status}`);
     const j = JSON.parse(await r.text());
     const arr = j?.data?.[sym]?.qfqday || j?.data?.[sym]?.day;
@@ -43,7 +81,7 @@ async function txDaily(code) {  // 兜底1: 腾讯 fqkline(qfq 前复权), 忽�
 }
 async function sinaDaily(code) {  // 兜底2: 新浪日K(不复权!) — 仅前两源全灭时用, 且禁与前复权档混档
     const sym = mktSym(code);
-    const r = await fetch(`https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20_=/CN_MarketDataService.getKLineData?symbol=${sym}&scale=240&ma=no&datalen=1023`,
+    const r = await gfetch(`https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20_=/CN_MarketDataService.getKLineData?symbol=${sym}&scale=240&ma=no&datalen=1023`,
         { headers: { ...UA, Referer: "https://finance.sina.com.cn/" } });
     if (!r.ok) throw new Error(`sina HTTP ${r.status}`);
     const t = await r.text();
@@ -83,7 +121,7 @@ async function sinaFactors(sym) {
         const c = JSON.parse(fs.readFileSync(f, "utf8"));
         if (c.day === today) return c.fac;
     } catch { /* 无缓存/坏缓存: 现拉 */ }
-    const r = await fetch(`https://finance.sina.com.cn/realstock/company/${sym}/hfq.js`, { headers: { ...UA, Referer: "https://finance.sina.com.cn/" } });
+    const r = await gfetch(`https://finance.sina.com.cn/realstock/company/${sym}/hfq.js`, { headers: { ...UA, Referer: "https://finance.sina.com.cn/" } });
     if (!r.ok) throw new Error(`sina hfq HTTP ${r.status}`);
     const t = await r.text();
     const body = t.includes("/*") ? t.slice(0, t.indexOf("/*")) : t;
@@ -97,6 +135,7 @@ async function sinaFactors(sym) {
 
 // ---- 源注册表(顺序=fallback 顺序) ----
 export const KLINE_SRCS = [
+    { id: "db", label: "行情库kline_day(只读)×库内复权因子", adjusted: true, fn: dbDaily },   // 10/15: 库里齐就不走网络; 缺/不新鲜就抛错落到网络源
     { id: "east", label: "东财push2his", adjusted: true, fn: eastDaily },
     { id: "tencent", label: "腾讯ifzq", adjusted: true, fn: txDaily },
     { id: "sina-qfq", label: "新浪不复权×新浪因子", adjusted: true, fn: sinaQfqDaily },
@@ -110,8 +149,12 @@ export async function fetchDaily(code, opt = {}) {
         return s.fn(code, opt);
     }
     let lastErr;
-    for (const { fn } of KLINE_SRCS) {
-        try { return await fn(code, opt); } catch (e) { lastErr = e; await sleep(300); }
+    // 10/15 KLINE_OFFLINE=1(as-of 历史回放在盘中跑时用): 只读行情库, 不落网络源(盘中禁打东财/腾讯/新浪); 库缺=抛错, 调用方按缺线处理
+    //   库的"盘中今日未入库"闸同时放行——回放只要历史日 K, 不要今天的
+    if (process.env.KLINE_OFFLINE === "1") return dbDaily(code, opt);
+    for (const { id, fn } of KLINE_SRCS) {
+        if (id === "db" && (opt.noDb || process.env.KLINE_NO_DB === "1")) continue;
+        try { return await fn(code, opt); } catch (e) { lastErr = e; if (id !== "db") await sleep(300); }
     }
     throw lastErr;
 }

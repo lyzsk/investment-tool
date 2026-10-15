@@ -33,13 +33,29 @@
   {
     "ledger": "a658",
     "name": "A658 正好蓝天",
-    "user_key": "168384",
+    "user_key": "187735",
     "kind": "pos",
     "match": "板块必读&桃粉杯第二届",
     "rank": "2",
     "rank_rate_pct": 3.1505,
     "entered": "2025-12-22",
-    "key": "joonDP3"
+    "key": "CM3ntt2",
+    "extra_views": [
+      {
+        "key": "fnDqoNc",
+        "user_key": "187735",
+        "note": "10/14 用户手贴个人分享"
+      }
+    ],
+    "view_checked_at": "2026-10-14T15:54:50.721Z",
+    "views_tried": [
+      {
+        "key": "joonDP3",
+        "user_key": "168384",
+        "lastNavDate": "20261009",
+        "at": "2026-10-14T15:54:50.721Z"
+      }
+    ]
   },
   {
     "ledger": "bianbenling",
@@ -113,7 +129,43 @@
     "rank": "",
     "rank_rate_pct": 2.5635,
     "entered": "2025-12-12",
-    "key": "yNkQm2X"
+    "key": "yNkQm2X",
+    "view_checked_at": "2026-10-14T16:30:27.605Z"
+  },
+  {
+    "ledger": "antoo",
+    "name": "antoo",
+    "user_key": "173113",
+    "kind": "pos",
+    "match": "待补",
+    "rank": "2",
+    "rank_rate_pct": 3.4704,
+    "entered": "2025-12-31",
+    "key": "Kp6wnjo",
+    "style": "高风险型: 融资(持仓合计~130%)+重仓主线高频做T(拆单极碎); 区间+347%/最大回撤-58.5%",
+    "pc_max_pages": 400,
+    "pc_incremental": true,
+    "view_note": "10/15 视图比对: Kp6wnjo/173113 nav 自 20251231(最早); CM3ntt2/185261 自 20260106 同账户(末值同 8760.01); Yp6WWwx/206792 同名不同账户(资产 788 万 vs 1.3 亿), 不用"
+  },
+  {
+    "ledger": "zhiyingjuexin",
+    "name": "芷影攫心",
+    "user_key": "137148",
+    "kind": "pos",
+    "match": "待补",
+    "rank_rate_pct": 3.0813,
+    "entered": "2025-09-24",
+    "key": "yNkQm2X",
+    "style": "早盘情绪接力/打板型",
+    "extra_views": [
+      {
+        "key": "oXfKjXy",
+        "user_key": "247860",
+        "note": "10/15 用户给的个人分享(nav 自 20260604, +112%/回撤-28.4%)"
+      }
+    ],
+    "view_note": "10/15 视图比对: 5 个视图末值同 13479.9282/资产同 61789.22=同账户; 取 yNkQm2X/137148(nav 自 20250924, 250 日, 最长)",
+    "pc_incremental": true
   },
   {
     "ledger": "yangdaren",
