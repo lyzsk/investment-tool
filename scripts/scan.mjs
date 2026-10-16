@@ -26,12 +26,20 @@ const jitter = () => sleep(800 + Math.random() * 1200);  // 绝不打固定节�
 // 强制 IPv4(family:4) 即通 —— 全脚本统一走 https/http 模块 family:4, 不用全局 fetch。
 // (push2ex 的 v6 恰好是通的所以涨停池首测"侥幸"成功, 别被误导; python urllib 默认 v4 所以 board_rank 一直没事)
 function fetchBuf(url, headers = {}, timeoutMs = 8000) {
-  return gcall(url, () => fetchBufRaw(url, headers, timeoutMs), { maxWaitMs: 15000 });  // facts.mjs 给 scan 120s 总时限, 限速等待封顶 15s
+  // 10/15 实测反转: push2/push2delay 的 clist 走 IPv4 一律 socket hang up(当日 48 次全败, 同机 curl/fetch 走 IPv6=200),
+  // 10/01 时恰好相反(v6 死 v4 活) → 双栈兜底: 先 v4, 连接级失败再试 v6, 不写死某一栈
+  return gcall(url, async () => {
+    try { return await fetchBufRaw(url, headers, timeoutMs, 4); }
+    catch (e) {
+      if (/HTTP \d/.test(String(e.message))) throw e;   // 服务端明确拒绝(4xx/5xx)不换栈
+      return await fetchBufRaw(url, headers, timeoutMs, 6);
+    }
+  }, { maxWaitMs: 15000 });  // facts.mjs 给 scan 120s 总时限, 限速等待封顶 15s
 }
-function fetchBufRaw(url, headers = {}, timeoutMs = 8000) {
+function fetchBufRaw(url, headers = {}, timeoutMs = 8000, family = 4) {
   return new Promise((resolve, reject) => {
     const mod = url.startsWith('https') ? https : http;
-    const req = mod.get(url, { family: 4, headers: { ...UA, ...headers }, timeout: timeoutMs }, res => {
+    const req = mod.get(url, { family, headers: { ...UA, ...headers }, timeout: timeoutMs }, res => {
       if (res.statusCode >= 400) { res.resume(); return reject(new Error('HTTP ' + res.statusCode)); }
       const chunks = [];
       res.on('data', c => chunks.push(c));

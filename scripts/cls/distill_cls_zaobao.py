@@ -82,9 +82,9 @@ def main():
         out["result"] = f"原文发布日 {cdate} ≠ {d}(收到的是旧一期), 已删产物等下一轮"
         return out, 0
     # ② 蒸馏
-    from claude_call import call
+    from claude_call import call, LEAN_ARGS
     r = call(PROMPT.format(date=d, text=text.read_text(encoding="utf-8")), tag="zaobao-spec", timeout=600,
-             permission="skip", allowed_tools=["Read"],
+             permission="skip", allowed_tools=["Read"], extra_args=LEAN_ARGS + ["--tools", "Read"],   # 10/15 A13①
              json_schema={"type": "object", "required": ["lines"],
                           "properties": {"lines": {"type": "array", "minItems": 5, "items": {"type": "string", "pattern": "^【早报要点】(宏观|行业|公司|环球|机会): .+"}}}})
     if not r.ok:

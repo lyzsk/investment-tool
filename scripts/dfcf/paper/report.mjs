@@ -465,6 +465,8 @@ function draw(){
  const every=Math.max(1,Math.ceil(n/12));
  D.dates.forEach((d,i)=>{if(i%every&&i!==n-1)return;const t=el("text",{x:X(i),y:H-PB+16,"text-anchor":"middle","font-size":11,fill:css("--text-secondary")});t.textContent=d.slice(5);svg.appendChild(t);
   const q=D.quality[d];if(q&&q!=="实盘撮合"){const b=el("text",{x:X(i),y:H-PB+30,"text-anchor":"middle","font-size":9.5,fill:css("--text-muted")});b.textContent=q;svg.appendChild(b);}});
+ // 10/15 用户令: 10/16 起导师链改用各自框架(方案 A), 前后不是同一种链——画分界线
+ {const di=D.dates.findIndex(d=>d>="2026-10-16");if(di>0){const x=(X(di-1)+X(di))/2;svg.appendChild(el("line",{x1:x,x2:x,y1:PT,y2:H-PB,stroke:css("--text-muted"),"stroke-width":1.2,"stroke-dasharray":"6 4"}));const t=el("text",{x:x+4,y:PT+12,"font-size":10.5,fill:css("--text-secondary")});t.textContent="10/16 起 方案A: 导师链各用自己框架";svg.appendChild(t);}}
  const order=[...all].sort((a,b)=>(isOn(a)?1:0)-(isOn(b)?1:0)||(a.src===hoverSrc)-(b.src===hoverSrc));
  const labels=[];
  for(const s of order){if(s.hide)continue;const on=isOn(s),hl=s.src===hoverSrc;let d="",pen=false;s.pts.forEach((p,i)=>{if(!p||p.cum==null){pen=false;return;}d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(p.cum).toFixed(1);pen=true;});

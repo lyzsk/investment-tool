@@ -132,3 +132,8 @@
 {"ts": "2026-10-14T21:25:56", "skill": "control", "date": "20261012", "slot": "1000", "step": "06", "attempt": 2, "reason": "总仓 23000(持仓≈0+未成交买单0+本次买23000−本次卖0) < 测试下限 40% nav=40000, 还差 17000——从 05 批准集加买单凑足(单票≤25000)", "asof": true}
 {"ts": "2026-10-14T21:26:03", "skill": "control", "date": "20261012", "slot": "1000", "step": "06", "attempt": 1, "reason": "总仓 23000(持仓≈0+未成交买单0+本次买23000−本次卖0) < 测试下限 40% nav=40000, 还差 17000——从 05 批准集加买单凑足(单票≤25000)", "asof": true}
 {"ts": "2026-10-14T21:26:03", "skill": "control", "date": "20261012", "slot": "1000", "step": "06", "attempt": 2, "reason": "总仓 23000(持仓≈0+未成交买单0+本次买23000−本次卖0) < 测试下限 40% nav=40000, 还差 17000——从 05 批准集加买单凑足(单票≤25000)", "asof": true}
+{"ts": "2026-10-15T08:12:05", "skill": "xuanqiucaijing", "date": "20261015", "slot": "0915", "step": "04", "attempt": 1, "reason": "方向组 中国科传 的 direction '传媒/AI漫剧/短剧/出版(资金惯性核心·只做低位)' ∉ 02.directions", "asof": false}
+{"ts": "2026-10-15T08:22:29", "skill": "lianghuaxiaohao", "date": "20261015", "slot": "0915", "step": "06", "attempt": 1, "reason": "陕西煤业 挂单价 30.35 出当日理论区间 [24.67,30.27](前收27.47, 板限9.7%)=编造嫌疑 C7-①", "asof": false}
+{"ts": "2026-10-15T12:56:30", "skill": "antoo", "date": "20261008", "slot": "0915", "step": "04", "attempt": 1, "reason": "方向组 松原安全 的 direction '汽车零部件/机器人' ∉ 02.directions", "asof": true}
+{"ts": "2026-10-15T13:57:49", "skill": "antoo", "date": "20261012", "slot": "0915", "step": "04", "attempt": 1, "reason": "方向组 上海电影 的 direction '文化传媒/短剧AI漫剧(主线)' ∉ 02.directions", "asof": true}
+{"ts": "2026-10-15T14:29:21", "skill": "zhiyingjuexin", "date": "20261013", "slot": "0915", "step": "04", "attempt": 1, "reason": "方向组 上海电影 的 direction '短剧/AI影视传媒(含出版·新华系)' ∉ 02.directions", "asof": true}

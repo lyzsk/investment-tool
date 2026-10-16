@@ -12,6 +12,8 @@
 // 状态文件: downloads/_guard/<id>.ban.json(熔断) / <id>.state.json(连败/上次请求/窗口) / <id>_requests_<日>.json(当日计数)
 // CLI: node scripts/lib/req_guard.mjs --status | --clear <id>
 import fs from "node:fs";
+import https from "node:https";
+import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -23,6 +25,23 @@ export class ReqError extends Error {
     constructor(kind, msg, extra = {}) { super(`[${kind}] ${msg}`); this.name = "ReqError"; this.kind = kind; Object.assign(this, extra); }
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// 10/15: 全局 fetch 不能指定 IPv4/IPv6, 东财各域名哪一栈通会变(10/15 实测 push2 clist 只有 v6 通、push2his 只有 v4 通) →
+// fetch 连接级失败(非 HTTP 状态码)时, 用 https 模块按 v4→v6 各重试一次, 包成原生 Response 返回(调用方无感)
+function fetchFam(url, init, family, timeoutMs) {
+    return new Promise((resolve, reject) => {
+        const mod = String(url).startsWith("https") ? https : http;
+        const hdr = init.headers && typeof init.headers.entries === "function" ? Object.fromEntries(init.headers.entries()) : (init.headers || {});
+        const req = mod.get(url, { family, headers: hdr, timeout: timeoutMs }, (res) => {
+            const chunks = [];
+            res.on("data", (c) => chunks.push(c));
+            res.on("end", () => resolve(new Response(Buffer.concat(chunks), {
+                status: res.statusCode, headers: Object.entries(res.headers).filter(([, v]) => typeof v === "string").map(([k, v]) => [k, v]) })));
+        });
+        req.on("timeout", () => req.destroy(new Error(`timeout>${timeoutMs}ms`)));
+        req.on("error", reject);
+    });
+}
 const today = () => new Date().toLocaleDateString("sv-SE");
 const rd = (f, d) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return d; } };
 function wr(f, obj) {   // 原子写(临时文件+改名); 失败退化直写; 再失败吞掉
@@ -135,9 +154,16 @@ export class Guard {
         try {
             r = await fetch(url, init.signal ? init : { ...init, signal: AbortSignal.timeout(opt.timeoutMs || this.cfg.timeoutMs) });
         } catch (e) {
-            const k = classify({ err: e }, this.cfg);
-            this.fail(k.kind, `${e.message} ${e.cause?.code || ""} ${String(url).slice(0, 80)}`);
-            throw e;   // 原样抛(调用方原有 catch/降级逻辑不变)
+            if (!init.method || String(init.method).toUpperCase() === "GET") {   // 10/15 双栈兜底(见 fetchFam)
+                for (const fam of [4, 6]) {
+                    try { r = await fetchFam(url, init, fam, opt.timeoutMs || this.cfg.timeoutMs); break; } catch { /* 换另一栈 */ }
+                }
+            }
+            if (!r) {
+                const k = classify({ err: e }, this.cfg);
+                this.fail(k.kind, `${e.message} ${e.cause?.code || ""} ${String(url).slice(0, 80)}`);
+                throw e;   // 原样抛(调用方原有 catch/降级逻辑不变)
+            }
         }
         let text = "";
         const ct = r.headers.get("content-type") || "";

@@ -21,6 +21,15 @@ const arg = (k, d) => { const i = process.argv.indexOf("--" + k); return i > 0 ?
 const WL = path.join(ROOT, "scripts", "dfcf", "snapshots", "live", "watchlist.txt");
 const CODES = arg("stocks", fs.existsSync(WL) ? fs.readFileSync(WL, "utf8").split(/[,\s]+/).filter((x) => /^\d{6}$/.test(x)).join(",") || "002714" : "002714")   // 不能叫 --codes: import snapshot.mjs 时它的 CLI 见 --codes 就会执行并退出
 .split(",").filter(Boolean);
+// 10/15: 关联妖股(scripts/dfcf/related_yao.mjs 按持仓自动挑: 同行业/同概念/统计同向或跷跷板), 取 ≤今天最新一份; 只看行情不出个股信号
+const RELATED = (() => {
+    const fs_ = fs.readdirSync(path.join(ROOT, "scripts", "dfcf", "snapshots", "live")).filter((f) => /^related_\d{4}-\d\d-\d\d\.json$/.test(f) && f.slice(8, 18) <= new Date().toLocaleDateString("sv-SE")).sort();
+    if (!fs_.length) return [];
+    try {
+        const j = JSON.parse(fs.readFileSync(path.join(ROOT, "scripts", "dfcf", "snapshots", "live", fs_[fs_.length - 1]), "utf8"));
+        return Object.entries(j.holdings || {}).flatMap(([h, v]) => (v.related || []).map((r) => ({ ...r, holding: h, asof: j.day })));
+    } catch { return []; }
+})();
 const EVERY = +arg("every", 15) * 1000;
 const UNTIL = +arg("until", 1501);
 const day = new Date().toLocaleDateString("sv-SE");
@@ -158,7 +167,8 @@ async function tick() {
         if (now - consensusAt > 900_000) { state.consensus = chainConsensus(); consensusAt = now; }
     }
     // ③ 个股
-    const snaps = await snapMany(CODES, 0);
+    const snaps = await snapMany([...new Set([...CODES, ...RELATED.map((r) => r.code)])], 0);
+    state.related = RELATED.map((r) => { const q = snaps[r.code]; return { ...r, last: q?.last, pct: q?.pct, high: q?.high, low: q?.low, prevClose: q?.prevClose }; });
     const el = elapsed();
     for (const code of CODES) {
         const s = snaps[code], st = stats[code];
@@ -214,6 +224,13 @@ function render() {
         L.push(`**${q.name}(${code})** ${q.last}(${q.pct}%) 开 ${q.open} 高 ${q.high} 低 ${q.low} | 均价 ${q.vwap} | 量能 ${q.pace} 倍 | **类型: ${o.regime}**`);
         if (st) L.push(`  股性30日: 振幅中位 ${st.amp50}% P75 ${st.amp75}% | 开→高 中位 +${st.oh50}% P75 +${st.oh75}% | 开→低 中位 ${st.ol50}% P25 ${st.ol25}% | 昨高 ${st.prevHigh} 昨低 ${st.prevLow}`);
         L.push(`  近 12 分钟: ${keys.map((k) => { const x = o.bars[k]; return `${k} ${x.c}(${x.v1 && x.v0 ? x.v1 - x.v0 : "?"}手)`; }).join(" | ")}`);
+    }
+    if ((state.related || []).length) {   // 10/15 用户令: 持仓票的关联妖股(同行业/同概念/统计同向/跷跷板), 自动挑, 不写死
+        L.push("", `## 关联妖股(related_yao.mjs ${state.related[0].asof} 挑; 看它们涨停/炸板/跌停时持仓票怎么反应)`);
+        for (const r of state.related) {
+            const lim = r.prevClose ? (r.last >= r.prevClose * 1.095 ? " 🔺近涨停" : r.last <= r.prevClose * 0.905 ? " 🔻近跌停" : "") : "";
+            L.push(`- [${r.kind}] ${r.name}(${r.code}) ${r.last ?? "?"}(${r.pct ?? "?"}%)${lim} | 近 20 日最高 ${r.maxLb} 板/涨停 ${r.ztDays} 天 | 共享: ${(r.shared || []).slice(0, 3).join("/") || "-"} | 与持仓 20 日相关 ${r.corr ?? "样本不足"}`);
+        }
     }
     L.push("", "## 今日 UP 视频(转写已出、尚未进 md 的盘中稿; 挂单前要读全文)");
     L.push(...((state.videos || []).length ? state.videos.map((v) => `- **${v.who}** ${v.path}\n  > ${v.head}…`) : ["(暂无)"]));

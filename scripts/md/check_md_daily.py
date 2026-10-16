@@ -144,9 +144,10 @@ def run(cmd, label, timeout_s=3600):
 
 
 def claude(prompt, tag, sentinel, timeout=3600):
-    from claude_call import call
+    from claude_call import call, LEAN_ARGS
     t0 = time.time()
-    r = call(prompt, tag=tag, permission="skip", timeout=timeout, sentinels=[sentinel])
+    # 10/15 A13①: 精简参数(去动态系统提示/斜杠命令/MCP + 工具白名单; 提示词按文件路径读 skill, 不依赖斜杠命令)
+    r = call(prompt, tag=tag, permission="skip", timeout=timeout, sentinels=[sentinel], extra_args=LEAN_ARGS + ["--tools", "Read,Write,Edit,Grep,Glob,Bash"])
     hit = bool(r.sentinels.get(sentinel))
     log(f"  claude[{tag}] {'✓' if hit else '✗'} {time.time() - t0:.0f}s ${r.cost_usd:.2f}"
         + ("" if hit else f" | {' | '.join(r.errors)[:200]} | 末行: {(r.result or '').strip().splitlines()[-1][:80] if (r.result or '').strip() else '空'}"))
@@ -516,6 +517,18 @@ def main():
             log("[lhb_backfill]")
             summary["lhb_backfill"] = step_lhb_backfill(d, a.dry)
             log(f"[lhb_backfill] → {summary['lhb_backfill']}")
+        # 10/15 用户令: 持仓票的关联妖股每天收盘后重挑(零 token; live_watch 次日开盘读最新一份)
+        if (not only or "related" in only) and not a.dry:
+            rc_y, _ = run(["node", "scripts/dfcf/related_yao.mjs", "--date", d.isoformat()], "关联妖股", 900)
+            if rc_y == 0:   # 10/15: 再并入"中军/资金惯性"联动股(行情库零请求, 如牧原→温氏/东瑞股份)
+                rc_y, _ = run([PY, "-X", "utf8", "scripts/dfcf/related_inertia.py", "--date", d.isoformat()], "资金惯性联动股", 300)
+            summary["related"] = "完成" if rc_y == 0 else "失败"
+            log(f"[related] → {summary['related']}")
+        # 10/15 用户令: B 线(导师真人) vs A 线(链) 对照全表; 15:05 微信日报时 tzzb 当天多半还没抓, 这里晚间重算一版(零 token)
+        if (not only or "realvs" in only) and not a.dry:
+            rc_r, _ = run(["node", "scripts/dfcf/paper/real_vs_chain.mjs", "--date", d.isoformat()], "真人对照表", 120)
+            summary["realvs"] = f"scripts/dfcf/paper/real_vs_chain/{d.isoformat()}.md" if rc_r == 0 else "失败"
+            log(f"[realvs] → {summary['realvs']}")
         # 10/14 用户令(爬虫要主动报问题, 不能等用户发现): 每轮末尾零 token 采集健康巡检, 红/黄写进本轮摘要, 报告 scripts/health/reports/<日>.md
         if not a.dry:
             rc_h, out_h = run([PY, "-X", "utf8", "scripts/health/daily_health.py"], "采集健康巡检", 300)

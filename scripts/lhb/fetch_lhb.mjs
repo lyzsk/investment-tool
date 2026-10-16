@@ -1,12 +1,13 @@
 // fetch_lhb.mjs — 每日龙虎榜采集(东财 datacenter-web 公开接口) + md 挂载(2026-10-14 建)
-// 用法: node scripts/lhb/fetch_lhb.mjs --date yyyy-MM-dd [--write] [--force] [--source em|ths]
+// 用法: node scripts/lhb/fetch_lhb.mjs --date yyyy-MM-dd [--write] [--force] [--source em|ths] [--local]
+//   --local(10/15 加): 只读本地已完整的 json 重写 md, 绝不联网; 本地不完整 → exit 6
 // 数据(一天 3 次请求): ①上榜总表 RPT_DAILYBILLBOARD_DETAILSNEW(按日) ②买五 RPT_BILLBOARD_DAILYDETAILSBUY(按日整批)
 //   ③卖五 RPT_BILLBOARD_DAILYDETAILSSELL(按日整批). 整批里某条记录买卖两边全缺时才按个股补(每只 2 次). 一只票多个上榜原因=多条记录(TRADE_ID 不同), 合并成一只.
 // 产物: downloads/lhb/yyyy.MM.dd/{list.json, detail_<code>.json}; 已存在且完整则跳过请求(--force 强制重抓)
 //   完整=list 抓取时刻 ≥ 交易日 18:00(之前抓的算临时, 下次重抓) 且每只上榜票都有 detail 文件
 // 挂载(--write): md/<y>S<q>/<date>.md 的 ## 复盘 → ### 龙虎榜 整节覆盖(幂等, 不碰其他节); 无 ## 复盘 的早期 md 只存 json 不写
 //   小节标题禁含 "|"(Java inheritHoldingsFromPrevious 会把 "### 复盘持仓" 之后所有 "#### x | y" 当持仓继承)
-// 出口: 0=ok 1=抓取失败 3=当日榜单未出(空) 4=无md 5=反爬; 末行 JSON:{...}
+// 出口: 0=ok 1=抓取失败 3=当日榜单未出(空) 4=无md 5=反爬 6=--local 且本地 json 不完整; 末行 JSON:{...}
 // 防封: ≤0.5 次/秒(请求间隔 2.0~3.0s 抖动) + 3 次退避重试(8s/24s/72s ×抖动) + 失败显式非 0, 不编数据
 import fs from "node:fs";
 import path from "node:path";
@@ -21,6 +22,7 @@ const opt = (k) => { const i = ARGS.indexOf(k); return i === -1 ? null : ARGS[i 
 const DATE = opt("--date");
 const WRITE = ARGS.includes("--write");
 const FORCE = ARGS.includes("--force");
+const LOCAL = ARGS.includes("--local");   // 10/15: 只读本地 json, 不联网
 const SOURCE = opt("--source") || "em";
 const READY_HHMM = "18:00";   // 交易所 16:30~17:30 陆续出齐(公开口径), 东财同步晚几分钟; 18:00 前抓的视为临时
 
@@ -352,9 +354,11 @@ function mount(block) {
 
 // ---------- main ----------
 try {
-    let data = FORCE ? null : loadCached();
+    let data = FORCE && !LOCAL ? null : loadCached();
     if (data) {
         out.cached = true;
+    } else if (LOCAL) {
+        done(6, "本地 json 不完整(--local 不联网, 未请求)");
     } else {
         const got = SOURCE === "ths" ? await fetchThs(DATE) : await fetchEm(DATE);
         if (!got.list.length) { out.secs = +((Date.now() - T0) / 1000).toFixed(1); done(3, "当日龙虎榜未出(东财返回空)"); }

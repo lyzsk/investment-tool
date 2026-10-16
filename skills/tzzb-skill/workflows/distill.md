@@ -9,6 +9,7 @@
 ## LLM 提取流程(--ledger 五人版)
 
 0. **机械层先行(10/6 立法, "超越 K3"重构)**: `python scripts/tzzb/gen_tzzb_profile.py --ledger <ledger>` 重跑统计底座——规则里的数字必须来自此输出(手写数字=违规); 桶胜率/出手率/首买通道漂移超阈才进 LLM 审议(对齐土豆分支形态: 机械日常, LLM 审漂移)
+0.5 **读取走索引(10/15 A13②)**: 先读 `persona/rules_index.md`(每条规则一行+行号)与 `persona/profile_index.md`(画像目录+行号), 对照目标日小节判断本次要核销/修改哪几条规则、哪几节画像, 再用 `grep -n "^#\{3,4\} R<n> " persona/rules.md` 定位、按行区间 Read 只打开这些节; **禁止整文件读 rules.md/profile.md/cases.md**(cases.md 只 grep 目标日日期, 机械双尾区很大: antoo 200KB); 新增规则写在 rules.md 规则区末尾; 改完 rules.md 后跑 `node scripts/md/gen_rules_index.mjs --skill <ledger>` 刷新索引(索引缺失的账本才允许读全文)
 1. 核销: 该高手 rules.md `[待验证]` vs 目标日 md(小节+收评/涨停分析/电报)——兑现/打脸/不动三态+样本数
 2. 提取: 硬数据+【推测】行分流——行为节奏→profile; 带态度操作→rules(市场/入场/出场/仓位四区); 反常操作→cases; 推测层择优并入证据链
 3. **五闸门准入(10/6 对齐 buchitudou0-skill)**: 竞争假设≥2 并列/证据链三环/置信度三级/证伪条款机械可判/反例优先; 每条规则标消费分级 [可跟]/[画像]/[教训]——速览行只输出[可跟]

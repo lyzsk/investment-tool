@@ -1,4 +1,4 @@
-# profile_index.md — stzhilang 导师画像目录(链改造 F; 生成于 2026-10-15 00:26)
+# profile_index.md — stzhilang 导师画像目录(链改造 F; 生成于 2026-10-16 00:25)
 > 源: skills/stzhilang-skill/persona/profile.md sha12=30f22c474d94 · 62 行 · 3.3KB · 12 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
 > 标注来源: 机械(画像 ≤8KB, 全节全步注入, 未调模型); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill stzhilang`(未变节复用标注)

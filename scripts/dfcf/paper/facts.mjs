@@ -335,7 +335,9 @@ function overseas() {
         ...groups.map(([g, re]) => { const rs = rows.filter((r) => re.test(r.symbol)); return rs.length ? `- ${g}: ${rs.map(fmt).join(" / ")}` : null; }).filter(Boolean)].join("\n");
 }
 
-const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${SLOT}）`, "",
+const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${SLOT}; 构建于 ${new Date().toTimeString().slice(0, 5)}）`, "",
+    // 10/15: 0915 链 08:15 开跑, 构建之后才挂进 md 的资讯(晚贴的发哥/重抓的早报)这里看不到——写明构建时刻, 01 以 md 当日小节为准
+    `> 本包构建于 ${new Date().toTimeString().slice(0, 5)}; 之后才挂进当日 md 的资讯(如晚贴的发哥推演)不在本包, 需要时读当日 md 对应小节`, "",
     ...(ASOF ? [`> ⏪ as-of 回放构建(${new Date().toISOString().slice(0, 16)}Z): 行情=${D1} 收盘口径(日线归档+东财历史涨跌停池), 账本=沙盒; 次新/板块榜无历史源; 涨跌幅榜=归档样本近似`, ""] : []),
     "## 昨日账本状态", digest, "",
     "## 选股层硬过滤(机械规则, 优先级高于一切候选)", seals.size ? "🔒=一字封死(开=高=低=现价且达板限): 当日禁入候选, 无论买卖方向; 已在六榜行尾标注, 04/06 层不得将其列为可交易标的(等炸板分歧也不行——连续一字票进候选=废单制造机)" : "(今日无一字封死票)", "",

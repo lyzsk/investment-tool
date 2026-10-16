@@ -47,6 +47,10 @@ dynamic_position:
   floor_max: 0.80
   default_cap: 0.25          # 用户 10/13: "一般 25% 开一仓"
   default_floor: 0.40
+  # 10/15 晚用户定"真·动态下限": 下限跟导师近期实际仓位走(原=120 日收盘总仓 P25 固定值, 导师这周空仓链还被逼 80% 仓)
+  floor_recent_days: 5        # 取导师最近 N 个有记录交易日的收盘总仓中位数
+  floor_recent_factor: 0.8    # × 系数(留出择时余地), 再 × 02 立场系数(多 1/中立 0.5/空 0), 封顶 floor_max
+  soft_floor: true            # 软约束: 没有本导师风格的候选就不凑满(记日志), 禁止拿银行/宽基等导师不碰的票凑仓; 对照组 control 仍硬约束(基准)
 
 # ---- 盘中子链零 token 触发闸 A(2026-10-14 晚; 开关 chain_flags.txt CHAIN_SUBCHAIN_GATE; 消费方 run_taoge_chain.py gate_decide) ----
 # 子链开跑前机械判断, 自上一个已跑 slot 以来下列都不成立 → 跳过本 slot(写 06 维持产物+run_meta skipped, 不调 claude):

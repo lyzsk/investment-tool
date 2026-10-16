@@ -36,8 +36,10 @@ const jitter = () => sleep(2000 * (0.75 + Math.random() * 0.5));
 const GUARD = path.join(ROOT, "_guard");
 const BAN = path.join(GUARD, "ban.json");           // 被封时写入; 存在且未过冷却期 → 不发任何请求, 直接 exit 5
 const BAN_COOL_H = 6;                                 // 冷却 6 小时后才允许 1 次探测(探测仍封=重新计时)
-const DAY_BUDGET = 2000;                              // 单日请求上限(增量后一整轮约 250 次, 9 轮/天也远低于此)
 const today = new Date().toLocaleDateString("sv-SE");
+// 单日请求上限(增量后一整轮约 250 次, 9 轮/天也远低于此)。10/15 加当日追加额度文件 _guard/budget_extra_<日>.json {"extra":N,"why":"..."}:
+// 新导师首次全量抓这类一次性大消耗把当天额度吃光(10/15 两新人全量后 15:10/19:10 正常轮全被拦), 只对当天有效, 次日自动失效
+const DAY_BUDGET = 2000 + (() => { try { return Math.max(0, +JSON.parse(fs.readFileSync(path.join(ROOT, "_guard", `budget_extra_${today}.json`), "utf8")).extra || 0); } catch { return 0; } })();
 const CNT = path.join(GUARD, `requests_${today}.json`);
 fs.mkdirSync(GUARD, { recursive: true });
 let reqCount = (() => { try { return JSON.parse(fs.readFileSync(CNT, "utf8")).n || 0; } catch { return 0; } })();

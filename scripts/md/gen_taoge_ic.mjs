@@ -270,7 +270,8 @@ import { spawn } from "node:child_process";
 function askClaude(prompt) {
     return new Promise((resolve) => {
         const exe = CLAUDE_EXE; // Windows native exe, spawn 免 shell 转义
-        const p = spawn(exe, ["-p", "--output-format", "json", "--permission-mode", "acceptEdits"], { cwd: process.cwd() });
+        const p = spawn(exe, ["-p", "--output-format", "json", "--permission-mode", "acceptEdits",
+            "--exclude-dynamic-system-prompt-sections", "--disable-slash-commands", "--strict-mcp-config", "--tools", ""], { cwd: process.cwd(), windowsHide: true });   // 10/15 A13①: 纯分类不需要工具
         let out = "";
         p.stdout.on("data", (c) => out += c);
         p.stderr.on("data", () => { });

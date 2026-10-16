@@ -54,7 +54,14 @@ def main():
         cur.execute("select job_handler_name, status, create_time, left(job_message,200) from sys_job_log "
                     "where create_time >= now() - interval 24 hour order by id")
         by = {}
+        def healed(h, s, m):
+            """10/15: 15:35 收盘采集的分时段每天都"无当日逐笔"失败(通达信收盘后一段时间不给当日逐笔), 16:40 对账补采会补上;
+            DONE_kline_minute 已在 = 已自愈, 不算失败(否则每天一红, 把真问题淹没)"""
+            mm = re.search(r"market 入库 (\d{4}-\d\d-\d\d).*分时段失败", m or "")
+            return s == 1 and h == "marketDailyHandler" and mm and (ROOT / "downloads" / "market" / mm.group(1) / "DONE_kline_minute").exists()
         for h, s, t, m in cur.fetchall():
+            if healed(h, s, m):
+                continue
             by.setdefault(h, []).append((s, t, m))
         for h, xs in sorted(by.items()):
             fails = [x for x in xs if x[0] == 1]
@@ -69,6 +76,25 @@ def main():
             add(lv, f"任务 {h}", f"24h 失败 {len(fails)}/{len(xs)} 次, 末尾连续失败 {streak} 次; 最近: {fails[-1][1]:%m-%d %H:%M} {fails[-1][2]}")
         cur.execute("select job_name, job_handler_param from sys_job where status=0")
         active = cur.fetchall()
+        # 10/15 A5 复发哨兵: 10/14 0915 链 15 条只记了 1 条日志(线程卡死不报错, 上面的"失败次数"看不到)——
+        # 交易日 09:20 后比对 启用中的 0915 任务数 vs 今日 paperChainHandler 0915 日志数, 少了=红
+        if md_exists(today) and (today < dt.date.today() or now.hour * 100 + now.minute >= 920):
+            cur.execute("select count(*) from sys_job where status=0 and job_handler_name='paperChainHandler' and job_handler_param like '%0915%'")
+            want = cur.fetchone()[0]
+            # 10/15: 以当日应用日志里 0915 实际启动数为准(白天新启用的任务当天 0915 没轮到, 按"启用数"比会误报); 日志缺=退回启用数
+            for lf in (ROOT / "logs" / "inv-admin.log", ROOT / "logs" / f"inv-admin.{today.isoformat()}.0.log"):
+                if lf.exists():
+                    st = {m for m in re.findall(rf"^{today.isoformat()} .*\[paper-trace\] (\S+):0915 start", lf.read_text(encoding="utf-8", errors="replace"), re.M)}
+                    if st:
+                        want = len(st)
+                        break
+            cur.execute("select count(*) from sys_job_log where job_handler_name='paperChainHandler' and job_handler_param like '%%0915%%' "
+                        "and date(create_time)=%s", (today.isoformat(),))
+            got = cur.fetchone()[0]
+            if got < want:
+                add("红", "0915 链调度日志缺记录", f"启用 {want} 条, 今日只记 {got} 条(A5 复发? 看 logs/inv-admin.log 的 [paper-trace] 与 jstack)")
+            else:
+                rows.append(("绿", "0915 链调度日志", f"{got}/{want} 条"))
     except Exception as e:  # noqa: BLE001
         add("红", "数据库", f"查 sys_job_log 失败: {e}")
         active = []
@@ -90,6 +116,9 @@ def main():
             nav = dt.datetime.strptime(s["lastNavDate"], "%Y%m%d").date() if s.get("lastNavDate") else None
         except Exception:  # noqa: BLE001
             nav = None
+        if nav and exp and (exp - nav).days > 30:   # 10/15: 长期停更(冲5000w 07/06 起)=已知, 每天不该一红; 复活检查在 19:43 自愈例程
+            add("黄", f"tzzb {led}", f"长期停更(最新 {nav}), 已知; 恢复更新会自动变绿")
+            continue
         fresh(f"tzzb {led}", nav, exp if after_close or td != today else None, "lastNavDate; 晚到账本 23:10 前为黄属正常")
     ban = ROOT / "downloads" / "tzzb" / "_guard" / "ban.json"
     if ban.exists():
@@ -141,12 +170,22 @@ def main():
     for up, mid in (("桃哥", "625315686"), ("天哥", "1372241958"), ("卢本圆", "550494308")):
         d = latest_dir(ROOT / "results" / "bilibili" / mid, "%Y.%m.%d")
         rows.append(("绿" if d and td and (td - d).days <= 3 else "黄", f"B站 {up}", f"最新视频产物 {d}(UP 不一定每天发)"))
+    # 10/15 A14 监控: claude -p 当日用量(零 token, 明细 scripts/health/reports/claude_usage_<日>.md); 超线会话 >20 个=黄
+    try:
+        r = subprocess.run([sys.executable, "-X", "utf8", str(ROOT / "scripts" / "lib" / "claude_usage_report.py"), "--date", today.isoformat()],
+                           capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, creationflags=0x08000000)
+        uj = json.loads([l for l in r.stdout.splitlines() if l.startswith("JSON:")][-1][5:])
+        (add if uj["red"] > 20 else lambda lv, it, de: rows.append(("绿", it, de)))(
+            "黄", "claude -p 用量", f"会话 {uj['sessions']} 个 官方价 ${uj['cost']}, 超线会话 {uj['red']} 个(见 {Path(uj['report']).name})")
+    except Exception as e:  # noqa: BLE001
+        add("黄", "claude -p 用量", f"统计失败: {e}")
     # ④ 应用日志
     ef = ROOT / "logs" / "inv-admin-error.log"
     if ef.exists():
         lines = [l for l in ef.read_text(encoding="utf-8", errors="replace").splitlines() if re.match(r"\d{4}-\d\d-\d\d", l)]
         recent = [l for l in lines if l[:19] >= (now - dt.timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")]
-        errs = [l for l in recent if " ERROR " in l]
+        errs = [l for l in recent if " ERROR " in l and not (
+            "分时段失败(日线已入库)" in l and (ROOT / "downloads" / "market" / (re.findall(r"\d{4}-\d\d-\d\d", l)[-1]) / "DONE_kline_minute").exists())]
         if errs:
             add("红", "应用 ERROR 日志", f"24h {len(errs)} 条; 首条: {errs[0][:160]}")
         elif recent:

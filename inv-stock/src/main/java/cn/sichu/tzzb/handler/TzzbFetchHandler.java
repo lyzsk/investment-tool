@@ -56,7 +56,7 @@ public class TzzbFetchHandler implements JobHandler {
             try {
                 runNode(ledger);
             } catch (IpBannedException e) {
-                throw new BusinessException("tzzb[" + expect + "] 同花顺封了本机 IP, 本轮停止(已完成: " + sb + "): " + e.getMessage());
+                throw new BusinessException("tzzb[" + expect + "] 同花顺封 IP 或当日请求预算用完(见输出尾部), 本轮停止(已完成: " + sb + "): " + e.getMessage());
             } catch (BusinessException e) {
                 failed.add(ledger);
                 sb.append(ledger).append(": 失败(").append(e.getMessage()).append("); ");
@@ -71,7 +71,7 @@ public class TzzbFetchHandler implements JobHandler {
         return "tzzb[" + expect + "] " + sb;
     }
 
-    /** fetch_tzzb.mjs 退出码 5: 同花顺 WAF 返回 Nginx forbidden(封 IP) */
+    /** fetch_tzzb.mjs 退出码 5: 同花顺 WAF 返回 Nginx forbidden(封 IP), 或当日请求预算用完(10/15 起都走 5, 都该停本轮) */
     private static class IpBannedException extends RuntimeException {
         IpBannedException(String msg) {
             super(msg);

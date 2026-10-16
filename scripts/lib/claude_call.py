@@ -29,6 +29,9 @@ _EXE = Path(os.environ.get("APPDATA", "")) / "npm" / "node_modules" / "@anthropi
 WINDOW_RE = re.compile(r"usage limit|5-hour limit|rate.?limit|\b429\b|quota exceeded|overloaded", re.I)
 WINDOW_DEFER_S = 2700
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+# 10/15 A13①: 精简参数(去动态系统提示段/斜杠命令与 skill 自动加载/MCP), 调用方按需再加 "--tools" 白名单;
+#   提示词里"读 skills/xxx/SKILL.md"是按文件路径读, 不依赖斜杠命令, 不受影响(链驱动器 10/12 起即此口径)
+LEAN_ARGS = ["--exclude-dynamic-system-prompt-sections", "--disable-slash-commands", "--strict-mcp-config"]
 PERMISSIONS = {
     "acceptEdits": ["--permission-mode", "acceptEdits"],
     "skip": ["--dangerously-skip-permissions"],   # 会话要跑 Bash(curl/node/python)的批处理: -p 模式下 acceptEdits 会拒 Bash

@@ -30,10 +30,15 @@ const arg = k => { const i = process.argv.indexOf('--' + k); return i > -1 ? pro
 const has = k => process.argv.includes('--' + k);
 
 // push2 系 IPv6 死路由, 统一 family:4(scan.mjs 实测教训)
-function fetchBuf(url, headers = {}, timeoutMs = 8000) {
+// 10/15: push2 系 IPv4/IPv6 哪条通会变(10/01 v6 死, 10/15 clist 的 v4 全 socket hang up), 双栈兜底: 先 v4, 连接级失败再 v6
+async function fetchBuf(url, headers = {}, timeoutMs = 8000) {
+  try { return await fetchBufFam(url, headers, timeoutMs, 4); }
+  catch (e) { if (/HTTP \d/.test(String(e.message))) throw e; return await fetchBufFam(url, headers, timeoutMs, 6); }
+}
+function fetchBufFam(url, headers = {}, timeoutMs = 8000, family = 4) {
   return new Promise((resolve, reject) => {
     const mod = url.startsWith('https') ? https : http;
-    const req = mod.get(url, { family: 4, headers: { ...UA, ...headers }, timeout: timeoutMs }, res => {
+    const req = mod.get(url, { family, headers: { ...UA, ...headers }, timeout: timeoutMs }, res => {
       if (res.statusCode >= 400) { res.resume(); return reject(new Error('HTTP ' + res.statusCode)); }
       const chunks = [];
       res.on('data', c => chunks.push(c));

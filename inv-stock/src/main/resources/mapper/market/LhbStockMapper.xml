@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.market.mapper.LhbStockMapper">
+
+    <!-- 幂等重导第 1 步: 物理删除该交易日(不是逻辑删除, 见 Mapper 接口注释) -->
+    <delete id="physicalDeleteByTradeDate">
+        DELETE FROM investment_market.lhb_stock WHERE trade_date = #{tradeDate}
+    </delete>
+
+    <!-- 幂等重导第 2 步: 批量插入 -->
+    <insert id="insertBatch">
+        INSERT INTO investment_market.lhb_stock
+        (trade_date, symbol, code, name, trade_id, is_primary, reason, close_price, change_rate, buy_amt, sell_amt,
+        net_amt, deal_net_ratio, deal_amount, turnover_rate, trade_market, fetched_at, source, status, create_by,
+        create_time, is_deleted)
+        VALUES
+        <foreach collection="list" item="s" separator=",">
+            (#{s.tradeDate}, #{s.symbol}, #{s.code}, #{s.name}, #{s.tradeId}, #{s.isPrimary}, #{s.reason},
+            #{s.closePrice}, #{s.changeRate}, #{s.buyAmt}, #{s.sellAmt}, #{s.netAmt}, #{s.dealNetRatio},
+            #{s.dealAmount}, #{s.turnoverRate}, #{s.tradeMarket}, #{s.fetchedAt}, #{s.source}, 0, #{s.createBy},
+            #{s.createTime}, 0)
+        </foreach>
+    </insert>
+</mapper>

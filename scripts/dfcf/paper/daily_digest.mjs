@@ -7,6 +7,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { ACCOUNTS, INIT, NAME } from "./accounts.mjs";
+import { summaryLines as realLines } from "./real_vs_chain.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DIR = process.env.PAPER_ROOT ? path.resolve(process.env.PAPER_ROOT) : SCRIPT_DIR;
@@ -71,7 +72,9 @@ try {
         s.slice(0, 3).map((x) => `${NAME[x.book] || x.name} ${lvl(x.comp)}(${dlt(x.delta)})`).join("、") +
         (s.length > 3 ? `; 垫底 ${NAME[s.at(-1).book] || s.at(-1).name} ${lvl(s.at(-1).comp)}(${dlt(s.at(-1).delta)})` : ""));
 } catch { /* 拟人度未生成 */ }
-lines.push("详情: scripts/dfcf/paper/report.html(悬停看全部账户)");
+// 10/15 用户令: B 线=导师真人(tzzb), 挂"真人当日/链当日/持仓重合"对照; 全表(含持仓明细)落 real_vs_chain/<日>.md
+try { lines.push(...realLines(DATE)); } catch (e) { lines.push(`B线真人对照生成失败: ${e.message}`); }
+lines.push("详情: scripts/dfcf/paper/report.html(悬停看全部账户); 真人对照全表 real_vs_chain/" + DATE + ".md");
 const msg = lines.join("\n");
 console.log(msg);
 if (process.argv.includes("--send")) {

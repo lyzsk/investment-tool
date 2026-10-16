@@ -147,7 +147,7 @@ def build(skill, refresh=False, no_llm=False):
             model_note = f"--no-llm: {len(need)} 节未标注(只按需补读)"
         elif need:
             sys.path.insert(0, str(ROOT / "scripts/lib"))
-            from claude_call import call
+            from claude_call import call, LEAN_ARGS
             name = skill
             try:
                 h = re.search(r"^#\s+(.+)$", text, re.M)
@@ -162,7 +162,8 @@ def build(skill, refresh=False, no_llm=False):
             res = None
             for attempt in (1, 2):
                 res = call(prompt, tag=f"profile-index:{skill}", timeout=1800, permission="default",
-                           json_schema=SCHEMA, use_rotation=True)
+                           json_schema=SCHEMA, use_rotation=True,
+                           extra_args=LEAN_ARGS + ["--tools", ""])   # 10/15 A13①: 纯标注不需要工具
                 if res.ok:
                     got = {x["id"]: x for x in res.parsed["sections"]}
                     miss = [s["id"] for s in secs if s["id"] not in got]

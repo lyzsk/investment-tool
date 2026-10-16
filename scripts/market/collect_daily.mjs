@@ -28,9 +28,14 @@ const jitter = (lo = 1500, hi = 3500) => sleep(lo + Math.random() * (hi - lo)); 
 const log = (...a) => console.log(`[${new Date().toLocaleTimeString("sv-SE")}]`, ...a);
 
 // ---- HTTP: 强制 IPv4(push2 的 IPv6 路由是死的, scan.mjs 10/1 实测), 不用全局 fetch ----
-function getText(url, headers, timeoutMs = 12000) {
+// 10/15: push2 系 IPv4/IPv6 哪条通会变(10/01 v6 死, 10/15 clist 的 v4 全 socket hang up), 双栈兜底: 先 v4, 连接级失败再 v6
+async function getText(url, headers, timeoutMs = 12000) {
+  try { return await getTextFam(url, headers, timeoutMs, 4); }
+  catch (e) { if (/HTTP \d/.test(String(e.message))) throw e; return await getTextFam(url, headers, timeoutMs, 6); }
+}
+function getTextFam(url, headers, timeoutMs = 12000, family = 4) {
     return new Promise((resolve, reject) => {
-        const req = https.get(url, { family: 4, headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", ...headers }, timeout: timeoutMs }, (res) => {
+        const req = https.get(url, { family, headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", ...headers }, timeout: timeoutMs }, (res) => {
             if (res.statusCode >= 400) { res.resume(); return reject(new Error("HTTP " + res.statusCode)); }
             const c = []; res.on("data", (d) => c.push(d)); res.on("end", () => resolve(Buffer.concat(c).toString("utf8")));
         });

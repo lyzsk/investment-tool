@@ -5,12 +5,14 @@
 
 ## 账本（各 10 万虚拟金，互相独立，不与实盘共用）
 
-| source | 含义 | 出单方 |
+> **10/15 用户定现行口径**: A 线 = skill 沉淀跑模拟盘; **B 线 = 导师真人真实操作**(同花顺投资账本 tzzb, 不建模拟账本, 直接用真人净值/持仓做参照)。
+> 早期设计里 B=hermes 临场单、C=用户口令单, 已废弃; books/B-taoge、B-cb、C-* 只留档(B 两本一直零成交)。
+
+| 线 | 含义 | 数据 |
 |---|---|---|
-| A-taoge / A-cb | 定时链（09:15 预案+稀疏点+午间链，见 TODO §E 时刻表） | claude -p 无头链 |
-| B-taoge / B-cb | 盘中临时问 hermes，她临场出的单 | hermes 直落 |
-| C-taoge / C-cb | 用户人工裁决（对 hermes 说 "paper 买xxx@数量"） | hermes 代落 |
-| （D=实盘） | 真钱成交 txt，在 snapshots/，不进本目录 | 用户 |
+| A-<skill> | 14 导师 + 对照组 A-control 各一条定时链(09:15 盘前全链 10/16 起 08:15 开跑 + 盘中子链) | claude -p 无头链 → books/A-*.json |
+| B(导师真人) | 有 tzzb 账本的导师真实操作: 当日涨跌=账本 index 日环比, 持仓=day_positions | downloads/tzzb/<ledger>/; 对照表 `real_vs_chain.mjs` → real_vs_chain/<日>.md + 微信日报; 报告「相对导师真人」口径; 拟人度 similarity.mjs |
+| （实盘） | 用户真钱成交 txt | snapshots/(隐私区), 不进本目录 |
 
 ## plans 行格式（机器可读，一行一单，写在 plans/<date>_<source>.md）
 

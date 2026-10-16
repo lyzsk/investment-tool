@@ -110,6 +110,11 @@ def main():
         n = build_inputs(L, out)
         log(f"{lg}: 机械层完成, 小节 {n} 日 → claude -p 蒸馏")
         extra = "\n  本导师产出须标\"(程序化嫌疑)\"。" if lg == "lianghuaxiaohao" else ""
+        # 10/15: 大账本(antoo 拆单极碎: history 321KB + cases 机械区 204KB)全读会撑爆上下文/成本 → 体量提示, 让模型检索取证
+        kb = sum((p.stat().st_size if p.exists() else 0) for p in (out / "history_sections.md", ROOT / "skills" / f"{lg}-skill" / "persona" / "cases.md")) // 1024
+        if kb > 300:
+            extra += (f"\n  证据体量大(history_sections+cases 约 {kb}KB): 先通读 profile_stats.txt; cases.md 机械区与 history_sections.md "
+                      "用 Grep/分段 Read 按需取证(按月份/熟票/桶抽样核实), 不必逐行读完; report.md 里写明抽样范围。")
         prompt = PROMPT.format(name=L["name"], ledger=lg, out=str(out).replace("\\", "/"), ndays=n, extra=extra)
         t0 = time.time()
         # 10/15 A13①: 改走公共 claude_call(prompt 走 stdin/信封判错/成本记 scripts/lib/claude_cost.csv/key 轮换) + 精简参数

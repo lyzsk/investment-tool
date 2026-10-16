@@ -99,6 +99,18 @@ ASOF_NOTE_SUB = ("[as-of 回放声明·最高优先级] 本链为历史回放: �
                  "md/ 下 {date_dash} 及更晚日期的文件、results/ 下除本 run_dir 以外的任何目录(尤其 live-*)、scripts/dfcf/paper/ 下的实盘账本与 plans。"
                  "盘中价格以 facts.txt(本 slot 实时快照)为准; cand_snap.md 是前一交易日收盘口径(只作前收/板限锚)。\n\n")
 MAX_RETRY = 2
+# 10/15 用户定 0915 链 08:15 开跑(为看到 07:17~08:02 发文的发哥), 配两道闸防意外拖过开盘(只管实盘当日 0915 全链, as-of/补跑/其他 slot 不受影响; CHAIN_RUSH=0 整体关):
+#   赶工闸: 09:00 起开始的步骤回炉上限 2→1; 09:05 还没进 04 的跳过 03 辩论(写说明文件, 04 只依据 01/02)
+#   截止闸: 09:25 后才导入的挂单 note 标【迟到单 HH:MM 导入·非竞价】(matcher 本就只在导入后按实时快照撮合, 不偷看; 标出来是为了统计口径)
+RUSH_RETRY_AT, RUSH_SKIP03_AT, LATE_ORDER_AT = "09:00", "09:05", "09:25"
+
+
+def _rush(date_dash, slot, hhmm):
+    """实盘当日 0915 链且现在 ≥ hhmm(赶工/截止闸判定)"""
+    if ASOF or slot != "0915" or os.environ.get("CHAIN_RUSH", "1") == "0":
+        return False
+    now = datetime.now()
+    return date_dash == now.strftime("%Y-%m-%d") and now.strftime("%H:%M") >= hhmm
 # headless 权限: acceptEdits=允许写产物文件不逐次询问; 模型只有 Write 需求, 不给 bash
 # claude 入口=npm 全局 native exe(.cmd 走 cmd /c 有 8k 字符+转义坑, shim 是 sh 脚本 python 调不动)
 _CLAUDE_EXE = os.path.join(os.environ.get("APPDATA", ""), r"npm\node_modules\@anthropic-ai\claude-code\bin\claude.exe")
@@ -365,7 +377,7 @@ def v04(c, ctx):
     need = (ctx.get("pc") or {}).get("need_n", 0)
     if allow:   # 子链名单有限: 要求的候选数不超过名单内可买票数(否则两闸互逼)
         need = min(need, len(allow["approved"]))
-    if need and len(cands) < need and not c.get("断链说明") and not ctx.get("final_attempt"):
+    if need and len(cands) < need and not c.get("断链说明") and not ctx.get("final_attempt") and not soft_floor():
         return f"候选 {len(cands)} 只 < {need} 只(总仓下限还差 {ctx['pc']['gap']:.0f} 元, 单票上限 {ctx['pc']['cap']:.0f})——扩候选(同方向次选/遗留票), 证据不足的降置信度而非删"
     return defer_check(c, ctx, "04")
 
@@ -381,7 +393,7 @@ def v05(c, ctx):
     pc = ctx.get("pc") or {}
     need = pc.get("need_n", 0)
     n_ok = sum(1 for v in c.get("verdicts") or [] if v.get("result") in ("批准", "条件批准"))
-    if need and n_ok < need <= len(want) and not ctx.get("final_attempt"):
+    if need and n_ok < need <= len(want) and not ctx.get("final_attempt") and not soft_floor():
         return (f"批准+条件批准 {n_ok} 只 < 至少 {need} 只(总仓下限还差 {pc['gap']:.0f} 元÷单票上限 {pc['cap']:.0f}), 06 必然凑不满——"
                 f"复核否决: 有硬伤(否决条款池/选股硬过滤命中)的照旧否决, 仅形态担忧/证据偏弱的改条件批准(更严触发价/失效条件)")
 
@@ -561,7 +573,10 @@ def v06(c, ctx):
         if _total < _req:
             _cap = (ctx.get("pc") or {}).get("cap") or sk["cap_ratio"] * ctx["nav"]
             _room = sum(min(_cap, vcaps.get(n, _cap)) for n in approved)   # 10/14: 05 逐票更严上限计入可达性
-            if _base + _room < _req:
+            if soft_floor():   # 10/15 晚: 软下限——不凑满放行, 记一笔供复盘(没有本导师风格的票就不硬凑)
+                print(f"WARN: 软下限未凑满(总仓 {_total:.0f} < 参考下限 {_req:.0f}), 按软约束放行")
+                ctx["floor_short"] = round(_req - _total, 2)
+            elif _base + _room < _req:
                 print(f"WARN: 总仓下限不可达(05 批准 {len(approved)} 只按逐票上限可买 {_room:.0f} + 现有 {_base:.0f} < {_req:.0f}), 放行不回炉")
             else:
                 return (f"总仓 {_total:.0f}(持仓≈{sum(pc['held'].values()):.0f}+未成交买单{_ob:.0f}+本次买{_total_buy:.0f}−本次卖{_sell:.0f}) "
@@ -711,8 +726,27 @@ def mentor_pos_params(skill):
     q = lambda a, p: sorted(a)[min(len(a) - 1, int(len(a) * p))]
     r5 = lambda x: round(x * 20) / 20
     cap = max(float(cfg.get("cap_min", 0.25)), min(1.0, r5(q(mx, float(cfg.get("cap_pct", 0.75))))))
-    floor = min(float(cfg.get("floor_max", 0.8)), r5(q(tot, float(cfg.get("floor_pct", 0.25)))))
-    return {"cap": cap, "floor": floor, "src": f"导师真实持仓 {days[0]}~{days[-1]} 共 {len(days)} 日(单票最大仓位 P{int(float(cfg.get('cap_pct', .75)) * 100)}, 收盘总仓 P{int(float(cfg.get('floor_pct', .25)) * 100)})"}
+    nrec = int(cfg.get("floor_recent_days", 0) or 0)
+    if nrec:   # 10/15 晚用户定: 下限跟导师近期实际仓位走(近 N 日收盘总仓中位数 × 系数), 不再用 120 日 P25 固定值
+        rec = sorted(tot[-nrec:])
+        med = rec[len(rec) // 2] if len(rec) % 2 else (rec[len(rec) // 2 - 1] + rec[len(rec) // 2]) / 2
+        floor = min(float(cfg.get("floor_max", 0.8)), r5(med * float(cfg.get("floor_recent_factor", 0.8))))
+        fsrc = f"收盘总仓近 {len(rec)} 日中位 {med:.0%}×{cfg.get('floor_recent_factor', 0.8)}"
+    else:
+        floor = min(float(cfg.get("floor_max", 0.8)), r5(q(tot, float(cfg.get("floor_pct", 0.25)))))
+        fsrc = f"收盘总仓 P{int(float(cfg.get('floor_pct', .25)) * 100)}"
+    return {"cap": cap, "floor": floor, "src": f"导师真实持仓 {days[0]}~{days[-1]} 共 {len(days)} 日(单票最大仓位 P{int(float(cfg.get('cap_pct', .75)) * 100)}, {fsrc})"}
+
+
+def soft_floor():
+    """10/15 晚: 总仓下限软约束(params.yaml dynamic_position.soft_floor); 对照组 control 保持硬约束当基准"""
+    if SKILL_NAME == "control" or not DYNAMIC_POS:   # selftest 关 DYNAMIC_POS=按硬下限夹具测
+        return False
+    try:
+        import yaml
+        return bool(((yaml.safe_load((ROOT / "scripts/dfcf/paper/params.yaml").read_text(encoding="utf-8")) or {}).get("dynamic_position") or {}).get("soft_floor"))
+    except Exception:
+        return False
 
 
 def pos_constraints(book, nav, snaps):
@@ -744,7 +778,12 @@ def constraint_text(pc, step):
         lines.append(f"- 今日态度(02 判定): {pc['stance']} → 总仓下限按态度调整 {pc['base_floor']:.0%} → {pc['floor']:.0%}(多=原值/中立=减半/空=0)")
     if not pc["floor"]:
         lines.append("- 总仓下限: 无(本导师常空仓收盘或今日态度为空, 可以不买); 但纯观望=违规——不买时也必须给进场条件单(三选一契约)")
-    if pc["floor"]:
+    soft = soft_floor()
+    if pc["floor"] and soft:   # 10/15 晚用户定: 软下限, 不许拿导师不碰的票凑仓(10/13 大兴"工商银行只在落不到下限时启用"案)
+        lines.append(f"- 总仓下限(参考·软约束, 跟导师近期实际仓位走): 现有持仓市值+未成交买单+本次买单−本次卖单 ≈ {pc['floor'] * pc['nav']:.0f} 元"
+                     f"({pc['floor']:.0%} nav)。有**符合本导师风格/能力圈**的候选就向它靠; 没有就不凑, 正文写一句原因即可, 驱动器不回炉。"
+                     "**禁止**为了凑仓位买本导师平时不碰的票(如银行/宽基 ETF/与其风格无关的防御票)")
+    elif pc["floor"]:
         lines.append(f"- 总仓下限(按导师习惯, 防空仓白测): 现有持仓市值+未成交买单+本次买单−本次卖单 ≥ {pc['floor'] * pc['nav']:.0f} 元"
                      f"({pc['floor']:.0%} nav); 下限优先于 regime 总仓上限, 禁止 no_trade 空仓收场")
         if FIX_FLOOR_EXIT:   # 10/14 晚 修①(10/13 大兴/边学: 止损/保护线卖单被下限闸挡住不敢下)
@@ -762,7 +801,9 @@ def constraint_text(pc, step):
     if step == "05":   # 10/14 §3-A 第 3 条: 05 对个别票要更严的仓位, 写进 contract, 驱动器在 06 按较小值校验(原只写正文, 06 为凑下限会突破)
         lines.append("- 逐票上限(可选): 某只票你要求比上面单票上限更严的仓位(如 ETF/高位票只给小仓), 就在 verdicts 该票加 \"cap\": <金额元, 正数>; "
                      "驱动器在 06 按 min(单票上限, 你给的 cap) 校验, 06 超了会回炉")
-    if pc["need_n"]:
+    if pc["need_n"] and soft:
+        lines.append(f"- 参考: 按单票上限, 凑到下限约需 {pc['need_n']} 只买入票——只在有本导师风格候选时才凑, 数量不足不回炉")
+    elif pc["need_n"]:
         lines.append({"04": f"- 本步: 可买候选(遗留+方向组)至少 {pc['need_n'] + 2} 只, 给 05 否决留余量; 少于 {pc['need_n']} 只=驱动器回炉",
                       "05": f"- 本步: 批准+条件批准 至少 {pc['need_n']} 只, 否则 06 必然凑不满下限; 不够=驱动器在本步当场回炉。"
                             f"有硬伤(否决条款池/选股硬过滤命中)的照旧否决; 仅形态担忧/证据偏弱的改条件批准(用更严的触发价/失效条件控风险)",
@@ -1400,6 +1441,8 @@ def emit_plans(date_dash, slot, source, contract, book, blind_note=""):
         if a.get("stop_below"):
             conds.append(f"stop_below={float(a['stop_below']):g}")
         note = blind_note + f"链终裁: 触发{px:g}" + (f"(公式 {a['_formula']})" if a.get("_formula") else "")
+        if _rush(date_dash, slot, LATE_ORDER_AT):   # 10/15 截止闸: 09:25 后才出的 0915 单=开盘后才挂上, 不是竞价单
+            note = f"【迟到单 {datetime.now():%H:%M} 导入·非竞价】" + note
         if a.get("invalid_if"):
             note += f" 失效:{a['invalid_if']}"
         # plans 行第 8/9 字段=结构化 anchor+cond(matcher 锚偏离守卫+失效哨兵的取数口; v06 已保证 anchor 数值)
@@ -2395,16 +2438,23 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                 if act == "rerun":
                     break
             continue
+        if step in ("03b", "03s", "03j") and _rush(date_dash, slot, RUSH_SKIP03_AT):   # 10/15 赶工闸: 09:05 还没进 04 → 跳过辩论
+            if step == "03j":
+                _write_lf(run_dir / ART["03j"], f"# 03 辩论 · {date_dash} 0915\n\n> ⚠ 赶工闸: {datetime.now():%H:%M} 时 0915 链还没进 04(要在开盘前出单), "
+                          "本日跳过 03 多空辩论。04 请只依据 01_facts.md 与 02_analysis.md 决策, 不要引用本文件。\n\nSTEP_OK 03j " + date + "\n")
+            print(f"⚠ 赶工闸: {datetime.now():%H:%M} 跳过 step {step}")
+            continue
         prompt = _prompt(step) if not (a6 and step in A6_FILES) else None
         try:  # 10/11 用户令: 盲审失败=降级照发(打【未过盲审】标), 不再整链中止; 06 用最后一版过机械校验的 contract
             fail_reason, done = None, False
-            for attempt in range(1, MAX_RETRY + 2):
-                ctx["final_attempt"] = attempt == MAX_RETRY + 1   # 10/12: 数量类软闸末次放行(不因凑数中止链)
+            mr = 1 if _rush(date_dash, slot, RUSH_RETRY_AT) else MAX_RETRY   # 10/15 赶工闸: 09:00 起回炉上限 2→1
+            for attempt in range(1, mr + 2):
+                ctx["final_attempt"] = attempt == mr + 1   # 10/12: 数量类软闸末次放行(不因凑数中止链)
                 if prompt is None:   # 10/14 夜 A6: 内联/共用开头/主会话(关闭时不走这里)
                     p, a6_rs, a6_fk, a6_mn = _a6_prompt(step, attempt, fail_reason)
                 else:
                     p = prompt if not fail_reason else \
-                        prompt + f"\n\n[驱动器回炉 {attempt - 1}/{MAX_RETRY}] 上次失败原因: {fail_reason}。只修此问题, 产物要求不变。"
+                        prompt + f"\n\n[驱动器回炉 {attempt - 1}/{mr}] 上次失败原因: {fail_reason}。只修此问题, 产物要求不变。"
                 if fail_reason:   # 10/12: 每次回炉原因落盘(此前只在终败时打印, 02/06 约半数要回炉却查不到原因)
                     log_retry(run_dir, date, slot, step, attempt - 1, fail_reason)
                 since = time.time()
@@ -2423,7 +2473,7 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                 if step == "blind" and so == "FAIL":
                     c, _ = contract_of(text)
                     issues = (c or {}).get("issues", [])
-                    if attempt > MAX_RETRY:
+                    if attempt > mr:
                         raise BlindDowngrade(f"盲审复审仍 FAIL: {';'.join(issues)[:300]}")
                     # 盲审 FAIL → 带意见回炉 06 一次, 再复审
                     c06, _ = contract_of((run_dir / ART["06"]).read_text(encoding="utf-8"))
@@ -2496,6 +2546,8 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
     props = (ctx["contracts"].get("04") or {}).get("pool_proposals")
     if props and ASOF:
         print("as-of: 扩池提案不落 pools.json(回放不改实盘 persona 池)")
+    elif props and SKILL_NAME != "taoge":   # 10/15 方案 A: pools.json 是桃哥的股票池, 只有桃哥链能扩(别的链往里加票=同质化源)
+        print(f"扩池提案只收桃哥链, {SKILL_NAME} 的提案不落 pools.json")
     elif props:
         pf = run_dir / "pool_proposals.json"
         pf.write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")

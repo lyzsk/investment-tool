@@ -40,8 +40,9 @@ print(f"=== distill_daily {target} (单会话 x {n} 人{'' if n == len(ALL_LEDGE
 # 10/9 用户令: 不限模型——不传 --model, ANTHROPIC_MODEL 覆写由 claude_call 剔除(drop_env 默认), 跟随宿主环境
 # 10/12 §5.3: 改走公共模块 claude_call(stdin 传 prompt/json 信封判错/哨兵整行匹配/成本账本 scripts/lib/claude_cost.csv)
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
-from claude_call import call as claude_call
-r = claude_call(prompt, tag="tzzb-distill-daily", permission="skip", timeout=3600, sentinels=["ALL_DISTILL_DONE"])
+from claude_call import call as claude_call, LEAN_ARGS  # 10/15 A13①: 精简参数(首轮写缓存 47k→18k)
+r = claude_call(prompt, tag="tzzb-distill-daily", permission="skip", timeout=3600, sentinels=["ALL_DISTILL_DONE"],
+                extra_args=LEAN_ARGS + ["--tools", "Read,Write,Edit,Grep,Glob,Bash"])
 out = r.result
 ok = [l.replace("DISTILL_OK", "").strip() for l in out.splitlines() if "DISTILL_OK" in l and "ALL" not in l]
 print(f"哨兵: {len(ok)}/{n} OK → {ok}", flush=True)
