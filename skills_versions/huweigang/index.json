@@ -1,0 +1,33 @@
+{
+ "skill": "huweigang",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-16T00:06:02",
+   "persona_hash": "3c9ba99e41194ebb2eb3e961f71ed6e5c9cb0c0ebf1ea4a7ca11f0f0d14fe421",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 142,
+    "removed": 0
+   },
+   "bytes_weight": 12801,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "d6ee683ae51c",
+    "distill": "56f9bbe8f74d"
+   }
+  }
+ ],
+ "events": []
+}

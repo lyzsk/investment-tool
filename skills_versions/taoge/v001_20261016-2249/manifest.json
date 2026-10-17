@@ -1,0 +1,123 @@
+{
+ "skill": "taoge",
+ "version": {
+  "v": 1,
+  "id": "v001_20261016-2249",
+  "ts": "2026-10-16T22:49:13",
+  "effective_from": "2026-10-16T22:03:40",
+  "persona_hash": "89dcad4c9096a0e1cd196150433b0cb6ce9af59f0f1547f9cd92620a1f2f47ea",
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": null,
+  "changed": {
+   "added": [
+    "cases.md",
+    "ic.json",
+    "language.md",
+    "pools.json",
+    "profile.md",
+    "profile_index.md",
+    "rules.md",
+    "rules_index.md",
+    "rules_index.vec.json"
+   ],
+   "modified": [],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 7290,
+   "removed": 0
+  },
+  "bytes_weight": 3810934,
+  "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+  "code": {
+   "chain": "d89ba002ee9a",
+   "distill": "44bf1e71616c"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "14e6f0d2a00396a309675e521ddb02d0b08311202864357945eec0ff4432b269",
+   "bytes": 235847,
+   "lines": 815,
+   "mtime": "2026-10-16T19:49:23",
+   "cls": "weight"
+  },
+  "ic.json": {
+   "sha256": "36957e4ad720723f38517e29fe9ac23e049e951168e277921adf367e243703d4",
+   "bytes": 2725,
+   "lines": 165,
+   "mtime": "2026-10-07T05:01:04",
+   "cls": "weight"
+  },
+  "language.md": {
+   "sha256": "9f1f7ff37454c74057633e994d755155171dc518eba09f796620d9392f54dd9d",
+   "bytes": 268599,
+   "lines": 311,
+   "mtime": "2026-10-16T19:49:42",
+   "cls": "weight"
+  },
+  "pools.json": {
+   "sha256": "cb24084dcf6a5e8fc02cb6ce9cc46903bbbb2b6a1db015224d147bfead920b87",
+   "bytes": 90157,
+   "lines": 3384,
+   "mtime": "2026-10-16T09:20:11",
+   "cls": "weight"
+  },
+  "profile.md": {
+   "sha256": "5bbe461c2a351ac77a8313ece03b816ca498ccb083c782a38ead8d119a1cd781",
+   "bytes": 248935,
+   "lines": 462,
+   "mtime": "2026-10-16T19:49:23",
+   "cls": "weight"
+  },
+  "profile_index.md": {
+   "sha256": "3de34df9b57d393ae00b5b82d81d532dd4415452da5afd97e91045516f420085",
+   "bytes": 16385,
+   "lines": 86,
+   "mtime": "2026-10-16T22:03:40",
+   "cls": "weight"
+  },
+  "rules.md": {
+   "sha256": "17af54cf8477c95c32d4ec92aa7683ead37564102d48f285dd4f624e689d6273",
+   "bytes": 1139225,
+   "lines": 1909,
+   "mtime": "2026-10-16T19:49:23",
+   "cls": "weight"
+  },
+  "rules_index.md": {
+   "sha256": "ccc89ba70bbbbd2477cc8ad5cac38f3808e42f68f8c5e388691ba66b66161d5f",
+   "bytes": 58385,
+   "lines": 157,
+   "mtime": "2026-10-16T20:00:49",
+   "cls": "weight"
+  },
+  "rules_index.vec.json": {
+   "sha256": "312406f6f23020ee0fd367ae757f4b3a8a1dab7a8f7b8793a85b44f403cf555d",
+   "bytes": 1750676,
+   "lines": 1,
+   "mtime": "2026-10-07T05:31:55",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "d89ba002ee9a",
+  "distill": "44bf1e71616c",
+  "chain_files": {
+   "scripts/taoge-chain/run_taoge_chain.py": "09e7d486384c",
+   "skills/taoge-skill/workflows/chain.md": "1e4f98e90d9f",
+   "skills/taoge-skill/SKILL.md": "af1ed3539339",
+   "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"
+  },
+  "distill_files": {
+   "skills/taoge-skill/workflows/distill.md": "d7d4980ee583",
+   "scripts/tzzb/distill_daily.py": "9ec70798c98a",
+   "scripts/tzzb/llm_batch_tzzb.py": "2c2246c6c7e1",
+   "scripts/tzzb/mentor_fingerprint.py": "d218700ea1cf",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "1109d4201eb3",
+   "scripts/md/gen_profile_index.py": "16926ed80e73",
+   "scripts/md/gen_rules_index.mjs": "654e7e6d356c",
+   "scripts/md/check_md_daily.py": "51cab73b861f"
+  }
+ }
+}

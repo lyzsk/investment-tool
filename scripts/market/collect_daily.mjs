@@ -2,18 +2,19 @@
 // 链路: Quartz MarketDailyHandler(15:35) → 本脚本 → downloads/market/<交易日>/*.jsonl + manifest.json + DONE_<stage>
 //       → Java MarketImportService 读 jsonl 入库(security_master 按 symbol 有则更新/无则插入; kline_day 按交易日先删后插)
 // 范围(本段): A股沪深京 / 可转债 / ETF / 沪深京指数。港股通、东财行业·概念·地域板块、外围指数、上市日期 = 后续段(东财 clist)
-// 数据源(多源切换铁律): 快照 新浪 getHQNodeData(主) → 东财 push2 clist(备; 10/11 实测 push2/push2delay 被断连, 恢复后自动可用)
+// 数据源(多源切换铁律): 快照 新浪 getHQNodeData(主) → 腾讯 qt 批量(备 1, 10/17 A9) → 东财 push2 clist(备 2, 走请求层排队; 10/11 实测 push2/push2delay 被断连, 恢复后自动可用)
 //   同一节点整节点只用一个源(防同表混源口径); 交易日 = kline.mjs 多源取上证指数最后一根日线日期
 // 单位归一(10/11 实测反推 成交额/成交量≈价格): 股票/ETF=股(份), 转债=张, 深市指数=股, 沪市指数源给"手"→×100
 // 停牌(开盘价=0)不出日线行; 涨跌停价新浪不给 → 按板块规则算(主板10%含ST/创业科创20%/北交所30%/转债20%; N/C 新股=NULL)
 // 断点: 每阶段完成写 DONE_<stage>, 重跑跳过(--force 重做); 盘中(交易日 09:15~15:30)拒跑(快照不完整), --force 可越过
-// 用法: node scripts/market/collect_daily.mjs [--expect yyyy-MM-dd] [--stages security,kline_day] [--force] [--src sina|em] [--out downloads/market]
+// 用法: node scripts/market/collect_daily.mjs [--expect yyyy-MM-dd] [--stages security,kline_day] [--force] [--src sina|tencent|em] [--out downloads/market]
 // 出口: 0=成功 1=采集失败/校验不过/交易日不符(manifest 记原因) 2=盘中拒跑; 一律设 exitCode 自然退出(Windows 下有未关连接时 process.exit 会触发 libuv 断言崩溃, 10/11 实测)
 import fs from "node:fs";
 import path from "node:path";
 import https from "node:https";
 import { fileURLToPath } from "node:url";
 import { fetchDaily } from "../quotes/kline.mjs";
+import { gfetch, gcall } from "../lib/req_guard.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const argv = process.argv.slice(2);
@@ -74,12 +75,50 @@ async function sinaNode(node) {
     }
     return { total, rows: out, src: "sina" };
 }
-// 东财 clist(备): fltt=2 小数已换算; f5 成交量单位=手(股票/ETF/指数 ×100, 转债 1手=10张 ×10)
+// 腾讯 qt 批量(10/17 A9 第一备源): 腾讯没有"按板块列全市场"的接口 → 名单取最近一个已落盘交易日的 security_master.jsonl(当日新上市的票会缺, 下一交易日补上);
+//   一次 60 只, 全市场约 135 次请求, 走请求层 tencent_qt(盯盘主源, 从未被封) + 0.3~0.8s 抖动。
+//   单位(10/17 实测对照 10/16 新浪入库值): f6 成交量=手 → 股票/ETF/指数/北交所 ×100、转债 ×10(张)、科创板(688/689)本来就是股 ×1; f37 成交额=万元 ×1e4; f38 换手%
+let _txUniverse = null;
+function txUniverse(tradeDate) {
+    if (_txUniverse) return _txUniverse;
+    const days = fs.readdirSync(OUT_ROOT).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d < tradeDate
+        && fs.existsSync(path.join(OUT_ROOT, d, "security_master.jsonl"))).sort();
+    if (!days.length) throw new Error("腾讯备源: 找不到上一交易日的 security_master.jsonl 当名单");
+    const rows = fs.readFileSync(path.join(OUT_ROOT, days.at(-1), "security_master.jsonl"), "utf8").trim().split("\n").map((l) => JSON.parse(l));
+    _txUniverse = { from: days.at(-1), rows };
+    return _txUniverse;
+}
+async function txNode(node, tradeDate) {
+    const { rows: uni, from } = txUniverse(tradeDate);
+    const syms = uni.filter((s) => s.secType === node.secType).map((s) => s.symbol);
+    if (!syms.length) throw new Error(`腾讯备源 ${node.id}: 名单(${from})里没有 ${node.secType}`);
+    const out = [];
+    for (let i = 0; i < syms.length; i += 60) {
+        const part = syms.slice(i, i + 60);
+        const txt = await withRetry(async () => {
+            const r = await gfetch(`https://qt.gtimg.cn/q=${part.join(",")}`, { headers: { Referer: "https://gu.qq.com/" } }, { source: "tencent_qt" });
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return new TextDecoder("gbk").decode(await r.arrayBuffer());
+        });
+        for (const m of txt.matchAll(/v_((?:sh|sz|bj)\d{6})="([^"]*)"/g)) {
+            const f = m[2].split("~"), sym = m[1], code = sym.slice(2);
+            if (!f[3] || !/^\d{8}/.test(f[30] || "") || `${f[30].slice(0, 4)}-${f[30].slice(4, 6)}-${f[30].slice(6, 8)}` !== tradeDate) continue;   // 非当日行情(停牌/退市)不出
+            const mult = node.secType === "CB" ? 10 : (node.secType === "STOCK" && /^(688|689)/.test(code)) ? 1 : 100;
+            out.push({ symbol: sym, code, name: f[1], open: +f[5], high: +f[33], low: +f[34], close: +f[3], preClose: +f[4],
+                volume: +f[6] * mult, amount: f[37] ? +f[37] * 1e4 : null, turnover: f[38] === "" ? null : +f[38] });
+        }
+        await jitter(300, 800);
+    }
+    return { total: syms.length, rows: out, src: "tencent", volumeNormalized: true, universeFrom: from };
+}
+// 东财 clist(第二备源): fltt=2 小数已换算; f5 成交量单位=手(股票/ETF/指数 ×100, 转债 1手=10张 ×10)
+//   10/17 A9: 改走请求层 em_clist(窗口 12 次/5 分钟, 排队等候最长 6 分钟/次)——全市场约 80 页, 慢(约 35 分钟)但不会撞 ~25 次/5 分钟的封禁线
 async function emNode(node) {
     const H = { Referer: "https://quote.eastmoney.com/" };
     const F = "f2,f5,f6,f8,f12,f13,f14,f15,f16,f17,f18";
     const url = (pn) => `https://push2.eastmoney.com/api/qt/clist/get?pn=${pn}&pz=100&po=1&np=1&fltt=2&invt=2&fid=f12&fs=${encodeURIComponent(node.em)}&fields=${F}`;
-    const first = JSON.parse(await withRetry(() => getText(url(1), H)));
+    const gt = (u, h) => gcall(u, () => getText(u, h), { source: "em_clist", maxWaitMs: 360000 });
+    const first = JSON.parse(await withRetry(() => gt(url(1), H)));
     const total = first.data?.total;
     if (!(total > 0)) throw new Error(`东财 ${node.id} total 异常`);
     const mult = node.secType === "CB" ? 10 : 100;
@@ -90,10 +129,10 @@ async function emNode(node) {
             volume: +r.f5 * mult, amount: +r.f6, turnover: r.f8 === "-" ? null : +r.f8 });
     } };
     take(first.data.diff || []);
-    for (let pn = 2; pn <= Math.ceil(total / 100); pn++) { await jitter(); take(JSON.parse(await withRetry(() => getText(url(pn), H))).data?.diff || []); }
+    for (let pn = 2; pn <= Math.ceil(total / 100); pn++) { await jitter(); take(JSON.parse(await withRetry(() => gt(url(pn), H))).data?.diff || []); }
     return { total, rows: out, src: "dfcf", volumeNormalized: true };
 }
-const SOURCES = { sina: sinaNode, em: emNode };
+const SOURCES = { sina: sinaNode, tencent: txNode, em: emNode };   // 10/17 A9: 新浪 → 腾讯批量 → 东财(请求层排队)
 
 // ---- 归一化 ----
 const exchangeOf = (symbol) => symbol.slice(0, 2).toUpperCase();
@@ -158,10 +197,10 @@ async function main() {
     const security = [], klines = [], nodeStat = {};
     let failed = null;
     for (const node of NODES) {
-        const order = ONLY_SRC ? [ONLY_SRC] : ["sina", "em"];
+        const order = ONLY_SRC ? [ONLY_SRC] : ["sina", "tencent", "em"];
         let got = null, errs = [];
         for (const s of order) {
-            try { log(`节点 ${node.id} 源 ${s} 开始`); got = await SOURCES[s](node); break; }
+            try { log(`节点 ${node.id} 源 ${s} 开始`); got = await SOURCES[s](node, tradeDate); break; }
             catch (e) { errs.push(`${s}: ${e.message}`); log(`节点 ${node.id} 源 ${s} 失败: ${e.message}, 切下一源`); await jitter(3000, 6000); }
         }
         if (!got) { failed = `节点 ${node.id} 全部源失败: ${errs.join(" | ")}`; break; }

@@ -28,7 +28,9 @@ const ROOT = path.resolve(process.argv.includes("--root") ? process.argv[process
 const FORCE_LAYER = process.argv.includes("--layer") ? process.argv[process.argv.indexOf("--layer") + 1] : null;
 class LayerFail extends Error { constructor(kind, msg) { super(msg); this.kind = kind; } }
 const kindOf = (e) => e?.kind || (/JSON|Unexpected token/.test(String(e?.message)) ? "PARSE" : "UNAVAILABLE");
-const LEDGERS = JSON.parse(fs.readFileSync(path.resolve("scripts/tzzb/tzzb_ledgers.json"), "utf8"));  // 10/2 迁入 scripts/tzzb/(cwd=项目根)
+// 10/16 晚: --ledgers <file> 换账本清单(候选导师观察抓取用, 配 --root downloads/tzzb_cand; 默认=正式清单)
+const LEDGERS_ARG = process.argv.includes("--ledgers") ? process.argv[process.argv.indexOf("--ledgers") + 1] : "scripts/tzzb/tzzb_ledgers.json";
+const LEDGERS = JSON.parse(fs.readFileSync(path.resolve(LEDGERS_ARG), "utf8"));  // 10/2 迁入 scripts/tzzb/(cwd=项目根)
 const PER_PAGE = 50;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // 10/14 防封加固(同花顺 15:13 封 IP 后): 节流 ≤0.5 次/秒(记忆: 批量≤0.5 次/秒) + 抖动; 熔断标记; 每日请求预算; 单实例锁; 请求计数落盘
@@ -51,7 +53,7 @@ function banned() {
         return ageH < BAN_COOL_H ? { ...b, ageH } : null;
     } catch { return null; }
 }
-const LEDGER_FILE = path.resolve("scripts/tzzb/tzzb_ledgers.json");
+const LEDGER_FILE = path.resolve(LEDGERS_ARG);
 function saveLedgers() { fs.writeFileSync(LEDGER_FILE, JSON.stringify(LEDGERS, null, 2)); }
 // 候选视图: _ranks/<比赛key>.json 榜单里同名(去空格)的人 → (比赛key, user_key); 再各 1 次 profit_rate_by_share 取最新净值日
 async function bestView(cfg, curNav) {
@@ -249,6 +251,8 @@ async function fetchLedgerA(cfg) {
         ["position_by_share", "position.json"],
     ]) {
         const j = await call(ep);
+        // 10/17 健壮性 M3: 原先 error_code≠0 的错误信封也落档(覆盖好文件, lastNavDate 回退成空)
+        if (j && j.error_code !== undefined && j.error_code !== null && String(j.error_code) !== "0") throw new LayerFail("NO_DATA", `${ep} 业务错误 error_code=${j.error_code} ${String(j.error_msg || "").slice(0, 80)}`);
         fs.writeFileSync(path.join(out, file), JSON.stringify(j, null, 1));
         if (file === "nav_daily.json") {
             for (const x of j?.ex_data?.index_list || []) {
@@ -316,6 +320,7 @@ async function fetchLedgerA(cfg) {
         for (const d of todo) {
             try {
                 const j = await call("day_position_by_share", null, 3, "&date=" + d);
+                if (j && j.error_code !== undefined && j.error_code !== null && String(j.error_code) !== "0") throw new Error(`error_code=${j.error_code}`);   // 10/17 M3: 错误信封不记"空仓", 下轮重抓
                 const list = j?.ex_data?.list || [];
                 store[d] = list.length
                     ? { list, sum_pct: +list.reduce((a, x) => a + (+x.position_percent || 0), 0).toFixed(3) }

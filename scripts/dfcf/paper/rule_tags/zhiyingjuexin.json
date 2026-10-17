@@ -1,0 +1,130 @@
+{
+ "skill": "zhiyingjuexin",
+ "file": "skills/zhiyingjuexin-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "单票满仓·日换股: T 日买一只(偶两只)重仓过夜, 下一交易日早盘卖掉换下一只",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "持仓票涨停级上涨日不动, 首个弱日早盘分笔兑现——但执行不稳定",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "出场按时刻不按价格: 早盘兑现, 卖飞与逃顶两条尾巴同时很厚",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "空仓只停一晚(逆回购停泊), 与当天赚亏无关",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "持仓票分笔做T集中成段, 是日内桶与熟票池 top 的来源",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "下单结构\"主单 + 100 股尾单\"——统计口径警示",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "熟票跨月回锅: 同一批票隔数月再做",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "单票满仓吃大跌, 大亏后下一交易日照样满仓",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "向涨停冲刺途中追入/板上排队: 买在当日高位而非回落",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R10": {
+   "id": "R10",
+   "title": "买入当日封板与否决定这笔盈亏; 未封板的追高仓次日早盘认亏走, 不扛不补",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  }
+ },
+ "n": 10,
+ "n_mech": 0,
+ "n_dir": 7,
+ "n_distilled": 0
+}

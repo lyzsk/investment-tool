@@ -1,0 +1,130 @@
+{
+ "skill": "antoo",
+ "file": "skills/antoo-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "全程融资级满仓, 不空仓不逆回购; 总仓位中枢后期下移",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "核心票高度集中, 且核心几乎全是 20cm 票(创业板/科创板), 核心按段轮换",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "核心票底仓上的日内正 T: 早盘分笔买、盘中或午后分笔卖, 胜负随当日方向",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "双核跷跷板: 两只核心票之间一日内大幅互换权重, 总仓位基本不降",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "大亏日砍半核心票: 3 日内回补与永久换股各半, 砍仓≠离场信号",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "净值≈杠杆 × 双创方向 × 核心票个股风险: 大亏日几乎都是创业板/科创大跌或核心方向被收评点名",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "大亏日之后没有机械刹车: 收盘总仓位上调与下调各半",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "竞价窗(09:15–09:25)即调核心仓",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "底仓 T 顺分时动量: 跌着卖、涨回来再买, 配对价差系统性为负",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": "卖(本条判的是底仓 T 的卖出腿; 买回腿的条件写在规则正文, 第二期如需可拆成独立规则)",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "持有核心票底仓(前日仓位≥20%) 且 盘中 当时位置(截至当时日内区间)≤0.3 且 前 5 分钟跌 → 卖出底仓一到三成(倒 T 首腿, 或正 T 的卖出腿)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  },
+  "R10": {
+   "id": "R10",
+   "title": "回头票池选股: 近 60 日做过 且 昨成交额≥3 亿 且 股价≥10 元",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": "买",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "候选票 近 60 日本人交易过 且 昨成交额≥3 亿 且 股价≥10 元 → 进新开仓候选池(池内日均约 15~19 只); 不在池内的新开仓约占 2/3(池外比例参考 fingerprint §六 74%)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  }
+ },
+ "n": 10,
+ "n_mech": 0,
+ "n_dir": 5,
+ "n_distilled": 2
+}

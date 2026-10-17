@@ -1,0 +1,118 @@
+{
+ "skill": "zjwzlclf",
+ "file": "skills/zjwzlclf-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "上涨日对持仓票挂递增价分批兑现(梯度卖出)",
+   "level_tag": "可跟",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "左侧阶梯限价买入: 同票同日越跌越买, 价位常为\"整数+0.01\"或约 0.5 元步长",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "持有不对称: 次日能赚就走, 亏损单全部拖成多日",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "熟票池循环: 同一批票多轮进出",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "科创50 ETF(588000)小额高频调节仓, 08-18 后停用",
+   "level_tag": "画像",
+   "struck": true,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "已证伪"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "现金常驻逆回购, 平均半仓",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "大幅降仓后有轻仓间歇; 08 月起拉长为单票极轻仓常态",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "同日多票小仓新开, 部分集中在尾盘",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "浮亏阶梯加到满仓级集中, 随后反弹分批出、首笔仓亏损兑现",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  }
+ },
+ "n": 9,
+ "n_mech": 0,
+ "n_dir": 4,
+ "n_distilled": 0
+}

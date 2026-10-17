@@ -1,0 +1,638 @@
+{
+ "source": "BL-lianghuaxiaohao",
+ "kind": "baseline",
+ "ledger": "lianghuaxiaohao",
+ "name": "量化短线小号实验",
+ "generated_at": "2026-10-16T22:04:07",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "延续",
+  "L1_n": 147,
+  "L2": "模型",
+  "L2_n": 147,
+  "L4": "常数",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 7061.53,
+ "positions": {
+  "688137": {
+   "qty": 200,
+   "cost": 152.038,
+   "since": "2026-10-08"
+  },
+  "300450": {
+   "qty": 100,
+   "cost": 36.26,
+   "since": "2026-10-13"
+  },
+  "300964": {
+   "qty": 300,
+   "cost": 84.051,
+   "since": "2026-10-14"
+  },
+  "301132": {
+   "qty": 400,
+   "cost": 75.0187,
+   "since": "2026-10-16"
+  }
+ },
+ "orders": [
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "301047",
+   "amount": 32666.67,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 趋势跟随(按打法) 池分 10.844",
+   "status": "filled",
+   "price": 153.1,
+   "qty": 200
+  },
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "688271",
+   "amount": 32666.67,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 弱势震荡(按打法) 池分 10.454",
+   "status": "filled",
+   "price": 107.2,
+   "qty": 300
+  },
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "688137",
+   "amount": 32666.67,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 12.44",
+   "status": "filled",
+   "price": 152.0,
+   "qty": 200
+  },
+  {
+   "date": "2026-10-09",
+   "side": "BUY",
+   "code": "688499",
+   "amount": 4831.17,
+   "why": "加仓: 目标总仓 98% | 打法 趋势跟随(按打法) 池分 9.943",
+   "status": "reject",
+   "note": "资金不足一手"
+  },
+  {
+   "date": "2026-10-12",
+   "side": "BUY",
+   "code": "301550",
+   "amount": 4780.89,
+   "why": "加仓: 目标总仓 98% | 打法 趋势跟随(按打法) 池分 9.112",
+   "status": "reject",
+   "note": "资金不足一手"
+  },
+  {
+   "date": "2026-10-13",
+   "side": "BUY",
+   "code": "300450",
+   "amount": 4875.99,
+   "why": "加仓: 目标总仓 98% | 打法 趋势跟随(按打法) 池分 7.721",
+   "status": "filled",
+   "price": 36.21,
+   "qty": 100
+  },
+  {
+   "date": "2026-10-14",
+   "side": "SELL",
+   "code": "301047",
+   "qty": 200,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 134.24
+  },
+  {
+   "date": "2026-10-14",
+   "side": "BUY",
+   "code": "300964",
+   "amount": 26864.0,
+   "why": "换股: 等额买入新票 | 打法 趋势跟随(按打法) 池分 10.368",
+   "status": "filled",
+   "price": 84.03,
+   "qty": 300
+  },
+  {
+   "date": "2026-10-15",
+   "side": "BUY",
+   "code": "688018",
+   "amount": 2939.34,
+   "why": "加仓: 目标总仓 98% | 打法 趋势跟随(按打法) 池分 9.676",
+   "status": "reject",
+   "note": "资金不足一手"
+  },
+  {
+   "date": "2026-10-16",
+   "side": "SELL",
+   "code": "688271",
+   "qty": 300,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 107.7
+  },
+  {
+   "date": "2026-10-16",
+   "side": "BUY",
+   "code": "301132",
+   "amount": 32223.0,
+   "why": "换股: 等额买入新票 | 打法 趋势跟随(按打法) 池分 8.975",
+   "status": "filled",
+   "price": 75.0,
+   "qty": 400
+  }
+ ],
+ "trades": [
+  {
+   "id": "2026-10-08-BL-lianghuaxiaohao-001",
+   "side": "BUY",
+   "code": "301047",
+   "price": 153.1,
+   "qty": 200,
+   "fee": 7.66,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 趋势跟随(按打法) 池分 10.844 | 开盘价"
+  },
+  {
+   "id": "2026-10-08-BL-lianghuaxiaohao-002",
+   "side": "BUY",
+   "code": "688271",
+   "price": 107.2,
+   "qty": 300,
+   "fee": 8.04,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 弱势震荡(按打法) 池分 10.454 | 开盘价"
+  },
+  {
+   "id": "2026-10-08-BL-lianghuaxiaohao-003",
+   "side": "BUY",
+   "code": "688137",
+   "price": 152.0,
+   "qty": 200,
+   "fee": 7.6,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 12.44 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-lianghuaxiaohao-004",
+   "side": "BUY",
+   "code": "300450",
+   "price": 36.21,
+   "qty": 100,
+   "fee": 5.0,
+   "why": "加仓: 目标总仓 98% | 打法 趋势跟随(按打法) 池分 7.721 | 开盘价"
+  },
+  {
+   "id": "2026-10-14-BL-lianghuaxiaohao-005",
+   "side": "SELL",
+   "code": "301047",
+   "price": 134.24,
+   "qty": 200,
+   "fee": 20.14,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-14-BL-lianghuaxiaohao-006",
+   "side": "BUY",
+   "code": "300964",
+   "price": 84.03,
+   "qty": 300,
+   "fee": 6.3,
+   "why": "换股: 等额买入新票 | 打法 趋势跟随(按打法) 池分 10.368 | 开盘价"
+  },
+  {
+   "id": "2026-10-16-BL-lianghuaxiaohao-007",
+   "side": "SELL",
+   "code": "688271",
+   "price": 107.7,
+   "qty": 300,
+   "fee": 24.23,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-16-BL-lianghuaxiaohao-008",
+   "side": "BUY",
+   "code": "301132",
+   "price": 75.0,
+   "qty": 400,
+   "fee": 7.5,
+   "why": "换股: 等额买入新票 | 打法 趋势跟随(按打法) 池分 8.975 | 开盘价"
+  }
+ ],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 6796.71,
+   "mv": 91480.0,
+   "nav": 98276.71,
+   "filled": 3,
+   "orders": 3
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 6796.71,
+   "mv": 93994.0,
+   "nav": 100790.71,
+   "filled": 0,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 6796.71,
+   "mv": 89239.0,
+   "nav": 96035.71,
+   "filled": 0,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 3170.71,
+   "mv": 89593.0,
+   "nav": 92763.71,
+   "filled": 1,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 4783.27,
+   "mv": 87413.0,
+   "nav": 92196.27,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 4783.27,
+   "mv": 88797.0,
+   "nav": 93580.27,
+   "filled": 0,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 7061.53,
+   "mv": 78932.0,
+   "nav": 85993.53,
+   "filled": 2,
+   "orders": 2
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "301047",
+     "name": "义翘神州",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": true,
+     "price": 153.1,
+     "qty": 200
+    },
+    {
+     "side": "BUY",
+     "code": "688271",
+     "name": "联影医疗",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": true,
+     "price": 107.2,
+     "qty": 300
+    },
+    {
+     "side": "BUY",
+     "code": "688137",
+     "name": "近岸蛋白",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 152.0,
+     "qty": 200
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.145,
+    0.735,
+    0.12
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9944999999999999,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9984999999999999,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.08366962036396614,
+    "red_step": 0.1174241835400352,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.0,
+   "sizing": {
+    "single_size": 0.367,
+    "k": 3,
+    "top_play": "趋势跟随"
+   }
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "688499",
+     "name": "利元亨",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": false,
+     "note": "资金不足一手"
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.08,
+    0.088,
+    0.832
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.9944999999999999,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9944999999999999,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.08366962036396614,
+    "red_step": 0.1215314350009788,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.931,
+   "sizing": {
+    "single_size": 0.364,
+    "k": 1,
+    "top_play": "趋势跟随"
+   }
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "301550",
+     "name": "斯菱智驱",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": false,
+     "note": "资金不足一手"
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.215,
+    0.346,
+    0.439
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.99445,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.99445,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.08538362019249661,
+    "red_step": 0.1215314350009788,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.933,
+   "sizing": {
+    "single_size": 0.367,
+    "k": 1,
+    "top_play": "趋势跟随"
+   }
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "300450",
+     "name": "先导智能",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": true,
+     "price": 36.21,
+     "qty": 100
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.168,
+    0.264,
+    0.568
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.9944,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9944,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.08538362019249661,
+    "red_step": 0.1215314350009788,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.929,
+   "sizing": {
+    "single_size": 0.36,
+    "k": 1,
+    "top_play": "趋势跟随"
+   }
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "301047",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 134.24,
+     "qty": 200
+    },
+    {
+     "side": "BUY",
+     "code": "300964",
+     "name": "本川智能",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": true,
+     "price": 84.03,
+     "qty": 300
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.184,
+    0.748,
+    0.068
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.99445,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.998,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.08709762002102708,
+    "red_step": 0.1215314350009788,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.966,
+   "sizing": {
+    "single_size": 0.36,
+    "k": 1,
+    "top_play": "趋势跟随"
+   }
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "688018",
+     "name": "乐鑫科技",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": false,
+     "note": "资金不足一手"
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-14",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.142,
+    0.407,
+    0.45
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.9944999999999999,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.0870976200210272,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.08709762002102708,
+    "red_step": 0.1174241835400352,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.948,
+   "sizing": {
+    "single_size": 0.367,
+    "k": 1,
+    "top_play": "趋势跟随"
+   }
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "688271",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 107.7,
+     "qty": 300
+    },
+    {
+     "side": "BUY",
+     "code": "301132",
+     "name": "满坤科技",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": true,
+     "price": 75.0,
+     "qty": 400
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-15",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.107,
+    0.76,
+    0.133
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.99445,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.994,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.08709762002102708,
+    "red_step": 0.1174241835400352,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.949,
+   "sizing": {
+    "single_size": 0.367,
+    "k": 1,
+    "top_play": "趋势跟随"
+   }
+  }
+ ]
+}

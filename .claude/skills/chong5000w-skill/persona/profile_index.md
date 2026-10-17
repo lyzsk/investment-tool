@@ -1,7 +1,7 @@
-# profile_index.md — chong5000w 导师画像目录(链改造 F; 生成于 2026-10-15 23:09)
-> 源: skills/chong5000w-skill/persona/profile.md sha12=a02abf12d851 · 44 行 · 1.3KB · 9 节(超长节按行切片≤6KB)
+# profile_index.md — chong5000w 导师画像目录(链改造 F; 生成于 2026-10-16 23:21)
+> 源: skills/chong5000w-skill/persona/profile.md sha12=08d49c28d8f8 · 103 行 · 9.2KB · 16 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: 机械(画像 ≤8KB, 全节全步注入, 未调模型); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill chong5000w`(未变节复用标注)
+> 标注来源: --no-llm: 7 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill chong5000w`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 1.3KB / 03 1.3KB / 04 1.3KB / 05 1.3KB / 06 1.3KB
 
 ## 核心摘要
@@ -19,3 +19,10 @@
 | S07 | 熟票池 | - 腿数top5: [['688048', 38, '23%'], ['3003 | L26-29 | 0.2 | 02,03,04,05,06 | 1 | a43889d3 |
 | S08 | 持仓维度 | - 覆盖日: 135 - 平均持仓只数: 9.0 - 平均总仓位%: 136.6 | L31-39 | 0.3 | 02,03,04,05,06 | 1 | f2a6a460 |
 | S09 | 杂项 | - 单笔名义中位/万: 37.4 - 平均每日trip: 1.1 | L41-43 | 0.1 | 02,03,04,05,06 | 1 | bf94906d |
+| S10 | 【时效声明】（10/16 深度蒸馏） | (未标注: --no-llm) | L45-51 | 1.0 | — | 3 | 1db2b6f4 |
+| S11 | 【选股逻辑】 | (未标注: --no-llm) | L53-62 | 1.9 | — | 3 | 0a51bdf5 |
+| S12 | 【买点】 | (未标注: --no-llm) | L64-71 | 1.2 | — | 3 | b4fd15a3 |
+| S13 | 【卖点】 | (未标注: --no-llm) | L73-80 | 1.2 | — | 3 | 0ce98bfe |
+| S14 | 【市况应对】 | (未标注: --no-llm) | L82-89 | 1.1 | — | 3 | b4bbdb07 |
+| S15 | 【盘中节奏】 | (未标注: --no-llm) | L91-97 | 1.1 | — | 3 | 3dd9727a |
+| S16 | 【T法】 | (未标注: --no-llm) | L99-102 | 0.3 | — | 3 | c242e0c9 |

@@ -235,7 +235,7 @@ def reflect_prompt(skill, items):
         out += [f"[{n}] id={d['id']}" + ("" if skill else f" | 链={d['id'].split('|')[1]}"),
                 f"    {d['date']} {slot}({'盘中子链' if d.get('sub') else '盘前全链'}) {side} {d.get('name') or ''} {d['code']} 挂 {d['px']:g} × {d['qty']}"
                 f" | 自报锚 {d.get('anchor')} | cancel_below {d.get('cancel_below') or '-'} | stop_below {d.get('stop_below') or '-'}"
-                + (" | 【未过盲审】" if d.get("blind_fail") else ""),
+                + (" | 【未过盲审/拟人审】" if d.get("blind_fail") else ""),
                 f"    下单理由: {d.get('why') or '(06 未写)'}",
                 f"    失效条件: {d.get('invalid_if') or '-'}",
                 f"    结果: {st_cn.get(s['status'], s['status'])}" + (f" @{s['fill_px']:g}" if s.get("fill_px") else "")
@@ -356,7 +356,7 @@ def backfill(dir_, d0, d1, skills=None, plans=PLANS):
                 act = {"code": code, "op": "买" if side == "BUY" else "卖", "qty": qty, "_px": px, "anchor": anc, **cond,
                        "name": names.get(code, ""), "why": note, "rules": [{"id": x} for x in re.findall(r"[A-Z]\d+", (re.search(r"规则: ([A-Z0-9,]+)", note) or [None, ""])[1])]}
             rec = dm.records_from_contract({"actions": [act]}, skill=sk, source=src, date=date, slot=slot, sub=slot != "0915",
-                                           blind_fail="未过盲审" in note, asof=False, origin="backfill", ts=f"{date}T{hh}:{mm}:00")
+                                           blind_fail=("未过盲审" in note or "未过拟人审" in note), asof=False, origin="backfill", ts=f"{date}T{hh}:{mm}:00")
             recs += [r for r in rec if r["id"] not in have]
         dm.write_decisions(dir_, sk, recs)
         n += len(recs)

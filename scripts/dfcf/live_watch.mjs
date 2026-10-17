@@ -15,6 +15,8 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { snapMany } from "./paper/snapshot.mjs";
+import * as AR from "../lib/a_rules.mjs";   // 10/16 晚: 成交量单位/涨跌停价统一规则
+import { futuresMd } from "../quotes/futures.mjs";   // 10/16: 期货(国内股指/农产品/能化+外围), 每 5 分钟刷一次
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const arg = (k, d) => { const i = process.argv.indexOf("--" + k); return i > 0 ? process.argv[i + 1] : d; };
@@ -160,6 +162,7 @@ async function tick() {
             state.market.indexes = idx;
         } catch (e) { state.market.indexErr = e.message; }
     }
+    if (now - (state.futAt || 0) > 300_000) { state.futAt = now; state.market.futures = await futuresMd(); }
     if (now - slowAt > 60_000) {   // ② paper 线市场扫描 + 链共识(只读文件, 零请求)
         slowAt = now;
         state.market.scan = paperScan();
@@ -177,8 +180,10 @@ async function tick() {
         const t = (s.qtTime || "").slice(8, 12) || String(hm()).padStart(4, "0"), key = t.slice(0, 2) + ":" + t.slice(2, 4);
         const b = o.bars[key] || (o.bars[key] = { o: s.last, h: s.last, l: s.last, c: s.last, v0: s.vol });
         b.h = Math.max(b.h, s.last); b.l = Math.min(b.l, s.last); b.c = s.last; b.v1 = s.vol;
-        const vwap = s.vol > 0 && s.amt > 0 ? r2(s.amt / (s.vol * 100)) : null;
-        const pace = el > 0 && st?.prevVol ? r2(s.vol / (st.prevVol * el / 240)) : null;
+        // 10/16 晚: 腾讯 qt 成交量单位 主板/创业板/ETF=手(100), 科创板=股(1), 转债=手(10 张) → 原式一律 ×100 使科创板均价小 100 倍、转债小 10 倍
+        const volSh = s.vol > 0 ? s.vol * AR.volumeUnit("tencent_qt", code) : 0;   // 股/份/张
+        const vwap = volSh > 0 && s.amt > 0 ? +(s.amt / volSh).toFixed(AR.priceDecimals(code)) : null;
+        const pace = el > 0 && st?.prevVol ? r2(volSh / AR.volumeUnit("em", code) / (st.prevVol * el / 240)) : null;   // 日线归档 v=手(100 股/10 张)
         const idxUp = (state.market.indexes || []).filter((x) => x.pct > 0.3).length, idxDn = (state.market.indexes || []).filter((x) => x.pct < -0.3).length;
         const atHigh = s.last >= s.high - 0.02, atLow = s.last <= s.low + 0.02;
         let regime = "震荡";
@@ -212,6 +217,7 @@ function render() {
     }
     L.push("", "## ① 大盘");
     L.push((m.indexes || []).map((x) => `${x.name} ${x.last}(${x.pct}%, 额${x.amtYi}亿)`).join(" | ") || `指数失败 ${m.indexErr || ""}`);
+    if (m.futures) L.push("", "期货: " + m.futures.split(String.fromCharCode(10)).join(String.fromCharCode(10) + "  "));
     L.push("", "## ② 方向");
     L.push(m.scan ? `(paper 线 ${m.scan.slot} 时段 scan.mjs)\n${m.scan.md}` : "(paper 当日 facts 尚无)");
     const c = state.consensus;
@@ -228,7 +234,8 @@ function render() {
     if ((state.related || []).length) {   // 10/15 用户令: 持仓票的关联妖股(同行业/同概念/统计同向/跷跷板), 自动挑, 不写死
         L.push("", `## 关联妖股(related_yao.mjs ${state.related[0].asof} 挑; 看它们涨停/炸板/跌停时持仓票怎么反应)`);
         for (const r of state.related) {
-            const lim = r.prevClose ? (r.last >= r.prevClose * 1.095 ? " 🔺近涨停" : r.last <= r.prevClose * 0.905 ? " 🔻近跌停" : "") : "";
+            const [lu, ld] = r.prevClose ? AR.limitPrices(r.code, undefined, r.prevClose, { name: r.name ?? null }) : [null, null];   // 10/16 晚: 20cm/30cm/ST 按真实板限
+            const lim = lu !== null ? (r.last >= lu - r.prevClose * 0.005 ? " 🔺近涨停" : r.last <= ld + r.prevClose * 0.005 ? " 🔻近跌停" : "") : "";
             L.push(`- [${r.kind}] ${r.name}(${r.code}) ${r.last ?? "?"}(${r.pct ?? "?"}%)${lim} | 近 20 日最高 ${r.maxLb} 板/涨停 ${r.ztDays} 天 | 共享: ${(r.shared || []).slice(0, 3).join("/") || "-"} | 与持仓 20 日相关 ${r.corr ?? "样本不足"}`);
         }
     }

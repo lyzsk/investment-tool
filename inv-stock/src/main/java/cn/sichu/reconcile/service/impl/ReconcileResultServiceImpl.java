@@ -71,7 +71,10 @@ public class ReconcileResultServiceImpl extends ServiceImpl<ReconcileResultMappe
             .map(r -> r.getBizKey() + " " + r.getCheckItem() + " " + r.getResult() + " 应" + r.getExpected() + "/实"
                 + r.getActual() + (r.getDetail() == null ? "" : " " + r.getDetail()))
             .map(s -> s.length() > 160 ? s.substring(0, 160) + "…" : s).collect(Collectors.joining("\n"));
-        log.warn("{}\n{}", summary, lines);
+        /* 10/17: 日志里一行一条且都带时间戳/级别(原 "{}\n{}" 一条 WARN 拆成多行, 后续行没有时间戳, 用户看 log 时对不上); 微信通知仍多行 */
+        log.warn(summary);
+        bad.stream().limit(NOTIFY_MAX_LINES).forEach(r -> log.warn("  {} {} {} 应{}/实{}{}", r.getBizKey(), r.getCheckItem(),
+            r.getResult(), r.getExpected(), r.getActual(), r.getDetail() == null ? "" : " " + r.getDetail()));
         notifyService.sendAsync("【对账】" + summary + "\n" + lines + (bad.size() > NOTIFY_MAX_LINES ?
             "\n…共 " + bad.size() + " 项" : ""));
         return summary;

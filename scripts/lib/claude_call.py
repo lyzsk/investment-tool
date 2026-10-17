@@ -193,6 +193,7 @@ def call(prompt, *, tag, cwd=ROOT, timeout=1800, permission="acceptEdits", allow
     base += list(extra_args or [])
     t_start = time.time()
     res = Result(ok=False)
+    n400 = 0   # 10/16 用户立法: 同一请求 API 400 重试 3 次, 3 次都 400 → rotation.on_api400 切 gravitex 再试一次
     while True:
         args = base + (rot.settings_args() if rot else [])
         if rot:
@@ -224,6 +225,12 @@ def call(prompt, *, tag, cwd=ROOT, timeout=1800, permission="acceptEdits", allow
         res.usage = j.get("usage", {}) or {}
         res.cost_usd = j.get("total_cost_usd", 0) or 0
         err_text = (err or "") + (res.result if j.get("is_error") else "") + ("" if env_ok else (out or "")[-1000:])
+        if res.is_error and rot and hasattr(rot, "is_api400") and rot.is_api400(err_text):
+            n400 += 1
+            if n400 < 3:
+                time.sleep(5); continue
+            if n400 == 3 and rot.on_api400(tag):
+                continue
         if res.is_error and WINDOW_RE.search(err_text) and res.window_waits < max_window_waits:
             res.window_waits += 1
             if rot and rot.on_window_limit():

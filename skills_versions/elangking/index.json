@@ -1,0 +1,33 @@
+{
+ "skill": "elangking",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-16T00:06:02",
+   "persona_hash": "a2f4eae8868356d5e9d178e1b4c2db213fe7f0e25a2f3ffaee02617e4127efdc",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 59,
+    "removed": 0
+   },
+   "bytes_weight": 4710,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "efba4d3f961f",
+    "distill": "da70d3e6aa79"
+   }
+  }
+ ],
+ "events": []
+}

@@ -119,7 +119,13 @@ function mount(date, acc, meta, text) {
         if (p.err) { console.error(p.msg); process.exit(p.err); }
         acc = ACCOUNTS.find((a) => p.nickname && p.nickname.replace(/\s/g, "").includes(a.name.replace(/\s/g, ""))) || ACCOUNTS.find((a) => a.id === ACC_IN);
         if (!acc) { console.error(`未知公众号"${p.nickname}", 先在 scripts/wechat/wechat_accounts.json 登记`); process.exit(6); }
-        date = DATE_IN || (p.createTime || "").slice(0, 10) || new Date().toISOString().slice(0, 10);
+        // 10/17 健壮性 M12/L2: --date 原先无条件覆盖页面日期; 兜底原用 UTC 今天(凌晨 0~8 点差一天)
+        if (DATE_IN && p.createTime && p.createTime.slice(0, 10) !== DATE_IN && !ARGS.includes("--force-date")) {
+            const prevDay = new Date(new Date(DATE_IN + "T12:00:00+08:00").getTime() - 864e5).toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" });
+            const preEve = p.createTime.slice(0, 10) === prevDay && p.createTime.slice(11, 16) >= "15:00";   // 前一晚预发的盘前推演: 允许
+            if (!preEve) { console.error(`页面发布时间 ${p.createTime} 与 --date ${DATE_IN} 不符: 疑贴错链接, 不落产物; 确认无误加 --force-date`); process.exit(6); }
+        }
+        date = DATE_IN || (p.createTime || "").slice(0, 10) || new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" });
         meta = { account: acc.id, name: acc.name, title: p.title, createTime: p.createTime, url: URL_IN, fetchedAt: new Date().toISOString(), chars: p.text.length };
         text = p.text;
         const dir = path.join("downloads", "wechat", acc.id, date);

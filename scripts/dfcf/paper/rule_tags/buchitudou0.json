@@ -1,0 +1,142 @@
+{
+ "skill": "buchitudou0",
+ "file": "skills/buchitudou0-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "开盘双通道入场, 从不尾盘开仓",
+   "level_tag": null,
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "秒级时间止损, 而非固定幅度止损",
+   "level_tag": null,
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "~~日内亏即收手~~(证伪, 移入反例录)",
+   "level_tag": null,
+   "struck": true,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "已证伪"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "滚动熟票池, 非固定池",
+   "level_tag": null,
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "固定单笔名义本金 ≈ 10-15 万",
+   "level_tag": null,
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "T-1 热点驱动选债(正股联动·修正版)",
+   "level_tag": null,
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "风险画像: 深亏全部来自开盘抢筹通道",
+   "level_tag": null,
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "首笔=竞价买、开盘半分钟内卖; 正股竞价强时最灵",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": "买",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "当日首笔 且 时刻 09:15~09:25 挂单(竞价成交) 且 标的=近 60 日做过的转债 且 转债昨收 ≥170 元 → 竞价买入, 09:30:00~09:30:30 卖出; 话术级部分=\"正股竞价强弱\"(他当时看到的是虚拟撮合价, 不可回测)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "开盘窗内同债追单复做, 越往后越接近抛硬币, 但不因盈亏收手",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": "买",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "当日已有平仓 RT 且 时刻 ≤09:35 且 标的=当日首笔同一只债 → 允许再买(追单); 持有 >10 秒 且 浮亏 → 卖出; 09:35 后不新开",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  },
+  "R10": {
+   "id": "R10",
+   "title": "强赎公告不是退出信号: 公告后到最后交易日前照做, 只做日内",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": "买",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "转债已发强赎公告(EXECUTE_REASON_SH=4) 且 当日 < 最后交易日 且 正股强势(T-1 涨 ≥5% 或涨停) → 允许日内买卖, 收盘前必须清仓; 话术级部分=\"强赎公告是否影响他的选择\"(无委托档, 看不到他放弃了哪些)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  },
+  "R11": {
+   "id": "R11",
+   "title": "正股竞价低开的日子, 竞价首笔接近白做",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": "不动",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "正股集合竞价价 ≤ 昨收 −2% → 不走竞价通道(等开盘后看追单或不做); 回测只能用正股最终开盘价近似(10/12 前无竞价快照)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  }
+ },
+ "n": 11,
+ "n_mech": 0,
+ "n_dir": 7,
+ "n_distilled": 4
+}

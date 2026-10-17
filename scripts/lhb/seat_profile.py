@@ -31,7 +31,15 @@ OUT = ROOT / "scripts" / "lhb" / "seat_profile.json"
 MIN_N = 5
 
 
-def limit_pct(code, market, name):
+def limit_pct(code, market, name, date=None):
+    """10/17 健壮性 M11: 改走统一规则模块 a_rules(按日期); 原规则 ST 一律 5%(创业板 ST 应 20%、主板 ST 2026-07-06 起 10%)。返回百分数"""
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+        import a_rules as AR   # noqa: PLC0415
+        p = AR.limit_pct(code, date, name=name or None)
+        return 99.0 if p is None else round(p * 100, 2)
+    except Exception:   # noqa: BLE001  规则模块不可用 → 旧口径
+        pass
     if "ST" in (name or "").upper():
         return 5.0
     if code.startswith(("30", "68")):
@@ -114,7 +122,7 @@ def main():
         return r
 
     def is_lim(e):
-        return e["chg"] is not None and e["chg"] >= limit_pct(e["code"], e["market"], e["name"]) - 0.25
+        return e["chg"] is not None and e["chg"] >= limit_pct(e["code"], e["market"], e["name"], e.get("date")) - 0.25
 
     # 同类基准: 全部上榜只次按"T 日是否涨停"分两桶的 T+1 收盘溢价均值(超额=事件 c1 - 同桶均值; 去掉"打板票次日天然高开"的混杂)
     bucket = {True: [], False: []}

@@ -1,19 +1,10 @@
 package cn.sichu.market.service.impl;
 
-import cn.sichu.market.entity.AdjustmentFactor;
-import cn.sichu.market.entity.CallAuction;
-import cn.sichu.market.entity.KlineDay;
-import cn.sichu.market.entity.KlineMinute;
-import cn.sichu.market.entity.SecurityMaster;
-import cn.sichu.market.entity.WatchlistInfo;
-import cn.sichu.market.mapper.AdjustmentFactorMapper;
-import cn.sichu.market.mapper.CallAuctionMapper;
-import cn.sichu.market.mapper.KlineDayMapper;
-import cn.sichu.market.mapper.KlineMinuteMapper;
-import cn.sichu.market.mapper.SecurityMasterMapper;
-import cn.sichu.market.mapper.WatchlistInfoMapper;
+import cn.sichu.market.entity.*;
+import cn.sichu.market.mapper.*;
 import cn.sichu.market.service.IMarketImportService;
 import cn.sichu.system.config.ProjectConfig;
+import com.fasterxml.jackson.databind.JsonNode;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,10 +68,11 @@ public class MarketImportServiceImpl implements IMarketImportService {
             JsonUtils.readJsonl(dir.resolve("kline_day.jsonl"), KlineDay.class));
         /* 第 2b 段: refresh_factors.py 校验通过的除权标的, 按标的整体替换因子 */
         int factorSymbols = 0;
-        if (Files.exists(dir.resolve("DONE_factor")) && Files.exists(dir.resolve("adjustment_factor.jsonl"))) {
+        if (Files.exists(dir.resolve("DONE_factor")) && Files.exists(
+            dir.resolve("adjustment_factor.jsonl"))) {
             Map<String, List<AdjustmentFactor>> bySymbol =
-                JsonUtils.readJsonl(dir.resolve("adjustment_factor.jsonl"), AdjustmentFactor.class).stream()
-                    .collect(Collectors.groupingBy(AdjustmentFactor::getSymbol));
+                JsonUtils.readJsonl(dir.resolve("adjustment_factor.jsonl"), AdjustmentFactor.class)
+                    .stream().collect(Collectors.groupingBy(AdjustmentFactor::getSymbol));
             bySymbol.forEach(this::replaceFactors);
             factorSymbols = bySymbol.size();
         }
@@ -94,10 +86,10 @@ public class MarketImportServiceImpl implements IMarketImportService {
     /**
      * 有则更新(只在名称/ST/板块变化时 updateById)/无则批量插入; 不删除(退市股保留, 防幸存者偏差)
      *
-     * @author sichu huang
      * @param incoming incoming
-     * @since 2026/10/11
      * @return java.lang.String
+     * @author sichu huang
+     * @since 2026/10/11
      **/
     private String upsertSecurity(List<SecurityMaster> incoming) {
         if (CollectionUtils.isEmpty(incoming)) {
@@ -123,8 +115,7 @@ public class MarketImportServiceImpl implements IMarketImportService {
                 old.setBoardType(in.getBoardType());
                 old.setSource(in.getSource());
                 /* MyBatis-Plus 自带, 自动填 update_by/update_time */
-                securityMasterMapper.updateById(
-                    old);
+                securityMasterMapper.updateById(old);
                 updated++;
             }
         }
@@ -135,11 +126,11 @@ public class MarketImportServiceImpl implements IMarketImportService {
     /**
      * 该交易日先物理删除再批量插入
      *
-     * @author sichu huang
      * @param tradeDate tradeDate
-     * @param rows rows
-     * @since 2026/10/11
+     * @param rows      rows
      * @return int
+     * @author sichu huang
+     * @since 2026/10/11
      **/
     private int replaceKlineDay(LocalDate tradeDate, List<KlineDay> rows) {
         if (CollectionUtils.isEmpty(rows)) {
@@ -173,6 +164,18 @@ public class MarketImportServiceImpl implements IMarketImportService {
                 throw new BusinessException("采集未完成, 缺 " + dir.resolve("DONE_" + stage));
             }
         }
+        /* 健壮性 H1 纵深: manifest 里分时缺失超阈值(与 collect_minute.py 同口径 max(20 只, 5%))=残缺, 不入库 */
+        Path mf = dir.resolve("manifest.json");
+        if (Files.exists(mf)) {
+            JsonNode km =
+                JsonUtils.objectMapper.readTree(mf.toFile()).path("stages").path("kline_minute");
+            long symbols = km.path("symbols").asLong(0);
+            long missing = km.path("missingCount").asLong(0);
+            if (symbols > 0 && missing > Math.max(20, symbols * 0.05)) {
+                throw new BusinessException(
+                    "分时缺失超阈值: 缺 " + missing + "/" + symbols + " 只(manifest), 不入库");
+            }
+        }
         LocalDateTime now = LocalDateTime.now();
         List<WatchlistInfo> watchlist =
             JsonUtils.readJsonl(dir.resolve("watchlist_info.jsonl"), WatchlistInfo.class);
@@ -180,7 +183,8 @@ public class MarketImportServiceImpl implements IMarketImportService {
             JsonUtils.readJsonl(dir.resolve("kline_minute.jsonl"), KlineMinute.class);
         if (CollectionUtils.isEmpty(watchlist) || CollectionUtils.isEmpty(bars)) {
             throw new BusinessException(
-                "关注集或分时为空: watchlist " + watchlist.size() + " / kline_minute " + bars.size());
+                "关注集或分时为空: watchlist " + watchlist.size() + " / kline_minute "
+                    + bars.size());
         }
         watchlist.forEach(w -> {
             w.setCreateBy(SYSTEM_USER);
@@ -204,23 +208,27 @@ public class MarketImportServiceImpl implements IMarketImportService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String importGlobal(LocalDate day) throws Exception {
-        Path dir = Paths.get(projectConfig.getMarket().getOutputDir(), day.format(DateTimeUtils.YYYY_MM_DD));
+        Path dir = Paths.get(projectConfig.getMarket().getOutputDir(),
+            day.format(DateTimeUtils.YYYY_MM_DD));
         if (!Files.exists(dir.resolve("DONE_global"))) {
             throw new BusinessException("采集未完成, 缺 " + dir.resolve("DONE_global"));
         }
-        String securitySummary =
-            upsertSecurity(JsonUtils.readJsonl(dir.resolve("global_security.jsonl"), SecurityMaster.class));
-        List<KlineDay> bars = JsonUtils.readJsonl(dir.resolve("global_kline.jsonl"), KlineDay.class);
+        String securitySummary = upsertSecurity(
+            JsonUtils.readJsonl(dir.resolve("global_security.jsonl"), SecurityMaster.class));
+        List<KlineDay> bars =
+            JsonUtils.readJsonl(dir.resolve("global_kline.jsonl"), KlineDay.class);
         LocalDateTime now = LocalDateTime.now();
         for (KlineDay k : bars) {
             k.setCreateBy(SYSTEM_USER);
             k.setCreateTime(now);
             /* 外围各品种当地交易日不同, 逐个按 symbol+日删 */
-            klineDayMapper.physicalDeleteBySymbolAndRange(k.getSymbol(), k.getTradeDate(), k.getTradeDate());
+            klineDayMapper.physicalDeleteBySymbolAndRange(k.getSymbol(), k.getTradeDate(),
+                k.getTradeDate());
         }
         CollectionUtils.partition(bars, BATCH_SIZE).forEach(klineDayMapper::insertBatch);
-        String summary = "market 外围入库 " + day.format(DateTimeUtils.YYYY_MM_DD) + ": " + securitySummary + ", kline_day "
-            + bars.size() + " 行";
+        String summary =
+            "market 外围入库 " + day.format(DateTimeUtils.YYYY_MM_DD) + ": " + securitySummary
+                + ", kline_day " + bars.size() + " 行";
         log.info(summary);
         return summary;
     }
@@ -234,7 +242,8 @@ public class MarketImportServiceImpl implements IMarketImportService {
         if (!Files.exists(dir.resolve("DONE_auction_" + p))) {
             throw new BusinessException("采集未完成, 缺 " + dir.resolve("DONE_auction_" + p));
         }
-        List<CallAuction> rows = JsonUtils.readJsonl(dir.resolve("call_auction_" + p + ".jsonl"), CallAuction.class);
+        List<CallAuction> rows =
+            JsonUtils.readJsonl(dir.resolve("call_auction_" + p + ".jsonl"), CallAuction.class);
         LocalDateTime now = LocalDateTime.now();
         rows.forEach(a -> {
             a.setCreateBy(SYSTEM_USER);
@@ -242,8 +251,10 @@ public class MarketImportServiceImpl implements IMarketImportService {
         });
         int deleted = callAuctionMapper.physicalDeleteByTradeDateAndPhase(tradeDate, phase);
         CollectionUtils.partition(rows, BATCH_SIZE).forEach(callAuctionMapper::insertBatch);
-        String summary = "market 竞价入库 " + tradeDate.format(DateTimeUtils.YYYY_MM_DD) + " " + phase + ": 删旧 " + deleted
-            + " / 插新 " + rows.size() + " 行(" + rows.stream().map(CallAuction::getSymbol).distinct().count() + " 只)";
+        String summary =
+            "market 竞价入库 " + tradeDate.format(DateTimeUtils.YYYY_MM_DD) + " " + phase + ": 删旧 "
+                + deleted + " / 插新 " + rows.size() + " 行(" + rows.stream()
+                .map(CallAuction::getSymbol).distinct().count() + " 只)";
         log.info(summary);
         return summary;
     }
@@ -277,7 +288,7 @@ public class MarketImportServiceImpl implements IMarketImportService {
                     Files.exists(ff) ? JsonUtils.readJsonl(ff, AdjustmentFactor.class) : List.of();
                 transactionTemplate.executeWithoutResult(status -> {
                     replaceKlineRange(symbol, bars);
-                    replaceFactors(symbol, factors);
+                    replaceFactorsFromHistory(symbol, factors);
                 });
                 symbols++;
                 klineRows += bars.size();
@@ -288,12 +299,15 @@ public class MarketImportServiceImpl implements IMarketImportService {
                 log.error("历史回补入库失败 {}", symbol, e);
             }
             if ((symbols + failed.size()) % 500 == 0) {
-                log.info("历史回补入库进度 {}/{} kline_day {} 行", symbols, files.size(), klineRows);
+                log.info("历史回补入库进度 {}/{} kline_day {} 行", symbols, files.size(),
+                    klineRows);
             }
         }
-        String summary = "market 历史入库: " + basicSummary + ", 标的 " + symbols + "/" + files.size()
-            + ", kline_day " + klineRows + " 行, adjustment_factor " + factorRows + " 行"
-            + (failed.isEmpty() ? "" : ", 失败 " + failed.size() + " 只: " + failed.stream().limit(20).toList());
+        String summary =
+            "market 历史入库: " + basicSummary + ", 标的 " + symbols + "/" + files.size()
+                + ", kline_day " + klineRows + " 行, adjustment_factor " + factorRows + " 行" + (
+                failed.isEmpty() ? "" :
+                    ", 失败 " + failed.size() + " 只: " + failed.stream().limit(20).toList());
         log.info(summary);
         return summary;
     }
@@ -301,10 +315,10 @@ public class MarketImportServiceImpl implements IMarketImportService {
     /**
      * 历史基本资料: 已有标的只补上市/退市日(名称/ST 以每日快照为准, 不用 baostock 覆盖); 缺失标的(退市股等)补行
      *
-     * @author sichu huang
      * @param incoming incoming
-     * @since 2026/10/11
      * @return java.lang.String
+     * @author sichu huang
+     * @since 2026/10/11
      **/
     private String upsertSecurityBasic(List<SecurityMaster> incoming) {
         if (CollectionUtils.isEmpty(incoming)) {
@@ -339,9 +353,9 @@ public class MarketImportServiceImpl implements IMarketImportService {
     /**
      * 某标的按回补文件首尾日期区间先物理删除再批量插入(与当日快照重叠的日子一并覆盖)
      *
-     * @author sichu huang
      * @param symbol symbol
-     * @param bars bars
+     * @param bars   bars
+     * @author sichu huang
      * @since 2026/10/11
      **/
     private void replaceKlineRange(String symbol, List<KlineDay> bars) {
@@ -362,21 +376,47 @@ public class MarketImportServiceImpl implements IMarketImportService {
     /**
      * 某标的复权因子先物理删除再批量插入
      *
-     * @author sichu huang
-     * @param symbol symbol
+     * @param symbol  symbol
      * @param factors factors
+     * @author sichu huang
      * @since 2026/10/11
      **/
     private void replaceFactors(String symbol, List<AdjustmentFactor> factors) {
-        adjustmentFactorMapper.physicalDeleteBySymbol(symbol);
+        /* 10/17 健壮性 M8: 空列表原先先删光再 return(新浪 hfq 404/格式变化 → 该票因子被清空, 前复权全错); 改为空列表不动库 */
         if (CollectionUtils.isEmpty(factors)) {
             return;
         }
+        adjustmentFactorMapper.physicalDeleteBySymbol(symbol);
         LocalDateTime now = LocalDateTime.now();
         factors.forEach(f -> {
             f.setCreateBy(SYSTEM_USER);
             f.setCreateTime(now);
         });
         CollectionUtils.partition(factors, BATCH_SIZE).forEach(adjustmentFactorMapper::insertBatch);
+    }
+
+    /**
+     * 历史回补路径专用: 文件里最后一个除权日早于库里的(库里已有 refresh_factors 刷进来的新除权)就不替换, 防止重跑 importHistory 把新因子回退
+     *
+     * @author sichu huang
+     * @param symbol symbol
+     * @param factors factors
+     * @since 2026/10/17
+     **/
+    private void replaceFactorsFromHistory(String symbol, List<AdjustmentFactor> factors) {
+        if (CollectionUtils.isEmpty(factors)) {
+            return;
+        }
+        LocalDate fileLast = factors.stream().map(AdjustmentFactor::getExDate).filter(java.util.Objects::nonNull)
+            .max(LocalDate::compareTo).orElse(null);
+        AdjustmentFactor dbLast = adjustmentFactorMapper.selectOne(
+            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AdjustmentFactor>()
+                .eq(AdjustmentFactor::getSymbol, symbol).orderByDesc(AdjustmentFactor::getExDate).last("limit 1"));
+        if (dbLast != null && dbLast.getExDate() != null && fileLast != null && fileLast.isBefore(dbLast.getExDate())) {
+            log.warn("importHistory 跳过因子替换 {}: 文件末除权日 {} 早于库里 {}(保留库里较新的因子)", symbol, fileLast,
+                dbLast.getExDate());
+            return;
+        }
+        replaceFactors(symbol, factors);
     }
 }

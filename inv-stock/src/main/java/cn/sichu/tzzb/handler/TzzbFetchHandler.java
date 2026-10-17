@@ -8,11 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import utils.ProcessUtils;
 import utils.TradingDayUtils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -106,23 +104,14 @@ public class TzzbFetchHandler implements JobHandler {
         StringBuilder tail = new StringBuilder();
         int exit;
         try {
-            Process proc = pb.start();
-            try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    tail.append(line).append('\n');
-                    if (tail.length() > 4000) {
-                        tail.delete(0, tail.length() - 4000);
-                    }
-                }
-            }
-            if (!proc.waitFor(TIMEOUT_MIN, TimeUnit.MINUTES)) {
-                proc.destroyForcibly();
+            /* 10/17 健壮性 H6: 改用 ProcessUtils.run(独立线程读输出, 超时真生效并杀子孙进程); 原写法先读到 EOF 再 waitFor, 子进程卡住=线程永久挂起 */
+            ProcessUtils.Result res = ProcessUtils.run(pb, TIMEOUT_MIN);
+            tail.append(res.tail());
+            if (res.timedOut()) {
                 throw new BusinessException(
-                    "fetch_tzzb.mjs 超时 " + TIMEOUT_MIN + "min ledger=" + ledger);
+                    "fetch_tzzb.mjs 超时 " + TIMEOUT_MIN + "min ledger=" + ledger + "(进程树已杀)");
             }
-            exit = proc.exitValue();
+            exit = res.exit();
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {

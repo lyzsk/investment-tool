@@ -1,0 +1,59 @@
+{
+ "skill": "huweigang",
+ "version": {
+  "v": 1,
+  "id": "v001_20261016-2249",
+  "ts": "2026-10-16T22:49:12",
+  "effective_from": "2026-10-16T00:06:02",
+  "persona_hash": "3c9ba99e41194ebb2eb3e961f71ed6e5c9cb0c0ebf1ea4a7ca11f0f0d14fe421",
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": null,
+  "changed": {
+   "added": [
+    "cases.md"
+   ],
+   "modified": [],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 142,
+   "removed": 0
+  },
+  "bytes_weight": 12801,
+  "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+  "code": {
+   "chain": "d6ee683ae51c",
+   "distill": "56f9bbe8f74d"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "c0764ab6d086e58698762d1fbc3368d7ea7cc21aecb4586f05d827c2c3e2055c",
+   "bytes": 12801,
+   "lines": 142,
+   "mtime": "2026-10-16T00:06:02",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "d6ee683ae51c",
+  "distill": "56f9bbe8f74d",
+  "chain_files": {
+   "scripts/taoge-chain/run_taoge_chain.py": "09e7d486384c",
+   "skills/huweigang-skill/workflows/chain.md": null,
+   "skills/huweigang-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"
+  },
+  "distill_files": {
+   "skills/huweigang-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "9ec70798c98a",
+   "scripts/tzzb/llm_batch_tzzb.py": "2c2246c6c7e1",
+   "scripts/tzzb/mentor_fingerprint.py": "d218700ea1cf",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "1109d4201eb3",
+   "scripts/md/gen_profile_index.py": "16926ed80e73",
+   "scripts/md/gen_rules_index.mjs": "654e7e6d356c",
+   "scripts/md/check_md_daily.py": "51cab73b861f"
+  }
+ }
+}

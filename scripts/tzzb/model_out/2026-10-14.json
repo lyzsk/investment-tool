@@ -1,0 +1,1059 @@
+{
+ "date": "2026-10-14",
+ "generated_at": "2026-10-16T23:23:18",
+ "feature_day": "2026-10-13",
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "note": "全部只用 D 之前数据; 概率=样本外校准过的统计模型; 用什么出单=该层样本外评估(仅 D 之前记录)的胜者",
+ "mentors": {
+  "buchitudou0": {
+   "name": "不吃土豆0",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 0,
+    "n_hold": 0,
+    "trade_prev": true,
+    "dir_prev": "不动",
+    "persona_flags": []
+   },
+   "L1": {
+    "p_trade": 0.894,
+    "source": "模型"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.01,
+     "不动": 0.975,
+     "加": 0.016
+    },
+    "p_dir_given_trade": {
+     "减": 0.011,
+     "不动": 0.972,
+     "加": 0.018
+    },
+    "source": "延续"
+   },
+   "L4": {
+    "tp_hat": 0.0,
+    "p25": 0.0,
+    "p75": 0.0,
+    "bin_hat": "空",
+    "cell": "导师×昨仓档×市况",
+    "source": "延续"
+   },
+   "L3": {
+    "play_dist": {
+     "转债": 0.999,
+     "涨停回调": 0.0,
+     "连板接力": 0.0,
+     "趋势跟随": 0.0,
+     "弱势震荡": 0.0,
+     "首板次日": 0.0
+    },
+    "n_events": 187,
+    "size_by_play": {
+     "转债": {
+      "med": 0.364,
+      "p25": 0.194,
+      "p75": 0.759,
+      "cell": "群体",
+      "n": 1330
+     },
+     "涨停回调": {
+      "med": 0.364,
+      "p25": 0.194,
+      "p75": 0.759,
+      "cell": "群体",
+      "n": 1330
+     },
+     "连板接力": {
+      "med": 0.364,
+      "p25": 0.194,
+      "p75": 0.759,
+      "cell": "群体",
+      "n": 1330
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": true,
+    "dir": "不动",
+    "tp_target": 0.0,
+    "tp_target_no_margin": 0.0,
+    "tp_l4_raw": 0.0,
+    "n_new_if_buy": 1,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "模型",
+     "L2": "延续",
+     "L4": "延续"
+    }
+   }
+  },
+  "liuyiqing": {
+   "name": "刘忆青",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 0.403,
+    "n_hold": 1,
+    "trade_prev": true,
+    "dir_prev": "减",
+    "persona_flags": [
+     "隔夜仓"
+    ]
+   },
+   "L1": {
+    "p_trade": 0.92,
+    "source": "常数"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.205,
+     "不动": 0.171,
+     "加": 0.624
+    },
+    "p_dir_given_trade": {
+     "减": 0.223,
+     "不动": 0.099,
+     "加": 0.678
+    },
+    "source": "模型"
+   },
+   "L4": {
+    "tp_hat": 0.615,
+    "p25": 0.226,
+    "p75": 0.855,
+    "bin_hat": "满",
+    "cell": "导师×昨仓档×市况",
+    "source": "延续"
+   },
+   "L3": {
+    "play_dist": {
+     "连板接力": 0.45,
+     "首板次日": 0.244,
+     "涨停回调": 0.127,
+     "炸板次日": 0.075,
+     "趋势跟随": 0.032,
+     "弱势震荡": 0.023
+    },
+    "n_events": 103,
+    "size_by_play": {
+     "连板接力": {
+      "med": 0.351,
+      "p25": 0.219,
+      "p75": 0.723,
+      "cell": "导师×打法×市况",
+      "n": 26
+     },
+     "首板次日": {
+      "med": 0.195,
+      "p25": 0.193,
+      "p75": 0.634,
+      "cell": "导师×打法×市况",
+      "n": 11
+     },
+     "涨停回调": {
+      "med": 0.174,
+      "p25": 0.077,
+      "p75": 0.381,
+      "cell": "导师×打法×市况",
+      "n": 9
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": true,
+    "dir": "加",
+    "tp_target": 0.884,
+    "tp_target_no_margin": 0.884,
+    "tp_l4_raw": 0.403,
+    "n_new_if_buy": 1,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "延续"
+    }
+   }
+  },
+  "lianghuaxiaohao": {
+   "name": "量化短线小号实验",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 0.998,
+    "n_hold": 2,
+    "trade_prev": true,
+    "dir_prev": "加",
+    "persona_flags": [
+     "隔夜仓"
+    ]
+   },
+   "L1": {
+    "p_trade": 1.0,
+    "source": "延续"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.184,
+     "不动": 0.748,
+     "加": 0.068
+    },
+    "p_dir_given_trade": {
+     "减": 0.184,
+     "不动": 0.748,
+     "加": 0.068
+    },
+    "source": "模型"
+   },
+   "L4": {
+    "tp_hat": 0.997,
+    "p25": 0.981,
+    "p75": 1.003,
+    "bin_hat": "满",
+    "cell": "导师×昨仓档×市况",
+    "source": "常数"
+   },
+   "L3": {
+    "play_dist": {
+     "趋势跟随": 0.209,
+     "弱势震荡": 0.169,
+     "涨停回调": 0.148,
+     "数据缺失": 0.129,
+     "趋势回踩": 0.08,
+     "突破新高": 0.071
+    },
+    "n_events": 447,
+    "size_by_play": {
+     "趋势跟随": {
+      "med": 0.427,
+      "p25": 0.292,
+      "p75": 0.558,
+      "cell": "导师×打法×市况",
+      "n": 31
+     },
+     "弱势震荡": {
+      "med": 0.32,
+      "p25": 0.247,
+      "p75": 0.488,
+      "cell": "导师×打法×市况",
+      "n": 38
+     },
+     "涨停回调": {
+      "med": 0.492,
+      "p25": 0.243,
+      "p75": 0.613,
+      "cell": "导师×打法×市况",
+      "n": 32
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": true,
+    "dir": "不动",
+    "tp_target": 0.998,
+    "tp_target_no_margin": 0.98,
+    "tp_l4_raw": 0.994,
+    "n_new_if_buy": 2,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    }
+   }
+  },
+  "a658": {
+   "name": "A658 正好蓝天",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 0.962,
+    "n_hold": 1,
+    "trade_prev": false,
+    "dir_prev": "不动",
+    "persona_flags": []
+   },
+   "L1": {
+    "p_trade": 0.168,
+    "source": "延续"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.07,
+     "不动": 0.905,
+     "加": 0.025
+    },
+    "p_dir_given_trade": {
+     "减": 0.419,
+     "不动": 0.431,
+     "加": 0.15
+    },
+    "source": "模型"
+   },
+   "L4": {
+    "tp_hat": 0.962,
+    "p25": 0.962,
+    "p75": 0.963,
+    "bin_hat": "满",
+    "cell": "导师×昨仓档×市况",
+    "source": "常数"
+   },
+   "L3": {
+    "play_dist": {
+     "涨停回调": 0.237,
+     "追涨": 0.177,
+     "突破新高": 0.137,
+     "首板次日": 0.071,
+     "连板接力": 0.062,
+     "趋势跟随": 0.06
+    },
+    "n_events": 70,
+    "size_by_play": {
+     "涨停回调": {
+      "med": 0.995,
+      "p25": 0.503,
+      "p75": 0.998,
+      "cell": "导师×打法×市况",
+      "n": 14
+     },
+     "追涨": {
+      "med": 0.511,
+      "p25": 0.479,
+      "p75": 0.997,
+      "cell": "导师×打法×市况",
+      "n": 9
+     },
+     "突破新高": {
+      "med": 0.91,
+      "p25": 0.55,
+      "p75": 0.998,
+      "cell": "导师×打法×市况",
+      "n": 7
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": false,
+    "dir": "不动",
+    "tp_target": 0.962,
+    "tp_target_no_margin": 0.962,
+    "tp_l4_raw": 0.996,
+    "n_new_if_buy": 1,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    }
+   }
+  },
+  "bianbenling": {
+   "name": "边学本领边实践",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 0.957,
+    "n_hold": 2,
+    "trade_prev": false,
+    "dir_prev": "不动",
+    "persona_flags": []
+   },
+   "L1": {
+    "p_trade": 0.143,
+    "source": "延续"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.041,
+     "不动": 0.941,
+     "加": 0.018
+    },
+    "p_dir_given_trade": {
+     "减": 0.285,
+     "不动": 0.587,
+     "加": 0.128
+    },
+    "source": "常数"
+   },
+   "L4": {
+    "tp_hat": 0.957,
+    "p25": 0.956,
+    "p75": 0.957,
+    "bin_hat": "满",
+    "cell": "导师×昨仓档×市况",
+    "source": "常数"
+   },
+   "L3": {
+    "play_dist": {
+     "弱势震荡": 0.257,
+     "趋势跟随": 0.23,
+     "涨停回调": 0.21,
+     "超跌反弹": 0.114,
+     "追涨": 0.062,
+     "突破新高": 0.034
+    },
+    "n_events": 32,
+    "size_by_play": {
+     "弱势震荡": {
+      "med": 0.947,
+      "p25": 0.879,
+      "p75": 0.965,
+      "cell": "导师×打法",
+      "n": 9
+     },
+     "趋势跟随": {
+      "med": 0.94,
+      "p25": 0.36,
+      "p75": 0.966,
+      "cell": "导师×打法",
+      "n": 8
+     },
+     "涨停回调": {
+      "med": 0.98,
+      "p25": 0.979,
+      "p75": 0.985,
+      "cell": "导师×打法×市况",
+      "n": 5
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": false,
+    "dir": "不动",
+    "tp_target": 0.957,
+    "tp_target_no_margin": 0.957,
+    "tp_l4_raw": 0.986,
+    "n_new_if_buy": 1,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    }
+   }
+  },
+  "xingjianye": {
+   "name": "星见野",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 1.0,
+    "n_hold": 1,
+    "trade_prev": true,
+    "dir_prev": "加",
+    "persona_flags": [
+     "隔夜仓"
+    ]
+   },
+   "L1": {
+    "p_trade": 0.629,
+    "source": "延续"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.232,
+     "不动": 0.747,
+     "加": 0.021
+    },
+    "p_dir_given_trade": {
+     "减": 0.369,
+     "不动": 0.597,
+     "加": 0.034
+    },
+    "source": "常数"
+   },
+   "L4": {
+    "tp_hat": 1.0,
+    "p25": 0.998,
+    "p75": 1.0,
+    "bin_hat": "满",
+    "cell": "导师×昨仓档×市况",
+    "source": "延续"
+   },
+   "L3": {
+    "play_dist": {
+     "弱势震荡": 0.21,
+     "涨停回调": 0.203,
+     "趋势跟随": 0.182,
+     "数据缺失": 0.086,
+     "突破新高": 0.068,
+     "趋势回踩": 0.067
+    },
+    "n_events": 102,
+    "size_by_play": {
+     "弱势震荡": {
+      "med": 0.997,
+      "p25": 0.994,
+      "p75": 0.998,
+      "cell": "导师×打法×市况",
+      "n": 17
+     },
+     "涨停回调": {
+      "med": 0.998,
+      "p25": 0.988,
+      "p75": 0.999,
+      "cell": "导师×打法×市况",
+      "n": 11
+     },
+     "趋势跟随": {
+      "med": 0.995,
+      "p25": 0.99,
+      "p75": 0.998,
+      "cell": "导师×打法×市况",
+      "n": 12
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": true,
+    "dir": "不动",
+    "tp_target": 1.0,
+    "tp_target_no_margin": 0.98,
+    "tp_l4_raw": 1.0,
+    "n_new_if_buy": 1,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    }
+   }
+  },
+  "daxingdaxingdadangxing": {
+   "name": "大兴大兴大A当兴",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 0.99,
+    "n_hold": 2,
+    "trade_prev": true,
+    "dir_prev": "不动",
+    "persona_flags": [
+     "隔夜仓"
+    ]
+   },
+   "L1": {
+    "p_trade": 0.884,
+    "source": "常数"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.263,
+     "不动": 0.677,
+     "加": 0.06
+    },
+    "p_dir_given_trade": {
+     "减": 0.297,
+     "不动": 0.635,
+     "加": 0.068
+    },
+    "source": "延续"
+   },
+   "L4": {
+    "tp_hat": 1.01,
+    "p25": 0.98,
+    "p75": 1.244,
+    "bin_hat": "满",
+    "cell": "导师",
+    "source": "延续"
+   },
+   "L3": {
+    "play_dist": {
+     "涨停回调": 0.173,
+     "弱势震荡": 0.156,
+     "首板次日": 0.146,
+     "连板接力": 0.103,
+     "追涨": 0.08,
+     "突破新高": 0.08
+    },
+    "n_events": 11,
+    "size_by_play": {
+     "涨停回调": {
+      "med": 0.325,
+      "p25": 0.17,
+      "p75": 0.344,
+      "cell": "导师",
+      "n": 11
+     },
+     "弱势震荡": {
+      "med": 0.325,
+      "p25": 0.17,
+      "p75": 0.344,
+      "cell": "导师",
+      "n": 11
+     },
+     "首板次日": {
+      "med": 0.325,
+      "p25": 0.17,
+      "p75": 0.344,
+      "cell": "导师",
+      "n": 11
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": true,
+    "dir": "不动",
+    "tp_target": 0.99,
+    "tp_target_no_margin": 0.98,
+    "tp_l4_raw": 0.99,
+    "n_new_if_buy": 1,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "常数",
+     "L2": "延续",
+     "L4": "延续"
+    }
+   }
+  },
+  "gaogailvfuli": {
+   "name": "高概率复利",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 0.308,
+    "n_hold": 2,
+    "trade_prev": true,
+    "dir_prev": "减",
+    "persona_flags": [
+     "隔夜仓"
+    ]
+   },
+   "L1": {
+    "p_trade": 0.963,
+    "source": "常数"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.173,
+     "不动": 0.126,
+     "加": 0.701
+    },
+    "p_dir_given_trade": {
+     "减": 0.179,
+     "不动": 0.093,
+     "加": 0.727
+    },
+    "source": "模型"
+   },
+   "L4": {
+    "tp_hat": 0.308,
+    "p25": 0.038,
+    "p75": 0.597,
+    "bin_hat": "满",
+    "cell": "导师",
+    "source": "延续"
+   },
+   "L3": {
+    "play_dist": {
+     "转债": 0.453,
+     "弱势震荡": 0.142,
+     "ETF/宽基": 0.124,
+     "超跌反弹": 0.101,
+     "趋势回踩": 0.077,
+     "趋势跟随": 0.043
+    },
+    "n_events": 76,
+    "size_by_play": {
+     "转债": {
+      "med": 0.171,
+      "p25": 0.077,
+      "p75": 0.362,
+      "cell": "导师×打法×市况",
+      "n": 11
+     },
+     "弱势震荡": {
+      "med": 0.061,
+      "p25": 0.026,
+      "p75": 0.133,
+      "cell": "导师×打法×市况",
+      "n": 5
+     },
+     "ETF/宽基": {
+      "med": 0.063,
+      "p25": 0.043,
+      "p75": 0.086,
+      "cell": "导师×打法",
+      "n": 6
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": true,
+    "dir": "加",
+    "tp_target": 0.725,
+    "tp_target_no_margin": 0.725,
+    "tp_l4_raw": 0.308,
+    "n_new_if_buy": 2,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "延续"
+    }
+   }
+  },
+  "xuanqiucaijing": {
+   "name": "宣秋财经",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 2.186,
+    "n_hold": 3,
+    "trade_prev": false,
+    "dir_prev": "不动",
+    "persona_flags": []
+   },
+   "L1": {
+    "p_trade": 0.277,
+    "source": "延续"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.201,
+     "不动": 0.768,
+     "加": 0.031
+    },
+    "p_dir_given_trade": {
+     "减": 0.728,
+     "不动": 0.161,
+     "加": 0.111
+    },
+    "source": "常数"
+   },
+   "L4": {
+    "tp_hat": 2.177,
+    "p25": 2.11,
+    "p75": 2.261,
+    "bin_hat": "满",
+    "cell": "导师×昨仓档×市况",
+    "source": "常数"
+   },
+   "L3": {
+    "play_dist": {
+     "追涨": 0.235,
+     "涨停回调": 0.183,
+     "趋势跟随": 0.156,
+     "突破新高": 0.152,
+     "弱势震荡": 0.073,
+     "趋势回踩": 0.046
+    },
+    "n_events": 43,
+    "size_by_play": {
+     "追涨": {
+      "med": 0.468,
+      "p25": 0.4,
+      "p75": 0.494,
+      "cell": "导师×打法×市况",
+      "n": 6
+     },
+     "涨停回调": {
+      "med": 0.574,
+      "p25": 0.534,
+      "p75": 0.821,
+      "cell": "导师×打法×市况",
+      "n": 5
+     },
+     "趋势跟随": {
+      "med": 0.412,
+      "p25": 0.383,
+      "p75": 0.542,
+      "cell": "导师×打法×市况",
+      "n": 5
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": false,
+    "dir": "不动",
+    "tp_target": 2.186,
+    "tp_target_no_margin": 0.98,
+    "tp_l4_raw": 2.205,
+    "n_new_if_buy": 2,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    }
+   }
+  },
+  "stzhilang": {
+   "name": "ST之狼",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 0.419,
+    "n_hold": 2,
+    "trade_prev": true,
+    "dir_prev": "加",
+    "persona_flags": [
+     "隔夜仓"
+    ]
+   },
+   "L1": {
+    "p_trade": 0.789,
+    "source": "延续"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.6,
+     "不动": 0.237,
+     "加": 0.163
+    },
+    "p_dir_given_trade": {
+     "减": 0.761,
+     "不动": 0.033,
+     "加": 0.207
+    },
+    "source": "常数"
+   },
+   "L4": {
+    "tp_hat": 0.18,
+    "p25": 0.049,
+    "p75": 0.342,
+    "bin_hat": "轻",
+    "cell": "导师×昨仓档×市况",
+    "source": "延续"
+   },
+   "L3": {
+    "play_dist": {
+     "连板接力": 0.392,
+     "涨停回调": 0.185,
+     "炸板次日": 0.105,
+     "首板打板": 0.105,
+     "超跌反弹": 0.075,
+     "首板次日": 0.056
+    },
+    "n_events": 91,
+    "size_by_play": {
+     "连板接力": {
+      "med": 0.283,
+      "p25": 0.188,
+      "p75": 0.359,
+      "cell": "导师×打法×市况",
+      "n": 15
+     },
+     "涨停回调": {
+      "med": 0.239,
+      "p25": 0.225,
+      "p75": 0.257,
+      "cell": "导师×打法×市况",
+      "n": 10
+     },
+     "炸板次日": {
+      "med": 0.238,
+      "p25": 0.162,
+      "p75": 0.325,
+      "cell": "导师×打法",
+      "n": 10
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": true,
+    "dir": "加",
+    "tp_target": 0.687,
+    "tp_target_no_margin": 0.687,
+    "tp_l4_raw": 0.419,
+    "n_new_if_buy": 1,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    }
+   }
+  },
+  "chong5000w": {
+   "name": "冲5000w",
+   "note": "无 D-1 状态(真人数据最新 20260706, 滞后超过 5 交易日)"
+  },
+  "antoo": {
+   "name": "antoo",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 1.299,
+    "n_hold": 3,
+    "trade_prev": true,
+    "dir_prev": "不动",
+    "persona_flags": []
+   },
+   "L1": {
+    "p_trade": 1.0,
+    "source": "延续"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.322,
+     "不动": 0.541,
+     "加": 0.137
+    },
+    "p_dir_given_trade": {
+     "减": 0.322,
+     "不动": 0.541,
+     "加": 0.137
+    },
+    "source": "常数"
+   },
+   "L4": {
+    "tp_hat": 1.288,
+    "p25": 1.23,
+    "p75": 1.347,
+    "bin_hat": "满",
+    "cell": "导师×昨仓档×市况",
+    "source": "延续"
+   },
+   "L3": {
+    "play_dist": {
+     "涨停回调": 0.222,
+     "追涨": 0.175,
+     "弱势震荡": 0.134,
+     "趋势跟随": 0.125,
+     "首板次日": 0.089,
+     "突破新高": 0.08
+    },
+    "n_events": 111,
+    "size_by_play": {
+     "涨停回调": {
+      "med": 0.119,
+      "p25": 0.06,
+      "p75": 0.172,
+      "cell": "导师×打法×市况",
+      "n": 14
+     },
+     "追涨": {
+      "med": 0.086,
+      "p25": 0.043,
+      "p75": 0.118,
+      "cell": "导师×打法×市况",
+      "n": 7
+     },
+     "弱势震荡": {
+      "med": 0.06,
+      "p25": 0.051,
+      "p75": 0.227,
+      "cell": "导师×打法×市况",
+      "n": 9
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": true,
+    "dir": "不动",
+    "tp_target": 1.299,
+    "tp_target_no_margin": 0.98,
+    "tp_l4_raw": 1.299,
+    "n_new_if_buy": 1,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    }
+   }
+  },
+  "zhiyingjuexin": {
+   "name": "芷影攫心",
+   "state_day": "2026-10-13",
+   "stale_days": 0,
+   "regime": "温(40-80)",
+   "state": {
+    "tp_prev": 0.029,
+    "n_hold": 1,
+    "trade_prev": true,
+    "dir_prev": "减",
+    "persona_flags": [
+     "空仓第1天"
+    ]
+   },
+   "L1": {
+    "p_trade": 0.986,
+    "source": "常数"
+   },
+   "L2": {
+    "p_dir": {
+     "减": 0.008,
+     "不动": 0.032,
+     "加": 0.96
+    },
+    "p_dir_given_trade": {
+     "减": 0.008,
+     "不动": 0.018,
+     "加": 0.974
+    },
+    "source": "模型"
+   },
+   "L4": {
+    "tp_hat": 1.026,
+    "p25": 1.003,
+    "p75": 1.028,
+    "bin_hat": "满",
+    "cell": "导师×昨仓档×市况",
+    "source": "常数"
+   },
+   "L3": {
+    "play_dist": {
+     "连板接力": 0.391,
+     "涨停回调": 0.215,
+     "首板次日": 0.14,
+     "突破新高": 0.062,
+     "追涨": 0.055,
+     "炸板次日": 0.038
+    },
+    "n_events": 291,
+    "size_by_play": {
+     "连板接力": {
+      "med": 0.493,
+      "p25": 0.265,
+      "p75": 0.991,
+      "cell": "导师×打法×市况",
+      "n": 57
+     },
+     "涨停回调": {
+      "med": 0.313,
+      "p25": 0.221,
+      "p75": 0.544,
+      "cell": "导师×打法×市况",
+      "n": 32
+     },
+     "首板次日": {
+      "med": 0.622,
+      "p25": 0.392,
+      "p75": 0.984,
+      "cell": "导师×打法×市况",
+      "n": 23
+     }
+    }
+   },
+   "baseline_suggestion": {
+    "trade": true,
+    "dir": "加",
+    "tp_target": 0.987,
+    "tp_target_no_margin": 0.98,
+    "tp_l4_raw": 0.987,
+    "n_new_if_buy": 1,
+    "pool": "scripts/tzzb/pools/2026-10-14.json(mentor_fingerprint --pool --date 2026-10-14)",
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "常数"
+    }
+   }
+  }
+ }
+}

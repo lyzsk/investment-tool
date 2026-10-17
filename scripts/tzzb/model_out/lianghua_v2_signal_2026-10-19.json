@@ -1,0 +1,529 @@
+{
+ "ledger": "lianghuaxiaohao",
+ "date": "2026-10-19",
+ "asof": "09:00",
+ "realtime": true,
+ "realtime_source": null,
+ "pool_size": 367,
+ "stage_used": "pre",
+ "candidates": [
+  {
+   "rank": 1,
+   "symbol": "sz300413",
+   "name": "芒果超媒",
+   "score": 1.029,
+   "pool_src": "lr+amt",
+   "prev_close": 23.61
+  },
+  {
+   "rank": 2,
+   "symbol": "sh688072",
+   "name": "拓荆科技",
+   "score": 1.025,
+   "pool_src": "lr+amt",
+   "prev_close": 663.0
+  },
+  {
+   "rank": 3,
+   "symbol": "sz300903",
+   "name": "科翔股份",
+   "score": 1.021,
+   "pool_src": "lr+amt",
+   "prev_close": 89.92
+  },
+  {
+   "rank": 4,
+   "symbol": "sh688361",
+   "name": "中科飞测",
+   "score": 1.016,
+   "pool_src": "lr+amt",
+   "prev_close": 336.0
+  },
+  {
+   "rank": 5,
+   "symbol": "sh688120",
+   "name": "华海清科",
+   "score": 1.012,
+   "pool_src": "lr+amt",
+   "prev_close": 247.88
+  },
+  {
+   "rank": 6,
+   "symbol": "sh688825",
+   "name": "长鑫科技",
+   "score": 1.007,
+   "pool_src": "lr+amt",
+   "prev_close": 45.02
+  },
+  {
+   "rank": 7,
+   "symbol": "sz300300",
+   "name": "海峡创新",
+   "score": 1.003,
+   "pool_src": "lr+amt",
+   "prev_close": 11.43
+  },
+  {
+   "rank": 8,
+   "symbol": "sz301357",
+   "name": "北方长龙",
+   "score": 0.999,
+   "pool_src": "lr",
+   "prev_close": 100.04
+  },
+  {
+   "rank": 9,
+   "symbol": "sz301205",
+   "name": "联特科技",
+   "score": 0.994,
+   "pool_src": "lr+amt",
+   "prev_close": 284.53
+  },
+  {
+   "rank": 10,
+   "symbol": "sz301230",
+   "name": "泓博医药",
+   "score": 0.99,
+   "pool_src": "lr",
+   "prev_close": 36.71
+  },
+  {
+   "rank": 11,
+   "symbol": "sh600988",
+   "name": "赤峰黄金",
+   "score": 0.985,
+   "pool_src": "lr+amt",
+   "prev_close": 39.89
+  },
+  {
+   "rank": 12,
+   "symbol": "sh600316",
+   "name": "洪都航空",
+   "score": 0.981,
+   "pool_src": "lr",
+   "prev_close": 37.66
+  },
+  {
+   "rank": 13,
+   "symbol": "sz300120",
+   "name": "经纬辉开",
+   "score": 0.976,
+   "pool_src": "lr",
+   "prev_close": 7.68
+  },
+  {
+   "rank": 14,
+   "symbol": "sh688548",
+   "name": "广钢气体",
+   "score": 0.972,
+   "pool_src": "lr",
+   "prev_close": 27.68
+  },
+  {
+   "rank": 15,
+   "symbol": "sh688018",
+   "name": "乐鑫科技",
+   "score": 0.967,
+   "pool_src": "lr",
+   "prev_close": 118.43
+  },
+  {
+   "rank": 16,
+   "symbol": "sh688235",
+   "name": "百济神州",
+   "score": 0.963,
+   "pool_src": "lr",
+   "prev_close": 255.98
+  },
+  {
+   "rank": 17,
+   "symbol": "sz300821",
+   "name": "东岳硅材",
+   "score": 0.958,
+   "pool_src": "lr+amt",
+   "prev_close": 17.66
+  },
+  {
+   "rank": 18,
+   "symbol": "sh688017",
+   "name": "绿的谐波",
+   "score": 0.954,
+   "pool_src": "lr",
+   "prev_close": 236.75
+  },
+  {
+   "rank": 19,
+   "symbol": "sz300803",
+   "name": "指南针",
+   "score": 0.949,
+   "pool_src": "lr",
+   "prev_close": 53.26
+  },
+  {
+   "rank": 20,
+   "symbol": "sh688256",
+   "name": "寒武纪",
+   "score": 0.944,
+   "pool_src": "lr+amt",
+   "prev_close": 915.0
+  },
+  {
+   "rank": 21,
+   "symbol": "sz300369",
+   "name": "绿盟科技",
+   "score": 0.94,
+   "pool_src": "lr",
+   "prev_close": 10.13
+  },
+  {
+   "rank": 22,
+   "symbol": "sz300111",
+   "name": "向日葵",
+   "score": 0.935,
+   "pool_src": "lr",
+   "prev_close": 4.03
+  },
+  {
+   "rank": 23,
+   "symbol": "sz301486",
+   "name": "致尚科技",
+   "score": 0.931,
+   "pool_src": "lr",
+   "prev_close": 188.0
+  },
+  {
+   "rank": 24,
+   "symbol": "sh688385",
+   "name": "复旦微电",
+   "score": 0.926,
+   "pool_src": "lr+amt",
+   "prev_close": 54.21
+  },
+  {
+   "rank": 25,
+   "symbol": "sz300489",
+   "name": "光智科技",
+   "score": 0.921,
+   "pool_src": "lr+amt",
+   "prev_close": 251.38
+  },
+  {
+   "rank": 26,
+   "symbol": "sz300760",
+   "name": "迈瑞医疗",
+   "score": 0.917,
+   "pool_src": "lr",
+   "prev_close": 167.3
+  },
+  {
+   "rank": 27,
+   "symbol": "sz300107",
+   "name": "建新股份",
+   "score": 0.912,
+   "pool_src": "lr",
+   "prev_close": 8.56
+  },
+  {
+   "rank": 28,
+   "symbol": "sh688836",
+   "name": "宇树科技",
+   "score": 0.908,
+   "pool_src": "lr",
+   "prev_close": 426.98
+  },
+  {
+   "rank": 29,
+   "symbol": "sz300750",
+   "name": "宁德时代",
+   "score": 0.903,
+   "pool_src": "lr+amt",
+   "prev_close": 277.0
+  },
+  {
+   "rank": 30,
+   "symbol": "sz301052",
+   "name": "果麦文化",
+   "score": 0.898,
+   "pool_src": "lr",
+   "prev_close": 36.3
+  }
+ ],
+ "recommend": "时间外验证: 加竞价/开盘特征的池内排序没有胜过盘前日线排序(Top30 甚至更低) → 挑票参考优先看 stages.pre 的前 30; 开盘档(09:25/09:3x)只用来剔除「开盘后走弱/回落」的票(他的票在全市场开盘强度 0.85~0.9 分位, 池内 0.6~0.7)。",
+ "stages": {
+  "pre": {
+   "model_days": 184,
+   "model_until": "2026-10-15",
+   "top": [
+    {
+     "rank": 1,
+     "symbol": "sz300413",
+     "name": "芒果超媒",
+     "score": 1.029,
+     "pool_src": "lr+amt",
+     "prev_close": 23.61
+    },
+    {
+     "rank": 2,
+     "symbol": "sh688072",
+     "name": "拓荆科技",
+     "score": 1.025,
+     "pool_src": "lr+amt",
+     "prev_close": 663.0
+    },
+    {
+     "rank": 3,
+     "symbol": "sz300903",
+     "name": "科翔股份",
+     "score": 1.021,
+     "pool_src": "lr+amt",
+     "prev_close": 89.92
+    },
+    {
+     "rank": 4,
+     "symbol": "sh688361",
+     "name": "中科飞测",
+     "score": 1.016,
+     "pool_src": "lr+amt",
+     "prev_close": 336.0
+    },
+    {
+     "rank": 5,
+     "symbol": "sh688120",
+     "name": "华海清科",
+     "score": 1.012,
+     "pool_src": "lr+amt",
+     "prev_close": 247.88
+    },
+    {
+     "rank": 6,
+     "symbol": "sh688825",
+     "name": "长鑫科技",
+     "score": 1.007,
+     "pool_src": "lr+amt",
+     "prev_close": 45.02
+    },
+    {
+     "rank": 7,
+     "symbol": "sz300300",
+     "name": "海峡创新",
+     "score": 1.003,
+     "pool_src": "lr+amt",
+     "prev_close": 11.43
+    },
+    {
+     "rank": 8,
+     "symbol": "sz301357",
+     "name": "北方长龙",
+     "score": 0.999,
+     "pool_src": "lr",
+     "prev_close": 100.04
+    },
+    {
+     "rank": 9,
+     "symbol": "sz301205",
+     "name": "联特科技",
+     "score": 0.994,
+     "pool_src": "lr+amt",
+     "prev_close": 284.53
+    },
+    {
+     "rank": 10,
+     "symbol": "sz301230",
+     "name": "泓博医药",
+     "score": 0.99,
+     "pool_src": "lr",
+     "prev_close": 36.71
+    },
+    {
+     "rank": 11,
+     "symbol": "sh600988",
+     "name": "赤峰黄金",
+     "score": 0.985,
+     "pool_src": "lr+amt",
+     "prev_close": 39.89
+    },
+    {
+     "rank": 12,
+     "symbol": "sh600316",
+     "name": "洪都航空",
+     "score": 0.981,
+     "pool_src": "lr",
+     "prev_close": 37.66
+    },
+    {
+     "rank": 13,
+     "symbol": "sz300120",
+     "name": "经纬辉开",
+     "score": 0.976,
+     "pool_src": "lr",
+     "prev_close": 7.68
+    },
+    {
+     "rank": 14,
+     "symbol": "sh688548",
+     "name": "广钢气体",
+     "score": 0.972,
+     "pool_src": "lr",
+     "prev_close": 27.68
+    },
+    {
+     "rank": 15,
+     "symbol": "sh688018",
+     "name": "乐鑫科技",
+     "score": 0.967,
+     "pool_src": "lr",
+     "prev_close": 118.43
+    },
+    {
+     "rank": 16,
+     "symbol": "sh688235",
+     "name": "百济神州",
+     "score": 0.963,
+     "pool_src": "lr",
+     "prev_close": 255.98
+    },
+    {
+     "rank": 17,
+     "symbol": "sz300821",
+     "name": "东岳硅材",
+     "score": 0.958,
+     "pool_src": "lr+amt",
+     "prev_close": 17.66
+    },
+    {
+     "rank": 18,
+     "symbol": "sh688017",
+     "name": "绿的谐波",
+     "score": 0.954,
+     "pool_src": "lr",
+     "prev_close": 236.75
+    },
+    {
+     "rank": 19,
+     "symbol": "sz300803",
+     "name": "指南针",
+     "score": 0.949,
+     "pool_src": "lr",
+     "prev_close": 53.26
+    },
+    {
+     "rank": 20,
+     "symbol": "sh688256",
+     "name": "寒武纪",
+     "score": 0.944,
+     "pool_src": "lr+amt",
+     "prev_close": 915.0
+    },
+    {
+     "rank": 21,
+     "symbol": "sz300369",
+     "name": "绿盟科技",
+     "score": 0.94,
+     "pool_src": "lr",
+     "prev_close": 10.13
+    },
+    {
+     "rank": 22,
+     "symbol": "sz300111",
+     "name": "向日葵",
+     "score": 0.935,
+     "pool_src": "lr",
+     "prev_close": 4.03
+    },
+    {
+     "rank": 23,
+     "symbol": "sz301486",
+     "name": "致尚科技",
+     "score": 0.931,
+     "pool_src": "lr",
+     "prev_close": 188.0
+    },
+    {
+     "rank": 24,
+     "symbol": "sh688385",
+     "name": "复旦微电",
+     "score": 0.926,
+     "pool_src": "lr+amt",
+     "prev_close": 54.21
+    },
+    {
+     "rank": 25,
+     "symbol": "sz300489",
+     "name": "光智科技",
+     "score": 0.921,
+     "pool_src": "lr+amt",
+     "prev_close": 251.38
+    },
+    {
+     "rank": 26,
+     "symbol": "sz300760",
+     "name": "迈瑞医疗",
+     "score": 0.917,
+     "pool_src": "lr",
+     "prev_close": 167.3
+    },
+    {
+     "rank": 27,
+     "symbol": "sz300107",
+     "name": "建新股份",
+     "score": 0.912,
+     "pool_src": "lr",
+     "prev_close": 8.56
+    },
+    {
+     "rank": 28,
+     "symbol": "sh688836",
+     "name": "宇树科技",
+     "score": 0.908,
+     "pool_src": "lr",
+     "prev_close": 426.98
+    },
+    {
+     "rank": 29,
+     "symbol": "sz300750",
+     "name": "宁德时代",
+     "score": 0.903,
+     "pool_src": "lr+amt",
+     "prev_close": 277.0
+    },
+    {
+     "rank": 30,
+     "symbol": "sz301052",
+     "name": "果麦文化",
+     "score": 0.898,
+     "pool_src": "lr",
+     "prev_close": 36.3
+    }
+   ],
+   "data_ok": null,
+   "cpk": "09:25"
+  }
+ },
+ "stage_note": "盘前(<09:25)只能给日线排序(pre); 09:25 竞价撮合后可更新为 09:25 排序; 09:31/09:33/09:35/09:40/09:45 再逐次更新(只用该时刻之前的数据)。真人首买中位 ~09:41, 用到的最晚一档应在他下单前。",
+ "exec_rule": {
+  "K": 2,
+  "buy_window": "09:31 ~ 10:00, 目标首买 09:41",
+  "sizing": "1/K 可用资金逐只, 末只全仓",
+  "avoid": "距开盘以来最高回撤≥2% 或 跌破分时均价 1% 不买",
+  "exit": "次日开盘窗清仓(竞价缺口≥阈值走竞价)"
+ },
+ "fidelity": {
+  "v2_dynamic_test_cover": {
+   "2": 0.0,
+   "5": 0.0,
+   "10": 0.0074,
+   "30": 0.0444,
+   "50": 0.0963
+  },
+  "v1_fullmarket_test_cover": {
+   "2": 0.0,
+   "5": 0.0,
+   "10": 0.0296,
+   "30": 0.0889,
+   "50": 0.1185
+  },
+  "note": "覆盖率=他当日新开仓落在本排序 TopN 的比例(时间外), 详见 docs/research/reverse_lianghua_v2_20261016.md"
+ },
+ "realtime_caveat": "当日实时: 首选通达信当日逐笔(与回测同口径); 拿不到时退到快照(主动买占比/近3分钟涨速/笔数缺失按中性处理, 与回测口径有差); 两者都拿不到(非交易时段)只输出盘前档。10/17 夜间实测两个实时接口都返回空, 交易时段可用性未验证",
+ "generated": "2026-10-17T02:35:18"
+}

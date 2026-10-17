@@ -1,0 +1,169 @@
+{
+ "skill": "lianghuaxiaohao",
+ "file": "skills/lianghuaxiaohao-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "T+1 开盘窗清隔夜仓=默认出场",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": {
+    "kind": "overnight_sell",
+    "text": "昨日新买、今日仍持有 → 今日早盘(0915 单)卖"
+   },
+   "mech_text": null,
+   "level": "机械"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "熟票滚动——开盘窗卖旧仓, 同日回落再接回同票",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "卖先买后——首买不抢开盘, 建仓在 09:31 之后",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "同簇票对——同日建仓常含同板块两票, 次日同清",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "高价票(≥300 元)隔夜——盈多亏少但左尾肥",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "仓位刚性——连亏、长假前均不降仓",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R10": {
+   "id": "R10",
+   "title": "非满仓日成簇于港股腿活跃期——仓位读数不作风险温度计",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "全市场多工具无行业聚焦, 按名义金额定量",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "T+0 工具日内快腿——薄利高胜率, 亏即走",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "多笔分批与单笔整仓并存",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R11": {
+   "id": "R11",
+   "title": "竞价卖还是开盘后卖, 看开盘缺口——高开走竞价、平开低开走 09:30~09:35",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": "卖",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "持有隔夜仓(昨日新开、今日未卖) 且 竞价指示价/昨收-1 ≥ +1.75% → 09:25 集合竞价卖; 否则 → 09:30~09:35 连续竞价逐只卖完(港股仓不适用)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  },
+  "R12": {
+   "id": "R12",
+   "title": "不在回落中买——高点回落≥2% 或跌破均价时显著少买",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": "买",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "候选票盘中 当时价 ≤ 截至当时日内最高价×0.98, 或 当时价 ≤ 截至当时均价×0.99 → 不新开(过滤条件, 不是买入触发)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  },
+  "R13": {
+   "id": "R13",
+   "title": "1/K 资金依次买、最后一只全仓——App 仓位按钮式分配",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "仓位",
+   "dir_raw": "仓位",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "当日计划新开 K 只(K 中位 2, P25~P75 2~3) → 前 K-1 只各按当时可用资金的 1/4~1/3 买, 最后一只按\"全仓\"买完剩余可用资金; 收盘总仓≥90%",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  }
+ },
+ "n": 13,
+ "n_mech": 1,
+ "n_dir": 9,
+ "n_distilled": 3
+}

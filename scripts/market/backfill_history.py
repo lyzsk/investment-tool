@@ -157,7 +157,10 @@ def price_places(sec_type):
     return "0.001" if sec_type in ("ETF", "CB", "INDEX") else "0.01"
 
 
-def volume_mult(sec_type):
+def volume_mult(sec_type, symbol=""):
+    """腾讯日线 volume 单位: 普通股票/ETF/指数=手(×100), 转债=手(×10 张); 10/16 晚发现科创板(688/689)腾讯已是股, 原统一 ×100 → 10/09 前科创板量放大 100 倍"""
+    if str(symbol)[-6:].startswith(("688", "689")):
+        return 1
     return 10 if sec_type == "CB" else 100
 
 
@@ -202,7 +205,7 @@ def sina_factors(sess, host, sym):
 
 def build_symbol(t, kraw, fraw):
     sym, sec = t["symbol"], t["secType"]
-    places, vm = price_places(sec), volume_mult(sec)
+    places, vm = price_places(sec), volume_mult(sec, sym)
     dates = [k[0] for k in kraw]
     factors = []
     if fraw and dates:
@@ -369,7 +372,10 @@ def run_day(a):
     begin = (dt.date.fromisoformat(day) - dt.timedelta(days=20)).isoformat()
     lo, hi = (float(x) for x in a.gap.split(","))
     host, sess = Host("tencent", lo, hi), requests.Session()
-    bars, missing, no_factor = [], 0, 0
+    bars, missing, no_factor, lagging = [], 0, 0, 0
+    # 10/17 健壮性 M9: 期望行数=目标日之前最近快照里有成交的票(停牌票不计), 用来区分"停牌"和"源还没更新"
+    _prev = sorted(p for p in (ROOT / "downloads" / "market").glob("20*-*-*") if p.name < day and (p / "kline_day.jsonl").exists())
+    active_prev = {r["symbol"] for r in read_jsonl(_prev[-1] / "kline_day.jsonl") if (r.get("volume") or 0) > 0} if _prev else set()
     for i, sec in enumerate(secs, 1):
         sym = sec["symbol"]
         try:
@@ -384,6 +390,8 @@ def run_day(a):
             continue
         idx = next((j for j, k in enumerate(page) if k[0] == day), None)
         if idx is None:
+            if sym in active_prev and (not page or page[-1][0] < day):
+                lagging += 1   # 10/17 M9: 前一日还在交易、源里最后一根早于目标日 = 源滞后, 不是停牌
             continue   # 停牌/未上市/已退市
         d, o, c, h, low, v = page[idx]
         pc = None
@@ -395,18 +403,23 @@ def run_day(a):
             pc = rnd(float(prev[2]) * (fp / fd if fp and fd else 1.0), price_places(sec["secType"]))
         lu, ld = limit_now(sec, pc)
         bars.append({"symbol": sym, "tradeDate": day, "open": float(o), "high": float(h), "low": float(low), "close": float(c),
-                     "preClose": pc, "volume": round(float(v) * volume_mult(sec["secType"])), "amount": None, "turnoverRate": None,
+                     "preClose": pc, "volume": round(float(v) * volume_mult(sec["secType"], sym)), "amount": None, "turnoverRate": None,
                      "limitUp": lu, "limitDown": ld, "source": "tencent"})
         if i % 500 == 0:
             log(f"补采 {day} 进度 {i}/{len(secs)} 有行情 {len(bars)}")
     if len(bars) < len(secs) * 0.5:
         raise RuntimeError(f"补采 {day} 只拿到 {len(bars)}/{len(secs)} 行, 疑似非交易日或源异常, 不落 DONE")
+    exp = len(active_prev & {s["symbol"] for s in secs}) if active_prev and not a.limit else 0
+    if exp and len(bars) < exp * 0.97:
+        raise RuntimeError(f"补采 {day} 只拿到 {len(bars)} 行 < 前一交易日有成交 {exp} 只的 97%(源滞后 {lagging} / 请求失败 {missing}), 不落 DONE")
+    if no_factor > 20:
+        raise RuntimeError(f"补采 {day} 昨收无本地因子 {no_factor} 只 > 20(除权事件缺, 昨收/涨停价会偏), 先跑因子刷新再补, 不落 DONE")
     out.mkdir(parents=True, exist_ok=True)
     write_jsonl(out / "security_master.jsonl", secs)
     write_jsonl(out / "kline_day.jsonl", bars)
     now = dt.datetime.now().isoformat()
     (out / "manifest.json").write_text(json.dumps({"tradeDate": day, "source": "tencent-catchup", "securityFrom": snaps[-1].name,
-                                                   "klineRows": len(bars), "requestFailed": missing, "preCloseNoFactor": no_factor,
+                                                   "klineRows": len(bars), "requestFailed": missing, "preCloseNoFactor": no_factor, "sourceLagging": lagging,
                                                    "at": now}, ensure_ascii=False, indent=1), "utf-8")
     (out / "DONE_security").write_text(now)
     (out / "DONE_kline_day").write_text(now)

@@ -1,0 +1,92 @@
+{
+ "skill": "lubenyuan",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-16T22:06:03",
+   "persona_hash": "f1c4ca1cd12028005345508e5db43ff448d626e868fe08d202569910a90ce57c",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md",
+     "language.md",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 754,
+    "removed": 0
+   },
+   "bytes_weight": 811040,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "2c116daf1088",
+    "distill": "6d85532f4d23"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261016-2300",
+   "ts": "2026-10-16T23:00:45",
+   "effective_from": "2026-10-16T23:00:03",
+   "persona_hash": "cd38c486f1342899b99334fa8186fcb5d88c364b6a68b48380822bc743be79e7",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v001_20261016-2249",
+   "changed": {
+    "added": [],
+    "modified": [
+     "profile_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 1
+   },
+   "bytes_weight": 811040,
+   "why": "check-md 2026-10-16 23:00",
+   "code": {
+    "chain": "2a8db7f9e822",
+    "distill": "4dc3679297fc"
+   }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261017-0057",
+   "ts": "2026-10-17T00:57:18",
+   "effective_from": "2026-10-17T00:57:18",
+   "persona_hash": "228b79935b3ee089c8d06bbdfcbc46b9273cadb581763b8193006f7d70b7009f",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v002_20261016-2300",
+   "changed": {
+    "added": [
+     "fingerprint.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 48,
+    "removed": 0
+   },
+   "bytes_weight": 815020,
+   "why": "agent3 1017: 新增 fingerprint.md(操作指纹)",
+   "code": {
+    "chain": "810d98dbf110",
+    "distill": "2896afad038e"
+   }
+  }
+ ],
+ "events": []
+}

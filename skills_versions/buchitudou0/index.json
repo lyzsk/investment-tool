@@ -1,0 +1,104 @@
+{
+ "skill": "buchitudou0",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-16T21:09:35",
+   "persona_hash": "2397b602b8590b36516afce8a8a5dd7d75cce4fe653341eb2d8d03ce6ac12942",
+   "data_hash": "f4fe70cfca350b2153b9e0499139d24b1a8dfcfcae185aefd8b6fb7269aef579",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md",
+     "fingerprint.md",
+     "profile.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [
+    "cases_auto.jsonl",
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 625,
+    "removed": 0
+   },
+   "bytes_weight": 48995,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "e17b2a367d21",
+    "distill": "f8736580529f"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261016-2300",
+   "ts": "2026-10-16T23:00:45",
+   "effective_from": "2026-10-16T22:57:10",
+   "persona_hash": "420f763edffe6b064f4e7f54dfb68e7e4a74cef8e59aa78fee437550bb5fda1c",
+   "data_hash": "98f36e271e47df1cdb47a6a241f3b549966dae49e35e48a71687cc3c3c8f2640",
+   "parent": "v001_20261016-2249",
+   "changed": {
+    "added": [
+     "orders_inferred.json"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 310,
+    "removed": 0
+   },
+   "bytes_weight": 56286,
+   "why": "check-md 2026-10-16 23:00",
+   "code": {
+    "chain": "386a9faf50b0",
+    "distill": "887ff2d012c2"
+   }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261017-0052",
+   "ts": "2026-10-17T00:52:10",
+   "effective_from": "2026-10-17T00:52:04",
+   "persona_hash": "005635018d361ed31867fc77861724a4c405ae98818996e0cdf0c5f9f565bacf",
+   "data_hash": "188771d4809125eb570c61fec5b836c83292e44c85e2396bf47242ce8df72d22",
+   "parent": "v002_20261016-2300",
+   "changed": {
+    "added": [],
+    "modified": [
+     "cases.md",
+     "fingerprint.md",
+     "orders_inferred.json",
+     "profile.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [
+    "cases_auto.jsonl",
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 167,
+    "removed": 30
+   },
+   "bytes_weight": 80809,
+   "why": "deep-distill 1017 agent3",
+   "code": {
+    "chain": "01ba078e41c9",
+    "distill": "90d2eea2243e"
+   }
+  }
+ ],
+ "events": []
+}

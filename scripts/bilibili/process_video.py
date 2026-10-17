@@ -42,7 +42,7 @@ def stage_asr(m4a: Path, out: Path, bvid: str, model_size="small"):
     os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")  # 国内网络: 模型走 hf-mirror
     wav = os.path.join(tempfile.gettempdir(), f"process_video_{bvid}_16k.wav")
     subprocess.run(["ffmpeg", "-y", "-i", str(m4a), "-ar", "16000", "-ac", "1", "-f", "wav", wav],
-                   check=True, capture_output=True)
+                   check=True, capture_output=True, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
 
     from faster_whisper import WhisperModel
     model = WhisperModel(model_size, device="cpu", compute_type="int8")
@@ -369,7 +369,7 @@ def _extract_frames(mp4: Path, fdir: Path, thresh=0.08, interval=None, max_frame
     """ffmpeg 场景检测(thresh放低: 手机滑动切屏场景分低) ∪ 固定网格, 超上限均匀抽稀"""
     fdir.mkdir(parents=True, exist_ok=True)
     pr = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
-                         "-of", "csv=p=0", str(mp4)], capture_output=True, text=True)
+                         "-of", "csv=p=0", str(mp4)], capture_output=True, text=True, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     dur = float(pr.stdout.strip())
     if interval is None:
         # 9/27 片长自适应(用户拍板放弃回测口径一致性, 追分辨率): 目标网格 ~120 点,
@@ -378,7 +378,7 @@ def _extract_frames(mp4: Path, fdir: Path, thresh=0.08, interval=None, max_frame
         interval = max(1.0, min(3.0, dur / 120))
     interval = max(interval, dur / max_frames)   # 9/27 长视频自适应: 网格随片长拉粗, 等效于事后抽稀但不浪费点位
     r = subprocess.run(["ffmpeg", "-i", str(mp4), "-vf", f"select='gt(scene,{thresh})',showinfo",
-                        "-f", "null", "-"], capture_output=True, text=True)
+                        "-f", "null", "-"], capture_output=True, text=True, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     ts = [float(m) for m in re.findall(r"pts_time:([\d.]+)", r.stderr)]
     scene_pts = {round(t + 0.8, 1) for t in ts}          # +0.8s 等画面稳定
     grid_pts = {round(t, 1) for t in [0.5 + i * interval for i in range(int(dur / interval) + 1)]}
@@ -390,7 +390,7 @@ def _extract_frames(mp4: Path, fdir: Path, thresh=0.08, interval=None, max_frame
         f.unlink()
     for t in points:
         subprocess.run(["ffmpeg", "-loglevel", "error", "-ss", str(t), "-i", str(mp4),
-                        "-frames:v", "1", str(fdir / f"t{t}.png"), "-y"], check=True)
+                        "-frames:v", "1", str(fdir / f"t{t}.png"), "-y"], check=True, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     print(f"[frames] {len(points)} frames -> {fdir}")
 
 

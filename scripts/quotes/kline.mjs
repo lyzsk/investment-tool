@@ -7,7 +7,8 @@
 // CLI: node scripts/quotes/kline.mjs --codes 002428,1.000001 [--src east] [--dir <d>] [--full]
 import fs from "node:fs";
 import path from "node:path";
-import { gfetch } from "../lib/req_guard.mjs";   // 10/15 统一请求层: 按域名记账/熔断/窗口(腾讯 ifzq ≤25 次/分), 熔断中的源直接抛错 → 注册表下一源
+import { gfetch } from "../lib/req_guard.mjs";
+import * as AR from "../lib/a_rules.mjs";   // 10/16 晚: 成交量统一成"手"(股票/ETF 100 股、转债 10 张), 各源单位见 a_rules volumeUnit   // 10/15 统一请求层: 按域名记账/熔断/窗口(腾讯 ifzq ≤25 次/分), 熔断中的源直接抛错 → 注册表下一源
 
 const UA = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36", Referer: "https://quote.eastmoney.com/" };
 // 10/14: 所有等待自带 ±25% 抖动(固定间隔=机器指纹, 反爬最容易认); 调用处不用改
@@ -49,7 +50,7 @@ async function dbDaily(code, { beg = "19900101", klt = 101 } = {}) {
     const fl = fac.length ? F(last) : 1;
     const dp = !isIdx(code) && /^(5|1[0-9])/.test(code) ? 1000 : 100;
     const adj = (p, d) => Math.round((fac.length ? p * F(d) / fl : p) * dp) / dp;
-    return { bars: x.bars.map(([d, o, h, l, c, v, a]) => ({ d, o: adj(o, d), c: adj(c, d), h: adj(h, d), l: adj(l, d), v: Math.round(v / 100), a })),
+    return { bars: x.bars.map(([d, o, h, l, c, v, a]) => ({ d, o: adj(o, d), c: adj(c, d), h: adj(h, d), l: adj(l, d), v: Math.round(v / AR.volumeUnit("em", code)), a })),   // 库内 股/张 → 手(转债 10 张/手; 原一律 ÷100 使转债量小 10 倍)
         src: "db", adjusted: true };
 }
 
@@ -77,7 +78,8 @@ async function txDaily(code) {  // 兜底1: 腾讯 fqkline(qfq 前复权), 忽�
     const j = JSON.parse(await r.text());
     const arr = j?.data?.[sym]?.qfqday || j?.data?.[sym]?.day;
     if (!arr?.length) throw new Error("tx 空");
-    return { bars: arr.map((x) => ({ d: x[0], o: +x[1], c: +x[2], h: +x[3], l: +x[4], v: +x[5], a: 0 })), src: "tencent", adjusted: true };
+    const vk = AR.volumeUnit("tencent_kline", code) / AR.volumeUnit("em", code);   // 10/16 晚: 腾讯日线科创板给股(其余给手) → 统一成手
+    return { bars: arr.map((x) => ({ d: x[0], o: +x[1], c: +x[2], h: +x[3], l: +x[4], v: Math.round(+x[5] * vk), a: 0 })), src: "tencent", adjusted: true };
 }
 async function sinaDaily(code) {  // 兜底2: 新浪日K(不复权!) — 仅前两源全灭时用, 且禁与前复权档混档
     const sym = mktSym(code);
@@ -139,7 +141,8 @@ export const KLINE_SRCS = [
     { id: "east", label: "东财push2his", adjusted: true, fn: eastDaily },
     { id: "tencent", label: "腾讯ifzq", adjusted: true, fn: txDaily },
     { id: "sina-qfq", label: "新浪不复权×新浪因子", adjusted: true, fn: sinaQfqDaily },
-    { id: "sina", label: "新浪不复权", adjusted: false, fn: sinaDaily },
+    { id: "sina", label: "新浪不复权", adjusted: false, fn: async (code, opt) => { const r = await sinaDaily(code, opt);   // 10/16 晚: 新浪给股/张 → 手
+        return { ...r, bars: r.bars.map((b) => ({ ...b, v: Math.round(b.v / AR.volumeUnit("em", code)) })) }; } },
 ];
 
 export async function fetchDaily(code, opt = {}) {

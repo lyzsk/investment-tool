@@ -1,5 +1,6 @@
 // fetch_lhb.mjs — 每日龙虎榜采集(东财 datacenter-web 公开接口) + md 挂载(2026-10-14 建)
-// 用法: node scripts/lhb/fetch_lhb.mjs --date yyyy-MM-dd [--write] [--force] [--source em|ths] [--local]
+// 用法: node scripts/lhb/fetch_lhb.mjs --date yyyy-MM-dd [--write] [--force] [--source em|sina|ths] [--local] [--no-fallback]
+//   10/17 A12: 缺省 em, 东财失败(近 7 天的日子)自动切新浪备源(fetchSina); 演练 LHB_DRILL=em 跳过东财
 //   --local(10/15 加): 只读本地已完整的 json 重写 md, 绝不联网; 本地不完整 → exit 6
 // 数据(一天 3 次请求): ①上榜总表 RPT_DAILYBILLBOARD_DETAILSNEW(按日) ②买五 RPT_BILLBOARD_DAILYDETAILSBUY(按日整批)
 //   ③卖五 RPT_BILLBOARD_DAILYDETAILSSELL(按日整批). 整批里某条记录买卖两边全缺时才按个股补(每只 2 次). 一只票多个上榜原因=多条记录(TRADE_ID 不同), 合并成一只.
@@ -13,7 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { guard } from "../lib/req_guard.mjs";   // 10/15 统一请求层(源 em_datacenter: 熔断/日预算/计数, 见 scripts/lib/req_guard_sources.json)
+import { guard, gfetch } from "../lib/req_guard.mjs";   // 10/15 统一请求层(源 em_datacenter: 熔断/日预算/计数, 见 scripts/lib/req_guard_sources.json)
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 process.chdir(ROOT);
@@ -37,7 +38,7 @@ if (!DATE || !/^\d{4}-\d{2}-\d{2}$/.test(DATE)) {
     console.error("用法: node scripts/lhb/fetch_lhb.mjs --date yyyy-MM-dd [--write] [--force] [--source em|ths]");
     process.exit(2);
 }
-const DIR = path.join("downloads", "lhb", DATE.replace(/-/g, "."));
+const DIR = path.join(process.env.LHB_OUT_DIR || path.join("downloads", "lhb"), DATE.replace(/-/g, "."));   // LHB_OUT_DIR=演练用产物目录(不碰真实 downloads/lhb)
 const T0 = Date.now();
 
 // ---------- HTTP ----------
@@ -130,6 +131,78 @@ async function fetchThs(_date) {
     throw new Error("同花顺备用源未实现(仅接口位): 页面只给当天榜单, 席位需逐股子页 HTML 解析");
 }
 
+// 10/17 A12 新浪备源(另一家供应商, 东财失败自动切; 也可 --source sina 强制):
+//   ①总表 vInvestConsult/kind/lhb/index.phtml?tradedate=<日>(GBK HTML, 按上榜原因分表: 代码/名称/收盘/对应值/成交量万股/成交额万元)
+//   ②席位 jsonp InvestConsultService.getLHBComBSData?symbol=&tradedate=&type=(每个"原因×个股"1 次; 金额单位万元, 席位全称与东财同)
+//   映射成东财字段, render/build 不用改: TRADE_ID=新浪原因类型_代码; 买入/卖出/净额=该原因下买五卖五去重合计(与东财口径同, 10/16 百洋核对);
+//   涨跌/换手=本地行情库 downloads/market/<日>/kline_day.jsonl(零请求; 新浪"对应值"随原因变, 不能当涨跌幅)。
+//   请求量: 1 + 原因×个股 次(≈60~90), 间隔 2.0~3.0s; 只给近 7 天自动兜底(防 backfill 历史日大批量打新浪)
+const SINA = "https://vip.stock.finance.sina.com.cn";
+const SINA_HDR = { "User-Agent": HDR["User-Agent"] || "Mozilla/5.0", Referer: `${SINA}/q/go.php/vInvestConsult/kind/lhb/index.phtml` };
+let lastSina = 0;
+async function sinaGet(url) {
+    const gap = jitter(2500) - (Date.now() - lastSina);
+    if (gap > 0) await sleep(gap);
+    lastSina = Date.now();
+    out.requests++;
+    const r = await gfetch(url, { headers: SINA_HDR, signal: AbortSignal.timeout(20000) });
+    if (!r.ok) throw new Error(`新浪 HTTP ${r.status}`);
+    return new TextDecoder("gbk").decode(Buffer.from(await r.arrayBuffer()));
+}
+function parseSinaList(html) {
+    const out2 = [];
+    const blocks = html.split(/id="dataTable"/).slice(1);
+    for (const b of blocks) {
+        const reason = ((b.match(/<span[^>]*font-weight:bold[^>]*>\s*([\s\S]*?)\s*<\/span>/) || [])[1] || "").replace(/<[^>]+>/g, "").trim();
+        for (const tr of b.split(/<tr/).slice(1)) {
+            const m = tr.match(/showDetail\('(\w+)','(\d{6})','([\d-]+)'/);
+            if (!m) continue;
+            const td = [...tr.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((x) => x[1].replace(/<[^>]+>/g, "").trim());
+            out2.push({ type: m[1], code: m[2], date: m[3], reason, name: td[2], close: +td[3], value: +td[4], volWan: +td[5], amtWan: +td[6] });
+        }
+    }
+    return out2;
+}
+function parseSinaDetail(txt) {
+    const m = txt.match(/var details=\(([\s\S]*)\)\s*;?\s*$/);
+    if (!m) throw new Error("新浪席位 jsonp 结构异常");
+    return JSON.parse(m[1]);
+}
+async function fetchSina(date) {
+    const rows = parseSinaList(await sinaGet(`${SINA}/q/go.php/vInvestConsult/kind/lhb/index.phtml?tradedate=${date}`)).filter((r) => r.date === date);
+    if (!rows.length) return { list: [], details: {} };
+    const kd = {};
+    try {
+        for (const l of fs.readFileSync(path.join("downloads", "market", date, "kline_day.jsonl"), "utf8").split("\n")) {
+            if (!l) continue;
+            const j = JSON.parse(l);
+            kd[j.symbol.slice(2)] = j;
+        }
+    } catch { /* 本地无当日日线: 涨跌/换手留空 */ }
+    const list = [], details = {};
+    const MAX = +process.env.LHB_SINA_MAX || Infinity;   // 演练限量: 只取前 N 个席位明细(其余席位空), 控制探测请求数
+    let nDet = 0;
+    for (const r of rows) {
+        const tid = `sina${r.type}_${r.code}`;
+        const det = nDet++ >= MAX ? { buy: [], sell: [] } : parseSinaDetail(await sinaGet(`${SINA}/q/api/jsonp.php/var%20details=/InvestConsultService.getLHBComBSData?symbol=${r.code}&tradedate=${date}&type=${r.type}`));
+        const conv = (x) => ({ SECURITY_CODE: r.code, TRADE_DATE: `${date} 00:00:00`, TRADE_ID: tid, OPERATEDEPT_CODE: x.comCode, OPERATEDEPT_NAME: x.comName,
+            EXPLANATION: r.reason, BUY: +x.buyAmount * 1e4 || 0, SELL: +x.sellAmount * 1e4 || 0, NET: +x.netAmount * 1e4 || 0 });
+        const buy = (det.buy || []).map(conv), sell = (det.sell || []).map(conv);
+        const d = (details[r.code] ||= { buy: [], sell: [], mode: "sina" });
+        d.buy.push(...buy); d.sell.push(...sell);
+        const seen = new Set(), uniq = [];   // 同席位同时在买五卖五只算一次
+        for (const x of [...buy, ...sell]) { const k = `${x.OPERATEDEPT_NAME}|${x.BUY}|${x.SELL}`; if (!seen.has(k)) { seen.add(k); uniq.push(x); } }
+        const bAmt = uniq.reduce((a, x) => a + x.BUY, 0), sAmt = uniq.reduce((a, x) => a + x.SELL, 0);
+        const k = kd[r.code];
+        list.push({ SECURITY_CODE: r.code, SECUCODE: `${r.code}.${/^6/.test(r.code) ? "SH" : /^[03]/.test(r.code) ? "SZ" : "BJ"}`, SECURITY_NAME_ABBR: r.name,
+            TRADE_DATE: `${date} 00:00:00`, TRADE_ID: tid, EXPLANATION: r.reason, CLOSE_PRICE: r.close,
+            CHANGE_RATE: k && k.preClose ? +((k.close / k.preClose - 1) * 100).toFixed(4) : null,
+            BILLBOARD_NET_AMT: bAmt - sAmt, BILLBOARD_BUY_AMT: bAmt, BILLBOARD_SELL_AMT: sAmt,
+            DEAL_NET_RATIO: null, ACCUM_AMOUNT: r.amtWan * 1e4, TURNOVERRATE: k ? k.turnoverRate : null, TRADE_MARKET: null });
+    }
+    return { list, details };
+}
+
 // ---------- 存取 ----------
 const readJson = (f) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return null; } };
 const ts = () => { const d = new Date(Date.now() + 8 * 3600e3); return d.toISOString().slice(0, 19).replace("T", " "); };   // 北京时间
@@ -144,7 +217,7 @@ function loadCached() {
         if (!d || !Array.isArray(d.buy) || !Array.isArray(d.sell)) return null;
         details[code] = d;
     }
-    return { list: L.rows, details, fetched_at: L.fetched_at };
+    return { list: L.rows, details, fetched_at: L.fetched_at, source: L.source };
 }
 
 function save(list, details) {
@@ -152,10 +225,10 @@ function save(list, details) {
     const at = ts();
     for (const [code, d] of Object.entries(details)) {
         const name = (list.find((r) => r.SECURITY_CODE === code) || {}).SECURITY_NAME_ABBR;
-        fs.writeFileSync(path.join(DIR, `detail_${code}.json`), JSON.stringify({ date: DATE, code, name, source: SOURCE, mode: d.mode, fetched_at: at, buy: d.buy, sell: d.sell }, null, 1));
+        fs.writeFileSync(path.join(DIR, `detail_${code}.json`), JSON.stringify({ date: DATE, code, name, source: out.source, mode: d.mode, fetched_at: at, buy: d.buy, sell: d.sell }, null, 1));
     }
     // list.json 最后写: 它在且完整 = 本日 detail 都已落盘
-    fs.writeFileSync(path.join(DIR, "list.json"), JSON.stringify({ date: DATE, source: SOURCE, fetched_at: at, count: list.length, rows: list }, null, 1));
+    fs.writeFileSync(path.join(DIR, "list.json"), JSON.stringify({ date: DATE, source: out.source, fetched_at: at, count: list.length, rows: list }, null, 1));
     return at;
 }
 
@@ -286,7 +359,7 @@ function render(stocks, nRecords) {
         "| " + TB.head.join(" | ") + " |",
         "| " + TB.sep.join(" | ") + " |"];
     for (const s of stocks) L.push("| " + TB.fns.map((f) => f(s)).join(" | ") + " |");
-    L.push("", `原始数据: ${DIR.replace(/\\/g, "/")}/(东财 datacenter-web; 主记录=当日口径, 只有 3 日累计榜时用 3 日数据; 买入/卖出/净额=买五卖五合计, 机构/游资=买五卖五去重后净额, 机构括号=在买五/卖五里出现的次数)`, "");
+    L.push("", `原始数据: ${DIR.replace(/\\/g, "/")}/(${out.source === "sina" ? "新浪龙虎榜(东财失败时的备源, 涨跌取本地日线)" : "东财 datacenter-web"}; 主记录=当日口径, 只有 3 日累计榜时用 3 日数据; 买入/卖出/净额=买五卖五合计, 机构/游资=买五卖五去重后净额, 机构括号=在买五/卖五里出现的次数)`, "");
     for (const s of stocks) {
         const p = s.prim;
         const multiTag = (r) => (/连续(三|3)个交易日/.test(r.EXPLANATION) ? "3日" : "多日");
@@ -357,11 +430,28 @@ try {
     let data = FORCE && !LOCAL ? null : loadCached();
     if (data) {
         out.cached = true;
+        out.source = data.source || out.source;
     } else if (LOCAL) {
         done(6, "本地 json 不完整(--local 不联网, 未请求)");
     } else {
-        const got = SOURCE === "ths" ? await fetchThs(DATE) : await fetchEm(DATE);
-        if (!got.list.length) { out.secs = +((Date.now() - T0) / 1000).toFixed(1); done(3, "当日龙虎榜未出(东财返回空)"); }
+        // 10/17 A12 switch-case 转移: 东财(主) → 新浪(备, 近 7 天自动; 历史日不自动以免 backfill 大批量打新浪); --source 强制单源
+        let got;
+        if (SOURCE === "ths") got = await fetchThs(DATE);
+        else if (SOURCE === "sina") got = await fetchSina(DATE);
+        else {
+            try {
+                if (process.env.LHB_DRILL === "em") throw new Error("演练: 跳过东财");
+                got = await fetchEm(DATE);
+            } catch (e) {
+                const recent = DATE >= new Date(Date.now() + 8 * 3600e3 - 7 * 86400e3).toISOString().slice(0, 10);
+                if (e instanceof Exit || !recent || ARGS.includes("--no-fallback")) throw e;
+                console.error(`[lhb] 东财失败(${String(e.message || e).slice(0, 120)}) → 切新浪备源`);
+                out.fallback = `东财失败: ${String(e.message || e).slice(0, 120)}`;
+                out.source = "sina";
+                got = await fetchSina(DATE);
+            }
+        }
+        if (!got.list.length) { out.secs = +((Date.now() - T0) / 1000).toFixed(1); done(3, `当日龙虎榜未出(${out.source === "sina" ? "新浪" : "东财"}返回空)`); }
         out.fetched_at = save(got.list, got.details);
         out.fetched = true;
         if (!(out.fetched_at >= `${DATE} ${READY_HHMM}`)) out.provisional = true;   // 当日 18:00 前抓的: 下次重抓

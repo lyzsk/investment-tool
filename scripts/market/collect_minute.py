@@ -167,19 +167,23 @@ def sticky_until(day, wl_reasons):
 
 
 # ---------- 通达信 ----------
-def connect(ymd=None):
+def connect(ymd=None, skip=()):
     """连第一个可用的通达信服务器; 给了 ymd 时还要求该服务器有这一天的逐笔(探 002714/600000),
     10/12 实录: 上证云成都电信一能连但收盘后当日逐笔为空, 396 只缺 390"""
     for name, ip, port in hq_hosts:
+        if ip in skip:   # 10/16 晚 健壮性 H1: 缺失补抓时换一台服务器
+            continue
         api = TdxHq_API(raise_exception=False)
         try:
             if api.connect(ip, port, time_out=3) and api.get_security_count(1):
+                # 10/16 修: 原为 sz 或 sh 任一有逐笔即通过; 10/16 连上的服务器只有深市逐笔, 沪市 358 只全缺 → 改为两市都要有
                 if ymd and not (api.get_history_transaction_data(0, "002714", 0, 5, ymd)
-                                or api.get_history_transaction_data(1, "600000", 0, 5, ymd)):
+                                and api.get_history_transaction_data(1, "600000", 0, 5, ymd)):
                     log(f"通达信 {name} {ip}:{port} 无 {ymd} 逐笔, 换下一台")
                     api.disconnect()
                     continue
                 log(f"通达信 {name} {ip}:{port}")
+                api._ip = ip
                 return api
         except Exception:   # noqa: BLE001
             continue
@@ -317,9 +321,12 @@ def main():
 
     kl = {k["symbol"]: k for k in read_jsonl(out / "kline_day.jsonl")}
     ymd = int(day.replace("-", ""))
-    api, bars, miss, t0 = connect(ymd), [], [], dt.datetime.now()
-    bad = []
-    try:
+    t0 = dt.datetime.now()
+
+    def one_pass(recs, api_skip=()):
+      api, bars, miss, bad = connect(ymd, api_skip), [], [], []
+      used = getattr(api, "_ip", "")
+      try:
         for i, r in enumerate(recs, 1):
             sym = r["symbol"]
             s = sec.get(sym, {})
@@ -361,10 +368,31 @@ def main():
                 api = connect(ymd)
             if i % 100 == 0:
                 log(f"进度 {i}/{len(recs)} 分钟线 {len(bars)} 根 缺 {len(miss)}")
-    finally:
+      finally:
         api.disconnect()
+      return bars, miss, bad, used
+
+    bars, miss, bad, used = one_pass(recs)
+    # 10/16 晚 健壮性 H1: 缺得多(平时个位数)=服务器缺数据 → 换一台只补缺的票; 仍超阈值 → 写已取到的数据但不写 DONE, 退出码 1(Java 记失败, 对账重试)
+    tries = {used}
+    for _round in range(2):
+        if len(miss) <= max(20, len(recs) * 0.05):
+            break
+        rec_by = {r["symbol"]: r for r in recs}
+        log(f"缺 {len(miss)}/{len(recs)} 只超阈值, 换服务器补抓缺的票(已用 {sorted(tries)})")
+        try:
+            b2, m2, bad2, u2 = one_pass([rec_by[s] for s in miss if s in rec_by], tuple(tries))
+        except RuntimeError as e:
+            log(f"换服务器失败: {e}")
+            break
+        tries.add(u2)
+        bars += b2
+        bad = [x for x in bad if x in m2] + [x for x in bad2 if x not in bad]
+        miss = m2
     write_jsonl(out / "kline_minute.jsonl", bars)
-    (out / "DONE_kline_minute").write_text(dt.datetime.now().isoformat())
+    complete = len(miss) <= max(20, len(recs) * 0.05)
+    if complete:
+        (out / "DONE_kline_minute").write_text(dt.datetime.now().isoformat())
     mf = out / "manifest.json"
     m = json.loads(mf.read_text("utf-8")) if mf.exists() else {}
     m.setdefault("stages", {})["kline_minute"] = {"symbols": len(recs), "bars": len(bars), "missing": miss[:50],
@@ -372,8 +400,8 @@ def main():
                                                   "finishedAt": dt.datetime.now().isoformat()}
     m["stages"]["watchlist"] = {"count": len(recs), "byReason": cnt}
     mf.write_text(json.dumps(m, ensure_ascii=False, indent=1), "utf-8")
-    log(f"完成 {day}: 关注集 {len(recs)} 只, 分钟线 {len(bars)} 根, 无数据 {len(miss)} 只(其中校验不过丢弃 {len(bad)} 只), 用时 {(dt.datetime.now() - t0).seconds}s")
-    return 0
+    log(f"{'完成' if complete else '未完成(缺失超阈值, 不写 DONE)'} {day}: 关注集 {len(recs)} 只, 分钟线 {len(bars)} 根, 无数据 {len(miss)} 只(其中校验不过丢弃 {len(bad)} 只), 用时 {(dt.datetime.now() - t0).seconds}s")
+    return 0 if complete else 1
 
 
 if __name__ == "__main__":

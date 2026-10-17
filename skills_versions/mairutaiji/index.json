@@ -1,0 +1,33 @@
+{
+ "skill": "mairutaiji",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-16T00:06:02",
+   "persona_hash": "65447d3a790fe32d9a4eca6a4384ed925dc32827b430ecb09d1f480defb6883e",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 50,
+    "removed": 0
+   },
+   "bytes_weight": 3863,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "487ce9c4942d",
+    "distill": "c9bdf91c7cc3"
+   }
+  }
+ ],
+ "events": []
+}

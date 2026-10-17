@@ -1,0 +1,354 @@
+{
+ "generated_at": "2026-10-17",
+ "source": "scripts/temp/noise_20261016 (analyze.py → analysis.json); 报告 docs/research/noise_band_20261016.md",
+ "design": {
+  "day": "2026-10-16",
+  "slot": "0915 全链(01→06+拟人审), 只跑盘前链, 不跑盘中子链",
+  "start_state": "账本回到 10/15 收盘(rerun_day.prep 同口径)",
+  "chains": [
+   "taoge",
+   "liuyiqing",
+   "stzhilang",
+   "xingjianye",
+   "control"
+  ],
+  "runs_ok": 13,
+  "runs_failed_or_killed": 3,
+  "pair_classes": {
+   "A": "画像同版的同链重复(taoge×3, control×2, liuyiqing r2/r3) 5 对",
+   "B": "跨同一次小改画像的同链重复(stzhilang×3) 3 对",
+   "C": "中途画像实质更新(liuyiqing r1 vs r2/r3, xingjianye r1 vs r2) 3 对"
+  },
+  "matcher": "--replay-min --until 1500 → --replay → --eod(分钟线回放 10/16 全天)",
+  "model": "Opus 5.5 经 gravitex 网关, 运行中 key 在 cyx/xhj/zgm 三把间切换(未隔离 key 效应)"
+ },
+ "return": {
+  "sigma_day_pp_measured": 0.326,
+  "df": 6,
+  "sigma_day_pp_planning": 0.5,
+  "per_chain_sd_pp": {
+   "taoge": 0.188,
+   "liuyiqing": 0.634,
+   "stzhilang": 0.0,
+   "xingjianye": null,
+   "control": 0.405
+  },
+  "between_chain_means_sd_pp": 0.14,
+  "chain_variance_component_pp2": -0.0212,
+  "forward_overnight_noise_pp": {
+   "within_A_mean": 0.754,
+   "within_AB_mean": 0.472,
+   "within_AB_p90": 3.036
+  },
+  "threshold_rule": "两链累计收益差 |ΔR_N| > 1.96·√(σA²+σB²)·√N 才算显著(σ 取各链日噪声, 缺省 σA=σB=σ); 日均差阈值 = 1.96·√2·σ/√N",
+  "pair_cum_threshold_pp": {
+   "sigma_measured": {
+    "1": 0.9,
+    "5": 2.02,
+    "10": 2.86,
+    "20": 4.04,
+    "40": 5.71
+   },
+   "sigma_planning": {
+    "1": 1.39,
+    "5": 3.1,
+    "10": 4.38,
+    "20": 6.2,
+    "40": 8.77
+   }
+  },
+  "pair_daily_mean_threshold_pp": {
+   "sigma_measured": {
+    "1": 0.903,
+    "5": 0.404,
+    "10": 0.286,
+    "20": 0.202,
+    "40": 0.143
+   },
+   "sigma_planning": {
+    "1": 1.386,
+    "5": 0.62,
+    "10": 0.438,
+    "20": 0.31,
+    "40": 0.219
+   }
+  },
+  "assumptions": [
+   "日间噪声独立(收益日间独立, 分歧持仓只放大方差不引入相关)",
+   "σ 用 10/16 单日(上证 20 日波动 0.77%/日, 普跌偏温和日)估计; 高波动日按 σ×(当日市场波动/0.77%) 放大",
+   "首日从同一账本起跑, 稳态分歧更大 → 实测 σ 偏低, 规划值取 0.5pp",
+   "只含 LLM 运行噪声, 不含'换一段行情'的样本外不确定性(那部分更大)"
+  ]
+ },
+ "mimicry": {
+  "composite": "mimicry_score 四主指标(L1_交易, L2_方向, L3_持仓Jaccard, 1−L4_总仓误差)均值, 单日",
+  "sigma_day_measured": 0.0167,
+  "df": 3,
+  "sigma_day_planning": 0.05,
+  "within_flip_rate": {
+   "L1_交易": 0.0,
+   "L2_方向": 0.0,
+   "pairs": 7,
+   "note": "有真人账本的同链重复共 7 对(liuyiqing 3 对含 2 对 C 类, stzhilang 3 对, xingjianye 1 对 C 类), L1/L2 一次没翻; 规则三: 单日翻转率 95% 上界≈3/7≈43%(样本太少, 只能说'不常翻')"
+  },
+  "pair_mean_threshold": {
+   "1": 0.139,
+   "5": 0.062,
+   "10": 0.044,
+   "20": 0.031,
+   "40": 0.022
+  },
+  "note": "阈值针对两条链 N 日拟人度均值之差; 链内噪声很小(L1/L2 不翻), 拟人度排名的主要不确定性来自'哪些天'而不是 LLM 重复跑, MIN_RANK=20 仍应保留",
+  "between_note": "链间拟人度差 0.66 是'各链对各自导师'的分数差(真人当天动作不同), 不是同一把尺子下的链间差, 不能直接和链内噪声比出信噪比"
+ },
+ "actions": {
+  "04_候选1-Jac": {
+   "within_A_mean": 0.7321,
+   "within_AB_mean": 0.6201,
+   "within_AB_p90": 0.8462,
+   "within_C_mean": 0.6111,
+   "between_mean": 0.9677,
+   "ratio_between_over_within": 1.561,
+   "between_exceed_within_p90": 0.881,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "06_买票1-Jac": {
+   "within_A_mean": 0.8667,
+   "within_AB_mean": 0.5417,
+   "within_AB_p90": 1.0,
+   "within_C_mean": 0.8333,
+   "between_mean": 0.9552,
+   "ratio_between_over_within": 1.763,
+   "between_exceed_within_p90": 0.0,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "06_卖票1-Jac": {
+   "within_A_mean": 0.0,
+   "within_AB_mean": 0.0,
+   "within_AB_p90": 0.0,
+   "within_C_mean": 0.0,
+   "between_mean": 0.9552,
+   "ratio_between_over_within": "inf",
+   "between_exceed_within_p90": 1.0,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "06_动作集1-Jac": {
+   "within_A_mean": 0.6833,
+   "within_AB_mean": 0.4271,
+   "within_AB_p90": 0.75,
+   "within_C_mean": 0.6667,
+   "between_mean": 0.9627,
+   "ratio_between_over_within": 2.254,
+   "between_exceed_within_p90": 0.91,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "06_净方向不同": {
+   "within_A_mean": 0.8,
+   "within_AB_mean": 0.5,
+   "within_AB_p90": 1.0,
+   "within_C_mean": 0.3333,
+   "between_mean": 0.7015,
+   "ratio_between_over_within": 1.403,
+   "between_exceed_within_p90": 0.0,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "06_净挂单金额差pp": {
+   "within_A_mean": 11.0104,
+   "within_AB_mean": 6.8815,
+   "within_AB_p90": 16.5391,
+   "within_C_mean": 42.2396,
+   "between_mean": 41.8057,
+   "ratio_between_over_within": 6.075,
+   "between_exceed_within_p90": 0.806,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "06_同票挂价差%": {
+   "within_A_mean": 0.2665,
+   "within_AB_mean": 0.2665,
+   "within_AB_p90": 0.533,
+   "within_C_mean": 0.1122,
+   "between_mean": null,
+   "ratio_between_over_within": null,
+   "between_exceed_within_p90": null,
+   "n_within_AB": 2,
+   "n_between": null
+  },
+  "06_同票卖价差%": {
+   "within_A_mean": 1.6012,
+   "within_AB_mean": 0.6405,
+   "within_AB_p90": 2.448,
+   "within_C_mean": 0.0,
+   "between_mean": 0.0,
+   "ratio_between_over_within": 0.0,
+   "between_exceed_within_p90": 0.0,
+   "n_within_AB": 5,
+   "n_between": 6
+  },
+  "06_同票买时段不同": {
+   "within_A_mean": 0.5,
+   "within_AB_mean": 0.5,
+   "within_AB_p90": 1.0,
+   "within_C_mean": 0.0,
+   "between_mean": null,
+   "ratio_between_over_within": null,
+   "between_exceed_within_p90": null,
+   "n_within_AB": 2,
+   "n_between": null
+  },
+  "收盘仓位差pp": {
+   "within_A_mean": 11.1984,
+   "within_AB_mean": 6.999,
+   "within_AB_p90": 16.3609,
+   "within_C_mean": 15.0945,
+   "between_mean": 22.0627,
+   "ratio_between_over_within": 3.152,
+   "between_exceed_within_p90": 0.478,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "收盘持仓1-Jac": {
+   "within_A_mean": 0.7333,
+   "within_AB_mean": 0.4583,
+   "within_AB_p90": 1.0,
+   "within_C_mean": 0.5,
+   "between_mean": 0.6567,
+   "ratio_between_over_within": 1.433,
+   "between_exceed_within_p90": 0.0,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "03_多分差": {
+   "within_A_mean": 2.6,
+   "within_AB_mean": 2.625,
+   "within_AB_p90": 4.0,
+   "within_C_mean": 3.6667,
+   "between_mean": 3.8507,
+   "ratio_between_over_within": 1.467,
+   "between_exceed_within_p90": 0.418,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "03_空分差": {
+   "within_A_mean": 3.4,
+   "within_AB_mean": 5.625,
+   "within_AB_p90": 14.0,
+   "within_C_mean": 4.3333,
+   "between_mean": 5.2239,
+   "ratio_between_over_within": 0.929,
+   "between_exceed_within_p90": 0.015,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "03_倾向不同": {
+   "within_A_mean": 0.6,
+   "within_AB_mean": 0.625,
+   "within_AB_p90": 1.0,
+   "within_C_mean": 0.3333,
+   "between_mean": 0.5373,
+   "ratio_between_over_within": 0.86,
+   "between_exceed_within_p90": 0.0,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "02_市况不同": {
+   "within_A_mean": 0.0,
+   "within_AB_mean": 0.0,
+   "within_AB_p90": 0.0,
+   "within_C_mean": 0.0,
+   "between_mean": 0.0,
+   "ratio_between_over_within": "inf",
+   "between_exceed_within_p90": 0.0,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "02_态度不同": {
+   "within_A_mean": 0.0,
+   "within_AB_mean": 0.0,
+   "within_AB_p90": 0.0,
+   "within_C_mean": 0.0,
+   "between_mean": 0.0,
+   "ratio_between_over_within": "inf",
+   "between_exceed_within_p90": 0.0,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "拟人审结论不同": {
+   "within_A_mean": 0.0,
+   "within_AB_mean": 0.0,
+   "within_AB_p90": 0.0,
+   "within_C_mean": 0.0,
+   "between_mean": 0.0,
+   "ratio_between_over_within": "inf",
+   "between_exceed_within_p90": 0.0,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "当日收益差pp": {
+   "within_A_mean": 0.434,
+   "within_AB_mean": 0.2713,
+   "within_AB_p90": 0.8969,
+   "within_C_mean": 0.679,
+   "between_mean": 0.3878,
+   "ratio_between_over_within": 1.429,
+   "between_exceed_within_p90": 0.119,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "次日前瞻收益噪声pp": {
+   "within_A_mean": 0.7545,
+   "within_AB_mean": 0.4716,
+   "within_AB_p90": 3.0359,
+   "within_C_mean": 1.6566,
+   "between_mean": 1.1433,
+   "ratio_between_over_within": 2.424,
+   "between_exceed_within_p90": 0.0,
+   "n_within_AB": 8,
+   "n_between": 67
+  },
+  "拟人度综合分差": {
+   "within_A_mean": 0.0408,
+   "within_AB_mean": 0.0102,
+   "within_AB_p90": 0.0408,
+   "within_C_mean": 0.0377,
+   "between_mean": 0.6592,
+   "ratio_between_over_within": 64.627,
+   "between_exceed_within_p90": 1.0,
+   "n_within_AB": 4,
+   "n_between": 21
+  },
+  "拟人L4_总仓误差差": {
+   "within_A_mean": 0.1631,
+   "within_AB_mean": 0.0408,
+   "within_AB_p90": 0.1631,
+   "within_C_mean": 0.1509,
+   "between_mean": 0.6367,
+   "ratio_between_over_within": 15.605,
+   "between_exceed_within_p90": 1.0,
+   "n_within_AB": 4,
+   "n_between": 21
+  }
+ },
+ "mix_plans_hints": {
+  "hedge_eta": "η=0.5 × 日噪声 σ≈0.33pp → 每日对数权重随机游走 0.165; 10 日纯噪声 1σ 权重倍数 e^±0.52≈×0.6~×1.7。建议: Hedge 输入先减去死区(|r_i−均值| < 0.9pp 记 0), 或 η 降到 0.15~0.2",
+  "excess_vs_control": "对照组日噪声≈0.40pp, 链−对照的日超额噪声≈√(σ²+σc²)≈0.5pp; n 日均值 SE≈0.5/√n pp; 现 ex_k=10 收缩够用, 但 n<10 时 ex 项基本是噪声",
+  "admission_2chains": "同链重复买票 1−Jaccard 在 A 类=0.87(买哪只基本是噪声), 跨链共识(同票同方向 ≥2 链)在噪声下偶然重合概率很低, 准入规则本身抗噪; 但一条链单日的'买票集合'不能当稳定信号",
+  "hit_rate": "06 买单集合链内高度不稳定, 单日命中率=噪声主导; Beta(5,5) 收缩保留, 不要降先验强度"
+ },
+ "cost_usd": {
+  "total": 145.08,
+  "budget": 150,
+  "ok_runs": "13 次(taoge 3, liuyiqing 3, stzhilang 3, xingjianye 2, control 2)",
+  "wasted": {
+   "r1 stzhilang claude.exe 自动更新换文件致崩": 4.09,
+   "r3 control 预算砍掉": 2.4,
+   "r3 xingjianye 预算砍掉": 7.5
+  },
+  "per_run_range": "control 5.3~8.2, liuyiqing 6.5~10.9, stzhilang 6.0~15.5, xingjianye 5.5~8.0, taoge 12.1~24.6; r3 贵 70%: 缓存未命中(cache_create 翻倍), 与运行中 key 切换(zgm/xhj/cyx)同步, 疑为换 key 丢 prompt 缓存"
+ }
+}

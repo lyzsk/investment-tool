@@ -71,6 +71,8 @@ const dates = [...new Set(accounts.flatMap((a) => a.b.nav.map((n) => n.date)))]
 
 // ---- 曲线数据集(10/11: 实盘 + as-of 回放沙盒 两套, 页面内切换; 用户问"9/28-30 补跑 report 怎么没显示") ----
 const SANDBOX = path.join(SCRIPT_DIR, "sandbox", "asof-0928");
+// 10/16: 晚上线账户的 as-of 前置补跑(实盘段之前的日子), 键=账户, 值=沙盒数据根
+const PREFILL = { "A-control": path.resolve(SCRIPT_DIR, "../../temp/control_asof/sb") };
 async function chartData(dir, asof) {
     const ld = (src) => { try { return JSON.parse(fs.readFileSync(path.join(dir, "books", src + ".json"), "utf8")); } catch { return null; } };
     const accs = ACCOUNTS.map(([src, name, kind], slot) => ({ src, name, kind, slot, b: ld(src) })).filter((a) => a.b);
@@ -138,7 +140,22 @@ async function mergedData(a, l) {
         if (!pa && !pl) return null;
         const segA = a ? a.dates.filter((d) => !l.dates.includes(d)).map((d) => (pa ? pa[a.dates.indexOf(d)] : null)) : [];
         const lastA = [...segA].reverse().find((p) => p && p.cum != null)?.cum ?? 0;
-        const segL = (pl || l.dates.map(() => null)).map((p) => (!p || p.cum == null ? p : { ...p, cum: (1 + lastA) * (1 + p.cum) - 1 }));
+        // 10/16 用户令: 上线晚于 10/8 的账户(对照组 10/12 才上线)用 as-of 补跑沙盒把前几天补上(PREFILL), 与实盘段按日收益连乘衔接
+        let pfCum = 0;
+        const pre = PREFILL[src] ? (() => { try { return JSON.parse(fs.readFileSync(path.join(PREFILL[src], "books", src + ".json"), "utf8")); } catch { return null; } })() : null;
+        const firstLive = (pl || []).findIndex((p) => p && p.cum != null);
+        const prePts = l.dates.map(() => null);
+        if (pre && firstLive > 0) {
+            const byDate = Object.fromEntries((pre.nav || []).map((n) => [n.date, n.nav]));
+            let prev = INIT;
+            for (let i = 0; i < firstLive; i++) {
+                const v = byDate[l.dates[i]];
+                if (v === undefined) continue;
+                prePts[i] = { nav: v, cum: (1 + lastA) * (v / INIT) - 1, day: v / prev - 1 };
+                prev = v; pfCum = v / INIT - 1;
+            }
+        }
+        const segL = (pl || l.dates.map(() => null)).map((p, i) => (prePts[i] ? prePts[i] : !p || p.cum == null ? p : { ...p, cum: (1 + lastA) * (1 + pfCum) * (1 + p.cum) - 1 }));
         return { src, name, kind, slot, pts: [...segA, ...segL], mentor: mentorPts(src, ds) };
     }).filter(Boolean);
     let bench = null;

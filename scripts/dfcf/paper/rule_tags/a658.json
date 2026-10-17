@@ -1,0 +1,145 @@
+{
+ "skill": "a658",
+ "file": "skills/a658-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "亏损处置无固定止损线: \"次日小亏换仓\"与\"多日拖成深亏后集中清\"双态",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "ST 品种: 长期偏好但闭合结果 1 胜 5 负",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "新股上市首日(N 字头)买入, 闭合 3 笔全胜但靠单笔尾部",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "卖出拆单: 秒级连发与大额单笔不拆并存",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "恒满仓、单票为主、低频轮动——\"无腿日\"是持仓日, 不是空仓日",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "卖即买: 卖出后 60 秒内买入新票, 资金不闲置",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "盘中追强: 当日已大涨的票或连板晋级日封板前上车",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "强势持仓次日早盘兑现, 系统性卖飞",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": {
+    "kind": "overnight_sell",
+    "text": "昨日新买、今日仍持有 → 今日早盘(0915 单)卖"
+   },
+   "mech_text": null,
+   "level": "机械"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "≥3 票分散持仓期全线亏损",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R10": {
+   "id": "R10",
+   "title": "分时追击: 在个股冲高、创日内新高的几分钟内对价买入, 不挂低吸",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": "买",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "候选票 截至当时日内位置≥0.8 且 前 5 分钟涨幅≥+1% 且 现价>当日分时均价 → 对价买入(不在下方挂低吸); 位置<0.5 → 他很少在此时买(只占 9/69)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  },
+  "R11": {
+   "id": "R11",
+   "title": "早盘走弱即对价卖出: 卖在跌破均价、创日内新低的时候",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": "卖",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "持仓票(尤其昨日新开) 今日开盘后 ≤60 分钟内 现价<当日分时均价 且 截至当时位置<0.2 且 前 5 分钟跌≥0.3% → 对价卖出(全仓); 当日封涨停 → 不卖",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  }
+ },
+ "n": 11,
+ "n_mech": 1,
+ "n_dir": 9,
+ "n_distilled": 2
+}

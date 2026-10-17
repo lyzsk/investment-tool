@@ -13,11 +13,18 @@
     <insert id="insertBatch">
         INSERT INTO investment_market.kline_minute
         (symbol, trade_date, bar_time, `open`, `high`, `low`, `close`, volume, amount, avg_price,
-         source, status, create_by, create_time, is_deleted)
+        source, status, create_by, create_time, is_deleted)
         VALUES
         <foreach collection="list" item="k" separator=",">
             (#{k.symbol}, #{k.tradeDate}, #{k.barTime}, #{k.open}, #{k.high}, #{k.low}, #{k.close},
-             #{k.volume}, #{k.amount}, #{k.avgPrice}, #{k.source}, 0, #{k.createBy}, #{k.createTime}, 0)
+            #{k.volume}, #{k.amount}, #{k.avgPrice}, #{k.source}, 0, #{k.createBy}, #{k.createTime},
+            0)
         </foreach>
     </insert>
+
+    <!-- 对账: 某交易日分时覆盖的不同 symbol 数(H1 覆盖率) -->
+    <select id="countDistinctSymbol" resultType="long">
+        SELECT COUNT(DISTINCT symbol) FROM investment_market.kline_minute
+        WHERE trade_date = #{tradeDate} AND is_deleted = 0
+    </select>
 </mapper>

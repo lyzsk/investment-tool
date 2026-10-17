@@ -7,7 +7,9 @@ export const ACCOUNTS = [
     ["A-daxingdaxingdadangxing", "大兴大A", "导师"], ["A-gaogailvfuli", "高概率复利", "导师"], ["A-xuanqiucaijing", "宣秋财经", "导师"],
     ["A-stzhilang", "ST之狼", "导师"], ["A-chong5000w", "冲5000w", "导师"],
     ["A-antoo", "antoo", "导师"], ["A-zhiyingjuexin", "芷影攫心", "导师"],   // 10/15 新增(槽 15/16)
+    ["A-zjwzlclf", "zjwzlclf", "导师"], ["A-ynw01", "ynw01", "导师"], ["A-wudaokongfang", "悟到空方为悟道", "导师"],   // 10/17 新增
     ["A-control", "对照组", "对照"],
+    ["A-mix", "混合·主", "混合"], ["A-mix-eq", "混合·等权", "混合"], ["A-mix-lhb", "混合·龙虎榜", "混合"],   // 10/16 新增(槽 18-20, mix_plans.py)
 ];
 export const TABLE_ONLY = [["B-taoge", "桃哥·人工", "B线"], ["B-cb", "土豆·人工", "B线"]];
 export const NAME = Object.fromEntries([...ACCOUNTS, ...TABLE_ONLY].map(([s, n]) => [s, n]));

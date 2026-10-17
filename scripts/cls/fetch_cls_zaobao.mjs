@@ -8,6 +8,8 @@
 //     发现源= api3.cls.cn/share/subject/1151(财联社 App 分享用的 H5 专题页, 公开无签名无鉴权; 1151=早报专题, 文章页 subjectid=1151 实证)
 //     取页内第一条【早报】→ 抓文章 → 校验文章日期=目标日(默认今天), 不符=当日早报尚未发布(出口 6, 不落产物)
 //     共 2 个请求/天; 失败照旧可人工贴链接(--url 路保留)
+//     10/17 A12 备源(switch-case, 失败模式脚本内闭环): 专题页 api3 失败/改版 → 网页版 www.cls.cn/subject/1151;
+//       文章页 api3 失败/解析失败 → 网页版 www.cls.cn/detail/<id>(__NEXT_DATA__); 演练 ZAOBAO_DRILL=api3,article + ZAOBAO_OUT=<目录>
 // 产物: downloads/cls_zaobao/<yyyy-MM-dd>/{raw.html,text.md,meta.json,spec.md}
 //   spec.md = hermes 蒸馏要点(五栏: 宏观/行业/公司/环球/机会, 每行一条 【早报要点】<栏>: <内容>)
 // 挂载: md/<y>S<q>/<date>.md 的 ## 盘前 → ### 财联社早报(整小节覆盖幂等, spec 不存在时保旧【早报要点】行)
@@ -55,6 +57,24 @@ function parse(html) {
     if (!ctime && dt) ctime = new Date(+dt[1] * 1000).toLocaleString("sv-SE", { timeZone: "Asia/Shanghai" });
     return { title, ctime, text };
 }
+// 10/17 A12 备源: 网页版文章 www.cls.cn/detail/<id>(Next.js, __NEXT_DATA__.props.pageProps.articleDetail{title,ctime(unix 秒),content(HTML)})
+//   api3 文章页抓不到时用; 正文转换口径同 parse()
+function parseWeb(html) {
+    if (/环境异常|完成验证后即可继续访问|操作频繁/.test(html)) return { err: 5, msg: "反爬验证页" };
+    let a = null;
+    try { a = JSON.parse((html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/) || [])[1] || "null")?.props?.pageProps?.articleDetail; } catch { a = null; }
+    if (!a || !a.title || !a.content) return { err: 3, msg: "网页版解析失败(__NEXT_DATA__.articleDetail 缺)" };
+    const text = decode(String(a.content).replace(/<br[^>]*>/gi, "\n").replace(/<\/(p|section|h[1-6]|li)>/gi, "\n")
+        .replace(/<[^>]+>/g, "")).replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+    if (text.length < 100) return { err: 3, msg: `正文过短(${text.length}字), 疑解析错位` };
+    const ctime = a.ctime ? new Date(+a.ctime * 1000).toLocaleString("sv-SE", { timeZone: "Asia/Shanghai" }) : null;
+    return { title: String(a.title).trim(), ctime, text };
+}
+// 网页版专题页 www.cls.cn/subject/1151(SSR, 按时间倒序): 第一条【早报】→ {date, id, title}
+function discoverWeb(html) {
+    const m = html.match(/(\d{4}-\d{2}-\d{2}) \d{2}:\d{2}[\s\S]{0,800}?href="\/detail\/(\d+)"[^>]*>(【早报】[^<]*)</);
+    return m ? { date: m[1], id: m[2], title: m[3] } : null;
+}
 
 function mount(date, meta) {
     const [y, m] = date.split("-");
@@ -98,23 +118,40 @@ function mount(date, meta) {
     } else {
         const today = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Shanghai" }).slice(0, 10);
         if (DISCOVER) {   // 10/14: 早报专题页找最新一条【早报】(页面按时间倒序)
+            // 10/17 A12 switch-case: ①App 分享专题页 api3 → ②网页版专题页 www.cls.cn/subject/1151; 演练 ZAOBAO_DRILL=api3 跳过①
             let sub = null, e1 = "";
-            for (let i = 1; i <= 3 && !sub; i++) {
+            for (let i = 1; i <= 3 && !sub && !(process.env.ZAOBAO_DRILL || "").includes("api3"); i++) {
                 try {
                     const r = await gfetch("https://api3.cls.cn/share/subject/1151?os=android&sv=884", { headers: UA });
                     if (!r.ok) throw new Error(`HTTP ${r.status}`);
                     sub = await r.text();
                 } catch (e) { e1 = e.message; if (i < 3) await sleep(jitter(1000 * i)); }
             }
-            if (!sub) { console.error(`专题页抓取失败: ${e1}`); process.exit(1); }
-            const m = sub.match(/share\/article\/(\d+)[^"]*">\s*<span[^>]*>\s*(【早报】[^<]*)</);
-            if (!m) { console.error("专题页未找到【早报】条目(改版?), 请人工贴链接走 --url"); process.exitCode = 6; return; }  // exitCode+return: Windows 下有未关连接时 process.exit 会触发 libuv 断言(10/11 collect_daily 同坑)
-            URL_IN = `https://api3.cls.cn/share/article/${m[1]}?os=android&sv=884&app=cailianpress`;
-            console.log(`发现: ${m[2].slice(0, 40)} → ${URL_IN}`);
+            const m = sub && sub.match(/share\/article\/(\d+)[^"]*">\s*<span[^>]*>\s*(【早报】[^<]*)</);
+            if (m) {
+                URL_IN = `https://api3.cls.cn/share/article/${m[1]}?os=android&sv=884&app=cailianpress`;
+                console.log(`发现: ${m[2].slice(0, 40)} → ${URL_IN}`);
+            } else {
+                console.error(`App 专题页${sub ? "未找到【早报】条目(改版?)" : `抓取失败: ${e1 || "演练跳过"}`} → 切网页版专题页`);
+                let w = null;
+                try {
+                    await sleep(jitter(1200));
+                    const r = await gfetch("https://www.cls.cn/subject/1151", { headers: { ...UA, Referer: "https://www.cls.cn/" } });
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    w = discoverWeb(await r.text());
+                } catch (e) { console.error(`网页版专题页也失败: ${e.message}`); }
+                if (!w) { console.error("两路专题页都没找到【早报】, 请人工贴链接走 --url"); process.exitCode = sub ? 6 : 1; return; }
+                if (w.date !== (DATE_IN || today)) {   // 网页版列表带日期: 不是目标日就不必再抓文章
+                    console.error(`最新早报日期 ${w.date} ≠ 目标日 ${DATE_IN || today}: 当日早报尚未发布(网页版专题页), 不落产物`);
+                    process.exitCode = 6; return;
+                }
+                URL_IN = `https://api3.cls.cn/share/article/${w.id}?os=android&sv=884&app=cailianpress`;
+                console.log(`发现(网页版): ${w.title.slice(0, 40)} → ${URL_IN}`);
+            }
             await sleep(jitter(1200));
         }
-        let html = null, lastErr = "";
-        for (let i = 1; i <= 3; i++) {
+        let html = null, lastErr = "", p = null;
+        for (let i = 1; i <= 3 && !(process.env.ZAOBAO_DRILL || "").includes("article"); i++) {
             try {
                 const r = await gfetch(URL_IN, { headers: UA, redirect: "follow" });
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -122,15 +159,35 @@ function mount(date, meta) {
                 break;
             } catch (e) { lastErr = e.message; if (i < 3) await sleep(jitter(1000 * i)); }
         }
+        if (html) p = parse(html);
+        // 10/17 A12: api3 文章页抓不到/解析失败 → 网页版 www.cls.cn/detail/<id>(同一篇文章, 另一个接口); 演练 ZAOBAO_DRILL=article
+        const aid = (String(URL_IN).match(/article\/(\d+)/) || [])[1];
+        if ((!html || p.err) && aid) {
+            console.error(`api3 文章页${html ? `解析失败(${p.msg})` : `抓取失败(${lastErr || "演练跳过"})`} → 切网页版 www.cls.cn/detail/${aid}`);
+            try {
+                await sleep(jitter(1200));
+                const r = await gfetch(`https://www.cls.cn/detail/${aid}`, { headers: { ...UA, Referer: "https://www.cls.cn/" } });
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const h2 = await r.text();
+                const p2 = parseWeb(h2);
+                if (!p2.err) { html = h2; p = p2; URL_IN = `https://www.cls.cn/detail/${aid}`; }
+                else if (!html) { html = h2; p = p2; }
+            } catch (e) { lastErr += ` / 网页版: ${e.message}`; }
+        }
         if (!html) { console.error(`抓取失败: ${lastErr}`); process.exit(1); }
-        const p = parse(html);
         if (p.err) { console.error(p.msg); process.exit(p.err); }
         if (!p.title.includes("早报")) console.warn(`⚠️ 标题不含"早报": ${p.title}`);
         // 10/7 修: ctime 提取失败(null)时不再回退到今天——早报讲的是昨天新闻, 回退今天必错;
         // 改为从正文首段提取"X月X日"推算发布日(+1), 提不出则报错要求 --date
         // 10/15 修: --discover 时日期必须取页面 ctime 再和 --date 比对; 原先 --date 直接覆盖 → 下面的"不是目标日"检查永远通过,
         // 07:00:27 专题页最新一条还是 10/14 早报, 被当成 10/15 落盘+蒸馏(01 发现要点与昨日逐条重合)
-        if (DATE_IN && !DISCOVER) { date = DATE_IN; }
+        if (DATE_IN && !DISCOVER) {
+            // 10/17 健壮性 M12: 原先 --date 无条件覆盖页面日期 → hermes 早上贴昨天的链接会把旧早报挂进今天 md
+            if (p.ctime && p.ctime.slice(0, 10) !== DATE_IN && !ARGS.includes("--force-date")) {
+                console.error(`页面发布日 ${p.ctime.slice(0, 10)} ≠ --date ${DATE_IN}: 疑贴错链接(旧一期), 不落产物; 确认无误加 --force-date`); process.exit(6);
+            }
+            date = DATE_IN;
+        }
         else if (p.ctime) { date = p.ctime.slice(0, 10); }
         else {
             const m = p.text.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
@@ -148,7 +205,7 @@ function mount(date, meta) {
             process.exitCode = 6; return;
         }
         meta = { title: p.title, ctime: p.ctime, url: URL_IN, fetchedAt: new Date().toISOString(), chars: p.text.length };
-        const dir = path.join("downloads", "cls_zaobao", date);
+        const dir = path.join(process.env.ZAOBAO_OUT || path.join("downloads", "cls_zaobao"), date);   // ZAOBAO_OUT=演练产物目录
         fs.mkdirSync(dir, { recursive: true });
         if (!FORCE && fs.existsSync(path.join(dir, "meta.json"))) console.log("产物已存在, 覆盖(要保留旧件先备份)");
         fs.writeFileSync(path.join(dir, "raw.html"), html);

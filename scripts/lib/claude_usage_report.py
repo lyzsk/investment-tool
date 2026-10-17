@@ -18,9 +18,9 @@ def load(date):
     f = ROOT / "scripts" / "lib" / "claude_cost.csv"
     if f.exists():
         for r in csv.DictReader(open(f, encoding="utf-8")):
-            # ts 是 UTC(isoformat 无时区) → 转本地日
+            # 10/17 健壮性 L3: ts 是本地时间(claude_call.py:171 datetime.now(), 无时区), 不再 +8h
             try:
-                local = (dt.datetime.fromisoformat(r["ts"]) + dt.timedelta(hours=8)).date().isoformat()
+                local = dt.datetime.fromisoformat(r["ts"]).date().isoformat()
             except ValueError:
                 continue
             if local == date:

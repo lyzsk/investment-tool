@@ -137,3 +137,16 @@
 {"ts": "2026-10-15T12:56:30", "skill": "antoo", "date": "20261008", "slot": "0915", "step": "04", "attempt": 1, "reason": "方向组 松原安全 的 direction '汽车零部件/机器人' ∉ 02.directions", "asof": true}
 {"ts": "2026-10-15T13:57:49", "skill": "antoo", "date": "20261012", "slot": "0915", "step": "04", "attempt": 1, "reason": "方向组 上海电影 的 direction '文化传媒/短剧AI漫剧(主线)' ∉ 02.directions", "asof": true}
 {"ts": "2026-10-15T14:29:21", "skill": "zhiyingjuexin", "date": "20261013", "slot": "0915", "step": "04", "attempt": 1, "reason": "方向组 上海电影 的 direction '短剧/AI影视传媒(含出版·新华系)' ∉ 02.directions", "asof": true}
+{"ts": "2026-10-16T08:52:27", "skill": "gaogailvfuli", "date": "20261016", "slot": "0915", "step": "06", "attempt": 1, "reason": "no_trade=true 但 actions 无进场条件单(三选一契约)", "asof": false}
+{"ts": "2026-10-16T10:08:04", "skill": "liuyiqing", "date": "20261016", "slot": "1000", "step": "sub3-06", "attempt": 1, "reason": "no_trade=true 但 actions 无进场条件单(三选一契约)", "asof": false}
+{"ts": "2026-10-16T10:15:02", "skill": "liuyiqing", "date": "20261016", "slot": "1000", "step": "sub3-06", "attempt": 1, "reason": "no_trade=true 但 actions 无进场条件单(三选一契约)", "asof": false}
+{"ts": "2026-10-16T10:35:58", "skill": "a658", "date": "20261016", "slot": "1030", "step": "sub3-02", "attempt": 1, "reason": "02_analysis.md mtime 不新鲜(stale 哨兵嫌疑)", "asof": false}
+{"ts": "2026-10-16T11:01:37", "skill": "liuyiqing", "date": "20261016", "slot": "1100", "step": "sub3-02", "attempt": 1, "reason": "02_analysis.md mtime 不新鲜(stale 哨兵嫌疑)", "asof": false}
+{"ts": "2026-10-16T11:01:46", "skill": "liuyiqing", "date": "20261016", "slot": "1100", "step": "sub3-02", "attempt": 2, "reason": "02_analysis.md mtime 不新鲜(stale 哨兵嫌疑)", "asof": false}
+{"ts": "2026-10-16T21:20:36", "skill": "qushitiange", "date": "20261016", "slot": "1455", "step": "sub3-06", "attempt": 1, "reason": "persona_sections 须为画像目录编号列表(如 [\"S05\"]), 不存在的编号: ['S21', 'S22', 'S45', 'S49']", "asof": true}
+{"ts": "2026-10-16T23:40:40", "skill": "control", "date": "20261016", "slot": "0915", "step": "04", "attempt": 1, "reason": "芒果超媒 hold_days 须为正整数(预期持有交易日数): 0", "asof": true}
+{"ts": "2026-10-17T13:57:42", "skill": "daxingdaxingdadangxing", "date": "20261016", "slot": "0915", "step": "06", "attempt": 1, "reason": "新华文轩 金额 51600 超 05 给该票定的上限 25800(05 风控意见是硬约束; 要凑总仓请加别的批准票)", "asof": true}
+{"ts": "2026-10-17T13:58:06", "skill": "wudaokongfang", "date": "20261016", "slot": "0915", "step": "03b", "attempt": 1, "reason": "contract JSON 解析败: Expecting ':' delimiter: line 1 column 1168 (char 1167)", "asof": true}
+{"ts": "2026-10-17T13:58:57", "skill": "ynw01", "date": "20261016", "slot": "0915", "step": "06", "attempt": 1, "reason": "账本统计硬约束: 本日新开仓 3 只(含今日已成交/未成交新票) > 本导师上限 2 只(真人开仓日新开只数 P80)——只留最有把握的 | 近 5 日换手(买入额/nav, 含今日已成交+未成交+本单) 69% > 本导师上限 16%(真人近 5 日换手 P80)——本单最多再买约 16200 元", "asof": true}
+{"ts": "2026-10-17T13:59:39", "skill": "ynw01", "date": "20261016", "slot": "0915", "step": "06", "attempt": 2, "reason": "总仓 15525(持仓≈0+未成交买单0+本次买15525−本次卖0) < 测试下限 65% nav=65000, 还差 49475——从 05 批准集加买单凑足(单票≤35000)", "asof": true}
+{"ts": "2026-10-17T14:05:20", "skill": "zhiyingjuexin", "date": "20261016", "slot": "0915", "step": "06", "attempt": 1, "reason": "账本统计硬约束: 本日新开仓 3 只(含今日已成交/未成交新票) > 本导师上限 2 只(真人开仓日新开只数 P80)——只留最有把握的", "asof": true}

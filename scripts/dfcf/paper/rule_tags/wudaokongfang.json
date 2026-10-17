@@ -1,0 +1,94 @@
+{
+ "skill": "wudaokongfang",
+ "file": "skills/wudaokongfang-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "核心票底仓滚动做T: 一票连续多日持仓, 几乎每日同日买卖近等量, 收盘该票仓位变化小",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "日内桶高胜率=持仓票上的T, 且高度集中于万邦医药 07-10~07-20 一段",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "核心票多选自刚走过连板的人气票, 在连板日或断板后数日内首买",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "卫星票默认 T+1 了结, 不论盈亏, 多在次日开盘半小时内",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "仓位中枢约半仓, 极少满仓, 闲置资金逆回购, 持仓 2~3 只、单笔小",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "执行时刻: 买腿集中开盘前 30 分钟, 15:00:00 收盘竞价买卖双向常用",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "核心票下跌段不降仓、继续向下承接, 账户最大回撤段都出在这里",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  }
+ },
+ "n": 7,
+ "n_mech": 0,
+ "n_dir": 5,
+ "n_distilled": 0
+}

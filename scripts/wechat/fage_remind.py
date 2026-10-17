@@ -20,8 +20,8 @@ def main():
         return "非交易日(无当天 md), 不提醒"
     if (ROOT / "downloads" / "wechat" / "fage" / d.isoformat() / "meta.json").exists():
         return "发哥今日已入库, 不提醒"
-    msg = (f"【提醒 {dt.datetime.now():%H:%M}】发哥今天的盘前推演还没贴。paper 0915 链 08:15 开跑建资讯包, "
-           "08:15 前把公众号链接发给 hermes(或在 Claude Code 里贴), 链才看得到发哥。")
+    msg = (f"【提醒 {dt.datetime.now():%H:%M}】发哥今天的盘前推演还没贴。paper 0915 链 08:05 开跑建资讯包, "
+           "08:05 前把公众号链接发给 hermes(或在 Claude Code 里贴), 链才看得到发哥。")
     if "--dry" in sys.argv:
         return "DRY: " + msg
     for t in range(3):

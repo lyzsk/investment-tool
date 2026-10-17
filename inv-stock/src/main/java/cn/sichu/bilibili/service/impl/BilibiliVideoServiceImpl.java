@@ -90,7 +90,7 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
                 downloadOne(v);
                 downloaded++;
             } catch (Exception e) {
-                  /* 失败: step 回退保重试, status=1, retry_count+1, >=3 沉底 */
+                /* 失败: step 回退保重试, status=1, retry_count+1, >=3 沉底 */
                 String reason = e instanceof BusinessException ? e.getMessage() :
                     ExceptionUtils.getStacktrace(e, 480);
                 markFailAndRevert(v, reason, "NEW");
@@ -154,21 +154,21 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
             cap == 1 ? "/仅CPU部分完成 " + partial + "(无GPU, 视觉留待有显卡的机器)" : "");
     }
 
-    /** 原子认领 step from→to(条件 UPDATE, affected=0=已被并行 job 抢走) */
+    /**
+     * 原子认领 step from→to(条件 UPDATE, affected=0=已被并行 job 抢走)
+     */
     private boolean claim(BilibiliVideo v, String from, String to) {
-        return update(new LambdaUpdateWrapper<BilibiliVideo>()
-            .eq(BilibiliVideo::getId, v.getId())
-            .eq(BilibiliVideo::getStep, from)
-            .set(BilibiliVideo::getStep, to)
+        return update(new LambdaUpdateWrapper<BilibiliVideo>().eq(BilibiliVideo::getId, v.getId())
+            .eq(BilibiliVideo::getStep, from).set(BilibiliVideo::getStep, to)
             .set(BilibiliVideo::getUpdateTime, LocalDateTime.now()));
     }
 
-    /** 回收僵尸租约: 卡在中间态超过租期的行退回 backTo(进程被杀/宕机护栏, 今日事故实证需要) */
+    /**
+     * 回收僵尸租约: 卡在中间态超过租期的行退回 backTo(进程被杀/宕机护栏, 今日事故实证需要)
+     */
     private void reclaimStale(String leaseStep, LocalDateTime before, String backTo) {
-        update(new LambdaUpdateWrapper<BilibiliVideo>()
-            .eq(BilibiliVideo::getStep, leaseStep)
-            .lt(BilibiliVideo::getUpdateTime, before)
-            .set(BilibiliVideo::getStep, backTo)
+        update(new LambdaUpdateWrapper<BilibiliVideo>().eq(BilibiliVideo::getStep, leaseStep)
+            .lt(BilibiliVideo::getUpdateTime, before).set(BilibiliVideo::getStep, backTo)
             .set(BilibiliVideo::getUpdateTime, LocalDateTime.now()));
     }
 
@@ -183,16 +183,22 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
         markFail(v, reason);
     }
 
-    /** 空闲显存字节(nvidia-smi MiB→B); 无卡/查询失败=-1(不拦, 交给 detectCapability) */
+    /**
+     * 空闲显存字节(nvidia-smi MiB→B); 无卡/查询失败=-1(不拦, 交给 detectCapability)
+     */
     private long freeVramBytes() {
         try {
-            ProcessBuilder pb = new ProcessBuilder("nvidia-smi",
-                "--query-gpu=memory.free", "--format=csv,noheader,nounits");
+            ProcessBuilder pb = new ProcessBuilder("nvidia-smi", "--query-gpu=memory.free",
+                "--format=csv,noheader,nounits");
             pb.redirectErrorStream(true);
             Process proc = pb.start();
-            String out = new String(proc.getInputStream().readAllBytes(),
-                StandardCharsets.UTF_8).trim();
-            proc.waitFor(15, TimeUnit.SECONDS);
+            if (!proc.waitFor(15, TimeUnit.SECONDS)) {
+                /* H6: 输出很短, 先等结束再读, 卡住就杀 */
+                proc.destroyForcibly();
+                return -1;
+            }
+            String out =
+                new String(proc.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
             return Long.parseLong(out.split("\\R+")[0].trim()) * 1024L * 1024L;
         } catch (Exception e) {
             return -1;
@@ -215,12 +221,13 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
                     + ")");
             pb.redirectErrorStream(true);
             Process proc = pb.start();
-            String out =
-                new String(proc.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
             if (!proc.waitFor(3, TimeUnit.MINUTES)) {
+                /* H6: 输出只有一行, 先等结束再读, 卡住就杀 */
                 proc.destroyForcibly();
                 return 1;
             }
+            String out =
+                new String(proc.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
             return (proc.exitValue() == 0 && out.endsWith("True")) ? 2 : 1;
         } catch (Exception e) {
             /* venv 在但探测失败 → 保守按仅 CPU(还能跑 ASR) */
@@ -256,8 +263,8 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
         /* 10/11 修: 必须透传本行 author_mid——fetch_bilibili.mjs 缺 --mid 时默认按桃哥(625315686)校验归属,
            天哥/卢本圆的稿下载全被归属闸拒绝(10/6~10/9 共 14 稿 retry=3 沉底)。
            mid 对照表(B站 card 接口 10/11 实核): 625315686=股市-桃哥复盘 / 550494308=卢本圆复盘 / 1372241958=趋势天哥 */
-        runNode("bilibili/fetch_bilibili.mjs", "--bvid", v.getBvid(), "--mid", v.getAuthorMid(), "--out",
-            outDir.toString());
+        runNode("bilibili/fetch_bilibili.mjs", "--bvid", v.getBvid(), "--mid", v.getAuthorMid(),
+            "--out", outDir.toString());
         v.setStep("DOWNLOADED");
         v.setStatus(0);
         v.setRetryCount(0);
@@ -358,26 +365,45 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
      * 等子进程结束并收输出尾部(失败原因用): stderr 合并进 stdout 防两流缓冲死锁由调用方保证,
      * UTF-8 读(Windows 控制台默认 GBK), 超时强杀
      *
-     * @return 失败原因(超时/非零退出), 成功返回 null
+     * @param proc       proc
+     * @param timeoutMin timeoutMin
+     * @param label      label
+     * @return java.lang.String 失败原因(超时/非零退出), 成功返回 null
+     * @author sichu huang
+     * @since 2026/10/17
      */
     private String waitAndTail(Process proc, long timeoutMin, String label) throws Exception {
+        /* 健壮性 H6: 输出改由独立线程读, 主线程 waitFor 超时才真生效(原先读到 EOF 才 waitFor, 子进程卡住=线程永久挂起); 超时连子孙进程一起杀 */
         StringBuilder tail = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(
-            new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                tail.append(line).append('\n');
-                if (tail.length() > 2000) {
-                    tail.delete(0, tail.length() - 2000);
+        Thread reader = new Thread(() -> {
+            try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    synchronized (tail) {
+                        tail.append(line).append('\n');
+                        if (tail.length() > 2000) {
+                            tail.delete(0, tail.length() - 2000);
+                        }
+                    }
                 }
+            } catch (Exception ignored) {
+                /* 进程被杀时流关闭, 正常结束 */
             }
-        }
+        }, "bili-out-" + proc.pid());
+        reader.setDaemon(true);
+        reader.start();
         if (!proc.waitFor(timeoutMin, TimeUnit.MINUTES)) {
+            proc.descendants().forEach(ProcessHandle::destroyForcibly);
             proc.destroyForcibly();
-            return label + " 超时" + timeoutMin + "min强杀";
+            reader.join(3000);
+            return label + " 超时" + timeoutMin + "min强杀(进程树)";
         }
+        reader.join(5000);
         if (proc.exitValue() != 0) {
-            return label + " exit=" + proc.exitValue() + ", 输出尾部: " + tail;
+            synchronized (tail) {
+                return label + " exit=" + proc.exitValue() + ", 输出尾部: " + tail;
+            }
         }
         return null;
     }
@@ -389,8 +415,9 @@ public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, B
            2026-09-29 用户定: source_files 列已删, 路径从 bvid/author_mid/publish_time 按命名约定派生
            (磁盘是唯一事实, 顺带消除"写库路径硬编码 vs 下载目录配置"双真相分叉隐患);
            幂等=三件套全不在则视为已清理, 跳过且不动 remark */
-        List<BilibiliVideo> list = lambdaQuery().in(BilibiliVideo::getStep, "SUMMARIZED", "DISTILLED")
-            .lt(BilibiliVideo::getUpdateTime, threshold).list();
+        List<BilibiliVideo> list =
+            lambdaQuery().in(BilibiliVideo::getStep, "SUMMARIZED", "DISTILLED")
+                .lt(BilibiliVideo::getUpdateTime, threshold).list();
         int cleaned = 0, failed = 0, already = 0;
         for (BilibiliVideo v : list) {
             try {

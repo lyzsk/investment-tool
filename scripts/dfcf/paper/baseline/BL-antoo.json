@@ -1,0 +1,926 @@
+{
+ "source": "BL-antoo",
+ "kind": "baseline",
+ "ledger": "antoo",
+ "name": "antoo",
+ "generated_at": "2026-10-16T22:04:07",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "延续",
+  "L1_n": 147,
+  "L2": "常数",
+  "L2_n": 147,
+  "L4": "延续",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 46401.86,
+ "positions": {
+  "301218": {
+   "qty": 100,
+   "cost": 77.06,
+   "since": "2026-10-12"
+  },
+  "301310": {
+   "qty": 100,
+   "cost": 66.66,
+   "since": "2026-10-13"
+  },
+  "300006": {
+   "qty": 1300,
+   "cost": 6.8038,
+   "since": "2026-10-13"
+  },
+  "002242": {
+   "qty": 500,
+   "cost": 18.2,
+   "since": "2026-10-14"
+  },
+  "002990": {
+   "qty": 100,
+   "cost": 58.85,
+   "since": "2026-10-15"
+  },
+  "000823": {
+   "qty": 300,
+   "cost": 26.2767,
+   "since": "2026-10-16"
+  }
+ },
+ "orders": [
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "688137",
+   "amount": 32666.67,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 14.384",
+   "status": "filled",
+   "price": 152.0,
+   "qty": 200
+  },
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "301047",
+   "amount": 32666.67,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 趋势跟随(按打法) 池分 11.858",
+   "status": "filled",
+   "price": 153.1,
+   "qty": 200
+  },
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "688185",
+   "amount": 32666.67,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 首板次日(按打法) 池分 14.285",
+   "status": "filled",
+   "price": 106.0,
+   "qty": 300
+  },
+  {
+   "date": "2026-10-09",
+   "side": "SELL",
+   "code": "688137",
+   "qty": 200,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 148.0
+  },
+  {
+   "date": "2026-10-09",
+   "side": "BUY",
+   "code": "301190",
+   "amount": 10000.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 12.533",
+   "status": "filled",
+   "price": 41.0,
+   "qty": 200
+  },
+  {
+   "date": "2026-10-09",
+   "side": "BUY",
+   "code": "002487",
+   "amount": 10000.0,
+   "why": "换股: 等额买入新票 | 打法 趋势跟随(按打法) 池分 9.342",
+   "status": "filled",
+   "price": 47.23,
+   "qty": 200
+  },
+  {
+   "date": "2026-10-09",
+   "side": "BUY",
+   "code": "300530",
+   "amount": 10000.0,
+   "why": "换股: 等额买入新票 | 打法 首板次日(按打法) 池分 10.714",
+   "status": "filled",
+   "price": 26.41,
+   "qty": 300
+  },
+  {
+   "date": "2026-10-12",
+   "side": "SELL",
+   "code": "301047",
+   "qty": 200,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 149.91
+  },
+  {
+   "date": "2026-10-12",
+   "side": "BUY",
+   "code": "688137",
+   "amount": 9808.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 13.119",
+   "status": "reject",
+   "note": "资金不足一手"
+  },
+  {
+   "date": "2026-10-12",
+   "side": "BUY",
+   "code": "301218",
+   "amount": 9808.0,
+   "why": "换股: 等额买入新票 | 打法 趋势跟随(按打法) 池分 9.804",
+   "status": "filled",
+   "price": 77.01,
+   "qty": 100
+  },
+  {
+   "date": "2026-10-12",
+   "side": "BUY",
+   "code": "301205",
+   "amount": 9808.0,
+   "why": "换股: 等额买入新票 | 打法 弱势震荡(按打法) 池分 8.216",
+   "status": "reject",
+   "note": "资金不足一手"
+  },
+  {
+   "date": "2026-10-13",
+   "side": "SELL",
+   "code": "688185",
+   "qty": 300,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 87.2
+  },
+  {
+   "date": "2026-10-13",
+   "side": "BUY",
+   "code": "688137",
+   "amount": 9082.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 10.792",
+   "status": "reject",
+   "note": "资金不足一手"
+  },
+  {
+   "date": "2026-10-13",
+   "side": "BUY",
+   "code": "301310",
+   "amount": 9082.0,
+   "why": "换股: 等额买入新票 | 打法 趋势跟随(按打法) 池分 7.822",
+   "status": "filled",
+   "price": 66.61,
+   "qty": 100
+  },
+  {
+   "date": "2026-10-13",
+   "side": "BUY",
+   "code": "300006",
+   "amount": 9082.0,
+   "why": "换股: 等额买入新票 | 打法 首板次日(按打法) 池分 11.245",
+   "status": "filled",
+   "price": 6.8,
+   "qty": 1300
+  },
+  {
+   "date": "2026-10-14",
+   "side": "SELL",
+   "code": "301190",
+   "qty": 200,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 47.94
+  },
+  {
+   "date": "2026-10-14",
+   "side": "BUY",
+   "code": "002242",
+   "amount": 9840.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 10.699",
+   "status": "filled",
+   "price": 18.19,
+   "qty": 500
+  },
+  {
+   "date": "2026-10-15",
+   "side": "SELL",
+   "code": "002487",
+   "qty": 200,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 35.9
+  },
+  {
+   "date": "2026-10-15",
+   "side": "BUY",
+   "code": "002990",
+   "amount": 7630.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 10.356",
+   "status": "filled",
+   "price": 58.8,
+   "qty": 100
+  },
+  {
+   "date": "2026-10-16",
+   "side": "SELL",
+   "code": "300530",
+   "qty": 300,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 28.32
+  },
+  {
+   "date": "2026-10-16",
+   "side": "BUY",
+   "code": "000823",
+   "amount": 9048.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 12.52",
+   "status": "filled",
+   "price": 26.26,
+   "qty": 300
+  }
+ ],
+ "trades": [
+  {
+   "id": "2026-10-08-BL-antoo-001",
+   "side": "BUY",
+   "code": "688137",
+   "price": 152.0,
+   "qty": 200,
+   "fee": 7.6,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 14.384 | 开盘价"
+  },
+  {
+   "id": "2026-10-08-BL-antoo-002",
+   "side": "BUY",
+   "code": "301047",
+   "price": 153.1,
+   "qty": 200,
+   "fee": 7.66,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 趋势跟随(按打法) 池分 11.858 | 开盘价"
+  },
+  {
+   "id": "2026-10-08-BL-antoo-003",
+   "side": "BUY",
+   "code": "688185",
+   "price": 106.0,
+   "qty": 300,
+   "fee": 7.95,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 首板次日(按打法) 池分 14.285 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-antoo-004",
+   "side": "SELL",
+   "code": "688137",
+   "price": 148.0,
+   "qty": 200,
+   "fee": 22.2,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-antoo-005",
+   "side": "BUY",
+   "code": "301190",
+   "price": 41.0,
+   "qty": 200,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 12.533 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-antoo-006",
+   "side": "BUY",
+   "code": "002487",
+   "price": 47.23,
+   "qty": 200,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 趋势跟随(按打法) 池分 9.342 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-antoo-007",
+   "side": "BUY",
+   "code": "300530",
+   "price": 26.41,
+   "qty": 300,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 首板次日(按打法) 池分 10.714 | 开盘价"
+  },
+  {
+   "id": "2026-10-12-BL-antoo-008",
+   "side": "SELL",
+   "code": "301047",
+   "price": 149.91,
+   "qty": 200,
+   "fee": 22.49,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-12-BL-antoo-009",
+   "side": "BUY",
+   "code": "301218",
+   "price": 77.01,
+   "qty": 100,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 趋势跟随(按打法) 池分 9.804 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-antoo-010",
+   "side": "SELL",
+   "code": "688185",
+   "price": 87.2,
+   "qty": 300,
+   "fee": 19.62,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-antoo-011",
+   "side": "BUY",
+   "code": "301310",
+   "price": 66.61,
+   "qty": 100,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 趋势跟随(按打法) 池分 7.822 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-antoo-012",
+   "side": "BUY",
+   "code": "300006",
+   "price": 6.8,
+   "qty": 1300,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 首板次日(按打法) 池分 11.245 | 开盘价"
+  },
+  {
+   "id": "2026-10-14-BL-antoo-013",
+   "side": "SELL",
+   "code": "301190",
+   "price": 47.94,
+   "qty": 200,
+   "fee": 9.79,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-14-BL-antoo-014",
+   "side": "BUY",
+   "code": "002242",
+   "price": 18.19,
+   "qty": 500,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 10.699 | 开盘价"
+  },
+  {
+   "id": "2026-10-15-BL-antoo-015",
+   "side": "SELL",
+   "code": "002487",
+   "price": 35.9,
+   "qty": 200,
+   "fee": 8.59,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-15-BL-antoo-016",
+   "side": "BUY",
+   "code": "002990",
+   "price": 58.8,
+   "qty": 100,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 10.356 | 开盘价"
+  },
+  {
+   "id": "2026-10-16-BL-antoo-017",
+   "side": "SELL",
+   "code": "300530",
+   "price": 28.32,
+   "qty": 300,
+   "fee": 9.25,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-16-BL-antoo-018",
+   "side": "BUY",
+   "code": "000823",
+   "price": 26.26,
+   "qty": 300,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 12.52 | 开盘价"
+  }
+ ],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 7156.79,
+   "mv": 89422.0,
+   "nav": 96578.79,
+   "filled": 3,
+   "orders": 3
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 11150.59,
+   "mv": 85180.0,
+   "nav": 96330.6,
+   "filled": 4,
+   "orders": 4
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 33404.11,
+   "mv": 62526.0,
+   "nav": 95930.11,
+   "filled": 2,
+   "orders": 4
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 44033.49,
+   "mv": 48373.0,
+   "nav": 92406.49,
+   "filled": 3,
+   "orders": 4
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 44511.69,
+   "mv": 47814.0,
+   "nav": 92325.69,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 45798.1,
+   "mv": 46490.0,
+   "nav": 92288.1,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 46401.86,
+   "mv": 47552.0,
+   "nav": 93953.86,
+   "filled": 2,
+   "orders": 2
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "688137",
+     "name": "近岸蛋白",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 152.0,
+     "qty": 200
+    },
+    {
+     "side": "BUY",
+     "code": "301047",
+     "name": "义翘神州",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": true,
+     "price": 153.1,
+     "qty": 200
+    },
+    {
+     "side": "BUY",
+     "code": "688185",
+     "name": "康希诺",
+     "play": "首板次日",
+     "how": "按打法",
+     "filled": true,
+     "price": 106.0,
+     "qty": 300
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.303,
+    0.604,
+    0.093
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 1.0537,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.0537,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.1622949182993017,
+    "red_step": 0.15561978489467115,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "sizing": {
+    "single_size": 0.086,
+    "k": 3,
+    "top_play": "涨停回调"
+   }
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "688137",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 148.0,
+     "qty": 200
+    },
+    {
+     "side": "BUY",
+     "code": "301190",
+     "name": "善水科技",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 41.0,
+     "qty": 200
+    },
+    {
+     "side": "BUY",
+     "code": "002487",
+     "name": "大金重工",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": true,
+     "price": 47.23,
+     "qty": 200
+    },
+    {
+     "side": "BUY",
+     "code": "300530",
+     "name": "领湃科技",
+     "play": "首板次日",
+     "how": "按打法",
+     "filled": true,
+     "price": 26.41,
+     "qty": 300
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.227,
+    0.677,
+    0.097
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 1.0777999999999999,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.0777999999999999,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.1622949182993017,
+    "red_step": 0.15561978489467115,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.926,
+   "sizing": {
+    "single_size": 0.086,
+    "k": 3,
+    "top_play": "涨停回调"
+   }
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "301047",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 149.91,
+     "qty": 200
+    },
+    {
+     "side": "BUY",
+     "code": "688137",
+     "name": "近岸蛋白",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": false,
+     "note": "资金不足一手"
+    },
+    {
+     "side": "BUY",
+     "code": "301218",
+     "name": "华是科技",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": true,
+     "price": 77.01,
+     "qty": 100
+    },
+    {
+     "side": "BUY",
+     "code": "301205",
+     "name": "联特科技",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": false,
+     "note": "资金不足一手"
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.195,
+    0.734,
+    0.071
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 1.0701,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.0701,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.1622949182993017,
+    "red_step": 0.15561978489467115,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.884,
+   "sizing": {
+    "single_size": 0.086,
+    "k": 3,
+    "top_play": "涨停回调"
+   }
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "688185",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 87.2,
+     "qty": 300
+    },
+    {
+     "side": "BUY",
+     "code": "688137",
+     "name": "近岸蛋白",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": false,
+     "note": "资金不足一手"
+    },
+    {
+     "side": "BUY",
+     "code": "301310",
+     "name": "鑫宏业",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": true,
+     "price": 66.61,
+     "qty": 100
+    },
+    {
+     "side": "BUY",
+     "code": "300006",
+     "name": "莱美药业",
+     "play": "首板次日",
+     "how": "按打法",
+     "filled": true,
+     "price": 6.8,
+     "qty": 1300
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.145,
+    0.577,
+    0.278
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 1.2916,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.2916,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.1626873323454966,
+    "red_step": 0.15561978489467115,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.652,
+   "sizing": {
+    "single_size": 0.086,
+    "k": 3,
+    "top_play": "涨停回调"
+   }
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "301190",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 47.94,
+     "qty": 200
+    },
+    {
+     "side": "BUY",
+     "code": "002242",
+     "name": "九阳股份",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 18.19,
+     "qty": 500
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.322,
+    0.541,
+    0.137
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 1.2989,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.2989,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.1626873323454966,
+    "red_step": 0.15561978489467115,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.523,
+   "sizing": {
+    "single_size": 0.086,
+    "k": 1,
+    "top_play": "涨停回调"
+   }
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "002487",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 35.9,
+     "qty": 200
+    },
+    {
+     "side": "BUY",
+     "code": "002990",
+     "name": "盛视科技",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 58.8,
+     "qty": 100
+    }
+   ],
+   "stale": 1,
+   "state_day": "2026-10-13",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.233,
+    0.566,
+    0.201
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 1.2989,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.2989,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.1626873323454966,
+    "red_step": 0.15561978489467115,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.518,
+   "sizing": {
+    "single_size": 0.086,
+    "k": 1,
+    "top_play": "涨停回调"
+   }
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "300530",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 28.32,
+     "qty": 300
+    },
+    {
+     "side": "BUY",
+     "code": "000823",
+     "name": "超声电子",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 26.26,
+     "qty": 300
+    }
+   ],
+   "stale": 2,
+   "state_day": "2026-10-13",
+   "p_trade": 1.0,
+   "p_dir_given_trade": [
+    0.187,
+    0.655,
+    0.158
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 1.2989,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.2989,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.1626873323454966,
+    "red_step": 0.15561978489467115,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.504,
+   "sizing": {
+    "single_size": 0.086,
+    "k": 1,
+    "top_play": "涨停回调"
+   }
+  }
+ ]
+}

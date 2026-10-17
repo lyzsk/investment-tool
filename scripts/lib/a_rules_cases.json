@@ -1,0 +1,1825 @@
+{
+"_note": "a_rules.py / a_rules.mjs 共用样例(生成器 scripts/temp/rules_dev/gen_cases.py): 两边 --selftest 逐例比对 want, a_rules.py 再逐例对照 JS 输出",
+"cases": [
+{
+"id": "board 600000",
+"fn": "board",
+"args": {
+"code": "600000"
+},
+"want": "MAIN"
+},
+{
+"id": "board sh000001",
+"fn": "board",
+"args": {
+"code": "sh000001"
+},
+"want": "INDEX"
+},
+{
+"id": "board 000001",
+"fn": "board",
+"args": {
+"code": "000001"
+},
+"want": "MAIN"
+},
+{
+"id": "board sz000001",
+"fn": "board",
+"args": {
+"code": "sz000001"
+},
+"want": "MAIN"
+},
+{
+"id": "board 688981",
+"fn": "board",
+"args": {
+"code": "688981"
+},
+"want": "STAR"
+},
+{
+"id": "board 300750",
+"fn": "board",
+"args": {
+"code": "300750"
+},
+"want": "GEM"
+},
+{
+"id": "board 920118",
+"fn": "board",
+"args": {
+"code": "920118"
+},
+"want": "BSE"
+},
+{
+"id": "board 830799",
+"fn": "board",
+"args": {
+"code": "830799"
+},
+"want": "BSE"
+},
+{
+"id": "board 113052",
+"fn": "board",
+"args": {
+"code": "113052"
+},
+"want": "CB"
+},
+{
+"id": "board 118000",
+"fn": "board",
+"args": {
+"code": "118000"
+},
+"want": "CB"
+},
+{
+"id": "board 123150",
+"fn": "board",
+"args": {
+"code": "123150"
+},
+"want": "CB"
+},
+{
+"id": "board 510300",
+"fn": "board",
+"args": {
+"code": "510300"
+},
+"want": "ETF"
+},
+{
+"id": "board 159915",
+"fn": "board",
+"args": {
+"code": "159915"
+},
+"want": "ETF"
+},
+{
+"id": "board 588000",
+"fn": "board",
+"args": {
+"code": "588000"
+},
+"want": "ETF"
+},
+{
+"id": "board 508000",
+"fn": "board",
+"args": {
+"code": "508000"
+},
+"want": "REITS"
+},
+{
+"id": "board 180101",
+"fn": "board",
+"args": {
+"code": "180101"
+},
+"want": "REITS"
+},
+{
+"id": "board 161725",
+"fn": "board",
+"args": {
+"code": "161725"
+},
+"want": "LOF"
+},
+{
+"id": "board 00700",
+"fn": "board",
+"args": {
+"code": "00700"
+},
+"want": "HK"
+},
+{
+"id": "board 204001",
+"fn": "board",
+"args": {
+"code": "204001"
+},
+"want": "REPO"
+},
+{
+"id": "board sz399006",
+"fn": "board",
+"args": {
+"code": "sz399006"
+},
+"want": "INDEX"
+},
+{
+"id": "board 600000.SH",
+"fn": "board",
+"args": {
+"code": "600000.SH"
+},
+"want": "MAIN"
+},
+{
+"id": "主板 10%",
+"fn": "limit_band",
+"args": {
+"code": "600000",
+"date": "2026-10-16"
+},
+"want": [
+0.1,
+0.1
+]
+},
+{
+"id": "主板ST 2026-07-03=5%",
+"fn": "limit_band",
+"args": {
+"code": "600001",
+"date": "2026-07-03",
+"is_st": true
+},
+"want": [
+0.05,
+0.05
+]
+},
+{
+"id": "主板ST 2026-07-06=10%",
+"fn": "limit_band",
+"args": {
+"code": "600001",
+"date": "2026-07-06",
+"is_st": true
+},
+"want": [
+0.1,
+0.1
+]
+},
+{
+"id": "主板ST 名称判 2026-03-02=5%",
+"fn": "limit_band",
+"args": {
+"code": "000004",
+"date": "2026-03-02",
+"name": "*ST国华"
+},
+"want": [
+0.05,
+0.05
+]
+},
+{
+"id": "创业板ST 2025=20%",
+"fn": "limit_band",
+"args": {
+"code": "300001",
+"date": "2025-01-02",
+"is_st": true
+},
+"want": [
+0.2,
+0.2
+]
+},
+{
+"id": "创业板ST 2020-08-21=5%",
+"fn": "limit_band",
+"args": {
+"code": "300001",
+"date": "2020-08-21",
+"is_st": true
+},
+"want": [
+0.05,
+0.05
+]
+},
+{
+"id": "创业板 2020-08-21=10%",
+"fn": "limit_band",
+"args": {
+"code": "300001",
+"date": "2020-08-21"
+},
+"want": [
+0.1,
+0.1
+]
+},
+{
+"id": "科创板 上市第5日无限制",
+"fn": "limit_band",
+"args": {
+"code": "688800",
+"date": "2026-10-16",
+"listing_n": 5
+},
+"want": null
+},
+{
+"id": "科创板 上市第6日20%",
+"fn": "limit_band",
+"args": {
+"code": "688800",
+"date": "2026-10-16",
+"listing_n": 6
+},
+"want": [
+0.2,
+0.2
+]
+},
+{
+"id": "北交所 首日无限制",
+"fn": "limit_band",
+"args": {
+"code": "920118",
+"date": "2026-10-16",
+"listing_n": 1
+},
+"want": null
+},
+{
+"id": "北交所 第2日30%",
+"fn": "limit_band",
+"args": {
+"code": "920118",
+"date": "2026-10-16",
+"listing_n": 2
+},
+"want": [
+0.3,
+0.3
+]
+},
+{
+"id": "主板注册制 上市第3日无限制",
+"fn": "limit_band",
+"args": {
+"code": "603000",
+"date": "2026-10-16",
+"listing_n": 3
+},
+"want": null
+},
+{
+"id": "主板 N 前缀=首日无限制",
+"fn": "limit_band",
+"args": {
+"code": "603000",
+"date": "2026-10-16",
+"name": "N某某"
+},
+"want": null
+},
+{
+"id": "主板 C 前缀=前5日无限制",
+"fn": "limit_band",
+"args": {
+"code": "001000",
+"date": "2026-10-16",
+"name": "C某某"
+},
+"want": null
+},
+{
+"id": "主板核准制新股首日 44/36",
+"fn": "limit_band",
+"args": {
+"code": "603000",
+"date": "2020-01-02",
+"list_date": "2020-01-02"
+},
+"want": [
+0.44,
+0.36
+]
+},
+{
+"id": "主板核准制新股次日 10%",
+"fn": "limit_band",
+"args": {
+"code": "603000",
+"date": "2020-01-03",
+"list_date": "2020-01-02"
+},
+"want": [
+0.1,
+0.1
+]
+},
+{
+"id": "转债 2022-07-29 无限制",
+"fn": "limit_band",
+"args": {
+"code": "113052",
+"date": "2022-07-29"
+},
+"want": null
+},
+{
+"id": "转债 首日 57.3/43.3",
+"fn": "limit_band",
+"args": {
+"code": "113052",
+"date": "2026-10-16",
+"listing_n": 1
+},
+"want": [
+0.573,
+0.433
+]
+},
+{
+"id": "转债 次日起 20%",
+"fn": "limit_band",
+"args": {
+"code": "123150",
+"date": "2026-10-16"
+},
+"want": [
+0.2,
+0.2
+]
+},
+{
+"id": "ETF 创业板ETF 20%",
+"fn": "limit_band",
+"args": {
+"code": "159915",
+"date": "2026-10-16",
+"name": "创业板ETF"
+},
+"want": [
+0.2,
+0.2
+]
+},
+{
+"id": "ETF 588 科创 20%",
+"fn": "limit_band",
+"args": {
+"code": "588000",
+"date": "2026-10-16"
+},
+"want": [
+0.2,
+0.2
+]
+},
+{
+"id": "ETF 300ETF 10%",
+"fn": "limit_band",
+"args": {
+"code": "510300",
+"date": "2026-10-16",
+"name": "沪深300ETF"
+},
+"want": [
+0.1,
+0.1
+]
+},
+{
+"id": "REITs 首日 30%",
+"fn": "limit_band",
+"args": {
+"code": "508000",
+"date": "2026-10-16",
+"listing_n": 1
+},
+"want": [
+0.3,
+0.3
+]
+},
+{
+"id": "REITs 非首日 10%",
+"fn": "limit_band",
+"args": {
+"code": "508000",
+"date": "2026-10-16",
+"listing_n": 20
+},
+"want": [
+0.1,
+0.1
+]
+},
+{
+"id": "退市整理首日 无限制",
+"fn": "limit_band",
+"args": {
+"code": "600001",
+"date": "2026-10-16",
+"phase": "退市整理首日"
+},
+"want": null
+},
+{
+"id": "退市整理(非首日) 2026-01-05 主板=10%",
+"fn": "limit_band",
+"args": {
+"code": "600001",
+"date": "2026-01-05",
+"name": "某某退",
+"is_st": true
+},
+"want": [
+0.1,
+0.1
+]
+},
+{
+"id": "港股 无限制",
+"fn": "limit_band",
+"args": {
+"code": "00700",
+"date": "2026-10-16"
+},
+"want": null
+},
+{
+"id": "主板 10.00",
+"fn": "limit_prices",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"prev_close": 10.0
+},
+"want": [
+11.0,
+9.0
+]
+},
+{
+"id": "主板 3.33 四舍五入",
+"fn": "limit_prices",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"prev_close": 3.33
+},
+"want": [
+3.66,
+3.0
+]
+},
+{
+"id": "主板 12.35 半位进",
+"fn": "limit_prices",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"prev_close": 12.35
+},
+"want": [
+13.59,
+11.12
+]
+},
+{
+"id": "主板ST 2026-03-02 2.05",
+"fn": "limit_prices",
+"args": {
+"code": "600001",
+"date": "2026-03-02",
+"prev_close": 2.05,
+"is_st": true
+},
+"want": [
+2.15,
+1.95
+]
+},
+{
+"id": "主板ST 0.05 不足1价位→±1价位",
+"fn": "limit_prices",
+"args": {
+"code": "600001",
+"date": "2026-03-02",
+"prev_close": 0.05,
+"is_st": true
+},
+"want": [
+0.06,
+0.04
+]
+},
+{
+"id": "创业板 200",
+"fn": "limit_prices",
+"args": {
+"code": "300750",
+"date": "2026-10-16",
+"prev_close": 200.0
+},
+"want": [
+240.0,
+160.0
+]
+},
+{
+"id": "科创板 33.33",
+"fn": "limit_prices",
+"args": {
+"code": "688001",
+"date": "2026-10-16",
+"prev_close": 33.33
+},
+"want": [
+40.0,
+26.66
+]
+},
+{
+"id": "科创板 52.97(对行情样本)",
+"fn": "limit_prices",
+"args": {
+"code": "688001",
+"date": "2026-10-16",
+"prev_close": 52.97
+},
+"want": [
+63.56,
+42.38
+]
+},
+{
+"id": "北交所 13.33(对行情样本)",
+"fn": "limit_prices",
+"args": {
+"code": "920000",
+"date": "2026-10-16",
+"prev_close": 13.33
+},
+"want": [
+17.33,
+9.33
+]
+},
+{
+"id": "转债 110.106(对行情样本)",
+"fn": "limit_prices",
+"args": {
+"code": "110076",
+"date": "2026-10-16",
+"prev_close": 110.106
+},
+"want": [
+132.127,
+88.085
+]
+},
+{
+"id": "转债 首日 100",
+"fn": "limit_prices",
+"args": {
+"code": "113052",
+"date": "2026-10-16",
+"prev_close": 100.0,
+"listing_n": 1
+},
+"want": [
+157.3,
+56.7
+]
+},
+{
+"id": "ETF 4.242 三位小数",
+"fn": "limit_prices",
+"args": {
+"code": "510300",
+"date": "2026-10-16",
+"prev_close": 4.242
+},
+"want": [
+4.666,
+3.818
+]
+},
+{
+"id": "科创板 上市第2日=无涨跌停价",
+"fn": "limit_prices",
+"args": {
+"code": "688800",
+"date": "2026-10-16",
+"prev_close": 50.0,
+"listing_n": 2
+},
+"want": [
+null,
+null
+]
+},
+{
+"id": "笼子 主板买 10.00",
+"fn": "price_cage",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"side": "BUY",
+"base": 10.0
+},
+"want": 10.2
+},
+{
+"id": "笼子 主板卖 10.00",
+"fn": "price_cage",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"side": "SELL",
+"base": 10.0
+},
+"want": 9.8
+},
+{
+"id": "笼子 主板买 3.00(10 价位孰高)",
+"fn": "price_cage",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"side": "BUY",
+"base": 3.0
+},
+"want": 3.1
+},
+{
+"id": "笼子 主板卖 3.00(10 价位孰低)",
+"fn": "price_cage",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"side": "SELL",
+"base": 3.0
+},
+"want": 2.9
+},
+{
+"id": "笼子 主板 10.37 买",
+"fn": "price_cage",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"side": "BUY",
+"base": 10.37
+},
+"want": 10.58
+},
+{
+"id": "笼子 主板 2023-03-01 无",
+"fn": "price_cage",
+"args": {
+"code": "600000",
+"date": "2023-03-01",
+"side": "BUY",
+"base": 10.0
+},
+"want": null
+},
+{
+"id": "笼子 科创板买 3.00 只有2%",
+"fn": "price_cage",
+"args": {
+"code": "688001",
+"date": "2026-10-16",
+"side": "BUY",
+"base": 3.0
+},
+"want": 3.06
+},
+{
+"id": "笼子 创业板 2021 买 3.00 只有2%",
+"fn": "price_cage",
+"args": {
+"code": "300001",
+"date": "2021-06-01",
+"side": "BUY",
+"base": 3.0
+},
+"want": 3.06
+},
+{
+"id": "笼子 创业板 2026 买 3.00",
+"fn": "price_cage",
+"args": {
+"code": "300001",
+"date": "2026-10-16",
+"side": "BUY",
+"base": 3.0
+},
+"want": 3.1
+},
+{
+"id": "笼子 北交所买 10.00",
+"fn": "price_cage",
+"args": {
+"code": "920000",
+"date": "2026-10-16",
+"side": "BUY",
+"base": 10.0
+},
+"want": 10.5
+},
+{
+"id": "笼子 北交所卖 10.00",
+"fn": "price_cage",
+"args": {
+"code": "920000",
+"date": "2026-10-16",
+"side": "SELL",
+"base": 10.0
+},
+"want": 9.5
+},
+{
+"id": "笼子 北交所买 1.00",
+"fn": "price_cage",
+"args": {
+"code": "920000",
+"date": "2026-10-16",
+"side": "BUY",
+"base": 1.0
+},
+"want": 1.1
+},
+{
+"id": "笼子 转债非首日 无",
+"fn": "price_cage",
+"args": {
+"code": "113052",
+"date": "2026-10-16",
+"side": "BUY",
+"base": 130.0
+},
+"want": null
+},
+{
+"id": "笼子 转债首日 ±10%",
+"fn": "price_cage",
+"args": {
+"code": "113052",
+"date": "2026-10-16",
+"side": "BUY",
+"base": 130.0,
+"listing_n": 1
+},
+"want": 143.0
+},
+{
+"id": "笼子 ETF 无",
+"fn": "price_cage",
+"args": {
+"code": "510300",
+"date": "2026-10-16",
+"side": "BUY",
+"base": 4.0
+},
+"want": null
+},
+{
+"id": "lot 688981",
+"fn": "lot_rule",
+"args": {
+"code": "688981"
+},
+"want": [
+200,
+1,
+100000
+]
+},
+{
+"id": "lot 300750",
+"fn": "lot_rule",
+"args": {
+"code": "300750"
+},
+"want": [
+100,
+100,
+300000
+]
+},
+{
+"id": "lot 920118",
+"fn": "lot_rule",
+"args": {
+"code": "920118"
+},
+"want": [
+100,
+1,
+1000000
+]
+},
+{
+"id": "lot 113052",
+"fn": "lot_rule",
+"args": {
+"code": "113052"
+},
+"want": [
+10,
+10,
+1000000
+]
+},
+{
+"id": "lot 600000",
+"fn": "lot_rule",
+"args": {
+"code": "600000"
+},
+"want": [
+100,
+100,
+1000000
+]
+},
+{
+"id": "lot 510300",
+"fn": "lot_rule",
+"args": {
+"code": "510300"
+},
+"want": [
+100,
+100,
+1000000
+]
+},
+{
+"id": "valid_qty 688981 BUY 201 held=None",
+"fn": "valid_qty",
+"args": {
+"code": "688981",
+"qty": 201,
+"side": "BUY",
+"held": null
+},
+"want": true
+},
+{
+"id": "valid_qty 688981 BUY 199 held=None",
+"fn": "valid_qty",
+"args": {
+"code": "688981",
+"qty": 199,
+"side": "BUY",
+"held": null
+},
+"want": false
+},
+{
+"id": "valid_qty 600000 BUY 150 held=None",
+"fn": "valid_qty",
+"args": {
+"code": "600000",
+"qty": 150,
+"side": "BUY",
+"held": null
+},
+"want": false
+},
+{
+"id": "valid_qty 600000 SELL 50 held=50",
+"fn": "valid_qty",
+"args": {
+"code": "600000",
+"qty": 50,
+"side": "SELL",
+"held": 50
+},
+"want": true
+},
+{
+"id": "valid_qty 600000 SELL 50 held=150",
+"fn": "valid_qty",
+"args": {
+"code": "600000",
+"qty": 50,
+"side": "SELL",
+"held": 150
+},
+"want": true
+},
+{
+"id": "valid_qty 600000 SELL 60 held=150",
+"fn": "valid_qty",
+"args": {
+"code": "600000",
+"qty": 60,
+"side": "SELL",
+"held": 150
+},
+"want": false
+},
+{
+"id": "valid_qty 920118 BUY 101 held=None",
+"fn": "valid_qty",
+"args": {
+"code": "920118",
+"qty": 101,
+"side": "BUY",
+"held": null
+},
+"want": true
+},
+{
+"id": "valid_qty 113052 BUY 15 held=None",
+"fn": "valid_qty",
+"args": {
+"code": "113052",
+"qty": 15,
+"side": "BUY",
+"held": null
+},
+"want": false
+},
+{
+"id": "valid_qty 113052 BUY 20 held=None",
+"fn": "valid_qty",
+"args": {
+"code": "113052",
+"qty": 20,
+"side": "BUY",
+"held": null
+},
+"want": true
+},
+{
+"id": "valid_qty 688981 SELL 150 held=150",
+"fn": "valid_qty",
+"args": {
+"code": "688981",
+"qty": 150,
+"side": "SELL",
+"held": 150
+},
+"want": true
+},
+{
+"id": "valid_qty 688981 SELL 150 held=350",
+"fn": "valid_qty",
+"args": {
+"code": "688981",
+"qty": 150,
+"side": "SELL",
+"held": 350
+},
+"want": false
+},
+{
+"id": "valid_qty 600000 SELL 200 held=100",
+"fn": "valid_qty",
+"args": {
+"code": "600000",
+"qty": 200,
+"side": "SELL",
+"held": 100
+},
+"want": false
+},
+{
+"id": "round_qty 688981 350.7",
+"fn": "round_qty",
+"args": {
+"code": "688981",
+"qty": 350.7
+},
+"want": 350
+},
+{
+"id": "round_qty 600000 199",
+"fn": "round_qty",
+"args": {
+"code": "600000",
+"qty": 199
+},
+"want": 100
+},
+{
+"id": "round_qty 113052 25",
+"fn": "round_qty",
+"args": {
+"code": "113052",
+"qty": 25
+},
+"want": 20
+},
+{
+"id": "round_qty 600000 50",
+"fn": "round_qty",
+"args": {
+"code": "600000",
+"qty": 50
+},
+"want": 0
+},
+{
+"id": "round_qty 920118 123",
+"fn": "round_qty",
+"args": {
+"code": "920118",
+"qty": 123
+},
+"want": 123
+},
+{
+"id": "T+0 113052 None",
+"fn": "is_t0",
+"args": {
+"code": "113052",
+"name": null
+},
+"want": true
+},
+{
+"id": "T+0 510300 沪深300ETF",
+"fn": "is_t0",
+"args": {
+"code": "510300",
+"name": "沪深300ETF"
+},
+"want": false
+},
+{
+"id": "T+0 511880 银华日利",
+"fn": "is_t0",
+"args": {
+"code": "511880",
+"name": "银华日利"
+},
+"want": true
+},
+{
+"id": "T+0 159941 纳指ETF",
+"fn": "is_t0",
+"args": {
+"code": "159941",
+"name": "纳指ETF"
+},
+"want": true
+},
+{
+"id": "T+0 600000 None",
+"fn": "is_t0",
+"args": {
+"code": "600000",
+"name": null
+},
+"want": false
+},
+{
+"id": "T+0 159934 黄金ETF",
+"fn": "is_t0",
+"args": {
+"code": "159934",
+"name": "黄金ETF"
+},
+"want": true
+},
+{
+"id": "T+0 513100 None",
+"fn": "is_t0",
+"args": {
+"code": "513100",
+"name": null
+},
+"want": true
+},
+{
+"id": "T+0 159915 创业板ETF",
+"fn": "is_t0",
+"args": {
+"code": "159915",
+"name": "创业板ETF"
+},
+"want": false
+},
+{
+"id": "T+0 159985 豆粕ETF",
+"fn": "is_t0",
+"args": {
+"code": "159985",
+"name": "豆粕ETF"
+},
+"want": true
+},
+{
+"id": "量单位 tencent_qt 688981",
+"fn": "volume_unit",
+"args": {
+"source": "tencent_qt",
+"code": "688981"
+},
+"want": 1
+},
+{
+"id": "量单位 tencent_qt 600000",
+"fn": "volume_unit",
+"args": {
+"source": "tencent_qt",
+"code": "600000"
+},
+"want": 100
+},
+{
+"id": "量单位 tencent_qt 113052",
+"fn": "volume_unit",
+"args": {
+"source": "tencent_qt",
+"code": "113052"
+},
+"want": 10
+},
+{
+"id": "量单位 tencent_batch 300750",
+"fn": "volume_unit",
+"args": {
+"source": "tencent_batch",
+"code": "300750"
+},
+"want": 100
+},
+{
+"id": "量单位 sina 600000",
+"fn": "volume_unit",
+"args": {
+"source": "sina",
+"code": "600000"
+},
+"want": 1
+},
+{
+"id": "量单位 sina sh000001",
+"fn": "volume_unit",
+"args": {
+"source": "sina",
+"code": "sh000001"
+},
+"want": 100
+},
+{
+"id": "量单位 sina 113052",
+"fn": "volume_unit",
+"args": {
+"source": "sina",
+"code": "113052"
+},
+"want": 1
+},
+{
+"id": "量单位 tdx 688981",
+"fn": "volume_unit",
+"args": {
+"source": "tdx",
+"code": "688981"
+},
+"want": 100
+},
+{
+"id": "量单位 tdx 123150",
+"fn": "volume_unit",
+"args": {
+"source": "tdx",
+"code": "123150"
+},
+"want": 10
+},
+{
+"id": "量单位 em 123150",
+"fn": "volume_unit",
+"args": {
+"source": "em",
+"code": "123150"
+},
+"want": 10
+},
+{
+"id": "量单位 db 600000",
+"fn": "volume_unit",
+"args": {
+"source": "db",
+"code": "600000"
+},
+"want": 1
+},
+{
+"id": "量单位 tencent_kline 688001",
+"fn": "volume_unit",
+"args": {
+"source": "tencent_kline",
+"code": "688001"
+},
+"want": 1
+},
+{
+"id": "费用 买 1 万 最低 5 元",
+"fn": "fees",
+"args": {
+"side": "BUY",
+"amount": 10000,
+"code": "600000",
+"date": "2026-10-16"
+},
+"want": [
+5.0,
+0.0,
+0.1,
+5.1
+]
+},
+{
+"id": "费用 卖 10 万 印花 0.05%",
+"fn": "fees",
+"args": {
+"side": "SELL",
+"amount": 100000,
+"code": "600000",
+"date": "2026-10-16"
+},
+"want": [
+25.0,
+50.0,
+1.0,
+76.0
+]
+},
+{
+"id": "费用 卖 10 万 2023-08-25 印花 0.1%",
+"fn": "fees",
+"args": {
+"side": "SELL",
+"amount": 100000,
+"code": "600000",
+"date": "2023-08-25"
+},
+"want": [
+25.0,
+100.0,
+1.0,
+126.0
+]
+},
+{
+"id": "费用 卖转债 无印花无过户",
+"fn": "fees",
+"args": {
+"side": "SELL",
+"amount": 100000,
+"code": "113052",
+"date": "2026-10-16"
+},
+"want": [
+25.0,
+0.0,
+0.0,
+25.0
+]
+},
+{
+"id": "费用 卖 ETF 无印花无过户",
+"fn": "fees",
+"args": {
+"side": "SELL",
+"amount": 100000,
+"code": "510300",
+"date": "2026-10-16"
+},
+"want": [
+25.0,
+0.0,
+0.0,
+25.0
+]
+},
+{
+"id": "费用 买 2022-04-28 过户 0.02‰",
+"fn": "fees",
+"args": {
+"side": "BUY",
+"amount": 100000,
+"code": "600000",
+"date": "2022-04-28"
+},
+"want": [
+25.0,
+0.0,
+2.0,
+27.0
+]
+},
+{
+"id": "时段 主板 2026-10-16",
+"fn": "sessions",
+"args": {
+"date": "2026-10-16",
+"code": "600000"
+},
+"want": [
+[
+"开盘集合竞价",
+"09:15:00",
+"09:20:00",
+true
+],
+[
+"开盘集合竞价",
+"09:20:00",
+"09:25:00",
+false
+],
+[
+"连续竞价",
+"09:30:00",
+"11:30:00",
+true
+],
+[
+"连续竞价",
+"13:00:00",
+"14:57:00",
+true
+],
+[
+"收盘集合竞价",
+"14:57:00",
+"15:00:00",
+false
+],
+[
+"盘后固定价格",
+"15:05:00",
+"15:30:00",
+true
+]
+]
+},
+{
+"id": "时段 主板 2026-06-30 无盘后",
+"fn": "sessions",
+"args": {
+"date": "2026-06-30",
+"code": "600000"
+},
+"want": [
+[
+"开盘集合竞价",
+"09:15:00",
+"09:20:00",
+true
+],
+[
+"开盘集合竞价",
+"09:20:00",
+"09:25:00",
+false
+],
+[
+"连续竞价",
+"09:30:00",
+"11:30:00",
+true
+],
+[
+"连续竞价",
+"13:00:00",
+"14:57:00",
+true
+],
+[
+"收盘集合竞价",
+"14:57:00",
+"15:00:00",
+false
+]
+]
+},
+{
+"id": "时段 科创板 2026-06-30 有盘后",
+"fn": "sessions",
+"args": {
+"date": "2026-06-30",
+"code": "688981"
+},
+"want": [
+[
+"开盘集合竞价",
+"09:15:00",
+"09:20:00",
+true
+],
+[
+"开盘集合竞价",
+"09:20:00",
+"09:25:00",
+false
+],
+[
+"连续竞价",
+"09:30:00",
+"11:30:00",
+true
+],
+[
+"连续竞价",
+"13:00:00",
+"14:57:00",
+true
+],
+[
+"收盘集合竞价",
+"14:57:00",
+"15:00:00",
+false
+],
+[
+"盘后固定价格",
+"15:05:00",
+"15:30:00",
+true
+]
+]
+},
+{
+"id": "时段 沪转债 无收盘集合竞价",
+"fn": "sessions",
+"args": {
+"date": "2026-10-16",
+"code": "113052"
+},
+"want": [
+[
+"开盘集合竞价",
+"09:15:00",
+"09:20:00",
+true
+],
+[
+"开盘集合竞价",
+"09:20:00",
+"09:25:00",
+false
+],
+[
+"连续竞价",
+"09:30:00",
+"11:30:00",
+true
+],
+[
+"连续竞价",
+"13:00:00",
+"15:00:00",
+true
+]
+]
+},
+{
+"id": "时段 深转债 有收盘集合竞价",
+"fn": "sessions",
+"args": {
+"date": "2026-10-16",
+"code": "123150"
+},
+"want": [
+[
+"开盘集合竞价",
+"09:15:00",
+"09:20:00",
+true
+],
+[
+"开盘集合竞价",
+"09:20:00",
+"09:25:00",
+false
+],
+[
+"连续竞价",
+"09:30:00",
+"11:30:00",
+true
+],
+[
+"连续竞价",
+"13:00:00",
+"14:57:00",
+true
+],
+[
+"收盘集合竞价",
+"14:57:00",
+"15:00:00",
+false
+]
+]
+},
+{
+"id": "时段 沪ETF 2026-06-30 尾盘连续竞价",
+"fn": "sessions",
+"args": {
+"date": "2026-06-30",
+"code": "510300"
+},
+"want": [
+[
+"开盘集合竞价",
+"09:15:00",
+"09:20:00",
+true
+],
+[
+"开盘集合竞价",
+"09:20:00",
+"09:25:00",
+false
+],
+[
+"连续竞价",
+"09:30:00",
+"11:30:00",
+true
+],
+[
+"连续竞价",
+"13:00:00",
+"15:00:00",
+true
+]
+]
+},
+{
+"id": "时段 沪ETF 2026-10-16 收盘集合竞价+盘后",
+"fn": "sessions",
+"args": {
+"date": "2026-10-16",
+"code": "510300"
+},
+"want": [
+[
+"开盘集合竞价",
+"09:15:00",
+"09:20:00",
+true
+],
+[
+"开盘集合竞价",
+"09:20:00",
+"09:25:00",
+false
+],
+[
+"连续竞价",
+"09:30:00",
+"11:30:00",
+true
+],
+[
+"连续竞价",
+"13:00:00",
+"14:57:00",
+true
+],
+[
+"收盘集合竞价",
+"14:57:00",
+"15:00:00",
+false
+],
+[
+"盘后固定价格",
+"15:05:00",
+"15:30:00",
+true
+]
+]
+},
+{
+"id": "时段 北交所 盘后待通知",
+"fn": "sessions",
+"args": {
+"date": "2026-10-16",
+"code": "920118"
+},
+"want": [
+[
+"开盘集合竞价",
+"09:15:00",
+"09:20:00",
+true
+],
+[
+"开盘集合竞价",
+"09:20:00",
+"09:25:00",
+false
+],
+[
+"连续竞价",
+"09:30:00",
+"11:30:00",
+true
+],
+[
+"连续竞价",
+"13:00:00",
+"14:57:00",
+true
+],
+[
+"收盘集合竞价",
+"14:57:00",
+"15:00:00",
+false
+]
+]
+},
+{
+"id": "时段 周六",
+"fn": "sessions",
+"args": {
+"date": "2026-10-17",
+"code": "600000"
+},
+"want": []
+},
+{
+"id": "phase 600000 09:22:00",
+"fn": "phase_at",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"t": "09:22:00"
+},
+"want": [
+"开盘集合竞价",
+false
+]
+},
+{
+"id": "phase 600000 09:27:00",
+"fn": "phase_at",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"t": "09:27:00"
+},
+"want": [
+null,
+null
+]
+},
+{
+"id": "phase 600000 14:58:00",
+"fn": "phase_at",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"t": "14:58:00"
+},
+"want": [
+"收盘集合竞价",
+false
+]
+},
+{
+"id": "phase 113052 14:58:00",
+"fn": "phase_at",
+"args": {
+"code": "113052",
+"date": "2026-10-16",
+"t": "14:58:00"
+},
+"want": [
+"连续竞价",
+true
+]
+},
+{
+"id": "phase 600000 15:00:00",
+"fn": "phase_at",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"t": "15:00:00"
+},
+"want": [
+"收盘集合竞价",
+false
+]
+},
+{
+"id": "phase 600000 11:30:00",
+"fn": "phase_at",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"t": "11:30:00"
+},
+"want": [
+"连续竞价",
+true
+]
+},
+{
+"id": "phase 600000 15:10:00",
+"fn": "phase_at",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"t": "15:10:00"
+},
+"want": [
+"盘后固定价格",
+true
+]
+},
+{
+"id": "phase 600000 12:00:00",
+"fn": "phase_at",
+"args": {
+"code": "600000",
+"date": "2026-10-16",
+"t": "12:00:00"
+},
+"want": [
+null,
+null
+]
+},
+{
+"id": "交易日 10/09~10/16",
+"fn": "count_trade_days",
+"args": {
+"d0": "2026-10-09",
+"d1": "2026-10-16"
+},
+"want": 6
+},
+{
+"id": "交易日 未来 10/17~10/23(假日表兜底)",
+"fn": "count_trade_days",
+"args": {
+"d0": "2026-10-17",
+"d1": "2026-10-23"
+},
+"want": 5
+}
+]
+}

@@ -59,7 +59,13 @@ async function getJson(url, referer = "https://www.bilibili.com") {
 async function download(url, out) {
   const r = await gfetch(url, { headers: { ...UA, Referer: "https://www.bilibili.com" } });
   if (!r.ok) throw new Error("download http " + r.status);
-  fs.writeFileSync(out, Buffer.from(await r.arrayBuffer()));
+  // 10/17 健壮性 M16: 原先直接写目标文件、不核对长度 → 半截 m4a 之后被 existsNonEmpty 当成已下载, 永久跳过、转写只有前半段
+  const buf = Buffer.from(await r.arrayBuffer());
+  const cl = +(r.headers?.get?.("content-length") || 0);
+  if (cl && !r.headers?.get?.("content-encoding") && buf.length !== cl) throw new Error(`download 截断 ${buf.length}/${cl} bytes`);
+  const tmp = out + ".part";
+  fs.writeFileSync(tmp, buf);
+  fs.renameSync(tmp, out);
   console.log("saved:", out, fs.statSync(out).size, "bytes");
 }
 

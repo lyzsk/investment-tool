@@ -1,0 +1,131 @@
+{
+ "skill": "antoo",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-16T22:06:03",
+   "persona_hash": "6e59da81d6736e39412075e7cffe4e37f3a6dc6258efd29cf5e0c52f8ab576ac",
+   "data_hash": "0874ed8b5e4cc609fe5f462270340c1eaebd500850aa8ce2e98bb0777ae04994",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md",
+     "fingerprint.md",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [
+    "cases_auto.jsonl",
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 2557,
+    "removed": 0
+   },
+   "bytes_weight": 250211,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "5ee63ce0b24f",
+    "distill": "992c0a7d03be"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261016-2300",
+   "ts": "2026-10-16T23:00:45",
+   "effective_from": "2026-10-16T23:00:04",
+   "persona_hash": "0ec5aae862d13e820dc4c9089b278af9260c63abc8e8581a42809a579452a006",
+   "data_hash": "b7ece499a8cbe1f3cf56bc354ac478f80554883386d8b5bbacb92739a861dffe",
+   "parent": "v001_20261016-2249",
+   "changed": {
+    "added": [
+     "orders_inferred.json"
+    ],
+    "modified": [
+     "profile_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 1215,
+    "removed": 1
+   },
+   "bytes_weight": 275517,
+   "why": "check-md 2026-10-16 23:00",
+   "code": {
+    "chain": "d040979b181b",
+    "distill": "180088f53115"
+   }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261016-2313",
+   "ts": "2026-10-16T23:13:20",
+   "effective_from": "2026-10-16T23:13:20",
+   "persona_hash": "5a5f000ad921b168ccce9484f39097342f0754d0e0c127a4026faf83d3b5e314",
+   "data_hash": "b7ece499a8cbe1f3cf56bc354ac478f80554883386d8b5bbacb92739a861dffe",
+   "parent": "v002_20261016-2300",
+   "changed": {
+    "added": [],
+    "modified": [
+     "orders_inferred.json",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 146,
+    "removed": 12
+   },
+   "bytes_weight": 297877,
+   "why": "deep-distill 1016",
+   "code": {
+    "chain": "d040979b181b",
+    "distill": "55aa05ef0137"
+   }
+  },
+  {
+   "v": 4,
+   "id": "v004_20261016-2313",
+   "ts": "2026-10-16T23:13:44",
+   "effective_from": "2026-10-16T23:13:33",
+   "persona_hash": "abe001f3c8cb666d467a15833cc2836472b75fd8e274dacac353c9c6fd145502",
+   "data_hash": "b7ece499a8cbe1f3cf56bc354ac478f80554883386d8b5bbacb92739a861dffe",
+   "parent": "v003_20261016-2313",
+   "changed": {
+    "added": [],
+    "modified": [
+     "rules.md",
+     "rules_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 4,
+    "removed": 4
+   },
+   "bytes_weight": 298045,
+   "why": "deep-distill 1016 (R9 方向字段单值化)",
+   "code": {
+    "chain": "d040979b181b",
+    "distill": "55aa05ef0137"
+   }
+  }
+ ],
+ "events": []
+}

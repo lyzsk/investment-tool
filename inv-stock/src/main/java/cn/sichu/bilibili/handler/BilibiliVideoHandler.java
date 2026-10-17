@@ -9,16 +9,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import utils.ProcessUtils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -42,7 +39,9 @@ public class BilibiliVideoHandler implements JobHandler {
         /* 多UP化: job 的 job_handler_param 透传给脚本(如 "--mid 550494308 --name 卢本圆复盘"),
            桃哥 job param 为空=默认(向后兼容); 脚本侧 --mid/--name 决定发现目标 */
         java.util.List<String> cmd = new java.util.ArrayList<>();
-        cmd.add("node"); cmd.add(script.toString()); cmd.add("--list");
+        cmd.add("node");
+        cmd.add(script.toString());
+        cmd.add("--list");
         if (params != null && !params.isBlank()) {
             cmd.addAll(java.util.Arrays.asList(params.trim().split("\\s+")));
         }
@@ -53,25 +52,19 @@ public class BilibiliVideoHandler implements JobHandler {
         int exit;
         StringBuilder tail = new StringBuilder();
         try {
-            Process proc = pb.start();
-            try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    if (line.startsWith("JSON:")) {
-                        jsonLine = line.substring(5);
-                    }
-                    tail.append(line).append('\n');
-                    if (tail.length() > 4000) {
-                        tail.delete(0, tail.length() - 4000);
-                    }
-                }
+            /* 健壮性 H6: 改用 ProcessUtils.run(超时真生效);
+               10/17 修: JSON 摘要行很长(带 _raw, 常 >4000 字符), 从 4000 字符的输出尾部取会截掉行首 "JSON:" → 误报"发现失败 exit=0"; 改为按前缀整行另存 */
+            ProcessUtils.Result res = ProcessUtils.run(pb, TIMEOUT_MIN, "JSON:");
+            String out = res.tail();
+            tail.append(out.length() > 1500 ? "…" + out.substring(out.length() - 1500) : out);
+            if (res.timedOut()) {
+                throw new BusinessException(
+                    "fetch_bilibili.mjs --list 超时 " + TIMEOUT_MIN + "min(进程树已杀)");
             }
-            if (!proc.waitFor(TIMEOUT_MIN, TimeUnit.MINUTES)) {
-                proc.destroyForcibly();
-                throw new BusinessException("fetch_bilibili.mjs --list 超时 " + TIMEOUT_MIN + "min");
+            if (res.kept() != null) {
+                jsonLine = res.kept().substring(5).trim();
             }
-            exit = proc.exitValue();
+            exit = res.exit();
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {
@@ -133,8 +126,8 @@ public class BilibiliVideoHandler implements JobHandler {
         /* 第三段: 直链处理所有 step=DOWNLOADED 的(process_video.py: ASR→纠错→视觉→聚合) → VISION_DONE,
            单视频~15-20min; 认领制+显存闸防跨 job 双开(10/7 事故修复) */
         String processResult = bilibiliVideoService.processPendingVideos(3, authorMid);
-        return String.format("B站视频拉取完成(多UP): 发现新增 %d/跳过 %d, %s, %s", inserted, skipped,
-            downloadResult, processResult);
+        return String.format("B站视频拉取完成(多UP): 发现新增 %d/跳过 %d, %s, %s", inserted,
+            skipped, downloadResult, processResult);
     }
 
 }

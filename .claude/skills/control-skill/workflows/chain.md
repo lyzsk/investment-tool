@@ -88,6 +88,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 - 输入：01_facts.md + persona/rules
 - 输出：`02_analysis.md`；contract=`{"market_state":"有主线|无主线退潮|普跌","leading_layer":"板块层|资金惯性层","directions":["方向1",...],"stance":"多|中立|空"}`（stance=10/14 加, 今日态度; 缺省按"多"）
 - 校验：market_state/leading_layer 枚举合法；directions 非空
+- 10/16 晚加（持有期改造）：contract 可选字段 `outlook`=`{"horizon_days":N,"view":"多|中立|空","thesis":"一句话依据","invalid_if":"出现什么算看错"}`（先当下后多日；N=驱动器在 prompt 末尾注入的本导师持有期中位，超上限 P75 须 `over_cap_why`）；有就校验格式，没有不拦
 
 ````prompt
 任务：对 {date} 执行决策链 02 分析。读 {run_dir}/01_facts.md 与 skills/control-skill/persona/（只读 profile.md+rules_index.md 索引；定市况后按需 grep -n "^### <编号>" rules.md 捞 2-3 条全文，**禁全量读 rules.md**）。
@@ -97,9 +98,10 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 **方向归市场，手艺归人格（10/4 用户立法，盲区修复⑤）**：方向判定只由市场扫描驱动（facts 六榜+涨停梯队+电报），**人格规则（A10 能力圈/风格偏好等）不许插手"看哪"**——不得用"不熟/不在能力圈/科技回避"否决或窄化任何有市场证据的方向；人格只在 04/06 管"怎么买"（买点/仓位/失效条件）。facts 若带池子覆盖率 WARN（涨停池在池率<70%），不许无视——方向清单必须覆盖 WARN 池外票聚集的方向（拿不准就列为新方向，粒度粗可后续再分）。
 **轮动位置判定（10/4 盲区修复⑥）**：facts"轮动位置"节是机械判定（东财涨停池跨日×seed 传导链先验）。方向清单里每个方向必须标注当前位置（新启动/热点中/衰减中/节外），并回答"资金正从哪向哪迁移"——**禁写"科技回避"式粗话**，正确姿势="AI硬件衰减中（6→2→1），资金正向半导体/机器人迁移，证据=涨停池 X→Y"；传导链"切换确认"（旧衰+新启同时满足）出现时，新方向必须进 directions 且 04 不得缺席。
 ④**今日态度 stance（10/14 加）**：按本导师的风格给今天的态度——多/中立/空，写进 contract 的 stance。驱动器据此调本链总仓下限：多=按导师习惯原值、中立=减半、空=0（可以不买）；单票上限不变；空也不是纯观望——06 仍必须给进场条件单。不要为了少担仓位而习惯性判空，态度要有市况证据（02 正文写一句理由）。
+**未来 N 日 outlook（10/16 晚加；先当下后多日）**：上面各项是**当下判断**（本 slot 此刻），照原要求先做完、原内容不变；然后再给未来 N 个交易日（含今天）的判断写进 contract 的 outlook：horizon_days=N（取 prompt 末尾「本导师持有期参考」的中位天数，示例里的 2 只是格式；没有该块时 N=2；超过参考上限必须写 over_cap_why）、view=多|中立|空（可以和今日 stance 不同，如"今天中立、未来 3 日偏多"）、thesis=一句话依据、invalid_if=出现什么算看错（要具体可核对，07 复盘按它判对错）。outlook 只作加减分，不得用"过几天会涨/跌"推翻当下判断。
 写入 {run_dir}/02_analysis.md，contract 块：
 ```contract
-{"market_state":"...","leading_layer":"...","directions":["..."],"stance":"多|中立|空"}
+{"market_state":"...","leading_layer":"...","directions":["..."],"stance":"多|中立|空","outlook":{"horizon_days":2,"view":"多|中立|空","thesis":"...","invalid_if":"..."}}
 ```
 末行只写：STEP_OK 02 {date}
 ````
@@ -110,16 +112,17 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 
 - 结构：**03b 多方（独立会话）→ 03s 空方（独立会话）→ 03j 裁判（读双方陈词裁决）**；03b/03s 互相看不到对方产物=真对抗（TradingAgents 式，10/4 用户立法：自辩没有对抗压力，03 必须拆环）；下游 04/05/06 仍只读 `03_debate.md`（裁判产物）
 - 输入：03b/03s=01+02；03j=01+02+03b+03s
-- 输出：`03_debate_bull.md`/`03_debate_bear.md`/`03_debate.md`；03j contract=`{"winner":"多|空","decisive_reason":"...","follows_leading_layer":true}`
-- 校验：03b/03s contract side 字段须=各自立场、strongest_args≥2 条、honest_weakness 非空；03j winner 枚举合法、decisive_reason 非空（**必须分出高下**，9/28 立法禁和稀泥）
+- 输出：`03_debate_bull.md`/`03_debate_bear.md`/`03_debate.md`；03j contract=`{"bull_score":"<0-100>","bear_score":"<0-100>","lean":"多|空|均衡","minority_risks":["..."],"flip_triggers":["..."],"fabricated":[],"decisive_reason":"..."}`（10/16 晚 保留分歧版：两方独立打分，不再二选一）
+- 校验：03b/03s contract side 字段须=各自立场、strongest_args≥2 条、honest_weakness 非空；03b/03s 另须 concede_if（认输条件，下游翻转条件的来源）；03j 两方核验分 0-100（各自独立、非零和）、flip_triggers≥1、较弱方分≥20 时 minority_risks≥1、decisive_reason 非空（10/16 晚 保留分歧版：撤销"必须分出高下"与"看空降权"，均衡是合法结论）；倾向/分歧度/追价折扣系数由驱动器从两方分机械算，注入 04/05/06 约束块（少数派风险+翻转条件），0915 分歧高或倾向空时追价买单单票金额打折、回踩条件单不限
 - 进阶方向（TODO）：异构模型对抗——kimi 当空方/风控 vs claude 当多方/对照组
 
 ````prompt
 任务：对 {date} 执行决策链 03 辩论的**多方陈词**（你是多方辩手，独立立场，不知空方说什么）。读 {run_dir}/01_facts.md、{run_dir}/02_analysis.md 与 skills/control-skill/persona/（profile.md+rules_index.md，按需 grep 捞规则全文，禁全量读 rules.md）。
-为"今日应做多"立最强论证：≥2 条 strongest_args，每条带 facts 证据锚+对照组规则依据（引用规则须先答情境字段当前是否满足）；同时自曝本方最弱一环（honest_weakness，不许藏）。
+为"今日应做多"立最强论证：≥2 条 strongest_args，每条带 facts 证据锚+对照组规则依据（引用规则须先答情境字段当前是否满足）；同时自曝本方最弱一环（honest_weakness，不许藏）；再写认输条件 concede_if：竞价/早盘出现什么可观测事实（价格/量能/涨跌停家数/板块表现，带具体数）你方就认输——这是给下游的翻转条件，不是让步。
+**未来 N 日（10/16 晚加）**：辩题仍是"当下该不该做"；并考虑 02 contract 的 outlook（未来 N 日判断）是否支持本方——支持就作为加分论据，削弱就在 honest_weakness 里正视。
 写入 {run_dir}/03_debate_bull.md，contract 块：
 ```contract
-{"side":"多","strongest_args":["...","..."],"honest_weakness":"..."}
+{"side":"多","strongest_args":["...","..."],"honest_weakness":"...","concede_if":"..."}
 ```
 末行只写：STEP_OK 03b {date}
 ````
@@ -130,10 +133,11 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 
 ````prompt
 任务：对 {date} 执行决策链 03 辩论的**空方陈词**（你是空方辩手，独立立场，不知多方说什么）。读 {run_dir}/01_facts.md、{run_dir}/02_analysis.md 与 skills/control-skill/persona/（profile.md+rules_index.md，按需 grep 捞规则全文，禁全量读 rules.md）。
-为"今日应做空/空仓"立最强论证：≥2 条 strongest_args，每条带 facts 证据锚+对照组规则依据（引用规则须先答情境字段当前是否满足）；同时自曝本方最弱一环（honest_weakness，不许藏）。
+为"今日应做空/空仓"立最强论证：≥2 条 strongest_args，每条带 facts 证据锚+对照组规则依据（引用规则须先答情境字段当前是否满足）；同时自曝本方最弱一环（honest_weakness，不许藏）；再写认输条件 concede_if：竞价/早盘出现什么可观测事实（价格/量能/涨跌停家数/板块表现，带具体数）你方就认输——这是给下游的翻转条件，不是让步。
+**未来 N 日（10/16 晚加）**：辩题仍是"当下该不该做"；并考虑 02 contract 的 outlook（未来 N 日判断）是否支持本方——支持就作为加分论据，削弱就在 honest_weakness 里正视。
 写入 {run_dir}/03_debate_bear.md，contract 块：
 ```contract
-{"side":"空","strongest_args":["...","..."],"honest_weakness":"..."}
+{"side":"空","strongest_args":["...","..."],"honest_weakness":"...","concede_if":"..."}
 ```
 末行只写：STEP_OK 03s {date}
 ````
@@ -144,10 +148,11 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 
 ````prompt
 任务：对 {date} 执行决策链 03 辩论的**裁判**。读 {run_dir}/01_facts.md、{run_dir}/02_analysis.md、{run_dir}/03_debate_bull.md（多方陈词）、{run_dir}/03_debate_bear.md（空方陈词）与 skills/control-skill/persona/（profile.md+rules_index.md，按需 grep 捞规则全文，禁全量读 rules.md）。
-逐条核验双方论据的证据锚是否在 01_facts 真实存在（编锚方直接判负）；然后**必须分出高下并给决定性理由**——禁止各说各话和稀泥收场；证据确实平衡时，裁决跟随 02 定的先行层方向给最小试错仓建议，不许把"分不出高下"当空仓通行证（风控可压仓位，不能习惯性清零决策）；看空降权(10/9 用户令): 多方论据有实证锚而空方仅有形态担忧时, 空方需证据强度≥多方两倍方可判胜——拟人目标=敢选票, 风控由 05/06 的仓位与失效条款承担。双方 honest_weakness 对照进 decisive_reason。
+逐条核验双方论据的证据锚是否在 01_facts 真实存在（编锚的论据不计分，写进 contract 的 fabricated）。**10/16 晚起本步不再二选一（保留分歧版）**：分别给多方、空方打"经核验仍成立的论据强度"分 bull_score / bear_score（0-100，两方各自独立打，不是零和，不必加起来等于 100；刻度：0=全部编锚或不成立，30=只剩形态/情绪担忧，60=有实证锚但本导师规则情境只部分满足，80 以上=实证锚+本导师规则情境满足）。证据平衡就如实打出接近的分——**均衡是合法结论，不要为了给出结论压低任何一方**；也不按"跟随先行层""敢选票"给任何一方加分（"看空降权"与"必须分出高下"10/16 晚撤销）。lean 写你的倾向（多/空/均衡；驱动器按两方分机械复算，以复算为准）。minority_risks=较弱一方经核验仍成立的论据 1~3 条，写成 04/05/06 能直接对照的风险句（较弱方分<20 时可为空）；flip_triggers=从双方 concede_if 里挑竞价/早盘可观测的翻转条件 1~3 条（带具体数）。decisive_reason 写两方分数的依据，并对照双方 honest_weakness。分数只反映经核验的证据强度，不考虑下游会怎么用（下游用法由驱动器机械决定，裁判不必揣摩）。
+**未来 N 日（10/16 晚加）**：裁决仍以"当下该不该做"为准；decisive_reason 里加一句 02 的未来 N 日 outlook 是支持还是削弱倾向方（outlook 只作加减分，不得单凭"过几天会涨/跌"改判当下）。
 写入 {run_dir}/03_debate.md，contract 块：
 ```contract
-{"winner":"多|空","decisive_reason":"...","follows_leading_layer":true}
+{"bull_score":"<0-100>","bear_score":"<0-100>","lean":"多|空|均衡","minority_risks":["..."],"flip_triggers":["..."],"fabricated":[],"decisive_reason":"..."}
 ```
 末行只写：STEP_OK 03j {date}
 ````
@@ -159,6 +164,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 - 输入：01+02+03
 - 输出：`04_plan.md`；contract=`{"candidates":[{"name":"票名","code":"002050","direction":"属02某方向","group":"遗留|方向","trigger":"条件价"}...],"断链说明":null}`
 - 校验：candidates 非空（B72：禁止空方向组）；group=方向 的 candidate.direction ∈ 02.directions；code 若填必须 6 位数字（04 后驱动器按 code 机械拉候选票价格锚快照 → `{run_dir}/cand_snap.md/.json`，06 挂单价必须锚定它）；两组齐全或"断链说明"写明断在哪环缺什么
+- 10/16 晚加（持有期改造）：candidates 可选字段 `hold_days`（整数）/`exit_plan`（一句话）/持仓票 `thesis_check`（成立|部分成立|不成立）+`thesis_note`；驱动器在 prompt 末尾注入「持仓论点回看」（买入日/当时理由/计划持有天数/已持有天数）；有就校验格式，hold_days 超 P75 须 `over_cap_why`
 
 ````prompt
 任务：对 {date} 执行决策链 04 交易方案。读 {run_dir}/01_facts.md、{run_dir}/02_analysis.md、{run_dir}/03_debate.md 与 skills/control-skill/persona/（profile.md+rules_index.md，方向→选股时按需 grep 捞规则全文，禁全量读 rules.md）。
@@ -167,11 +173,12 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ②对照组选股方向组=必填推导链：方向→板块→细分概念→大票/小票→个股，每环带三件套（证据锚=沉淀出处/失效条件/置信度）；推不出个股也要推出方向+板块，"暂缺"只允许挂在断链环上写明缺什么；无证据硬凑=学偏，禁止。
 **双池制取数（10/4 用户立法，盲区修复⑤）**：方向组个股来源优先级=①pools.json 登记池（低吸池 B48，跨日有效）→ ②facts"竞价异动临时池"（接力池，仅当日有效，竞价后 slot 才有）→ ③池外新面孔（须注明"池外"+更强证据锚）。人格只管怎么买：买点/仓位/失效条件；**不许以"不在能力圈"整组删除 02 给出的方向**（可降置信度/缩仓位/给更严触发价，不可删方向）。
 **扩池提案义务**：facts 池子覆盖率 WARN（<70%）触发时，必须把池外涨停票按方向聚类给出扩池提案，写进 contract 的 pool_proposals——**驱动器校验后机械自动落 pools.json**（10/4 用户拍板，零 token；票名→代码走 smartbox 解析，解析失败的列 unresolved 存 run_dir 供人工补，不自作主张改代码）。
+**持有期与离场（10/16 晚加；先当下后多日）**：①每只候选在 contract 写 hold_days=预期持有交易日数（默认取 prompt 末尾「本导师持有期参考」的中位天数，符合条件可拿到上限，超上限必须写 over_cap_why）+exit_plan=一句话离场条件（止损价/止盈条件/持满几天不及预期就走）；②**遗留组的持仓票先对照买入时写下的判断**（prompt 末尾「持仓论点回看」块给了买入日、当时理由、计划持有天数、已持有天数）：给 thesis_check=成立|部分成立|不成立 + thesis_note=一句理由——论点还成立就拿到 exit_plan 写的条件再走，不成立才卖，不要每天从零评估；已持有天数超过计划=时间离场到期，要么走，要么写清为什么延长。
 每只候选给 6 位代码（从 facts 六榜/电报/state_digest 抄，查不到写 null）+条件价+仓位建议。写入 {run_dir}/04_plan.md，contract 块：
 
 **仓位数字口径（10/12 起）**：总仓下限/单票上限/至少几只票由驱动器按 params.yaml+本链账本算好，以 prompt 末尾「驱动器仓位约束」块为唯一口径（模板与 persona 里的任何仓位数字与之冲突时以约束块为准）；下限优先于 regime 总仓上限，禁止 no_trade 空仓收场。
 ```contract
-{"candidates":[{"name":"...","code":"002050","direction":"...","group":"遗留|方向","trigger":"..."}],"断链说明":null,"pool_proposals":[{"direction":"...","names":["票名"]}]}
+{"candidates":[{"name":"...","code":"002050","direction":"...","group":"遗留|方向","trigger":"...","hold_days":2,"exit_plan":"...","thesis_check":"成立|部分成立|不成立","thesis_note":"..."}],"断链说明":null,"pool_proposals":[{"direction":"...","names":["票名"]}]}
 ```
 （pool_proposals 仅在覆盖率 WARN 触发时必填，平时可省）
 末行只写：STEP_OK 04 {date}
@@ -209,6 +216,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 任务：对 {date} 执行决策链 06 终裁。读 {run_dir}/01_facts.md 至 {run_dir}/05_risk.md、{run_dir}/cand_snap.md（候选票价格锚，若存在）与 skills/control-skill/persona/（profile.md+rules_index.md，按需 grep 捞规则全文，禁全量读 rules.md）。
 ①买/卖/不操作+标的+**6 位代码**+条件价+**股数 qty**(按 prompt 末尾「驱动器仓位约束」块的单票上限金额换算， qty=正整数)+**anchor 估算锚**(=你认为该票现在的真实价位, 必须从 01_facts 的快照/六榜数值取, 禁凭印象编——matcher 按偏离>3% 自动废单, 编锚=白下)+失效条件；②必须含"竞价确认→早盘可执行触发器"（不只午后信号）；
 **条件价与失效条件规则（C7 立法，防 9/28 大亚 14.00 型编造价）**：trigger_price 必须锚定 cand_snap.md 的前收/现价（回踩单=低于现价、突破单=高于现价但≤板限上沿，超出当日理论区间=驱动器直接回炉）；表达为前收比例时可写公式如 `Z*0.97`（Z=前收，驱动器代换求值）；失效条件能用单一边界价表达的**必须**填结构化字段——买/卖单 `cancel_below`=跌破即撤（形态破坏不接刀），卖单 `stop_below`=止损哨兵（跌破按市价出），复杂条件另写 invalid_if 文字，两者不互斥；
+**新动词（10/16，可选；不用=旧写法照旧）**：(1)`"op":"开盘卖"`=持仓票市价卖（盘前单按开盘价成交，盘中单按下一次撮合的现价成交，不受 ±2% 笼子；不写 trigger_price，不带 cancel_below/stop_below，anchor 照填）——要“开盘就走”用它，**别再拿高于前收的 stop_below 冒充市价卖**；(2)`{"op":"撤单","order_id":"挂单号"}`（挂单号见 {run_dir}/paper_state.json 的 open_orders；也可写 `"code":"6位代码","side":"买|卖"`）=撤掉一张未成交挂单，**别再用 cancel_below 高于现价的工具单来撤单**（同票同向挂新单会自动取代旧单，不必另写撤单）；(3)任一买/卖/开盘卖单可加 `"not_before":"HH:MM"`（09:30~14:59）=该时刻前不撮合、之后按连续竞价新报单处理（吃笼子）——导师习惯午后/尾盘才出手的，用它把盘前单推迟到他真正出手的时段。
 ③若当前为盘后运行，必须声明"盘后版=后见之明污染风险，方向判定含金量打折，以盘前版为准"；
 ④05 的否决项是硬约束，05 否决的票不许进终裁；**你有权且应当推翻 02-05 的任何判断（方向/候选/价格），推翻上游是终裁的职责而非失误**（10/5 立法：任务独立性不靠上下文独立）；⑤盘中重跑时必须显式声明"维持/取代盘前 XX 决策+理由"；
 ⑥决策输出三选一：立即单/条件单(主形态)/空仓+进场触发条件——纯观望=违规输出，空仓也必须给进场条件单挂单等；⑦凡引用 rules.md 规则(A4/B48 这类编号)做依据, 必须填 contract 的 rules 字段并先答"该规则情境字段当前是否满足"(高位类规则 A4/B43/B45/C24 还须先定周期档位: 冰点/修复/主升)——情境不满足的规则禁止引用(襄阳案教训: 别把反核晋级套票进 A4/C24)。
@@ -246,14 +254,17 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 - 输入：当日实际结果（当日 md 收评/涨停分析+paper 成交）+ 当日 run_dir 全部产物
 - 输出：`07_review.md`；contract=`{"预案对照":[{"项":"...","结果":"命中|漏票|误判","教训":"..."}...]}`
 - 误判进 cases.md 候选队列；规则级教训标"单样本，待验证"不进 rules.md
+- 10/16 晚加（持有期改造）：新增「多日核对」「know-how 反思（固定四问）」两节；contract 加 `多日核对`（可选）与 `lessons`=`[{"type":"规则草案|规则修正|错误归因","text":"…","evidence":"…"}]`（CHAIN_HORIZON 开时缺 lessons 软回炉一次）；汇总脚本 collect_lessons.py → docs/research/lessons_<日>.md
 
 ````prompt
 任务：对 {date} 执行决策链 07 复盘。读 {run_dir}/ 全部产物（01-06+validate_report）与当日 md（收评/涨停分析/对照组小节）、paper_state.json 当日成交。
 盘前预案 vs 当日实际 逐条对照：候选票命中/漏票/误判各是什么，误判的直接原因，可复用教训。
 另附「规则引用审计」一节（B3 验证口径）：列出本日各步决策实际引用的规则编号；对照当日场景找"该引用而未引用"的漏捞嫌疑；评估 rules_index.md 备注是否足以触发正确捞取（不足以触发的条目列出编号+建议备注改写方向）。
+另附「多日核对」一节（10/16 晚加）：prompt 末尾「多日核对」块列出了观察期/计划持有期已到期的判断（02 outlook、04 hold_days），逐条对照区间内实际走势判 对|部分对|错|无法判断 并写一句为什么，进 contract 的 多日核对；没有到期项写"今日无到期判断"。
+另附「know-how 反思」一节（10/16 晚加；目的=沉淀"为什么这么做、应该怎么做、错在哪、怎么改"，不只是记买了卖了）：对今天最重要的 1~3 个判断（含多日核对里判错的）逐个答固定四问：①这笔/这个判断为什么对或错（因，不是果）；②本导师（真人）在同样情形下会怎么做（参照 persona 画像/规则 + prompt 末尾「导师真人当日操作」块：账本只有果，要推他的因）；③我们的链和导师差在哪（哪一步、哪条规则、哪个信息没用上）；④下次应该怎么改——写成一条**可证伪**的规则草案（带适用情境+可核对的触发条件）、对现有规则的修正，或一条错误归因。四问答案要互相印证，前后矛盾在正文点明。结论落 contract 的 lessons（每条带 evidence=哪天哪步哪只票/真人哪笔操作；今天确实无可沉淀=写 [] 并说明）；单样本的规则草案只是候选，不直接进 rules.md。
 写入 {run_dir}/07_review.md，contract 块：
 ```contract
-{"预案对照":[{"项":"...","结果":"命中|漏票|误判","教训":"..."}]}
+{"预案对照":[{"项":"...","结果":"命中|漏票|误判","教训":"..."}],"多日核对":[{"date":"判断日","horizon_days":2,"view":"多|中立|空","result":"对|部分对|错|无法判断","why":"..."}],"lessons":[{"type":"规则草案|规则修正|错误归因","text":"...","evidence":"..."}]}
 ```
 末行只写：STEP_OK 07 {date}
 ````
@@ -281,9 +292,10 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 2.「遗留组处置」：每只遗留/持仓票一行：处置结论+依据（≤2 句）；
 3.「不自信点」：逐条列。
 **禁止**：重抄 01 的持仓/账户表；写"仓位算账"（驱动器约束块已给）；画候选汇总表/挂单表（驱动器从 contract 渲染）；大段复述 facts 原文。
+**持有期与离场（10/16 晚加；先当下后多日）**：①每只候选在 contract 写 hold_days=预期持有交易日数（默认取 prompt 末尾「本导师持有期参考」的中位天数，符合条件可拿到上限，超上限必须写 over_cap_why）+exit_plan=一句话离场条件（止损价/止盈条件/持满几天不及预期就走）；②**遗留组的持仓票先对照买入时写下的判断**（prompt 末尾「持仓论点回看」块给了买入日、当时理由、计划持有天数、已持有天数）：给 thesis_check=成立|部分成立|不成立 + thesis_note=一句理由——论点还成立就拿到 exit_plan 写的条件再走，不成立才卖，不要每天从零评估；已持有天数超过计划=时间离场到期，要么走，要么写清为什么延长。
 每只候选的代码/条件价/仓位建议/理由全部进 contract：code=6 位代码（从 facts 六榜/电报/state_digest 抄，查不到写 null）；trigger=条件价（含挂法）；pos=仓位建议（如"单票帽"/"半帽"/"不挂盘前单"）；conf=高|中|低；why=1~2 句理由（≤80 字）。写入 {run_dir}/04_plan.md，contract 块：
 ```contract
-{"candidates":[{"name":"...","code":"002050","direction":"...","group":"遗留|方向","trigger":"...","pos":"...","conf":"中","why":"..."}],"断链说明":null,"pool_proposals":[{"direction":"...","names":["票名"]}]}
+{"candidates":[{"name":"...","code":"002050","direction":"...","group":"遗留|方向","trigger":"...","pos":"...","conf":"中","why":"...","hold_days":2,"exit_plan":"...","thesis_check":"成立|部分成立|不成立","thesis_note":"..."}],"断链说明":null,"pool_proposals":[{"direction":"...","names":["票名"]}]}
 ```
 （pool_proposals 仅在覆盖率 WARN 触发时必填，平时可省）
 末行只写：STEP_OK 04 {date}
@@ -317,6 +329,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 任务：对 {date} 执行决策链 06 终裁（精简输出版：挂单表与总仓算账由驱动器在 contract 校验通过后机械渲染，你只写推理+contract）。读 {run_dir}/01_facts.md 至 {run_dir}/05_risk.md、{run_dir}/cand_snap.md（候选票价格锚，若存在）与 skills/control-skill/persona/（profile.md+rules_index.md，按需 grep 捞规则全文，禁全量读 rules.md）。
 ①买/卖/不操作+标的+**6 位代码**+条件价+**股数 qty**(按 prompt 末尾「驱动器仓位约束」块的单票上限金额换算， qty=正整数)+**anchor 估算锚**(=你认为该票现在的真实价位, 必须从 01_facts 的快照/六榜数值取, 禁凭印象编——matcher 按偏离>3% 自动废单, 编锚=白下)+失效条件——这些**全部且只写在 contract 的 actions 里**，每个 action 加 why=1~2 句理由；②必须含"竞价确认→早盘可执行触发器"（不只午后信号）；
 **条件价与失效条件规则（C7 立法，防 9/28 大亚 14.00 型编造价）**：trigger_price 必须锚定 cand_snap.md 的前收/现价（回踩单=低于现价、突破单=高于现价但≤板限上沿，超出当日理论区间=驱动器直接回炉）；表达为前收比例时可写公式如 `Z*0.97`（Z=前收，驱动器代换求值）；失效条件能用单一边界价表达的**必须**填结构化字段——买/卖单 `cancel_below`=跌破即撤（形态破坏不接刀），卖单 `stop_below`=止损哨兵（跌破按市价出），复杂条件另写 invalid_if 文字，两者不互斥；
+**新动词（10/16，可选；不用=旧写法照旧）**：(1)`"op":"开盘卖"`=持仓票市价卖（盘前单按开盘价成交，盘中单按下一次撮合的现价成交，不受 ±2% 笼子；不写 trigger_price，不带 cancel_below/stop_below，anchor 照填）——要“开盘就走”用它，**别再拿高于前收的 stop_below 冒充市价卖**；(2)`{"op":"撤单","order_id":"挂单号"}`（挂单号见 {run_dir}/paper_state.json 的 open_orders；也可写 `"code":"6位代码","side":"买|卖"`）=撤掉一张未成交挂单，**别再用 cancel_below 高于现价的工具单来撤单**（同票同向挂新单会自动取代旧单，不必另写撤单）；(3)任一买/卖/开盘卖单可加 `"not_before":"HH:MM"`（09:30~14:59）=该时刻前不撮合、之后按连续竞价新报单处理（吃笼子）——导师习惯午后/尾盘才出手的，用它把盘前单推迟到他真正出手的时段。
 ③若当前为盘后运行，必须声明"盘后版=后见之明污染风险，方向判定含金量打折，以盘前版为准"；
 ④05 的否决项是硬约束，05 否决的票不许进终裁；**你有权且应当推翻 02-05 的任何判断（方向/候选/价格），推翻上游是终裁的职责而非失误**（10/5 立法：任务独立性不靠上下文独立）；⑤盘中重跑时必须显式声明"维持/取代盘前 XX 决策+理由"；
 ⑥决策输出三选一：立即单/条件单(主形态)/空仓+进场触发条件——纯观望=违规输出，空仓也必须给进场条件单挂单等；⑦凡引用 rules.md 规则(A4/B48 这类编号)做依据, 必须填 contract 的 rules 字段并先答"该规则情境字段当前是否满足"(高位类规则 A4/B43/B45/C24 还须先定周期档位: 冰点/修复/主升)——情境不满足的规则禁止引用(襄阳案教训: 别把反核晋级套票进 A4/C24)。
@@ -343,3 +356,11 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 - **06 holds / no_trade_reason**（可选，`CHAIN_FIX_HOLDS`）：actions 为空时二选一必填——`"holds":[{"order_id":"挂单号" 或 "code":"6位代码","why":"为何维持"}]` 或 `"no_trade_reason":"一句话"`。报表/入库不依赖它。
 - **零 token 触发闸**（`CHAIN_SUBCHAIN_GATE`）：自上一已跑 slot 以来无账本事件/价格指数异动/命中电报且非 1000/1455 → 驱动器不调模型，机械写 06 维持产物（contract 含 `"gate_skipped":true` + holds + no_trade_reason）。
 - **子链合并**（`CHAIN_SUBCHAIN_MERGE`）：02/04/06 三段模板拼成一次调用（同会话依次写三个文件），驱动器分块校验，坏块用 `--resume` 同会话只重写那块；产物文件名/契约不变。
+
+## 持有期改造字段（10/16 晚加；驱动器开关 CHAIN_HORIZON（scripts/claude_profile/chain_flags.txt），开关关=不注入、新字段只在出现时校验格式）
+
+- 优先级：先当下（0915 或子链所在 slot 的当时判断），再多日（未来 N 个交易日）；多日判断只作加减分。
+- N/上限：scripts/taoge-chain/horizon_days.json（gen_horizon.py 生成，可手改）：tzzb 导师=真人持仓天数中位/P75（mentor_scope.json 的 hold_days_med/hold_days_p75）；B站 UP/对照组=无统计，按画像（缺省参考 2 天/上限 5 天，不做超上限校验）。
+- 02 `outlook`；03 辩题不变、加"outlook 是否支持"；04 `hold_days`/`exit_plan`/`thesis_check`+`thesis_note`（+超上限 `over_cap_why`）；07 `多日核对`/`lessons`（tzzb 导师链另有 `拟人对照`，lessons 多 case卡）。
+- 07 口径：tzzb 导师链=拟人偏差主轴（交不交易/方向/标的/仓位/时段 逐项对真人，问因=事实包缺信息/理解错导师框架/其他，教训写 case 卡，规则不因单样本改）；B站 UP/对照组=预案对照+know-how 四问。
+- 驱动器注入：02/03/04/07 末尾「本导师持有期参考」；04「持仓论点回看」（账本成交→买入日/slot→当天 slots/<slot>/04·06 contract）；07「多日核对」（上次 07 之后到期的 outlook/持有计划）+ tzzb 链「本链 vs 真人 当日对照」/UP 链「导师真人当日操作」提示。

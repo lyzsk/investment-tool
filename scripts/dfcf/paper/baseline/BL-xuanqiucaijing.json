@@ -1,0 +1,553 @@
+{
+ "source": "BL-xuanqiucaijing",
+ "kind": "baseline",
+ "ledger": "xuanqiucaijing",
+ "name": "宣秋财经",
+ "generated_at": "2026-10-16T22:04:07",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "延续",
+  "L1_n": 39,
+  "L2": "常数",
+  "L2_n": 39,
+  "L4": "常数",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 22903.22,
+ "positions": {
+  "688137": {
+   "qty": 300,
+   "cost": 156.039,
+   "since": "2026-10-12"
+  },
+  "002869": {
+   "qty": 1700,
+   "cost": 20.005,
+   "since": "2026-10-13"
+  }
+ },
+ "orders": [
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "301689",
+   "amount": 49000.0,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 10.896",
+   "status": "filled",
+   "price": 73.45,
+   "qty": 600
+  },
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "301218",
+   "amount": 49000.0,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 趋势跟随(按打法) 池分 12.115",
+   "status": "filled",
+   "price": 68.0,
+   "qty": 700
+  },
+  {
+   "date": "2026-10-09",
+   "side": "SELL",
+   "code": "301689",
+   "qty": 600,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 71.0
+  },
+  {
+   "date": "2026-10-09",
+   "side": "BUY",
+   "code": "301583",
+   "amount": 43320.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 12.841",
+   "status": "filled",
+   "price": 116.74,
+   "qty": 300
+  },
+  {
+   "date": "2026-10-12",
+   "side": "SELL",
+   "code": "301218",
+   "qty": 700,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 77.01
+  },
+  {
+   "date": "2026-10-12",
+   "side": "BUY",
+   "code": "688137",
+   "amount": 53004.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 9.804",
+   "status": "filled",
+   "price": 156.0,
+   "qty": 300
+  },
+  {
+   "date": "2026-10-13",
+   "side": "SELL",
+   "code": "301583",
+   "qty": 300,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 113.46
+  },
+  {
+   "date": "2026-10-13",
+   "side": "BUY",
+   "code": "002869",
+   "amount": 35385.0,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 10.09",
+   "status": "filled",
+   "price": 20.0,
+   "qty": 1700
+  }
+ ],
+ "trades": [
+  {
+   "id": "2026-10-08-BL-xuanqiucaijing-001",
+   "side": "BUY",
+   "code": "301689",
+   "price": 73.45,
+   "qty": 600,
+   "fee": 11.02,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 10.896 | 开盘价"
+  },
+  {
+   "id": "2026-10-08-BL-xuanqiucaijing-002",
+   "side": "BUY",
+   "code": "301218",
+   "price": 68.0,
+   "qty": 700,
+   "fee": 11.9,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 趋势跟随(按打法) 池分 12.115 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-xuanqiucaijing-003",
+   "side": "SELL",
+   "code": "301689",
+   "price": 71.0,
+   "qty": 600,
+   "fee": 31.95,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-xuanqiucaijing-004",
+   "side": "BUY",
+   "code": "301583",
+   "price": 116.74,
+   "qty": 300,
+   "fee": 8.76,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 12.841 | 开盘价"
+  },
+  {
+   "id": "2026-10-12-BL-xuanqiucaijing-005",
+   "side": "SELL",
+   "code": "301218",
+   "price": 77.01,
+   "qty": 700,
+   "fee": 40.43,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-12-BL-xuanqiucaijing-006",
+   "side": "BUY",
+   "code": "688137",
+   "price": 156.0,
+   "qty": 300,
+   "fee": 11.7,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 9.804 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-xuanqiucaijing-007",
+   "side": "SELL",
+   "code": "301583",
+   "price": 113.46,
+   "qty": 300,
+   "fee": 25.53,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-xuanqiucaijing-008",
+   "side": "BUY",
+   "code": "002869",
+   "price": 20.0,
+   "qty": 1700,
+   "fee": 8.5,
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 10.09 | 开盘价"
+  }
+ ],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 8307.08,
+   "mv": 90920.0,
+   "nav": 99227.08,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 15844.38,
+   "mv": 87201.0,
+   "nav": 103045.38,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 22899.25,
+   "mv": 79476.0,
+   "nav": 102375.25,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 22903.22,
+   "mv": 78463.0,
+   "nav": 101366.22,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 22903.22,
+   "mv": 77198.0,
+   "nav": 100101.22,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 22903.22,
+   "mv": 77161.0,
+   "nav": 100064.22,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 22903.22,
+   "mv": 76809.0,
+   "nav": 99712.22,
+   "filled": 0,
+   "orders": 0
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "301689",
+     "name": "电科思仪",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 73.45,
+     "qty": 600
+    },
+    {
+     "side": "BUY",
+     "code": "301218",
+     "name": "华是科技",
+     "play": "趋势跟随",
+     "how": "按打法",
+     "filled": true,
+     "price": 68.0,
+     "qty": 700
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 0.875,
+   "p_dir_given_trade": [
+    0.281,
+    0.59,
+    0.129
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 2.21665,
+    "tp_target_cap": 0.98,
+    "tp_final": 2.2953,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.1398970158413741,
+    "red_step": 0.0629985673748078,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.0,
+   "sizing": {
+    "single_size": 0.516,
+    "k": 2,
+    "top_play": "追涨"
+   }
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "301689",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 71.0,
+     "qty": 600
+    },
+    {
+     "side": "BUY",
+     "code": "301583",
+     "name": "托伦斯",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 116.74,
+     "qty": 300
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 0.842,
+   "p_dir_given_trade": [
+    0.263,
+    0.701,
+    0.036
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 2.2135,
+    "tp_target_cap": 0.98,
+    "tp_final": 2.1581,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.1398970158413741,
+    "red_step": 0.0629985673748078,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.916,
+   "sizing": {
+    "single_size": 0.516,
+    "k": 1,
+    "top_play": "追涨"
+   }
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "301218",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 77.01,
+     "qty": 700
+    },
+    {
+     "side": "BUY",
+     "code": "688137",
+     "name": "近岸蛋白",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 156.0,
+     "qty": 300
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 0.903,
+   "p_dir_given_trade": [
+    0.259,
+    0.692,
+    0.05
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 2.20525,
+    "tp_target_cap": 0.98,
+    "tp_final": 2.1382,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.1398970158413741,
+    "red_step": 0.0629985673748078,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.846,
+   "sizing": {
+    "single_size": 0.516,
+    "k": 1,
+    "top_play": "追涨"
+   }
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "301583",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 113.46,
+     "qty": 300
+    },
+    {
+     "side": "BUY",
+     "code": "002869",
+     "name": "金溢科技",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 20.0,
+     "qty": 1700
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 0.916,
+   "p_dir_given_trade": [
+    0.101,
+    0.862,
+    0.037
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 2.2135,
+    "tp_target_cap": 0.98,
+    "tp_final": 2.241,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.1398970158413741,
+    "red_step": 0.0629985673748078,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.776,
+   "sizing": {
+    "single_size": 0.516,
+    "k": 1,
+    "top_play": "追涨"
+   }
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 0.277,
+   "p_dir_given_trade": [
+    0.728,
+    0.161,
+    0.111
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 2.20525,
+    "tp_target_cap": 0.98,
+    "tp_final": 2.1856,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.1398970158413741,
+    "red_step": 0.0629985673748078,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.774
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [],
+   "stale": 1,
+   "state_day": "2026-10-13",
+   "p_trade": 0.257,
+   "p_dir_given_trade": [
+    0.545,
+    0.369,
+    0.086
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 2.20525,
+    "tp_target_cap": 0.98,
+    "tp_final": 2.1856,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.1398970158413741,
+    "red_step": 0.0629985673748078,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.771
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [],
+   "stale": 2,
+   "state_day": "2026-10-13",
+   "p_trade": 0.219,
+   "p_dir_given_trade": [
+    0.416,
+    0.53,
+    0.054
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 2.20525,
+    "tp_target_cap": 0.98,
+    "tp_final": 2.1856,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.1398970158413741,
+    "red_step": 0.0629985673748078,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.771
+  }
+ ]
+}

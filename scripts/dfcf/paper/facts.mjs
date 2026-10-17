@@ -14,7 +14,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { snapOne, snapAsof, prevTradeDay, limitOf, isSealed } from "./snapshot.mjs"; // 快照/板限/一字判据统一多源真源(10/5)
+import { snapOne, snapAsof, prevTradeDay, limitOf, isSealed } from "./snapshot.mjs";
+import { futuresMd } from "../../quotes/futures.mjs";   // 10/16 用户令: 全市场期货(国内股指/农产品/能化有色黑色+少量外围)进事实包 // 快照/板限/一字判据统一多源真源(10/5)
 
 // 10/10 as-of 回放(9/28-30 补跑语义修复): env PAPER_ROOT=沙盒(books/state_digest/facts 全走沙盒, 不碰实盘),
 // PAPER_ASOF=链日 D(须=--date): 全部行情改 D 前一交易日(D1)收盘口径, 零实时源; 导师当日小节改读 D1 md(D 的 md 含盘后复盘=后见之明)
@@ -49,14 +50,14 @@ try {
     scanMd = fs.readFileSync(path.join(OUT, "scan.md"), "utf8");
 } catch (e) { console.error(`scan 失败: ${e.message.slice(0, 120)}`); process.exit(2); }
 
-// ①b 一字封死标注(六榜+关注票全扫, 命中行尾打 🔒·禁入候选)
+// ①b 一字封死标注(六榜+关注票全扫, 命中行尾打 🔒·封死中(10/16 起不一律禁入, 排板开板才成交))
 const scanCodes = [...scanMd.matchAll(/\b((?:[0368]\d{5}|920\d{3}|4\d{5}))\b/g)].map((x) => x[1]);
 const seals = await sealMap(scanCodes);
 function markSealed(text, sealMap2) {
     if (!sealMap2.size) return { text, n: 0 };
     let n = 0;
     const out = text.split("\n").map((l) => {
-        for (const [c, tag] of sealMap2) if (l.includes(c)) { n++; return l.replace(/\s*$/, ` ${tag}·禁入候选`); }
+        for (const [c, tag] of sealMap2) if (l.includes(c)) { n++; return l.replace(/\s*$/, ` ${tag}·封死中(排板只在开板时成交)`); }
         return l;
     }).join("\n");
     return { text: out, n };
@@ -176,7 +177,7 @@ function ruleHeads(file, re) {
 function mentorDigest() {
     const out = [];
     const tg = ruleHeads("skills/taoge-skill/persona/rules_index.md", /^- [A-Z]\d+ ✅/).slice(0, 25);
-    if (tg.length) out.push("### 桃哥(主框架: 情绪周期/龙头) ✅已验证规则\n" + tg.join("\n"));
+    if (tg.length) out.push("### 桃哥(情绪周期/龙头) ✅已验证规则\n" + tg.join("\n"));
     try {
         const ic = JSON.parse(fs.readFileSync("skills/taoge-skill/persona/ic.json", "utf8"));
         out.push(`- 桃哥提及 IC 记分(10/6): 预测性 ${JSON.stringify(ic.split?.predictive)} / 事实性 ${JSON.stringify(ic.split?.factual)}——预测性观点暂不给正权重, 事实性提及=动量参考`);
@@ -191,13 +192,14 @@ function mentorDigest() {
     // 10/14 F3 修: 原表只接 6 位(大兴/高概率/宣秋/ST之狼/冲5000w 缺席, 卢本圆/天哥只读当日 md 小节), 且 /^###\s/ 抓进分区标题
     // (量化"一、出场区"/边学"`[可跟]` 区")与模板占位(土豆"R<n>")。现: 全员统一一节, 每节=规则行+(B站导师)最近 md 小节;
     // 节标题须含 run_taoge_chain.py MENTOR_HEAD 关键词(各链 01 按它切本导师小节, 同导师只能一个 ### 块)
-    const mentors = [["liuyiqing", "刘忆青(波段隔夜/板块簇, 日均+1.10%)"], ["lianghuaxiaohao", "量化实验(程序化嫌疑,只看不跟)"],
-        ["a658", "A658(ST/次新极端风险, 教训为主)"], ["bianbenling", "边学本领(无止损反面教材)"],
+    const mentors = [["liuyiqing", "刘忆青(波段隔夜/板块簇, 日均+1.10%)"], ["lianghuaxiaohao", "量化实验(全市场短线/程序化风格)"],
+        ["a658", "A658(创业板/ST/次新 单票满仓)"], ["bianbenling", "边学本领(光通信元件 图腾票单票梭哈)"],
         ["xingjianye", "星见野(港/北交所重仓)"], ["buchitudou0", "不吃土豆0(转债T+0, A-cb用)"],
         ["daxingdaxingdadangxing", "大兴(最热连板/妖股, 单核集中)"], ["gaogailvfuli", "高概率(尾盘建仓博次日竞价/熟票反T)"],
         ["xuanqiucaijing", "宣秋(两融满仓, 杠杆放大回撤)"], ["stzhilang", "ST之狼(ST 尾盘建仓隔夜)"],
         ["chong5000w", "冲5000w(两融单核重仓; ⚠️W1 腿方向数据疑失真)"],
         ["antoo", "antoo(高风险型: 融资重仓主线高频做T)"], ["zhiyingjuexin", "芷影攫心(早盘情绪接力/打板)"],   // 10/15 新增
+        ["zjwzlclf", "zjwzlclf(稳健波段/半仓)"], ["ynw01", "ynw01(主板波段)"], ["wudaokongfang", "悟到空方为悟道(短线/低相关)"],   // 10/17 新增
         ["lubenyuan", "卢本圆(盘中实战, 晨报型)", "卢本圆复盘"], ["qushitiange", "趋势天哥(趋势视角)", "趋势天哥"]];
     const mdDate = D1 || date;  // as-of: D 的 md 复盘节=D 盘后才写入(后见之明), 改读 D1 的(D 盘前已存在)
     for (const [skill, label, mdName] of mentors) {
@@ -340,16 +342,19 @@ const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${S
     `> 本包构建于 ${new Date().toTimeString().slice(0, 5)}; 之后才挂进当日 md 的资讯(如晚贴的发哥推演)不在本包, 需要时读当日 md 对应小节`, "",
     ...(ASOF ? [`> ⏪ as-of 回放构建(${new Date().toISOString().slice(0, 16)}Z): 行情=${D1} 收盘口径(日线归档+东财历史涨跌停池), 账本=沙盒; 次新/板块榜无历史源; 涨跌幅榜=归档样本近似`, ""] : []),
     "## 昨日账本状态", digest, "",
-    "## 选股层硬过滤(机械规则, 优先级高于一切候选)", seals.size ? "🔒=一字封死(开=高=低=现价且达板限): 当日禁入候选, 无论买卖方向; 已在六榜行尾标注, 04/06 层不得将其列为可交易标的(等炸板分歧也不行——连续一字票进候选=废单制造机)" : "(今日无一字封死票)", "",
-    "## 导师信号速览(G-1 聚合: 全员规则标题+记分+当日晨报; 01 需逐源回应, 权重按状态标 ✅>⏳>❌)", mentorDigest(), "",
+    "## 选股层硬过滤(机械规则, 优先级高于一切候选)", seals.size ? "🔒=一字封死(开=高=低=现价且达板限): 现在买不到。10/16 起不再一律禁入——本导师有排板/打板/炸板回封习惯的, 可以在涨停价挂单排队, 但撮合规则=封板时不成交、开板(现价低于涨停价)才成交, 收盘仍封=作废; 没有这类习惯的导师照旧不碰" : "(今日无一字封死票)", "",
+    "## 导师信号速览(G-1 聚合: 全员规则标题+记分+当日晨报; 10/16 起各链只需回应本导师小节, 其余仅供参考; 权重按状态标 ✅>⏳>❌)", mentorDigest(), "",
     "## 池子覆盖率(最近涨停池 vs pools.json 登记簿)", coverage.md, "",
     "## 轮动位置(rotation.mjs 机械判定)", rotationMd, "",
     ...(tmp ? ["## 竞价异动临时池(接力池取数口, 当日有效)", tmp.md, ""] : []),
     "## 隔夜外围(美股/中概/港股/日英/A50·美股期货/金油/离岸人民币)", overseas(), "",
+    "## 期货(国内主力+外围期货, 现场拉取)", ASOF ? "(as-of 回放: 无期货历史快照, 不可得)" : await futuresMd(), "",
     "## 今日盘前资讯(当日早报+发哥推演, 盘前蒸馏要点原文)", premarket(), "",
     "## 昨日龙虎榜(机械摘录: 概况+关注票+净买/净卖前列)", lhbDigest(), "",
     "## 新到电报(自上一 slot)", telegraph(), "",
-    "## 关注票实时快照", snaps.length ? snaps.map((s) => `- ${s.code} ${s.name}(${s.tag}): ${s.last} (${s.pct > 0 ? "+" : ""}${s.pct}%) 高${s.high} 低${s.low}${isSealed(s) ? " " + sealTag(s) + "·禁入候选" : ""}${dailyAnchor(s.code)}`).join("\n") : "(无持仓无挂单)", "",
+    // 10/17 健壮性 H3: 盘前(行情停在上一交易日的盘, snapshot stale=true)标清口径: 价=该日收盘=今日前收, 涨跌幅/高低=该日, 不是今天的盘
+    "## 关注票实时快照" + (snaps.some((s) => s.stale) ? `（盘前: 行情停在 ${[...new Set(snaps.filter((s) => s.stale).map((s) => s.qtDate))].join("/")} 收盘——价格=该日收盘=今日前收, 涨跌幅/高低=该日, 今天尚未开盘）` : ""),
+    snaps.length ? snaps.map((s) => `- ${s.code} ${s.name}(${s.tag}): ${s.last}${s.stale ? "(=今日前收)" : ""} (${s.stale ? "该日" : ""}${s.pct > 0 ? "+" : ""}${s.pct}%) 高${s.high} 低${s.low}${isSealed(s) ? " " + sealTag(s) + "·封死中(排板只在开板时成交)" : ""}${dailyAnchor(s.code)}`).join("\n") : "(无持仓无挂单)", "",
     "## 大盘六榜", scanMd].join("\n");
 fs.writeFileSync(path.join(OUT, "facts.md"), md);
 fs.writeFileSync(path.join(OUT, "facts.json"), JSON.stringify({ date, slot: SLOT, builtAt: new Date().toISOString(), watch: snaps, coverage: coverage.data, tempPool: tmp ? tmp.rows : undefined, chars: md.length }, null, 1));

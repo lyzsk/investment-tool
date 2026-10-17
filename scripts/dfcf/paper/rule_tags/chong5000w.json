@@ -1,0 +1,106 @@
+{
+ "skill": "chong5000w",
+ "file": "skills/chong5000w-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "单核重仓长光华芯 + 杠杆满仓常驻",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "杠杆满仓下大跌日零操作, 亏损全数隔夜扛",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "换股=先卖后买, 2 分钟内资金腾挪, 买入端落光通信簇",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "非核心持仓批量清理——同日分钟级连卖多只, 持仓只数骤降",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "盘中开仓, 不竞价不抢早盘, 尾盘买腿占比高",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "长光华芯配对卖买/整仓级卖腿 ≠ 减仓信号",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "参与新股/新债申购, 中签仓零权重随批量清理卖出",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "新开仓只在大盘收红的次日——昨日上证收跌几乎不开新仓",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": "不动",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "昨日上证收跌 → 当日不新开仓(只可能换仓/持有); 反之 昨日上证涨≥1% 或 昨日上涨家数占比≥70% → 新开仓概率显著升高(约 24%~29%, 全期平均约 9%)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  }
+ },
+ "n": 8,
+ "n_mech": 0,
+ "n_dir": 8,
+ "n_distilled": 1
+}

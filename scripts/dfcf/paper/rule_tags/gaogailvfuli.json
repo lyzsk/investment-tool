@@ -1,0 +1,157 @@
+{
+ "skill": "gaogailvfuli",
+ "file": "skills/gaogailvfuli-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "主仓兑现锚定次日竞价 09:25 + 开盘段分批卖出",
+   "level_tag": "可跟",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "入场在盘中分批, 不在竞价抢筹",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "逐级向下分批低吸——买价随时间递减的阶梯建仓",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "三个持有时长桶的最大单亏, 都来自 R3 的向下摊薄链",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "熟票底仓反T——先高卖、再低接回",
+   "level_tag": "可跟",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "高仓位、单票集中, 闲钱放逆回购",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "转债日内小额 T: 胜率高、盈亏比 <1",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "纳指 QDII ETF 当大权重停车场, 卖出时切成固定股数小单派发",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "正股→同名转债: 先持有正股, 之后同名转债无买腿入账、上市后很快卖出",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R10": {
+   "id": "R10",
+   "title": "尾盘(≥14:30)建仓, 博次日竞价或早盘兑现",
+   "level_tag": "可跟",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": {
+    "kind": "overnight_sell",
+    "text": "昨日新买、今日仍持有 → 今日早盘(0915 单)卖"
+   },
+   "mech_text": null,
+   "level": "机械"
+  },
+  "R11": {
+   "id": "R11",
+   "title": "低吸买点: 分时回落到日内低位、低于均价时挂单买",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": "买",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "候选票(熟票/转债/ETF) 盘中 当时位置(截至当时日内区间)≤0.3 且 当时价 < 截至当时均价 且 前 5 分钟涨跌 ≤0 → 在现价下方约 0.2~0.65% 挂被动限价买单(深度≈近 30 日振幅中位 × 0.10~0.22), 挂单最多等约 20 分钟",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  },
+  "R12": {
+   "id": "R12",
+   "title": "小赚即走: 日内高位、浮盈 0~3% 时挂高一档卖",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": "卖",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "持仓票 盘中 当时位置≥0.7 且 当时价 > 截至当时均价 且 相对成本浮盈在 0~+3% → 卖出(多为被动挂单, 深度约 0.3~0.65%); 若次日开盘前已浮盈, 优先 09:25 竞价卖(R1)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  }
+ },
+ "n": 12,
+ "n_mech": 1,
+ "n_dir": 10,
+ "n_distilled": 2
+}

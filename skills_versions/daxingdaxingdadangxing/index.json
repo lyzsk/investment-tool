@@ -1,0 +1,101 @@
+{
+ "skill": "daxingdaxingdadangxing",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-16T22:06:03",
+   "persona_hash": "c31b07c9fa4592f2b1540d81d9f26aff77927019c576085faa0516fadab1f38a",
+   "data_hash": "8eb55ab110a5e86ff9293dd354481d704ba74a94b36163f71dab1b773a9059fc",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md",
+     "fingerprint.md",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [
+    "cases_auto.jsonl",
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 532,
+    "removed": 0
+   },
+   "bytes_weight": 57991,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "8e79f4f0aa70",
+    "distill": "5d1e4d4485f8"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261016-2300",
+   "ts": "2026-10-16T23:00:45",
+   "effective_from": "2026-10-16T23:00:04",
+   "persona_hash": "046a3f8a9764157fda50b47d81d16255d8b625de469074eaa6a10190df7ce33d",
+   "data_hash": "8eb55ab110a5e86ff9293dd354481d704ba74a94b36163f71dab1b773a9059fc",
+   "parent": "v001_20261016-2249",
+   "changed": {
+    "added": [
+     "orders_inferred.json"
+    ],
+    "modified": [
+     "profile_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 142,
+    "removed": 1
+   },
+   "bytes_weight": 62040,
+   "why": "check-md 2026-10-16 23:00",
+   "code": {
+    "chain": "23e4a39fe73d",
+    "distill": "23435a015e6d"
+   }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261016-2313",
+   "ts": "2026-10-16T23:13:52",
+   "effective_from": "2026-10-16T23:13:52",
+   "persona_hash": "02f504b4577d423ff344509846855970529d772616e3f90455e7e1429e50ff77",
+   "data_hash": "8eb55ab110a5e86ff9293dd354481d704ba74a94b36163f71dab1b773a9059fc",
+   "parent": "v002_20261016-2300",
+   "changed": {
+    "added": [],
+    "modified": [
+     "orders_inferred.json",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 77,
+    "removed": 12
+   },
+   "bytes_weight": 72625,
+   "why": "deep-distill 1016",
+   "code": {
+    "chain": "23e4a39fe73d",
+    "distill": "20bac6940051"
+   }
+  }
+ ],
+ "events": []
+}

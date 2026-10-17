@@ -1,0 +1,16 @@
+--- v003_20261016-2313/profile_index.md
++++ v004_20261016-2327/profile_index.md
+@@ -1,4 +1,4 @@
+-# profile_index.md — xingjianye 导师画像目录(链改造 F; 生成于 2026-10-16 23:13)
+-> 源: skills/xingjianye-skill/persona/profile.md sha12=47e4ae5f15de · 124 行 · 15.2KB · 20 节(超长节按行切片≤6KB)
++# profile_index.md — xingjianye 导师画像目录(链改造 F; 生成于 2026-10-16 23:26)
++> 源: skills/xingjianye-skill/persona/profile.md sha12=e89d1c9620ad · 124 行 · 15.3KB · 20 节(超长节按行切片≤6KB)
+ > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
+ > 标注来源: 复用旧标注, 原标注=旧节=机械(画像原 ≤8KB 时全节全步); S15-S20 与核心摘要=10/16 深度蒸馏 agent 手工标注(gen_profile_index --no-llm 后补标, 未调 claude -p); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill xingjianye`(未变节复用标注)
+--- v003_20261016-2313/rules_index.md
++++ v004_20261016-2327/rules_index.md
+@@ -1,3 +1,3 @@
+-# rules_index.md — xingjianye 决策规则索引(B3 分级加载; 生成于 2026-10-16 15:12)
++# rules_index.md — xingjianye 决策规则索引(B3 分级加载; 生成于 2026-10-16 15:26)
+ > 源: rules.md(13 条/22KB)。本索引=常驻; **禁全量读 rules.md**。
+ > 捞全文: grep -n "<编号> " skills/xingjianye-skill/persona/rules.md 得行号, 读到下一条规则前(10/11 修: 原写死 taoge 路径)。

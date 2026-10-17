@@ -25,6 +25,13 @@
     "sina": { "hosts": ["hq.sinajs.cn", "quotes.sina.cn", "finance.sina.com.cn", "vip.stock.finance.sina.com.cn", "money.finance.sina.com.cn"], "gapMs": 300, "breakN": 6, "coolMin": 10,
       "banStatus": [403, 456], "banCoolMin": 30, "dayBudget": 8000, "timeoutMs": 10000 },
     "cls": { "hosts": [".cls.cn"], "gapMs": 1000, "breakN": 4, "coolMin": 15, "banStatus": [403, 429], "banCoolMin": 60, "dayBudget": 1500 },
+    "cls_xquote": { "hosts": ["x-quote.cls.cn"], "gapMs": 1000, "breakN": 4, "coolMin": 15, "banStatus": [403, 429], "banCoolMin": 60, "dayBudget": 800,
+      "_note": "10/17 A12 从 cls 拆出: 财联社行情接口(涨停/炸板/跌停池 up_down_analysis), 连败熔断不连坐早报(api3/网页版); 失败时 fetch_cls_pool 切东财 push2ex 池、scan 梯队切东财主源" },
+    "cls_web": { "hosts": ["www.cls.cn/subject", "www.cls.cn/detail"], "gapMs": 1500, "breakN": 3, "coolMin": 30, "banStatus": [403, 429], "banCoolMin": 120, "dayBudget": 100,
+      "_note": "10/17 A12: 财联社网页版专题页/文章页(Next.js SSR), 只给早报做备源(api3 失败才用), 每天 ≤2 次; 阈值未摸过, 故从严" },
+    "sina_lhb": { "hosts": ["vip.stock.finance.sina.com.cn/q/api/jsonp.php", "vip.stock.finance.sina.com.cn/q/go.php/vInvestConsult"], "gapMs": 2000, "breakN": 4, "coolMin": 30,
+      "banStatus": [403, 456], "banCoolMin": 60, "dayBudget": 600, "timeoutMs": 20000,
+      "_note": "10/17 A12: 新浪龙虎榜(总表页+席位 jsonp), 只在东财 datacenter 失败时由 fetch_lhb 兜底, 一次 ≈60~90 次请求(间隔 2~3s); 单独熔断, 不连坐 snapshot/collect_daily 的新浪行情" },
     "tzzb": { "hosts": ["capital.hexin.cn", "tzzb.10jqka.com.cn"], "gapMs": 2000, "breakN": 5, "coolMin": 60, "banBody": ["nginx forbidden", "Nginx forbidden"], "banCoolMin": 360, "dayBudget": 2000,
       "_note": "fetch_tzzb 目前沿用自带的 downloads/tzzb/_guard(浏览器代发); 此条给被动监听/页面文字层计数用" }
   }

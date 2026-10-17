@@ -1,0 +1,103 @@
+{
+ "skill": "chong5000w",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-16T22:06:03",
+   "persona_hash": "20d6db532c6f40f59c883a547379c430beb220ecf66b286373ee4c88ed9fc749",
+   "data_hash": "af9f05d4c9dc4a375f2a4f17177e126553270fe2b10a0b6c9dbc5866a59dad10",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md",
+     "fingerprint.md",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [
+    "cases_auto.jsonl",
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 461,
+    "removed": 0
+   },
+   "bytes_weight": 39181,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "216365d2e73c",
+    "distill": "f120f219d1b8"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261016-2300",
+   "ts": "2026-10-16T23:00:45",
+   "effective_from": "2026-10-16T23:00:04",
+   "persona_hash": "fa1833adaf828c250ef259bf49489f6ea77fb66344bbbfc06dc041137d12588d",
+   "data_hash": "3b2525b6f51f9adddde236f52ab8261a5df330101461498aa1c2342230dfa203",
+   "parent": "v001_20261016-2249",
+   "changed": {
+    "added": [
+     "orders_inferred.json"
+    ],
+    "modified": [
+     "profile_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 443,
+    "removed": 1
+   },
+   "bytes_weight": 49158,
+   "why": "check-md 2026-10-16 23:00",
+   "code": {
+    "chain": "dfc114fdcd04",
+    "distill": "e58a64f4785c"
+   }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261016-2321",
+   "ts": "2026-10-16T23:21:11",
+   "effective_from": "2026-10-16T23:21:10",
+   "persona_hash": "19f85e6af01718459d5d7d5303d2f90fe96ceb712cd19c152712b9a4415f643f",
+   "data_hash": "3b2525b6f51f9adddde236f52ab8261a5df330101461498aa1c2342230dfa203",
+   "parent": "v002_20261016-2300",
+   "changed": {
+    "added": [],
+    "modified": [
+     "orders_inferred.json",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 94,
+    "removed": 7
+   },
+   "bytes_weight": 60861,
+   "why": "deep-distill 1016",
+   "code": {
+    "chain": "dfc114fdcd04",
+    "distill": "fd0b1917da94"
+   }
+  }
+ ],
+ "events": []
+}

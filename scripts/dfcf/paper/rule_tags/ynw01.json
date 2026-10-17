@@ -1,0 +1,118 @@
+{
+ "skill": "ynw01",
+ "file": "skills/ynw01-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "双层仓位: 长持底仓 + 轮动机动仓, 收盘仓位从不轻于三成",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "首买后 ≤4 个交易日内的第二笔加仓, 价位都高于首笔(向上加码)",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "大幅浮盈的多周仓: 尾盘分批减, 不一次清",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "核心票部分减持后 1–5 周内补回, 补回股数常与减持股数相同",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "账户大回撤日(日收益 ≤-3%)当日尾盘至其后 2 个交易日内减持",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "时段分工: 尾盘(≥14:30)买入=多周仓, 隔夜短线单几乎全在早盘(<10:00)买",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "短线接力阶段(06-24~07-24): 早盘卖旧买新、连胜递增仓位、出现亏损后停手",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "隔夜短线单的期望劣于多日持有: 胜率低、平均盈利小于平均亏损",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "亏损处置双速: 短线亏损次日走, 多周亏损仓扛数周至数月再分批割",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  }
+ },
+ "n": 9,
+ "n_mech": 0,
+ "n_dir": 4,
+ "n_distilled": 0
+}

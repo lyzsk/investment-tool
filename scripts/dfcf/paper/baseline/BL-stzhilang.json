@@ -1,0 +1,450 @@
+{
+ "source": "BL-stzhilang",
+ "kind": "baseline",
+ "ledger": "stzhilang",
+ "name": "ST之狼",
+ "generated_at": "2026-10-16T22:04:07",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "延续",
+  "L1_n": 147,
+  "L2": "常数",
+  "L2_n": 147,
+  "L4": "延续",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 9229.31,
+ "positions": {
+  "001231": {
+   "qty": 800,
+   "cost": 26.1865,
+   "since": "2026-10-14"
+  },
+  "000911": {
+   "qty": 3400,
+   "cost": 6.0615,
+   "since": "2026-10-14"
+  },
+  "002343": {
+   "qty": 2900,
+   "cost": 8.9122,
+   "since": "2026-10-15"
+  },
+  "605189": {
+   "qty": 1300,
+   "cost": 17.9745,
+   "since": "2026-10-16"
+  }
+ },
+ "orders": [
+  {
+   "date": "2026-10-14",
+   "side": "BUY",
+   "code": "001231",
+   "amount": 20960.0,
+   "why": "建仓对齐: 目标总仓 42%(账户从未持仓) | 打法 连板接力(按打法) 池分 14.195",
+   "status": "filled",
+   "price": 26.18,
+   "qty": 800
+  },
+  {
+   "date": "2026-10-14",
+   "side": "BUY",
+   "code": "000911",
+   "amount": 20960.0,
+   "why": "建仓对齐: 目标总仓 42%(账户从未持仓) | 打法 涨停回调(按打法) 池分 10.056",
+   "status": "filled",
+   "price": 6.06,
+   "qty": 3400
+  },
+  {
+   "date": "2026-10-15",
+   "side": "BUY",
+   "code": "002343",
+   "amount": 26095.83,
+   "why": "加仓: 目标总仓 67% | 打法 连板接力(按打法) 池分 16.166",
+   "status": "filled",
+   "price": 8.91,
+   "qty": 2900
+  },
+  {
+   "date": "2026-10-16",
+   "side": "BUY",
+   "code": "605189",
+   "amount": 24815.14,
+   "why": "加仓: 目标总仓 92% | 打法 连板接力(按打法) 池分 14.887",
+   "status": "filled",
+   "price": 17.97,
+   "qty": 1300
+  }
+ ],
+ "trades": [
+  {
+   "id": "2026-10-14-BL-stzhilang-001",
+   "side": "BUY",
+   "code": "001231",
+   "price": 26.18,
+   "qty": 800,
+   "fee": 5.24,
+   "why": "建仓对齐: 目标总仓 42%(账户从未持仓) | 打法 连板接力(按打法) 池分 14.195 | 开盘价"
+  },
+  {
+   "id": "2026-10-14-BL-stzhilang-002",
+   "side": "BUY",
+   "code": "000911",
+   "price": 6.06,
+   "qty": 3400,
+   "fee": 5.15,
+   "why": "建仓对齐: 目标总仓 42%(账户从未持仓) | 打法 涨停回调(按打法) 池分 10.056 | 开盘价"
+  },
+  {
+   "id": "2026-10-15-BL-stzhilang-003",
+   "side": "BUY",
+   "code": "002343",
+   "price": 8.91,
+   "qty": 2900,
+   "fee": 6.46,
+   "why": "加仓: 目标总仓 67% | 打法 连板接力(按打法) 池分 16.166 | 开盘涨停、盘中开板, 按涨停价"
+  },
+  {
+   "id": "2026-10-16-BL-stzhilang-004",
+   "side": "BUY",
+   "code": "605189",
+   "price": 17.97,
+   "qty": 1300,
+   "fee": 5.84,
+   "why": "加仓: 目标总仓 92% | 打法 连板接力(按打法) 池分 14.887 | 开盘价"
+  }
+ ],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 58441.61,
+   "mv": 39184.0,
+   "nav": 97625.61,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 32596.15,
+   "mv": 61775.0,
+   "nav": 94371.15,
+   "filled": 1,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 9229.31,
+   "mv": 83756.0,
+   "nav": 92985.31,
+   "filled": 1,
+   "orders": 1
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 0.474,
+   "p_dir_given_trade": [
+    0.019,
+    0.0,
+    0.981
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0,
+    "tp_target_cap": 0.0,
+    "tp_final": 0.0,
+    "tp_final_cap": 0.0,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.26295259680905225,
+    "red_step": 0.2859744312196734,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 0.391,
+   "p_dir_given_trade": [
+    0.016,
+    0.0,
+    0.984
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0,
+    "tp_target_cap": 0.0,
+    "tp_final": 0.0,
+    "tp_final_cap": 0.0,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.26295259680905225,
+    "red_step": 0.2859744312196734,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 0.385,
+   "p_dir_given_trade": [
+    0.01,
+    0.0,
+    0.99
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0,
+    "tp_target_cap": 0.0,
+    "tp_final": 0.0,
+    "tp_final_cap": 0.0,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.26295259680905225,
+    "red_step": 0.2859744312196734,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 0.421,
+   "p_dir_given_trade": [
+    0.008,
+    0.0,
+    0.992
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0,
+    "tp_target_cap": 0.0,
+    "tp_final": 0.0,
+    "tp_final_cap": 0.0,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.26295259680905225,
+    "red_step": 0.2859744312196734,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "001231",
+     "name": "农心科技",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 26.18,
+     "qty": 800
+    },
+    {
+     "side": "BUY",
+     "code": "000911",
+     "name": "*ST广糖",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 6.06,
+     "qty": 3400
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 0.789,
+   "p_dir_given_trade": [
+    0.761,
+    0.033,
+    0.207
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.4192,
+    "tp_target_cap": 0.4192,
+    "tp_final": 0.6865051936181046,
+    "tp_final_cap": 0.6865051936181046,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.26730519361810456,
+    "red_step": 0.2859744312196734,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "sizing": {
+    "single_size": 0.247,
+    "k": 2,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "002343",
+     "name": "慈文传媒",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 8.91,
+     "qty": 2900
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-14",
+   "p_trade": 0.605,
+   "p_dir_given_trade": [
+    0.012,
+    0.113,
+    0.876
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.0,
+    "tp_target_cap": 0.0,
+    "tp_final": 0.26730519361810456,
+    "tp_final_cap": 0.26730519361810456,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.26730519361810456,
+    "red_step": 0.28758370767112496,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.401,
+   "sizing": {
+    "single_size": 0.247,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "605189",
+     "name": "富春染织",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 17.97,
+     "qty": 1300
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-15",
+   "p_trade": 0.768,
+   "p_dir_given_trade": [
+    0.681,
+    0.0,
+    0.319
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.1962,
+    "tp_target_cap": 0.1962,
+    "tp_final": 0.4591525968090523,
+    "tp_final_cap": 0.4591525968090523,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.26295259680905225,
+    "red_step": 0.28758370767112496,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.655,
+   "sizing": {
+    "single_size": 0.247,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  }
+ ]
+}

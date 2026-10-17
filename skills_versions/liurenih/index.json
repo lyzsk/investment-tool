@@ -1,0 +1,33 @@
+{
+ "skill": "liurenih",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-16T00:06:02",
+   "persona_hash": "991d7270e215611314d0426e396533a2bebef2aff70d410bbff1ce950d5b9c8f",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 54,
+    "removed": 0
+   },
+   "bytes_weight": 4222,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "5e848849ae65",
+    "distill": "a0d6ac8f21c4"
+   }
+  }
+ ],
+ "events": []
+}

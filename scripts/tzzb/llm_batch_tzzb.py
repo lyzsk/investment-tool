@@ -44,7 +44,7 @@ def gpu_busy() -> bool:
     (32B 加载时 ollama 会自动逐出它们腾位)。查不到=放行(保守, ollama 自己会报 OOM)。"""
     try:
         r = subprocess.run(["nvidia-smi", "--query-gpu=memory.used", "--format=csv,noheader,nounits"],
-                           capture_output=True, text=True, timeout=10)
+                           capture_output=True, text=True, timeout=10, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
         used = int(r.stdout.strip().splitlines()[0])
     except Exception:
         return False

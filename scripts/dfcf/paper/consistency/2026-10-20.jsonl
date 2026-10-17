@@ -1,0 +1,2 @@
+{"ts": "2026-10-16T22:34:34", "skill": "liuyiqing", "slot": null, "sub": false, "verdict": "一致", "net_pct": 0.1, "stance": 1, "lean": 1, "expected": 1, "contra": false, "insensitive": false, "buy_back": [], "reason": ""}
+{"ts": "2026-10-16T22:34:34", "skill": "liuyiqing", "slot": null, "sub": false, "verdict": "背离有理由", "net_pct": -0.1, "stance": 1, "lean": 1, "expected": 1, "contra": true, "insensitive": false, "buy_back": [], "reason": "导师习惯冲高先兑现一半"}

@@ -199,10 +199,26 @@ async function board跌停(date, top, noFallback = false) {
 }
 async function board次新(top) {
   // 次新股板块 BK0959; f26=上市日期, f24=60日涨跌幅 → 区间跌幅榜(回撤视角)
-  const rows = await emClist2x({ fs: 'b:BK0959', fid: 'f24', po: 0, pz: top, fields: 'f12,f14,f2,f3,f24,f26' });
-  const md = [`(次新股板块 BK0959, 按60日涨跌幅升序=区间回撤最深)`]
-    .concat(rows.map((r, i) => `${i + 1}. ${r.f14}(${r.f12}) 上市${r.f26 || '?'} 60日${fmtPct(r.f24)} 今日${fmtPct(r.f3)}`));
-  return { src: 'eastmoney', md: md.join('\n'), raw: rows };
+  try {
+    if (process.env.SCAN_DRILL === 'cixin') throw new Error('演练: 跳过东财 BK0959');
+    const rows = await emClist2x({ fs: 'b:BK0959', fid: 'f24', po: 0, pz: top, fields: 'f12,f14,f2,f3,f24,f26' });
+    const md = [`(次新股板块 BK0959, 按60日涨跌幅升序=区间回撤最深)`]
+      .concat(rows.map((r, i) => `${i + 1}. ${r.f14}(${r.f12}) 上市${r.f26 || '?'} 60日${fmtPct(r.f24)} 今日${fmtPct(r.f3)}`));
+    return { src: 'eastmoney', md: md.join('\n'), raw: rows };
+  } catch (e) {
+    // 10/17 A12 备源(switch-case): 东财单源被封时本榜原先整榜缺 → 本地行情库(security_master.list_date 近一年 + kline_day)算 60 日涨跌, 零请求;
+    //   口径=行情库最新交易日收盘(盘前/盘中跑=T-1), 60 日涨跌对 60 个交易日前收盘(上市不足 60 日=对首日收盘), 与东财 f24 近似不等同
+    const { spawnSync } = await import('node:child_process');
+    const PY = path.join(path.dirname(fileURLToPath(import.meta.url)), 'venv', 'Scripts', 'python.exe');
+    const r = spawnSync(PY, ['-X', 'utf8', path.join(path.dirname(fileURLToPath(import.meta.url)), 'quotes', 'cixin_local.py'), '--top', String(top)],
+      { encoding: 'utf8', windowsHide: true, timeout: 30000 });
+    let j = null;
+    try { j = JSON.parse((r.stdout || '').trim().split('\n').pop()); } catch { /* 下面统一报错 */ }
+    if (!j || j.error || !j.rows?.length) throw new Error(`东财: ${e.message}; 本地备源: ${j?.error || r.error?.message || (r.stderr || '').slice(0, 120) || '无输出'}`);
+    const md = [`(东财失败, 本地行情库兜底: 近一年上市 ${j.n} 只, 数据日 ${j.asof} 收盘, 按60日涨跌幅升序; 60日=对60个交易日前收盘, 上市不足60日对首日收盘, 与东财口径近似)`]
+      .concat(j.rows.map((x, i) => `${i + 1}. ${x.name}(${x.code}) 上市${x.list_date} 60日${fmtPct(x.pct60)} ${j.asof.slice(5)}日${fmtPct(x.pct_today)}`));
+    return { src: 'local-db(东财失败兜底)', warn: String(e.message || e).slice(0, 80), md: md.join('\n'), raw: j.rows };
+  }
 }
 async function board板块() {
   try {

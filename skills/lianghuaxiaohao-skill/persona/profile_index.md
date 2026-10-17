@@ -1,7 +1,7 @@
-# profile_index.md — lianghuaxiaohao 导师画像目录(链改造 F; 生成于 2026-10-16 00:25)
-> 源: skills/lianghuaxiaohao-skill/persona/profile.md sha12=785e256ccf12 · 80 行 · 5.4KB · 14 节(超长节按行切片≤6KB)
+# profile_index.md — lianghuaxiaohao 导师画像目录(链改造 F; 生成于 2026-10-16 23:08)
+> 源: skills/lianghuaxiaohao-skill/persona/profile.md sha12=f92329760854 · 162 行 · 22.6KB · 21 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: 机械(画像 ≤8KB, 全节全步注入, 未调模型); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill lianghuaxiaohao`(未变节复用标注)
+> 标注来源: --no-llm: 7 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill lianghuaxiaohao`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 5.3KB / 03 5.3KB / 04 5.3KB / 05 5.3KB / 06 5.3KB
 
 ## 核心摘要
@@ -24,3 +24,10 @@
 | S12 | 10-13 当日行为(硬数据锚点)(程序化嫌疑) | - 净值 2.2858 · 日收益 -2.86% · 收盘持仓 大有能源 68. | L60-65 | 0.9 | 02,03,04,05,06 | 1 | 9bfd2fef |
 | S13 | 10-14 当日行为(硬数据锚点)(程序化嫌疑) | - 净值 2.2509 · 日收益 -1.49% · 收盘持仓 水羊股份 55. | L67-72 | 0.8 | 02,03,04,05,06 | 1 | d9702c02 |
 | S14 | 10-15 当日行为(硬数据锚点)(程序化嫌疑) | - 净值 2.1765 · 日收益 -3.30% · 收盘持仓 指南针 74.7 | L74-79 | 0.8 | 02,03,04,05,06 | 1 | 47303be5 |
+| S15 | 【深度蒸馏总览】是谁、靠什么赚钱（10/16） | (未标注: --no-llm) | L81-89 | 2.0 | — | 3 | db527dfe |
+| S16 | 【选股逻辑】 | (未标注: --no-llm) | L91-105 | 3.0 | — | 3 | 95b8484e |
+| S17 | 【买点】 | (未标注: --no-llm) | L107-117 | 2.8 | — | 3 | 73d87857 |
+| S18 | 【卖点】 | (未标注: --no-llm) | L119-129 | 2.4 | — | 3 | 8ce11fb3 |
+| S19 | 【市况应对】 | (未标注: --no-llm) | L131-138 | 1.7 | — | 3 | 5758fce7 |
+| S20 | 【盘中节奏】 | (未标注: --no-llm) | L140-149 | 2.3 | — | 3 | a1343b09 |
+| S21 | 【T法】(他的 T 很少, 不是主打法) | (未标注: --no-llm) | L151-161 | 3.0 | — | 3 | 5c53dc47 |

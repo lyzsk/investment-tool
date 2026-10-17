@@ -26,7 +26,8 @@
 - `valid`: `day`=当日有效（EOD 未成交自动作废=废单，废单率是决策质量度量）
 - `anchor`（10/3 新增，链单必填/手写单可 `-`）：链自报估算锚=它认为该票现在的真实价位。可写 `12.40@5` 自定义允许偏离%（默认 3）。**撮合前机械校 |前收-锚|与|现价-锚|，双偏超阈=自动废单"需链重锚重裁"**——matcher 永不自动改价，重锚只能链重裁出新单（+CXL 旧单）
 - `cond`（C7-②，可省略=旧格式兼容）：`cancel_below=<价>`=失效哨兵（快照现价跌破即撤单不撮合，任何方向）；`stop_below=<价>`=止损哨兵（**仅 SELL**：跌破即不等挂价按快照市价出）；`;` 组合；`-`=无。matcher 每轮撮合前执行
-- CXL 按 code+方向取消该 source 账本的最早一笔未成交单（版本链：新单+CXL 旧单，禁覆盖）
+  - 10/16 新增（06 新动词）：`not_before=HHMM`（0930~1459）=此刻前不撮合也不跑哨兵，生效后按连续竞价新报单处理（吃 ±2% 笼子）；`open_sell=1`（**仅 SELL**，不与 stop/cancel 同用）=开盘卖/市价卖，挂价列只是参考（=anchor），--once 09:30 后（或 not_before 后）首次撮合按快照现价成交、不吃笼子，--replay 按开盘价（带 not_before=收盘价近似），--replay-min 按生效后首个分钟 bar 开盘价；`oid=<挂单号>` / `side=BUY|SELL`（**仅 CXL 行**）=只撤这张单 / 只撤该方向
+- CXL 按 code 取消该 source 账本的最早一笔未成交单（不分方向；cond 带 `side=` 只撤该方向，带 `oid=` 只撤指定挂单且须与 code 一致）（版本链：新单+CXL 旧单，禁覆盖）
 - 旧 8 字段行（无 anchor）向后兼容可解析，但锚守卫不生效（仅新单受保护）
 - hermes 落行要求：source 填 B-*（她自己挂的）或 C-*（用户口令 "paper 买/卖xxx@数量"）；note 带用户原话
 
@@ -43,6 +44,7 @@
 | `report.mjs` | `[--out <路径>]` | 人读视图（零 token 机械）：books/*.json → report.html 单文件（净值曲线内联 SVG 无 CDN/账本汇总+收益率+回撤+废单率/持仓/挂单/近 80 笔成交），浏览器直接开 |
 | `facts.mjs` | `--slot <HHMM> [--date <d>]` | 共享事实包 v2：scan 六榜+持仓/挂单票快照+state_digest+**新到电报**（读当天 md `## 加红电报` 节按 slot 增量，md=唯一真源）→ facts/<date>/<slot>/facts.md+facts.json。桃哥 rules 关键词捞取归 chain 驱动器 |
 | `snapshot.mjs` | `--codes a,b,c [--json <f>] [--md <f>]` | 多源行情快照（C7-① 防试错层）：沪深 腾讯→东财→新浪 / 北交所 东财→新浪；残缺数据换源、全灭=显式 error 不编数据；导出 snapMany/limitOf/isSealed 供 matcher 复用；驱动器 04 后拉候选票价格锚→cand_snap.md/.json |
+| `mix_plans.py` | `--date D --slot HHMM` / `--learn --date D` / `--weights` / `--rollback` / `--selftest` / `--dryrun D0 D1` | 混合 skill 跟跑三本（10/16）：A-mix 主规则 / A-mix-eq 等权消融 / A-mix-lhb 主规则+昨日龙虎榜修正；按权重合成导师链同 slot 挂单→plans/<D>_A-mix*.md→matcher --import；Hedge 学习状态 mix_state.json；规则见脚本文件头 |
 
 费率参数在 matcher.mjs 头 CONFIG（佣金/印花/滑点），与用户券商实收的对账=待办（09-28 成交表拟合不上标准费率，先用参数化占位）。
 

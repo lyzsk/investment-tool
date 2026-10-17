@@ -1,0 +1,146 @@
+{
+ "skill": "bianbenling",
+ "file": "skills/bianbenling-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "深亏日当日不动——≤-9% 净值日 6/8 零操作, 但不是无限扛",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "单票梭哈+微型卫星仓——持仓结构本身就是波动源",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "累亏后早盘整仓砍——不是小仓试探, 是一笔清掉主仓",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "图腾票反复回路——东山精密 9 个\"卖出→回买\"圈, 出走都很短",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "卖即买整仓换股——卖腿与买腿同日分钟级配对",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "清仓→逆回购→1-3 个交易日内再满仓——6/11 起新增的短冷却",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "转债 10 张=无买腿、持仓出现次日即卖",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": {
+    "kind": "overnight_sell",
+    "text": "昨日新买的转债、今日仍持有 → 今日早盘卖",
+    "codes_re": "^(11|12)"
+   },
+   "mech_text": null,
+   "level": "机械"
+  },
+  "R10": {
+   "id": "R10",
+   "title": "大盘大跌日不动: 当日上证跌≥1% 不开新仓、几乎不卖",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": "不动",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "当日上证盘中跌幅≥1% → 不开新仓、不卖持仓(当日零操作)",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  },
+  "R11": {
+   "id": "R11",
+   "title": "持仓走强日不卖: 高开≥1% 或封涨停的持仓日几乎不卖, 卖在走弱的日子",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": "不动(不卖)",
+   "src": "蒸馏标注",
+   "mech": null,
+   "mech_text": "持仓票(持有>1 日) 今开≥昨收×1.01 或 当日封涨停 → 当日不卖",
+   "level": "蒸馏机械触发(需盘中分时, 驱动器不判)"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "回血日才加新仓——浮盈与加仓正相关 〔已打脸·停用〕",
+   "level_tag": null,
+   "struck": true,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "已证伪"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "尾盘/午间出、尾盘隔夜吃 〔已证伪·停用〕",
+   "level_tag": null,
+   "struck": true,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "已证伪"
+  }
+ },
+ "n": 11,
+ "n_mech": 1,
+ "n_dir": 8,
+ "n_distilled": 2
+}

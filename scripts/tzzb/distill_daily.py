@@ -7,9 +7,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.stdout.reconfigure(encoding="utf-8")
-ALL_LEDGERS = ["buchitudou0", "liuyiqing", "lianghuaxiaohao", "a658", "bianbenling", "xingjianye",
-               "daxingdaxingdadangxing", "gaogailvfuli", "xuanqiucaijing", "stzhilang", "chong5000w",
-               "antoo", "zhiyingjuexin"]   # 10/15 +2 新导师
+sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+import mentors  # noqa: E402  10/17 二B-4: 导师登记表
+ALL_LEDGERS = mentors.ids("tzzb")   # 全部 tzzb 导师链(含土豆), 顺序=登记表序
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--date", default=None)

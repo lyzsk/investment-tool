@@ -712,19 +712,30 @@ public class ClsTelegraphServiceImpl extends ServiceImpl<ClsTelegraphMapper, Cls
                 errThread.start();
                 /* stdout 必须 UTF-8: python 侧已 reconfigure, 默认 GBK 读会乱码 */
                 StringBuilder outBuf = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        outBuf.append(line).append('\n');
+                /* 10/17 健壮性 H6: stdout 也改由独立线程读, waitFor 超时才真生效(原先读到 EOF 才 waitFor, OCR 卡住=定时线程永久挂起) */
+                Thread outThread = new Thread(() -> {
+                    try (BufferedReader br = new BufferedReader(
+                        new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            synchronized (outBuf) {
+                                outBuf.append(line).append('\n');
+                            }
+                        }
+                    } catch (IOException ignored) {
+                        /* 进程被杀时流关闭 */
                     }
-                }
+                }, "ocr-out-" + process.pid());
+                outThread.setDaemon(true);
+                outThread.start();
                 boolean finished = process.waitFor(5, TimeUnit.MINUTES);
                 if (!finished) {
+                    process.descendants().forEach(ProcessHandle::destroyForcibly);
                     process.destroyForcibly();
                     log.warn("OCR 超时(5min), 整组跳过: {} {}", sectionName, imageFile);
                     return;
                 }
+                outThread.join(5000);
                 if (process.exitValue() != 0) {
                     log.warn("OCR PARSE_FAIL: {} {} | {}", sectionName, imageFile.getFileName(),
                         errBuf.toString().trim());

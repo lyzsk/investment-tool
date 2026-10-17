@@ -1,0 +1,63 @@
+{
+ "skill": "control",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-16T22:06:03",
+   "persona_hash": "ada85cb98159d4c9ee3a21a391fc05eb4591f165a7145ab9d90132afae4ff7f0",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 23,
+    "removed": 0
+   },
+   "bytes_weight": 2052,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "0af90c2f4ad6",
+    "distill": "1a4d9ac98ec5"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261016-2300",
+   "ts": "2026-10-16T23:00:45",
+   "effective_from": "2026-10-16T23:00:04",
+   "persona_hash": "3d1822f31c6010ace815099c8259dd34f26d6f4e397c35d092ecb2f6af755fb3",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v001_20261016-2249",
+   "changed": {
+    "added": [],
+    "modified": [
+     "profile_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 1
+   },
+   "bytes_weight": 2052,
+   "why": "check-md 2026-10-16 23:00",
+   "code": {
+    "chain": "9c1235108530",
+    "distill": "6921009eae95"
+   }
+  }
+ ],
+ "events": []
+}

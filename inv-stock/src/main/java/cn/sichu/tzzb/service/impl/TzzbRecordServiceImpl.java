@@ -59,10 +59,19 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
 
     private boolean exists(String ledger, String type, LocalDateTime recordTime, String stockCode,
         String side) {
+        return exists(ledger, type, recordTime, stockCode, side, null, null);
+    }
+
+    /* 10/17 健壮性 M5: 去重键加 价格+数量——原键(ledger,type,time,code,side)会吞掉同秒同票同向的拆单
+     * (实证: antoo 本地 change_bs 377 个键冲突, 入库丢 462 条腿/113 条 trade; 如 2026-03-13 14:31:21 002426 同秒 4.06×500000 与 4.07×309700) */
+    private boolean exists(String ledger, String type, LocalDateTime recordTime, String stockCode,
+        String side, BigDecimal price, BigDecimal qty) {
         return count(new LambdaQueryWrapper<TzzbRecord>().eq(TzzbRecord::getLedger, ledger)
             .eq(TzzbRecord::getRecordType, type).eq(TzzbRecord::getRecordTime, recordTime)
             .eq(stockCode != null, TzzbRecord::getStockCode, stockCode)
-            .eq(side != null, TzzbRecord::getSide, side)) > 0;
+            .eq(side != null, TzzbRecord::getSide, side)
+            .eq(price != null, TzzbRecord::getPrice, price)
+            .eq(qty != null, TzzbRecord::getQty, qty)) > 0;
     }
 
     @Override
@@ -98,7 +107,7 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
                         String code = text(t, "stock_code");
                         /* 全"9"未破译[?], 存原值 */
                         String side = text(t, "buy_sell");
-                        if (exists(ledger, "trade", recordTime, code, side)) {
+                        if (exists(ledger, "trade", recordTime, code, side, dec(t, "trans_price"), dec(t, "trans_count"))) {
                             skip[0]++;
                             continue;
                         }
@@ -159,7 +168,7 @@ public class TzzbRecordServiceImpl extends ServiceImpl<TzzbRecordMapper, TzzbRec
                         String code = text(t, "stock_code");
                         String op = text(t, "op");
                         String side = "1".equals(op) ? "买入" : "2".equals(op) ? "卖出" : op;
-                        if (exists(ledger, "bs_leg", recordTime, code, side)) {
+                        if (exists(ledger, "bs_leg", recordTime, code, side, dec(t, "trans_price"), dec(t, "trans_count"))) {
                             skip[3]++;
                             continue;
                         }

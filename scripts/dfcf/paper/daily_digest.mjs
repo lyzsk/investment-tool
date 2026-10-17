@@ -52,11 +52,20 @@ const blindAcc = [], NAMEMAP = Object.fromEntries(ACCOUNTS.map(([s, n]) => [s, n
 for (const [src] of ACCOUNTS) {
     try {
         const b = JSON.parse(fs.readFileSync(path.join(DIR, "books", src + ".json"), "utf8"));
-        const n = b.orders.filter((o) => o.date === DATE && /【未过盲审】/.test(o.note || "")).length;
+        const n = b.orders.filter((o) => o.date === DATE && /【未过(盲审|拟人审)】/.test(o.note || "")).length;
         if (n) blindAcc.push(`${NAMEMAP[src]}×${n}`);
     } catch { /* 账本缺 */ }
 }
-if (blindAcc.length) lines.push(`未过盲审照发: ${blindAcc.join("、")}`);
+if (blindAcc.length) lines.push(`未过盲审/拟人审照发: ${blindAcc.join("、")}`);
+try {   // 10/16 晚 B8 初版权重(skill_weights.py, check md 收盘后算; 读最新一份)
+    const wd = path.join(SCRIPT_DIR, "weights");
+    const wf = fs.readdirSync(wd).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f.slice(0, 10) <= DATE).sort().pop();
+    if (wf) {
+        const W = JSON.parse(fs.readFileSync(path.join(wd, wf), "utf8")).rows;
+        const fmt = (r) => `${r.name}${(r.w * 100).toFixed(1)}%`;
+        lines.push(`权重(${wf.slice(5, 10)} 初版, 拟人度×真人业绩, 样本少≈等权): 前 ${W.slice(0, 3).map(fmt).join("、")} | 后 ${W.slice(-3).map(fmt).join("、")}`);
+    }
+} catch { /* 权重文件未出 */ }
 try {
     const rej = fs.readFileSync(path.join(DIR, "import_rejects.csv"), "utf8").split("\n").filter((l) => l.startsWith(DATE + ","));
     if (rej.length) {

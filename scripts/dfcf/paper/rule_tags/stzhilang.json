@@ -1,0 +1,145 @@
+{
+ "skill": "stzhilang",
+ "file": "skills/stzhilang-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "尾盘建仓→次日早盘了结: 15:00 收盘竞价买入 ST 票, T+1 10:00 前卖出",
+   "level_tag": "可跟",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "熟票主升段续持: 盘中卖出→同日回补维持仓位, 走弱即早盘清、次日可回补",
+   "level_tag": "可跟",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "隔夜为主节奏: T 日买→T+1 早盘卖, 早卖整体优于拿到收盘",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": {
+    "kind": "overnight_sell",
+    "text": "昨日新买、今日仍持有 → 今日早盘(0915 单)卖"
+   },
+   "mech_text": null,
+   "level": "机械"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "深亏多日单 = 疑似跌停锁死, 非主动扛单",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "首买通道: 盘中≥09:31 为主, 竞价首买结局混杂",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "熟票池轮回: 不做一次性票, 头部 5 票占腿数约四成",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "仓位档位: 平均半仓、单票为主, 档位受最小申报单位×高价票约束",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "满仓单吊新票(≥98%)——入场日全负, 多数次日亏损离场",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "日内做 T: 竞价/早盘加仓后同日卖出旧仓",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R10": {
+   "id": "R10",
+   "title": "空仓间歇与输赢无关, 清仓→空仓 1~5 日→再入场",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R11": {
+   "id": "R11",
+   "title": "ST 5% 涨停价排板: 刚封过板/连板的熟 ST 票, 在涨停价挂单等成交",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  }
+ },
+ "n": 11,
+ "n_mech": 1,
+ "n_dir": 8,
+ "n_distilled": 0
+}

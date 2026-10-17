@@ -21,15 +21,34 @@ public class ProcessUtils {
     }
 
     public static Result run(ProcessBuilder pb, long timeoutMin) throws Exception {
+        return run(pb, timeoutMin, null);
+    }
+
+    /**
+     * 同 run, 另把最后一行以 keepPrefix 开头的输出整行保留到 Result.kept
+     * (10/17: 输出尾部只留 4000 字符, 超长的摘要行如 fetch_bilibili.mjs --list 的 "JSON:[...]" 会被截掉行首, 需整行另存)
+     *
+     * @author sichu huang
+     * @param pb pb
+     * @param timeoutMin timeoutMin
+     * @param keepPrefix 要整行保留的行首前缀, null=不保留
+     * @since 2026/10/17
+     * @return utils.ProcessUtils.Result
+     **/
+    public static Result run(ProcessBuilder pb, long timeoutMin, String keepPrefix) throws Exception {
         pb.redirectErrorStream(true);
         Process proc = pb.start();
         StringBuilder tail = new StringBuilder();
+        String[] kept = new String[1];
         Thread reader = new Thread(() -> {
             try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     synchronized (tail) {
+                        if (keepPrefix != null && line.startsWith(keepPrefix)) {
+                            kept[0] = line;
+                        }
                         tail.append(line).append('\n');
                         if (tail.length() > 4000) {
                             tail.delete(0, tail.length() - 4000);
@@ -49,12 +68,12 @@ public class ProcessUtils {
             proc.destroyForcibly();
             reader.join(3000);
             synchronized (tail) {
-                return new Result(-1, tail.toString(), true);
+                return new Result(-1, tail.toString(), true, kept[0]);
             }
         }
         reader.join(5000);
         synchronized (tail) {
-            return new Result(proc.exitValue(), tail.toString(), false);
+            return new Result(proc.exitValue(), tail.toString(), false, kept[0]);
         }
     }
 
@@ -93,11 +112,11 @@ public class ProcessUtils {
     }
 
     /**
-     * 运行结果: exit=退出码(超时为 -1), tail=输出尾部
+     * 运行结果: exit=退出码(超时为 -1), tail=输出尾部, kept=按前缀整行保留的最后一行(未指定前缀或没出现=null)
      *
      * @author sichu huang
      * @since 2026/10/11
      **/
-    public record Result(int exit, String tail, boolean timedOut) {
+    public record Result(int exit, String tail, boolean timedOut, String kept) {
     }
 }

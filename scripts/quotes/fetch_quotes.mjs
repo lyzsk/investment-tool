@@ -8,6 +8,7 @@
 // 纪律: 公开行情无凭证; 请求抖动 0.75-1.25x; 3 次退避重试
 import fs from "node:fs";
 import path from "node:path";
+import { gfetch } from "../lib/req_guard.mjs";   // 10/17 A12: 东财/腾讯请求进统一请求层(限速/熔断/日预算/失败分类)
 
 const arg = (k) => { const i = process.argv.indexOf("--" + k); return i > -1 ? process.argv[i + 1] : null; };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -18,7 +19,7 @@ const MARKET = arg("market") || "cb";
 async function fetchJson(url, tries = 3) {
     for (let i = 0; ; i++) {
         try {
-            const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://quote.eastmoney.com/" } });
+            const r = await gfetch(url, { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://quote.eastmoney.com/" } });
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             const j = await r.json();
             if (j?.data === null) throw new Error("data=null(代码或市场错?)");
@@ -36,14 +37,21 @@ async function archiveTrends(code, secidOf, outDir, ndays = 5) {
     const j = await fetchJson(url);
     const byDay = {};
     for (const line of j?.data?.trends || []) {
-        const [dt, price, vol] = line.split(",");
-        (byDay[dt.slice(0, 10)] ||= []).push({ t: dt.slice(11), p: +price, vol: +vol });
+        // 10/17 修(agent① 发现): trends2 f51~f56 = 时间,开,收,高,低,量; 原写 [dt, price, vol] 把"开"当价、"收"当量(量全丢)。p=该分钟收盘价
+        const [dt, o, c, h, l, vol] = line.split(",");
+        (byDay[dt.slice(0, 10)] ||= []).push({ t: dt.slice(11), p: +c, o: +o, h: +h, l: +l, vol: +vol });
     }
     fs.mkdirSync(outDir, { recursive: true });
     let saved = 0, skipped = 0;
     for (const [day, arr] of Object.entries(byDay)) {
         const file = path.join(outDir, `${code}_${day}.json`);
-        if (fs.existsSync(file)) { skipped++; continue; }
+        if (fs.existsSync(file)) {
+            // 10/17 健壮性 L6: 盘中跑过一次的半天文件原先永久锁定; 已收盘(非今天或 15:05 后)且旧档 <241 根、新数据更全 → 覆盖
+            let old = 0;
+            try { old = (JSON.parse(fs.readFileSync(file, "utf8")).bars || []).length; } catch { /* 坏档=覆盖 */ }
+            const closed = day < new Date().toLocaleDateString("sv-SE") || new Date().toTimeString().slice(0, 5) >= "15:05";
+            if (!(closed && old < 241 && arr.length > old)) { skipped++; continue; }
+        }
         fs.writeFileSync(file, JSON.stringify({ code, day, bars: arr }));
         saved++;
     }
@@ -63,7 +71,7 @@ async function cbKline(code) {
     } catch { /* 东财限频/挂→腾讯兜底 */ }
     if (lines.length === 0) {  // 兜底: 腾讯(退市债数据保留更久, 10/2 实测)
         const prefix = /^(11[0138])/.test(code) ? "sh" : "sz";
-        const r = await fetch(`https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${prefix}${code},day,2025-01-01,2026-12-31,640,qfq`, { headers: { Referer: "https://gu.qq.com/" } });
+        const r = await gfetch(`https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${prefix}${code},day,2025-01-01,2026-12-31,640,qfq`, { headers: { Referer: "https://gu.qq.com/" } });
         if (r.ok) {
             const tj = await r.json();
             const rows = tj?.data?.[`${prefix}${code}`]?.day || tj?.data?.[`${prefix}${code}`]?.qfqday || [];
@@ -82,7 +90,7 @@ async function cbKline(code) {
 }
 async function cbSnap(code) {
     const prefix = /^(11[0138])/.test(code) ? "sh" : "sz";
-    const r = await fetch(`https://qt.gtimg.cn/q=${prefix}${code}`, { headers: { Referer: "https://gu.qq.com/" } });
+    const r = await gfetch(`https://qt.gtimg.cn/q=${prefix}${code}`, { headers: { Referer: "https://gu.qq.com/" } });
     const m = new TextDecoder("gbk").decode(await r.arrayBuffer()).match(/="([\s\S]*)"/);
     if (!m) throw new Error("腾讯返回为空");
     const f = m[1].split("~");
@@ -118,10 +126,45 @@ async function stockTrendsForCode(code, date, force) {
     const rows = all.filter((t) => t.startsWith(target));
     if (!rows.length) throw new Error(`目标日 ${target} 无分时(可得=${days.join("/")})`);
     const file = path.join(STOCK_ROOT, `${code}_${target}.json`);
-    if (!force && fs.existsSync(file)) return { code, target, skipped: true };
+    // 10/17 A12: 已存的是备源(tdx-local)兜底档 → 东财主源回来了就覆盖成主源数据
+    let isLocal = false;
+    try { isLocal = String(JSON.parse(fs.readFileSync(file, "utf8")).src || "").startsWith("tdx-local"); } catch { /* 无档/坏档 */ }
+    if (!force && fs.existsSync(file) && !isLocal) return { code, target, skipped: true };
     fs.mkdirSync(STOCK_ROOT, { recursive: true });
     fs.writeFileSync(file, JSON.stringify({ code, name: j.data.name, date: target, count: rows.length, trends: rows }));
     return { code, target, count: rows.length, skipped: false };
+}
+// 10/17 A12 备源: 东财 trends2 失败(封 IP/熔断/无数据) → 本地行情库分钟线 downloads/market/<日>/kline_minute.jsonl
+//   (通达信逐笔聚合, collect_minute.py 每日 15:35 采; 关注集含 md 提及股; 零网络请求)。转成 trends2 同格式行
+//   "YYYY-MM-DD HH:MM,开,收,高,低,量(手)"; 产物多一个 src 字段标来源。已知: 10/14 有过分钟线串号(见 TODO), 备源数据仅兜底。
+const LOCAL_MIN = {};
+function localMinuteDay(date) {
+    if (LOCAL_MIN[date]) return LOCAL_MIN[date];
+    const f = path.resolve("downloads/market", date, "kline_minute.jsonl");
+    const by = {};
+    if (fs.existsSync(f)) {
+        for (const line of fs.readFileSync(f, "utf8").split("\n")) {
+            if (!line) continue;
+            try { const j = JSON.parse(line); (by[j.symbol.slice(2)] ||= []).push(j); } catch { /* 坏行跳过 */ }
+        }
+    }
+    return (LOCAL_MIN[date] = by);
+}
+function latestMarketDay() {
+    const ds = fs.existsSync("downloads/market") ? fs.readdirSync("downloads/market").filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && fs.existsSync(path.join("downloads/market", d, "kline_minute.jsonl"))) : [];
+    return ds.sort().pop() || null;
+}
+function stockTrendsLocal(code, date, force, emErr) {
+    const target = date || latestMarketDay();
+    const bars = target ? (localMinuteDay(target)[code] || []) : [];
+    if (!bars.length) throw new Error(`东财失败(${emErr}); 本地分钟线 ${target || "无"} 也无 ${code}`);
+    const file = path.join(STOCK_ROOT, `${code}_${target}.json`);
+    if (!force && fs.existsSync(file)) return { code, target, skipped: true };
+    const rows = bars.sort((a, b) => a.barTime.localeCompare(b.barTime))
+        .map((b) => `${b.barTime.slice(0, 10)} ${b.barTime.slice(11, 16)},${b.open},${b.close},${b.high},${b.low},${Math.round(b.volume / 100)}`);
+    fs.mkdirSync(STOCK_ROOT, { recursive: true });
+    fs.writeFileSync(file, JSON.stringify({ code, name: "", date: target, count: rows.length, trends: rows, src: "tdx-local(东财失败兜底; 量已由股折手)" }));
+    return { code, target, count: rows.length, skipped: false, src: "tdx-local" };
 }
 function codesFromMd(date) {
     const [y, m] = date.split("-");
@@ -165,7 +208,14 @@ function codesFromMd(date) {
         const date = arg("date") || FROM_MD || null;
         let ok = 0, fail = 0;
         for (const code of codes) {
-            try { const r = await stockTrendsForCode(code, date, FORCE); console.log(r.skipped ? `幂等跳过 ${code} ${r.target}` : `归档 ${code} ${r.count} 根1min`); ok++; }
+            try {
+                let r;
+                try {   // switch-case 转移: 东财 trends2(主) → 本地通达信分钟线(备); 演练 QUOTES_DRILL=em 跳过东财
+                    if (process.env.QUOTES_DRILL === "em") throw new Error("演练: 跳过东财");
+                    r = await stockTrendsForCode(code, date, FORCE);
+                } catch (e) { r = stockTrendsLocal(code, date, FORCE, e.message); }
+                console.log(r.skipped ? `幂等跳过 ${code} ${r.target}` : `归档 ${code} ${r.count} 根1min${r.src ? `(备源 ${r.src})` : ""}`); ok++;
+            }
             catch (e) { console.error(`失败 ${code}: ${e.message}`); fail++; }
             await jitter();
         }

@@ -114,8 +114,10 @@ public class BilibiliReconcileServiceImpl implements IBilibiliReconcileService {
             boolean grace = pub.isAfter(graceFrom);
             TreeSet<LocalDate> mdDates = mdIndex.getOrDefault(f.bvid, new TreeSet<>());
             Set<LocalDate> doneDates = mdDates.stream().filter(distilled::contains).collect(Collectors.toSet());
-            /* 非交易日稿顺延挂下一交易日 md, 单独蒸馏时账本记的是发布日 */
-            if (doneDates.isEmpty() && !mdDates.isEmpty() && distilled.contains(f.day)) {
+            /* 非交易日稿顺延挂下一交易日 md, 单独蒸馏时账本记的是发布日;
+             * 10/17: 挂载日先蒸馏、顺延块后并入再单独蒸馏(rolled_pending)时, 账本里发布日和挂载日都有,
+             * 原条件 doneDates.isEmpty() 让发布日落不进 distillDays → 误报 orphan_distill(如 taoge 2026-09-13) */
+            if (!mdDates.isEmpty() && distilled.contains(f.day)) {
                 doneDates.add(f.day);
             }
             String expected = mdDates.isEmpty() ? "VISION_DONE" : doneDates.isEmpty() ? "SUMMARIZED" : "DISTILLED";
@@ -145,8 +147,12 @@ public class BilibiliReconcileServiceImpl implements IBilibiliReconcileService {
         List<String> partial = files.values().stream().filter(f -> !f.full).map(f -> f.bvid + "@" + f.day).toList();
         List<String> orphanDistill = distilled.stream().filter(d -> !distillDays.contains(d)).map(LocalDate::toString)
             .toList();
-        List<String> failed = db.values().stream().filter(v -> v.getRetryCount() != null && v.getRetryCount() >= 3)
+        /* 10/17: 用户确认跳过的视频(如付费充电视频, remark 含"跳过")不算失败, 单列 INFO, 不再每轮报 FAILED */
+        List<String> skipped = db.values().stream()
+            .filter(v -> v.getRetryCount() != null && v.getRetryCount() >= 3 && v.getRemark() != null && v.getRemark().contains("跳过"))
             .map(v -> v.getBvid() + "(" + v.getStep() + ")").toList();
+        List<String> failed = db.values().stream().filter(v -> v.getRetryCount() != null && v.getRetryCount() >= 3)
+            .map(v -> v.getBvid() + "(" + v.getStep() + ")").filter(s -> !skipped.contains(s)).toList();
 
         List<ReconcileResult> rows = new ArrayList<>();
         rows.add(reconcileResultService.of(batchNo, BIZ, up, "results", "全部产物齐",
@@ -170,6 +176,10 @@ public class BilibiliReconcileServiceImpl implements IBilibiliReconcileService {
             inserted + advanced > 0 ? "FIXED" : "OK", null));
         rows.add(reconcileResultService.of(batchNo, BIZ, up, "db_failed", 0, failed.size(), failed.isEmpty() ? "OK" : "FAILED",
             failed.isEmpty() ? null : "重试 ≥3 次停住: " + head(failed)));
+        if (!skipped.isEmpty()) {
+            rows.add(reconcileResultService.of(batchNo, BIZ, up, "db_skipped", 0, skipped.size(), "OK",
+                "用户确认跳过: " + head(skipped)));
+        }
         return rows;
     }
 

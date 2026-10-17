@@ -1,0 +1,133 @@
+{
+ "skill": "liuyiqing",
+ "file": "skills/liuyiqing-skill/persona/rules.md",
+ "rules": {
+  "R6": {
+   "id": "R6",
+   "title": "连板焦点股隔夜接力: T 日开盘窗买入当期焦点连板票, T+1(或下一持仓日)早盘兑现",
+   "level_tag": "可跟",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": {
+    "kind": "overnight_sell",
+    "text": "昨日新买、今日仍持有 → 今日早盘(0915 单)卖"
+   },
+   "mech_text": null,
+   "level": "机械"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "连板票入场三模式: 开盘半路 > 封板瞬间(0-3 分钟) > 板上价",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R1": {
+   "id": "R1",
+   "title": "多日桶利润最厚——统计事实成立, 但\"盈利仓趋势未破即持有\"不是他的默认",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "板块簇建仓——同日多票同簇与跨簇并存, 不可预测",
+   "level_tag": "画像",
+   "struck": true,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "已证伪"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "空仓日=清仓后的间歇, 与市场温度无关",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "清仓日收盘竞价买入浦发银行停泊隔夜",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R9": {
+   "id": "R9",
+   "title": "熟票回锅: 赚过钱的票短期内再做, 结果欠定",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "亏损隔夜仓: 轻仓开盘即砍, 重仓拖到盘中/午后",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "亏损中加仓: (a) 跨日向下摊低 (b) T 日未封板的连板票同日越跌越补满仓",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R10": {
+   "id": "R10",
+   "title": "开盘 5 分钟内回落中被动低吸: 焦点票挂现价下方深单接",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  }
+ },
+ "n": 10,
+ "n_mech": 1,
+ "n_dir": 8,
+ "n_distilled": 0
+}

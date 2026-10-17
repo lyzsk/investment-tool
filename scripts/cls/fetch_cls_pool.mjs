@@ -10,7 +10,8 @@
 // 交易日 = 池内 time 字段的日期(盘前跑拿到的是上一交易日收盘池; 盘中跑=实时池, 不稳定, 建议 15:05 后跑)
 // 市值: 池里没有, 用腾讯 qt 批量补(1 次请求, 字段 44=流通市值亿; 10/13 核对: 用户手抄的"63.53 亿"=流通市值, 非总市值); 失败只缺市值不缺行(--no-mcap 跳过)
 // 防封: 3~4 个请求/次, 请求间 1~2s 抖动, 每个请求 3 次退避重试; 失败显式非 0, 不编数据
-// 出口: 0=ok 1=涨停池抓取失败(炸板/跌停池失败只降级不阻断) 3=返回结构异常
+// 出口: 0=ok 1=涨停池抓取失败(财联社+东财备源都失败; 炸板/跌停池失败只降级不阻断) 3=返回结构异常
+// 10/17 A12: 财联社池失败自动切东财 push2ex 池(emPool), 梯队头标"本次=东财备源"; 演练 CLS_POOL_DRILL=1
 import fs from "node:fs";
 import path from "node:path";
 import { gfetch } from "../lib/req_guard.mjs";   // 10/15 统一请求层: 按域名记账/熔断/日预算(scripts/lib/req_guard_sources.json)
@@ -42,6 +43,35 @@ async function pool(type) {
     if (j.code !== 200 || !Array.isArray(j.data)) throw Object.assign(new Error(`${type} 结构异常 code=${j.code}`), { code: 3 });
     return j;
 }
+// 10/17 A12 备源: 财联社 x-quote 池失败 → 东财 push2ex 涨停/炸板/跌停池(另一家供应商, 与 scan.mjs 连板梯队主源同接口), 映射成财联社字段。
+//   语义差异(输出里标注): 东财无"题材|归因", up_reason 放东财行业(hybk); is_st 按名称含 ST 判; limit_up_days=东财连板数 lbc。
+//   东财池按日期查: 从今天往前找最近一个非空池(≤4 天, 每天 1 次请求)。演练: CLS_POOL_DRILL=1 跳过财联社直接走本备源。
+const EM_POOL = { up_pool: "ZT", up_open_pool: "ZB", down_pool: "DT" };
+const ymdOf = (d) => d.toLocaleDateString("sv-SE").replace(/-/g, "");
+async function emPool(type, ymd) {
+    const t = EM_POOL[type];
+    const r = await getText(`https://push2ex.eastmoney.com/getTopic${t}Pool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=300&sort=${t === "DT" ? "fund:asc" : "fbt:asc"}&date=${ymd}`,
+        { Referer: "https://quote.eastmoney.com/" });
+    let j;
+    try { j = JSON.parse(await r.text()); } catch { throw Object.assign(new Error(`东财 ${t}Pool 非 JSON`), { code: 3 }); }
+    const pool = j?.data?.pool || [];
+    const day = `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6)}`;
+    const hms = (v) => { const s = String(v ?? "150000").padStart(6, "0"); return `${s.slice(0, 2)}:${s.slice(2, 4)}:${s.slice(4, 6)}`; };
+    const mk = (c) => (/^6/.test(c) ? "sh" : /^[03]/.test(c) ? "sz" : "bj") + c;
+    return { code: 200, src: "eastmoney", ymd, raw: pool, data: pool.map((x) => ({
+        secu_code: mk(String(x.c)), secu_name: String(x.n || "").trim(), change: (+x.zdp || 0) / 100, last_px: (+x.p || 0) / 1000,
+        time: `${day} ${hms(x.fbt ?? x.lbt)}`, up_reason: x.hybk || "", is_st: /ST/.test(x.n || "") ? 1 : 0, limit_up_days: +x.lbc || 1, plate: [] })) };
+}
+async function emPoolRecent(type) {
+    const d = new Date();
+    for (let i = 0; i < 4; i++, d.setDate(d.getDate() - 1)) {
+        if (d.getDay() === 0 || d.getDay() === 6) continue;
+        const j = await emPool(type, ymdOf(d));
+        if (j.data.length) return j;
+        await sleep(1000 + Math.random() * 1000);
+    }
+    throw Object.assign(new Error(`东财 ${EM_POOL[type]}Pool 近 4 天全空`), { code: 1 });
+}
 const code6 = (s) => s.replace(/^(sh|sz|bj)/, "");
 const pct = (c) => `${c >= 0 ? "+" : ""}${(c * 100).toFixed(2)}%`;
 
@@ -56,12 +86,29 @@ async function mcapOf(items) {   // 腾讯 qt 批量: 字段 44=流通市值(亿
 }
 
 (async () => {
-    let zt;
-    try { zt = await pool("up_pool"); } catch (e) { console.error(`涨停池抓取失败: ${e.message}`); process.exitCode = e.code || 1; return; }
+    let zt, src = "cls";
+    try {
+        if (process.env.CLS_POOL_DRILL === "1") throw new Error("演练: 跳过财联社");
+        zt = await pool("up_pool");
+    } catch (e) {
+        console.error(`财联社涨停池失败(${e.message}) → 切东财 push2ex 备源`);
+        try { zt = await emPoolRecent("up_pool"); src = "em"; }
+        catch (e2) { console.error(`涨停池抓取失败(财联社+东财都失败): ${e2.message}`); process.exitCode = e2.code || e.code || 1; return; }
+    }
     const res = { up_pool: zt };
     for (const t of ["up_open_pool", "down_pool"]) {
         await sleep(1000 + Math.random() * 1000);
-        try { res[t] = await pool(t); } catch (e) { console.error(`${t} 失败(降级: 该项计数缺省): ${e.message}`); }
+        try { res[t] = src === "em" ? await emPool(t, zt.ymd) : await pool(t); }
+        catch (e) {
+            if (src === "em") { console.error(`${t} 失败(降级: 该项计数缺省): ${e.message}`); continue; }
+            // 财联社炸板/跌停池单项失败 → 东财同日池兜底(交易日取涨停池 time 的日期)
+            try {
+                const ymd = ((zt.data.map((x) => x.time).sort().pop() || "").slice(0, 10)).replace(/-/g, "");
+                await sleep(1000 + Math.random() * 1000);
+                res[t] = await emPool(t, ymd);
+                console.error(`${t} 财联社失败(${e.message}) → 东财备源 ${res[t].data.length} 只`);
+            } catch (e2) { console.error(`${t} 失败(降级: 该项计数缺省): 财联社 ${e.message} / 东财 ${e2.message}`); }
+        }
     }
     const items = zt.data.map((x) => ({ ...x, secu_name: x.secu_name.trim() }));
     const tradeDate = (items.map((x) => x.time).sort().pop() || "").slice(0, 10) || "unknown";
@@ -69,12 +116,17 @@ async function mcapOf(items) {   // 腾讯 qt 批量: 字段 44=流通市值(亿
     //   东财失败=降级为连续口径 N天N板, 并在梯队头注明
     let emTj = null;
     try {
-        await sleep(1000 + Math.random() * 1000);
-        const r = await getText(`https://push2ex.eastmoney.com/getTopicZTPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=300&sort=fbt:asc&date=${tradeDate.replace(/-/g, "")}`,
-            { Referer: "https://quote.eastmoney.com/" });
-        const ej = JSON.parse(await r.text());
-        emTj = Object.fromEntries((ej.data?.pool || []).filter((x) => x.zttj).map((x) => [x.c, { days: x.zttj.days, ct: x.zttj.ct }]));
-        if (!Object.keys(emTj).length) emTj = null;
+        if (src === "em") {   // 备源本身就是东财涨停池: 直接用其 zttj, 不再多发一次请求
+            emTj = Object.fromEntries((zt.raw || []).filter((x) => x.zttj).map((x) => [x.c, { days: x.zttj.days, ct: x.zttj.ct }]));
+            if (!Object.keys(emTj).length) emTj = null;
+        } else {
+            await sleep(1000 + Math.random() * 1000);
+            const r = await getText(`https://push2ex.eastmoney.com/getTopicZTPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=300&sort=fbt:asc&date=${tradeDate.replace(/-/g, "")}`,
+                { Referer: "https://quote.eastmoney.com/" });
+            const ej = JSON.parse(await r.text());
+            emTj = Object.fromEntries((ej.data?.pool || []).filter((x) => x.zttj).map((x) => [x.c, { days: x.zttj.days, ct: x.zttj.ct }]));
+            if (!Object.keys(emTj).length) emTj = null;
+        }
     } catch (e) { console.error(`东财涨停统计失败(降级连续口径): ${e.message}`); }
     for (const x of items) {
         const t = emTj?.[code6(x.secu_code)];
@@ -101,9 +153,9 @@ async function mcapOf(items) {   // 腾讯 qt 批量: 字段 44=流通市值(亿
     const zb = res.up_open_pool?.data?.length, dt = res.down_pool?.data?.length;
     const top = items.reduce((a, x) => (x.ct > a.ct || (x.ct === a.ct && x.days < a.days) ? x : a), items[0]);
     const lad = ["## 涨停梯队", "",
-        `> 财联社涨停池 ${tradeDate}: 涨停 ${items.length} 只(含 ST ${st.length}) / 炸板 ${zb ?? "?"} / 跌停 ${dt ?? "?"}` +
+        `> 财联社涨停池 ${tradeDate}${src === "em" ? "(本次=东财备源)" : ""}: 涨停 ${items.length} 只(含 ST ${st.length}) / 炸板 ${zb ?? "?"} / 跌停 ${dt ?? "?"}` +
         (zb != null ? ` / 封板率 ${(items.length / (items.length + zb) * 100).toFixed(0)}%` : "") +
-        ` · 最高 ${boardLab(top)}(${top.secu_name}) · 板数口径=${emTj ? "窗口内涨停次数(东财涨停统计)" : "连续涨停天数(东财统计失败降级)"} · 源 x-quote.cls.cn`, ""];
+        ` · 最高 ${boardLab(top)}(${top.secu_name}) · 板数口径=${emTj ? "窗口内涨停次数(东财涨停统计)" : "连续涨停天数(东财统计失败降级)"} · 源 ${src === "em" ? "东财 push2ex(财联社池失败降级; 题材列=东财行业, 不是财联社归因)" : "x-quote.cls.cn"}`, ""];
     for (const [k, arr] of Object.entries(tiers).sort((a, b) => b[1][0].ct - a[1][0].ct || a[1][0].days - b[1][0].days)) {
         arr.sort((a, b) => a.time.localeCompare(b.time));
         lad.push(`- **${k}(${arr.length})**: ` + arr.map((x) => `${x.secu_name}(${code6(x.secu_code)} ${theme(x)})`).join("、"));
@@ -162,5 +214,5 @@ async function mcapOf(items) {   // 腾讯 qt 批量: 字段 44=流通市值(亿
         }
         console.error(`[ztpool] ${tradeDate} md: ${mounted}`);
     }
-    console.log(`JSON:${JSON.stringify({ tradeDate, zt: items.length, zb: zb ?? null, dt: dt ?? null, st: st.length, dir, md: mounted })}`);
+    console.log(`JSON:${JSON.stringify({ tradeDate, src, zt: items.length, zb: zb ?? null, dt: dt ?? null, st: st.length, dir, md: mounted })}`);
 })();

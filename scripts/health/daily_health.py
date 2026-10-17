@@ -119,6 +119,16 @@ def main():
         if nav and exp and (exp - nav).days > 30:   # 10/15: 长期停更(冲5000w 07/06 起)=已知, 每天不该一红; 复活检查在 19:43 自愈例程
             add("黄", f"tzzb {led}", f"长期停更(最新 {nav}), 已知; 恢复更新会自动变绿")
             continue
+        # 10/16 晚自愈: 今天抓取成功但同花顺 upload_time(导师本人最后一次上传)停在 lastNavDate 当天=本人没上传, 不是采集故障 → 黄
+        try:
+            up = json.loads((Path(f).parent / "nav_daily.json").read_text(encoding="utf-8"))["ex_data"]["upload_time"]
+            up_d = dt.datetime.fromtimestamp(int(up) / 1000).date()
+            fetched_today = dt.datetime.fromisoformat(s["lastFetch"].replace("Z", "+00:00")).astimezone().date() == today
+        except Exception:  # noqa: BLE001
+            up_d, fetched_today = None, False
+        if nav and exp and nav < exp and fetched_today and up_d and up_d <= nav:
+            add("黄", f"tzzb {led}", f"导师本人最后上传 {up_d}(净值停在 {nav}), 今日抓取正常=本人未更新; 停满 3 天 fetch_tzzb 会自动找其他比赛视图")
+            continue
         fresh(f"tzzb {led}", nav, exp if after_close or td != today else None, "lastNavDate; 晚到账本 23:10 前为黄属正常")
     ban = ROOT / "downloads" / "tzzb" / "_guard" / "ban.json"
     if ban.exists():
@@ -154,6 +164,33 @@ def main():
     for flag in ("DONE_kline_day", "DONE_kline_minute", "DONE_auction_open", "DONE_auction_close", "DONE_security"):
         if exp and not (mk / flag).exists():
             add("红", f"行情库 {flag}", f"{exp} 缺 {flag}")
+    # 10/16 晚: DONE 在不等于数据全(10/16 通达信只连上深市逐笔, 关注集 779 只缺 358 只仍写了 DONE) → 看 manifest 缺失率
+    try:
+        km = json.loads((mk / "manifest.json").read_text(encoding="utf-8"))["stages"]["kline_minute"]
+        if km.get("symbols") and km.get("missingCount", 0) > max(20, km["symbols"] * 0.05):
+            add("红", "行情库 分钟线缺失", f"{exp} 关注集 {km['symbols']} 只缺 {km['missingCount']} 只(平时个位数); 修法: collect_minute.py --date {exp} --force 后 runOnce 任务 133 重新入库")
+    except Exception:  # noqa: BLE001
+        pass
+    # 10/17 健壮性 M19(agent③): 几条零网络补充线——都是"写了 DONE 但不完整/收尾失败没人知道"类
+    try:
+        if exp:
+            for pf in sorted(mk.glob("PARTIAL_*")):
+                add("黄", f"行情库 {pf.name}", f"{exp} 覆盖不足: {pf.read_text(encoding='utf-8')[:160]}")
+            fm = json.loads((mk / "manifest.json").read_text(encoding="utf-8")).get("factor") or {}
+            if fm.get("candidates", 0) > 300 or fm.get("expired"):
+                add("黄", "行情库 除权因子", f"{exp} 候选 {fm.get('candidates')} 只 / 超期 {len(fm.get('expired') or [])} 只(候选爆量=快照断档, 见 refresh_factors)")
+        lf = ROOT / "scripts" / "md" / "logs" / f"check_md_{(exp or today).isoformat()}.log"
+        if lf.exists():
+            ends = re.findall(r"===== 本轮结束: (\{.*\}) =====", lf.read_text(encoding="utf-8", errors="replace"))
+            if ends:
+                tf = json.loads(ends[-1]).get("tail_failed") or []
+                if tf:
+                    add("黄", "check md 收尾步骤失败", f"最近一轮: {', '.join(tf)}(详见 {lf.name})")
+        ss = ROOT / "downloads" / "tzzb" / "_guard" / f"side_stop_{dt.date.today().isoformat()}.json"
+        if ss.exists():
+            add("黄", "tzzb 副线(候选/月榜)今日已停", ss.read_text(encoding="utf-8")[:160])
+    except Exception as e:  # noqa: BLE001
+        add("黄", "补充巡检(M19)", f"读取失败: {e}")
     # 龙虎榜 / 涨停池 / 早报
     def latest_dir(p, fmt):
         ds = []

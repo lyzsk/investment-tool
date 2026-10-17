@@ -9,6 +9,7 @@
 
 ## 流程(两步, 同 taoge distill, 差异=目标小节与 persona 目录)
 
+0. **读素材包(10/17 A14②, 零 token)**: 会话开头一次 Bash `scripts/venv/Scripts/python.exe -X utf8 scripts/md/build_distill_pack.py --skill qushitiange --date <日1>,<日2>,...`, 每天先 Read `downloads/distill_pack/<目标日>/qushitiange.md`(当天小节/收评+同票行/近 5 天同票记录/同票规则全文+待验证索引/画像目录); 包里有的不再自己 grep/cat, 标"未展开/截断"的按行号补读; 脚本失败=照旧读原件。
 1. **核销**: `skills/qushitiange-skill/persona/rules.md` 中 `[待验证]` 规则 vs 目标日期 md(收评/涨停分析/电报区)——兑现改 `[md 验证 YYYY-MM-DD]`+样本+1+验证记录; 打脸改 `[已证伪]` 不删+cases.md 立案; 未触发不动。
 2. **提取**: 小节 bullets 分流——大盘/操作→profile.md(行为统计); 提及个股(带态度)→rules.md 对应区(A市场/B买/C卖/D仓); 画面增量只沉淀看盘习惯; 规则沉淀→rules.md 主战场(初始 `[待验证]`); 误判/踏空/检讨→cases.md 立案(格式同 taoge-skill: 背景/判断/结果/自我归因/人格增量)。
 
@@ -20,3 +21,4 @@
 4. 单次怪操作只进 cases.md, 样本≥2 才进 rules.md
 5. 无可沉淀内容(空小节/未发稿日)是正常结果, 不硬凑
 6. 结束时 stdout 末行哨兵: `DISTILL_OK {日期}`
+7. 输出纪律(10/17 A14③): persona 只写变更/新增条目, 不整段重写、不复述 md 原文(锚点=日期+≤30 字原话); 用 Edit 局部改, 不用 Write 整文件重写; 最终回复每天只列改动清单 + 哨兵

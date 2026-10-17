@@ -12,14 +12,19 @@ import { gfetch } from "../../lib/req_guard.mjs";
 // 10/14: 所有等待自带 ±25% 抖动(固定间隔=机器指纹, 反爬最容易认); 调用处不用改
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms * (0.75 + Math.random() * 0.5)));
 
-// ---- 板限分档(2026-07-06 起主板 ST 同为 10%, 无需 ST 特判; 阈值留 0.3pt 余量防四舍五入漏判) ----
-export function limitOf(code) {
-    if (/^(30|68)/.test(code)) return 19.7;   // 创业板/科创板 20%
-    if (/^(8|4|920)/.test(code)) return 29.7; // 北交所 30%
-    return 9.7;                                // 主板(含 ST) 10%
+// ---- 板限分档: 10/16 晚改走统一规则模块 scripts/lib/a_rules.mjs(出处 docs/rules/a_share_trading_rules.md) ----
+// 原写法只分 30/68→20%、8/4/920→30%、其余 10%: 转债被当 10%(应 20%, 上市首日 +57.3%)、新股前 5 日/北交所首日被当有涨跌停、
+// 科创/创业类 ETF 被当 10%(应 20%)、回放 2026-07-06 前主板 ST 被当 10%(应 5%)。
+// limitOf 仍返回"判定阈值"%(板限-0.3pt 余量防四舍五入漏判); 无涨跌幅限制 → Infinity(永不算触板/越界)。opt={date,name,isSt,listingN}
+import * as AR from "../../lib/a_rules.mjs";
+export function limitOf(code, opt = {}) {
+    const p = AR.limitPct(code, opt.date, opt);
+    return p === null ? Infinity : +(p * 100 - 0.3).toFixed(4);
 }
+export const limitPricesOf = (code, prevClose, opt = {}) => AR.limitPrices(code, opt.date, prevClose, opt);   // [涨停价, 跌停价], 按最小价位四舍五入
 export function isSealed(s) {
-    return s.open > 0 && s.open === s.high && s.high === s.low && s.low === s.last && Math.abs(s.pct) >= limitOf(s.code);
+    const lim = limitOf(s.code, { name: s.name || null });
+    return Number.isFinite(lim) && s.open > 0 && s.open === s.high && s.high === s.low && s.low === s.last && Math.abs(s.pct) >= lim;
 }
 
 // ---- 源实现: 统一返回 {code,name,prevClose,last,open,high,low,pct,src} ----
@@ -31,7 +36,8 @@ const sinaMkt = (c) => (isPre(c) ? "" : /^(60|68|11[0138]|5)/.test(c) ? "sh" : i
 const emSecid = (c) => (isPre(c) ? `${c.startsWith("sh") ? 1 : 0}.${c.slice(2)}` : `${/^(60|68|11[0138]|5)/.test(c) ? 1 : 0}.${c}`);
 // 10/12 加 vol(手)/amt(元)/qtTime: 盘中盯盘(live_watch.mjs)算均价与量能节奏用; 只新增字段, 撮合/验价不受影响
 const qtParse = (code, f, src) => ({ code, name: f[1], last: +f[3], prevClose: +f[4], open: +f[5], high: +f[33], low: +f[34], pct: +f[32],
-    vol: +f[6] || null, amt: f[37] ? +f[37] * 10000 : null, qtTime: f[30] || null, src });
+    vol: +f[6] || null, amt: f[37] ? +f[37] * 10000 : null, qtTime: f[30] || null,
+    qtDate: /^\d{8}/.test(f[30] || "") ? `${f[30].slice(0, 4)}-${f[30].slice(4, 6)}-${f[30].slice(6, 8)}` : null, src });   // 10/17 H3: 行情所属交易日
 
 async function fetchWithTimeout(url, headers) {
     const ctl = new AbortController();
@@ -52,12 +58,13 @@ async function fromTencent(code) {
 const eastGet = (host, label) => async (code) => {  // 东财系两域名共用 API(push2 实时 / push2delay 延迟15分)
     const secid = emSecid(code);
     const r = await fetchWithTimeout(
-        `https://${host}/api/qt/stock/get?secid=${secid}&fields=f43,f44,f45,f46,f57,f58,f60,f170&invt=2&fltt=2`,
+        `https://${host}/api/qt/stock/get?secid=${secid}&fields=f43,f44,f45,f46,f57,f58,f60,f86,f170&invt=2&fltt=2`,
         { Referer: "https://quote.eastmoney.com/" });
     const j = JSON.parse(await r.text());
     const d = j?.data;
     if (!d || !d.f43) throw new Error(`${label}返回为空`);
-    return { code, name: d.f58, last: +d.f43, prevClose: +d.f60, open: +d.f46, high: +d.f44, low: +d.f45, pct: +d.f170, src: label };
+    return { code, name: d.f58, last: +d.f43, prevClose: +d.f60, open: +d.f46, high: +d.f44, low: +d.f45, pct: +d.f170,
+        qtDate: +d.f86 > 0 ? new Date(+d.f86 * 1000).toLocaleDateString("sv-SE") : null, src: label };   // 10/17 H3: f86=行情时间戳(秒, 10/17 实测)
 };
 async function fromTxMinute(code) {  // 腾讯分时接口的 qt 块(独立域名 web.ifzq: qt.gtimg 挂时它可能还活着)
     const r = await fetchWithTimeout(`https://web.ifzq.gtimg.cn/appstock/app/minute/query?code=${tencentMkt(code)}${code}`,
@@ -74,7 +81,8 @@ async function fromSina(code) {
     if (!m) throw new Error("新浪返回为空");
     const f = m[1].split(",");
     if (!(+f[3] > 0) || !(+f[2] > 0)) throw new Error("新浪空数据"); // f[0]=票名非数字; 判 last/prevClose
-    return { code, name: f[0], open: +f[1], prevClose: +f[2], last: +f[3], high: +f[4], low: +f[5], pct: f[2] ? +((f[3] / f[2] - 1) * 100).toFixed(2) : 0, src: "sina" };
+    return { code, name: f[0], open: +f[1], prevClose: +f[2], last: +f[3], high: +f[4], low: +f[5], pct: f[2] ? +((f[3] / f[2] - 1) * 100).toFixed(2) : 0,
+        qtDate: /^\d{4}-\d{2}-\d{2}$/.test(f[30] || "") ? f[30] : null, src: "sina" };   // 10/17 H3: f[30]=行情日期
 }
 
 // ---- 源注册表(顺序=fallback 顺序; sup=该源支持的代码域) ----
@@ -88,6 +96,12 @@ export const SNAPSHOT_SRCS = [
 
 // 源返回残缺(如东财对已切换票 last=null)=视为失败换下一源, 不让半截数据冒充价格锚
 const usable = (s) => s && s.name && s.last > 0 && s.prevClose > 0;
+// 10/17 健壮性 H3(实证 10/09 星见野 600241 被误拒): 行情所属交易日 qtDate 早于今天=盘前/休市, 源还停在上一交易日的盘
+//   (last=上一交易日收盘, prevClose=再前一日收盘)。这里只加 stale/qtDate 字段、不改原值(baselines 把快照当该交易日 bar 用, 要原口径);
+//   要"今天的前收"一律走 todayPrevClose(s): stale → last; 无日期(老缓存条目) → prevClose, 调用方自己决定信不信(matcher 盘前不信, 走日线+日期校验)
+const todayLocal = () => new Date().toLocaleDateString("sv-SE");
+const markStale = (s) => (s && !s.error && s.qtDate ? { ...s, stale: s.qtDate < todayLocal() } : s);
+export const todayPrevClose = (s) => (!s || s.error ? null : s.stale ? s.last : s.prevClose);
 
 // 直连单票(无缓存; 多源 fallback): 缓存层补缺/强制单源排障时用
 async function snapOneLive(code, opt = {}) {
@@ -104,7 +118,7 @@ async function snapOneLive(code, opt = {}) {
     for (const { id, fn } of chain) {
         try {
             const s = await fn(code);
-            if (usable(s)) return s;
+            if (usable(s)) return markStale(s);
             errs.push(`${id}:残缺数据`);
         } catch (e) { errs.push(`${id}:${e.message}`); }
         if (!opt.src) await sleep(300);
@@ -175,7 +189,7 @@ export async function snapMany(codes, gapMs = 400, opt = {}) {
     for (const c of uniq) {
         if (out[c]) continue;
         const s = upd[c] || cache[c];
-        out[c] = { ...s, age_s: Math.round((Date.now() - s.ts) / 1000) };
+        out[c] = markStale({ ...s, age_s: Math.round((Date.now() - s.ts) / 1000) });
     }
     return out;
 }
@@ -225,7 +239,12 @@ if (argv.includes("--codes")) {
     // --asof D: 链日 D 盘前口径(日线归档), 不碰实时源(9/28-30 补跑语义修复)
     const res = {};
     if (arg("asof")) for (const c of [...new Set(codes)]) res[c] = await snapAsof(c, arg("asof"), { premarket: true });
-    else Object.assign(res, await snapMany(codes, 400, { src: arg("src") }));
+    else {
+        Object.assign(res, await snapMany(codes, 400, { src: arg("src") }));
+        // 10/17 H3: CLI 实时口径只给驱动器 cand_snap 用(=今天要挂的单的价格锚) → 盘前停在上一交易日的行情, 前收改成该日收盘(原值留 sessionPrevClose)
+        for (const [c, s] of Object.entries(res)) if (s && !s.error && s.stale)
+            res[c] = { ...s, sessionPrevClose: s.prevClose, prevClose: s.last, src: `${s.src}·盘前(行情停在${s.qtDate}收盘, 前收=该日收, 涨跌幅/高低=该日)` };
+    }
     const ok = Object.values(res).filter((s) => !s.error);
     const fail = Object.values(res).filter((s) => s.error);
     const json = JSON.stringify({ at: new Date().toISOString(), src: arg("asof") ? `asof ${arg("asof")}` : arg("src") || "auto(fallback)", snaps: Object.values(res) }, null, 1);

@@ -34,8 +34,12 @@ def _claude_json(stdout):
 _EXE = os.path.join(os.environ.get("APPDATA", ""), r"npm\node_modules\@anthropic-ai\claude-code\bin\claude.exe")
 CLAUDE = [_EXE if os.path.exists(_EXE) else "claude", "-p", "--output-format", "json", "--permission-mode", "acceptEdits"]
 # 土豆(转债)走机械五闸门分支不在此列; 数据少的排后, chong5000w 源 07-06 停更但历史可蒸
-DEFAULT = ["stzhilang", "xingjianye", "lianghuaxiaohao", "a658", "bianbenling", "liuyiqing",
-           "gaogailvfuli", "xuanqiucaijing", "daxingdaxingdadangxing", "chong5000w", "antoo", "zhiyingjuexin"]
+# 10/17 二B-4: 名单读导师登记表; _PRIO 只管排序偏好, 登记表新增的导师自动排在末尾
+import mentors  # noqa: E402  (scripts/lib 已在 sys.path)
+_PRIO = ["stzhilang", "xingjianye", "lianghuaxiaohao", "a658", "bianbenling", "liuyiqing",
+         "gaogailvfuli", "xuanqiucaijing", "daxingdaxingdadangxing", "chong5000w", "antoo", "zhiyingjuexin", "zjwzlclf", "ynw01", "wudaokongfang"]
+_TZ = [x for x in mentors.ids("tzzb") if x != "buchitudou0"]
+DEFAULT = [x for x in _PRIO if x in _TZ] + [x for x in _TZ if x not in _PRIO]
 
 PROMPT = """任务: 对 tzzb 导师「{name}」(ledger={ledger}) 做**历史回溯蒸馏**(一次性覆盖全部历史), 产出新版规则库草稿。元指令: 任务优先, 禁反问。
 

@@ -154,3 +154,63 @@ def log_use(tag):
         if new:
             f.write("time,profile,tag\n")
         f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S},{current_profile() or 'default'},{tag}\n")
+
+
+# ---------- 10/16 用户立法(TODO §2-19): API 400 自动切回 gravitex key ----------
+# 任何 claude -p(决策链/蒸馏/写 md/早报…)遇 API 400: 同一请求重试 3 次; 3 次都 400 → 把 ~/.claude/settings.json 的
+# env.ANTHROPIC_AUTH_TOKEN 切到 C:\Users\admin\dev\gravitex-api-key.txt(切前备份到 ~/.claude/settings.json.bak_400_<时间>;
+# 已在用 gravitex 则只告警不切), 切完/告警都推微信(hermes send, 零 token, 1 小时内同类告警只发一次)。
+# 交互式 Claude Code 会话不经过这里(只管本项目的 claude -p 包装层: claude_call.call / run_taoge_chain.call_claude)
+import re as _re
+
+API400_RE = _re.compile(r"API Error:?\s*400|\b400 Bad Request\b|HTTP 400\b|invalid_request_error|status(?:Code)?[\"' :=]+400\b", _re.I)
+_GRAVITEX_KEY = Path(r"C:\Users\admin\dev\gravitex-api-key.txt")
+_SETTINGS = Path.home() / ".claude" / "settings.json"
+_HERMES = Path(r"C:\Users\admin\AppData\Local\hermes\hermes-agent\bin\hermes.exe")
+_ALERT_STAMP = ROT_FILE.parent / "api400_last_alert.txt"
+
+
+AUTO_SWITCH_400 = False   # 10/16 10:56 用户: 先别上线, 先查清 400 成因 → 整套(重试 3 次+切 key)默认关闭; 改 True 才生效
+
+
+def is_api400(text):
+    return bool(AUTO_SWITCH_400 and text and API400_RE.search(text))
+
+
+def _wechat(msg):
+    try:
+        last = float(_ALERT_STAMP.read_text(encoding="utf-8").split()[0]) if _ALERT_STAMP.exists() else 0
+    except (OSError, ValueError):
+        last = 0
+    if time.time() - last < 3600 and "已切换" not in msg:   # 只告警类 1 小时内只发一次; 真切换必发
+        return
+    try:
+        if _HERMES.exists():
+            subprocess.run([str(_HERMES), "send", "--to", "weixin", msg], capture_output=True, timeout=60, creationflags=NOWIN)
+        _ALERT_STAMP.write_text(f"{time.time()} {msg[:80]}", encoding="utf-8")
+    except Exception:   # noqa: BLE001  推送失败不影响主流程
+        pass
+
+
+def on_api400(tag=""):
+    """连续 3 次 400 后调用。返回 True=已切到 gravitex(调用方应再重试一次), False=没切(已在用 gravitex / 切换失败)"""
+    try:
+        key = _GRAVITEX_KEY.read_text(encoding="utf-8").strip()
+        s = json.loads(_SETTINGS.read_text(encoding="utf-8"))
+        envd = s.setdefault("env", {})
+        if envd.get("ANTHROPIC_AUTH_TOKEN", "").strip() == key:
+            print(f"⚠ API 400 ×3({tag}), 但本机已在用 gravitex key——只告警不切")
+            _wechat(f"【PC1 告警】claude -p 连续 3 次 API 400({tag}), 本机已在用 gravitex key, 未切换, 请查网关/请求")
+            return False
+        bak = _SETTINGS.with_name(f"settings.json.bak_400_{datetime.now():%Y%m%d_%H%M%S}")
+        bak.write_text(_SETTINGS.read_text(encoding="utf-8"), encoding="utf-8")
+        envd["ANTHROPIC_AUTH_TOKEN"] = key
+        _SETTINGS.write_text(json.dumps(s, ensure_ascii=False, indent=2), encoding="utf-8")
+        _settings_cache.clear(); _files.clear()   # 让跟随逻辑立刻读到新 key
+        print(f"⚠ API 400 ×3({tag}) → 已把 settings.json 切到 gravitex key(备份 {bak.name})")
+        _wechat(f"【PC1】claude -p 连续 3 次 API 400({tag}), 已自动切换到 gravitex key(原配置备份 {bak.name})")
+        return True
+    except Exception as e:   # noqa: BLE001
+        print(f"⚠ API 400 自动切 key 失败: {e}")
+        _wechat(f"【PC1 告警】claude -p 连续 3 次 API 400({tag}), 自动切 gravitex key 失败: {str(e)[:80]}")
+        return False

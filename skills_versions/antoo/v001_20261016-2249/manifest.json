@@ -1,0 +1,116 @@
+{
+ "skill": "antoo",
+ "version": {
+  "v": 1,
+  "id": "v001_20261016-2249",
+  "ts": "2026-10-16T22:49:12",
+  "effective_from": "2026-10-16T22:06:03",
+  "persona_hash": "6e59da81d6736e39412075e7cffe4e37f3a6dc6258efd29cf5e0c52f8ab576ac",
+  "data_hash": "0874ed8b5e4cc609fe5f462270340c1eaebd500850aa8ce2e98bb0777ae04994",
+  "parent": null,
+  "changed": {
+   "added": [
+    "cases.md",
+    "fingerprint.md",
+    "profile.md",
+    "profile_index.md",
+    "rules.md",
+    "rules_index.md"
+   ],
+   "modified": [],
+   "removed": []
+  },
+  "data_changed": [
+   "cases_auto.jsonl",
+   "fills_rt.jsonl"
+  ],
+  "lines": {
+   "added": 2557,
+   "removed": 0
+  },
+  "bytes_weight": 250211,
+  "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+  "code": {
+   "chain": "5ee63ce0b24f",
+   "distill": "992c0a7d03be"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "1cb8a195823b4e01d4b0ab7255214340c6b86af2da2360ef91a60c014b49b0cb",
+   "bytes": 204035,
+   "lines": 2117,
+   "mtime": "2026-10-16T00:06:02",
+   "cls": "weight"
+  },
+  "cases_auto.jsonl": {
+   "sha256": "50ca12dbdd47e80c491b3aa70b72a4d9bcabbe9371f4cc2ff99af73bd7df2bc1",
+   "bytes": 1989318,
+   "lines": 2438,
+   "mtime": "2026-10-16T21:09:50",
+   "cls": "data"
+  },
+  "fills_rt.jsonl": {
+   "sha256": "153d89a01789084b5578d9efb79279e948fc2f10a99e1c6640a6d9749a7aa917",
+   "bytes": 548744,
+   "lines": 2438,
+   "mtime": "2026-10-16T22:44:38",
+   "cls": "data"
+  },
+  "fingerprint.md": {
+   "sha256": "2f0bfc0566c7987b3fdda71e007889f5be08e0066e9f63209b27c9d0b3c014cc",
+   "bytes": 14452,
+   "lines": 224,
+   "mtime": "2026-10-16T21:09:50",
+   "cls": "weight"
+  },
+  "profile.md": {
+   "sha256": "aa418c05aad7d487245ae96cf62d47e9de26d91c7daf2343fcaabb15643087f9",
+   "bytes": 1845,
+   "lines": 45,
+   "mtime": "2026-10-15T03:07:08",
+   "cls": "weight"
+  },
+  "profile_index.md": {
+   "sha256": "506a25374d4b1e0d3ab6a87e761fc7c0e0f8530a426f34f0129510695fc3f82c",
+   "bytes": 2273,
+   "lines": 21,
+   "mtime": "2026-10-16T22:06:03",
+   "cls": "weight"
+  },
+  "rules.md": {
+   "sha256": "ce86749071e99484d69978711c302e59e109926e74ec647edf5ab51d3cc49607",
+   "bytes": 24210,
+   "lines": 136,
+   "mtime": "2026-10-16T00:22:42",
+   "cls": "weight"
+  },
+  "rules_index.md": {
+   "sha256": "3d5feacb3420bf0af83ccb0502462d945567f6d9603567c6bc76497b0b606e9e",
+   "bytes": 3396,
+   "lines": 14,
+   "mtime": "2026-10-16T14:00:50",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "5ee63ce0b24f",
+  "distill": "992c0a7d03be",
+  "chain_files": {
+   "scripts/taoge-chain/run_taoge_chain.py": "09e7d486384c",
+   "skills/antoo-skill/workflows/chain.md": "fe1767a6b1a7",
+   "skills/antoo-skill/SKILL.md": "a3b4e1d938c3",
+   "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"
+  },
+  "distill_files": {
+   "skills/antoo-skill/workflows/distill.md": "c3c176cce85e",
+   "scripts/tzzb/distill_daily.py": "9ec70798c98a",
+   "scripts/tzzb/llm_batch_tzzb.py": "2c2246c6c7e1",
+   "scripts/tzzb/mentor_fingerprint.py": "d218700ea1cf",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "1109d4201eb3",
+   "scripts/md/gen_profile_index.py": "16926ed80e73",
+   "scripts/md/gen_rules_index.mjs": "654e7e6d356c",
+   "scripts/md/check_md_daily.py": "51cab73b861f"
+  }
+ }
+}

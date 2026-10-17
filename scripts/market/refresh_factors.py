@@ -43,10 +43,35 @@ def write_jsonl(path, recs):
     tmp.replace(path)
 
 
+def prev_trade_day(day):
+    """10/17 健壮性 M7: 交易日历上的上一交易日(scripts/lib/a_rules: 上证日线归档 + 节假日表兜底)"""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+    import a_rules as AR   # noqa: PLC0415
+    cal = set(AR.trade_days())
+    last = max(cal) if cal else "0000-00-00"
+    x = dt.date.fromisoformat(day) - dt.timedelta(days=1)
+    for _ in range(30):
+        s = x.isoformat()
+        if s in cal or (s > last and AR._is_trade_day_fallback(s)):
+            return s
+        x -= dt.timedelta(days=1)
+    return None
+
+
 def prev_snapshot(day):
-    """day 之前最近一个有 kline_day.jsonl 的快照目录"""
+    """day 之前最近一个有 kline_day.jsonl 的快照目录; 10/17 M7: 必须正好是上一交易日, 否则返回 None(断档)"""
     dirs = sorted(p for p in MARKET.glob("20*-*-*") if p.name < day and (p / "kline_day.jsonl").exists())
-    return dirs[-1] if dirs else None
+    if not dirs:
+        return None
+    ptd = prev_trade_day(day)
+    if ptd and dirs[-1].name != ptd:
+        log(f"前一快照 {dirs[-1].name} ≠ 上一交易日 {ptd}(断档): 不用快照, 逐只用 history 末行且要求末行=上一交易日")
+        return None
+    return dirs[-1]
+
+
+PTD = None          # 10/17 M7: 上一交易日(main 里赋值)
+MAX_CANDS = 300     # 10/17 M7: 候选上限
 
 
 def last_bar_from_history(sym, day):
@@ -121,6 +146,8 @@ def main():
     secs = {r["symbol"]: r for r in read_jsonl(out / "security_master.jsonl")}
     today = {r["symbol"]: r for r in read_jsonl(out / "kline_day.jsonl")}
     prev_dir = prev_snapshot(day)
+    global PTD
+    PTD = prev_trade_day(day)
     prev = {r["symbol"]: r for r in read_jsonl(prev_dir / "kline_day.jsonl")} if prev_dir else {}
     pending = json.loads(PENDING.read_text("utf-8")) if PENDING.exists() else {}
 
@@ -130,6 +157,8 @@ def main():
         if sec.get("exchange") == "BJ" or sec.get("secType") not in ("STOCK", "ETF") or not k.get("preClose"):
             continue
         p = prev.get(sym) or last_bar_from_history(sym, day)
+        if p and not prev and PTD and p.get("tradeDate") != PTD:
+            continue   # 10/17 M7: history 末行不是上一交易日(本票停牌或 history 也断档), 不拿它比前收
         if not p or abs(k["preClose"] - p["close"]) <= 0.0051:
             continue
         if sec["secType"] == "ETF":
@@ -139,11 +168,14 @@ def main():
     for sym, info in pending.items():
         cands.setdefault(sym, info)
     log(f"{day} 除权候选 {len(cands)} 只(今日新增 {len(cands) - len(pending)} / 待重试 {len(pending)}), ETF 除息 {len(etf)} 只(不出因子)")
+    if len(cands) > MAX_CANDS:   # 10/17 M7: 正常每天几十只; 爆量=快照断档/前收口径坏, 按 2~3s/只会打上千次新浪(456 封禁连坐 collect_daily)
+        log(f"候选 {len(cands)} > {MAX_CANDS}: 疑快照断档或前收口径异常, 停下不请求、不落 DONE_factor(人工核对后 --force 重跑)")
+        return 3
 
     sess = requests.Session()
     recs, ok, new_pending, expired, failed = [], [], {}, [], []
     for sym, info in cands.items():
-        time.sleep(random.uniform(0.4, 0.8))
+        time.sleep(random.uniform(2.0, 3.0))   # 10/17 M7: 原 0.4~0.8s ≈1.7 次/秒, 超项目批量 ≤0.5 次/秒
         try:
             fraw = sina_factors(sess, sym)
         except Exception as e:   # noqa: BLE001  网络失败: 留待明日重试

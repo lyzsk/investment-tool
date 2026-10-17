@@ -32,9 +32,6 @@ public class SchedulerManager {
      * @since 2025/12/21 11:57:50
      */
     public void addJob(SysJob sysJob) throws SchedulerException {
-        if (exists(sysJob)) {
-            return;
-        }
         if (!CronUtils.isValid(sysJob.getCronExpression())) {
             throw new IllegalArgumentException(
                 ResultCode.INVALID_CRON_EXPRESSION.getMsg() + ": " + sysJob.getCronExpression());
@@ -43,20 +40,50 @@ public class SchedulerManager {
            全部撞 key 静默跳过只剩第一个——改用任务 id 唯一化 */
         String jobKey = jobKeyOf(sysJob);
         String jobGroup = sysJob.getJobGroup();
-        JobDetail jobDetail =
-            JobBuilder.newJob(JobHandlerInvoker.class).withIdentity(jobKey, jobGroup)
-                .usingJobData("JOB_ID", sysJob.getId()).usingJobData("JOB_HANDLER_NAME", sysJob.getJobHandlerName())
-                .usingJobData("JOB_HANDLER_PARAM", sysJob.getJobHandlerParam()).storeDurably()
-                .build();
+        TriggerKey triggerKey = TriggerKey.triggerKey("TRG_" + jobKey, jobGroup);
+        /* 10/16: 暂停态任务手动触发时会先登记一个无 cron 的 durable job(见 triggerJob), 启用时只补 cron 触发器 */
+        if (exists(sysJob)) {
+            if (!scheduler.checkExists(triggerKey)) {
+                scheduler.scheduleJob(cronTrigger(sysJob, triggerKey).forJob(jobKey, jobGroup).build());
+            }
+            return;
+        }
+        JobDetail jobDetail = jobDetailOf(sysJob);
 
+        scheduler.scheduleJob(jobDetail, cronTrigger(sysJob, triggerKey).build());
+    }
+
+    /**
+     * 任务明细(durable: 没有触发器时也保留, 供暂停态手动触发)
+     *
+     * @param sysJob sysJob
+     * @return org.quartz.JobDetail
+     * @author sichu huang
+     * @since 2026/10/16
+     */
+    private JobDetail jobDetailOf(SysJob sysJob) {
+        return JobBuilder.newJob(JobHandlerInvoker.class).withIdentity(jobKeyOf(sysJob), sysJob.getJobGroup())
+            .usingJobData("JOB_ID", sysJob.getId()).usingJobData("JOB_HANDLER_NAME", sysJob.getJobHandlerName())
+            .usingJobData("JOB_HANDLER_PARAM", sysJob.getJobHandlerParam()).storeDurably()
+            .build();
+    }
+
+    /**
+     * cron 触发器
+     *
+     * @param sysJob     sysJob
+     * @param triggerKey triggerKey
+     * @return org.quartz.TriggerBuilder<org.quartz.CronTrigger>
+     * @author sichu huang
+     * @since 2026/10/16
+     */
+    private TriggerBuilder<CronTrigger> cronTrigger(SysJob sysJob, TriggerKey triggerKey) {
         CronScheduleBuilder scheduleBuilder =
             CronScheduleBuilder.cronSchedule(sysJob.getCronExpression());
         applyMisfirePolicy(scheduleBuilder, sysJob.getMisfirePolicy());
-
-        Trigger trigger = TriggerBuilder.newTrigger().withIdentity("TRG_" + jobKey, jobGroup)
+        return TriggerBuilder.newTrigger().withIdentity(triggerKey)
             .withSchedule(scheduleBuilder).usingJobData("RETRY_COUNT", sysJob.getRetryCount())
-            .usingJobData("RETRY_INTERVAL", sysJob.getRetryInterval()).build();
-        scheduler.scheduleJob(jobDetail, trigger);
+            .usingJobData("RETRY_INTERVAL", sysJob.getRetryInterval());
     }
 
     /**
@@ -129,8 +156,14 @@ public class SchedulerManager {
             dataMap.put("JOB_HANDLER_PARAM", sysJob.getJobHandlerParam());
             scheduler.triggerJob(jobKey, dataMap);
         } else {
-            throw new SchedulerException(
-                "任务 [" + sysJob.getJobName() + "] 不存在，无法触发");
+            /* 10/16: 暂停态任务不在调度器里(暂停=deleteJob), 原先直接抛"不存在"——
+               改为登记一个无 cron 触发器的 durable job 再触发一次: 只跑这一次, 不会按 cron 自动执行; 启用时 addJob 只补触发器 */
+            scheduler.addJob(jobDetailOf(sysJob), true);
+            JobDataMap dataMap = new JobDataMap();
+            dataMap.put("JOB_ID", sysJob.getId());
+            dataMap.put("JOB_HANDLER_NAME", sysJob.getJobHandlerName());
+            dataMap.put("JOB_HANDLER_PARAM", sysJob.getJobHandlerParam());
+            scheduler.triggerJob(jobKey, dataMap);
         }
     }
 

@@ -5,6 +5,7 @@
 // 用法: node scripts/dfcf/paper/replay_daily.mjs --from 2026-09-28 --to 2026-09-30
 import fs from "fs";
 import path from "path";
+import * as AR from "../../lib/a_rules.mjs";   // 10/17: 费用同 matcher fee()(a_rules.fees: 印花税只收股票卖方, 转债/ETF 免)
 
 const arg = (k) => { const i = process.argv.indexOf("--" + k); return i > -1 ? process.argv[i + 1] : null; };
 const FROM = arg("from"), TO = arg("to");
@@ -13,8 +14,9 @@ if (!FROM || !TO) { console.error("用法: --from yyyy-MM-dd --to yyyy-MM-dd"); 
 const DIR = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1"));
 const BOOKS = ["A-taoge", "A-cb", "A-qushitiange", "A-lubenyuan",
     "A-liuyiqing", "A-lianghuaxiaohao", "A-a658", "A-bianbenling", "A-xingjianye",
-    "A-daxingdaxingdadangxing", "A-gaogailvfuli", "A-xuanqiucaijing", "A-stzhilang", "A-chong5000w", "A-antoo", "A-zhiyingjuexin"];
-const NAV0 = 100000, FEE = 0.00025, MINFEE = 5, STAMP = 0.0005;
+    "A-daxingdaxingdadangxing", "A-gaogailvfuli", "A-xuanqiucaijing", "A-stzhilang", "A-chong5000w", "A-antoo", "A-zhiyingjuexin", "A-zjwzlclf", "A-ynw01", "A-wudaokongfang"];
+const NAV0 = 100000, FEE = 0.00025, MINFEE = 5;
+const fee = (side, amt, code, d) => { const f = AR.fees(side, amt, code, d, { commissionRate: FEE, minCommission: MINFEE }); return f.commission + f.stamp; };
 
 const klineCache = {};
 function dayRow(code, d) {
@@ -51,15 +53,15 @@ for (const book of BOOKS) {
                 if (op === "BUY") {
                     if (row.l <= px && px <= row.h) {
                         const fp = row.o < px ? row.o : px;                    // 跳空低开按开盘
-                        const fee = Math.max(fp * qty * FEE, MINFEE);
-                        cash -= fp * qty + fee; pos[code] = { qty, cost: fp };
+                        const f = fee("BUY", fp * qty, code, d);
+                        cash -= fp * qty + f; pos[code] = { qty, cost: fp };
                         filled++;
                     } else voided++;
                 } else if (op === "SELL" && pos[code]) {
                     if (row.h >= px) {
                         const fp = row.o > px ? row.o : px;
-                        const fee = Math.max(fp * pos[code].qty * FEE, MINFEE) + fp * pos[code].qty * STAMP;
-                        cash += fp * pos[code].qty - fee; delete pos[code]; filled++;
+                        const f = fee("SELL", fp * pos[code].qty, code, d);
+                        cash += fp * pos[code].qty - f; delete pos[code]; filled++;
                     }
                 }
             }

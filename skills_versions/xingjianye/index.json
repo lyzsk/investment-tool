@@ -1,0 +1,134 @@
+{
+ "skill": "xingjianye",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:13",
+   "effective_from": "2026-10-16T22:06:03",
+   "persona_hash": "efb6634e8f81e11669ce6b7b760d889bd0a1d0b8c75443345cf225a763e71830",
+   "data_hash": "52ed955b6a88c99c0bbf3867efcb7655d82bdadb19d36ea9f6df8850699acb36",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md",
+     "fingerprint.md",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [
+    "cases_auto.jsonl",
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 588,
+    "removed": 0
+   },
+   "bytes_weight": 61410,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "54eb857a0b8a",
+    "distill": "074a89086477"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261016-2300",
+   "ts": "2026-10-16T23:00:46",
+   "effective_from": "2026-10-16T23:00:04",
+   "persona_hash": "c9f7c8a20fc4c5544846d78acedf2fc9663cb4eae42484d53b71663eab547aa7",
+   "data_hash": "0e3a5ce3f158b9aa8ea8efbbd210895d6d2e839a0ad478074e39cd60138e27a1",
+   "parent": "v001_20261016-2249",
+   "changed": {
+    "added": [
+     "orders_inferred.json"
+    ],
+    "modified": [
+     "profile_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 607,
+    "removed": 1
+   },
+   "bytes_weight": 74542,
+   "why": "check-md 2026-10-16 23:00",
+   "code": {
+    "chain": "3a93c7c96e5a",
+    "distill": "b87c6f0d0566"
+   }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261016-2313",
+   "ts": "2026-10-16T23:13:52",
+   "effective_from": "2026-10-16T23:13:41",
+   "persona_hash": "d98a8f860ff105d235f3dd364697c2369d033621b629155e885104e6fcef4a16",
+   "data_hash": "0e3a5ce3f158b9aa8ea8efbbd210895d6d2e839a0ad478074e39cd60138e27a1",
+   "parent": "v002_20261016-2300",
+   "changed": {
+    "added": [],
+    "modified": [
+     "cases.md",
+     "orders_inferred.json",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 147,
+    "removed": 14
+   },
+   "bytes_weight": 97194,
+   "why": "deep-distill 1016",
+   "code": {
+    "chain": "3a93c7c96e5a",
+    "distill": "8db53bdfbb04"
+   }
+  },
+  {
+   "v": 4,
+   "id": "v004_20261016-2327",
+   "ts": "2026-10-16T23:27:28",
+   "effective_from": "2026-10-16T23:26:46",
+   "persona_hash": "a2d539f606ac9b5856fa97953552c2c27915970da89998f6c09b7d43def1803a",
+   "data_hash": "0e3a5ce3f158b9aa8ea8efbbd210895d6d2e839a0ad478074e39cd60138e27a1",
+   "parent": "v003_20261016-2313",
+   "changed": {
+    "added": [],
+    "modified": [
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 3,
+    "removed": 3
+   },
+   "bytes_weight": 97594,
+   "why": "deep-distill 1016",
+   "code": {
+    "chain": "63dd29ab84b3",
+    "distill": "8db53bdfbb04"
+   }
+  }
+ ],
+ "events": []
+}

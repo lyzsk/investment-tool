@@ -1,0 +1,727 @@
+{
+ "cand_anlizhuohuo": {
+  "name": "暗里着火",
+  "window": [
+   "20251127",
+   "20261016"
+  ],
+  "nav_days": 213,
+  "total": 0.9712984550561796,
+  "ann": 1.1531749401268874,
+  "mdd": -0.35806972240154944,
+  "dp_days": 213,
+  "total_pos_med": 0.9917,
+  "n_hold_med": 2,
+  "hold_days_med": 1,
+  "hold_days_p75": 3,
+  "board": {
+   "主板": 1.0
+  },
+  "trades_per_week": 0.9,
+  "corr_max": [
+   "antoo",
+   0.31
+  ],
+  "corr_mean": 0.13,
+  "hold_reconcile": {
+   "dir": "downloads\\tzzb_cand\\cand_anlizhuohuo",
+   "legs": 40,
+   "codes": 16,
+   "dp": {
+    "runs": 16,
+    "run_median": 1.0,
+    "run_p75": 4,
+    "cap_weighted_run": 137.6,
+    "top_runs": [
+     {
+      "code": "001270",
+      "days": 181,
+      "avg_pos": 0.61,
+      "start": "20251202",
+      "open": false
+     },
+     {
+      "code": "601872",
+      "days": 99,
+      "avg_pos": 0.622,
+      "start": "20260522",
+      "open": true
+     },
+     {
+      "code": "600026",
+      "days": 46,
+      "avg_pos": 0.417,
+      "start": "20260313",
+      "open": false
+     },
+     {
+      "code": "600021",
+      "days": 2,
+      "avg_pos": 1.0,
+      "start": "20251128",
+      "open": false
+     },
+     {
+      "code": "600989",
+      "days": 3,
+      "avg_pos": 0.225,
+      "start": "20260319",
+      "open": false
+     }
+    ],
+    "share_runs_le3": 0.75
+   },
+   "fifo": {
+    "lots": 22,
+    "closed": 19,
+    "open": 3,
+    "closed_median_days": 3,
+    "amt_weighted_days_all": 39.1,
+    "amt_weighted_days_closed": 34.4,
+    "amt_share_le3d": 0.55,
+    "amt_share_gt20d": 0.37,
+    "biggest": [
+     {
+      "code": "600938",
+      "days": 1,
+      "open": false,
+      "buy": "2026-01-20",
+      "sell": "2026-01-21",
+      "amt": 23597
+     },
+     {
+      "code": "601872",
+      "days": 101,
+      "open": true,
+      "buy": "2026-05-22",
+      "sell": null,
+      "amt": 21497
+     },
+     {
+      "code": "601872",
+      "days": 0,
+      "open": true,
+      "buy": "2026-08-31",
+      "sell": null,
+      "amt": 20311
+     },
+     {
+      "code": "601658",
+      "days": 1,
+      "open": false,
+      "buy": "2026-01-26",
+      "sell": "2026-01-27",
+      "amt": 20285
+     },
+     {
+      "code": "603688",
+      "days": 1,
+      "open": false,
+      "buy": "2026-03-10",
+      "sell": "2026-03-11",
+      "amt": 10925
+     }
+    ]
+   }
+  }
+ },
+ "cand_zjwzlclf": {
+  "name": "zjwzlclf",
+  "window": [
+   "20251231",
+   "20261015"
+  ],
+  "nav_days": 188,
+  "total": 0.31252151284662455,
+  "ann": 0.41150849712726156,
+  "mdd": -0.1448281065642555,
+  "dp_days": 188,
+  "total_pos_med": 0.44225000000000003,
+  "n_hold_med": 3.0,
+  "hold_days_med": 3,
+  "hold_days_p75": 8,
+  "board": {
+   "创业板": 0.5,
+   "主板": 0.43,
+   "ETF": 0.07
+  },
+  "trades_per_week": 26.6,
+  "corr_max": [
+   "bianbenling",
+   0.43
+  ],
+  "corr_mean": 0.26,
+  "hold_reconcile": {
+   "dir": "downloads\\tzzb_cand\\cand_zjwzlclf",
+   "legs": 1239,
+   "codes": 62,
+   "dp": {
+    "runs": 82,
+    "run_median": 3.0,
+    "run_p75": 8,
+    "cap_weighted_run": 27.3,
+    "top_runs": [
+     {
+      "code": "603501",
+      "days": 44,
+      "avg_pos": 0.475,
+      "start": "20260316",
+      "open": false
+     },
+     {
+      "code": "603039",
+      "days": 45,
+      "avg_pos": 0.14,
+      "start": "20260806",
+      "open": true
+     },
+     {
+      "code": "301188",
+      "days": 23,
+      "avg_pos": 0.264,
+      "start": "20260703",
+      "open": false
+     },
+     {
+      "code": "300641",
+      "days": 43,
+      "avg_pos": 0.128,
+      "start": "20260105",
+      "open": false
+     },
+     {
+      "code": "300964",
+      "days": 16,
+      "avg_pos": 0.297,
+      "start": "20260126",
+      "open": false
+     }
+    ],
+    "share_runs_le3": 0.55
+   },
+   "fifo": {
+    "lots": 918,
+    "closed": 917,
+    "open": 1,
+    "closed_median_days": 6,
+    "amt_weighted_days_all": 7.0,
+    "amt_weighted_days_closed": 7.0,
+    "amt_share_le3d": 0.42,
+    "amt_share_gt20d": 0.08,
+    "biggest": [
+     {
+      "code": "002975",
+      "days": 1,
+      "open": false,
+      "buy": "2026-05-21",
+      "sell": "2026-05-22",
+      "amt": 34053
+     },
+     {
+      "code": "300776",
+      "days": 5,
+      "open": false,
+      "buy": "2026-06-10",
+      "sell": "2026-06-15",
+      "amt": 30487
+     },
+     {
+      "code": "603501",
+      "days": 6,
+      "open": false,
+      "buy": "2026-05-15",
+      "sell": "2026-05-21",
+      "amt": 29466
+     },
+     {
+      "code": "301511",
+      "days": 2,
+      "open": false,
+      "buy": "2026-06-23",
+      "sell": "2026-06-25",
+      "amt": 28404
+     },
+     {
+      "code": "300475",
+      "days": 8,
+      "open": false,
+      "buy": "2026-02-24",
+      "sell": "2026-03-04",
+      "amt": 28267
+     }
+    ]
+   }
+  }
+ },
+ "cand_ynw01": {
+  "name": "ynw01",
+  "window": [
+   "20251231",
+   "20261013"
+  ],
+  "nav_days": 186,
+  "total": 0.989654208497081,
+  "ann": 1.4060634901139561,
+  "mdd": -0.18036583639888581,
+  "dp_days": 186,
+  "total_pos_med": 0.79745,
+  "n_hold_med": 4.0,
+  "hold_days_med": 3.5,
+  "hold_days_p75": 14,
+  "board": {
+   "主板": 0.86,
+   "创业板": 0.14
+  },
+  "trades_per_week": 2.1,
+  "corr_max": [
+   "xuanqiucaijing",
+   0.55
+  ],
+  "corr_mean": 0.26,
+  "hold_reconcile": {
+   "dir": "downloads\\tzzb_cand\\cand_ynw01",
+   "legs": 80,
+   "codes": 26,
+   "dp": {
+    "runs": 28,
+    "run_median": 8.0,
+    "run_p75": 29,
+    "cap_weighted_run": 96.4,
+    "top_runs": [
+     {
+      "code": "600452",
+      "days": 158,
+      "avg_pos": 0.19,
+      "start": "20260211",
+      "open": true
+     },
+     {
+      "code": "002414",
+      "days": 175,
+      "avg_pos": 0.145,
+      "start": "20260119",
+      "open": true
+     },
+     {
+      "code": "301217",
+      "days": 81,
+      "avg_pos": 0.296,
+      "start": "20260213",
+      "open": false
+     },
+     {
+      "code": "603259",
+      "days": 56,
+      "avg_pos": 0.232,
+      "start": "20260715",
+      "open": false
+     },
+     {
+      "code": "002050",
+      "days": 94,
+      "avg_pos": 0.102,
+      "start": "20260526",
+      "open": true
+     }
+    ],
+    "share_runs_le3": 0.43
+   },
+   "fifo": {
+    "lots": 48,
+    "closed": 39,
+    "open": 9,
+    "closed_median_days": 20,
+    "amt_weighted_days_all": 36.4,
+    "amt_weighted_days_closed": 23.7,
+    "amt_share_le3d": 0.38,
+    "amt_share_gt20d": 0.44,
+    "biggest": [
+     {
+      "code": "301528",
+      "days": 1,
+      "open": false,
+      "buy": "2026-06-30",
+      "sell": "2026-07-01",
+      "amt": 47548
+     },
+     {
+      "code": "603125",
+      "days": 1,
+      "open": false,
+      "buy": "2026-07-01",
+      "sell": "2026-07-02",
+      "amt": 26757
+     },
+     {
+      "code": "002077",
+      "days": 1,
+      "open": false,
+      "buy": "2026-07-09",
+      "sell": "2026-07-10",
+      "amt": 26145
+     },
+     {
+      "code": "603078",
+      "days": 1,
+      "open": false,
+      "buy": "2026-07-01",
+      "sell": "2026-07-02",
+      "amt": 25942
+     },
+     {
+      "code": "600552",
+      "days": 1,
+      "open": false,
+      "buy": "2026-06-29",
+      "sell": "2026-06-30",
+      "amt": 19040
+     }
+    ]
+   }
+  }
+ },
+ "cand_wudaokongfang": {
+  "name": "悟到空方为悟道",
+  "window": [
+   "20251010",
+   "20261016"
+  ],
+  "nav_days": 247,
+  "total": 1.1561478115116626,
+  "ann": 1.1295219046972877,
+  "mdd": -0.2819783190104984,
+  "dp_days": 247,
+  "total_pos_med": 0.5377000000000001,
+  "n_hold_med": 2,
+  "hold_days_med": 1.0,
+  "hold_days_p75": 2,
+  "board": {
+   "主板": 0.8,
+   "创业板": 0.16,
+   "科创": 0.03,
+   "北交所": 0.0,
+   "ETF": 0.0
+  },
+  "trades_per_week": 17.4,
+  "corr_max": [
+   "liuyiqing",
+   0.27
+  ],
+  "corr_mean": 0.12,
+  "hold_reconcile": {
+   "dir": "downloads\\tzzb_cand\\cand_wudaokongfang",
+   "legs": 1244,
+   "codes": 170,
+   "dp": {
+    "runs": 259,
+    "run_median": 1,
+    "run_p75": 2,
+    "cap_weighted_run": 9.7,
+    "top_runs": [
+     {
+      "code": "000547",
+      "days": 44,
+      "avg_pos": 0.321,
+      "start": "20260209",
+      "open": false
+     },
+     {
+      "code": "002297",
+      "days": 24,
+      "avg_pos": 0.312,
+      "start": "20260421",
+      "open": false
+     },
+     {
+      "code": "000547",
+      "days": 17,
+      "avg_pos": 0.388,
+      "start": "20260113",
+      "open": false
+     },
+     {
+      "code": "603122",
+      "days": 9,
+      "avg_pos": 0.385,
+      "start": "20251107",
+      "open": false
+     },
+     {
+      "code": "600127",
+      "days": 7,
+      "avg_pos": 0.376,
+      "start": "20260918",
+      "open": false
+     }
+    ],
+    "share_runs_le3": 0.88
+   },
+   "fifo": {
+    "lots": 767,
+    "closed": 761,
+    "open": 6,
+    "closed_median_days": 1,
+    "amt_weighted_days_all": 1.8,
+    "amt_weighted_days_closed": 1.9,
+    "amt_share_le3d": 0.9,
+    "amt_share_gt20d": 0.0,
+    "biggest": [
+     {
+      "code": "603986",
+      "days": 4,
+      "open": false,
+      "buy": "2026-06-18",
+      "sell": "2026-06-22",
+      "amt": 63194
+     },
+     {
+      "code": "688146",
+      "days": 3,
+      "open": false,
+      "buy": "2026-06-12",
+      "sell": "2026-06-15",
+      "amt": 62999
+     },
+     {
+      "code": "001309",
+      "days": 1,
+      "open": false,
+      "buy": "2026-07-21",
+      "sell": "2026-07-22",
+      "amt": 43465
+     },
+     {
+      "code": "002384",
+      "days": 1,
+      "open": false,
+      "buy": "2026-07-30",
+      "sell": "2026-07-31",
+      "amt": 32365
+     },
+     {
+      "code": "688981",
+      "days": 1,
+      "open": false,
+      "buy": "2026-05-28",
+      "sell": "2026-05-29",
+      "amt": 31759
+     }
+    ]
+   }
+  }
+ },
+ "cand_mamimao": {
+  "name": "妈咪猫",
+  "window": [
+   "20260116",
+   "20261016"
+  ],
+  "nav_days": 189,
+  "total": 1.0514777823171362,
+  "ann": 1.6135583009860661,
+  "mdd": -0.20708111207866964,
+  "dp_days": 189,
+  "total_pos_med": 0.9474,
+  "n_hold_med": 6,
+  "hold_days_med": 1,
+  "hold_days_p75": 2,
+  "board": {
+   "主板": 0.44,
+   "创业板": 0.29,
+   "科创": 0.22,
+   "北交所": 0.06,
+   "港股": 0.0
+  },
+  "trades_per_week": 52.9,
+  "corr_max": [
+   "antoo",
+   0.35
+  ],
+  "corr_mean": 0.18,
+  "hold_reconcile": {
+   "dir": "downloads\\tzzb_cand\\cand_mamimao",
+   "legs": 2764,
+   "codes": 328,
+   "dp": {
+    "runs": 667,
+    "run_median": 1,
+    "run_p75": 2,
+    "cap_weighted_run": 5.3,
+    "top_runs": [
+     {
+      "code": "688583",
+      "days": 17,
+      "avg_pos": 0.531,
+      "start": "20260210",
+      "open": false
+     },
+     {
+      "code": "688008",
+      "days": 14,
+      "avg_pos": 0.483,
+      "start": "20260422",
+      "open": false
+     },
+     {
+      "code": "301165",
+      "days": 9,
+      "avg_pos": 0.532,
+      "start": "20260806",
+      "open": false
+     },
+     {
+      "code": "688766",
+      "days": 8,
+      "avg_pos": 0.498,
+      "start": "20260727",
+      "open": false
+     },
+     {
+      "code": "000938",
+      "days": 7,
+      "avg_pos": 0.553,
+      "start": "20260713",
+      "open": false
+     }
+    ],
+    "share_runs_le3": 0.9
+   },
+   "fifo": {
+    "lots": 1811,
+    "closed": 1805,
+    "open": 6,
+    "closed_median_days": 1,
+    "amt_weighted_days_all": 2.1,
+    "amt_weighted_days_closed": 2.1,
+    "amt_share_le3d": 0.85,
+    "amt_share_gt20d": 0.0,
+    "biggest": [
+     {
+      "code": "688072",
+      "days": 1,
+      "open": false,
+      "buy": "2026-09-16",
+      "sell": "2026-09-17",
+      "amt": 177560
+     },
+     {
+      "code": "688072",
+      "days": 1,
+      "open": false,
+      "buy": "2026-09-16",
+      "sell": "2026-09-17",
+      "amt": 160811
+     },
+     {
+      "code": "688072",
+      "days": 1,
+      "open": false,
+      "buy": "2026-09-22",
+      "sell": "2026-09-23",
+      "amt": 146540
+     },
+     {
+      "code": "688072",
+      "days": 1,
+      "open": false,
+      "buy": "2026-09-17",
+      "sell": "2026-09-18",
+      "amt": 135910
+     },
+     {
+      "code": "688072",
+      "days": 6,
+      "open": false,
+      "buy": "2026-09-17",
+      "sell": "2026-09-23",
+      "amt": 135753
+     }
+    ]
+   }
+  }
+ },
+ "cand_fuduji": {
+  "name": "復讀機",
+  "window": [
+   "20251231",
+   "20261016"
+  ],
+  "nav_days": 189,
+  "total": 2.101848807795531,
+  "ann": 3.177389223516352,
+  "mdd": -0.23345982543847177,
+  "dp_days": 0,
+  "total_pos_med": null,
+  "n_hold_med": null,
+  "hold_days_med": null,
+  "hold_days_p75": null,
+  "board": {},
+  "trades_per_week": 30.5,
+  "corr_max": [
+   "antoo",
+   0.42
+  ],
+  "corr_mean": 0.2,
+  "hold_reconcile": {
+   "dir": "downloads\\tzzb_cand\\cand_fuduji",
+   "legs": 1538,
+   "codes": 134,
+   "fifo": {
+    "lots": 1153,
+    "closed": 1147,
+    "open": 6,
+    "closed_median_days": 3,
+    "amt_weighted_days_all": 4.1,
+    "amt_weighted_days_closed": 4.1,
+    "amt_share_le3d": 0.63,
+    "amt_share_gt20d": 0.02,
+    "biggest": [
+     {
+      "code": "000725",
+      "days": 1,
+      "open": false,
+      "buy": "2026-07-06",
+      "sell": "2026-07-07",
+      "amt": 97964
+     },
+     {
+      "code": "000725",
+      "days": 4,
+      "open": false,
+      "buy": "2026-07-02",
+      "sell": "2026-07-06",
+      "amt": 66316
+     },
+     {
+      "code": "001309",
+      "days": 3,
+      "open": false,
+      "buy": "2026-06-12",
+      "sell": "2026-06-15",
+      "amt": 66139
+     },
+     {
+      "code": "300302",
+      "days": 1,
+      "open": false,
+      "buy": "2026-06-10",
+      "sell": "2026-06-11",
+      "amt": 56126
+     },
+     {
+      "code": "603986",
+      "days": 7,
+      "open": false,
+      "buy": "2026-06-15",
+      "sell": "2026-06-22",
+      "amt": 51163
+     }
+    ]
+   }
+  }
+ },
+ "cand_zuoshoudeirong": {
+  "name": "做手德融",
+  "error": "无数据"
+ }
+}

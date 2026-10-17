@@ -1,0 +1,34 @@
+{
+ "skill": "fage",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-02T21:04:35",
+   "persona_hash": "ec8e11bec2dbe2adf2b937603241c445da94914eed3d756c100d4cd079a945ce",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "rules.md",
+     "score.json"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 529,
+    "removed": 0
+   },
+   "bytes_weight": 13510,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "dabfdad03d31",
+    "distill": "0c62c11a699c"
+   }
+  }
+ ],
+ "events": []
+}

@@ -1,0 +1,49 @@
+{
+  "_说明": "导师登记表附表(10/17 二B-4): B站 UP 与对照组条目。tzzb 条目在 tzzb_ledgers.json(Java TzzbFetchHandler/fetch_tzzb.mjs 逐条抓取, 不能混入非账本条目)。读取口: scripts/lib/mentors.py / mentors.mjs; 顺序=UP(本表序)→tzzb(tzzb_ledgers.json 序, 有 book 的)→对照",
+  "entries": [
+    {
+      "id": "taoge",
+      "type": "UP",
+      "name": "股市 - 桃哥复盘",
+      "display": "桃哥",
+      "book": "A-taoge",
+      "short": "桃哥(全市场情绪周期定市况, 出手只在熟悉板块池)",
+      "cluster": null,
+      "circle": "看全市场情绪周期与主线定市况, 出手只在熟悉的板块池/老情人票(A10)",
+      "online": "2026-10-08"
+    },
+    {
+      "id": "qushitiange",
+      "type": "UP",
+      "name": "趋势天哥",
+      "display": "趋势天哥",
+      "book": "A-qushitiange",
+      "short": "趋势天哥(趋势视角)",
+      "cluster": null,
+      "circle": "宏观风偏+指数趋势视角定攻防, 个股只做趋势中军/板块 ETF, 不做连板投机",
+      "online": "2026-10-08"
+    },
+    {
+      "id": "lubenyuan",
+      "type": "UP",
+      "name": "卢本圆复盘",
+      "display": "卢本圆",
+      "book": "A-lubenyuan",
+      "short": "卢本圆(盘中实战, 晨报型)",
+      "cluster": null,
+      "circle": "量能定科技节奏的盘中实战, 只在板块低位×个股分时低位的'双低'开仓",
+      "online": "2026-10-08"
+    },
+    {
+      "id": "control",
+      "type": "对照",
+      "name": "对照组",
+      "display": "对照组",
+      "book": "A-control",
+      "short": "对照组(裸模型基准, persona 恒空)",
+      "cluster": null,
+      "circle": "无(裸模型基准, 纯市场视角; skill 贡献=导师链−本链)",
+      "online": "2026-10-12"
+    }
+  ]
+}

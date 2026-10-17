@@ -1,0 +1,106 @@
+{
+ "skill": "daxingdaxingdadangxing",
+ "file": "skills/daxingdaxingdadangxing-skill/persona/rules.md",
+ "rules": {
+  "R1": {
+   "id": "R1",
+   "title": "选股=当期市场最高辨识度的连板/妖股",
+   "level_tag": null,
+   "struck": true,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "已证伪"
+  },
+  "R2": {
+   "id": "R2",
+   "title": "仓位单核集中: 一只主仓吃掉 2/3 以上, 常态高仓位",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R3": {
+   "id": "R3",
+   "title": "主仓分歧日不减反加, 次日反包 2/2",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R4": {
+   "id": "R4",
+   "title": "非主仓一律 1~2 个可交易日内了结, 不分盈亏",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R5": {
+   "id": "R5",
+   "title": "满仓下\"卖一买一\"秒级换仓",
+   "level_tag": null,
+   "struck": true,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "已证伪"
+  },
+  "R6": {
+   "id": "R6",
+   "title": "并购重组方向偏好",
+   "level_tag": null,
+   "struck": true,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "已证伪"
+  },
+  "R7": {
+   "id": "R7",
+   "title": "事件冲击首日介入=全账本两笔最大亏损",
+   "level_tag": "教训",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R8": {
+   "id": "R8",
+   "title": "亏损仓拖到尾盘(14:30 后)才卖, 盈利仓上午兑现",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "卖",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  }
+ },
+ "n": 8,
+ "n_mech": 0,
+ "n_dir": 1,
+ "n_distilled": 0
+}

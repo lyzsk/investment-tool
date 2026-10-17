@@ -154,8 +154,17 @@ def main():
     write_jsonl(out / f"call_auction_{phase.lower()}_raw.jsonl", raw)
     mf_path = out / "manifest.json"
     mf = json.loads(mf_path.read_text("utf-8")) if mf_path.exists() else {}
+    covered = len({r["symbol"] for r in recs})
+    coverage = round(covered / len(syms), 4) if syms else None   # 10/17 健壮性 M20: 原先只要有 1 行就写 DONE
     mf[f"auction_{phase.lower()}"] = {"at": dt.datetime.now().isoformat(), "symbols": len(syms), "watchlistFrom": wl_from,
-                                      "rounds": rounds, "errors": errors, "rows": len(recs), "test": a.now}
+                                      "rounds": rounds, "errors": errors, "rows": len(recs), "test": a.now, "covered": covered, "coverage": coverage}
+    if not a.now:
+        pf = out / f"PARTIAL_auction_{phase.lower()}"
+        if coverage is not None and coverage < 0.9:
+            pf.write_text(json.dumps({"covered": covered, "symbols": len(syms), "coverage": coverage}), encoding="utf-8")
+            log(f"覆盖率 {coverage:.1%} < 90%: 写 {pf.name}")
+        else:
+            pf.unlink(missing_ok=True)
     mf_path.write_text(json.dumps(mf, ensure_ascii=False, indent=1), "utf-8")
     if not a.now and recs:
         (out / f"DONE_auction_{phase.lower()}").write_text(dt.datetime.now().isoformat())

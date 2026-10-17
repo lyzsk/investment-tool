@@ -1,0 +1,32 @@
+-- investment_market.stock_industry definition
+
+CREATE TABLE `stock_industry` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `symbol` varchar(16) NOT NULL COMMENT '个股 symbol(同 security_master; 申万表中的 B 股 900/200 段也照收)',
+  `code` varchar(10) NOT NULL COMMENT '6 位代码',
+  `classification` varchar(8) NOT NULL COMMENT 'SW(申万, 优先用)/CSRC(证监会, 申万缺时兜底)',
+  `version` varchar(10) NOT NULL COMMENT 'SW2021(2021-07-30 起, 31 个一级)/SW2014(2014-02-21~2021-07-29, 28 个一级)/SW_OLD(更早)/CSRC2012',
+  `ind_code` varchar(12) NOT NULL COMMENT '原始行业代码: 申万=6 位三级代码(如 480301); 证监会=门类+大类(如 J66)',
+  `l1_code` varchar(12) DEFAULT NULL COMMENT '一级代码: 申万 XX0000 / 证监会门类字母',
+  `l1_name` varchar(40) DEFAULT NULL COMMENT '一级名称(申万一级 / 证监会门类)',
+  `l2_code` varchar(12) DEFAULT NULL COMMENT '二级代码: 申万 XXXX00 / 证监会大类(J66)',
+  `l2_name` varchar(40) DEFAULT NULL COMMENT '二级名称',
+  `l3_code` varchar(12) DEFAULT NULL COMMENT '三级代码(仅申万)',
+  `l3_name` varchar(40) DEFAULT NULL COMMENT '三级名称(仅申万)',
+  `in_date` date NOT NULL COMMENT '该归属生效日(含)。申万=官方计入日期; 证监会=月度快照首次观测日(月粒度)',
+  `out_date` date DEFAULT NULL COMMENT '该归属失效日(不含, =下一条归属的生效日); NULL=当前归属',
+  `in_exact` tinyint NOT NULL DEFAULT '1' COMMENT '1-in_date 为真实生效日(证监会为月粒度观测); 0-左删失(首个快照已是该行业)',
+  `source` varchar(20) NOT NULL COMMENT 'swsresearch(申万研究所官网 StockClassifyUse_stock.xls)/baostock(证监会行业)',
+  `status` tinyint DEFAULT '0' COMMENT '0-成功, 1-失败',
+  `create_by` bigint DEFAULT NULL,
+  `create_time` datetime(6) DEFAULT NULL,
+  `update_by` bigint DEFAULT NULL,
+  `update_time` datetime(6) DEFAULT NULL,
+  `is_deleted` tinyint DEFAULT '0' COMMENT '0-未删除, 1-已删除',
+  `delete_by` bigint DEFAULT NULL,
+  `delete_time` datetime(6) DEFAULT NULL,
+  `remark` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_symbol_cls_in` (`symbol`, `classification`, `in_date`) COMMENT '普通索引: 按个股+口径+日期查当时行业',
+  KEY `idx_cls_l1_in` (`classification`, `l1_code`, `in_date`) COMMENT '普通索引: 按行业查当时成员'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
