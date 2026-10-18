@@ -1,0 +1,105 @@
+{
+ "skill": "bank",
+ "unit": "skill",
+ "version": {
+  "v": 3,
+  "id": "v003_20261018-2217",
+  "ts": "2026-10-18T22:17:30",
+  "effective_from": "2026-10-18T22:16:42",
+  "unit": "skill",
+  "version_hash": "f3ab3232cfc6f2e3d85fafae79fc7f22e4692a78be596ea9def2693b282a45ec",
+  "cat_hash": {
+   "提示词": "251611b0161c317c9a6d98cf92848bed221591ccecc2dae7c3cdd571ad1d198a",
+   "画像": "630b66e3250332ddc6244c908f88bf7dc3ae32bd6999989f4d704f26fcae7d14"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v002_20261018-2208",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/profile.md",
+    "persona/rules.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "画像": [
+    "persona/profile.md",
+    "persona/rules.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 6,
+   "removed": 6
+  },
+  "bytes_weight": 11782,
+  "why": "10/18 晚 真实费用(最低5元)+1万规模",
+  "code": {
+   "chain": "7c5d931e8719",
+   "distill": "639da8712cdf"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "ca5f73cfea41b0b1fb5605c94da9144a71969e192500ae332f34c069edec63c0",
+   "bytes": 386,
+   "lines": 6,
+   "mtime": "2026-10-18T21:56:08",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "5ff2de70351767082eeac7e1a256ba6dea6993b75e4c4c882851af145e65af1b",
+   "bytes": 5341,
+   "lines": 72,
+   "mtime": "2026-10-18T22:16:42",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "46031c5b2cff2e27d566c678754279887ce790515518efddb372da659fc8992f",
+   "bytes": 3637,
+   "lines": 35,
+   "mtime": "2026-10-18T22:16:41",
+   "cls": "画像",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "7f402daf4980774d47fa00b8048a4a7f54d662cbdcd984ff34afcf559e4725e7",
+   "bytes": 1609,
+   "lines": 15,
+   "mtime": "2026-10-18T22:08:36",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/distill.md": {
+   "sha256": "42a58f5222ee68b2c19121d44eb765ec565f1a67e27129de66f234ddafb300ec",
+   "bytes": 809,
+   "lines": 10,
+   "mtime": "2026-10-18T21:54:54",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "7c5d931e8719",
+  "distill": "639da8712cdf",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "62b0c54b3cb9",
+   "skills/bank-skill/workflows/chain.md": null,
+   "skills/bank-skill/SKILL.md": "7f402daf4980",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/bank-skill/workflows/distill.md": "42a58f5222ee",
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "9c743929403e"
+  }
+ }
+}

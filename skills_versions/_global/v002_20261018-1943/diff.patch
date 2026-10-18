@@ -1,0 +1,122 @@
+--- v001_20261018-1713/scripts/claude_profile/chain_flags.txt
++++ v002_20261018-1943/scripts/claude_profile/chain_flags.txt
+@@ -36,5 +36,5 @@
+ 
+ # 10/16 晚 03 保留分歧版(DEBATE_V2, 全部链+对照组): 追价折扣闸先关(折扣系数是拍的, 且会让开盘型导师更不像), 只注入分歧摘要; 想开改 1
+-CHAIN_DEBATE_GATE=0
++CHAIN_DEBATE_GATE=0   # 10/18 用户定: 先攒数据——每链 debate.json 照记分歧系数/追价上限(闸开时会怎么折), 不生效
+ 
+ # 10/16 晚 言行一致性机械检查(TODO 三-3 第一期 + B7 引用核对): 噪声带实验(A10)跑完后再开, 免得实验中途换代码
+@@ -51,13 +51,13 @@
+ CHAIN_PRICE_RULES=1   # 10/17 晚: A4 沙盒(10/16 复现)成交率 37%→61%、仓位差 38%→28%、拟人度不降 → 主会话先定开(用户授权先定, 之后复核)
+ # 2c 出手时段跟真人走: 04/06 注入时段分布(slot_profile/<日>.json); 0915 立即生效新开仓 ≤ 0915 份额×典型日新开仓额(软闸回炉一次)
+-CHAIN_SLOT_BUDGET=0
++CHAIN_SLOT_BUDGET=0   # 10/18 用户定: 先攒数据——关着也跑影子模式(quality 日志 shadow=true, 不回炉)
+ # 2e T 法画像: 04/06 注入(t_profile/<日>.json); "不学T"导师(antoo 等负期望)禁同票日内回转(软闸回炉一次); "执行T"导师子链按其 T 法
+-CHAIN_T_PROFILE=0
++CHAIN_T_PROFILE=1   # 10/18 用户定开(沙盒 ab1 成交率 27%→38%、仓位差 67%→58% 四组最好; ab3 与基线持平, 用户仍要开)
+ # 2f 相似市况: 0915 主链 02/04 注入最相似 3 天 + 之后几天 + 导师当时怎么做(similar_days/<日>.json)
+-CHAIN_SIMILAR_DAYS=0
++CHAIN_SIMILAR_DAYS=1   # 10/18 用户定开(沙盒 ab1 成交率 27%→38%、仓位差 67%→58% 四组最好; ab3 与基线持平, 用户仍要开)
+ # override 锁层: overrides/locks.json(override_stats.py 收盘后算: 近 20 日改基线净负)锁住的层 06 必须接受基线; 需 CHAIN_LEDGER_CONSTRAINTS=1
+-CHAIN_OVERRIDE_LOCK=0
++CHAIN_OVERRIDE_LOCK=0   # 10/18 用户定: 先攒数据——关着也跑影子模式(quality 日志 shadow=true, 不回炉)
+ # 三-3 第二期: 引用规则方向与动作相符 + 机械触发规则漏用(rule_tags/<导师>.json; 软闸回炉一次)
+-CHAIN_RULE_CHECK=0
++CHAIN_RULE_CHECK=1   # 10/18 用户定开(沙盒 ab1 成交率 27%→38%、仓位差 67%→58% 四组最好; ab3 与基线持平, 用户仍要开)
+ 
+ # 10/18 自动记忆开关(全部自动化 claude -p: 决策链+claude_call 系; 环境变量 =0/=1 优先, 否则读本行; 默认 0=现状记忆照常)
+@@ -70,3 +70,3 @@
+ 
+ # 10/18 用户批(省 token): 每步素材包/工作方式约定; 沙盒跑完后改 1
+-CHAIN_STEP_PACK=0   # 10/18 沙盒 new 组: token 与基线持平(1.87 亿 vs 1.86 亿), 没测出省 → 先不开, 查清工具调用次数再定
++CHAIN_STEP_PACK=1   # 10/18 晚查因后开: 0915 输入 -16%、工具调用 -24%(超出噪声带), 每天约省 $5~7; 盘中子链没覆盖(占全天 64%), 子链版另起开关再测
+--- v001_20261018-1713/scripts/taoge-chain/run_chain.py
++++ v002_20261018-1943/scripts/taoge-chain/run_chain.py
+@@ -127,4 +127,19 @@
+             f"{real}/ 是之后蒸馏过的新版本, 含回放日之后的信息, 禁止读取。\n\n")
+     return note + prompt.replace(real, PERSONA_REL)
++
++
++def _lock_chain_md(pa):
++    """10/18 全 skill 版本化: persona_asof 同时把 D 09:15 前的 chain.md 还原到 <沙盒>/persona/<skill>/_workflows/chain.md → 模板也锁;
++    共享 01m / 通用规范读 taoge 的 chain.md, 沙盒里有 taoge 锁版也改读它(没有=照旧读当前)"""
++    global CHAIN_MD
++    cm = pa / "_workflows" / "chain.md"
++    if cm.exists():
++        CHAIN_MD = cm.resolve()
++        print(f"as-of chain.md: {CHAIN_MD}")
++    else:
++        print("WARN: as-of 沙盒无 _workflows/chain.md, 模板读的是当前 chain.md(可能含回放日之后的改动)")
++    tc = pa.parent / "taoge" / "_workflows" / "chain.md"
++    if tc.exists():
++        SKILL_CFG["taoge"]["chain_md"] = tc.resolve()
+ 
+ 
+@@ -3526,4 +3541,40 @@
+ 
+ 
++def tudou_t0_block(step, ctx):
++    """10/18 土豆选债规则(scripts/tzzb/model_out/reports/tudou_select_20261018.md): 他 09:25 竞价买的那只 ≈ T-1 全市场转债成交额第一,
++    103 天 top1 60% / top3 88%(时间外 68% / 95%); 机械算好前 3 名注入 0915 链 04/06, 配合 op=竞价T。非土豆 / 子链 / 缺数据 = 空串"""
++    if SKILL_NAME != "buchitudou0" or step not in ("04", "06") or ctx.get("sub"):
++        return ""
++    try:
++        mk = ROOT / "downloads" / "market"
++        dd = ctx.get("date_dash") or datetime.now().strftime("%Y-%m-%d")
++        prev = max(p.name for p in mk.iterdir() if re.fullmatch(r"\d{4}-\d\d-\d\d", p.name) and p.name < dd and (p / "kline_day.jsonl").exists())
++        names = {}
++        sm = mk / prev / "security_master.jsonl"
++        if sm.exists():
++            for l in sm.read_text(encoding="utf-8").splitlines():
++                r = json.loads(l)
++                if r.get("secType") == "CB":
++                    names[r["symbol"]] = r.get("name")
++        rows = []
++        for l in (mk / prev / "kline_day.jsonl").read_text(encoding="utf-8").splitlines():
++            r = json.loads(l)
++            if re.fullmatch(r"(sh11|sz12)\d{4}", r.get("symbol", "")) and r.get("amount"):
++                rows.append(r)
++        rows.sort(key=lambda r: -float(r["amount"]))
++        top = [f"{i}. {names.get(r['symbol'], '?')}({r['symbol'][2:]}) 成交额 {float(r['amount']) / 1e8:.1f} 亿, 收 {r['close']}"
++               + (f"({(r['close'] / r['preClose'] - 1) * 100:+.1f}%)" if r.get("preClose") else "") for i, r in enumerate(rows[:3], 1)]
++        if not top:
++            return ""
++        return ("\n\n# 驱动器注入: 竞价T 机械选债(10/18 逆向他的 103 个竞价日: 09:25 竞价买的那只 ≈ 前一交易日全市场转债成交额第一, "
++                "top1 命中 60% / 前三 88%, 时间外 68% / 95%; 他连做同一只时它通常仍是额第一, 掉出前二多半换票)\n"
++                f"- {prev} 转债成交额前三: " + " | ".join(top) + "\n"
++                "- 用法: 首选第 1 名下 op=\"竞价T\"(竞价买、开盘即卖), 金额按他的固定名义本金习惯; 正股竞价高开 ≥2% 时他胜率 91%(0915 看不到当天竞价, 这只是参考); "
++                "第 1 名正股前一日大跌且他近 8 日做过别的熟票时, 他偶尔回到老票(17/103 天)。\n")
++    except Exception as e:   # noqa: BLE001  fail-open
++        print(f"WARN: 竞价T 选债注入失败(fail-open): {e}")
++        return ""
++
++
+ def horizon_block(step, ctx):
+     """02/03/04/07 prompt 末尾: 本导师持有期参考(+04 持仓论点回看 / 07 多日核对+导师真人当日操作)。关闭/转债链/其他步=空串"""
+@@ -3571,5 +3622,5 @@
+ #   ①02 也附 cand_snap/paper_state ②附"工作目录清单"(文件名+大小)免摸目录 ③工作方式约定: 不自检 contract(驱动器写完立刻机械校验并回传原因)、产物一次写全、rules 按索引行号一次读
+ STEP_PACK = _flag("CHAIN_STEP_PACK")
+-STEP_PACK_EXTRA = {"02": ["@cs", "@ps"]}
++STEP_PACK_EXTRA = {"02": ["@ps"]}   # 10/18 查因: 0915 的 cand_snap 要到 03j 后才生成, 02 附它 20/20 次都是"不存在" → 去掉
+ 
+ 
+@@ -3957,4 +4008,5 @@
+         p_ += ledger_block(step, ctx)       # 10/16 晚 三-2 账本约束/基线/候选池(02/04/06): 关=空串
+         p_ += quality_block(step, ctx)      # 10/17 ② 决策质量参考(相似市况/时段/T 法/挂价规则): 全关=空串
++        p_ += tudou_t0_block(step, ctx)     # 10/18 土豆竞价T 机械选债(非土豆=空串)
+         p_ += late_news_block(step, run_dir, date_dash, slot)   # 10/16: 0915 链开跑后才入库的发哥推演, 作增量注入后续步
+         if SKILL_NAME not in ("taoge", "control", "buchitudou0") and step in ((("03b", "03s", "03j") if mimic_on() else ("blind", "03b", "03s", "03j"))):   # 10/16 审计#8: 盲审/辩论模板残留桃哥口径
+@@ -4010,5 +4062,5 @@
+             a6["tail"][step] = (((neg_warn() + reject_rules()) if step == "05" else "") + profile_block(step, ctx)
+                                 + (constraint_text(ctx["pc"], step) if step in ("04", "05", "06") else "")
+-                                + reflection_block(step, ctx) + fix_block(step, ctx) + ledger_block(step, ctx) + quality_block(step, ctx) + horizon_block(step, ctx))
++                                + reflection_block(step, ctx) + fix_block(step, ctx) + ledger_block(step, ctx) + quality_block(step, ctx) + horizon_block(step, ctx) + tudou_t0_block(step, ctx))
+         tpl = templates[tpl_key(step, templates)].replace("{date_dash}", date_dash).replace("{date}", date).replace("{run_dir}", rd)
+         main = a6["main"] and step in A6_MAIN_STEPS and not a6["main_broken"]
+@@ -5750,4 +5802,5 @@
+             PERSONA_REL = pa.resolve().relative_to(ROOT).as_posix() if pa.resolve().is_relative_to(ROOT) else str(pa.resolve())
+             print(f"as-of 画像: {PERSONA_REL} ({(pa / '_asof.json').read_text(encoding='utf-8')[:160].strip()})")
++            _lock_chain_md(pa)
+         elif os.environ.get("CHAIN_PERSONA_ASOF_REQUIRED") == "1":
+             sys.exit(f"as-of 要求锁画像但沙盒没有 {pa}/_asof.json(先跑 persona_asof.py), 拒绝用当前画像回放")

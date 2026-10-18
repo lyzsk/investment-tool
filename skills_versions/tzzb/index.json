@@ -1,0 +1,54 @@
+{
+ "skill": "tzzb",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261018-1713",
+   "ts": "2026-10-18T17:13:25",
+   "effective_from": "2026-10-18T16:19:49",
+   "unit": "skill",
+   "version_hash": "02ea56d832b1e563d28731f0e65b316b47464ab35dd90718129f51740ada22e6",
+   "cat_hash": {
+    "提示词": "02ea56d832b1e563d28731f0e65b316b47464ab35dd90718129f51740ada22e6"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "PROCESS.md",
+     "SKILL.md",
+     "references/ledgers.md",
+     "references/negstats.md",
+     "references/reject_rules.md",
+     "workflows/distill.md",
+     "workflows/sum.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "PROCESS.md",
+     "SKILL.md",
+     "references/ledgers.md",
+     "references/negstats.md",
+     "references/reject_rules.md",
+     "workflows/distill.md",
+     "workflows/sum.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 345,
+    "removed": 0
+   },
+   "bytes_weight": 47357,
+   "why": "10/18 全 skill 版本化首版",
+   "code": {
+    "chain": "0249239e62d2",
+    "distill": "bfee2a128a5b"
+   }
+  }
+ ],
+ "events": []
+}

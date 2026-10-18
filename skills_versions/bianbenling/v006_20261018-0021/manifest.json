@@ -1,0 +1,115 @@
+{
+ "skill": "bianbenling",
+ "version": {
+  "v": 6,
+  "id": "v006_20261018-0021",
+  "ts": "2026-10-18T00:21:25",
+  "effective_from": "2026-10-18T00:20:04",
+  "persona_hash": "6d151b3b1d44d2b8c54b249a594fc70fc8e0fcccb45c93de9cf029d26f385aee",
+  "data_hash": "a73e4b4a28933540abe8af44eeaffb3ae8a170a4692e8eea321b2a1ad4cb6b00",
+  "parent": "v005_20261017-2241",
+  "changed": {
+   "added": [],
+   "modified": [
+    "profile_index.md"
+   ],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 1,
+   "removed": 1
+  },
+  "bytes_weight": 82359,
+  "why": "check-md 2026-10-16 00:21",
+  "code": {
+   "chain": "893f556f8a89",
+   "distill": "70ca86c22e46"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "cc1abd61919911df70bd440f74387010804ddb57dc36805898a0c6145674e360",
+   "bytes": 2753,
+   "lines": 34,
+   "mtime": "2026-10-17T00:02:59",
+   "cls": "weight"
+  },
+  "cases_auto.jsonl": {
+   "sha256": "be9b73da3ea1cee0a01c8a3ab6b3f213f6ff0dde1905b7509ff52ea8558fec67",
+   "bytes": 93549,
+   "lines": 103,
+   "mtime": "2026-10-17T00:03:33",
+   "cls": "data"
+  },
+  "fills_rt.jsonl": {
+   "sha256": "ccf3d00cb1a979b70e8a30919a73a7fcba4bc40a7cb05900e25fcb4d41697cba",
+   "bytes": 30191,
+   "lines": 103,
+   "mtime": "2026-10-17T00:03:50",
+   "cls": "data"
+  },
+  "fingerprint.md": {
+   "sha256": "891c98520b2f3a549c8319dce06a4c471e8a71acc526e7fec01f3b0acf201b60",
+   "bytes": 13871,
+   "lines": 217,
+   "mtime": "2026-10-17T00:03:33",
+   "cls": "weight"
+  },
+  "orders_inferred.json": {
+   "sha256": "f8f8b4e75789c415146bc2a2c4e8fd4c267f0617be25d110fc6a9542bff8da84",
+   "bytes": 7809,
+   "lines": 335,
+   "mtime": "2026-10-17T13:16:14",
+   "cls": "weight"
+  },
+  "profile.md": {
+   "sha256": "c71900271ca2f2cc13a205ee2e96b0bbb724d41c5a57dabc4a13639edb3c3b61",
+   "bytes": 11598,
+   "lines": 100,
+   "mtime": "2026-10-16T23:24:10",
+   "cls": "weight"
+  },
+  "profile_index.md": {
+   "sha256": "503736bc78f67dcac1e922277dbb26eecbae3a9277e9776a3851341b6328eee0",
+   "bytes": 4942,
+   "lines": 35,
+   "mtime": "2026-10-18T00:20:04",
+   "cls": "weight"
+  },
+  "rules.md": {
+   "sha256": "146b708a3db2d2e75f8eeae1c14d131b978921dbab37c09517b4657a3afca996",
+   "bytes": 36964,
+   "lines": 259,
+   "mtime": "2026-10-17T22:40:07",
+   "cls": "weight"
+  },
+  "rules_index.md": {
+   "sha256": "bca8adf3efe36c653ade472bf76edba518987081d4828114fafc02fe897f4925",
+   "bytes": 4422,
+   "lines": 17,
+   "mtime": "2026-10-17T22:40:51",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "893f556f8a89",
+  "distill": "70ca86c22e46",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "c7d108373e80",
+   "skills/bianbenling-skill/workflows/chain.md": "226fefd94053",
+   "skills/bianbenling-skill/SKILL.md": "d681977443f5",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/bianbenling-skill/workflows/distill.md": "dee4aebcdb5a",
+   "scripts/tzzb/distill_daily.py": "6de6f418c374",
+   "scripts/tzzb/llm_batch_tzzb.py": "9e80ff53ca5d",
+   "scripts/tzzb/mentor_fingerprint.py": "4fe126f8c888",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "2946ee81b249"
+  }
+ }
+}

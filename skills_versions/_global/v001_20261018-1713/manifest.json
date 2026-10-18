@@ -1,0 +1,68 @@
+{
+ "skill": "_global",
+ "unit": "global",
+ "version": {
+  "v": 1,
+  "id": "v001_20261018-1713",
+  "ts": "2026-10-18T17:13:25",
+  "effective_from": "2026-10-18T16:46:14",
+  "unit": "global",
+  "version_hash": "2d6dc9c615bf3fb7c9d0e5e3a65895ed33b2fc377d8f66d407724cf942af44f6",
+  "cat_hash": {
+   "全局": "2d6dc9c615bf3fb7c9d0e5e3a65895ed33b2fc377d8f66d407724cf942af44f6"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": null,
+  "changed": {
+   "added": [
+    "scripts/claude_profile/chain_flags.txt",
+    "scripts/dfcf/paper/params.yaml",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "modified": [],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "全局": [
+    "scripts/claude_profile/chain_flags.txt",
+    "scripts/dfcf/paper/params.yaml",
+    "scripts/taoge-chain/run_chain.py"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 5998,
+   "removed": 0
+  },
+  "bytes_weight": 410357,
+  "why": "10/18 全 skill 版本化首版",
+  "code": null
+ },
+ "files": {
+  "scripts/dfcf/paper/params.yaml": {
+   "sha256": "4c981cf5972930f4e5cbe8c296fad04756f6301bb35c375104fc11ba77d8014e",
+   "bytes": 11083,
+   "lines": 156,
+   "mtime": "2026-10-18T00:15:17",
+   "cls": "全局",
+   "bulk": false
+  },
+  "scripts/claude_profile/chain_flags.txt": {
+   "sha256": "791a3b24b4aad805e00f84b2897baad820e9c19f55ce06329edb9c3d40739995",
+   "bytes": 7217,
+   "lines": 72,
+   "mtime": "2026-10-18T15:52:11",
+   "cls": "全局",
+   "bulk": false
+  },
+  "scripts/taoge-chain/run_chain.py": {
+   "sha256": "fc223ed4aca3cd6d8269ae645cafb0fcfd39bfae28782cf7a12235b9eed8b9cb",
+   "bytes": 392057,
+   "lines": 5770,
+   "mtime": "2026-10-18T16:46:14",
+   "cls": "全局",
+   "bulk": false
+  }
+ },
+ "code": null
+}

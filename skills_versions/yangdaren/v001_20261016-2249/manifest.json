@@ -1,0 +1,59 @@
+{
+ "skill": "yangdaren",
+ "version": {
+  "v": 1,
+  "id": "v001_20261016-2249",
+  "ts": "2026-10-16T22:49:13",
+  "effective_from": "2026-10-16T00:06:02",
+  "persona_hash": "970b9a975b870653120365b654829b3555f72966947911f07afe3f822cc40d47",
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": null,
+  "changed": {
+   "added": [
+    "cases.md"
+   ],
+   "modified": [],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 57,
+   "removed": 0
+  },
+  "bytes_weight": 4571,
+  "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+  "code": {
+   "chain": "7957b4d11c43",
+   "distill": "e7c7726b6d85"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "724a48f0b3dcdc7e36837316cae6ab9059aaba84e0ea81e8b13330ffe44d44df",
+   "bytes": 4571,
+   "lines": 57,
+   "mtime": "2026-10-16T00:06:02",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "7957b4d11c43",
+  "distill": "e7c7726b6d85",
+  "chain_files": {
+   "scripts/taoge-chain/run_taoge_chain.py": "09e7d486384c",
+   "skills/yangdaren-skill/workflows/chain.md": null,
+   "skills/yangdaren-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"
+  },
+  "distill_files": {
+   "skills/yangdaren-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "9ec70798c98a",
+   "scripts/tzzb/llm_batch_tzzb.py": "2c2246c6c7e1",
+   "scripts/tzzb/mentor_fingerprint.py": "d218700ea1cf",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "1109d4201eb3",
+   "scripts/md/gen_profile_index.py": "16926ed80e73",
+   "scripts/md/gen_rules_index.mjs": "654e7e6d356c",
+   "scripts/md/check_md_daily.py": "51cab73b861f"
+  }
+ }
+}

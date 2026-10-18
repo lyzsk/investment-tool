@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.market.mapper.AdjustmentFactorMapper">
+
+    <!-- 历史回补幂等重导第 1 步: 物理删除该标的全部因子(不是逻辑删除, 见 Mapper 接口注释) -->
+    <delete id="physicalDeleteBySymbol">
+        DELETE FROM investment_market.adjustment_factor WHERE symbol = #{symbol}
+    </delete>
+
+    <!-- 幂等重导第 2 步: 批量插入 -->
+    <insert id="insertBatch">
+        INSERT INTO investment_market.adjustment_factor
+        (symbol, ex_date, factor, source, status, create_by, create_time, is_deleted)
+        VALUES
+        <foreach collection="list" item="f" separator=",">
+            (#{f.symbol}, #{f.exDate}, #{f.factor}, #{f.source}, 0, #{f.createBy}, #{f.createTime}, 0)
+        </foreach>
+    </insert>
+</mapper>

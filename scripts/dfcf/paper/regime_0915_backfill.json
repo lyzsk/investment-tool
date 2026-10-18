@@ -1,0 +1,20 @@
+{
+ "_说明": "0915 盘前 02 市况补录(10/12 晚从 chain_step 导出): 该日顶层 02_analysis.md 已被盘中子链覆盖, 只有库里留有 0915 版 contract; 10/13 起读 run_dir/slots/0915/02_analysis.md, 不再需要本文件追加",
+ "live-20261012": {
+  "a658": "有主线",
+  "bianbenling": "有主线",
+  "buchitudou0": "有主线",
+  "chong5000w": "有主线",
+  "control": "有主线",
+  "daxingdaxingdadangxing": "无主线退潮",
+  "gaogailvfuli": "无主线退潮",
+  "lianghuaxiaohao": "有主线",
+  "liuyiqing": "有主线",
+  "lubenyuan": "有主线",
+  "qushitiange": "无主线退潮",
+  "stzhilang": "有主线",
+  "taoge": "有主线",
+  "xingjianye": "有主线",
+  "xuanqiucaijing": "有主线"
+ }
+}

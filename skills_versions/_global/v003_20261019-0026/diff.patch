@@ -1,0 +1,19 @@
+--- v002_20261018-1943/scripts/claude_profile/chain_flags.txt
++++ v003_20261019-0026/scripts/claude_profile/chain_flags.txt
+@@ -71,2 +71,7 @@
+ # 10/18 用户批(省 token): 每步素材包/工作方式约定; 沙盒跑完后改 1
+ CHAIN_STEP_PACK=1   # 10/18 晚查因后开: 0915 输入 -16%、工具调用 -24%(超出噪声带), 每天约省 $5~7; 盘中子链没覆盖(占全天 64%), 子链版另起开关再测
++
++# 10/18 晚 均线 / 三态 / 风险仓位(用户定"周三 10/21 接, 先备好"; 关 = 与之前逐字节一致)
++CHAIN_REGIME_FACTS=0   # facts 加「关注票状态」节(三态 / 箱体 / EMA / 止损候选; facts.mjs)
++CHAIN_RISK_SIZE=0      # 06 买单按 1% 风险倒推建议股数 + ¼凯利上限, 只记账不拦单(quality_hooks._post_risk)
++MIX_REGIME=0           # A-mix-sw 按该票三态 × 导师在该状态的历史期望加权(mix_plans.regime_mult)
+--- v002_20261018-1943/scripts/taoge-chain/run_chain.py
++++ v003_20261019-0026/scripts/taoge-chain/run_chain.py
+@@ -98,5 +98,5 @@
+ NO_AUTOMEMORY = _flag("CLAUDE_NO_AUTOMEMORY")
+ # 10/17 ② 决策质量新功能(TODO 三-2b/2c/2e/2f + override 锁层 + 三-3 第二期; 机械层 scripts/dfcf/paper/quality_hooks.py; 全部默认 0, 关=不 import、逐字节旧行为)
+-QF = {k: _flag(k) for k in ("CHAIN_PRICE_RULES", "CHAIN_SLOT_BUDGET", "CHAIN_T_PROFILE", "CHAIN_SIMILAR_DAYS", "CHAIN_OVERRIDE_LOCK", "CHAIN_RULE_CHECK")}
++QF = {k: _flag(k) for k in ("CHAIN_PRICE_RULES", "CHAIN_SLOT_BUDGET", "CHAIN_T_PROFILE", "CHAIN_SIMILAR_DAYS", "CHAIN_OVERRIDE_LOCK", "CHAIN_RULE_CHECK", "CHAIN_RISK_SIZE")}   # 10/18 晚 +RISK_SIZE(周三开)
+ # 10/18 用户批(仓位太轻, docs/research/position_light_20261018.md): ①tzzb 导师链新开仓买单 ≥ 导师单票习惯(真人单票最大仓位中位)的 75%, 拆小单=回炉
+ #   ②买单 cancel_below 离挂价不得小于该票近 30 日日振幅中位的一半, 太近驱动器自动放宽(不回炉, 省 token); 关=逐字节旧行为

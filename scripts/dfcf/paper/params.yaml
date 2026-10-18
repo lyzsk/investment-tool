@@ -1,0 +1,156 @@
+# params.yaml — paper 策略参数(我们的策略, 非 persona; 2026-10-05 建, B6 小件)
+# 消费方: run_chain.py(v06 仓位复检读 cap_single)/06 prompt 引用; 修改后无需改代码
+# 立法源: docs/TODO.md §E「仓位参数」; 语料实证=regime 仓位制(桃哥 rules A1/A2)
+
+# ---- 股票线(taoge) ----
+stock:
+  base_state: 地量防守          # 当前 regime 基准态(02 步判定偏离时按 regime 表调)
+  max_total_position: 0.30      # 基准态总仓上限(3成); 市况转强放宽, 主跌强制极低仓
+  cap_single: 0.15              # 单票上限(1.5成 nav)——驱动器 v06 机械复检口径
+  min_cash_reserve: 0.40        # 现金留存下限(4成)
+  regime:
+    有主线: { max_total_position: 0.60, cap_single: 0.20 }
+    无主线退潮: { max_total_position: 0.15, cap_single: 0.10 }
+    普跌: { max_total_position: 0.05, cap_single: 0.05 }
+
+# ---- 转债线(cb, A-cb 二期; 10/3 用户立法: 全仓单票+日内机械出) ----
+cb:
+  max_total_position: 1.00      # 全仓单票进
+  take_profit_ladder: 0.03      # 梯子目标 +3%
+  trail_sentinel: true          # 回落哨兵(高点回落 X% 即出, X 先用 1.5 观察再调)
+  eod_force_exit: true          # 尾盘必走(不隔夜)
+  # 妖债秒单打法(严牌类)=A-cb 疆界, C-cb 不越界(账本层由 plans source 区分)
+
+# ---- 撮合仿真(matchter.mjs CONFIG 为准, 此处只做口径声明) ----
+sim:
+  price_cage: true              # 价格笼子 ±2%(连续竞价申报口径, 10/4 已落地 matcher)
+  conservative_fill: true       # 触及≠成交, 买价须被现价击穿
+
+# ---- 首跑期测试下限(2026-10-07 晚定稿: 分层制, Claude 裁) ----
+# 目的: 防空仓白测; 效力=覆盖 stock.regime 总仓上限与 no_trade, 单票上限照旧
+# 实证: tzzb 榜单头部 position_rate 0.93-1.0 满仓文化(尾部亏货也满仓→满仓非alpha, 选股才是)
+test_floor:
+  min_total_position: 0.40        # 真人拟人链(taoge/天哥/卢本圆): 参与度线, 保 regime 防守空间
+  min_total_position_tzzb: 0.80   # tzzb 系(A-cb/A-tzzb 聚合): 满仓文化线
+
+# ---- 动态仓位(2026-10-13 用户定: 按各导师真实持仓习惯学, 动态上限+动态下限, 替代上面固定的 15% 单票 / 40% 下限) ----
+# 数据: downloads/tzzb/<导师>/day_positions.json 最近 window 个有记录的交易日(收盘口径, 剔逆回购); tzzb 每晚抓取后自动变 = 动态
+# 单票上限 = 每日最大单票仓位的 cap_pct 分位(取整到 5%, 夹在 [cap_min, 1]); 总仓下限 = 每日收盘总仓的 floor_pct 分位(取整到 5%, ≤ floor_max)
+# 下限为 0(导师常空仓收盘)时: 不设最低买入, 但"纯观望=违规"不变——不买也须给进场条件单
+# 无账本的链(B站 UP/对照组)用 default_*; 土豆(转债 T+0, 收盘只剩逆回购, 收盘口径不适用)维持全仓 1.0 + test_floor.min_total_position_tzzb
+dynamic_position:
+  enabled: true
+  window: 120
+  cap_pct: 0.75
+  floor_pct: 0.25
+  cap_min: 0.25
+  floor_max: 0.80
+  default_cap: 0.25          # 用户 10/13: "一般 25% 开一仓"
+  default_floor: 0.40
+  # 10/15 晚用户定"真·动态下限": 下限跟导师近期实际仓位走(原=120 日收盘总仓 P25 固定值, 导师这周空仓链还被逼 80% 仓)
+  floor_recent_days: 5        # 取导师最近 N 个有记录交易日的收盘总仓中位数
+  floor_recent_factor: 0.8    # × 系数(留出择时余地), 再 × 02 立场系数(多 1/中立 0.5/空 0), 封顶 floor_max
+  soft_floor: true            # 软约束: 没有本导师风格的候选就不凑满(记日志), 禁止拿银行/宽基等导师不碰的票凑仓; 对照组 control 仍硬约束(基准)
+
+# ---- 盘中子链零 token 触发闸 A(2026-10-14 晚; 开关 chain_flags.txt CHAIN_SUBCHAIN_GATE; 消费方 run_chain.py gate_decide) ----
+# 子链开跑前机械判断, 自上一个已跑 slot 以来下列都不成立 → 跳过本 slot(写 06 维持产物+run_meta skipped, 不调 claude):
+#   a 本链账本有新成交/止损/挂单失效(撤单工具单的自失效不算)   b 持仓/挂单/0915 候选任一现价变动 ≥ min(price_move_pct, 近 amp_window 日振幅中位 × amp_half_factor)
+#   c 上证/创业板指数变动 ≥ index_move_pt 个百分点             d 新加红电报命中持仓/候选票名或代码/02 方向关键词      e 本 slot ∈ force_slots(强制跑)
+# 另: 无上一已跑 slot / 上一已跑 slot 没出 06 / 取数失败 → 一律照跑(fail-open)
+subchain_gate:
+  price_move_pct: 1.5
+  amp_half_factor: 0.5
+  amp_window: 30
+  index_move_pt: 0.8
+  force_slots: ["1000", "1455"]
+  min_force_share: 0.05      # 10/16 晚 A13③: 导师真人该时段成交占比低于此值, 强制 slot 不强制(异动触发照常); 数据 slot_activity.json
+  esc_rerun_max_elapsed_s: 900    # 修④: 子链 ESCALATE 后本 slot 重跑一次的时间预算(进程已跑秒数超过则不重跑直接 exit 3; Java 子链超时 40min)
+
+# ---- 反思回注 FinCon 式触发(2026-10-16 晚, TODO 二B-6; 开关 chain_flags.txt CHAIN_REFLECT_TRIGGER; 计算 reflect_trigger.py --date D → reflection/<D>.json) ----
+# 只在"持续偏离/回撤"时才往 04/06 注入执行参数+case 提示(≤max_cases 条, 取自本链 07 复盘), 画像/规则文件不动; 未触发=不注入
+reflection_trigger:
+  streak_days: 3            # 拟人偏差: 同一维度同一偏向连续 N 个配对日(交不交易/方向/标的/仓位/时段)
+  release_days: 2           # 已触发项连续 N 日不再偏离/回到线内 → 解除
+  max_lag_days: 3           # 真人账本最新配对日落后运行日超过 N 个交易日 → 拟人触发作废(数据陈旧)
+  pos_gap: 0.30             # 仓位偏离: |链收盘总仓 − 真人收盘总仓| > 此值(双方封顶 100%)
+  board_min_overlap: 0.34   # 标的偏离: 足迹市场板块(主板/创业/科创/北交/ST/ETF/转债)分布重合度 < 此值
+  dd_window: 5              # 回撤窗口(交易日)
+  dd_abs: -0.05             # 窗口内峰值→今日回撤 ≤ -5% 触发
+  dd_rel_ctrl: -0.05        # 10/18 R5: 窗口收益 − 对照组同窗收益 ≤ -5% 触发(原 -3% ≈ 5 日噪声 1.2σ, 约 10% 误触发; -5% ≈ 2σ)
+  dd_rel_real: -0.05        # 10/18 R5: 或 窗口收益 − 导师真人同窗收益 ≤ -5% 触发
+  dd_abs_trigger: false     # 10/18 R5: 绝对回撤只报告不触发(大盘跌的那部分不该让链减仓)
+  sys_rate: 0.5             # 10/18 R5: 某维度全体链触发率 > 50% = 系统性偏差, 不逐链注入, 只记录
+  dd_size_factor: 0.5       # 回撤触发时注入的执行参数: 新开仓单票规模 × 此系数
+  max_cases: 3              # 每链注入 case 条数上限
+  case_lookback_days: 10    # case 取本链近 N 个自然日的 07 复盘
+  stale_days: 10            # 驱动器只认运行日前 N 个自然日内最近一份 reflection/<日>.json
+
+# ---- paper skill 权重(scripts/dfcf/paper/skill_weights.py; 10/16 晚: 超参数从代码挪到这里, 改了下次计算即生效) ----
+# 类比深度学习: 这些是"超参数"(人定); 每天算出来的各链权重是"学到的权重"(写 weights/<日>.json)
+skill_weights:
+  shrink_days: 60        # 向等权收缩的强度: λ=天数/(天数+shrink_days), 天数少→接近等权; 10/18 审计④ R12 用户批 20→60(第 60 天才拉开一半, 证据攒多少信多少)
+  floor: 0.03            # 每链保底权重(≈探索率 ε: 不淘汰, 永远留一点)
+  perf_window: 60        # 导师真人业绩用近 N 个交易日(≈评估窗口/batch)
+  perf_shrink: 20        # 真人夏普收缩: ×n/(n+perf_shrink)
+  perf_slope: 0.25       # 真人业绩 P = 1 + slope×clip(收缩夏普, ±perf_clip)
+  perf_clip: 2.0
+  temperature: null      # 10/18 R15 撤: 恒按原始分线性归一(不要再填数字)
+  perf_mode: rank        # 10/18 R13 用户定: 真人业绩按近 rank_window 日收益排名加减分, 第 1 名 +rank_window/rank_div, 末名 −同值, 中间线性; sharpe=旧口径(只报告)
+  rank_window: 30
+  rank_div: 100
+
+# ---- 分层拟人度阈值(scripts/dfcf/paper/mimicry_score.py; 10/16 晚: 原写死在脚本, 挪到这里并支持按导师动态) ----
+# mode: auto=按该导师自己近 lookback_days 个有记录交易日的分布算(夹在 lo~hi 内), 样本不足/算不出 → 回落 fixed; mode: fixed=一律用 fixed
+# 每位导师实际用的阈值(及来源 auto/回落原因)写进 mimicry/*.json 的 pairs.<链>.thresholds 与报告"阈值"表
+mimicry:
+  lookback_days: 120
+  eps_dir:            # L2 方向阈值: 当日净仓位变化(去价格漂移)超过它才算净加/净减
+    mode: auto
+    fixed: 0.05
+    pct: 20           # auto = 该导师"有动作日" |净仓位变化| 的 P20
+    lo: 0.01
+    hi: 0.10
+    min_n: 8          # 有动作日少于此 → 回落 fixed
+  min_w:              # 实质持仓门槛: 低于它=碎仓/观察仓, 不进持仓集合/只数/板块足迹(总仓照算)
+    mode: auto
+    fixed: 0.02
+    pct: 10           # auto = 该导师非零持仓占比的 P10
+    lo: 0.003
+    hi: 0.05
+    min_n: 20
+  tp_bins:            # L4 总仓分档边界(空/轻/半/重/满); auto 时总仓先封顶 100%(融资导师的 >100% 不推高分档)
+    mode: auto
+    fixed: [0.05, 0.35, 0.65, 0.95]
+    pcts: [20, 40, 60, 80]   # auto = 该导师收盘总仓分布的这几个分位(等频五档); 相邻边界差 < min_gap(如恒满仓) → 回落 fixed
+    min_gap: 0.05
+    min_n: 20
+  min_rank:           # 配对天数少于此 → "不足以排序"
+    mode: auto
+    fixed: 20
+    active_days: 10   # auto = 期望攒够这么多"真人有交易"的配对日所需天数 = ceil(active_days / 该导师交易日占比)
+    lo: 10
+    hi: 40
+
+# ---- A-mix-sw 扬长避短混合账本的导师强项地图(scripts/dfcf/paper/edge_map.py; 10/17 建) ----
+mix_sw:
+  min_n: 20            # 格子最少样本, 少于此不砍也不放大
+  cut_mean: -0.005     # 收缩后期望 ≤ 此值且 t ≤ -t_min → 混合账本不跟
+  boost_mean: 0.005    # 收缩后期望 ≥ 此值且 t ≥ t_min → 加权
+  t_min: 1.0
+  k_cell: 20           # 格子向"该导师该打法"收缩强度
+  k_play: 30           # 打法向"该导师整体"收缩强度
+  k_mentor: 50         # 导师向"全体导师"收缩强度
+  fee_pct: 0.0015      # 每笔扣费(买卖合计近似)
+  temp_bins: [40, 80]  # 情绪温度: 昨日涨停家数 <40 冷 / <80 温 / 其余热
+  real_weight:         # 真人 vs 链证据权重(用户 10/17: 要 params 动态)
+    mode: auto         # auto: 链权重 = 链样本数/(链样本数+chain_k), 样本越多链越重; fixed: 用 real_fixed
+    chain_k: 60
+    real_fixed: 0.7
+# A-mix-sw 合成参数(mix_plans.py; 10/17 晚)
+  boost_mult: 1.5      # 落在导师强项格子的看好单, 金额权重 ×1.5(上限仍受单票/簇上限约束)
+  dd_gate: 0.10        # 混合账本从高点回撤 ≥10% → 新开仓金额 ×dd_mult
+  dd_mult: 0.5
+
+# 10/17 晚: 每日 tzzb 蒸馏每个 claude 会话最多几位导师(人数多时自动多开会话, 串行跑)
+distill:
+  per_session: 6

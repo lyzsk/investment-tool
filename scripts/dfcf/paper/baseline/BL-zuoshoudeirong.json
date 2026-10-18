@@ -1,0 +1,586 @@
+{
+ "source": "BL-zuoshoudeirong",
+ "kind": "baseline",
+ "ledger": "zuoshoudeirong",
+ "name": "做手德融",
+ "generated_at": "2026-10-18T00:05:41",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "延续",
+  "L1_n": 0,
+  "L2": "延续",
+  "L2_n": 0,
+  "L4": "延续",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 5495.96,
+ "positions": {
+  "001318": {
+   "qty": 2000,
+   "cost": 16.7442,
+   "since": "2026-10-15"
+  },
+  "601811": {
+   "qty": 2500,
+   "cost": 26.1065,
+   "since": "2026-10-16"
+  }
+ },
+ "orders": [
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "603200",
+   "amount": 44710.0,
+   "why": "建仓对齐: 目标总仓 45%(账户从未持仓) | 打法 连板接力(按打法) 池分 22.556",
+   "status": "filled",
+   "price": 44.49,
+   "qty": 1000
+  },
+  {
+   "date": "2026-10-09",
+   "side": "BUY",
+   "code": "603906",
+   "amount": 53404.7,
+   "why": "加仓: 目标总仓 98% | 打法 连板接力(按打法) 池分 23.16",
+   "status": "filled",
+   "price": 21.6,
+   "qty": 2400
+  },
+  {
+   "date": "2026-10-12",
+   "side": "SELL",
+   "code": "603200",
+   "qty": 1000,
+   "why": "减仓: 目标总仓 34%(持有最久优先)",
+   "status": "filled",
+   "price": 50.05
+  },
+  {
+   "date": "2026-10-12",
+   "side": "SELL",
+   "code": "603906",
+   "qty": 600,
+   "why": "减仓: 目标总仓 34%(持有最久优先)",
+   "status": "filled",
+   "price": 21.01
+  },
+  {
+   "date": "2026-10-13",
+   "side": "BUY",
+   "code": "603533",
+   "amount": 64197.22,
+   "why": "加仓: 目标总仓 98% | 打法 连板接力(按打法) 池分 25.627",
+   "status": "filled",
+   "price": 26.9,
+   "qty": 2300
+  },
+  {
+   "date": "2026-10-15",
+   "side": "SELL",
+   "code": "603906",
+   "qty": 1800,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 17.71
+  },
+  {
+   "date": "2026-10-15",
+   "side": "BUY",
+   "code": "001318",
+   "amount": 33480.0,
+   "why": "换股: 等额买入新票 | 打法 连板接力(按打法) 池分 23.743",
+   "status": "filled",
+   "price": 16.74,
+   "qty": 2000
+  },
+  {
+   "date": "2026-10-16",
+   "side": "SELL",
+   "code": "603533",
+   "qty": 2300,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 29.6
+  },
+  {
+   "date": "2026-10-16",
+   "side": "BUY",
+   "code": "601811",
+   "amount": 66723.0,
+   "why": "换股: 等额买入新票 | 打法 连板接力(按打法) 池分 24.649",
+   "status": "filled",
+   "price": 26.1,
+   "qty": 2500
+  }
+ ],
+ "trades": [
+  {
+   "id": "2026-10-08-BL-zuoshoudeirong-001",
+   "side": "BUY",
+   "code": "603200",
+   "price": 44.49,
+   "qty": 1000,
+   "fee": 11.12,
+   "why": "建仓对齐: 目标总仓 45%(账户从未持仓) | 打法 连板接力(按打法) 池分 22.556 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-zuoshoudeirong-002",
+   "side": "BUY",
+   "code": "603906",
+   "price": 21.6,
+   "qty": 2400,
+   "fee": 12.96,
+   "why": "加仓: 目标总仓 98% | 打法 连板接力(按打法) 池分 23.16 | 开盘价"
+  },
+  {
+   "id": "2026-10-12-BL-zuoshoudeirong-003",
+   "side": "SELL",
+   "code": "603200",
+   "price": 50.05,
+   "qty": 1000,
+   "fee": 37.54,
+   "why": "减仓: 目标总仓 34%(持有最久优先) | 开盘价"
+  },
+  {
+   "id": "2026-10-12-BL-zuoshoudeirong-004",
+   "side": "SELL",
+   "code": "603906",
+   "price": 21.01,
+   "qty": 600,
+   "fee": 11.3,
+   "why": "减仓: 目标总仓 34%(持有最久优先) | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-zuoshoudeirong-005",
+   "side": "BUY",
+   "code": "603533",
+   "price": 26.9,
+   "qty": 2300,
+   "fee": 15.47,
+   "why": "加仓: 目标总仓 98% | 打法 连板接力(按打法) 池分 25.627 | 开盘价"
+  },
+  {
+   "id": "2026-10-15-BL-zuoshoudeirong-006",
+   "side": "SELL",
+   "code": "603906",
+   "price": 17.71,
+   "qty": 1800,
+   "fee": 23.91,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-15-BL-zuoshoudeirong-007",
+   "side": "BUY",
+   "code": "001318",
+   "price": 16.74,
+   "qty": 2000,
+   "fee": 8.37,
+   "why": "换股: 等额买入新票 | 打法 连板接力(按打法) 池分 23.743 | 开盘价"
+  },
+  {
+   "id": "2026-10-16-BL-zuoshoudeirong-008",
+   "side": "SELL",
+   "code": "603533",
+   "price": 29.6,
+   "qty": 2300,
+   "fee": 51.06,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-16-BL-zuoshoudeirong-009",
+   "side": "BUY",
+   "code": "601811",
+   "price": 26.1,
+   "qty": 2500,
+   "fee": 16.31,
+   "why": "换股: 等额买入新票 | 打法 连板接力(按打法) 池分 24.649 | 开盘价"
+  }
+ ],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 55498.88,
+   "mv": 49210.0,
+   "nav": 104708.88,
+   "filled": 1,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 3645.92,
+   "mv": 105208.0,
+   "nav": 108853.92,
+   "filled": 1,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 66253.08,
+   "mv": 36540.0,
+   "nav": 102793.08,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 4367.61,
+   "mv": 98056.0,
+   "nav": 102423.61,
+   "filled": 1,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 4367.61,
+   "mv": 102296.0,
+   "nav": 106663.61,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 2733.33,
+   "mv": 100663.0,
+   "nav": 103396.33,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 5495.96,
+   "mv": 100890.0,
+   "nav": 106385.96,
+   "filled": 2,
+   "orders": 2
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "603200",
+     "name": "上海洗霸",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 44.49,
+     "qty": 1000
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 0.861,
+   "p_dir_given_trade": [
+    0.253,
+    0.173,
+    0.575
+   ],
+   "decision": {
+    "trade": true,
+    "dir": -1,
+    "tp_hat": 0.4471,
+    "tp_target_cap": 0.4471,
+    "tp_final": 0.0,
+    "tp_final_cap": 0.0,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.8568552399471357,
+    "red_step": 0.6278662442881696,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "sizing": {
+    "single_size": 0.863,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "603906",
+     "name": "龙蟠科技",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 21.6,
+     "qty": 2400
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 0.855,
+   "p_dir_given_trade": [
+    0.48,
+    0.248,
+    0.271
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.541,
+    "tp_target_cap": 0.541,
+    "tp_final": 1.3694104798942717,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.8284104798942715,
+    "red_step": 0.6278662442881696,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.47,
+   "sizing": {
+    "single_size": 0.768,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "603200",
+     "filled": true,
+     "why": "减仓: 目标总仓 34%(持有最久优先)",
+     "price": 50.05,
+     "qty": 1000
+    },
+    {
+     "side": "SELL",
+     "code": "603906",
+     "filled": true,
+     "why": "减仓: 目标总仓 34%(持有最久优先)",
+     "price": 21.01,
+     "qty": 600
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 0.883,
+   "p_dir_given_trade": [
+    0.214,
+    0.123,
+    0.663
+   ],
+   "decision": {
+    "trade": true,
+    "dir": -1,
+    "tp_hat": 0.4332,
+    "tp_target_cap": 0.4332,
+    "tp_final": 0.0,
+    "tp_final_cap": 0.0,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.8284104798942715,
+    "red_step": 0.6258112325519205,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.967
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "603533",
+     "name": "掌阅科技",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 26.9,
+     "qty": 2300
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 0.855,
+   "p_dir_given_trade": [
+    0.74,
+    0.223,
+    0.037
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.9992000000000001,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.7553829922366422,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.7561829922366421,
+    "red_step": 0.6258112325519205,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.355,
+   "sizing": {
+    "single_size": 0.671,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 0.404,
+   "p_dir_given_trade": [
+    0.548,
+    0.341,
+    0.111
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9991,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9991,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.7561829922366421,
+    "red_step": 0.6258112325519205,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.957
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "603906",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 17.71,
+     "qty": 1800
+    },
+    {
+     "side": "BUY",
+     "code": "001318",
+     "name": "阳光乳业",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 16.74,
+     "qty": 2000
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-14",
+   "p_trade": 0.823,
+   "p_dir_given_trade": [
+    0.507,
+    0.449,
+    0.045
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9982,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9982,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.7561829922366421,
+    "red_step": 0.6258112325519205,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.959,
+   "sizing": {
+    "single_size": 0.621,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "603533",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 29.6,
+     "qty": 2300
+    },
+    {
+     "side": "BUY",
+     "code": "601811",
+     "name": "新华文轩",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 26.1,
+     "qty": 2500
+    }
+   ],
+   "stale": 1,
+   "state_day": "2026-10-14",
+   "p_trade": 0.814,
+   "p_dir_given_trade": [
+    0.608,
+    0.354,
+    0.037
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9982,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9982,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.7561829922366421,
+    "red_step": 0.6258112325519205,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.974,
+   "sizing": {
+    "single_size": 0.621,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  }
+ ]
+}

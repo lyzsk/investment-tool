@@ -1,0 +1,150 @@
+{
+ "skill": "hanxiao",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261018-1943",
+   "ts": "2026-10-18T19:43:53",
+   "effective_from": "2026-10-18T19:43:38",
+   "unit": "skill",
+   "version_hash": "93be6fd0905a04e6bbbca3dcfbec60123020781a06715ac5f16021fe4932ec95",
+   "cat_hash": {
+    "提示词": "6dba0e0f961a1917b9c38bc81e997d9ad1d698efb9cbeae12af66f33a96212c5",
+    "数据": "db1d273dac4f65f750eb84dace36a1d108b53c93a59887214ae65065d362a74a",
+    "画像": "070795a9a4b8258d74850bb74cf3bf737be9543f1378580b784cdde776419325"
+   },
+   "data_hash": "f40389ca794d950b31db2d44e8a555b4229cd67a768d3454de6f24cd1cfe9cc4",
+   "parent": null,
+   "changed": {
+    "added": [
+     "SKILL.md",
+     "persona/cases.md",
+     "persona/fingerprint.md",
+     "persona/orders_inferred.json",
+     "persona/profile.md",
+     "persona/profile_index.md",
+     "persona/rules.md",
+     "persona/rules_index.md",
+     "workflows/chain.md",
+     "workflows/distill.md",
+     "workflows/sum.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "SKILL.md",
+     "workflows/chain.md",
+     "workflows/distill.md",
+     "workflows/sum.md"
+    ],
+    "画像": [
+     "persona/cases.md",
+     "persona/profile.md",
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/fingerprint.md",
+     "persona/orders_inferred.json",
+     "persona/profile_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [
+    "persona/case_log/2025-11.md",
+    "persona/case_log/2025-12.md",
+    "persona/case_log/2026-01.md",
+    "persona/case_log/2026-02.md",
+    "persona/case_log/2026-03.md",
+    "persona/case_log/2026-04.md",
+    "persona/case_log/2026-05.md",
+    "persona/case_log/2026-06.md",
+    "persona/case_log/2026-07.md",
+    "persona/case_log/2026-08.md",
+    "persona/case_log/2026-09.md",
+    "persona/case_log/2026-10.md",
+    "persona/case_log/index.md",
+    "persona/cases_auto.jsonl",
+    "persona/fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 2759,
+    "removed": 0
+   },
+   "bytes_weight": 229757,
+   "why": "10/18 新导师 含笑96998 入库",
+   "code": {
+    "chain": "23da5790dbb3",
+    "distill": "e05afdac6af0"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261019-0026",
+   "ts": "2026-10-19T00:26:43",
+   "effective_from": "2026-10-19T00:25:20",
+   "unit": "skill",
+   "version_hash": "69bcdcf5774a81cd7d378e1555ca483f348eabf89e004ee416ecd79d072d4077",
+   "cat_hash": {
+    "提示词": "6dba0e0f961a1917b9c38bc81e997d9ad1d698efb9cbeae12af66f33a96212c5",
+    "数据": "22162652a058d17241fd5ecb6e006b428a2bd0f355ea64da8b109a61e70e95be",
+    "画像": "20d739257be1491c4244f7651d5dca26f80fe4a9dc1c401f499e4ad0c5770c52"
+   },
+   "data_hash": "4351a8ce01116b988c1ea8a010daedc0af99b9837ef80d75eb82ab4e324edb6a",
+   "parent": "v001_20261018-1943",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/fingerprint.md",
+     "persona/profile.md",
+     "persona/profile_index.md",
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md",
+     "persona/profile.md",
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/fingerprint.md",
+     "persona/profile_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [
+    "persona/case_log/2025-11.md",
+    "persona/case_log/2025-12.md",
+    "persona/case_log/2026-01.md",
+    "persona/case_log/2026-02.md",
+    "persona/case_log/2026-03.md",
+    "persona/case_log/2026-04.md",
+    "persona/case_log/2026-05.md",
+    "persona/case_log/2026-06.md",
+    "persona/case_log/2026-07.md",
+    "persona/case_log/2026-08.md",
+    "persona/case_log/2026-09.md",
+    "persona/case_log/2026-10.md",
+    "persona/case_log/annotations.jsonl",
+    "persona/case_log/index.md"
+   ],
+   "lines": {
+    "added": 82,
+    "removed": 60
+   },
+   "bytes_weight": 233986,
+   "why": "check-md 2026-10-16 00:26",
+   "code": {
+    "chain": "33ffdc8485d2",
+    "distill": "257a712dc9ba"
+   }
+  }
+ ],
+ "events": [],
+ "group": "active"
+}

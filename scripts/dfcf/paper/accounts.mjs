@@ -1,0 +1,11 @@
+// accounts.mjs — paper A 线账户元数据唯一真源(2026-10-11 从 report.mjs 抽出, report/daily_digest 共用)
+// 固定顺序=固定颜色槽(颜色跟着实体走, 不随排名变): 槽 1-8 实线, 9-14 同色序虚线; 对照组=黑点线
+// 10/17 二B-4: 导师链(UP/tzzb 导师/对照组)读导师登记表(scripts/lib/mentors.mjs, 顺序=槽位序), 这里只留混合账本
+import * as MENTORS from "../../lib/mentors.mjs";
+export const ACCOUNTS = [
+    ...MENTORS.all().map((e) => [e.book, e.display, e.type === "tzzb" ? "导师" : e.type]),
+    ["A-mix", "混合·主", "混合"], ["A-mix-eq", "混合·等权", "混合"], ["A-mix-lhb", "混合·龙虎榜", "混合"], ["A-mix-sw", "混合·扬长避短", "混合"], ["A-tbank", "机械T·中行", "做T"], ["A-tndq", "机械T·纳指ETF", "做T"], ["A-hbank", "不T·中行", "做T"], ["A-hndq", "不T·纳指ETF", "做T"], ["A-dbank", "决策T·中行", "做T"], ["A-dndq", "决策T·纳指ETF", "做T"],   // 10/18 晚 t_bot.py   // 10/16 新增(槽 18-20, mix_plans.py)
+];
+export const TABLE_ONLY = [["B-taoge", "桃哥·人工", "B线"], ["B-cb", "土豆·人工", "B线"]];
+export const NAME = Object.fromEntries([...ACCOUNTS, ...TABLE_ONLY].map(([s, n]) => [s, n]));
+export const INIT = 100000;

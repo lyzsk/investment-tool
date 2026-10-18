@@ -1,0 +1,128 @@
+{
+ "skill": "nasdaq",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261018-2156",
+   "ts": "2026-10-18T21:56:27",
+   "effective_from": "2026-10-18T21:56:08",
+   "unit": "skill",
+   "version_hash": "e164cd8698d9710606409faa737b0dbfa0c02efc8fe1fc112a57dacdc95dfe6c",
+   "cat_hash": {
+    "提示词": "2a99e95fa0f9ece3d7c550f8a6af8ab04b09a34fc7b208345a1953caf38079cd",
+    "画像": "02f12296e0ff561b47748d5bf6a4d9a3670d98f9df4f0d8281a7a8ef6281d8e3"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "SKILL.md",
+     "persona/cases.md",
+     "persona/profile.md",
+     "persona/rules.md",
+     "workflows/distill.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "SKILL.md",
+     "workflows/distill.md"
+    ],
+    "画像": [
+     "persona/cases.md",
+     "persona/profile.md",
+     "persona/rules.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 101,
+    "removed": 0
+   },
+   "bytes_weight": 7668,
+   "why": "10/18 品种 skill 建档(种子版)",
+   "code": {
+    "chain": "852f77c23626",
+    "distill": "31c15d22184f"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261018-2217",
+   "ts": "2026-10-18T22:17:30",
+   "effective_from": "2026-10-18T22:16:42",
+   "unit": "skill",
+   "version_hash": "194024b1b43f64d1cf240202bd7d469901987fd501084da35d2844aa1e358d77",
+   "cat_hash": {
+    "提示词": "2a99e95fa0f9ece3d7c550f8a6af8ab04b09a34fc7b208345a1953caf38079cd",
+    "画像": "fc9b223ce3f5af8f9883e7faef185d8dbba023bfa8b15528f574cc80d92d2559"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v001_20261018-2156",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/profile.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/profile.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 5,
+    "removed": 5
+   },
+   "bytes_weight": 7870,
+   "why": "10/18 晚 真实费用(最低5元)+1万规模",
+   "code": {
+    "chain": "852f77c23626",
+    "distill": "bef2e8ee72d9"
+   }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261019-0026",
+   "ts": "2026-10-19T00:26:44",
+   "effective_from": "2026-10-18T23:52:34",
+   "unit": "skill",
+   "version_hash": "86ce0154cea1dbca710fd426358885bb694aa83292c0435f465c14da7fd0ab30",
+   "cat_hash": {
+    "提示词": "2a99e95fa0f9ece3d7c550f8a6af8ab04b09a34fc7b208345a1953caf38079cd",
+    "画像": "78fdb2e898d52d4e430cdc2076746fcd246df9623028b68769e55fdab959cd6f"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v002_20261018-2217",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/profile.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/profile.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 9,
+    "removed": 0
+   },
+   "bytes_weight": 8569,
+   "why": "check-md 2026-10-16 00:26",
+   "code": {
+    "chain": "a0e5412f55bb",
+    "distill": "4477b8801618"
+   }
+  }
+ ],
+ "events": [],
+ "group": "instrument"
+}

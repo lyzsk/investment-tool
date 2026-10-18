@@ -1,0 +1,173 @@
+{
+ "skill": "bank",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261018-2156",
+   "ts": "2026-10-18T21:56:27",
+   "effective_from": "2026-10-18T21:56:08",
+   "unit": "skill",
+   "version_hash": "36b1618a834c01f53542816f72262068f1f98b32d49c849e7ce233c464cd7fa1",
+   "cat_hash": {
+    "提示词": "f2c5f08ae677605b1a13e0ce1cc8da684b3bd2a2106bb1bd2e43e685d0c03c7b",
+    "画像": "07b23f9bde1425f4770b26dcf88f50442fe8dbe5770f73082686539b9b8fb0ed"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "SKILL.md",
+     "persona/cases.md",
+     "persona/profile.md",
+     "persona/rules.md",
+     "workflows/distill.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "SKILL.md",
+     "workflows/distill.md"
+    ],
+    "画像": [
+     "persona/cases.md",
+     "persona/profile.md",
+     "persona/rules.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 126,
+    "removed": 0
+   },
+   "bytes_weight": 10110,
+   "why": "10/18 品种 skill 建档(种子版)",
+   "code": {
+    "chain": "381ee05b1d70",
+    "distill": "116951f23a6e"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261018-2208",
+   "ts": "2026-10-18T22:08:47",
+   "effective_from": "2026-10-18T22:08:36",
+   "unit": "skill",
+   "version_hash": "37f7125d0f70c4f9096af5019151ed32392455e87f9d569f90386285dd3a9d45",
+   "cat_hash": {
+    "提示词": "251611b0161c317c9a6d98cf92848bed221591ccecc2dae7c3cdd571ad1d198a",
+    "画像": "9b1101cf2c48d048aa5eede7d7c729f73ea2c819caf5aa61f912ffb43aebe41c"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v001_20261018-2156",
+   "changed": {
+    "added": [],
+    "modified": [
+     "SKILL.md",
+     "persona/profile.md",
+     "persona/rules.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "SKILL.md"
+    ],
+    "画像": [
+     "persona/profile.md",
+     "persona/rules.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 34,
+    "removed": 22
+   },
+   "bytes_weight": 11359,
+   "why": "10/18 晚 标的 农行→中行(用户认可, 证据见 profile 对比表)",
+   "code": {
+    "chain": "7c5d931e8719",
+    "distill": "639da8712cdf"
+   }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261018-2217",
+   "ts": "2026-10-18T22:17:30",
+   "effective_from": "2026-10-18T22:16:42",
+   "unit": "skill",
+   "version_hash": "f3ab3232cfc6f2e3d85fafae79fc7f22e4692a78be596ea9def2693b282a45ec",
+   "cat_hash": {
+    "提示词": "251611b0161c317c9a6d98cf92848bed221591ccecc2dae7c3cdd571ad1d198a",
+    "画像": "630b66e3250332ddc6244c908f88bf7dc3ae32bd6999989f4d704f26fcae7d14"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v002_20261018-2208",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/profile.md",
+     "persona/rules.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/profile.md",
+     "persona/rules.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 6,
+    "removed": 6
+   },
+   "bytes_weight": 11782,
+   "why": "10/18 晚 真实费用(最低5元)+1万规模",
+   "code": {
+    "chain": "7c5d931e8719",
+    "distill": "639da8712cdf"
+   }
+  },
+  {
+   "v": 4,
+   "id": "v004_20261019-0026",
+   "ts": "2026-10-19T00:26:43",
+   "effective_from": "2026-10-18T23:52:34",
+   "unit": "skill",
+   "version_hash": "867b018e177274b708eb13c15e010bd7263ce8aeda51ec7ddd18a3c71f1b17b8",
+   "cat_hash": {
+    "提示词": "251611b0161c317c9a6d98cf92848bed221591ccecc2dae7c3cdd571ad1d198a",
+    "画像": "fb70dd1f7bf41be62a236fcafafe36f511c02411f73c2b1f7c601b64a86fb70e"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v003_20261018-2217",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/profile.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/profile.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 9,
+    "removed": 0
+   },
+   "bytes_weight": 12482,
+   "why": "check-md 2026-10-16 00:26",
+   "code": {
+    "chain": "4a3cb5a676c1",
+    "distill": "f62f57df2d47"
+   }
+  }
+ ],
+ "events": [],
+ "group": "instrument"
+}

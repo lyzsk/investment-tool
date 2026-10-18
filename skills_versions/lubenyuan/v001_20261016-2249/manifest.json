@@ -1,0 +1,99 @@
+{
+ "skill": "lubenyuan",
+ "version": {
+  "v": 1,
+  "id": "v001_20261016-2249",
+  "ts": "2026-10-16T22:49:12",
+  "effective_from": "2026-10-16T22:06:03",
+  "persona_hash": "f1c4ca1cd12028005345508e5db43ff448d626e868fe08d202569910a90ce57c",
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": null,
+  "changed": {
+   "added": [
+    "cases.md",
+    "language.md",
+    "profile.md",
+    "profile_index.md",
+    "rules.md",
+    "rules_index.md"
+   ],
+   "modified": [],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 754,
+   "removed": 0
+  },
+  "bytes_weight": 811040,
+  "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+  "code": {
+   "chain": "2c116daf1088",
+   "distill": "6d85532f4d23"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "d70c95005f87dd44c944194dfa0681d375e2d993c184431390a07fd24e50d9bf",
+   "bytes": 85936,
+   "lines": 307,
+   "mtime": "2026-10-16T20:21:36",
+   "cls": "weight"
+  },
+  "language.md": {
+   "sha256": "d55bdda1ef55b889c8eb631ca3992a65f933c11c295664e6b3cbe3af79708454",
+   "bytes": 145899,
+   "lines": 78,
+   "mtime": "2026-10-16T20:21:36",
+   "cls": "weight"
+  },
+  "profile.md": {
+   "sha256": "71577f3173cca6c091d02c4239d9a374ce37c032f67cb34c00e4b27c4dc0e266",
+   "bytes": 268884,
+   "lines": 179,
+   "mtime": "2026-10-16T20:21:56",
+   "cls": "weight"
+  },
+  "profile_index.md": {
+   "sha256": "08f389386099aa659f0b4f4f3710d396b2bb13c0ed9f8c4206fa435ec796a86b",
+   "bytes": 9904,
+   "lines": 46,
+   "mtime": "2026-10-16T22:06:03",
+   "cls": "weight"
+  },
+  "rules.md": {
+   "sha256": "512fdbf5c5f0d737726cdef011e35153b500e4060adf5b019c580d13d9f90d67",
+   "bytes": 294799,
+   "lines": 113,
+   "mtime": "2026-10-16T20:21:56",
+   "cls": "weight"
+  },
+  "rules_index.md": {
+   "sha256": "7fc1baa181ba0431643adc69aeb8e3e32b814b1dc52b824a8740d43bb8c6a963",
+   "bytes": 5618,
+   "lines": 31,
+   "mtime": "2026-10-16T21:01:01",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "2c116daf1088",
+  "distill": "6d85532f4d23",
+  "chain_files": {
+   "scripts/taoge-chain/run_taoge_chain.py": "09e7d486384c",
+   "skills/lubenyuan-skill/workflows/chain.md": "22093471e332",
+   "skills/lubenyuan-skill/SKILL.md": "43a4e9b748e9",
+   "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"
+  },
+  "distill_files": {
+   "skills/lubenyuan-skill/workflows/distill.md": "7cbf78594f93",
+   "scripts/tzzb/distill_daily.py": "9ec70798c98a",
+   "scripts/tzzb/llm_batch_tzzb.py": "2c2246c6c7e1",
+   "scripts/tzzb/mentor_fingerprint.py": "d218700ea1cf",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "1109d4201eb3",
+   "scripts/md/gen_profile_index.py": "16926ed80e73",
+   "scripts/md/gen_rules_index.mjs": "654e7e6d356c",
+   "scripts/md/check_md_daily.py": "51cab73b861f"
+  }
+ }
+}

@@ -1,0 +1,206 @@
+{
+ "updated": "2026-10-19T00:26:53",
+ "start": "2026-10-08",
+ "last": "2026-10-16",
+ "seeds": 500,
+ "chains": {
+  "taoge": {
+   "name": "桃哥",
+   "lots": 14,
+   "own_ret": -0.04566,
+   "book_ret": -0.03477,
+   "rand_p10": -0.06071,
+   "rand_p50": -0.027,
+   "rand_p90": 0.0091,
+   "pct": 0.256
+  },
+  "qushitiange": {
+   "name": "趋势天哥",
+   "lots": 7,
+   "own_ret": 0.03064,
+   "book_ret": 0.01391,
+   "rand_p10": -0.02295,
+   "rand_p50": -0.00957,
+   "rand_p90": 0.00968,
+   "pct": 1.0
+  },
+  "lubenyuan": {
+   "name": "卢本圆",
+   "lots": 13,
+   "own_ret": -0.03037,
+   "book_ret": -0.01319,
+   "rand_p10": -0.03646,
+   "rand_p50": -0.01354,
+   "rand_p90": 0.00992,
+   "pct": 0.162
+  },
+  "buchitudou0": {
+   "name": "不吃土豆0(转债)",
+   "lots": 5,
+   "own_ret": -0.1103,
+   "book_ret": -0.07585,
+   "rand_p10": -0.15974,
+   "rand_p50": -0.07286,
+   "rand_p90": 0.01758,
+   "pct": 0.292
+  },
+  "liuyiqing": {
+   "name": "刘忆青",
+   "lots": 15,
+   "own_ret": -0.08196,
+   "book_ret": -0.01927,
+   "rand_p10": -0.12474,
+   "rand_p50": -0.06114,
+   "rand_p90": 0.00667,
+   "pct": 0.366
+  },
+  "lianghuaxiaohao": {
+   "name": "量化小号",
+   "lots": 17,
+   "own_ret": -0.02103,
+   "book_ret": -0.03288,
+   "rand_p10": -0.12142,
+   "rand_p50": -0.06831,
+   "rand_p90": -0.00724,
+   "pct": 0.838
+  },
+  "a658": {
+   "name": "A658",
+   "lots": 8,
+   "own_ret": -0.10356,
+   "book_ret": -0.08503,
+   "rand_p10": -0.15325,
+   "rand_p50": -0.06391,
+   "rand_p90": 0.024,
+   "pct": 0.292
+  },
+  "bianbenling": {
+   "name": "边学本领",
+   "lots": 22,
+   "own_ret": 0.00848,
+   "book_ret": -0.02439,
+   "rand_p10": -0.09055,
+   "rand_p50": -0.05974,
+   "rand_p90": -0.01913,
+   "pct": 0.98
+  },
+  "xingjianye": {
+   "name": "星见野",
+   "lots": 15,
+   "own_ret": 0.08459,
+   "book_ret": 0.0889,
+   "rand_p10": -0.07636,
+   "rand_p50": -0.04524,
+   "rand_p90": 0.00086,
+   "pct": 0.996
+  },
+  "daxingdaxingdadangxing": {
+   "name": "大兴大A",
+   "lots": 7,
+   "own_ret": 0.05184,
+   "book_ret": -0.00322,
+   "rand_p10": -0.07795,
+   "rand_p50": -0.02623,
+   "rand_p90": 0.03443,
+   "pct": 0.948
+  },
+  "gaogailvfuli": {
+   "name": "高概率复利",
+   "lots": 10,
+   "own_ret": 0.00334,
+   "book_ret": -0.02894,
+   "rand_p10": -0.01895,
+   "rand_p50": -0.00715,
+   "rand_p90": 0.00263,
+   "pct": 0.91
+  },
+  "xuanqiucaijing": {
+   "name": "宣秋财经",
+   "lots": 21,
+   "own_ret": -0.02811,
+   "book_ret": -0.02367,
+   "rand_p10": -0.07996,
+   "rand_p50": -0.04399,
+   "rand_p90": -0.0014,
+   "pct": 0.712
+  },
+  "stzhilang": {
+   "name": "ST之狼",
+   "lots": 11,
+   "own_ret": -0.01637,
+   "book_ret": 0.01432,
+   "rand_p10": -0.06047,
+   "rand_p50": -0.00998,
+   "rand_p90": 0.05065,
+   "pct": 0.418
+  },
+  "chong5000w": {
+   "name": "冲5000w",
+   "lots": 12,
+   "own_ret": -0.00914,
+   "book_ret": -0.01065,
+   "rand_p10": -0.0885,
+   "rand_p50": -0.04106,
+   "rand_p90": 0.01186,
+   "pct": 0.792
+  },
+  "antoo": {
+   "name": "antoo",
+   "lots": 7,
+   "own_ret": -0.04115,
+   "book_ret": -0.02325,
+   "rand_p10": -0.11164,
+   "rand_p50": -0.05705,
+   "rand_p90": 0.00521,
+   "pct": 0.626
+  },
+  "zhiyingjuexin": {
+   "name": "芷影攫心",
+   "lots": 7,
+   "own_ret": 0.02997,
+   "book_ret": -0.0185,
+   "rand_p10": -0.08791,
+   "rand_p50": -0.02773,
+   "rand_p90": 0.04373,
+   "pct": 0.854
+  },
+  "zjwzlclf": {
+   "name": "zjwzlclf",
+   "lots": 0
+  },
+  "ynw01": {
+   "name": "ynw01",
+   "lots": 0
+  },
+  "wudaokongfang": {
+   "name": "悟到空方为悟道",
+   "lots": 0
+  },
+  "anlizhuohuo": {
+   "name": "暗里着火",
+   "lots": 0
+  },
+  "zuoshoudeirong": {
+   "name": "做手德融",
+   "lots": 0
+  },
+  "hanxiao": {
+   "name": "含笑96998",
+   "lots": 0
+  },
+  "meiyuelu": {
+   "name": "梅月路111号",
+   "lots": 0
+  },
+  "control": {
+   "name": "对照组",
+   "lots": 6,
+   "own_ret": -0.02642,
+   "book_ret": -0.02612,
+   "rand_p10": -0.03564,
+   "rand_p50": -0.01454,
+   "rand_p90": 0.00753,
+   "pct": 0.234
+  }
+ }
+}

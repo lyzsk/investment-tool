@@ -1,0 +1,7 @@
+# cls_image_ocr.py / fill_cls_md.py 用
+# pip install -r scripts/requirements-cls.txt
+rapidocr-onnxruntime==1.2.3
+onnxruntime==1.30.0
+opencv-python==5.0.0.93
+numpy==2.5.3
+pillow==12.3.0

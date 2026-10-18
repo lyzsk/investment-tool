@@ -1,0 +1,379 @@
+{
+ "skill": "stzhilang",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:13",
+   "effective_from": "2026-10-16T22:06:03",
+   "persona_hash": "4418c60b503824af501eedbc79f3767781eb1b51da0be91a07f3f277ba303995",
+   "data_hash": "c88f6d0292abeca8cfe34daebddbe0a71a1b77a794418f07f6677f85558316e9",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md",
+     "fingerprint.md",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [
+    "cases_auto.jsonl",
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 541,
+    "removed": 0
+   },
+   "bytes_weight": 60208,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "5a4b8002414f",
+    "distill": "17c224981ff3"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261016-2300",
+   "ts": "2026-10-16T23:00:46",
+   "effective_from": "2026-10-16T23:00:04",
+   "persona_hash": "e59c78f9c8b3e646196b49e661ccb7cd1ca1ebde289645e50b3ef6dc6a7646d1",
+   "data_hash": "c88f6d0292abeca8cfe34daebddbe0a71a1b77a794418f07f6677f85558316e9",
+   "parent": "v001_20261016-2249",
+   "changed": {
+    "added": [
+     "orders_inferred.json"
+    ],
+    "modified": [
+     "profile_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 629,
+    "removed": 1
+   },
+   "bytes_weight": 73812,
+   "why": "check-md 2026-10-16 23:00",
+   "code": {
+    "chain": "c03a09feebe0",
+    "distill": "441d9f83eaa1"
+   }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261016-2317",
+   "ts": "2026-10-16T23:17:02",
+   "effective_from": "2026-10-16T23:17:02",
+   "persona_hash": "ec6ce6a9bfffd29b950b8ba67f47ff07ebab214066b702b248a0a61f4ba6f685",
+   "data_hash": "c88f6d0292abeca8cfe34daebddbe0a71a1b77a794418f07f6677f85558316e9",
+   "parent": "v002_20261016-2300",
+   "changed": {
+    "added": [],
+    "modified": [
+     "orders_inferred.json",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 84,
+    "removed": 11
+   },
+   "bytes_weight": 87762,
+   "why": "deep-distill 1016",
+   "code": {
+    "chain": "c03a09feebe0",
+    "distill": "f7118e871730"
+   }
+  },
+  {
+   "v": 4,
+   "id": "v004_20261017-2021",
+   "ts": "2026-10-17T20:21:47",
+   "effective_from": "2026-10-17T13:16:15",
+   "persona_hash": "287b127d053707fd60cf5b325583aa46d021c106d5632f8091f774e02c721386",
+   "data_hash": "22bb04c6278e00a2ce5d1f04a0324d5255bbec42b90ff8e21f178f1de3722852",
+   "parent": "v003_20261016-2317",
+   "changed": {
+    "added": [],
+    "modified": [
+     "cases.md",
+     "fingerprint.md",
+     "orders_inferred.json",
+     "profile.md",
+     "profile_index.md",
+     "rules.md",
+     "rules_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [
+    "cases_auto.jsonl",
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 364,
+    "removed": 274
+   },
+   "bytes_weight": 97491,
+   "why": "10/17 晚: 新导师 5 位入库 + 深度画像",
+   "code": {
+    "chain": "5c1155f9bd0b",
+    "distill": "0be757176ef7"
+   }
+  },
+  {
+   "v": 5,
+   "id": "v005_20261017-2241",
+   "ts": "2026-10-17T22:41:45",
+   "effective_from": "2026-10-17T22:40:51",
+   "persona_hash": "8652cce88cd8e9aaed0dc96be10e5bf13b7f461479050cd8b9081ff664180b5e",
+   "data_hash": "22bb04c6278e00a2ce5d1f04a0324d5255bbec42b90ff8e21f178f1de3722852",
+   "parent": "v004_20261017-2021",
+   "changed": {
+    "added": [],
+    "modified": [
+     "rules.md",
+     "rules_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 24,
+    "removed": 13
+   },
+   "bytes_weight": 98588,
+   "why": "10/17 晚: 规则加时间状态行(机械)",
+   "code": {
+    "chain": "bd25d7b0d59e",
+    "distill": "a2475a693086"
+   }
+  },
+  {
+   "v": 6,
+   "id": "v006_20261018-0021",
+   "ts": "2026-10-18T00:21:25",
+   "effective_from": "2026-10-18T00:20:04",
+   "persona_hash": "f1f4e24f6430b44f8662ac2a6fe16b511a3d0a1ad6718a93b56de5d8cad59e35",
+   "data_hash": "22bb04c6278e00a2ce5d1f04a0324d5255bbec42b90ff8e21f178f1de3722852",
+   "parent": "v005_20261017-2241",
+   "changed": {
+    "added": [],
+    "modified": [
+     "profile_index.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 2
+   },
+   "bytes_weight": 98615,
+   "why": "check-md 2026-10-16 00:21",
+   "code": {
+    "chain": "ad191a420a11",
+    "distill": "4656154f5c27"
+   }
+  },
+  {
+   "v": 7,
+   "id": "v007_20261018-1619",
+   "ts": "2026-10-18T16:19:23",
+   "effective_from": "2026-10-18T14:10:17",
+   "persona_hash": "cb4f96874f127c8fa7ecac3b4954c04f66f66e8bcca329478ad92c3e3273dbc4",
+   "data_hash": "4406cf1019807422eff4d847dbf4505badf2fa41fc8c2b1a4c6d6331b3d06a10",
+   "parent": "v006_20261018-0021",
+   "changed": {
+    "added": [],
+    "modified": [
+     "fingerprint.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [
+    "fills_rt.jsonl"
+   ],
+   "lines": {
+    "added": 1,
+    "removed": 1
+   },
+   "bytes_weight": 98414,
+   "why": "10/18 新导师 5 人深度蒸馏 rules 并入",
+   "code": {
+    "chain": "5e2d8a694623",
+    "distill": "25579f55f964"
+   }
+  },
+  {
+   "v": 8,
+   "id": "v008_20261018-1713",
+   "ts": "2026-10-18T17:13:24",
+   "effective_from": "2026-10-18T17:13:24",
+   "unit": "skill",
+   "version_hash": "1b5c13fb0fa2c18c1c51be6eb739d5f64e1377d75c7b8668db1f6fb0bcdd55a3",
+   "cat_hash": {
+    "提示词": "975da26585081419e25548c10de5baa766bef197700ce08fdce6e4c9c0ecb82b",
+    "数据": "e3aecb7de9f726836512cbd6a269b63628cd2c686a4a72740cdd5b49d4305851",
+    "画像": "2a24986574f665edcba5572fee772f05765f7c760a101b3b0d206f032f99bab3"
+   },
+   "data_hash": "3fa1c11c1cfe1b94c320b6d8f1347c570c0327d267a9f4d585d0ff8eedbf13a9",
+   "parent": "v007_20261018-1619",
+   "changed": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "newly_tracked": [
+     "SKILL.md",
+     "workflows/chain.md",
+     "workflows/distill.md",
+     "workflows/sum.md"
+    ]
+   },
+   "changed_by_cat": {},
+   "data_changed": [
+    "persona/case_log/2025-11.md",
+    "persona/case_log/2025-12.md",
+    "persona/case_log/2026-01.md",
+    "persona/case_log/2026-02.md",
+    "persona/case_log/2026-03.md",
+    "persona/case_log/2026-04.md",
+    "persona/case_log/2026-05.md",
+    "persona/case_log/2026-06.md",
+    "persona/case_log/2026-07.md",
+    "persona/case_log/2026-08.md",
+    "persona/case_log/2026-09.md",
+    "persona/case_log/2026-10.md",
+    "persona/case_log/index.md"
+   ],
+   "lines": {
+    "added": 0,
+    "removed": 0
+   },
+   "bytes_weight": 150529,
+   "why": "10/18 全 skill 版本化首版",
+   "code": {
+    "chain": "6472956a42d4",
+    "distill": "c165ef509bef"
+   }
+  },
+  {
+   "v": 9,
+   "id": "v009_20261018-1943",
+   "ts": "2026-10-18T19:43:53",
+   "effective_from": "2026-10-18T18:40:51",
+   "unit": "skill",
+   "version_hash": "50137bf8b43d3c874bc507422e599204ec6a5659962bcf328264361e3d14df82",
+   "cat_hash": {
+    "提示词": "975da26585081419e25548c10de5baa766bef197700ce08fdce6e4c9c0ecb82b",
+    "数据": "41b71efff7a20296f214b6fb76b405fb2d14b1c179bb2e735222b39c997838a8",
+    "画像": "caf40ee8691e41f6c1144283c195410f063806baafb5a0de878c7c429a934c67"
+   },
+   "data_hash": "ead86dec7a84eefc68fb6d1dca82737092ae0e696b163de65f9405c009ee7ee4",
+   "parent": "v008_20261018-1713",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md",
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [
+    "persona/case_log/2025-11.md",
+    "persona/case_log/2025-12.md",
+    "persona/case_log/2026-01.md",
+    "persona/case_log/2026-03.md",
+    "persona/case_log/2026-04.md"
+   ],
+   "lines": {
+    "added": 753,
+    "removed": 3
+   },
+   "bytes_weight": 232856,
+   "why": "10/18 新导师 含笑96998 入库",
+   "code": {
+    "chain": "cfee6eae96e4",
+    "distill": "c567a122db66"
+   }
+  },
+  {
+   "v": 10,
+   "id": "v010_20261019-0026",
+   "ts": "2026-10-19T00:26:44",
+   "effective_from": "2026-10-19T00:25:20",
+   "unit": "skill",
+   "version_hash": "ffe90bfee4e41e3fe90b821402bd1b3c3ca7477d079366b8d8f2f637ef1c5a8b",
+   "cat_hash": {
+    "提示词": "975da26585081419e25548c10de5baa766bef197700ce08fdce6e4c9c0ecb82b",
+    "数据": "fe8301f84305da53051b1d8d991b427ec480506c8cb56b02da8c47b522bd724c",
+    "画像": "caf40ee8691e41f6c1144283c195410f063806baafb5a0de878c7c429a934c67"
+   },
+   "data_hash": "be61bcf7667f014163eecdac7c1b04f8b021eac747ad70536c3658f2402a61b5",
+   "parent": "v009_20261018-1943",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md",
+     "persona/profile_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md",
+     "persona/profile_index.md"
+    ]
+   },
+   "data_changed": [
+    "persona/case_log/2025-11.md",
+    "persona/case_log/2025-12.md",
+    "persona/case_log/2026-01.md",
+    "persona/case_log/2026-02.md",
+    "persona/case_log/2026-03.md",
+    "persona/case_log/2026-04.md",
+    "persona/case_log/2026-05.md",
+    "persona/case_log/2026-06.md",
+    "persona/case_log/2026-07.md",
+    "persona/case_log/2026-08.md",
+    "persona/case_log/2026-09.md",
+    "persona/case_log/2026-10.md",
+    "persona/case_log/annotations.jsonl",
+    "persona/case_log/index.md"
+   ],
+   "lines": {
+    "added": 9,
+    "removed": 1
+   },
+   "bytes_weight": 234041,
+   "why": "check-md 2026-10-16 00:26",
+   "code": {
+    "chain": "4ea5d7561b78",
+    "distill": "939e754e12ef"
+   }
+  }
+ ],
+ "events": [],
+ "group": "active"
+}

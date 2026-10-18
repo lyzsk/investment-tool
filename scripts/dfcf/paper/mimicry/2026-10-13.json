@@ -1,0 +1,6730 @@
+{
+ "mode": "单日 2026-10-13",
+ "days": [
+  "2026-10-13"
+ ],
+ "generated_at": "2026-10-16T20:26:20",
+ "books_read": {
+  "A-liuyiqing": "2026-10-16T15:05:00",
+  "A-lianghuaxiaohao": "2026-10-16T15:05:00",
+  "A-a658": "2026-10-16T15:05:00",
+  "A-bianbenling": "2026-10-16T15:05:00",
+  "A-xingjianye": "2026-10-16T15:05:00",
+  "A-daxingdaxingdadangxing": "2026-10-16T15:05:00",
+  "A-gaogailvfuli": "2026-10-16T15:05:00",
+  "A-xuanqiucaijing": "2026-10-16T15:05:00",
+  "A-stzhilang": "2026-10-16T15:05:00",
+  "A-chong5000w": "2026-10-16T15:05:00",
+  "A-antoo": "2026-10-16T15:05:00",
+  "A-zhiyingjuexin": "2026-10-16T15:05:00",
+  "A-cb": "2026-10-16T15:05:00",
+  "A-control": "2026-10-16T15:05:00"
+ },
+ "params": {
+  "EPS_DIR": 0.05,
+  "MIN_W": 0.02,
+  "TP_BINS": [
+   0.05,
+   0.35,
+   0.65,
+   0.95
+  ],
+  "MIN_RANK": 20,
+  "BOOT_N": 2000,
+  "SEED": 20261016
+ },
+ "price_source": "本地行情库 kline_day",
+ "pairs": {
+  "A-liuyiqing": {
+   "ledger": "liuyiqing",
+   "name": "刘忆青",
+   "real_last": "20261016",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.6666666666666666,
+      "chain_paired": 1.0,
+      "lift": 0.33333333333333337,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.2647535277082138,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.5965,
+      "chain_paired": 0.2647535277082138,
+      "lift": 0.3317464722917862,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.12607388260210917,
+      "chain_paired": 0.2647535277082138,
+      "lift": -0.13867964510610464,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 2.0,
+      "chain_paired": 0.0,
+      "lift": 2.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.2647535277082138,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.5965,
+      "chain_paired": 0.2647535277082138,
+      "lift": 0.3317464722917862,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.30629359881580803,
+      "chain_paired": 0.2647535277082138,
+      "lift": 0.04154007110759422,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.7487015582843773,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.07074093744009446,
+      "chain_paired": 0.7487015582843773,
+      "lift": -0.6779606208442829,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.2134492597880349,
+      "chain_paired": 0.7487015582843773,
+      "lift": 0.4647477015036575,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 2,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 1.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 0.0,
+    "真人动日链也动": 1.0,
+    "延续_真人动日也动": 1.0,
+    "L1一致中双静占比": 0.0,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": true,
+      "buy": [
+       "时代万恒"
+      ],
+      "hold": [
+       "时代万恒"
+      ],
+      "tp": 0.403,
+      "n": 1,
+      "mx": 0.403,
+      "dir": -1,
+      "net": -0.645,
+      "turn": 1.45,
+      "boards": {
+       "沪深主板": 1
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [
+       "远程股份"
+      ],
+      "hold": [
+       "远程股份"
+      ],
+      "tp": 0.138,
+      "n": 1,
+      "mx": 0.138,
+      "dir": -1,
+      "net": -0.425,
+      "turn": 0.701,
+      "boards": {
+       "沪深主板": 1
+      }
+     },
+     "persist": {
+      "trade": true,
+      "buy": [
+       "九阳股份"
+      ],
+      "hold": [
+       "九阳股份"
+      ],
+      "tp": 0.999,
+      "n": 1,
+      "mx": 0.999,
+      "dir": 1,
+      "net": 0.619,
+      "turn": 1.379,
+      "boards": {
+       "沪深主板": 1
+      }
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 1.0,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.2647535277082138,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.2647535277082138,
+       "L4_换手误差": 0.7487015582843773
+      },
+      "persist": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 1.0,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.5965,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.5965,
+       "L4_换手误差": 0.07074093744009446
+      },
+      "ctrl": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.6666666666666666,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.12607388260210917,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 2.0,
+       "L4_最大仓误差": 0.30629359881580803,
+       "L4_换手误差": 1.2134492597880349
+      }
+     }
+    }
+   ]
+  },
+  "A-lianghuaxiaohao": {
+   "ledger": "lianghuaxiaohao",
+   "name": "量化短线小号实验",
+   "real_last": "20261015",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.5,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.5,
+      "chain_paired": 0.5,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.5,
+      "chain_paired": 0.5,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.7066006616290045,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.3797999999999999,
+      "chain_paired": 0.7066006616290045,
+      "lift": -0.32680066162900456,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.7213738826021092,
+      "chain_paired": 0.7066006616290045,
+      "lift": 0.01477322097310474,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.5355335743520071,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.3641,
+      "chain_paired": 0.5355335743520071,
+      "lift": -0.17143357435200712,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.584993598815808,
+      "chain_paired": 0.5355335743520071,
+      "lift": 0.04946002446380093,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.9482412333746633,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.454653689859317,
+      "chain_paired": 0.9482412333746633,
+      "lift": -0.4935875435153463,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.4348810252290252,
+      "chain_paired": 0.9482412333746633,
+      "lift": 0.4866397918543619,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 0,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 1.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 0.0,
+    "真人动日链也动": 1.0,
+    "延续_真人动日也动": 1.0,
+    "L1一致中双静占比": 0.0,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": true,
+      "buy": [
+       "大有能源",
+       "煤炭ETF"
+      ],
+      "hold": [
+       "大有能源",
+       "煤炭ETF"
+      ],
+      "tp": 0.998,
+      "n": 2,
+      "mx": 0.681,
+      "dir": 1,
+      "net": 0.325,
+      "turn": 1.671,
+      "boards": {
+       "沪深主板": 1,
+       "ETF/基金": 1
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [
+       "工商银行",
+       "芒果超媒"
+      ],
+      "hold": [
+       "工商银行",
+       "芒果超媒"
+      ],
+      "tp": 0.291,
+      "n": 2,
+      "mx": 0.146,
+      "dir": -1,
+      "net": -0.14,
+      "turn": 0.723,
+      "boards": {
+       "沪深主板": 1,
+       "创业板": 1
+      }
+     },
+     "persist": {
+      "trade": true,
+      "buy": [
+       "06166",
+       "ASMPT",
+       "世名科技",
+       "致尚科技"
+      ],
+      "hold": [
+       "世名科技",
+       "致尚科技"
+      ],
+      "tp": 0.618,
+      "n": 2,
+      "mx": 0.317,
+      "dir": 0,
+      "net": 0.02,
+      "turn": 1.217,
+      "boards": {
+       "沪深主板": 2,
+       "创业板": 2
+      }
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.5,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.7066006616290045,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.5355335743520071,
+       "L4_换手误差": 0.9482412333746633
+      },
+      "persist": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.5,
+       "L3_行业": null,
+       "L4_总仓误差": 0.3797999999999999,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.3641,
+       "L4_换手误差": 0.454653689859317
+      },
+      "ctrl": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.5,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.7213738826021092,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 1.0,
+       "L4_最大仓误差": 0.584993598815808,
+       "L4_换手误差": 1.4348810252290252
+      }
+     }
+    }
+   ]
+  },
+  "A-a658": {
+   "ledger": "a658",
+   "name": "A658 正好蓝天",
+   "real_last": "20261016",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.3333333333333333,
+      "chain_paired": 0.0,
+      "lift": -0.3333333333333333,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.5343436161885274,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0009000000000000119,
+      "chain_paired": 0.5343436161885274,
+      "lift": -0.5334436161885274,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.6856738826021092,
+      "chain_paired": 0.5343436161885274,
+      "lift": 0.15133026641358172,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 2.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 2.0,
+      "lift": -2.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 2.0,
+      "chain_paired": 2.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.8178605551063141,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0009000000000000119,
+      "chain_paired": 0.8178605551063141,
+      "lift": -0.816960555106314,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.8658935988158081,
+      "chain_paired": 0.8178605551063141,
+      "lift": 0.04803304370949402,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.6162810235812742,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.6162810235812742,
+      "lift": -0.6162810235812742,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.23647686823805755,
+      "chain_paired": 0.6162810235812742,
+      "lift": -0.37980415534321665,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 0,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 0.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 0.0,
+    "真人动日链也动": null,
+    "延续_真人动日也动": null,
+    "L1一致中双静占比": null,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": false,
+      "buy": [],
+      "hold": [
+       "N鸿富诚"
+      ],
+      "tp": 0.962,
+      "n": 1,
+      "mx": 0.962,
+      "dir": 0,
+      "net": 0,
+      "turn": 0,
+      "boards": {
+       "创业板": 1
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [
+       "上海电影",
+       "格尔软件",
+       "远程股份"
+      ],
+      "hold": [
+       "上海电影",
+       "格尔软件",
+       "远程股份"
+      ],
+      "tp": 0.428,
+      "n": 3,
+      "mx": 0.144,
+      "dir": 1,
+      "net": 0.24,
+      "turn": 0.616,
+      "boards": {
+       "沪深主板": 3
+      }
+     },
+     "persist": {
+      "trade": false,
+      "buy": [],
+      "hold": [
+       "N鸿富诚"
+      ],
+      "tp": 0.961,
+      "n": 1,
+      "mx": 0.961,
+      "dir": 0,
+      "net": 0,
+      "turn": 0,
+      "boards": {
+       "创业板": 1
+      }
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 0.0,
+       "L1_买": 0.0,
+       "L1_卖": 0.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.0,
+       "L3_行业": null,
+       "L4_总仓误差": 0.5343436161885274,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 2.0,
+       "L4_最大仓误差": 0.8178605551063141,
+       "L4_换手误差": 0.6162810235812742
+      },
+      "persist": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": null,
+       "L3_持仓Jaccard": 1.0,
+       "L3_板块": 1.0,
+       "L3_行业": null,
+       "L4_总仓误差": 0.0009000000000000119,
+       "L4_总仓分档": 1.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.0009000000000000119,
+       "L4_换手误差": 0
+      },
+      "ctrl": {
+       "L1_交易": 0.0,
+       "L1_买": 0.0,
+       "L1_卖": 0.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.3333333333333333,
+       "L3_行业": null,
+       "L4_总仓误差": 0.6856738826021092,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 2.0,
+       "L4_最大仓误差": 0.8658935988158081,
+       "L4_换手误差": 0.23647686823805755
+      }
+     }
+    }
+   ]
+  },
+  "A-bianbenling": {
+   "ledger": "bianbenling",
+   "name": "边学本领边实践",
+   "real_last": "20261015",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.8333333333333333,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.8333333333333333,
+      "lift": -0.16666666666666674,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.8333333333333333,
+      "chain_paired": 0.8333333333333333,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.5528552348355212,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0011999999999999789,
+      "chain_paired": 0.5528552348355212,
+      "lift": -0.5516552348355213,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.6800738826021091,
+      "chain_paired": 0.5528552348355212,
+      "lift": 0.12721864776658787,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 4.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 4.0,
+      "lift": -4.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 4.0,
+      "lift": -3.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.8242950217348466,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0012999999999999678,
+      "chain_paired": 0.8242950217348466,
+      "lift": -0.8229950217348466,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.837993598815808,
+      "chain_paired": 0.8242950217348466,
+      "lift": 0.01369857708096145,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.4043940915255621,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.4043940915255621,
+      "lift": -0.4043940915255621,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.23647686823805755,
+      "chain_paired": 0.4043940915255621,
+      "lift": -0.16791722328750455,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 0,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 0.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 0.0,
+    "真人动日链也动": null,
+    "延续_真人动日也动": null,
+    "L1一致中双静占比": null,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": false,
+      "buy": [],
+      "hold": [
+       "东山精密",
+       "麦捷科技"
+      ],
+      "tp": 0.957,
+      "n": 2,
+      "mx": 0.934,
+      "dir": 0,
+      "net": 0,
+      "turn": 0,
+      "boards": {
+       "沪深主板": 1,
+       "创业板": 1
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [],
+      "hold": [
+       "上海电影",
+       "中文在线",
+       "天融信",
+       "掌阅科技",
+       "芒果超媒",
+       "龙版传媒"
+      ],
+      "tp": 0.404,
+      "n": 6,
+      "mx": 0.11,
+      "dir": -1,
+      "net": -0.404,
+      "turn": 0.404,
+      "boards": {
+       "沪深主板": 4,
+       "创业板": 2
+      }
+     },
+     "persist": {
+      "trade": false,
+      "buy": [],
+      "hold": [
+       "东山精密",
+       "麦捷科技"
+      ],
+      "tp": 0.956,
+      "n": 2,
+      "mx": 0.933,
+      "dir": 0,
+      "net": 0,
+      "turn": 0,
+      "boards": {
+       "沪深主板": 1,
+       "创业板": 1
+      }
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 0.0,
+       "L1_买": 1.0,
+       "L1_卖": 0.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": null,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.8333333333333333,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.5528552348355212,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 4.0,
+       "L4_最大仓误差": 0.8242950217348466,
+       "L4_换手误差": 0.4043940915255621
+      },
+      "persist": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": null,
+       "L3_持仓Jaccard": 1.0,
+       "L3_板块": 1.0,
+       "L3_行业": 1.0,
+       "L4_总仓误差": 0.0011999999999999789,
+       "L4_总仓分档": 1.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.0012999999999999678,
+       "L4_换手误差": 0
+      },
+      "ctrl": {
+       "L1_交易": 0.0,
+       "L1_买": 0.0,
+       "L1_卖": 0.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.8333333333333333,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.6800738826021091,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 1.0,
+       "L4_最大仓误差": 0.837993598815808,
+       "L4_换手误差": 0.23647686823805755
+      }
+     }
+    }
+   ]
+  },
+  "A-xingjianye": {
+   "ledger": "xingjianye",
+   "name": "星见野",
+   "real_last": "20261016",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.6666666666666666,
+      "chain_paired": 1.0,
+      "lift": 0.33333333333333337,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.6520386362549209,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.9999,
+      "chain_paired": 0.6520386362549209,
+      "lift": 0.34786136374507914,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.7232738826021092,
+      "chain_paired": 0.6520386362549209,
+      "lift": 0.07123524634718836,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 4.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 4.0,
+      "lift": -3.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 2.0,
+      "chain_paired": 4.0,
+      "lift": -2.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.8514568772408877,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.9999,
+      "chain_paired": 0.8514568772408877,
+      "lift": 0.1484431227591123,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.903493598815808,
+      "chain_paired": 0.8514568772408877,
+      "lift": 0.05203672157492034,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.6262133122105491,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0004260401763372945,
+      "chain_paired": 0.6262133122105491,
+      "lift": -0.6257872720342118,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.7634231317619424,
+      "chain_paired": 0.6262133122105491,
+      "lift": 0.13720981955139333,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 1,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 1.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 0.0,
+    "真人动日链也动": 1.0,
+    "延续_真人动日也动": 1.0,
+    "L1一致中双静占比": 0.0,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": true,
+      "buy": [
+       "红太阳"
+      ],
+      "hold": [
+       "红太阳"
+      ],
+      "tp": 1.0,
+      "n": 1,
+      "mx": 1.0,
+      "dir": 1,
+      "net": 1.0,
+      "turn": 1.0,
+      "boards": {
+       "沪深主板": 1
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [
+       "中国银行"
+      ],
+      "hold": [
+       "中国银行",
+       "天融信",
+       "掌阅科技",
+       "格尔软件",
+       "雷赛智能"
+      ],
+      "tp": 0.348,
+      "n": 5,
+      "mx": 0.148,
+      "dir": -1,
+      "net": -0.077,
+      "turn": 0.374,
+      "boards": {
+       "沪深主板": 5
+      }
+     },
+     "persist": {
+      "trade": true,
+      "buy": [],
+      "hold": [],
+      "tp": 0,
+      "n": 0,
+      "mx": 0.0,
+      "dir": -1,
+      "net": -0.999,
+      "turn": 0.999,
+      "boards": {}
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 0.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 1.0,
+       "L3_行业": null,
+       "L4_总仓误差": 0.6520386362549209,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 4.0,
+       "L4_最大仓误差": 0.8514568772408877,
+       "L4_换手误差": 0.6262133122105491
+      },
+      "persist": {
+       "L1_交易": 1.0,
+       "L1_买": 0.0,
+       "L1_卖": 0.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": null,
+       "L3_行业": null,
+       "L4_总仓误差": 0.9999,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 1.0,
+       "L4_最大仓误差": 0.9999,
+       "L4_换手误差": 0.0004260401763372945
+      },
+      "ctrl": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 0.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.6666666666666666,
+       "L3_行业": null,
+       "L4_总仓误差": 0.7232738826021092,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 2.0,
+       "L4_最大仓误差": 0.903493598815808,
+       "L4_换手误差": 0.7634231317619424
+      }
+     }
+    }
+   ]
+  },
+  "A-daxingdaxingdadangxing": {
+   "ledger": "daxingdaxingdadangxing",
+   "name": "大兴大兴大A当兴",
+   "real_last": "20261016",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.3333333333333333,
+      "chain_paired": 0.0,
+      "lift": -0.3333333333333333,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.3333333333333333,
+      "chain_paired": 0.0,
+      "lift": -0.3333333333333333,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.6666666666666666,
+      "chain_paired": 1.0,
+      "lift": 0.33333333333333337,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.5,
+      "chain_paired": 0.0,
+      "lift": -0.5,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.5718441560970376,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.008299999999999974,
+      "chain_paired": 0.5718441560970376,
+      "lift": -0.5635441560970377,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.7136738826021092,
+      "chain_paired": 0.5718441560970376,
+      "lift": 0.14182972650507153,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 2.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 2.0,
+      "lift": -2.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 2.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.516739169908482,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.007199999999999984,
+      "chain_paired": 0.516739169908482,
+      "lift": -0.509539169908482,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.568893598815808,
+      "chain_paired": 0.516739169908482,
+      "lift": 0.05215442890732602,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.960976292225905,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.6604526093230401,
+      "chain_paired": 0.960976292225905,
+      "lift": -0.3005236829028649,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0856202132383952,
+      "chain_paired": 0.960976292225905,
+      "lift": 0.12464392101249022,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 0,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 1.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 0.0,
+    "真人动日链也动": 1.0,
+    "延续_真人动日也动": 1.0,
+    "L1一致中双静占比": 0.0,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": true,
+      "buy": [
+       "分众传媒",
+       "天娱数科"
+      ],
+      "hold": [
+       "分众传媒",
+       "天娱数科"
+      ],
+      "tp": 0.99,
+      "n": 2,
+      "mx": 0.665,
+      "dir": 0,
+      "net": -0.015,
+      "turn": 1.322,
+      "boards": {
+       "沪深主板": 2
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [
+       "中国银行",
+       "工商银行"
+      ],
+      "hold": [
+       "中国银行",
+       "工商银行",
+       "掌阅科技",
+       "海南橡胶"
+      ],
+      "tp": 0.418,
+      "n": 4,
+      "mx": 0.149,
+      "dir": 1,
+      "net": 0.225,
+      "turn": 0.361,
+      "boards": {
+       "沪深主板": 4
+      }
+     },
+     "persist": {
+      "trade": true,
+      "buy": [
+       "分众传媒",
+       "欢瑞世纪"
+      ],
+      "hold": [
+       "分众传媒",
+       "欢瑞世纪"
+      ],
+      "tp": 0.999,
+      "n": 2,
+      "mx": 0.672,
+      "dir": 0,
+      "net": 0.015,
+      "turn": 1.983,
+      "boards": {
+       "沪深主板": 2
+      }
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 1.0,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.5718441560970376,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 2.0,
+       "L4_最大仓误差": 0.516739169908482,
+       "L4_换手误差": 0.960976292225905
+      },
+      "persist": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": 0.3333333333333333,
+       "L3_持仓Jaccard": 0.3333333333333333,
+       "L3_板块": 1.0,
+       "L3_行业": 0.5,
+       "L4_总仓误差": 0.008299999999999974,
+       "L4_总仓分档": 1.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.007199999999999984,
+       "L4_换手误差": 0.6604526093230401
+      },
+      "ctrl": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.6666666666666666,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.7136738826021092,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 1.0,
+       "L4_最大仓误差": 0.568893598815808,
+       "L4_换手误差": 1.0856202132383952
+      }
+     }
+    }
+   ]
+  },
+  "A-gaogailvfuli": {
+   "ledger": "gaogailvfuli",
+   "name": "高概率复利",
+   "real_last": "20261016",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.5,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.5,
+      "lift": -0.5,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.5,
+      "chain_paired": 0.5,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.15004836555408796,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.6901,
+      "chain_paired": 0.15004836555408796,
+      "lift": 0.5400516344459121,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.031073882602109137,
+      "chain_paired": 0.15004836555408796,
+      "lift": -0.11897448295197882,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 2.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 2.0,
+      "lift": -2.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 2.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.10848643732601157,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.2725,
+      "chain_paired": 0.10848643732601157,
+      "lift": 0.16401356267398845,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.15009359881580803,
+      "chain_paired": 0.10848643732601157,
+      "lift": 0.04160716148979646,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.9128961116568571,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.30487279759400576,
+      "chain_paired": 0.9128961116568571,
+      "lift": -0.6080233140628514,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0661959293559482,
+      "chain_paired": 0.9128961116568571,
+      "lift": 0.15329981769909107,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 2,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 1.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 0.0,
+    "真人动日链也动": 1.0,
+    "延续_真人动日也动": 1.0,
+    "L1一致中双静占比": 0.0,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": true,
+      "buy": [
+       "冠中转债",
+       "镇洋发展"
+      ],
+      "hold": [
+       "冠中转债",
+       "镇洋发展"
+      ],
+      "tp": 0.308,
+      "n": 2,
+      "mx": 0.246,
+      "dir": -1,
+      "net": -0.687,
+      "turn": 1.303,
+      "boards": {
+       "可转债": 1,
+       "沪深主板": 1
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [
+       "沪深300ETF华泰柏瑞"
+      ],
+      "hold": [
+       "掌阅科技",
+       "沪深300ETF华泰柏瑞",
+       "海南橡胶",
+       "贝瑞基因"
+      ],
+      "tp": 0.458,
+      "n": 4,
+      "mx": 0.138,
+      "dir": -1,
+      "net": -0.16,
+      "turn": 0.39,
+      "boards": {
+       "ETF/基金": 1,
+       "沪深主板": 3
+      }
+     },
+     "persist": {
+      "trade": true,
+      "buy": [
+       "华纬科技",
+       "惠云转债"
+      ],
+      "hold": [
+       "华纬科技",
+       "惠云转债"
+      ],
+      "tp": 0.998,
+      "n": 2,
+      "mx": 0.519,
+      "dir": 1,
+      "net": 0.998,
+      "turn": 0.998,
+      "boards": {
+       "可转债": 1,
+       "沪深主板": 1
+      }
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.5,
+       "L3_行业": null,
+       "L4_总仓误差": 0.15004836555408796,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 2.0,
+       "L4_最大仓误差": 0.10848643732601157,
+       "L4_换手误差": 0.9128961116568571
+      },
+      "persist": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 0.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 1.0,
+       "L3_行业": null,
+       "L4_总仓误差": 0.6901,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.2725,
+       "L4_换手误差": 0.30487279759400576
+      },
+      "ctrl": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.5,
+       "L3_行业": null,
+       "L4_总仓误差": 0.031073882602109137,
+       "L4_总仓分档": 1.0,
+       "L4_只数误差": 1.0,
+       "L4_最大仓误差": 0.15009359881580803,
+       "L4_换手误差": 1.0661959293559482
+      }
+     }
+    }
+   ]
+  },
+  "A-xuanqiucaijing": {
+   "ledger": "xuanqiucaijing",
+   "name": "宣秋财经",
+   "real_last": "20261013",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.3333333333333333,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.3333333333333333,
+      "lift": -0.6666666666666667,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.3333333333333333,
+      "chain_paired": 0.3333333333333333,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 2.0373683564827756,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.055400000000000116,
+      "chain_paired": 2.0373683564827756,
+      "lift": -1.9819683564827755,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.9089738826021092,
+      "chain_paired": 2.0373683564827756,
+      "lift": -0.12839447388066638,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 2.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 2.0,
+      "lift": -2.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 2.0,
+      "lift": -2.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.7287683564827757,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0121,
+      "chain_paired": 0.7287683564827757,
+      "lift": -0.7166683564827757,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.780593598815808,
+      "chain_paired": 0.7287683564827757,
+      "lift": 0.05182524233303232,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.5994361067403615,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.7125002053856044,
+      "chain_paired": 0.5994361067403615,
+      "lift": 1.113064098645243,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.23647686823805755,
+      "chain_paired": 0.5994361067403615,
+      "lift": -0.36295923850230394,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 0,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 0.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 0.0,
+    "真人动日链也动": null,
+    "延续_真人动日也动": null,
+    "L1一致中双静占比": null,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": false,
+      "buy": [],
+      "hold": [
+       "共达电声",
+       "常州银河微电",
+       "芯原微电子"
+      ],
+      "tp": 2.186,
+      "n": 3,
+      "mx": 0.877,
+      "dir": 0,
+      "net": 0,
+      "turn": 0,
+      "boards": {
+       "科创板": 2,
+       "沪深主板": 1
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [
+       "中国银行"
+      ],
+      "hold": [
+       "中国银行"
+      ],
+      "tp": 0.148,
+      "n": 1,
+      "mx": 0.148,
+      "dir": -1,
+      "net": -0.303,
+      "turn": 0.599,
+      "boards": {
+       "沪深主板": 1
+      }
+     },
+     "persist": {
+      "trade": true,
+      "buy": [
+       "共达电声"
+      ],
+      "hold": [
+       "共达电声",
+       "常州银河微电",
+       "芯原微电子"
+      ],
+      "tp": 2.241,
+      "n": 3,
+      "mx": 0.865,
+      "dir": 0,
+      "net": 0.008,
+      "turn": 1.713,
+      "boards": {
+       "科创板": 2,
+       "沪深主板": 1
+      }
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 0.0,
+       "L1_买": 0.0,
+       "L1_卖": 0.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.3333333333333333,
+       "L3_行业": null,
+       "L4_总仓误差": 2.0373683564827756,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 2.0,
+       "L4_最大仓误差": 0.7287683564827757,
+       "L4_换手误差": 0.5994361067403615
+      },
+      "persist": {
+       "L1_交易": 0.0,
+       "L1_买": 0.0,
+       "L1_卖": 0.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 1.0,
+       "L3_板块": 1.0,
+       "L3_行业": 1.0,
+       "L4_总仓误差": 0.055400000000000116,
+       "L4_总仓分档": 1.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.0121,
+       "L4_换手误差": 1.7125002053856044
+      },
+      "ctrl": {
+       "L1_交易": 0.0,
+       "L1_买": 0.0,
+       "L1_卖": 0.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.3333333333333333,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 1.9089738826021092,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.780593598815808,
+       "L4_换手误差": 0.23647686823805755
+      }
+     }
+    }
+   ]
+  },
+  "A-stzhilang": {
+   "ledger": "stzhilang",
+   "name": "ST之狼",
+   "real_last": "20261016",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.004610975582762189,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.4192,
+      "chain_paired": 0.004610975582762189,
+      "lift": 0.41458902441723783,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.14257388260210918,
+      "chain_paired": 0.004610975582762189,
+      "lift": 0.137962907019347,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 2.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.09193868257945054,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.238,
+      "chain_paired": 0.09193868257945054,
+      "lift": 0.14606131742054945,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.14159359881580802,
+      "chain_paired": 0.09193868257945054,
+      "lift": 0.04965491623635748,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.4074084821811981,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.4192,
+      "chain_paired": 0.4074084821811981,
+      "lift": 0.011791517818801944,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.18272313176194246,
+      "chain_paired": 0.4074084821811981,
+      "lift": -0.2246853504192556,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 2,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 1.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 0.0,
+    "真人动日链也动": 1.0,
+    "延续_真人动日也动": 0.0,
+    "L1一致中双静占比": 0.0,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": true,
+      "buy": [
+       "*ST威领",
+       "ST喜临门"
+      ],
+      "hold": [
+       "*ST威领",
+       "ST喜临门"
+      ],
+      "tp": 0.419,
+      "n": 2,
+      "mx": 0.238,
+      "dir": 1,
+      "net": 0.419,
+      "turn": 0.419,
+      "boards": {
+       "ST": 2
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [
+       "中信银行",
+       "中国银行",
+       "工商银行"
+      ],
+      "hold": [
+       "中信银行",
+       "中国银行",
+       "工商银行"
+      ],
+      "tp": 0.424,
+      "n": 3,
+      "mx": 0.146,
+      "dir": 0,
+      "net": 0.021,
+      "turn": 0.827,
+      "boards": {
+       "沪深主板": 3
+      }
+     },
+     "persist": {
+      "trade": false,
+      "buy": [],
+      "hold": [],
+      "tp": 0,
+      "n": 0,
+      "mx": 0.0,
+      "dir": 0,
+      "net": 0,
+      "turn": 0,
+      "boards": {}
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 0.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.0,
+       "L3_行业": null,
+       "L4_总仓误差": 0.004610975582762189,
+       "L4_总仓分档": 1.0,
+       "L4_只数误差": 1.0,
+       "L4_最大仓误差": 0.09193868257945054,
+       "L4_换手误差": 0.4074084821811981
+      },
+      "persist": {
+       "L1_交易": 0.0,
+       "L1_买": 0.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": null,
+       "L3_行业": null,
+       "L4_总仓误差": 0.4192,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 2.0,
+       "L4_最大仓误差": 0.238,
+       "L4_换手误差": 0.4192
+      },
+      "ctrl": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 0.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.0,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.14257388260210918,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 1.0,
+       "L4_最大仓误差": 0.14159359881580802,
+       "L4_换手误差": 0.18272313176194246
+      }
+     }
+    }
+   ]
+  },
+  "A-antoo": {
+   "ledger": "antoo",
+   "name": "antoo",
+   "real_last": "20261013",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.5,
+      "chain_paired": 0.0,
+      "lift": -0.5,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.75,
+      "chain_paired": 0.0,
+      "lift": -0.75,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.3333333333333333,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.3333333333333333,
+      "lift": -0.6666666666666667,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.3333333333333333,
+      "chain_paired": 0.3333333333333333,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.3333333333333333,
+      "chain_paired": 0.0,
+      "lift": -0.3333333333333333,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.9342642101137438,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.007299999999999862,
+      "chain_paired": 0.9342642101137438,
+      "lift": -0.926964210113744,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0222738826021092,
+      "chain_paired": 0.9342642101137438,
+      "lift": 0.08800967248836533,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.5816625854765726,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.010499999999999954,
+      "chain_paired": 0.5816625854765726,
+      "lift": -0.5711625854765726,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.6572935988158081,
+      "chain_paired": 0.5816625854765726,
+      "lift": 0.0756310133392355,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.005128983729723285,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.30446324045025774,
+      "chain_paired": 0.005128983729723285,
+      "lift": 0.2993342567205345,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.1895609198430465,
+      "chain_paired": 0.005128983729723285,
+      "lift": 0.1844319361133232,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 0,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 1.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 0.0,
+    "真人动日链也动": 1.0,
+    "延续_真人动日也动": 1.0,
+    "L1一致中双静占比": 0.0,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": true,
+      "buy": [
+       "创业黑马",
+       "行云科技"
+      ],
+      "hold": [
+       "创业黑马",
+       "联特科技",
+       "行云科技"
+      ],
+      "tp": 1.299,
+      "n": 3,
+      "mx": 0.754,
+      "dir": 0,
+      "net": 0.027,
+      "turn": 0.047,
+      "boards": {
+       "创业板": 3
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [],
+      "hold": [
+       "上海电影",
+       "掌阅科技",
+       "松原安全"
+      ],
+      "tp": 0.365,
+      "n": 3,
+      "mx": 0.172,
+      "dir": -1,
+      "net": -0.052,
+      "turn": 0.052,
+      "boards": {
+       "沪深主板": 2,
+       "创业板": 1
+      }
+     },
+     "persist": {
+      "trade": true,
+      "buy": [
+       "中际旭创",
+       "创业黑马",
+       "联特科技",
+       "行云科技"
+      ],
+      "hold": [
+       "中际旭创",
+       "创业黑马",
+       "联特科技",
+       "行云科技"
+      ],
+      "tp": 1.292,
+      "n": 4,
+      "mx": 0.764,
+      "dir": 1,
+      "net": 0.217,
+      "turn": 0.351,
+      "boards": {
+       "创业板": 4
+      }
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 1.0,
+       "L1_买": 0.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.3333333333333333,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.9342642101137438,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.5816625854765726,
+       "L4_换手误差": 0.005128983729723285
+      },
+      "persist": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.5,
+       "L3_持仓Jaccard": 0.75,
+       "L3_板块": 1.0,
+       "L3_行业": 1.0,
+       "L4_总仓误差": 0.007299999999999862,
+       "L4_总仓分档": 1.0,
+       "L4_只数误差": 1.0,
+       "L4_最大仓误差": 0.010499999999999954,
+       "L4_换手误差": 0.30446324045025774
+      },
+      "ctrl": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.3333333333333333,
+       "L3_行业": 0.3333333333333333,
+       "L4_总仓误差": 1.0222738826021092,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.6572935988158081,
+       "L4_换手误差": 0.1895609198430465
+      }
+     }
+    }
+   ]
+  },
+  "A-zhiyingjuexin": {
+   "ledger": "zhiyingjuexin",
+   "name": "芷影攫心",
+   "real_last": "20261016",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.0286,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.9714,
+      "chain_paired": 0.0286,
+      "lift": 0.9428000000000001,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.24802611739789082,
+      "chain_paired": 0.0286,
+      "lift": 0.2194261173978908,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 2.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.0286,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.9714,
+      "chain_paired": 0.0286,
+      "lift": 0.9428000000000001,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.06780640118419197,
+      "chain_paired": 0.0286,
+      "lift": 0.03920640118419197,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.5305214807526455,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.25991355218737944,
+      "chain_paired": 0.5305214807526455,
+      "lift": -0.27060792856526605,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.7358648231614504,
+      "chain_paired": 0.5305214807526455,
+      "lift": 0.20534334240880492,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 2,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 1.0,
+    "链交易率": 1.0,
+    "真人空仓率": 0.0,
+    "链空仓率": 1.0,
+    "真人动日链也动": 1.0,
+    "延续_真人动日也动": 1.0,
+    "L1一致中双静占比": 0.0,
+    "真人有仓日链有同票": 0.0,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": true,
+      "buy": [],
+      "hold": [
+       "九阳股份"
+      ],
+      "tp": 0.029,
+      "n": 1,
+      "mx": 0.029,
+      "dir": -1,
+      "net": -0.972,
+      "turn": 0.972,
+      "boards": {
+       "沪深主板": 1
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [],
+      "hold": [],
+      "tp": 0,
+      "n": 0,
+      "mx": 0.0,
+      "dir": -1,
+      "net": -0.442,
+      "turn": 0.442,
+      "boards": {}
+     },
+     "persist": {
+      "trade": true,
+      "buy": [
+       "九阳股份"
+      ],
+      "hold": [
+       "九阳股份"
+      ],
+      "tp": 1.0,
+      "n": 1,
+      "mx": 1.0,
+      "dir": 0,
+      "net": -0.034,
+      "turn": 1.232,
+      "boards": {
+       "沪深主板": 1
+      }
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": null,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": null,
+       "L3_行业": null,
+       "L4_总仓误差": 0.0286,
+       "L4_总仓分档": 1.0,
+       "L4_只数误差": 1.0,
+       "L4_最大仓误差": 0.0286,
+       "L4_换手误差": 0.5305214807526455
+      },
+      "persist": {
+       "L1_交易": 1.0,
+       "L1_买": 0.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 1.0,
+       "L3_板块": 1.0,
+       "L3_行业": 1.0,
+       "L4_总仓误差": 0.9714,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.9714,
+       "L4_换手误差": 0.25991355218737944
+      },
+      "ctrl": {
+       "L1_交易": 1.0,
+       "L1_买": 0.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.6666666666666666,
+       "L3_行业": 0.0,
+       "L4_总仓误差": 0.24802611739789082,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 2.0,
+       "L4_最大仓误差": 0.06780640118419197,
+       "L4_换手误差": 0.7358648231614504
+      }
+     }
+    }
+   ]
+  },
+  "A-cb": {
+   "ledger": "buchitudou0",
+   "name": "不吃土豆0",
+   "real_last": "20261015",
+   "n_days": 1,
+   "metrics": {
+    "L1_交易": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L1_买": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    },
+    "L1_卖": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L2_方向": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      0.0,
+      0.7934567085261071
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_买入Jaccard": {
+     "kind": "sim",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 0.0,
+      "lift": -1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     }
+    },
+    "L3_持仓Jaccard": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L3_板块": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L3_行业": {
+     "kind": "sim",
+     "n_chain": 0,
+     "chain": null,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     },
+     "ctrl": {
+      "n": 0,
+      "base": null,
+      "chain_paired": null,
+      "lift": null,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "无数据"
+     }
+    },
+    "L4_总仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.27662611739789084,
+      "chain_paired": 0.0,
+      "lift": 0.27662611739789084,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_总仓分档": {
+     "kind": "acc",
+     "n_chain": 1,
+     "chain": 1.0,
+     "chain_ci": [
+      0.20654329147389294,
+      1.0
+     ],
+     "persist": {
+      "n": 1,
+      "base": 1.0,
+      "chain_paired": 1.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 1.0,
+      "lift": 1.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_只数误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 3.0,
+      "chain_paired": 0.0,
+      "lift": 3.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_最大仓误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.0,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.0,
+      "lift": 0.0,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "平·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.09640640118419197,
+      "chain_paired": 0.0,
+      "lift": 0.09640640118419197,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点赢·不足以排序"
+     }
+    },
+    "L4_换手误差": {
+     "kind": "err",
+     "n_chain": 1,
+     "chain": 0.44348373499153737,
+     "chain_ci": [
+      null,
+      null
+     ],
+     "persist": {
+      "n": 1,
+      "base": 0.0,
+      "chain_paired": 0.44348373499153737,
+      "lift": -0.44348373499153737,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     },
+     "ctrl": {
+      "n": 1,
+      "base": 0.23647686823805755,
+      "chain_paired": 0.44348373499153737,
+      "lift": -0.20700686675347982,
+      "lift_ci": [
+       null,
+       null
+      ],
+      "verdict": "点输·不足以排序"
+     }
+    }
+   },
+   "main_wins_vs_persist": 0,
+   "diagnosis": {
+    "days": 1,
+    "真人交易率": 1.0,
+    "链交易率": 1.0,
+    "真人空仓率": 1.0,
+    "链空仓率": 1.0,
+    "真人动日链也动": 1.0,
+    "延续_真人动日也动": 1.0,
+    "L1一致中双静占比": 0.0,
+    "真人有仓日链有同票": null,
+    "标签": []
+   },
+   "daily": [
+    {
+     "date": "2026-10-13",
+     "real": {
+      "trade": true,
+      "buy": [
+       "澳弘转债"
+      ],
+      "hold": [],
+      "tp": 0,
+      "n": 0,
+      "mx": 0.0,
+      "dir": 0,
+      "net": 0.0,
+      "turn": 0.0,
+      "boards": {
+       "可转债": 1
+      }
+     },
+     "chain": {
+      "trade": true,
+      "buy": [],
+      "hold": [],
+      "tp": 0,
+      "n": 0,
+      "mx": 0.0,
+      "dir": -1,
+      "net": -0.443,
+      "turn": 0.443,
+      "boards": {}
+     },
+     "persist": {
+      "trade": true,
+      "buy": [
+       "澳弘转债"
+      ],
+      "hold": [],
+      "tp": 0,
+      "n": 0,
+      "mx": 0.0,
+      "dir": 0,
+      "net": 0.0,
+      "turn": 0.0,
+      "boards": {
+       "可转债": 1
+      }
+     },
+     "scores": {
+      "chain": {
+       "L1_交易": 1.0,
+       "L1_买": 0.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": null,
+       "L3_板块": null,
+       "L3_行业": null,
+       "L4_总仓误差": 0,
+       "L4_总仓分档": 1.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.0,
+       "L4_换手误差": 0.44348373499153737
+      },
+      "persist": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 1.0,
+       "L3_买入Jaccard": 1.0,
+       "L3_持仓Jaccard": null,
+       "L3_板块": 1.0,
+       "L3_行业": null,
+       "L4_总仓误差": 0,
+       "L4_总仓分档": 1.0,
+       "L4_只数误差": 0.0,
+       "L4_最大仓误差": 0.0,
+       "L4_换手误差": 0.0
+      },
+      "ctrl": {
+       "L1_交易": 1.0,
+       "L1_买": 1.0,
+       "L1_卖": 1.0,
+       "L2_方向": 0.0,
+       "L3_买入Jaccard": 0.0,
+       "L3_持仓Jaccard": 0.0,
+       "L3_板块": 0.0,
+       "L3_行业": null,
+       "L4_总仓误差": 0.27662611739789084,
+       "L4_总仓分档": 0.0,
+       "L4_只数误差": 3.0,
+       "L4_最大仓误差": 0.09640640118419197,
+       "L4_换手误差": 0.23647686823805755
+      }
+     }
+    }
+   ]
+  }
+ },
+ "skipped": {
+  "A-chong5000w": "窗口内无配对日(真人数据最新 20260706, 链 nav 最新 2026-10-16)"
+ },
+ "checks": {
+  "A-liuyiqing": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-lianghuaxiaohao": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-a658": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-bianbenling": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-xingjianye": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-daxingdaxingdadangxing": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-gaogailvfuli": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-xuanqiucaijing": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-stzhilang": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-antoo": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-zhiyingjuexin": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  },
+  "A-cb": {
+   "重放仓位vs账本mv最大偏差": 0.0
+  }
+ },
+ "industry_coverage": 0.66,
+ "pooled": {
+  "L1_交易": {
+   "persist": {
+    "n": 12,
+    "lift": -0.08333333333333333,
+    "lift_ci": [
+     -0.3333333333333333,
+     0.16666666666666666
+    ],
+    "verdict": "点输·不足以排序"
+   },
+   "ctrl": {
+    "n": 12,
+    "lift": 0.0,
+    "lift_ci": [
+     0.0,
+     0.0
+    ],
+    "verdict": "平·不足以排序"
+   }
+  },
+  "L1_买": {
+   "persist": {
+    "n": 12,
+    "lift": 0.0,
+    "lift_ci": [
+     -0.4166666666666667,
+     0.4166666666666667
+    ],
+    "verdict": "平·不足以排序"
+   },
+   "ctrl": {
+    "n": 12,
+    "lift": 0.0,
+    "lift_ci": [
+     -0.3333333333333333,
+     0.3333333333333333
+    ],
+    "verdict": "平·不足以排序"
+   }
+  },
+  "L1_卖": {
+   "persist": {
+    "n": 12,
+    "lift": -0.16666666666666666,
+    "lift_ci": [
+     -0.5,
+     0.16666666666666666
+    ],
+    "verdict": "点输·不足以排序"
+   },
+   "ctrl": {
+    "n": 12,
+    "lift": 0.0,
+    "lift_ci": [
+     0.0,
+     0.0
+    ],
+    "verdict": "平·不足以排序"
+   }
+  },
+  "L2_方向": {
+   "persist": {
+    "n": 12,
+    "lift": -0.16666666666666666,
+    "lift_ci": [
+     -0.5833333333333334,
+     0.3333333333333333
+    ],
+    "verdict": "点输·不足以排序"
+   },
+   "ctrl": {
+    "n": 12,
+    "lift": 0.0,
+    "lift_ci": [
+     -0.4166666666666667,
+     0.4166666666666667
+    ],
+    "verdict": "平·不足以排序"
+   }
+  },
+  "L3_买入Jaccard": {
+   "persist": {
+    "n": 9,
+    "lift": -0.2037037037037037,
+    "lift_ci": [
+     -0.4444444444444444,
+     0.0
+    ],
+    "verdict": "点输·不足以排序"
+   },
+   "ctrl": {
+    "n": 10,
+    "lift": 0.0,
+    "lift_ci": [
+     0.0,
+     0.0
+    ],
+    "verdict": "平·不足以排序"
+   }
+  },
+  "L3_持仓Jaccard": {
+   "persist": {
+    "n": 11,
+    "lift": -0.4621212121212121,
+    "lift_ci": [
+     -0.7348484848484849,
+     -0.18939393939393942
+    ],
+    "verdict": "显著输·不足以排序"
+   },
+   "ctrl": {
+    "n": 11,
+    "lift": 0.0,
+    "lift_ci": [
+     0.0,
+     0.0
+    ],
+    "verdict": "平·不足以排序"
+   }
+  },
+  "L3_板块": {
+   "persist": {
+    "n": 8,
+    "lift": -0.375,
+    "lift_ci": [
+     -0.625,
+     -0.14583333333333334
+    ],
+    "verdict": "显著输·不足以排序"
+   },
+   "ctrl": {
+    "n": 10,
+    "lift": 0.06666666666666668,
+    "lift_ci": [
+     -0.06666666666666665,
+     0.2
+    ],
+    "verdict": "点赢·不足以排序"
+   }
+  },
+  "L3_行业": {
+   "persist": {
+    "n": 4,
+    "lift": -0.625,
+    "lift_ci": [
+     -1.0,
+     -0.25
+    ],
+    "verdict": "显著输·不足以排序"
+   },
+   "ctrl": {
+    "n": 5,
+    "lift": -0.06666666666666667,
+    "lift_ci": [
+     -0.2,
+     0.0
+    ],
+    "verdict": "点输·不足以排序"
+   }
+  },
+  "L4_总仓误差": {
+   "persist": {
+    "n": 12,
+    "lift": -0.19227731170388293,
+    "lift_ci": [
+     -0.6488983658636451,
+     0.20110585656818272
+    ],
+    "verdict": "点输·不足以排序"
+   },
+   "ctrl": {
+    "n": 12,
+    "lift": 0.07019694336418986,
+    "lift_ci": [
+     -0.005190537593110177,
+     0.14327326082724806
+    ],
+    "verdict": "点赢·不足以排序"
+   }
+  },
+  "L4_总仓分档": {
+   "persist": {
+    "n": 12,
+    "lift": -0.25,
+    "lift_ci": [
+     -0.6666666666666666,
+     0.16666666666666666
+    ],
+    "verdict": "点输·不足以排序"
+   },
+   "ctrl": {
+    "n": 12,
+    "lift": 0.16666666666666666,
+    "lift_ci": [
+     -0.16666666666666666,
+     0.5
+    ],
+    "verdict": "点赢·不足以排序"
+   }
+  },
+  "L4_只数误差": {
+   "persist": {
+    "n": 12,
+    "lift": -1.1666666666666667,
+    "lift_ci": [
+     -2.0833333333333335,
+     -0.3333333333333333
+    ],
+    "verdict": "显著输·不足以排序"
+   },
+   "ctrl": {
+    "n": 12,
+    "lift": -0.16666666666666666,
+    "lift_ci": [
+     -1.1666666666666667,
+     0.75
+    ],
+    "verdict": "点输·不足以排序"
+   }
+  },
+  "L4_最大仓误差": {
+   "persist": {
+    "n": 12,
+    "lift": -0.15630789899296346,
+    "lift_ci": [
+     -0.4352775438761894,
+     0.15298098689032938
+    ],
+    "verdict": "点输·不足以排序"
+   },
+   "ctrl": {
+    "n": 12,
+    "lift": 0.05093783355090856,
+    "lift_ci": [
+     0.040649531040172875,
+     0.061967014608942335
+    ],
+    "verdict": "显著赢·不足以排序"
+   }
+  },
+  "L4_换手误差": {
+   "persist": {
+    "n": 12,
+    "lift": -0.2513716115698848,
+    "lift_ci": [
+     -0.48717646342441173,
+     0.06694863220391208
+    ],
+    "verdict": "点输·不足以排序"
+   },
+   "ctrl": {
+    "n": 12,
+    "lift": 0.03449529131978013,
+    "lift_ci": [
+     -0.12047548114040198,
+     0.19850808837426004
+    ],
+    "verdict": "点赢·不足以排序"
+   }
+  }
+ }
+}

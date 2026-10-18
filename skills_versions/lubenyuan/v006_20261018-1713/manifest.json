@@ -1,0 +1,152 @@
+{
+ "skill": "lubenyuan",
+ "unit": "skill",
+ "version": {
+  "v": 6,
+  "id": "v006_20261018-1713",
+  "ts": "2026-10-18T17:13:24",
+  "effective_from": "2026-10-18T17:13:24",
+  "unit": "skill",
+  "version_hash": "420247557b29a26a59a4759c97bfbced838f3c459db4d2bb8c25506e1af2f9de",
+  "cat_hash": {
+   "提示词": "950fbf9512350781e0464f5916d58e32a40b35da2b550b2755e63bdcafcbba43",
+   "数据": "0f31100cd3f73912a0f5eb17a606b2b210385d04268f6e5bb3d21ff22603588d",
+   "画像": "2d15365cd3eedf8f669997975fb1a4fe9b61a55b0700dd2a1668fa6319279a69"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v005_20261018-0021",
+  "changed": {
+   "added": [],
+   "modified": [],
+   "removed": [],
+   "newly_tracked": [
+    "SKILL.md",
+    "workflows/chain.md",
+    "workflows/distill.md",
+    "workflows/sum.md"
+   ]
+  },
+  "changed_by_cat": {},
+  "data_changed": [],
+  "lines": {
+   "added": 0,
+   "removed": 0
+  },
+  "bytes_weight": 877852,
+  "why": "10/18 全 skill 版本化首版",
+  "code": {
+   "chain": "faf773f11047",
+   "distill": "a1680626066f"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "d70c95005f87dd44c944194dfa0681d375e2d993c184431390a07fd24e50d9bf",
+   "bytes": 85936,
+   "lines": 307,
+   "mtime": "2026-10-16T20:21:36",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/fingerprint.md": {
+   "sha256": "025dc4d83c2a706021d6a72399ddf7e2dfcf73924e53c292ae2c2fa64b6d56e8",
+   "bytes": 3980,
+   "lines": 48,
+   "mtime": "2026-10-17T00:57:18",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/language.md": {
+   "sha256": "d55bdda1ef55b889c8eb631ca3992a65f933c11c295664e6b3cbe3af79708454",
+   "bytes": 145899,
+   "lines": 78,
+   "mtime": "2026-10-16T20:21:36",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "71577f3173cca6c091d02c4239d9a374ce37c032f67cb34c00e4b27c4dc0e266",
+   "bytes": 268884,
+   "lines": 179,
+   "mtime": "2026-10-16T20:21:56",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile_index.md": {
+   "sha256": "84c472f84e214d1be57cb4ca1e09e215a1e74c9cb1b2d50d0b64722b843e55c9",
+   "bytes": 9904,
+   "lines": 46,
+   "mtime": "2026-10-18T00:20:04",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "d02f1db8e9560e7b8f76d251eacd09c1fc2a9eccaa4d53ea48488e29b6d1b8e4",
+   "bytes": 296811,
+   "lines": 138,
+   "mtime": "2026-10-17T22:40:10",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules_index.md": {
+   "sha256": "be9160beaf328cefc5b797af0533a76ff26b1e92b88ff0b86814a8e68e75945f",
+   "bytes": 6305,
+   "lines": 31,
+   "mtime": "2026-10-17T22:40:51",
+   "cls": "数据",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "8c40673cc8a0c15326a4e46501faf7482610170529c04b7aa73005771e4bcd13",
+   "bytes": 1993,
+   "lines": 28,
+   "mtime": "2026-10-18T16:19:49",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/chain.md": {
+   "sha256": "22093471e3320d96aee0ae6519b53b0dcc3cc61c5eda7a9b6143816a87b7a36c",
+   "bytes": 50447,
+   "lines": 370,
+   "mtime": "2026-10-16T21:40:19",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/distill.md": {
+   "sha256": "51777ba143ff6b275c97fef2dd2814aec6b88aa95d97aabd94f1367f021dedbb",
+   "bytes": 4343,
+   "lines": 26,
+   "mtime": "2026-10-18T16:20:08",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/sum.md": {
+   "sha256": "95625aa54d9f85b98589f9a0f711f975946cd90f42588bd6f3428f7cc25f1f5b",
+   "bytes": 3350,
+   "lines": 48,
+   "mtime": "2026-10-07T22:33:11",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "faf773f11047",
+  "distill": "a1680626066f",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "fc223ed4aca3",
+   "skills/lubenyuan-skill/workflows/chain.md": "22093471e332",
+   "skills/lubenyuan-skill/SKILL.md": "8c40673cc8a0",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/lubenyuan-skill/workflows/distill.md": "51777ba143ff",
+   "scripts/tzzb/distill_daily.py": "6de6f418c374",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "8603af62f9f6"
+  }
+ }
+}

@@ -1,0 +1,336 @@
+{
+ "source": "BL-a658",
+ "kind": "baseline",
+ "ledger": "a658",
+ "name": "A658 正好蓝天",
+ "generated_at": "2026-10-18T00:05:41",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "延续",
+  "L1_n": 147,
+  "L2": "模型",
+  "L2_n": 147,
+  "L4": "常数",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 8777.2,
+ "positions": {
+  "688137": {
+   "qty": 600,
+   "cost": 152.038,
+   "since": "2026-10-08"
+  }
+ },
+ "orders": [
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "688137",
+   "amount": 98000.0,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 15.097",
+   "status": "filled",
+   "price": 152.0,
+   "qty": 600
+  }
+ ],
+ "trades": [
+  {
+   "id": "2026-10-08-BL-a658-001",
+   "side": "BUY",
+   "code": "688137",
+   "price": 152.0,
+   "qty": 600,
+   "fee": 22.8,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 15.097 | 开盘价"
+  }
+ ],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 8777.2,
+   "mv": 90000.0,
+   "nav": 98777.2,
+   "filled": 1,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 8777.2,
+   "mv": 96708.0,
+   "nav": 105485.2,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 8777.2,
+   "mv": 88182.0,
+   "nav": 96959.2,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 8777.2,
+   "mv": 82296.0,
+   "nav": 91073.2,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 8777.2,
+   "mv": 85920.0,
+   "nav": 94697.2,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 8777.2,
+   "mv": 90708.0,
+   "nav": 99485.2,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 8777.2,
+   "mv": 83646.0,
+   "nav": 92423.2,
+   "filled": 0,
+   "orders": 0
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "688137",
+     "name": "近岸蛋白",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 152.0,
+     "qty": 600
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 0.172,
+   "p_dir_given_trade": [
+    0.811,
+    0.0,
+    0.189
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9964,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9678,
+    "tp_final_cap": 0.9678,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.7167,
+    "red_step": 0.9262436215539046,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "sizing": {
+    "single_size": 0.988,
+    "k": 1,
+    "top_play": "涨停回调"
+   }
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 0.143,
+   "p_dir_given_trade": [
+    0.688,
+    0.0,
+    0.312
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9963,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9628,
+    "tp_final_cap": 0.9628,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.7167,
+    "red_step": 0.9262436215539046,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.911
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 0.123,
+   "p_dir_given_trade": [
+    0.765,
+    0.127,
+    0.108
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9962,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9652,
+    "tp_final_cap": 0.9652,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.7167,
+    "red_step": 0.9262436215539046,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.917
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 0.163,
+   "p_dir_given_trade": [
+    0.473,
+    0.246,
+    0.281
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9962,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9614,
+    "tp_final_cap": 0.9614,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.7167,
+    "red_step": 0.9262436215539046,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.909
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 0.117,
+   "p_dir_given_trade": [
+    0.57,
+    0.271,
+    0.158
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9962,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9623,
+    "tp_final_cap": 0.9623,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.7167,
+    "red_step": 0.9262436215539046,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.904
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-14",
+   "p_trade": 0.102,
+   "p_dir_given_trade": [
+    0.674,
+    0.085,
+    0.241
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.99615,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9632,
+    "tp_final_cap": 0.9632,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.7167,
+    "red_step": 0.9262436215539046,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.907
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-15",
+   "p_trade": 0.093,
+   "p_dir_given_trade": [
+    0.752,
+    0.0,
+    0.248
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9961,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9637,
+    "tp_final_cap": 0.9637,
+    "src": {
+     "L1": "延续",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.7167,
+    "red_step": 0.9262436215539046,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.912
+  }
+ ]
+}

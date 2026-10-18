@@ -1,0 +1,520 @@
+package cn.sichu.bilibili.service.impl;
+
+import cn.sichu.bilibili.entity.BilibiliVideo;
+import cn.sichu.bilibili.mapper.BilibiliVideoMapper;
+import cn.sichu.bilibili.service.IBilibiliVideoService;
+import cn.sichu.system.config.ProjectConfig;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import exception.BusinessException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import utils.DateTimeUtils;
+import utils.ExceptionUtils;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+/**
+ *
+ * @author sichu huang
+ * @since 2026/09/26 21:26
+ */
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class BilibiliVideoServiceImpl extends ServiceImpl<BilibiliVideoMapper, BilibiliVideo>
+    implements IBilibiliVideoService {
+    /* 7B bf16 需 ~15GB 显存 */
+    private static final long MIN_VRAM_BYTES = 15_000_000_000L;
+    private final ProjectConfig projectConfig;
+
+    @Override
+    public BilibiliVideo getByBvid(String bvid) {
+        return getOne(new LambdaQueryWrapper<BilibiliVideo>().eq(BilibiliVideo::getBvid, bvid),
+            false);
+    }
+
+    @Override
+    public boolean existsAnyByBvid(String bvid) {
+        return baseMapper.countAnyByBvid(bvid) > 0;
+    }
+
+    @Override
+    public List<BilibiliVideo> listByStep(String step, int maxRetry) {
+        /* 10/12: 待 sum 清单只给每日队列, 补跑行的 sum 由 backfill_bilibili.py --llm-batch 按天做 */
+        return baseMapper.selectByStep(step, maxRetry, ORIGIN_DAILY);
+    }
+
+    /* ===== 10/7 双开事故修复三件套 =====
+       事故: 桃哥 job(cron 0 30 15-23)与卢本圆 job(0 0/30 7-22)同秒触发, 两个 handler 同时
+       selectByStep 全局队列(无 UP 过滤无锁), 对同一视频各 spawn 一个 process_video.py
+       (16.6G+8.3G 双开)叠加 32B llama-server(14.3G) → 63G 内存打爆全机卡死。
+       @DisallowConcurrentExecution 只防同 job 自重叠, 防不了跨 job 抢队列。 */
+
+    @Override
+    public String downloadPendingVideos(int maxRetry, String authorMid) {
+        return downloadPendingVideos(maxRetry, authorMid, ORIGIN_DAILY, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public String downloadPendingVideos(int maxRetry, String authorMid, String origin, int limit) {
+        reclaimStale("DOWNLOADING", LocalDateTime.now().minusMinutes(30), "NEW");
+        int downloaded = 0, failed = 0, skipped = 0;
+        for (BilibiliVideo v : baseMapper.selectByStep("NEW", maxRetry, origin)) {
+            if (downloaded + failed >= limit) {
+                break;
+            }
+            if (!authorMid.equals(v.getAuthorMid())) {
+                continue;           /* UP 隔离: 跨 UP 认领必被归属闸拒(卢本圆10稿三轮全灭实证) */
+            }
+            if (!claim(v, "NEW", "DOWNLOADING")) {
+                /* 并行 job 已抢走 */
+                skipped++;
+                continue;
+            }
+            try {
+                downloadOne(v);
+                downloaded++;
+            } catch (Exception e) {
+                /* 失败: step 回退保重试, status=1, retry_count+1, >=3 沉底 */
+                String reason = e instanceof BusinessException ? e.getMessage() :
+                    ExceptionUtils.getStacktrace(e, 480);
+                markFailAndRevert(v, reason, "NEW");
+                failed++;
+            }
+        }
+        return String.format("下载成功 %d/失败 %d/被占跳过 %d", downloaded, failed, skipped);
+    }
+
+    @Override
+    public String processPendingVideos(int maxRetry, String authorMid) {
+        return processPendingVideos(maxRetry, authorMid, ORIGIN_DAILY, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public String processPendingVideos(int maxRetry, String authorMid, String origin, int limit) {
+        /* 0=无venv 1=仅CPU 2=全配 */
+        int cap = detectCapability();
+        if (cap == 0) {
+            return "未检测到 scripts/venv, 处理全部跳过(下载不受影响; 安装见 README Quick Start: "
+                + "pip install -r scripts/requirements-taoge.txt)";
+        }
+        reclaimStale("PROCESSING", LocalDateTime.now().minusMinutes(90), "DOWNLOADED");
+        int processed = 0, failed = 0, partial = 0, skipped = 0;
+        for (BilibiliVideo v : baseMapper.selectByStep("DOWNLOADED", maxRetry, origin)) {
+            if (processed + failed + partial >= limit) {
+                break;
+            }
+            if (!authorMid.equals(v.getAuthorMid())) {
+                continue;           /* UP 隔离同上 */
+            }
+            /* 显存闸(事故教训): 拉视觉进程前查空闲显存, <17G(模型 15G+余量)本轮不拉新视频
+               ——这同时挡住 32B/另一 job 的 process_video 正在跑的情况(串行化) */
+            if (cap == 2) {
+                /* 10/17 晚 审计② Q-8: 先看全机 GPU 锁(scripts/lib/gpu_lock.py, downloads/_gpu/gpu.lock)——有活着的进程持有
+                   或急停(STOP)=本轮不认领, 不耗重试次数; "先查显存再启动"有竞态(别的进程还在 CPU 上做 ASR, 显存看着是空的) */
+                String gpuBusy = gpuLockBusy();
+                if (gpuBusy != null) {
+                    return String.format("处理成功 %d/失败 %d/被占跳过 %d/GPU 锁被占本轮止(%s)", processed, failed,
+                        skipped, gpuBusy);
+                }
+                long free = freeVramBytes();
+                if (free >= 0 && free < MIN_VRAM_BYTES + 2_000_000_000L) {
+                    return String.format("处理成功 %d/失败 %d/被占跳过 %d/显存不足本轮止(空闲 %dG)",
+                        processed, failed, skipped, free / 1_000_000_000L);
+                }
+            }
+            if (!claim(v, "DOWNLOADED", "PROCESSING")) {
+                skipped++;
+                continue;
+            }
+            try {
+                if (processOne(v, cap == 2)) {
+                    processed++;
+                } else {
+                    partial++;
+                    /* 仅 CPU 完成一半, 退回等全配机器 */
+                    revertStep(v, "DOWNLOADED");
+                }
+            } catch (Exception e) {
+                String reason = e instanceof BusinessException ? e.getMessage() :
+                    ExceptionUtils.getStacktrace(e, 480);
+                markFailAndRevert(v, reason, "DOWNLOADED");
+                failed++;
+            }
+        }
+        return String.format("处理成功 %d/失败 %d/被占跳过 %d%s", processed, failed, skipped,
+            cap == 1 ? "/仅CPU部分完成 " + partial + "(无GPU, 视觉留待有显卡的机器)" : "");
+    }
+
+    /**
+     * 原子认领 step from→to(条件 UPDATE, affected=0=已被并行 job 抢走)
+     */
+    private boolean claim(BilibiliVideo v, String from, String to) {
+        return update(new LambdaUpdateWrapper<BilibiliVideo>().eq(BilibiliVideo::getId, v.getId())
+            .eq(BilibiliVideo::getStep, from).set(BilibiliVideo::getStep, to)
+            .set(BilibiliVideo::getUpdateTime, LocalDateTime.now()));
+    }
+
+    /**
+     * 回收僵尸租约: 卡在中间态超过租期的行退回 backTo(进程被杀/宕机护栏, 今日事故实证需要)
+     */
+    private void reclaimStale(String leaseStep, LocalDateTime before, String backTo) {
+        update(new LambdaUpdateWrapper<BilibiliVideo>().eq(BilibiliVideo::getStep, leaseStep)
+            .lt(BilibiliVideo::getUpdateTime, before).set(BilibiliVideo::getStep, backTo)
+            .set(BilibiliVideo::getUpdateTime, LocalDateTime.now()));
+    }
+
+    private void revertStep(BilibiliVideo v, String backTo) {
+        v.setStep(backTo);
+        updateById(v);
+    }
+
+    private void markFailAndRevert(BilibiliVideo v, String reason, String backTo) {
+        v.setStep(backTo);
+        /* markFail 内 updateById 一并落回退后的 step */
+        markFail(v, reason);
+    }
+
+    /**
+     * 全机 GPU 锁是否被占(10/17 晚): 急停文件在 / 锁文件里的 pid 还活着(且持有不超过 3 小时) → 返回说明; 否则 null
+     */
+    private String gpuLockBusy() {
+        Path dir = Paths.get(projectConfig.getRootDir(), "downloads", "_gpu");
+        if (Files.exists(dir.resolve("STOP"))) {
+            return "急停中";
+        }
+        Path lock = dir.resolve("gpu.lock");
+        if (!Files.exists(lock)) {
+            return null;
+        }
+        try {
+            String s = Files.readString(lock, java.nio.charset.StandardCharsets.UTF_8);
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("\"pid\"\\s*:\\s*(\\d+)").matcher(s);
+            boolean fresh = Files.getLastModifiedTime(lock).toMillis() > System.currentTimeMillis() - 3 * 3600_000L;
+            if (m.find() && fresh && ProcessHandle.of(Long.parseLong(m.group(1))).map(ProcessHandle::isAlive).orElse(false)) {
+                return s.length() > 120 ? s.substring(0, 120) : s;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * 空闲显存字节(nvidia-smi MiB→B); 无卡/查询失败=-1(不拦, 交给 detectCapability)
+     */
+    private long freeVramBytes() {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("nvidia-smi", "--query-gpu=memory.free",
+                "--format=csv,noheader,nounits");
+            pb.redirectErrorStream(true);
+            Process proc = pb.start();
+            if (!proc.waitFor(15, TimeUnit.SECONDS)) {
+                /* H6: 输出很短, 先等结束再读, 卡住就杀 */
+                proc.destroyForcibly();
+                return -1;
+            }
+            String out =
+                new String(proc.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+            return Long.parseLong(out.split("\\R+")[0].trim()) * 1024L * 1024L;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    /**
+     * 环境能力判定: 0=无 venv, 1=仅 CPU(venv 在但 torch 无 CUDA 或显存<15G), 2=全配
+     * torch import ~10s, 每次 job 执行只探一次
+     */
+    private int detectCapability() {
+        Path venvPy = venvPython();
+        if (venvPy == null) {
+            return 0;
+        }
+        try {
+            ProcessBuilder pb = new ProcessBuilder(venvPy.toString(), "-c",
+                "import torch;print(torch.cuda.is_available() "
+                    + "and torch.cuda.get_device_properties(0).total_memory >= " + MIN_VRAM_BYTES
+                    + ")");
+            pb.redirectErrorStream(true);
+            Process proc = pb.start();
+            if (!proc.waitFor(3, TimeUnit.MINUTES)) {
+                /* H6: 输出只有一行, 先等结束再读, 卡住就杀 */
+                proc.destroyForcibly();
+                return 1;
+            }
+            String out =
+                new String(proc.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+            return (proc.exitValue() == 0 && out.endsWith("True")) ? 2 : 1;
+        } catch (Exception e) {
+            /* venv 在但探测失败 → 保守按仅 CPU(还能跑 ASR) */
+            return 1;
+        }
+    }
+
+    private Path venvPython() {
+        Path venvPy = Paths.get(projectConfig.getRootDir())
+            .resolve(Paths.get("scripts", "venv", "Scripts", "python.exe"));
+        return Files.isRegularFile(venvPy) ? venvPy : null;
+    }
+
+    /**
+     * 下载单个视频的全部产物到 downloads/bilibili/<作者mid>/<发布日 yyyy.MM.dd>/:
+     * mp4(画面流, 视觉管线用) + m4a(音轨, ASR用) + json(view API 原始响应全文), 一次 node 调用全拿
+     * (脚本内一次 playurl 同时取 dash.audio+dash.video, 幂等: 已存在的产物跳过只补缺)。
+     * 目录约定(TODO 2.9)由本方法显式传 --out 实现, 脚本只认"给目录我存哪";
+     * mid 作目录段=表是通用 B站索引(不限桃哥), 路径由 DB 行的 author_mid 驱动。
+     * 产物路径不入库(2026-09-29 用户定: 命名约定可从 bvid/author_mid/publish_time 派生,
+     * 磁盘是唯一事实, source_files 列已删); 回溯=拿 url/bvid 重跑 mjs。
+     * 成功: step→DOWNLOADED, retry_count 归零
+     *
+     * @param v BilibiliVideo
+     * @author sichu huang
+     * @since 2026/09/27 01:30:39
+     */
+    private void downloadOne(BilibiliVideo v) throws Exception {
+        String day = DateTimeUtils.getDotDateStr(v.getPublishTime());
+        Path outDir = Paths.get(projectConfig.getFile().getDownload().getRootDir(), "bilibili",
+            v.getAuthorMid(), day);
+        Files.createDirectories(outDir);
+        /* 10/11 修: 必须透传本行 author_mid——fetch_bilibili.mjs 缺 --mid 时默认按桃哥(625315686)校验归属,
+           天哥/卢本圆的稿下载全被归属闸拒绝(10/6~10/9 共 14 稿 retry=3 沉底)。
+           mid 对照表(B站 card 接口 10/11 实核): 625315686=股市-桃哥复盘 / 550494308=卢本圆复盘 / 1372241958=趋势天哥 */
+        runNode("bilibili/fetch_bilibili.mjs", "--bvid", v.getBvid(), "--mid", v.getAuthorMid(),
+            "--out", outDir.toString());
+        v.setStep("DOWNLOADED");
+        v.setStatus(0);
+        v.setRetryCount(0);
+        v.setRemark(null);
+        updateById(v);
+    }
+
+    /**
+     * 处理单个视频(DOWNLOADED → VISION_DONE): 原料在 downloads/(可删), 结果在 results/(永久)
+     *
+     * @param fullVision true=全配(含 7B 视觉); false=仅 CPU, 只跑 asr+correct, step 不动等视觉
+     * @return true=推进到 VISION_DONE; false=仅完成 ASR 部分(txt 已出, 视觉留待)
+     */
+    private boolean processOne(BilibiliVideo v, boolean fullVision) throws Exception {
+        String day = DateTimeUtils.getDotDateStr(v.getPublishTime());
+        Path rawDir = Paths.get(projectConfig.getFile().getDownload().getRootDir(), "bilibili",
+            v.getAuthorMid(), day);
+        Path outDir = Paths.get(projectConfig.getFile().getResult().getRootDir(), "bilibili",
+            v.getAuthorMid(), day);
+        Path txt = outDir.resolve(v.getBvid() + ".txt");
+        Path visionJson = outDir.resolve(v.getBvid() + ".vision.json");
+        /* 产物已齐(孤儿 python 跑完/人工补跑) → 不起进程直接推进 */
+        if (Files.isRegularFile(txt) && hasPages(visionJson)) {
+            advanceToVisionDone(v);
+            return true;
+        }
+        if (fullVision) {
+            runPython("bilibili/process_video.py", "--bvid", v.getBvid(), "--mp4",
+                rawDir.resolve(v.getBvid() + ".mp4").toString(), "--m4a",
+                rawDir.resolve(v.getBvid() + ".m4a").toString(), "--out", outDir.toString());
+            /* 成败判据=产物校验不是 exit 0: txt(纠错后) + vision.json 含 pages 段 */
+            if (!Files.isRegularFile(txt) || !hasPages(visionJson)) {
+                throw new BusinessException(
+                    "process_video.py 产物不全: 缺 txt 或 vision.json 无 pages 段");
+            }
+            advanceToVisionDone(v);
+            return true;
+        }
+        /* 仅 CPU: 只跑 asr+correct(txt 照出), 视觉等全配机器; txt 已有则本轮无事可做 */
+        if (!Files.isRegularFile(txt)) {
+            runPython("bilibili/process_video.py", "--bvid", v.getBvid(), "--m4a",
+                rawDir.resolve(v.getBvid() + ".m4a").toString(), "--out", outDir.toString(),
+                "--stage", "asr,correct");
+        }
+        return false;
+    }
+
+    private void advanceToVisionDone(BilibiliVideo v) {
+        v.setStep("VISION_DONE");
+        v.setStatus(0);
+        v.setRetryCount(0);
+        v.setRemark(null);
+        updateById(v);
+    }
+
+    private boolean hasPages(Path visionJson) throws Exception {
+        return Files.isRegularFile(visionJson) && Files.readString(visionJson,
+            StandardCharsets.UTF_8).contains("\"pages\"");
+    }
+
+    /**
+     * 跑 scripts/ 下的 python 脚本: 优先 scripts/venv/Scripts/python.exe(无则 PATH python),
+     * 超时 60min(视觉 7B 单视频 ~15-20min, 留余量)
+     */
+    private void runPython(String scriptName, String... args) throws Exception {
+        Path root = Paths.get(projectConfig.getRootDir());
+        Path venvPy = venvPython();
+        String pythonExe = venvPy != null ? venvPy.toString() : "python";
+        List<String> cmd = new ArrayList<>();
+        cmd.add(pythonExe);
+        cmd.add(root.resolve("scripts").resolve(scriptName).toString());
+        cmd.addAll(Arrays.asList(args));
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(root.toFile());
+        pb.redirectErrorStream(true);
+        String tail = waitAndTail(pb.start(), 60, scriptName);
+        if (tail != null) {
+            throw new BusinessException(tail);
+        }
+    }
+
+    private void runNode(String scriptName, String... args) throws Exception {
+        Path script = Paths.get(projectConfig.getRootDir(), "scripts", scriptName);
+        List<String> cmd = new ArrayList<>();
+        cmd.add("node");
+        cmd.add(script.toString());
+        cmd.addAll(Arrays.asList(args));
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(Paths.get(projectConfig.getRootDir()).toFile());
+        pb.redirectErrorStream(true);
+        String tail = waitAndTail(pb.start(), 5, scriptName);
+        if (tail != null) {
+            throw new BusinessException(tail);
+        }
+    }
+
+    /**
+     * 等子进程结束并收输出尾部(失败原因用): stderr 合并进 stdout 防两流缓冲死锁由调用方保证,
+     * UTF-8 读(Windows 控制台默认 GBK), 超时强杀
+     *
+     * @param proc       proc
+     * @param timeoutMin timeoutMin
+     * @param label      label
+     * @return java.lang.String 失败原因(超时/非零退出), 成功返回 null
+     * @author sichu huang
+     * @since 2026/10/17
+     */
+    private String waitAndTail(Process proc, long timeoutMin, String label) throws Exception {
+        /* 健壮性 H6: 输出改由独立线程读, 主线程 waitFor 超时才真生效(原先读到 EOF 才 waitFor, 子进程卡住=线程永久挂起); 超时连子孙进程一起杀 */
+        StringBuilder tail = new StringBuilder();
+        Thread reader = new Thread(() -> {
+            try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    synchronized (tail) {
+                        tail.append(line).append('\n');
+                        if (tail.length() > 2000) {
+                            tail.delete(0, tail.length() - 2000);
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+                /* 进程被杀时流关闭, 正常结束 */
+            }
+        }, "bili-out-" + proc.pid());
+        reader.setDaemon(true);
+        reader.start();
+        if (!proc.waitFor(timeoutMin, TimeUnit.MINUTES)) {
+            proc.descendants().forEach(ProcessHandle::destroyForcibly);
+            proc.destroyForcibly();
+            reader.join(3000);
+            return label + " 超时" + timeoutMin + "min强杀(进程树)";
+        }
+        reader.join(5000);
+        if (proc.exitValue() != 0) {
+            synchronized (tail) {
+                return label + " exit=" + proc.exitValue() + ", 输出尾部: " + tail;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String cleanupPhysicalFiles(int retentionDays) {
+        LocalDateTime threshold = LocalDateTime.now().minusDays(retentionDays);
+        /* @TableLogic 自动带 is_deleted=0。
+           2026-09-29 用户定: source_files 列已删, 路径从 bvid/author_mid/publish_time 按命名约定派生
+           (磁盘是唯一事实, 顺带消除"写库路径硬编码 vs 下载目录配置"双真相分叉隐患);
+           幂等=三件套全不在则视为已清理, 跳过且不动 remark */
+        List<BilibiliVideo> list =
+            lambdaQuery().in(BilibiliVideo::getStep, "SUMMARIZED", "DISTILLED")
+                .lt(BilibiliVideo::getUpdateTime, threshold).list();
+        int cleaned = 0, failed = 0, already = 0;
+        for (BilibiliVideo v : list) {
+            try {
+                String day = DateTimeUtils.getDotDateStr(v.getPublishTime());
+                Path dir = Paths.get(projectConfig.getFile().getDownload().getRootDir(), "bilibili",
+                    v.getAuthorMid(), day);
+                boolean anyDeleted = false;
+                for (String ext : new String[] {".mp4", ".m4a", ".json"}) {
+                    anyDeleted |= Files.deleteIfExists(dir.resolve(v.getBvid() + ext));
+                }
+                if (!anyDeleted) {
+                    already++;
+                    continue;
+                }
+                v.setRemark("原料物理删除于 " + LocalDate.now());
+                updateById(v);
+                cleaned++;
+            } catch (Exception e) {
+                log.error("物理删除失败 bvid={}: {}", v.getBvid(), e.getMessage());
+                failed++;
+            }
+        }
+        return String.format("bilibili原料清理 %d/失败 %d/已是空 %d", cleaned, failed, already);
+    }
+
+    private void markFail(BilibiliVideo v, String reason) {
+        v.setStatus(1);
+        v.setRetryCount((v.getRetryCount() == null ? 0 : v.getRetryCount()) + 1);
+        if (reason != null && reason.length() > 480) {
+            reason = reason.substring(reason.length() - 480);
+        }
+        v.setRemark(reason);
+        updateById(v);
+    }
+
+    @Override
+    public String registerIfAbsent(BilibiliVideo v) {
+        if (getByBvid(v.getBvid()) != null) {
+            return "已存在跳过 " + v.getBvid();
+        }
+        /* 仅限产物已齐的手工补录(见 controller register 注释) */
+        v.setStep("SUMMARIZED");
+        save(v);
+        return "注册为 SUMMARIZED " + v.getBvid();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String markSummarized(List<String> bvids) {
+        int advanced = 0, skipped = 0, notFound = 0;
+        for (String bvid : bvids) {
+            BilibiliVideo v = getByBvid(bvid);
+            if (v == null) {
+                notFound++;
+                continue;
+            }
+            if (!"VISION_DONE".equals(v.getStep())) {
+                skipped++;
+                continue;
+            }
+            v.setStep("SUMMARIZED");
+            updateById(v);
+            advanced++;
+        }
+        return String.format("推进SUMMARIZED %d/跳过 %d(非VISION_DONE)/未找到 %d", advanced,
+            skipped, notFound);
+    }
+}

@@ -1,0 +1,144 @@
+{
+ "skill": "qushitiange",
+ "unit": "skill",
+ "version": {
+  "v": 6,
+  "id": "v006_20261018-1713",
+  "ts": "2026-10-18T17:13:24",
+  "effective_from": "2026-10-18T17:13:24",
+  "unit": "skill",
+  "version_hash": "22bc4cfc2dd08d2c9678fce243f27022b44c23ed429342ce5164b95520efc39c",
+  "cat_hash": {
+   "提示词": "e9aa2244581fc9591d9cfb3020042bea5d52634a32c35b755bd4da0d6f953a6a",
+   "数据": "ac2d18babd74b22a99c132fdc8bf3026e5b4bfde18b4cb6a1225ef612db7b2ee",
+   "画像": "0db75a32f64e8db0ab70a04a393aedf5377f708ebddd260b43645b0f9e97f8d9"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v005_20261018-0021",
+  "changed": {
+   "added": [],
+   "modified": [],
+   "removed": [],
+   "newly_tracked": [
+    "SKILL.md",
+    "workflows/chain.md",
+    "workflows/distill.md",
+    "workflows/sum.md"
+   ]
+  },
+  "changed_by_cat": {},
+  "data_changed": [],
+  "lines": {
+   "added": 0,
+   "removed": 0
+  },
+  "bytes_weight": 1724485,
+  "why": "10/18 全 skill 版本化首版",
+  "code": {
+   "chain": "64208d665a06",
+   "distill": "1ec77edcb3a9"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "fb7ae5e92aa5ebafb009f0b1ee6611c410359abe5ca651ba2e73023c2d9a68ab",
+   "bytes": 26794,
+   "lines": 97,
+   "mtime": "2026-10-16T23:00:56",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/language.md": {
+   "sha256": "561520a6d77d734d211015fcf9fa876ab3c7ac40a8fc427fc7f7df68fd121b80",
+   "bytes": 336809,
+   "lines": 248,
+   "mtime": "2026-10-16T23:00:06",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "6ed68ebb75587b78d267bc46a904f2d5c46fedc38a0780a50085fc62f49838db",
+   "bytes": 592207,
+   "lines": 205,
+   "mtime": "2026-10-16T23:00:06",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile_index.md": {
+   "sha256": "9b2662b6a151433570eddab629445be97db8daed5f3c85454c46f83e5dab9eb0",
+   "bytes": 16438,
+   "lines": 102,
+   "mtime": "2026-10-18T00:20:04",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "d94fda9c2934ec9e0351e12d7c3e4dc956349d65f7841683c31f21339a2c09b6",
+   "bytes": 686225,
+   "lines": 226,
+   "mtime": "2026-10-17T22:40:10",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules_index.md": {
+   "sha256": "1a158da95551258e32af1410f62c46c82449bcc2623a7764b25b09f6d905a59f",
+   "bytes": 7600,
+   "lines": 39,
+   "mtime": "2026-10-17T22:40:51",
+   "cls": "数据",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "ef95b460a6c23b6be033d613638f12f971e165eeb88a4893c485d9c5fd7904fb",
+   "bytes": 2145,
+   "lines": 32,
+   "mtime": "2026-10-18T16:19:49",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/chain.md": {
+   "sha256": "34f7a120fc4201cb094f630960f829270eaa50b4cd8d2452d531190baf4b63f1",
+   "bytes": 50478,
+   "lines": 370,
+   "mtime": "2026-10-16T21:40:20",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/distill.md": {
+   "sha256": "fbb8e83c74a1b49ebdd217b51c0064cb4e457fac982d9bd47bb9caa8dfb8e228",
+   "bytes": 3233,
+   "lines": 26,
+   "mtime": "2026-10-18T16:19:49",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/sum.md": {
+   "sha256": "7d3d0b335274301d32dd2a20a76abde3640c52805ba7ce8902c598f20f0ece39",
+   "bytes": 2556,
+   "lines": 36,
+   "mtime": "2026-10-07T19:43:53",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "64208d665a06",
+  "distill": "1ec77edcb3a9",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "fc223ed4aca3",
+   "skills/qushitiange-skill/workflows/chain.md": "34f7a120fc42",
+   "skills/qushitiange-skill/SKILL.md": "ef95b460a6c2",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/qushitiange-skill/workflows/distill.md": "fbb8e83c74a1",
+   "scripts/tzzb/distill_daily.py": "6de6f418c374",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "8603af62f9f6"
+  }
+ }
+}

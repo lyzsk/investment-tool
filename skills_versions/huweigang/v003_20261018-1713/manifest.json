@@ -1,0 +1,64 @@
+{
+ "skill": "huweigang",
+ "unit": "skill",
+ "version": {
+  "v": 3,
+  "id": "v003_20261018-1713",
+  "ts": "2026-10-18T17:13:24",
+  "effective_from": "2026-10-18T17:13:24",
+  "unit": "skill",
+  "version_hash": "a40787397e028b4b0f692660252325f9685768f81543157898d1dc375cf88a92",
+  "cat_hash": {
+   "画像": "a40787397e028b4b0f692660252325f9685768f81543157898d1dc375cf88a92"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v002_20261017-2021",
+  "changed": {
+   "added": [],
+   "modified": [],
+   "removed": []
+  },
+  "changed_by_cat": {},
+  "data_changed": [],
+  "lines": {
+   "added": 0,
+   "removed": 0
+  },
+  "bytes_weight": 12997,
+  "why": "10/18 全 skill 版本化首版",
+  "code": {
+   "chain": "d03d681c6145",
+   "distill": "8ed1a2cd5da6"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "17ddd482b323609ee610e81f4d925309483362d5229f01f600488ae0e080b4c2",
+   "bytes": 12997,
+   "lines": 144,
+   "mtime": "2026-10-17T00:02:59",
+   "cls": "画像",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "d03d681c6145",
+  "distill": "8ed1a2cd5da6",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "fc223ed4aca3",
+   "skills/huweigang-skill/workflows/chain.md": null,
+   "skills/huweigang-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/huweigang-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "6de6f418c374",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "8603af62f9f6"
+  }
+ }
+}

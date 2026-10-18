@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.market.mapper.KlineDayMapper">
+
+    <!-- 幂等重导第 1 步: 物理删除该交易日(不是逻辑删除, 见 Mapper 接口注释) -->
+    <delete id="physicalDeleteByTradeDate">
+        DELETE FROM investment_market.kline_day WHERE trade_date = #{tradeDate}
+    </delete>
+
+    <!-- 幂等重导第 2 步: 批量插入(service 按 1000 条一批调用); open/close 等加反引号防关键字 -->
+    <insert id="insertBatch">
+        INSERT INTO investment_market.kline_day
+        (symbol, trade_date, `open`, `high`, `low`, `close`, pre_close, volume, amount,
+        turnover_rate,
+        limit_up, limit_down, source, status, create_by, create_time, is_deleted)
+        VALUES
+        <foreach collection="list" item="k" separator=",">
+            (#{k.symbol}, #{k.tradeDate}, #{k.open}, #{k.high}, #{k.low}, #{k.close}, #{k.preClose},
+            #{k.volume}, #{k.amount}, #{k.turnoverRate}, #{k.limitUp}, #{k.limitDown}, #{k.source},
+            0, #{k.createBy}, #{k.createTime}, 0)
+        </foreach>
+    </insert>
+
+    <!-- 历史回补幂等重导第 1 步: 物理删除该标的的回补日期区间(与当日快照重叠的日子一并由回补数据覆盖) -->
+    <delete id="physicalDeleteBySymbolAndRange">
+        DELETE FROM investment_market.kline_day
+        WHERE symbol = #{symbol} AND trade_date BETWEEN #{fromDate} AND #{toDate}
+    </delete>
+</mapper>

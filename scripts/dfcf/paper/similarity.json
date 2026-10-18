@@ -1,0 +1,134 @@
+{
+ "updated": "20261015",
+ "window": 20,
+ "summary": [
+  {
+   "book": "A-cb",
+   "name": "不吃土豆0",
+   "days": 6,
+   "comp": 0.3666666666666667,
+   "ctrl": 0.24,
+   "delta": 0.12
+  },
+  {
+   "book": "A-liuyiqing",
+   "name": "刘忆青",
+   "days": 7,
+   "comp": 0.0773857142857143,
+   "ctrl": 0,
+   "delta": 0.0773857142857143
+  },
+  {
+   "book": "A-lianghuaxiaohao",
+   "name": "量化短线小号实验",
+   "days": 7,
+   "comp": 0,
+   "ctrl": 0,
+   "delta": 0
+  },
+  {
+   "book": "A-a658",
+   "name": "A658 正好蓝天",
+   "days": 5,
+   "comp": 0.27999999999999997,
+   "ctrl": 0.32,
+   "delta": -0.04
+  },
+  {
+   "book": "A-bianbenling",
+   "name": "边学本领边实践",
+   "days": 4,
+   "comp": 0.25,
+   "ctrl": 0.3,
+   "delta": -0.05
+  },
+  {
+   "book": "A-xingjianye",
+   "name": "星见野",
+   "days": 6,
+   "comp": 0.13333333333333333,
+   "ctrl": 0.13333333333333333,
+   "delta": 0
+  },
+  {
+   "book": "A-daxingdaxingdadangxing",
+   "name": "大兴大兴大A当兴",
+   "days": 7,
+   "comp": 0.05714285714285715,
+   "ctrl": 0.05714285714285715,
+   "delta": 0
+  },
+  {
+   "book": "A-gaogailvfuli",
+   "name": "高概率复利",
+   "days": 5,
+   "comp": 0.08,
+   "ctrl": 0.08,
+   "delta": 0
+  },
+  {
+   "book": "A-xuanqiucaijing",
+   "name": "宣秋财经",
+   "days": 4,
+   "comp": 0.05,
+   "ctrl": 0.05,
+   "delta": 0
+  },
+  {
+   "book": "A-stzhilang",
+   "name": "ST之狼",
+   "days": 4,
+   "comp": 0.05,
+   "ctrl": 0.05,
+   "delta": 0
+  },
+  {
+   "book": "A-chong5000w",
+   "name": "冲5000w",
+   "days": 0,
+   "comp": null,
+   "ctrl": null,
+   "delta": null
+  },
+  {
+   "book": "A-antoo",
+   "name": "antoo",
+   "days": 0,
+   "comp": null,
+   "ctrl": null,
+   "delta": null
+  },
+  {
+   "book": "A-zhiyingjuexin",
+   "name": "芷影攫心",
+   "days": 1,
+   "comp": 0,
+   "ctrl": 0,
+   "delta": 0
+  },
+  {
+   "book": "A-zjwzlclf",
+   "name": "zjwzlclf",
+   "days": 1,
+   "comp": 0.4,
+   "ctrl": 0.2,
+   "delta": 0.2
+  },
+  {
+   "book": "A-ynw01",
+   "name": "ynw01",
+   "days": 0,
+   "comp": null,
+   "ctrl": null,
+   "delta": null
+  },
+  {
+   "book": "A-wudaokongfang",
+   "name": "悟到空方为悟道",
+   "days": 1,
+   "comp": 0,
+   "ctrl": 0,
+   "delta": 0
+  }
+ ]
+}

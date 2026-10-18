@@ -1,0 +1,433 @@
+{
+ "ledger": "lianghuaxiaohao",
+ "date": "2026-10-16",
+ "data_until": "2026-10-15",
+ "generated": "2026-10-16T21:59:33",
+ "sell_plan": {
+  "holdings_from": "2026-10-15",
+  "codes": [
+   {
+    "code": "600988",
+    "weight": 0.2467
+   },
+   {
+    "code": "300803",
+    "weight": 0.7473
+   }
+  ],
+  "rule": "09:25 前挂单: 竞价指示价相对昨收 ≥ +1.75% → 竞价全卖; 否则 09:30~09:35 对手价逐只卖完; 港股仓当日上午内卖完",
+  "auction_gap_th": 0.0175
+ },
+ "buy_plan": {
+  "K": 2,
+  "picks": [
+   {
+    "rank": 1,
+    "symbol": "sz300413",
+    "name": "芒果超媒",
+    "score": 5.586,
+    "in_pool_rule": true,
+    "prev_close": 24.51,
+    "prev_pct": -0.0441,
+    "ret20": 0.3199,
+    "amt_e8": 34.13,
+    "revisit_60d": true
+   },
+   {
+    "rank": 2,
+    "symbol": "sz300740",
+    "name": "水羊股份",
+    "score": 5.274,
+    "in_pool_rule": true,
+    "prev_close": 21.15,
+    "prev_pct": -0.049,
+    "ret20": -0.0038,
+    "amt_e8": 8.25,
+    "revisit_60d": true
+   }
+  ],
+  "time_window": "09:31 ~ 10:00, 目标首买 09:44",
+  "sizing": "按可用资金依次 1/2 → 全仓(App 仓位按钮式, 合计≈满仓)",
+  "avoid": "高点回落≥2% 或 跌破分时均价 1% 时不买(真人显著回避); 不打板",
+  "exit": "次日按 sell_plan 清仓(持有 1 个交易日)"
+ },
+ "candidates": [
+  {
+   "rank": 1,
+   "symbol": "sz300413",
+   "name": "芒果超媒",
+   "score": 5.586,
+   "in_pool_rule": true,
+   "prev_close": 24.51,
+   "prev_pct": -0.0441,
+   "ret20": 0.3199,
+   "amt_e8": 34.13,
+   "revisit_60d": true
+  },
+  {
+   "rank": 2,
+   "symbol": "sz300740",
+   "name": "水羊股份",
+   "score": 5.274,
+   "in_pool_rule": true,
+   "prev_close": 21.15,
+   "prev_pct": -0.049,
+   "ret20": -0.0038,
+   "amt_e8": 8.25,
+   "revisit_60d": true
+  },
+  {
+   "rank": 3,
+   "symbol": "sh688361",
+   "name": "中科飞测",
+   "score": 5.26,
+   "in_pool_rule": true,
+   "prev_close": 342.0,
+   "prev_pct": -0.0153,
+   "ret20": 0.1062,
+   "amt_e8": 31.05,
+   "revisit_60d": true
+  },
+  {
+   "rank": 4,
+   "symbol": "sh688120",
+   "name": "华海清科",
+   "score": 4.796,
+   "in_pool_rule": true,
+   "prev_close": 243.6,
+   "prev_pct": 0.0607,
+   "ret20": 0.0137,
+   "amt_e8": 28.79,
+   "revisit_60d": true
+  },
+  {
+   "rank": 5,
+   "symbol": "sh688072",
+   "name": "拓荆科技",
+   "score": 4.77,
+   "in_pool_rule": true,
+   "prev_close": 645.0,
+   "prev_pct": 0.0256,
+   "ret20": 0.0225,
+   "amt_e8": 38.8,
+   "revisit_60d": true
+  },
+  {
+   "rank": 6,
+   "symbol": "sh688825",
+   "name": "长鑫科技",
+   "score": 4.634,
+   "in_pool_rule": false,
+   "prev_close": 43.59,
+   "prev_pct": -0.0524,
+   "ret20": -0.2335,
+   "amt_e8": 123.55,
+   "revisit_60d": true
+  },
+  {
+   "rank": 7,
+   "symbol": "sz300803",
+   "name": "指南针",
+   "score": 4.495,
+   "in_pool_rule": true,
+   "prev_close": 53.16,
+   "prev_pct": 0.0215,
+   "ret20": -0.0849,
+   "amt_e8": 15.04,
+   "revisit_60d": true
+  },
+  {
+   "rank": 8,
+   "symbol": "sh600988",
+   "name": "赤峰黄金",
+   "score": 4.459,
+   "in_pool_rule": false,
+   "prev_close": 38.85,
+   "prev_pct": -0.0038,
+   "ret20": -0.1146,
+   "amt_e8": 20.11,
+   "revisit_60d": true
+  },
+  {
+   "rank": 9,
+   "symbol": "sz301486",
+   "name": "致尚科技",
+   "score": 4.366,
+   "in_pool_rule": true,
+   "prev_close": 194.37,
+   "prev_pct": -0.0789,
+   "ret20": -0.006,
+   "amt_e8": 15.1,
+   "revisit_60d": true
+  },
+  {
+   "rank": 10,
+   "symbol": "sh688018",
+   "name": "乐鑫科技",
+   "score": 4.298,
+   "in_pool_rule": true,
+   "prev_close": 121.05,
+   "prev_pct": -0.0115,
+   "ret20": 0.1169,
+   "amt_e8": 15.15,
+   "revisit_60d": true
+  },
+  {
+   "rank": 11,
+   "symbol": "sz300369",
+   "name": "绿盟科技",
+   "score": 4.2,
+   "in_pool_rule": false,
+   "prev_close": 10.63,
+   "prev_pct": -0.038,
+   "ret20": 0.3439,
+   "amt_e8": 12.84,
+   "revisit_60d": true
+  },
+  {
+   "rank": 12,
+   "symbol": "sz002242",
+   "name": "九阳股份",
+   "score": 3.927,
+   "in_pool_rule": true,
+   "prev_close": 17.31,
+   "prev_pct": -0.0215,
+   "ret20": 1.0365,
+   "amt_e8": 14.8,
+   "revisit_60d": true
+  },
+  {
+   "rank": 13,
+   "symbol": "sz300300",
+   "name": "海峡创新",
+   "score": 3.927,
+   "in_pool_rule": false,
+   "prev_close": 10.66,
+   "prev_pct": -0.0037,
+   "ret20": 0.1818,
+   "amt_e8": 13.68,
+   "revisit_60d": true
+  },
+  {
+   "rank": 14,
+   "symbol": "sh688156",
+   "name": "路德科技",
+   "score": 3.892,
+   "in_pool_rule": false,
+   "prev_close": 26.41,
+   "prev_pct": -0.0219,
+   "ret20": 0.0846,
+   "amt_e8": 2.28,
+   "revisit_60d": true
+  },
+  {
+   "rank": 15,
+   "symbol": "sh688271",
+   "name": "联影医疗",
+   "score": 3.823,
+   "in_pool_rule": true,
+   "prev_close": 107.41,
+   "prev_pct": 0.0145,
+   "ret20": 0.0378,
+   "amt_e8": 6.47,
+   "revisit_60d": true
+  },
+  {
+   "rank": 16,
+   "symbol": "sz301205",
+   "name": "联特科技",
+   "score": 3.822,
+   "in_pool_rule": true,
+   "prev_close": 286.58,
+   "prev_pct": -0.0255,
+   "ret20": -0.037,
+   "amt_e8": 16.4,
+   "revisit_60d": true
+  },
+  {
+   "rank": 17,
+   "symbol": "sz300903",
+   "name": "科翔股份",
+   "score": 3.724,
+   "in_pool_rule": true,
+   "prev_close": 86.9,
+   "prev_pct": -0.0057,
+   "ret20": 0.0031,
+   "amt_e8": 16.16,
+   "revisit_60d": true
+  },
+  {
+   "rank": 18,
+   "symbol": "sz300760",
+   "name": "迈瑞医疗",
+   "score": 3.597,
+   "in_pool_rule": true,
+   "prev_close": 167.0,
+   "prev_pct": 0.0149,
+   "ret20": 0.0109,
+   "amt_e8": 16.2,
+   "revisit_60d": true
+  },
+  {
+   "rank": 19,
+   "symbol": "sh688525",
+   "name": "佰维存储",
+   "score": 3.528,
+   "in_pool_rule": false,
+   "prev_close": 154.0,
+   "prev_pct": -0.0619,
+   "ret20": -0.2912,
+   "amt_e8": 31.59,
+   "revisit_60d": true
+  },
+  {
+   "rank": 20,
+   "symbol": "sz300522",
+   "name": "世名科技",
+   "score": 3.449,
+   "in_pool_rule": false,
+   "prev_close": 15.0,
+   "prev_pct": -0.1018,
+   "ret20": 0.0949,
+   "amt_e8": 6.43,
+   "revisit_60d": true
+  },
+  {
+   "rank": 21,
+   "symbol": "sz300821",
+   "name": "东岳硅材",
+   "score": 3.28,
+   "in_pool_rule": true,
+   "prev_close": 18.32,
+   "prev_pct": 0.0172,
+   "ret20": 0.2213,
+   "amt_e8": 28.82,
+   "revisit_60d": false
+  },
+  {
+   "rank": 22,
+   "symbol": "sh688396",
+   "name": "华润微",
+   "score": 3.252,
+   "in_pool_rule": false,
+   "prev_close": 48.62,
+   "prev_pct": 0.0054,
+   "ret20": -0.1361,
+   "amt_e8": 9.57,
+   "revisit_60d": true
+  },
+  {
+   "rank": 23,
+   "symbol": "sz301231",
+   "name": "荣信文化",
+   "score": 3.249,
+   "in_pool_rule": false,
+   "prev_close": 31.76,
+   "prev_pct": -0.0308,
+   "ret20": 0.1035,
+   "amt_e8": 5.2,
+   "revisit_60d": true
+  },
+  {
+   "rank": 24,
+   "symbol": "sh600025",
+   "name": "华能水电",
+   "score": 3.242,
+   "in_pool_rule": false,
+   "prev_close": 10.38,
+   "prev_pct": -0.0142,
+   "ret20": 0.0646,
+   "amt_e8": 4.14,
+   "revisit_60d": true
+  },
+  {
+   "rank": 25,
+   "symbol": "sh688137",
+   "name": "近岸蛋白",
+   "score": 3.156,
+   "in_pool_rule": true,
+   "prev_close": 151.18,
+   "prev_pct": 0.0557,
+   "ret20": 1.11,
+   "amt_e8": 11.44,
+   "revisit_60d": false
+  },
+  {
+   "rank": 26,
+   "symbol": "sh688017",
+   "name": "绿的谐波",
+   "score": 3.095,
+   "in_pool_rule": false,
+   "prev_close": 234.0,
+   "prev_pct": -0.0485,
+   "ret20": -0.1945,
+   "amt_e8": 10.62,
+   "revisit_60d": true
+  },
+  {
+   "rank": 27,
+   "symbol": "sh688783",
+   "name": "西安奕材",
+   "score": 3.069,
+   "in_pool_rule": false,
+   "prev_close": 21.45,
+   "prev_pct": -0.0462,
+   "ret20": -0.2026,
+   "amt_e8": 3.34,
+   "revisit_60d": true
+  },
+  {
+   "rank": 28,
+   "symbol": "sz301190",
+   "name": "善水科技",
+   "score": 3.026,
+   "in_pool_rule": true,
+   "prev_close": 48.0,
+   "prev_pct": 0.0476,
+   "ret20": 1.6446,
+   "amt_e8": 9.28,
+   "revisit_60d": false
+  },
+  {
+   "rank": 29,
+   "symbol": "sh688766",
+   "name": "普冉股份",
+   "score": 2.984,
+   "in_pool_rule": false,
+   "prev_close": 272.76,
+   "prev_pct": -0.0707,
+   "ret20": -0.3066,
+   "amt_e8": 22.31,
+   "revisit_60d": true
+  },
+  {
+   "rank": 30,
+   "symbol": "sh688225",
+   "name": "亚信安全",
+   "score": 2.972,
+   "in_pool_rule": false,
+   "prev_close": 14.86,
+   "prev_pct": -0.0577,
+   "ret20": 0.1564,
+   "amt_e8": 1.38,
+   "revisit_60d": true
+  }
+ ],
+ "fidelity_warning": "选股层时间外命中接近随机(见 docs/research/reverse_lianghua_20261016.md), picks 只是规则版近似; 执行层规则可信。建议 LLM 在 candidates 内复核挑票。",
+ "model": {
+  "trained_rows": 184,
+  "train_pos": 388,
+  "exec_params": {
+   "K": 2,
+   "K_mean": 2.45,
+   "first_buy_min": 14.15,
+   "first_buy_hhmm": "09:44",
+   "auction_gap_th": 0.0175,
+   "auction_rule_acc": 0.779,
+   "auction_base_acc": 0.7,
+   "n_sell_fit": 403,
+   "sell_window": "09:25 竞价(开盘缺口≥阈值) 否则 09:30~09:35 连续竞价",
+   "until": "2026-10-16"
+  }
+ }
+}

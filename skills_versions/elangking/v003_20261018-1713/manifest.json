@@ -1,0 +1,64 @@
+{
+ "skill": "elangking",
+ "unit": "skill",
+ "version": {
+  "v": 3,
+  "id": "v003_20261018-1713",
+  "ts": "2026-10-18T17:13:24",
+  "effective_from": "2026-10-18T17:13:24",
+  "unit": "skill",
+  "version_hash": "bf90cd4bb98e7387cec97e879f8d0f900a7cbbc783deb5313adbf3dc6206476b",
+  "cat_hash": {
+   "画像": "bf90cd4bb98e7387cec97e879f8d0f900a7cbbc783deb5313adbf3dc6206476b"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v002_20261017-2021",
+  "changed": {
+   "added": [],
+   "modified": [],
+   "removed": []
+  },
+  "changed_by_cat": {},
+  "data_changed": [],
+  "lines": {
+   "added": 0,
+   "removed": 0
+  },
+  "bytes_weight": 4809,
+  "why": "10/18 全 skill 版本化首版",
+  "code": {
+   "chain": "d0e92fcef1b5",
+   "distill": "b2a9d125cbbe"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "560fe14334bef8ec7f07ca9a2019637a07a9af8857e29dd7cf6d4a93e950a457",
+   "bytes": 4809,
+   "lines": 60,
+   "mtime": "2026-10-17T00:02:59",
+   "cls": "画像",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "d0e92fcef1b5",
+  "distill": "b2a9d125cbbe",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "fc223ed4aca3",
+   "skills/elangking-skill/workflows/chain.md": null,
+   "skills/elangking-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/elangking-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "6de6f418c374",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "8603af62f9f6"
+  }
+ }
+}

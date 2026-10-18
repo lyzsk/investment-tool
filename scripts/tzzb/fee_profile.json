@@ -1,0 +1,170 @@
+{
+ "a658": {
+  "buy_rate": 0.0001,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.000601,
+  "n_buy": 112,
+  "n_sell": 128,
+  "note": ""
+ },
+ "antoo": {
+  "buy_rate": 8.6e-05,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.000585,
+  "n_buy": 9289,
+  "n_sell": 16468,
+  "note": ""
+ },
+ "bianbenling": {
+  "buy_rate": 8.5e-05,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.000585,
+  "n_buy": 31,
+  "n_sell": 31,
+  "note": ""
+ },
+ "chong5000w": {
+  "buy_rate": 0.000115,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.000615,
+  "n_buy": 43,
+  "n_sell": 81,
+  "note": ""
+ },
+ "daxingdaxingdadangxing": {
+  "buy_rate": 0.000235,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.000735,
+  "n_buy": 13,
+  "n_sell": 9,
+  "note": ""
+ },
+ "elangking": {
+  "buy_rate": 9.5e-05,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.000595,
+  "n_buy": 129,
+  "n_sell": 144,
+  "note": ""
+ },
+ "hanxiao": {
+  "buy_rate": 0.0001,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.0006,
+  "n_buy": 259,
+  "n_sell": 227,
+  "note": ""
+ },
+ "huweigang": {
+  "buy_rate": 0.000175,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.000696,
+  "n_buy": 165,
+  "n_sell": 139,
+  "note": ""
+ },
+ "lianghuaxiaohao": {
+  "buy_rate": 0.000115,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.000615,
+  "n_buy": 635,
+  "n_sell": 514,
+  "note": ""
+ },
+ "liurenih": {
+  "buy_rate": 0.000245,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.000745,
+  "n_buy": 289,
+  "n_sell": 226,
+  "note": ""
+ },
+ "liuyiqing": {
+  "buy_rate": 9.4e-05,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.000594,
+  "n_buy": 111,
+  "n_sell": 93,
+  "note": ""
+ },
+ "mairutaiji": {
+  "buy_rate": 0.000285,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.000785,
+  "n_buy": 6,
+  "n_sell": 5,
+  "note": ""
+ },
+ "meiyuelu": {
+  "buy_rate": 9.5e-05,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.000595,
+  "n_buy": 28,
+  "n_sell": 22,
+  "note": ""
+ },
+ "stzhilang": {
+  "buy_rate": 8.5e-05,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.000586,
+  "n_buy": 31,
+  "n_sell": 35,
+  "note": ""
+ },
+ "wudaokongfang": {
+  "buy_rate": 0.000227,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.000725,
+  "n_buy": 156,
+  "n_sell": 164,
+  "note": ""
+ },
+ "xingjianye": {
+  "buy_rate": 8.5e-05,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.000585,
+  "n_buy": 102,
+  "n_sell": 115,
+  "note": ""
+ },
+ "xuanqiucaijing": {
+  "buy_rate": 0.00015,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.00065,
+  "n_buy": 71,
+  "n_sell": 65,
+  "note": ""
+ },
+ "ynw01": {
+  "buy_rate": 0.001995,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.002475,
+  "n_buy": 5,
+  "n_sell": 5,
+  "note": "买入费率 > 万 8, 异常(可能含其他市场 / 数据口径不同), 先按缺省"
+ },
+ "zhiyingjuexin": {
+  "buy_rate": 9.5e-05,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.000595,
+  "n_buy": 132,
+  "n_sell": 120,
+  "note": ""
+ },
+ "zjwzlclf": {
+  "buy_rate": 8.6e-05,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.000585,
+  "n_buy": 53,
+  "n_sell": 99,
+  "note": ""
+ },
+ "zuoshoudeirong": {
+  "buy_rate": 0.000129,
+  "min_fee": 5.0,
+  "sell_rate_incl_stamp": 0.000622,
+  "n_buy": 66,
+  "n_sell": 61,
+  "note": ""
+ }
+}

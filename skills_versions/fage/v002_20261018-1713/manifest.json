@@ -1,0 +1,93 @@
+{
+ "skill": "fage",
+ "unit": "skill",
+ "version": {
+  "v": 2,
+  "id": "v002_20261018-1713",
+  "ts": "2026-10-18T17:13:24",
+  "effective_from": "2026-10-18T17:13:24",
+  "unit": "skill",
+  "version_hash": "bd73695d788cbc75547c34a858574db7991709c79d1059e98636e3784659a4ca",
+  "cat_hash": {
+   "提示词": "ba222967515ab7ea8ebdcd235001e41de4e668b266958dddc6e110636d712a41",
+   "画像": "d5293786018d58f0c8c6c8b505ac2795310aff5bd8eb201a4f76ea660d9bb038"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v001_20261016-2249",
+  "changed": {
+   "added": [],
+   "modified": [],
+   "removed": [],
+   "newly_tracked": [
+    "PROCESS.md",
+    "SKILL.md"
+   ]
+  },
+  "changed_by_cat": {},
+  "data_changed": [],
+  "lines": {
+   "added": 0,
+   "removed": 0
+  },
+  "bytes_weight": 20498,
+  "why": "10/18 全 skill 版本化首版",
+  "code": {
+   "chain": "cd5202824f72",
+   "distill": "78c86eb57b51"
+  }
+ },
+ "files": {
+  "persona/rules.md": {
+   "sha256": "82b2164ceecd6d458b2620874100425ff3d5b1eedfb77a061d01c571eda3ef53",
+   "bytes": 2655,
+   "lines": 35,
+   "mtime": "2026-10-02T20:21:27",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/score.json": {
+   "sha256": "1f3b350339c80026fc5639f08b3e526fb4ab5cc9f54972f868c9f309ed8ddde6",
+   "bytes": 10855,
+   "lines": 494,
+   "mtime": "2026-10-02T21:04:35",
+   "cls": "画像",
+   "bulk": false
+  },
+  "PROCESS.md": {
+   "sha256": "e4843f1c72e48fdcbdedfc5ac10400d231296c47370e9ffd16fa6fa5b73ec0f2",
+   "bytes": 1585,
+   "lines": 13,
+   "mtime": "2026-10-02T20:21:11",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "04039944ce66ab6275a929bdf908ee4534c69d5b876f71f3018bbfd457dc1525",
+   "bytes": 5403,
+   "lines": 83,
+   "mtime": "2026-10-12T19:24:10",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "cd5202824f72",
+  "distill": "78c86eb57b51",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "fc223ed4aca3",
+   "skills/fage-skill/workflows/chain.md": null,
+   "skills/fage-skill/SKILL.md": "04039944ce66",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/fage-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "6de6f418c374",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "8603af62f9f6"
+  }
+ }
+}

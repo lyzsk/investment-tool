@@ -1,0 +1,152 @@
+{
+ "skill": "qushitiange",
+ "unit": "skill",
+ "version": {
+  "v": 7,
+  "id": "v007_20261018-1943",
+  "ts": "2026-10-18T19:43:53",
+  "effective_from": "2026-10-18T17:18:52",
+  "unit": "skill",
+  "version_hash": "f8dccb439197575dc5ada7c4289f6127b2d1ba1b3180cb90cb88d0fd081a0b34",
+  "cat_hash": {
+   "提示词": "e9aa2244581fc9591d9cfb3020042bea5d52634a32c35b755bd4da0d6f953a6a",
+   "数据": "5b6c87c592a5ac325e1afc948459e0af660239efddd9e9a5f3bff61aee544c6c",
+   "画像": "5391c8daab111352813a47e3675fc86dde21c28df5fbd2754f3200230b9289e8"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v006_20261018-1713",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/language.md",
+    "persona/profile.md",
+    "persona/rules.md",
+    "persona/rules_index.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "画像": [
+    "persona/language.md",
+    "persona/profile.md",
+    "persona/rules.md"
+   ],
+   "数据": [
+    "persona/rules_index.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 66,
+   "removed": 66
+  },
+  "bytes_weight": 1725164,
+  "why": "10/18 新导师 含笑96998 入库",
+  "code": {
+   "chain": "62b00e22129a",
+   "distill": "2248ae752559"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "fb7ae5e92aa5ebafb009f0b1ee6611c410359abe5ca651ba2e73023c2d9a68ab",
+   "bytes": 26794,
+   "lines": 97,
+   "mtime": "2026-10-16T23:00:56",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/language.md": {
+   "sha256": "c3392fc08f42a4fcb4da047e615f19dffc8e1723628de6c23a29aed824f45119",
+   "bytes": 337057,
+   "lines": 248,
+   "mtime": "2026-10-18T17:18:16",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "49376d520f4db5dc3f4da495ded385aa1104656ba21e73c61bdf88a6cb77510f",
+   "bytes": 592412,
+   "lines": 205,
+   "mtime": "2026-10-18T17:18:16",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile_index.md": {
+   "sha256": "9b2662b6a151433570eddab629445be97db8daed5f3c85454c46f83e5dab9eb0",
+   "bytes": 16438,
+   "lines": 102,
+   "mtime": "2026-10-18T00:20:04",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "daa9862b5522f6528019b93bb04d80d1c62d1f27537920e456468fa0de37d00c",
+   "bytes": 686451,
+   "lines": 226,
+   "mtime": "2026-10-18T17:18:16",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules_index.md": {
+   "sha256": "5aa98583eedef3a038e61a167fece0c7872648dca3c0d1ba80c5114c2f977edc",
+   "bytes": 7600,
+   "lines": 39,
+   "mtime": "2026-10-18T17:18:52",
+   "cls": "数据",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "ef95b460a6c23b6be033d613638f12f971e165eeb88a4893c485d9c5fd7904fb",
+   "bytes": 2145,
+   "lines": 32,
+   "mtime": "2026-10-18T16:19:49",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/chain.md": {
+   "sha256": "34f7a120fc4201cb094f630960f829270eaa50b4cd8d2452d531190baf4b63f1",
+   "bytes": 50478,
+   "lines": 370,
+   "mtime": "2026-10-16T21:40:20",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/distill.md": {
+   "sha256": "fbb8e83c74a1b49ebdd217b51c0064cb4e457fac982d9bd47bb9caa8dfb8e228",
+   "bytes": 3233,
+   "lines": 26,
+   "mtime": "2026-10-18T16:19:49",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/sum.md": {
+   "sha256": "7d3d0b335274301d32dd2a20a76abde3640c52805ba7ce8902c598f20f0ece39",
+   "bytes": 2556,
+   "lines": 36,
+   "mtime": "2026-10-07T19:43:53",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "62b00e22129a",
+  "distill": "2248ae752559",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "62b0c54b3cb9",
+   "skills/qushitiange-skill/workflows/chain.md": "34f7a120fc42",
+   "skills/qushitiange-skill/SKILL.md": "ef95b460a6c2",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/qushitiange-skill/workflows/distill.md": "fbb8e83c74a1",
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "a62b625437af"
+  }
+ }
+}

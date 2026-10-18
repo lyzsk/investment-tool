@@ -1,0 +1,36 @@
+{
+ "_note": "tzzb 比赛分享 key 清单(用户收集; 榜单接口 match_ranking_by_share?key=<key>&page=N&count=50[&month=YYYYMM&sort_type=monthly_profit&sort_order=1&group_type=simple]; hexin-v 不需要)",
+ "known": [
+  "73xX2pt",
+  "7CK72My",
+  "CM3ntt2",
+  "Yp6WWwx",
+  "joonDP3",
+  "yNkQm2X"
+ ],
+ "new_1016": [
+  {
+   "key": "XfDymq2",
+   "from": "候选 暗里着火 所在比赛; 用户 10/17 00:1x 给月榜参数"
+  },
+  {
+   "key": "QmyNC3q",
+   "from": "用户 10/17 00:2x 给的另一场比赛"
+  },
+  {
+   "key": "wqNOWPc",
+   "from": "用户 10/17 00:3x 给的其他比赛"
+  },
+  {
+   "key": "KCk2q2o",
+   "from": "用户 10/17 00:3x 给的其他比赛"
+  }
+ ],
+ "monthly_params": {
+  "month": "YYYYMM",
+  "sort_type": "monthly_profit",
+  "sort_order": 1,
+  "group_type": "simple"
+ },
+ "quarterly_params": "待用户确认(贴的链接与月榜相同)"
+}

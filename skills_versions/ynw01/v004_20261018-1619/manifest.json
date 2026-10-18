@@ -1,0 +1,117 @@
+{
+ "skill": "ynw01",
+ "version": {
+  "v": 4,
+  "id": "v004_20261018-1619",
+  "ts": "2026-10-18T16:19:23",
+  "effective_from": "2026-10-18T16:19:16",
+  "persona_hash": "03c60d4fae2472531972bb9711b97bd740013983aac5929bc177d60e697ae222",
+  "data_hash": "d51bc6678eb915590a715343524d47491d3856e673b94dbc056f031f34675bd6",
+  "parent": "v003_20261018-0021",
+  "changed": {
+   "added": [],
+   "modified": [
+    "fingerprint.md",
+    "rules.md",
+    "rules_index.md"
+   ],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 130,
+   "removed": 70
+  },
+  "bytes_weight": 99703,
+  "why": "10/18 新导师 5 人深度蒸馏 rules 并入",
+  "code": {
+   "chain": "6cbc3a5ce683",
+   "distill": "99af4160ad64"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "726202e7a347162b8f16d4b36d028751796380942af192e113232161c74606fa",
+   "bytes": 1005,
+   "lines": 19,
+   "mtime": "2026-10-17T12:59:56",
+   "cls": "weight"
+  },
+  "cases_auto.jsonl": {
+   "sha256": "ce6e47c18fc882c7b169e5cc64f46837c9535cb5df6777a574cf195306f38530",
+   "bytes": 92372,
+   "lines": 94,
+   "mtime": "2026-10-17T12:10:52",
+   "cls": "data"
+  },
+  "fills_rt.jsonl": {
+   "sha256": "89559a30cb9fe376de032bdd7fabb912fd6bf020bf3579e2c8f472ca0767e5dc",
+   "bytes": 30218,
+   "lines": 94,
+   "mtime": "2026-10-18T14:23:42",
+   "cls": "data"
+  },
+  "fingerprint.md": {
+   "sha256": "355717abe371e1dfd8635f5b0d824d1c5cd3dbb2735cac5cadec36fc162021bc",
+   "bytes": 13835,
+   "lines": 218,
+   "mtime": "2026-10-18T14:10:17",
+   "cls": "weight"
+  },
+  "orders_inferred.json": {
+   "sha256": "c4c7e7726ed24e15ee67ec3d03875a1c9072711654f62b24068b509b56610496",
+   "bytes": 8088,
+   "lines": 350,
+   "mtime": "2026-10-17T13:16:15",
+   "cls": "weight"
+  },
+  "profile.md": {
+   "sha256": "23a250ed40c4d5bd78f1d7af67e13dfc4d07d0c7734bf16184ced4056b08c939",
+   "bytes": 16941,
+   "lines": 107,
+   "mtime": "2026-10-17T13:28:58",
+   "cls": "weight"
+  },
+  "profile_index.md": {
+   "sha256": "005f4248ea83fc4a6f0328e0ed90dcd0c8f3cfbfe0dae748a4fd924a613f0b60",
+   "bytes": 7945,
+   "lines": 32,
+   "mtime": "2026-10-18T00:20:04",
+   "cls": "weight"
+  },
+  "rules.md": {
+   "sha256": "da4deb9b39683099e4b6a6665bd2e064492ef35cfe4c7d64a22b007345c6c679",
+   "bytes": 46024,
+   "lines": 221,
+   "mtime": "2026-10-18T16:19:09",
+   "cls": "weight"
+  },
+  "rules_index.md": {
+   "sha256": "de9fa2ef2110d077cf4a988036a3305af9a993e8ca1b4a04e60ed651cddfe0b8",
+   "bytes": 5865,
+   "lines": 18,
+   "mtime": "2026-10-18T16:19:16",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "6cbc3a5ce683",
+  "distill": "99af4160ad64",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "b574945f1cb8",
+   "skills/ynw01-skill/workflows/chain.md": "03aa6a63ce97",
+   "skills/ynw01-skill/SKILL.md": "1ef50e4df0b6",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/ynw01-skill/workflows/distill.md": "4cd754815f50",
+   "scripts/tzzb/distill_daily.py": "6de6f418c374",
+   "scripts/tzzb/llm_batch_tzzb.py": "9e80ff53ca5d",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "8603af62f9f6"
+  }
+ }
+}

@@ -1,0 +1,90 @@
+{
+ "skill": "yangdaren",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:13",
+   "effective_from": "2026-10-16T00:06:02",
+   "persona_hash": "970b9a975b870653120365b654829b3555f72966947911f07afe3f822cc40d47",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "cases.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 57,
+    "removed": 0
+   },
+   "bytes_weight": 4571,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "7957b4d11c43",
+    "distill": "e7c7726b6d85"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261017-2021",
+   "ts": "2026-10-17T20:21:47",
+   "effective_from": "2026-10-17T00:02:59",
+   "persona_hash": "979e119f3adcf7d28a5f2c1fd71522f88ae26f9f7a361094201d6edadc37e074",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v001_20261016-2249",
+   "changed": {
+    "added": [],
+    "modified": [
+     "cases.md"
+    ],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 5,
+    "removed": 3
+   },
+   "bytes_weight": 4769,
+   "why": "10/17 晚: 新导师 5 位入库 + 深度画像",
+   "code": {
+    "chain": "cbf82b652a62",
+    "distill": "08b1c2e3a0fa"
+   }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261018-1713",
+   "ts": "2026-10-18T17:13:25",
+   "effective_from": "2026-10-18T17:13:25",
+   "unit": "skill",
+   "version_hash": "1ee128ceec38db066417061b8bab2263707da31449afbc9db881b9dfa337025f",
+   "cat_hash": {
+    "画像": "1ee128ceec38db066417061b8bab2263707da31449afbc9db881b9dfa337025f"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v002_20261017-2021",
+   "changed": {
+    "added": [],
+    "modified": [],
+    "removed": []
+   },
+   "changed_by_cat": {},
+   "data_changed": [],
+   "lines": {
+    "added": 0,
+    "removed": 0
+   },
+   "bytes_weight": 4769,
+   "why": "10/18 全 skill 版本化首版",
+   "code": {
+    "chain": "3692462e468e",
+    "distill": "106175d0116a"
+   }
+  }
+ ],
+ "events": []
+}

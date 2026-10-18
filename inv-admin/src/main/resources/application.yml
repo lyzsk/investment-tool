@@ -1,0 +1,76 @@
+project:
+  name: investment-tool
+  version: @project.version@ # Maven 会替换为实际版本
+  root-dir: ${user.home}/dev/investment-tool
+  file:
+    upload:
+      root-dir: ${project.root-dir}/uploads
+      max-size: 10MB
+      allowed-types:
+        - image/jpeg
+        - image/jpg
+        - image/png
+    download:
+      root-dir: ${project.root-dir}/downloads
+    result:
+      root-dir: ${project.root-dir}/results
+  markdown:
+    root-dir: ${project.root-dir}/md
+    template-path: classpath:templates/stock-template.md
+  market:
+    output-dir: ${project.file.download.root-dir}/market
+    collect-timeout-min: 30
+    catch-up-timeout-min: 180
+    reconcile-start-date: 2026-10-09
+    auction-start-date: 2026-10-13
+    reconcile-lookback-days: 10
+    reconcile-on-startup-delay-min: 3
+  notify:
+    hermes-exe: ${user.home}/AppData/Local/hermes/hermes-agent/bin/hermes.exe
+    hermes-to: weixin
+    
+server:
+  port: 8888
+
+spring:
+  application:
+    name: investment-tool
+  datasource:
+    url: jdbc:mysql://localhost:3306/investment_tool?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  quartz:
+    job-store-type: jdbc
+    wait-for-jobs-to-complete-on-shutdown: true
+    overwrite-existing-jobs: false
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: InvestmentToolScheduler
+            instanceId: AUTO # 集群时自动生成唯一ID
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: true  # 集群模式
+            useProperties: false
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 10
+            threadPriority: 5
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: none
+      logic-delete-field: is_deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      strict: true # 如果实体字段在 DB 中不存在, 启动时报错
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl  # 10/14: SQL 改走日志框架(原 StdOutImpl 直打控制台, 淹没报错); 要看 SQL 把 logback-spring.xml 里 cn.sichu 的 mapper 包调 DEBUG
+    auto-mapping-behavior: FULL # 显式启用自动映射带 typeHandler 的字段

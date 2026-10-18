@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sichu.market.mapper.WatchlistInfoMapper">
+
+    <!-- 幂等重导第 1 步: 物理删除该交易日(不是逻辑删除, 见 Mapper 接口注释) -->
+    <delete id="physicalDeleteByTradeDate">
+        DELETE FROM investment_market.watchlist_info WHERE trade_date = #{tradeDate}
+    </delete>
+
+    <!-- 幂等重导第 2 步: 批量插入 -->
+    <insert id="insertBatch">
+        INSERT INTO investment_market.watchlist_info
+        (trade_date, symbol, reasons, reason_detail, sticky_until, status, create_by, create_time, is_deleted)
+        VALUES
+        <foreach collection="list" item="w" separator=",">
+            (#{w.tradeDate}, #{w.symbol}, #{w.reasons}, #{w.reasonDetail}, #{w.stickyUntil},
+             0, #{w.createBy}, #{w.createTime}, 0)
+        </foreach>
+    </insert>
+</mapper>

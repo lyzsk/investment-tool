@@ -1,0 +1,336 @@
+{
+ "source": "BL-bianbenling",
+ "kind": "baseline",
+ "ledger": "bianbenling",
+ "name": "边学本领边实践",
+ "generated_at": "2026-10-18T00:05:41",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "延续",
+  "L1_n": 147,
+  "L2": "常数",
+  "L2_n": 147,
+  "L4": "常数",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 4111.03,
+ "positions": {
+  "300285": {
+   "qty": 1500,
+   "cost": 63.926,
+   "since": "2026-10-08"
+  }
+ },
+ "orders": [
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "300285",
+   "amount": 98000.0,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 弱势震荡(按打法) 池分 10.288",
+   "status": "filled",
+   "price": 63.91,
+   "qty": 1500
+  }
+ ],
+ "trades": [
+  {
+   "id": "2026-10-08-BL-bianbenling-001",
+   "side": "BUY",
+   "code": "300285",
+   "price": 63.91,
+   "qty": 1500,
+   "fee": 23.97,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 弱势震荡(按打法) 池分 10.288 | 开盘价"
+  }
+ ],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 4111.03,
+   "mv": 90300.0,
+   "nav": 94411.03,
+   "filled": 1,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 4111.03,
+   "mv": 84060.0,
+   "nav": 88171.03,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 4111.03,
+   "mv": 77565.0,
+   "nav": 81676.03,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 4111.03,
+   "mv": 77160.0,
+   "nav": 81271.03,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 4111.03,
+   "mv": 74880.0,
+   "nav": 78991.03,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 4111.03,
+   "mv": 70515.0,
+   "nav": 74626.03,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 4111.03,
+   "mv": 69000.0,
+   "nav": 73111.03,
+   "filled": 0,
+   "orders": 0
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "300285",
+     "name": "国瓷材料",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": true,
+     "price": 63.91,
+     "qty": 1500
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 0.097,
+   "p_dir_given_trade": [
+    0.704,
+    0.179,
+    0.117
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9858,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9635,
+    "tp_final_cap": 0.9635,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.9387577013609175,
+    "red_step": 0.6962965669550853,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "sizing": {
+    "single_size": 0.959,
+    "k": 1,
+    "top_play": "弱势震荡"
+   }
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 0.092,
+   "p_dir_given_trade": [
+    0.763,
+    0.192,
+    0.045
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.98575,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9597,
+    "tp_final_cap": 0.9597,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.9387577013609175,
+    "red_step": 0.6962965669550853,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.956
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 0.069,
+   "p_dir_given_trade": [
+    0.797,
+    0.107,
+    0.096
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9857,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9583,
+    "tp_final_cap": 0.9583,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.9387577013609175,
+    "red_step": 0.6962965669550853,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.953
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 0.118,
+   "p_dir_given_trade": [
+    0.946,
+    0.0,
+    0.054
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9857,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9555,
+    "tp_final_cap": 0.9555,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.9387577013609175,
+    "red_step": 0.6962965669550853,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.95
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 0.083,
+   "p_dir_given_trade": [
+    0.507,
+    0.341,
+    0.152
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9856999999999999,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9567,
+    "tp_final_cap": 0.9567,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.9387577013609175,
+    "red_step": 0.6962965669550853,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.949
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-14",
+   "p_trade": 0.088,
+   "p_dir_given_trade": [
+    0.905,
+    0.0,
+    0.095
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9856,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9541000000000001,
+    "tp_final_cap": 0.9541000000000001,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.9387577013609175,
+    "red_step": 0.6962965669550853,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.948
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-15",
+   "p_trade": 0.078,
+   "p_dir_given_trade": [
+    0.891,
+    0.039,
+    0.07
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9855,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9516,
+    "tp_final_cap": 0.9516,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.9387577013609175,
+    "red_step": 0.6962965669550853,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.945
+  }
+ ]
+}

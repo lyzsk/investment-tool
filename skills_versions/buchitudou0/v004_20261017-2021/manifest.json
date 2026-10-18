@@ -1,0 +1,109 @@
+{
+ "skill": "buchitudou0",
+ "version": {
+  "v": 4,
+  "id": "v004_20261017-2021",
+  "ts": "2026-10-17T20:21:47",
+  "effective_from": "2026-10-17T13:16:14",
+  "persona_hash": "7315d889463e78d2a8c985a8e4bc85a07c980f760a1737d2b364c952d16ed2a6",
+  "data_hash": "188771d4809125eb570c61fec5b836c83292e44c85e2396bf47242ce8df72d22",
+  "parent": "v003_20261017-0052",
+  "changed": {
+   "added": [],
+   "modified": [
+    "orders_inferred.json",
+    "profile.md"
+   ],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 72,
+   "removed": 72
+  },
+  "bytes_weight": 80920,
+  "why": "10/17 晚: 新导师 5 位入库 + 深度画像",
+  "code": {
+   "chain": "a853488b3a06",
+   "distill": "a35e9acf158d"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "5239730ee8bc347cb783f9da693d9c86b9bfcba6aa35afb13a01f52213d43d18",
+   "bytes": 19380,
+   "lines": 220,
+   "mtime": "2026-10-17T00:04:50",
+   "cls": "weight"
+  },
+  "cases_auto.jsonl": {
+   "sha256": "8919bd93eaa3e24843c86d56bd47e8055f5d77c6af2eec01b8042cd730890739",
+   "bytes": 387498,
+   "lines": 691,
+   "mtime": "2026-10-17T00:03:25",
+   "cls": "data"
+  },
+  "fills_rt.jsonl": {
+   "sha256": "232f594ccafc5b3d6c0f2a1d468b7c2f44a243dec88f9134ee9004d6fba4cfef",
+   "bytes": 125335,
+   "lines": 691,
+   "mtime": "2026-10-17T00:03:50",
+   "cls": "data"
+  },
+  "fingerprint.md": {
+   "sha256": "7165588113edaca65c4cb8d68238b2dda1d09cee8c155672ce5c05566270eac3",
+   "bytes": 9685,
+   "lines": 165,
+   "mtime": "2026-10-17T00:03:25",
+   "cls": "weight"
+  },
+  "orders_inferred.json": {
+   "sha256": "429e6c608e6f2b651441f95c1a82cdca68b8ed12ddba0e311a3ef9ef72845b3c",
+   "bytes": 7282,
+   "lines": 310,
+   "mtime": "2026-10-17T13:16:14",
+   "cls": "weight"
+  },
+  "profile.md": {
+   "sha256": "19144eb867530b8c5b762f1090848bf261915c3f32eab24b7f883640cfd68fbf",
+   "bytes": 15944,
+   "lines": 120,
+   "mtime": "2026-10-17T01:17:27",
+   "cls": "weight"
+  },
+  "rules.md": {
+   "sha256": "1149c80f048bd9ea0ddce47dce7fc618e095d0e46adb843a2e6b7bd4eab6b0e5",
+   "bytes": 25491,
+   "lines": 240,
+   "mtime": "2026-10-17T00:51:44",
+   "cls": "weight"
+  },
+  "rules_index.md": {
+   "sha256": "7a67297a7f013f10b52ef71eb423cfbf59d0f314fb48f4cecbcb2e32c1a7be3b",
+   "bytes": 3138,
+   "lines": 17,
+   "mtime": "2026-10-17T00:52:04",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "a853488b3a06",
+  "distill": "a35e9acf158d",
+  "chain_files": {
+   "scripts/taoge-chain/run_taoge_chain.py": "96a3641fcc8e",
+   "skills/buchitudou0-skill/workflows/chain.md": "7217a7514146",
+   "skills/buchitudou0-skill/SKILL.md": "c58e482dfcc9",
+   "scripts/dfcf/paper/params.yaml": "852374ea7f2b"
+  },
+  "distill_files": {
+   "skills/buchitudou0-skill/workflows/distill.md": "7ae5d6e11ef7",
+   "scripts/tzzb/distill_daily.py": "98491c9488c3",
+   "scripts/tzzb/llm_batch_tzzb.py": "b05db0409e93",
+   "scripts/tzzb/mentor_fingerprint.py": "4fe126f8c888",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "bf0232e228dd",
+   "scripts/md/gen_rules_index.mjs": "654e7e6d356c",
+   "scripts/md/check_md_daily.py": "6aeab033ce5f"
+  }
+ }
+}

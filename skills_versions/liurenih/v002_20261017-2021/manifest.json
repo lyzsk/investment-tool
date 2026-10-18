@@ -1,0 +1,59 @@
+{
+ "skill": "liurenih",
+ "version": {
+  "v": 2,
+  "id": "v002_20261017-2021",
+  "ts": "2026-10-17T20:21:47",
+  "effective_from": "2026-10-17T00:02:59",
+  "persona_hash": "5e2ae2b94e157b34e8c5cb11683c8e714569e1bee6b6eef6da4d15bd944f4c0e",
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v001_20261016-2249",
+  "changed": {
+   "added": [],
+   "modified": [
+    "cases.md"
+   ],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 4,
+   "removed": 2
+  },
+  "bytes_weight": 4417,
+  "why": "10/17 晚: 新导师 5 位入库 + 深度画像",
+  "code": {
+   "chain": "2216633ff4ec",
+   "distill": "456327b95053"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "2fa064c286b3f242d276415b20b5e12616c28c8cc3c6daeb4f08c101fb1891b5",
+   "bytes": 4417,
+   "lines": 56,
+   "mtime": "2026-10-17T00:02:59",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "2216633ff4ec",
+  "distill": "456327b95053",
+  "chain_files": {
+   "scripts/taoge-chain/run_taoge_chain.py": "96a3641fcc8e",
+   "skills/liurenih-skill/workflows/chain.md": null,
+   "skills/liurenih-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "852374ea7f2b"
+  },
+  "distill_files": {
+   "skills/liurenih-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "98491c9488c3",
+   "scripts/tzzb/llm_batch_tzzb.py": "b05db0409e93",
+   "scripts/tzzb/mentor_fingerprint.py": "4fe126f8c888",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "bf0232e228dd",
+   "scripts/md/gen_rules_index.mjs": "654e7e6d356c",
+   "scripts/md/check_md_daily.py": "6aeab033ce5f"
+  }
+ }
+}

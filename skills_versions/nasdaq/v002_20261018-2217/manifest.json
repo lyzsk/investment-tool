@@ -1,0 +1,103 @@
+{
+ "skill": "nasdaq",
+ "unit": "skill",
+ "version": {
+  "v": 2,
+  "id": "v002_20261018-2217",
+  "ts": "2026-10-18T22:17:30",
+  "effective_from": "2026-10-18T22:16:42",
+  "unit": "skill",
+  "version_hash": "194024b1b43f64d1cf240202bd7d469901987fd501084da35d2844aa1e358d77",
+  "cat_hash": {
+   "提示词": "2a99e95fa0f9ece3d7c550f8a6af8ab04b09a34fc7b208345a1953caf38079cd",
+   "画像": "fc9b223ce3f5af8f9883e7faef185d8dbba023bfa8b15528f574cc80d92d2559"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v001_20261018-2156",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/profile.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "画像": [
+    "persona/profile.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 5,
+   "removed": 5
+  },
+  "bytes_weight": 7870,
+  "why": "10/18 晚 真实费用(最低5元)+1万规模",
+  "code": {
+   "chain": "852f77c23626",
+   "distill": "bef2e8ee72d9"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "190720beae17cdb11f34819cc1636ed287cd49d881ad28d530d437e26b067171",
+   "bytes": 382,
+   "lines": 6,
+   "mtime": "2026-10-18T21:56:08",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "5f5f609bf828cae2655572a333e0486dcbd5e719d6979c58388f78c18433ffe1",
+   "bytes": 2803,
+   "lines": 42,
+   "mtime": "2026-10-18T22:16:42",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "283566e83da35608d765a902aab2966740de31fb6c239251e1e5e68f2a665d5e",
+   "bytes": 2570,
+   "lines": 29,
+   "mtime": "2026-10-18T21:54:54",
+   "cls": "画像",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "bb4daa6a890cafda6978ed97d5b79ec2ba1c2704c4622b7119927f4c0d35b3c8",
+   "bytes": 1309,
+   "lines": 14,
+   "mtime": "2026-10-18T21:54:15",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/distill.md": {
+   "sha256": "4fc529343efe5a5cb1ea3eb031ab866a55bcdf569070014f0e8d22adc69052bf",
+   "bytes": 806,
+   "lines": 10,
+   "mtime": "2026-10-18T21:54:54",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "852f77c23626",
+  "distill": "bef2e8ee72d9",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "62b0c54b3cb9",
+   "skills/nasdaq-skill/workflows/chain.md": null,
+   "skills/nasdaq-skill/SKILL.md": "bb4daa6a890c",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/nasdaq-skill/workflows/distill.md": "4fc529343efe",
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "9c743929403e"
+  }
+ }
+}

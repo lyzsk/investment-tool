@@ -1,0 +1,77 @@
+# 决策链开关(10/13 建; 改完下次跑链生效, 不用重启应用; 环境变量 =0/=1 优先)
+# G: 04/05/06 去冗余(10/13 晚用户拍板上线)
+CHAIN_COMPACT=1
+# F: 导师画像按目录+按步骤注入(10/13 晚用户拍板上线)
+CHAIN_PROFILE_INDEX=1
+# 工具调用留痕(攒样本用; 实盘暂不开)
+CHAIN_TRACE_TOOLS=0
+# 反思回注(10/14 §3-A 第 6 条): 06 出单记决策日志 + 04/06 注入本链已结算反思; 只对白名单 skill 生效(逗号分隔, *=全部, 空=无)
+# 结算/反思= scripts/dfcf/paper/settle_decisions.py(收盘后跑); 先只在对照组试
+CHAIN_REFLECTION=0   # 10/16 审计#10: 原只开给对照组=对照组和导师链口径不一致无法归因; 先全关, 要开就全开
+CHAIN_REFLECTION_SKILLS=control
+# 10/14 晚 盘中子链修复(§3-A; 驱动器 run_chain.py; selftest 强制全关; 全关=逐字节旧行为, 证明见 scripts/temp/subfix_1014/identity_check.py)
+# ① 总仓下限只约束主动减仓: 止损/保护线/失效离场卖单(06 action exit_kind=stop|protect|invalid)放行且不受 05 批准集约束
+CHAIN_FIX_FLOOR_EXIT=1
+# ② contract 把决定交用户(交用户/待用户/用户裁…)=回炉(末次放行)
+CHAIN_FIX_NO_DEFER=1
+# ④ 子链 ESCALATE(02 市况变 / 06 escalate)=本 slot 带"市况已重判"重跑 02→04→06 一次; 仍升级=单照发+exit 3; 预算 params.yaml subchain_gate.esc_rerun_max_elapsed_s
+CHAIN_FIX_ESC_RERUN=1
+# ⑤ 子链 04/06 注入 0915-05 批准名单+持仓+挂单, v04 校验候选 ⊆ 名单(末次机械剔除)
+CHAIN_FIX_SUB_APPROVED=0   # 10/16 用户令: 名单闸对任何人都不该存在(子链改为自带 05 风控)
+# 06 actions 空 ⇒ holds 或 no_trade_reason 二选一(末次放行)
+CHAIN_FIX_HOLDS=1
+# 零 token 触发闸 A(阈值 params.yaml subchain_gate; fail-open; 10/13~14 回算只会跳过 ~2%)
+CHAIN_SUBCHAIN_GATE=1
+# 子链合并 D(02/04/06 一次调用+分块 resume); 回放验收见 docs/TODO.md §3-A
+CHAIN_SUBCHAIN_MERGE=1
+# 10/14 夜 §3-A6 0915 降本三改造(驱动器 run_chain.py; 只管 0915 全链+非转债链; 全关=逐字节旧行为, 证明见 scripts/temp/a6_1014/identity_check.py)
+# 1 材料内联: 每步模板要读的文件由驱动器原文附进 prompt(保留 Read)
+CHAIN_INLINE_CTX=1   # 10/17 ① 沙盒验证后开(docs/research/live_ready_20261017.md: 串链 0/33 会话; 回炉/拟人审/成本见报告)
+# 2 共用开头(需 1): facts.md+01_market+通用规范=同 slot 全链共享首会话, 各步 --fork-session 分叉
+CHAIN_SHARED_PREFIX=1   # 10/17 ① 沙盒验证后开(docs/research/live_ready_20261017.md: 串链 0/33 会话; 回炉/拟人审/成本见报告)
+# 3 A6 主会话(需 1): 02→04→06 同会话 --resume; 03/05/盲审独立会话, 产物已附回注
+CHAIN_MAIN_SESSION=1   # 10/17 ① 沙盒验证后开(docs/research/live_ready_20261017.md: 串链 0/33 会话; 回炉/拟人审/成本见报告)
+# 10/16 晚 持有期改造(02 outlook/04 持有期+论点回看/07 多日核对+know-how/拟人偏差; 驱动器 run_chain.py; 0=不注入, 新字段仍只在出现时校验)
+CHAIN_HORIZON=1
+
+# 10/16 晚 03 保留分歧版(DEBATE_V2, 全部链+对照组): 追价折扣闸先关(折扣系数是拍的, 且会让开盘型导师更不像), 只注入分歧摘要; 想开改 1
+CHAIN_DEBATE_GATE=0   # 10/18 用户定: 先攒数据——每链 debate.json 照记分歧系数/追价上限(闸开时会怎么折), 不生效
+
+# 10/16 晚 言行一致性机械检查(TODO 三-3 第一期 + B7 引用核对): 噪声带实验(A10)跑完后再开, 免得实验中途换代码
+CHAIN_CONSISTENCY=1   # 10/17 ① 沙盒验证后开(docs/research/live_ready_20261017.md: 串链 0/33 会话; 回炉/拟人审/成本见报告)
+
+# 10/16 晚 TODO 二B-6 反思回注 FinCon 式触发: 收盘后 reflect_trigger.py 判"拟人偏差连续3日同维度/回撤超阈"(params.yaml reflection_trigger)→reflection/<日>.json, 开=04/06 注入触发链的执行参数+≤3条07 case(不改画像/规则); 噪声带实验(scripts/temp/noise_20261016)跑完再开
+CHAIN_REFLECT_TRIGGER=1   # 10/17 ① 沙盒验证后开(docs/research/live_ready_20261017.md: 串链 0/33 会话; 回炉/拟人审/成本见报告)
+
+# 10/16 晚 TODO 三-2+A2①③ 账本统计硬约束(持股只数/本日新开仓/近5日换手=真人近60日P80, 低频导师"导师不动链也不动", 恒满仓单票型放宽单票上限, 交易成本进约束块)+04 本导师候选池(指纹池+联动扩展, 池外预算=越池比例)+02/04/06 统计基线建议(06 可写 override → paper/overrides/<日>.jsonl); 机械层 scripts/dfcf/paper/ledger_limits.py; 噪声带实验(scripts/temp/noise_20261016)跑完再开
+CHAIN_LEDGER_CONSTRAINTS=1   # 10/17 ① 沙盒验证后开; 同日修: 低频导师不动闸关着时满仓型硬下限退回软约束(星见野被逼压银行案)
+
+# 10/17 ② 决策质量新功能(机械层 scripts/dfcf/paper/quality_hooks.py; 报告 docs/research/quality_features_20261017.md; 全部默认 0, 关=逐字节旧行为)
+# 2b 挂价交给规则: 06 只选挂法(追价/低吸/排板/开盘), 价格按导师去偏挂单深度(orders_inferred.json)+快照算; 低吸单 matcher reprice=N 分钟未成交向现价靠一半
+CHAIN_PRICE_RULES=1   # 10/17 晚: A4 沙盒(10/16 复现)成交率 37%→61%、仓位差 38%→28%、拟人度不降 → 主会话先定开(用户授权先定, 之后复核)
+# 2c 出手时段跟真人走: 04/06 注入时段分布(slot_profile/<日>.json); 0915 立即生效新开仓 ≤ 0915 份额×典型日新开仓额(软闸回炉一次)
+CHAIN_SLOT_BUDGET=0   # 10/18 用户定: 先攒数据——关着也跑影子模式(quality 日志 shadow=true, 不回炉)
+# 2e T 法画像: 04/06 注入(t_profile/<日>.json); "不学T"导师(antoo 等负期望)禁同票日内回转(软闸回炉一次); "执行T"导师子链按其 T 法
+CHAIN_T_PROFILE=1   # 10/18 用户定开(沙盒 ab1 成交率 27%→38%、仓位差 67%→58% 四组最好; ab3 与基线持平, 用户仍要开)
+# 2f 相似市况: 0915 主链 02/04 注入最相似 3 天 + 之后几天 + 导师当时怎么做(similar_days/<日>.json)
+CHAIN_SIMILAR_DAYS=1   # 10/18 用户定开(沙盒 ab1 成交率 27%→38%、仓位差 67%→58% 四组最好; ab3 与基线持平, 用户仍要开)
+# override 锁层: overrides/locks.json(override_stats.py 收盘后算: 近 20 日改基线净负)锁住的层 06 必须接受基线; 需 CHAIN_LEDGER_CONSTRAINTS=1
+CHAIN_OVERRIDE_LOCK=0   # 10/18 用户定: 先攒数据——关着也跑影子模式(quality 日志 shadow=true, 不回炉)
+# 三-3 第二期: 引用规则方向与动作相符 + 机械触发规则漏用(rule_tags/<导师>.json; 软闸回炉一次)
+CHAIN_RULE_CHECK=1   # 10/18 用户定开(沙盒 ab1 成交率 27%→38%、仓位差 67%→58% 四组最好; ab3 与基线持平, 用户仍要开)
+
+# 10/18 自动记忆开关(全部自动化 claude -p: 决策链+claude_call 系; 环境变量 =0/=1 优先, 否则读本行; 默认 0=现状记忆照常)
+#   开=子进程注入官方环境变量 CLAUDE_CODE_DISABLE_AUTO_MEMORY=1: 不读也不写项目记忆目录(223 笔记/MEMORY.md 26KB 不再进上下文,
+#   链间不串味/回放读不到未来笔记/省 token; 全局 ~/.claude/CLAUDE.md 与用户 rules 不受影响; 由主会话在沙盒的天与天之间切换, 别在盘中改)
+CLAUDE_NO_AUTOMEMORY=1
+
+# 10/18 用户批(仓位太轻): 新开仓 >= 导师单票习惯 75% + 失效线至少半个日振幅(自动放宽); 10/15 沙盒跑完后改 1(沙盒中途改会让组间不可比)
+CHAIN_SIZE_RULES=1   # 10/18 16:00 沙盒 new 组跑完后开: 花费不增($242 vs 基线 $251)、回炉不增(70 vs 71); 集中型导师仓位上来, 单日噪声大, 周一起看
+
+# 10/18 用户批(省 token): 每步素材包/工作方式约定; 沙盒跑完后改 1
+CHAIN_STEP_PACK=1   # 10/18 晚查因后开: 0915 输入 -16%、工具调用 -24%(超出噪声带), 每天约省 $5~7; 盘中子链没覆盖(占全天 64%), 子链版另起开关再测
+
+# 10/18 晚 均线 / 三态 / 风险仓位(用户定"周三 10/21 接, 先备好"; 关 = 与之前逐字节一致)
+CHAIN_REGIME_FACTS=0   # facts 加「关注票状态」节(三态 / 箱体 / EMA / 止损候选; facts.mjs)
+CHAIN_RISK_SIZE=0      # 06 买单按 1% 风险倒推建议股数 + ¼凯利上限, 只记账不拦单(quality_hooks._post_risk)
+MIX_REGIME=0           # A-mix-sw 按该票三态 × 导师在该状态的历史期望加权(mix_plans.regime_mult)

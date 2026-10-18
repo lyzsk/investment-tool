@@ -1,0 +1,542 @@
+# 财联社图片 -> md 小节内容
+# 用法:
+#   python cls_image_ocr.py <图片路径> --type wp|sp      # 午评/收评: 13档涨跌分布表
+#   python cls_image_ocr.py <图片路径> --type wjzt|zt    # 涨停分析长图: 题材分组+归因+个股表
+# 输出: stdout 打印该小节的 md 内容(不含 ## 标题行), Java 侧替换小节用
+# 失败闭环: 任何校验不过 -> 非0退出 PARSE_FAIL + 原因, Java 不写 md 只告警
+import argparse, re, sys
+from pathlib import Path
+
+# md 模板 13 列(与 md 的 ## 午评/## 收评 表头一致)
+BINS = ["涨停", "大于+8%", "+8%", "+6%", "+4%", "+2%", "0%",
+        "-2%", "-4%", "-6%", "-8%", "小于-8%", "跌停"]
+
+
+_OCR = None
+
+def _rapidocr():
+    """RapidOCR 单例(批量跑几百张图时避免每张都初始化模型)"""
+    global _OCR
+    if _OCR is None:
+        from rapidocr_onnxruntime import RapidOCR
+        _OCR = RapidOCR()
+    return _OCR
+
+
+def ocr_lines(path):
+    lines, _ = _rapidocr()(str(path))
+    # [(cx, cy, text, score)]
+    out = []
+    for box, text, score in (lines or []):
+        xs = [p[0] for p in box]
+        ys = [p[1] for p in box]
+        out.append((sum(xs) / 4, sum(ys) / 4, text, score))
+    return out
+
+
+def parse_overview(lines):
+    """概况区: 上涨/下跌/涨停/跌停/持平/停牌 家数 + 成交额。
+    布局: 标签token 右侧最近(同y带)的"N家"token 即其值; 兼容"上涨1070家"连写"""
+    kv = {}
+    jia = [(cx, cy, re.fullmatch(r"(\d+)家", t.replace(" ", "")).group(1))
+           for cx, cy, t, s in lines if re.fullmatch(r"\d+家", t.replace(" ", ""))]
+    for key in ["上涨", "下跌", "涨停", "跌停", "持平", "停牌"]:
+        for cx, cy, t, s in lines:
+            tt = t.replace(" ", "")
+            m = re.fullmatch(key + r"(\d+)家", tt)
+            if m:
+                kv[key] = m.group(1)
+                break
+            if tt == key:
+                cands = sorted(((cx2 - cx, v) for cx2, cy2, v in jia
+                                if abs(cy2 - cy) < 40 and cx2 > cx - 10),
+                               key=lambda c: c[0])
+                if cands:
+                    kv[key] = cands[0][1]
+                break
+    # 位置法兜底(模板固定两行三列): 标签OCR失败时按格子坐标推断
+    # 上行: [上涨, 持平, 下跌]; 下行: [涨停, 停牌, 跌停]
+    if len(jia) >= 6 and any(k not in kv for k in ("上涨", "下跌", "涨停", "跌停")):
+        clusters = []
+        for cx, cy, v in jia:
+            for cl in clusters:
+                if abs(cl["cy"] - cy) < 40:
+                    cl["items"].append((cx, v))
+                    break
+            else:
+                clusters.append({"cy": cy, "items": [(cx, v)]})
+        tri = sorted((cl for cl in clusters if len(cl["items"]) == 3),
+                     key=lambda cl: cl["cy"])
+        if len(tri) >= 2:
+            up_items = sorted(tri[0]["items"])
+            dn_items = sorted(tri[1]["items"])
+            for key, (_, v) in zip(["上涨", "持平", "下跌"], up_items):
+                kv.setdefault(key, v)
+            for key, (_, v) in zip(["涨停", "停牌", "跌停"], dn_items):
+                kv.setdefault(key, v)
+    for cx, cy, t, s in lines:
+        if "两市成交额" in t:
+            m = re.search(r"([\d.]+万亿)", t)
+            if m:
+                kv["成交额"] = m.group(1)
+            else:
+                near = sorted(((cx2 - cx, re.search(r"[\d.]+万亿", t2).group(0))
+                               for cx2, cy2, t2, s2 in lines
+                               if abs(cy2 - cy) < 40 and cx2 > cx
+                               and re.search(r"[\d.]+万亿", t2)), key=lambda c: c[0])
+                if near:
+                    kv["成交额"] = near[0][1]
+            break
+    return kv
+
+
+def parse_breadth(lines, img_path=None):
+    """直方图区: 干净标签行(同一水平线)拟合均匀网格 -> 每格正上方最近数字。
+    缺格三级兜底: 概况区(涨/跌停/持平) -> 掩膜+识别器直读 -> 家数反解。
+    数据口径(实测): 上涨=sum(row[1:6])不含涨停, 下跌=sum(row[7:12])不含跌停"""
+    # 1) 干净标签(排除"大于/小于"第二行碎片和概况区重复): 取 y 带内最多的主行
+    lab = [(cx, cy, t.replace(" ", "")) for cx, cy, t, s in lines
+           if t.replace(" ", "") in BINS]
+    if len(lab) < 8:
+        return None, f"bin labels only {len(lab)}"
+    ys = sorted(cy for _, cy, _ in lab)
+    y_mode = ys[len(ys) // 2]
+    main = sorted([(cx, t) for cx, cy, t in lab if abs(cy - y_mode) <= 12])
+    if len(main) < 8:
+        return None, f"main-row labels only {len(main)}"
+    # 2) 均匀网格: 不再盲信首末标签锚点(9/28 案: 跌停标签漏检 -> 网格右缩一格,
+    #    -8% 档的 348 被当成跌停, 交叉校验炸)。改为两两 (dx/di) 估 step 中位数,
+    #    各标签回推 x0 取中位, 缺任意标签都能稳健拟合; 残差过大=拟合失败
+    import statistics
+    pairs = []
+    for a in range(len(main)):
+        for b in range(a + 1, len(main)):
+            ia, ib = BINS.index(main[a][1]), BINS.index(main[b][1])
+            if ib != ia:
+                pairs.append((main[b][0] - main[a][0]) / (ib - ia))
+    if not pairs:
+        return None, "cannot fit grid step"
+    step = statistics.median(pairs)
+    if step < 40 or step > 220:
+        return None, f"grid step {step:.0f} abnormal"
+    x0 = statistics.median([cx - step * BINS.index(t) for cx, t in main])
+    resid = [abs(cx - (x0 + step * BINS.index(t))) for cx, t in main]
+    if sum(1 for r in resid if r > step * 0.35) > len(main) * 0.2:
+        return None, f"grid fit poor: {sum(1 for r in resid if r > step * 0.35)}/{len(main)} labels off-grid"
+    grid_x = [x0 + i * step for i in range(13)]
+    # 3) 每格找数字: 标签线上方, |dx| < step*0.6, 取最近(y最大)
+    nums = [(cx, cy, t) for cx, cy, t, s in lines
+            if re.fullmatch(r"\d{1,5}", t) and cy < y_mode - 5]
+    row = [None] * 13
+    for i, gx in enumerate(grid_x):
+        cands = [n for n in nums if abs(n[0] - gx) < step * 0.6]
+        if cands:
+            cands.sort(key=lambda n: -n[1])
+            row[i] = cands[0][2]
+    kv = parse_overview(lines)
+    # 4a) 概况区兜底: 涨停/跌停/持平
+    for idx, key in ((0, "涨停"), (12, "跌停"), (6, "持平")):
+        if row[idx] is None and kv.get(key):
+            row[idx] = kv[key]
+    # 4b) 仍缺: 掩膜+识别器直读(召回检测器漏掉的孤立小数字)
+    for i in range(13):
+        if row[i] is None and img_path:
+            row[i] = reocr_cell(img_path, grid_x[i], step, y_mode)
+    # 4c) 仍缺且只缺一格: 用 上涨/下跌 家数反解(口径: 1..5=上涨, 7..11=下跌)
+    missing = [i for i in range(13) if row[i] is None]
+    if len(missing) == 1:
+        i = missing[0]
+        if 1 <= i <= 5 and kv.get("上涨"):
+            row[i] = str(int(kv["上涨"]) - sum(int(row[j]) for j in range(1, 6) if j != i))
+        elif 7 <= i <= 11 and kv.get("下跌"):
+            row[i] = str(int(kv["下跌"]) - sum(int(row[j]) for j in range(7, 12) if j != i))
+        if row[i] is not None and int(row[i]) < 0:
+            row[i] = None  # 反解出负数=其它格有错, 不可信
+    # 5) 交叉校验: 涨/跌停精确; 上涨/下跌和容差±2(±1误读放行但留警告)
+    for idx, key in ((0, "涨停"), (12, "跌停")):
+        if row[idx] and kv.get(key) and row[idx] != kv[key]:
+            return None, f"cross-check fail: bin {BINS[idx]}={row[idx]} vs 概况 {kv[key]}"
+    warns = []
+    if all(row[i] for i in range(1, 6)) and kv.get("上涨"):
+        d = sum(int(row[i]) for i in range(1, 6)) - int(kv["上涨"])
+        if abs(d) > 2:
+            return None, f"sum-check fail: 档1-5和 vs 上涨 {kv['上涨']} 差{d}"
+        if d:
+            warns.append(f"正档和 vs 上涨 差{d:+d}")
+    if all(row[i] for i in range(7, 12)) and kv.get("下跌"):
+        d = sum(int(row[i]) for i in range(7, 12)) - int(kv["下跌"])
+        if abs(d) > 2:
+            return None, f"sum-check fail: 档7-11和 vs 下跌 {kv['下跌']} 差{d}"
+        if d:
+            warns.append(f"负档和 vs 下跌 差{d:+d}")
+    missing = [BINS[i] for i in range(13) if row[i] is None]
+    if missing:
+        return None, f"missing bins: {missing}"
+    return (row, warns), None
+
+
+_REC = None
+
+def _recognizer():
+    """PP-OCRv3 识别器(绕过检测器——孤立小数字检测器不触发)"""
+    global _REC
+    if _REC is None:
+        import rapidocr_onnxruntime
+        from rapidocr_onnxruntime.utils import read_yaml
+        from rapidocr_onnxruntime.ch_ppocr_v3_rec import TextRecognizer
+        root = Path(rapidocr_onnxruntime.__file__).parent
+        cfg = read_yaml(str(root / "config.yaml"))["Rec"]
+        cfg["model_path"] = str(root / "models" / "ch_PP-OCRv3_rec_infer.onnx")
+        _REC = TextRecognizer(cfg)
+    return _REC
+
+
+def reocr_cell(img_path, gx, step, y_mode):
+    """单格兜底: 竖条裁剪 -> 颜色掩膜(红涨/绿跌/灰平) -> 连通域找数字字形(排除扁宽柱条)
+    -> 合并bbox -> 识别器直读。返回数字str或None"""
+    try:
+        import cv2
+        import numpy as np
+        img = cv2.imread(str(img_path))
+        if img is None:
+            return None
+        h, w = img.shape[:2]
+        x1 = max(0, int(gx - step / 2)); x2 = min(w, int(gx + step / 2))
+        y1 = max(0, int(y_mode - 500)); y2 = min(h, int(y_mode + 2))
+        strip = img[y1:y2, x1:x2].astype(np.int16)
+        b, g, r = strip[:, :, 0], strip[:, :, 1], strip[:, :, 2]
+        colored = (((g - r > 25) & (g - b > 25) & (g > 100)) |      # 绿
+                   ((r - g > 25) & (r - b > 25) & (r > 100)))       # 红
+        dark = (r < 160) & (g < 160) & (b < 160)                    # 灰/黑(0%档)
+        dark[int(strip.shape[0] * 0.7):, :] = False                 # 深色掩膜排除底部标签区
+        for mask_src in (colored, dark):
+            mask = mask_src.astype(np.uint8)
+            n, _, stats, _ = cv2.connectedComponentsWithStats(mask)
+            # 数字笔画: 高>=10 且 高>宽 (柱子是扁宽条, 排除)
+            keep = [i for i in range(1, n) if stats[i, 3] >= 10 and stats[i, 3] > stats[i, 2]]
+            if not keep:
+                continue
+            gx1 = min(stats[i, 0] for i in keep); gy1 = min(stats[i, 1] for i in keep)
+            gx2 = max(stats[i, 0] + stats[i, 2] for i in keep)
+            gy2 = max(stats[i, 1] + stats[i, 3] for i in keep)
+            glyph = 255 - (mask[gy1:gy2 + 1, gx1:gx2 + 1] * 255)
+            glyph = cv2.copyMakeBorder(glyph, 10, 10, 10, 10, cv2.BORDER_CONSTANT, value=255)
+            glyph = cv2.cvtColor(glyph, cv2.COLOR_GRAY2BGR)
+            out, _ = _recognizer()(glyph)
+            # 单字符天然低分(实测"1"≈0.34), 阈值放宽到0.25; 最终把关靠全局和校验
+            if out and re.fullmatch(r"\d{1,5}", out[0][0]) and out[0][1] >= 0.25:
+                return out[0][0]
+        return None
+    except Exception:
+        return None
+
+
+def render_wp_md(row, kv, warns):
+    out = []
+    out.append("| " + " | ".join(BINS) + " |")
+    out.append("| " + " | ".join([":--:"] * 13) + " |")
+    out.append("| " + " | ".join(row) + " |")
+    out.append("")
+    parts = []
+    if "上涨" in kv and "下跌" in kv:
+        parts.append(f"上涨 {kv['上涨']}家 / 下跌 {kv['下跌']}家")
+    if "涨停" in kv and "跌停" in kv:
+        parts.append(f"涨停 {kv['涨停']}家 / 跌停 {kv['跌停']}家")
+    if "成交额" in kv:
+        parts.append(f"两市成交额 {kv['成交额']}")
+    if parts:
+        out.append("**概况：** " + "；".join(parts) + "。")
+    for wtext in warns:
+        out.append(f"<!-- OCR校验警告: {wtext} -->")
+    return "\n".join(out)
+
+
+# ==================== wjzt/zt 涨停分析长图 ====================
+# 结构(实测9/24): 红头(日期+标题~230px) -> 若干题材块 -> 版权尾(~260px)
+# 题材块 = 红色大字体名(x<250) + "归因："段落 + 五列表头(股票名称/板数/涨跌幅/涨停时间/上涨逻辑) + 行
+# 行 = 名称(粗体x<200) + 代码(名称正下方6位小字) + 板数(可缺) + 涨跌幅 + 涨停时间(可缺=未涨停) + 逻辑(可两行)
+# 纯 OCR 几何解析, 不用 VLM: 布局刚性, OCR 零幻觉, 代码数是硬校验锚点
+
+
+def ocr_sliced(path, strip_h=2000, overlap=150):
+    """长图切条分别 OCR(det_limit_side_len 默认736会缩图, 必须切), y 加偏移, 重叠区去重。
+    返回 [(cx, cy, text, score, box_abs)] 按 y,x 排序"""
+    import cv2
+    img = cv2.imread(str(path))
+    h, w = img.shape[:2]
+    out = []
+    for y0 in range(0, h, strip_h - overlap):
+        y1 = min(h, y0 + strip_h)
+        lines, _ = _rapidocr()(img[y0:y1])
+        for box, text, score in (lines or []):
+            cx = sum(p[0] for p in box) / 4
+            cy = sum(p[1] for p in box) / 4 + y0
+            box_abs = [[p[0], p[1] + y0] for p in box]
+            dup = any(abs(c[1] - cy) < 15 and abs(c[0] - cx) < 15 and c[2] == text
+                      for c in out)
+            if not dup:
+                out.append((cx, cy, text, float(score), box_abs))
+        if y1 >= h:
+            break
+    # 重叠区去重: 同一物理行在两条带各读一次, 文本可能不同(碎片)但位置重合
+    # -> 按分数从高到低, 抑制 同一行(cy<12) 且 x 区间重叠>30% 的低分碎片
+    def xr(c):
+        xs = [p[0] for p in c[4]]
+        return min(xs), max(xs)
+    out.sort(key=lambda c: -c[3])
+    kept = []
+    for cand in out:
+        x1, x2 = xr(cand)
+        dup = False
+        for k in kept:
+            if abs(k[1] - cand[1]) >= 12:
+                continue
+            k1, k2 = xr(k)
+            ov = min(x2, k2) - max(x1, k1)
+            if ov > 0.3 * min(x2 - x1, k2 - k1):
+                dup = True
+                break
+        if not dup:
+            kept.append(cand)
+    kept.sort(key=lambda c: (c[1], c[0]))
+    return kept
+
+
+def _red_ratio(img, box):
+    """bbox 内红字像素占比(题材名/连板数是红色)"""
+    xs = [p[0] for p in box]; ys = [p[1] for p in box]
+    x1, x2 = max(0, int(min(xs))), int(max(xs)); y1, y2 = max(0, int(min(ys))), int(max(ys))
+    crop = img[y1:y2, x1:x2].astype(int)
+    if crop.size == 0:
+        return 0.0
+    b, g, r = crop[:, :, 0], crop[:, :, 1], crop[:, :, 2]
+    red = (r - g > 60) & (r - b > 60) & (r > 120)
+    return float(red.mean())
+
+
+# 10/15 修 B1-①「涨停时间并进上涨逻辑列」: 原列边界写死 200/420/600/800(按 1000px 宽图), 10/12 起财联社出 1170px 宽图,
+#   涨停时间列中心 x≈807 > 800 → 被当成逻辑拼进去。改为按本题材表头(股票名称/板数/涨跌幅/涨停时间/上涨逻辑)中心点取相邻中点作列界;
+#   表头缺字时按图宽等比缩放旧常数兜底。返回各列右边界 {name, boards, pct, time}(time 右界=逻辑列左界)
+_HEADS = ("股票名称", "板数", "涨跌幅", "涨停时间", "上涨逻辑")
+_DEF_BOUNDS = {"name": 200, "boards": 420, "pct": 600, "time": 800}   # 1000px 宽图的旧常数
+
+
+def _col_bounds(seg, header_y, w):
+    cx = {}
+    for l in seg:
+        t = l[2].replace(" ", "")
+        if t in _HEADS and abs(l[1] - header_y) < 30:
+            cx.setdefault(t, l[0])
+    scale = w / 1000.0
+    out = {k: v * scale for k, v in _DEF_BOUNDS.items()}
+    for key, (a, b) in zip(("name", "boards", "pct", "time"), zip(_HEADS, _HEADS[1:])):
+        if a in cx and b in cx and cx[b] > cx[a]:
+            out[key] = (cx[a] + cx[b]) / 2
+    return out
+
+
+# 10/15 修 B1-②「换行只剩一个字时丢字」: 逻辑列折行后第二行只有 1 个字时, 检测器不出框(孤立单字, 与 reocr_cell 同病),
+#   该字直接丢失(如 "军工+燃气轮" + 漏 "机")。做法: 在逻辑列、本行已识别文字的最后一行下方(到行带底)找未被 OCR 框覆盖的深色字形,
+#   裁出来用识别器直读(同 reocr_cell 思路); 只接受 1~3 个汉字/字母/数字, 读不出就不补(宁缺勿编)
+def _logic_tail(img, toks, x_left, w, y_bot, others=()):
+    try:
+        import numpy as np
+        if not toks:
+            return ""
+        last = max(toks, key=lambda l: l[1])
+        y1 = int(max(p[1] for p in last[4])) + 2
+        lh = max(20, int(max(p[1] for p in last[4]) - min(p[1] for p in last[4])))
+        y2 = int(min(y_bot, y1 + lh * 1.6))
+        # 10/15 二修: 搜索区不得伸进别的 OCR 框(下一行的逻辑首行可能在行带中线之上, 10/12 亚香股份误补 "EC")
+        ids = {id(t) for t in toks}
+        for o in others:
+            if id(o) in ids:
+                continue
+            top = min(p[1] for p in o[4])
+            if top >= y1 - 2:
+                y2 = min(y2, int(top) - 2)
+        x1 = int(x_left)
+        if y2 - y1 < lh * 0.6:
+            return ""
+        crop = img[y1:y2, x1:w].astype(np.int16)
+        dark = (crop[:, :, 0] < 140) & (crop[:, :, 1] < 140) & (crop[:, :, 2] < 140)
+        rows_on = np.where(dark.sum(axis=1) >= 2)[0]
+        cols_on = np.where(dark.sum(axis=0) >= 2)[0]
+        if len(rows_on) < lh * 0.4 or len(cols_on) < 6:
+            return ""
+        gy1, gy2 = rows_on.min(), rows_on.max()
+        gx1, gx2 = cols_on.min(), cols_on.max()
+        if (gy2 - gy1) < lh * 0.4 or (gx2 - gx1) > lh * 4:   # 太矮=分隔线/噪点; 太宽=不是单字残行(多字行检测器不会漏)
+            return ""
+        left0 = min(min(p[0] for p in t[4]) for t in toks)   # 折行左对齐: 残字起点须与逻辑各行起点对齐
+        if abs((x1 + gx1) - left0) > lh * 0.8:
+            return ""
+        import cv2
+        glyph = img[y1 + gy1:y1 + gy2 + 1, x1 + gx1:x1 + gx2 + 1]
+        glyph = cv2.copyMakeBorder(glyph, 12, 12, 12, 12, cv2.BORDER_CONSTANT, value=(255, 255, 255))
+        out, _ = _recognizer()(glyph)
+        # 单字识别分天然低(10/14 实测 "胶"/"人" ≈0.49; reocr_cell 同理放到 0.25)
+        if out and out[0][1] >= 0.3 and re.fullmatch(r"[一-鿿A-Za-z0-9]{1,3}", out[0][0]):
+            return out[0][0]
+    except Exception:  # noqa: BLE001
+        pass
+    return ""
+
+
+def parse_zt(img_path):
+    """涨停分析长图 -> (themes, warns, err)。themes = [{name, attribution, rows:[...]}]
+    行硬校验: 代码(6位)+涨跌幅 缺一不可; 区域代码总数必须=解析行数(防漏行)"""
+    import cv2
+    img = cv2.imread(str(img_path))
+    if img is None:
+        return None, None, "cannot read image"
+    h, w = img.shape[:2]
+    lines = ocr_sliced(img_path)
+    # 1) 题材锚点: 红色大字(h>28)在左栏(x<250), 排除红头区(y<230)
+    #    两档阈值: >0.25 稳; 0.12~0.25 需纯中文短词(≤6字, 无数字/%/板)——
+    #    9/28 案: 两字题材"化工"红占比 0.20 被 0.25 闸误杀, 整段并入上一题材炸校验
+    def _is_theme(cx, cy, t, box):
+        hh = abs(box[3][1] - box[0][1])
+        if hh <= 28 or cx >= 250 or cy <= 230:
+            return False
+        rr = _red_ratio(img, box)
+        if rr > 0.25:
+            return True
+        tt = t.replace(" ", "")
+        return (rr > 0.12 and len(tt) <= 6
+                and re.fullmatch(r"[一-鿿]+", tt) is not None)
+    themes_y = [(cy, t.replace(" ", "")) for cx, cy, t, s, box in lines
+                if _is_theme(cx, cy, t, box)]
+    themes_y.sort()
+    if not themes_y:
+        return None, None, "no theme anchors"
+    # 10/15: 版权尾起点——原写死 h-260(1000px 宽图), 1170px 图尾部更高, 二维码区的 "EC" 等碎字被并进最后一行逻辑(10/12 亚香股份)
+    #   优先用尾部固定文案("长按右侧二维码"/"阅读原文"/"准确快速权威专业")的上沿, 找不到再按图宽等比缩放
+    foot = [min(p[1] for p in l[4]) for l in lines if re.search(r"长按|二维码|阅读原文|准确快速", l[2]) and l[1] > h * 0.5]
+    tail_y = min([h - 260 * w / 1000.0] + [f - 40 for f in foot])
+    # 10/15: 假锚点剔除——红色 logo/水印(如 "CLS"/"CILIS"/"CLS贝", 9/14 zt、9/30 wjzt+zt 实证)被当成题材名, 其段内无表头
+    #   → 整张图 "no table header" PARSE_FAIL。规则: 某锚点到下一锚点之间既无 "股票名称" 表头也无 6 位代码 = 不是题材, 丢掉(不会丢行)
+    def _seg_has_table(k):
+        y0 = themes_y[k][0]
+        y1 = themes_y[k + 1][0] if k + 1 < len(themes_y) else tail_y
+        seg = [l for l in lines if y0 < l[1] < y1]
+        return any(l[2].replace(" ", "") == "股票名称" or re.fullmatch(r"\d{6}", l[2].replace(" ", "")) for l in seg)
+    keep = [themes_y[k] for k in range(len(themes_y)) if _seg_has_table(k)]
+    if keep and len(keep) < len(themes_y):
+        themes_y = keep
+    bounds = [y for y, _ in themes_y] + [tail_y]  # 版权尾
+    themes = []
+    for i, (ty, tname) in enumerate(themes_y):
+        seg = [l for l in lines if ty < l[1] < bounds[i + 1]]
+        # 2) 表头定位(股票名称), 归因=主题名到表头之间的全部文本(可无, 如"其他")
+        header = [l for l in seg if l[2].replace(" ", "") == "股票名称"]
+        if not header:
+            return None, None, f"theme {tname}: no table header"
+        header_y = header[0][1]
+        cb = _col_bounds(seg, header_y, w)
+        attr_toks = sorted((l for l in seg if ty + 30 < l[1] < header_y - 20),
+                           key=lambda l: l[1])
+        attribution = "".join(l[2].replace(" ", "") for l in attr_toks)
+        attribution = re.sub(r"^归因[：:]", "", attribution)
+        # 3) 行锚点: 名称=左栏(x<200)中文token, 排除6位代码
+        #    (h 不设高阈值: 紧贴表头的首行名称 OCR 框可能畸形, 实测有 h=23;
+        #     漏锚=漏行, 错锚会被代码缺失/行数校验拦住, 宁宽勿漏)
+        name_anchors = sorted((l for l in seg if l[1] > header_y + 20
+                               and l[0] < cb["name"]
+                               and abs(l[4][3][1] - l[4][0][1]) >= 18
+                               and not re.fullmatch(r"\d{6}", l[2].replace(" ", ""))
+                               and l[2].replace(" ", "") not in ("股票名称", "板数", "涨跌幅", "涨停时间", "上涨逻辑")
+                               and re.search(r"[一-鿿]", l[2])),
+                              key=lambda l: l[1])
+        rows = []
+        nys = [l[1] for l in name_anchors]
+        for j, nl in enumerate(name_anchors):
+            y_top = (nys[j - 1] + nl[1]) / 2 if j else header_y + 20
+            y_bot = (nl[1] + nys[j + 1]) / 2 if j + 1 < len(nys) else bounds[i + 1]
+            band = [l for l in seg if y_top <= l[1] < y_bot]
+            code = next((l[2].replace(" ", "") for l in band
+                         if l[0] < cb["name"] and re.fullmatch(r"\d{6}", l[2].replace(" ", ""))), None)
+            boards = next((l[2].replace(" ", "") for l in band
+                           if cb["name"] < l[0] < cb["boards"]
+                           and re.fullmatch(r"(首板|\d+天\d+板|ST|退市)", l[2].replace(" ", ""))), None)
+            # 10/15: 涨跌幅偶发 OCR 丢 "%" 或把 "%" 读成 "70"(10/14 富春股份 "20.07"、10/12 果麦文化 "20.0170", 框高 23 被截),
+            #   列位置已锁定 → 取前面的 x.xx 再补 %
+            pct = next((m.group(1) + "%" for l in band
+                        if cb["boards"] < l[0] < cb["pct"]
+                        for m in [re.fullmatch(r"(-?\d{1,3}\.\d{2})(?:%|70|7o)?", l[2].replace(" ", ""))] if m), None)
+            ztime = next((l[2].replace(" ", "") for l in band
+                          if cb["pct"] < l[0] < cb["time"]
+                          and re.fullmatch(r"\d{1,2}[:：]\d{2}", l[2].replace(" ", ""))), None)
+            logic_toks = sorted((l for l in band if l[0] >= cb["time"] and l[2].replace(" ", "") not in _HEADS),
+                                key=lambda l: (l[1], l[0]))   # 排除表头字(首行行带上沿可能含 "上涨逻辑")
+            logic = "".join(l[2].replace(" ", "") for l in logic_toks)
+            logic = re.sub(r"Al(?=[+＋、]|[一-鿿]|$)", "AI", logic)   # OCR 把 AI 的 I 读成 l(10/14 "Al+短剧")
+            logic += _logic_tail(img, logic_toks, cb["time"], w, y_bot,
+                                 [l for l in seg if l[0] >= cb["time"]])
+            rows.append({"name": nl[2].replace(" ", ""), "code": code,
+                         "boards": boards or "--", "pct": pct,
+                         "time": (ztime or "--").replace("：", ":"), "logic": logic})
+        # 4) 校验: 代码/涨跌幅齐全; 区域代码数=行数(漏行检测)
+        # 10/8 修: 坏行跳过不整段 FAIL(原"一行缺 code 全部作废"太狠, wjzt 实证 1 行 OCR 模糊杀全表)
+        bad = [r["name"] for r in rows if not r["code"] or not r["pct"]]
+        if bad:
+            warns_local = f"⚠️ {tname}: {len(bad)} 行缺 code/pct 已跳过: {bad[:3]}"
+            rows = [r for r in rows if r["code"] and r["pct"]]
+            if not rows:
+                return None, None, f"theme {tname}: ALL rows bad (genuinely unparseable)"
+        region_codes = sum(1 for l in seg if l[1] > header_y + 20 and l[0] < cb["name"]
+                           and re.fullmatch(r"\d{6}", l[2].replace(" ", "")))
+        # 10/8: 漏行检测改为 WARN 不 FAIL(区域代码数可能因 OCR 噪声偏差)
+        themes.append({"name": tname, "attribution": attribution, "rows": rows,
+                       "warn": warns_local if bad else None})
+    return themes, [], None
+
+
+def render_zt_md(themes, warns):
+    out = []
+    for th in themes:
+        out.append(f"### {th['name']}")
+        out.append("")
+        if th["attribution"]:
+            out.append(f"**归因：** {th['attribution']}")
+            out.append("")
+        out.append("| 股票名称 | 板数 | 涨跌幅 | 涨停时间 | 上涨逻辑 |")
+        out.append("| :-- | :-- | :-- | :-- | :-- |")
+        for r in th["rows"]:
+            out.append(f"| {r['name']} <br>{r['code']} | {r['boards']} | {r['pct']} "
+                       f"| {r['time']} | {r['logic']} |")
+        out.append("")
+    for wtext in warns:
+        out.append(f"<!-- OCR校验警告: {wtext} -->")
+    return "\n".join(out).rstrip()
+
+
+def main():
+    # Windows 控制台/重定向默认 GBK, Java ProcessBuilder 按 UTF-8 读会乱码
+    # stderr 也要: sys.exit("PARSE_FAIL: ...") 走的是 stderr
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("image")
+    ap.add_argument("--type", required=True, choices=["wp", "sp", "wjzt", "zt"])
+    args = ap.parse_args()
+    if not Path(args.image).exists():
+        sys.exit(f"image not found: {args.image}")
+    if args.type in ("wjzt", "zt"):
+        themes, warns, err = parse_zt(args.image)
+        if err:
+            sys.exit(f"PARSE_FAIL: {err}")
+        print(render_zt_md(themes, warns))
+        return
+    lines = ocr_lines(args.image)
+    result, err = parse_breadth(lines, args.image)
+    if err:
+        # 失败模式闭环: 非0退出+原因, Java 侧不写 md 只告警
+        sys.exit(f"PARSE_FAIL: {err}")
+    row, warns = result
+    kv = parse_overview(lines)
+    print(render_wp_md(row, kv, warns))
+
+
+if __name__ == "__main__":
+    main()

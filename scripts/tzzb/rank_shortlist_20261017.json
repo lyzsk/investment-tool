@@ -1,0 +1,21 @@
+{
+ "generated": "2026-10-17T17:52:48",
+ "meta": {
+  "rows": 72,
+  "unit": "fraction"
+ },
+ "window": [
+  "202604",
+  "202605",
+  "202606",
+  "202607",
+  "202608",
+  "202609"
+ ],
+ "N_eligible": 0,
+ "n_pass_gate": 0,
+ "mt_threshold": null,
+ "pos": [],
+ "neg": [],
+ "fetch": []
+}

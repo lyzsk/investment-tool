@@ -1,0 +1,69 @@
+{
+ "skill": "fage",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261016-2249",
+   "ts": "2026-10-16T22:49:12",
+   "effective_from": "2026-10-02T21:04:35",
+   "persona_hash": "ec8e11bec2dbe2adf2b937603241c445da94914eed3d756c100d4cd079a945ce",
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "rules.md",
+     "score.json"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 529,
+    "removed": 0
+   },
+   "bytes_weight": 13510,
+   "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+   "code": {
+    "chain": "dabfdad03d31",
+    "distill": "0c62c11a699c"
+   }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261018-1713",
+   "ts": "2026-10-18T17:13:24",
+   "effective_from": "2026-10-18T17:13:24",
+   "unit": "skill",
+   "version_hash": "bd73695d788cbc75547c34a858574db7991709c79d1059e98636e3784659a4ca",
+   "cat_hash": {
+    "提示词": "ba222967515ab7ea8ebdcd235001e41de4e668b266958dddc6e110636d712a41",
+    "画像": "d5293786018d58f0c8c6c8b505ac2795310aff5bd8eb201a4f76ea660d9bb038"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v001_20261016-2249",
+   "changed": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "newly_tracked": [
+     "PROCESS.md",
+     "SKILL.md"
+    ]
+   },
+   "changed_by_cat": {},
+   "data_changed": [],
+   "lines": {
+    "added": 0,
+    "removed": 0
+   },
+   "bytes_weight": 20498,
+   "why": "10/18 全 skill 版本化首版",
+   "code": {
+    "chain": "cd5202824f72",
+    "distill": "78c86eb57b51"
+   }
+  }
+ ],
+ "events": []
+}

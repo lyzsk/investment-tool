@@ -1,0 +1,154 @@
+{
+ "_comment": "决策链持有期表(gen_horizon.py 生成, 可手改): med=真人持仓天数中位(注入 02 outlook.horizon_days 默认值), cap=拿得住的上限(P75; 04 hold_days 一般不超过); 键=--skill 名, 缺键用 _default",
+ "_generated": "2026-10-18 19:55",
+ "_default": {
+  "med": 2,
+  "cap": 5,
+  "src": "无统计，按画像(缺省参考 2 天/上限 5 天, 10/16 用户定)",
+  "stat": false
+ },
+ "liuyiqing": {
+  "med": 1,
+  "cap": 2,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260420~20261016 共 68 段: 中位 1 天/P75 2 天"
+ },
+ "lianghuaxiaohao": {
+  "med": 1,
+  "cap": 1,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260428~20261015 共 264 段: 中位 1 天/P75 1 天"
+ },
+ "a658": {
+  "med": 1,
+  "cap": 4,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260420~20261016 共 40 段: 中位 1 天/P75 4 天"
+ },
+ "bianbenling": {
+  "med": 2,
+  "cap": 5,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260417~20261015 共 26 段: 中位 2 天/P75 5 天"
+ },
+ "xingjianye": {
+  "med": 1,
+  "cap": 2,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260427~20261016 共 41 段: 中位 1 天/P75 2 天"
+ },
+ "daxingdaxingdadangxing": {
+  "med": 2,
+  "cap": 2,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260917~20261016 共 11 段: 中位 2 天/P75 2 天"
+ },
+ "gaogailvfuli": {
+  "med": 1,
+  "cap": 2,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260618~20261016 共 84 段: 中位 1 天/P75 2 天"
+ },
+ "xuanqiucaijing": {
+  "med": 1,
+  "cap": 2,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260804~20261013 共 35 段: 中位 1 天/P75 2 天"
+ },
+ "stzhilang": {
+  "med": 1,
+  "cap": 1,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260420~20261016 共 53 段: 中位 1 天/P75 1 天"
+ },
+ "chong5000w": {
+  "med": 20,
+  "cap": 35,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260105~20260706 共 23 段: 中位 20 天/P75 35 天"
+ },
+ "antoo": {
+  "med": 4,
+  "cap": 10,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260415~20261013 共 58 段: 中位 4 天/P75 10 天"
+ },
+ "zhiyingjuexin": {
+  "med": 1,
+  "cap": 1,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260420~20261016 共 143 段: 中位 1 天/P75 1 天"
+ },
+ "zjwzlclf": {
+  "med": 4,
+  "cap": 13,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260417~20261015 共 40 段: 中位 4 天/P75 13 天"
+ },
+ "ynw01": {
+  "med": 1,
+  "cap": 12,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260415~20261013 共 15 段: 中位 1 天/P75 12 天"
+ },
+ "wudaokongfang": {
+  "med": 1,
+  "cap": 2,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260420~20261016 共 146 段: 中位 1 天/P75 2 天"
+ },
+ "zuoshoudeirong": {
+  "med": 1,
+  "cap": 2,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260416~20261014 共 66 段: 中位 1 天/P75 2 天"
+ },
+ "hanxiao": {
+  "med": 12,
+  "cap": 32,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260420~20261016 共 26 段: 中位 12 天/P75 32 天"
+ },
+ "meiyuelu": {
+  "med": 1,
+  "cap": 2,
+  "stat": true,
+  "src": "tzzb 真人收盘持仓 20260420~20261016 共 96 段: 中位 1 天/P75 2 天"
+ },
+ "taoge": {
+  "med": null,
+  "cap": null,
+  "stat": false,
+  "src": "桃哥: 无统计，按画像"
+ },
+ "qushitiange": {
+  "med": null,
+  "cap": null,
+  "stat": false,
+  "src": "趋势天哥: 无统计，按画像"
+ },
+ "lubenyuan": {
+  "med": null,
+  "cap": null,
+  "stat": false,
+  "src": "卢本圆: 无统计，按画像"
+ },
+ "control": {
+  "med": null,
+  "cap": null,
+  "stat": false,
+  "src": "对照组: 无统计，按画像"
+ },
+ "buchitudou0": {
+  "med": null,
+  "cap": null,
+  "stat": false,
+  "src": "不吃土豆0(转债 T+0): 无统计，按画像"
+ },
+ "anlizhuohuo": {
+  "med": 3,
+  "cap": 91,
+  "stat": true,
+  "src": "暗里着火 哑铃型(人工覆盖, 10/17): 卫星仓 1~3 天快进快出, 底仓拿约 3 个月(mentor_scope 持仓中位 91 天; 资金加权持股约 138 天); 120 日内只有 2 段持仓统计不出"
+ }
+}

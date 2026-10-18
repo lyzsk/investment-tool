@@ -1,0 +1,115 @@
+{
+ "skill": "stzhilang",
+ "version": {
+  "v": 6,
+  "id": "v006_20261018-0021",
+  "ts": "2026-10-18T00:21:25",
+  "effective_from": "2026-10-18T00:20:04",
+  "persona_hash": "f1f4e24f6430b44f8662ac2a6fe16b511a3d0a1ad6718a93b56de5d8cad59e35",
+  "data_hash": "22bb04c6278e00a2ce5d1f04a0324d5255bbec42b90ff8e21f178f1de3722852",
+  "parent": "v005_20261017-2241",
+  "changed": {
+   "added": [],
+   "modified": [
+    "profile_index.md"
+   ],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 2,
+   "removed": 2
+  },
+  "bytes_weight": 98615,
+  "why": "check-md 2026-10-16 00:21",
+  "code": {
+   "chain": "ad191a420a11",
+   "distill": "4656154f5c27"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "d78a13cbd38c098a12ed92a903d3bfbf2d68e94d0087fb5568be005dd705231b",
+   "bytes": 4307,
+   "lines": 46,
+   "mtime": "2026-10-17T00:17:55",
+   "cls": "weight"
+  },
+  "cases_auto.jsonl": {
+   "sha256": "6804cb8d96e88ccd3c0cd0d9127c379f17e299a5acf2c167a20a49d138bfce5b",
+   "bytes": 275340,
+   "lines": 285,
+   "mtime": "2026-10-17T00:03:38",
+   "cls": "data"
+  },
+  "fills_rt.jsonl": {
+   "sha256": "ae4a4ea6ddaf158eb0ba0438f210441a1f66e0a02e0b0b5fd3de70faf84c9840",
+   "bytes": 86160,
+   "lines": 285,
+   "mtime": "2026-10-17T00:03:51",
+   "cls": "data"
+  },
+  "fingerprint.md": {
+   "sha256": "43eb1904cec8382afcb8663158430987e1b921bf1460ce6dffdae7211802895f",
+   "bytes": 13764,
+   "lines": 218,
+   "mtime": "2026-10-17T00:03:38",
+   "cls": "weight"
+  },
+  "orders_inferred.json": {
+   "sha256": "18bb13478037978c161b49daf41f5593b268a1cba9e020c9029582cfe92caba1",
+   "bytes": 14328,
+   "lines": 669,
+   "mtime": "2026-10-17T13:16:15",
+   "cls": "weight"
+  },
+  "profile.md": {
+   "sha256": "582a44f5290ed295f5304463c3739bf6816848ccb7d3b0a0a2ed8f912112129f",
+   "bytes": 15079,
+   "lines": 125,
+   "mtime": "2026-10-17T00:17:55",
+   "cls": "weight"
+  },
+  "profile_index.md": {
+   "sha256": "88bdaf06d7e8571076303a94975168d0d7903a0392ac23fb49e1941addad1de7",
+   "bytes": 8575,
+   "lines": 63,
+   "mtime": "2026-10-18T00:20:04",
+   "cls": "weight"
+  },
+  "rules.md": {
+   "sha256": "b0cd966e9f00d70cf3def772b59c97d0c3c4006f9cb19c29f7786ea9626113c3",
+   "bytes": 38154,
+   "lines": 205,
+   "mtime": "2026-10-17T22:40:11",
+   "cls": "weight"
+  },
+  "rules_index.md": {
+   "sha256": "e5f60d729f7314c45072bd1c787d6fa9146fea3368e29d92bf02d83025d70c76",
+   "bytes": 4408,
+   "lines": 17,
+   "mtime": "2026-10-17T22:40:51",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "ad191a420a11",
+  "distill": "4656154f5c27",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "c7d108373e80",
+   "skills/stzhilang-skill/workflows/chain.md": "40756f2c9de2",
+   "skills/stzhilang-skill/SKILL.md": "6a6ea2e88525",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/stzhilang-skill/workflows/distill.md": "7c325454fe17",
+   "scripts/tzzb/distill_daily.py": "6de6f418c374",
+   "scripts/tzzb/llm_batch_tzzb.py": "9e80ff53ca5d",
+   "scripts/tzzb/mentor_fingerprint.py": "4fe126f8c888",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "2946ee81b249"
+  }
+ }
+}

@@ -1,0 +1,691 @@
+{"date": "2026-01-05", "time": "09:30:29", "code": "113657", "name": "再22转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-01-05", "time": "09:30:32", "code": "113657", "name": "再22转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-01-06", "time": "09:30:00", "code": "127042", "name": "嘉美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-01-06", "time": "09:30:12", "code": "127042", "name": "嘉美转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-01-07", "time": "09:30:00", "code": "113575", "name": "东时转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0538, "vs_open": 0.0043, "pos_so_far": 0.062, "vs_avg_so_far": -0.0459, "mom5": 0.0674, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1387}}
+{"date": "2026-01-07", "time": "09:30:05", "code": "113575", "name": "东时转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0787, "vs_open": 0.0281, "pos_so_far": 0.403, "vs_avg_so_far": -0.0233, "mom5": 0.0674, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1124}}
+{"date": "2026-01-08", "time": "09:25:00", "code": "123182", "name": "广联转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-01-08", "time": "09:30:14", "code": "123182", "name": "广联转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-01-08", "time": "09:34:48", "code": "113575", "name": "东时转债", "side": "买", "play": "转债", "rt": {"lab": "09:35", "mins_from_open": 5, "vs_prev_close": 0.0636, "vs_open": -0.0643, "pos_so_far": 0.297, "vs_avg_so_far": -0.0297, "mom5": -0.0709, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1282}}
+{"date": "2026-01-08", "time": "09:34:50", "code": "113575", "name": "东时转债", "side": "卖", "play": null, "rt": {"lab": "09:35", "mins_from_open": 5, "vs_prev_close": 0.055, "vs_open": -0.0718, "pos_so_far": 0.238, "vs_avg_so_far": -0.0375, "mom5": -0.0709, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1374}}
+{"date": "2026-01-09", "time": "09:39:35", "code": "113657", "name": "再22转债", "side": "买", "play": "转债", "rt": {"lab": "09:40", "mins_from_open": 10, "vs_prev_close": 0.0039, "vs_open": 0.0039, "pos_so_far": 0.556, "vs_avg_so_far": 0.0019, "mom5": 0.0076, "gran": "5m", "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1954}}
+{"date": "2026-01-09", "time": "09:40:50", "code": "113657", "name": "再22转债", "side": "卖", "play": null, "rt": {"lab": "09:41", "mins_from_open": 11, "vs_prev_close": 0.0032, "vs_open": 0.0032, "pos_so_far": 0.52, "vs_avg_so_far": 0.0013, "mom5": 0.0076, "gran": "5m", "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1961}}
+{"date": "2026-01-12", "time": "09:25:00", "code": "113657", "name": "再22转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-01-12", "time": "09:30:04", "code": "113657", "name": "再22转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.011, "vs_open": 0.0053, "pos_so_far": 0.398, "vs_avg_so_far": -0.0021, "mom5": 0.0129, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1869}}
+{"date": "2026-01-12", "time": "09:45:02", "code": "127042", "name": "嘉美转债", "side": "买", "play": "转债", "rt": {"lab": "09:46", "mins_from_open": 16, "vs_prev_close": 0.1976, "vs_open": 0.013, "pos_so_far": 0.986, "vs_avg_so_far": 0.0231, "mom5": 0.0161, "gran": "5m", "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.002}}
+{"date": "2026-01-12", "time": "09:45:56", "code": "127042", "name": "嘉美转债", "side": "卖", "play": null, "rt": {"lab": "09:46", "mins_from_open": 16, "vs_prev_close": 0.1938, "vs_open": 0.0098, "pos_so_far": 0.923, "vs_avg_so_far": 0.0199, "mom5": 0.0161, "gran": "5m", "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.0052}}
+{"date": "2026-01-13", "time": "09:25:00", "code": "123263", "name": "鼎捷转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0533, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1393}}
+{"date": "2026-01-13", "time": "09:30:08", "code": "123263", "name": "鼎捷转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0673, "vs_open": 0.0133, "pos_so_far": 0.246, "vs_avg_so_far": -0.0093, "mom5": 0.054, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1243}}
+{"date": "2026-01-14", "time": "09:30:00", "code": "127042", "name": "嘉美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-01-14", "time": "09:30:04", "code": "127042", "name": "嘉美转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-01-15", "time": "09:25:00", "code": "123263", "name": "鼎捷转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.02, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2245}}
+{"date": "2026-01-15", "time": "09:30:17", "code": "123263", "name": "鼎捷转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.007, "vs_open": 0.0133, "pos_so_far": 0.652, "vs_avg_so_far": 0.0018, "mom5": 0.0186, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2085}}
+{"date": "2026-01-16", "time": "09:30:00", "code": "127042", "name": "嘉美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-01-16", "time": "09:30:04", "code": "127042", "name": "嘉美转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-01-19", "time": "09:25:00", "code": "127042", "name": "嘉美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-01-19", "time": "09:30:19", "code": "127042", "name": "嘉美转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-01-20", "time": "09:30:10", "code": "127042", "name": "嘉美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-01-20", "time": "09:30:19", "code": "127042", "name": "嘉美转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-01-21", "time": "09:25:00", "code": "113575", "name": "东时转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0323, "vs_open": 0.0001, "pos_so_far": 0.5, "vs_avg_so_far": 0.0001, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1625}}
+{"date": "2026-01-21", "time": "09:30:19", "code": "113575", "name": "东时转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0692, "vs_open": 0.0358, "pos_so_far": 0.815, "vs_avg_so_far": 0.0112, "mom5": 0.0405, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1223}}
+{"date": "2026-01-21", "time": "09:31:25", "code": "127042", "name": "嘉美转债", "side": "买", "play": "转债", "rt": {"lab": "09:32", "mins_from_open": 2, "vs_prev_close": -0.0473, "vs_open": -0.0666, "pos_so_far": 0.197, "vs_avg_so_far": -0.0408, "mom5": -0.037, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2596}}
+{"date": "2026-01-21", "time": "09:32:19", "code": "127042", "name": "嘉美转债", "side": "卖", "play": null, "rt": {"lab": "09:33", "mins_from_open": 3, "vs_prev_close": -0.008, "vs_open": -0.028, "pos_so_far": 0.586, "vs_avg_so_far": 0.0007, "mom5": -0.0474, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2096}}
+{"date": "2026-01-22", "time": "09:25:00", "code": "127042", "name": "嘉美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-01-22", "time": "09:36:56", "code": "127042", "name": "嘉美转债", "side": "卖", "play": null, "rt": {"lab": "09:37", "mins_from_open": 7, "vs_prev_close": 0.12, "vs_open": 0.0479, "pos_so_far": 1.15, "vs_avg_so_far": 0.0303, "mom5": 0.0181, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.0714}}
+{"date": "2026-01-23", "time": "09:30:22", "code": "127042", "name": "嘉美转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0203, "vs_open": 0.0216, "pos_so_far": 0.875, "vs_avg_so_far": 0.0203, "mom5": 0.0281, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1761}}
+{"date": "2026-01-23", "time": "09:31:10", "code": "127042", "name": "嘉美转债", "side": "卖", "play": null, "rt": {"lab": "09:32", "mins_from_open": 2, "vs_prev_close": 0.0482, "vs_open": 0.0495, "pos_so_far": 0.917, "vs_avg_so_far": 0.0214, "mom5": 0.0552, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1448}}
+{"date": "2026-01-26", "time": "09:25:00", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0189, "vs_open": 0.0004, "pos_so_far": 0.5, "vs_avg_so_far": 0.0004, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1777}}
+{"date": "2026-01-26", "time": "09:30:52", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0215, "vs_open": -0.0393, "pos_so_far": 0.287, "vs_avg_so_far": -0.0319, "mom5": -0.0529, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2264}}
+{"date": "2026-01-27", "time": "09:25:00", "code": "123180", "name": "浙矿转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0391, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2488}}
+{"date": "2026-01-27", "time": "09:30:29", "code": "123180", "name": "浙矿转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0037, "vs_open": 0.0368, "pos_so_far": 0.931, "vs_avg_so_far": 0.011, "mom5": 0.0202, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2045}}
+{"date": "2026-01-28", "time": "09:25:00", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0241, "vs_open": 0.0239, "pos_so_far": 0.5, "vs_avg_so_far": 0.0239, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1718}}
+{"date": "2026-01-28", "time": "09:30:06", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.027, "vs_open": 0.0269, "pos_so_far": 1.08, "vs_avg_so_far": 0.0172, "mom5": 0.0229, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1685}}
+{"date": "2026-01-29", "time": "09:25:00", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0087, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1896}}
+{"date": "2026-01-29", "time": "09:30:08", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0245, "vs_open": 0.0156, "pos_so_far": 0.73, "vs_avg_so_far": -0.0007, "mom5": 0.0179, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1713}}
+{"date": "2026-02-02", "time": "09:30:00", "code": "127042", "name": "Z美转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0447, "vs_open": -0.0097, "pos_so_far": 0.698, "vs_avg_so_far": 0.0097, "mom5": -0.0143, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2562}}
+{"date": "2026-02-02", "time": "09:30:28", "code": "127042", "name": "Z美转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0392, "vs_open": -0.0039, "pos_so_far": 0.776, "vs_avg_so_far": 0.0155, "mom5": -0.0143, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.249}}
+{"date": "2026-02-03", "time": "09:25:00", "code": "123182", "name": "广联转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-02-03", "time": "09:30:04", "code": "123182", "name": "广联转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-02-03", "time": "09:31:40", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:32", "mins_from_open": 2, "vs_prev_close": 0.0615, "vs_open": 0.0439, "pos_so_far": 0.918, "vs_avg_so_far": 0.012, "mom5": 0.0431, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1305}}
+{"date": "2026-02-03", "time": "09:31:43", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:32", "mins_from_open": 2, "vs_prev_close": 0.0657, "vs_open": 0.048, "pos_so_far": 1.002, "vs_avg_so_far": 0.0159, "mom5": 0.0431, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.126}}
+{"date": "2026-02-04", "time": "09:25:00", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0192, "vs_open": -0.009, "pos_so_far": 0.5, "vs_avg_so_far": -0.009, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1774}}
+{"date": "2026-02-04", "time": "09:30:08", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.021, "vs_open": -0.0073, "pos_so_far": 0.67, "vs_avg_so_far": -0.0066, "mom5": -0.045, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1753}}
+{"date": "2026-02-05", "time": "09:30:12", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0744, "vs_open": -0.0082, "pos_so_far": 0.564, "vs_avg_so_far": -0.0002, "mom5": -0.015, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2965}}
+{"date": "2026-02-05", "time": "09:30:15", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0699, "vs_open": -0.0034, "pos_so_far": 0.757, "vs_avg_so_far": 0.0046, "mom5": -0.015, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2902}}
+{"date": "2026-02-06", "time": "09:25:00", "code": "113575", "name": "东时转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0305, "vs_open": 0.0001, "pos_so_far": 0.5, "vs_avg_so_far": 0.0001, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1645}}
+{"date": "2026-02-06", "time": "09:30:07", "code": "113575", "name": "东时转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0301, "vs_open": -0.0003, "pos_so_far": 0.363, "vs_avg_so_far": -0.0041, "mom5": 0.0106, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1649}}
+{"date": "2026-02-06", "time": "09:31:04", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:32", "mins_from_open": 2, "vs_prev_close": -0.0061, "vs_open": -0.0117, "pos_so_far": 0.391, "vs_avg_so_far": -0.0034, "mom5": -0.0158, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2074}}
+{"date": "2026-02-06", "time": "09:31:08", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:32", "mins_from_open": 2, "vs_prev_close": -0.0086, "vs_open": -0.0143, "pos_so_far": 0.258, "vs_avg_so_far": -0.006, "mom5": -0.0158, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2104}}
+{"date": "2026-02-06", "time": "09:46:06", "code": "127080", "name": "声迅转债", "side": "买", "play": "转债", "rt": {"lab": "09:47", "mins_from_open": 17, "vs_prev_close": 0.0091, "vs_open": 0.0102, "pos_so_far": 0.715, "vs_avg_so_far": 0.0034, "mom5": 0.0019, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1892}}
+{"date": "2026-02-06", "time": "10:00:30", "code": "127080", "name": "声迅转债", "side": "卖", "play": null, "rt": {"lab": "10:01", "mins_from_open": 31, "vs_prev_close": 0.0001, "vs_open": 0.0012, "pos_so_far": 0.288, "vs_avg_so_far": -0.0054, "mom5": -0.005, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1999}}
+{"date": "2026-02-09", "time": "09:25:00", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0791, "vs_open": 0.0262, "pos_so_far": 0.5, "vs_avg_so_far": 0.0262, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.112}}
+{"date": "2026-02-09", "time": "09:30:05", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0853, "vs_open": 0.0322, "pos_so_far": 1.026, "vs_avg_so_far": 0.0197, "mom5": 0.0314, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1057}}
+{"date": "2026-02-09", "time": "09:30:08", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-02-09", "time": "09:30:19", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-02-10", "time": "09:25:00", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0295, "vs_open": -0.0121, "pos_so_far": 0.5, "vs_avg_so_far": -0.0121, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2365}}
+{"date": "2026-02-10", "time": "09:30:07", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.028, "vs_open": -0.0105, "pos_so_far": -0.245, "vs_avg_so_far": -0.028, "mom5": 0.0009, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2346}}
+{"date": "2026-02-11", "time": "09:30:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-02-11", "time": "09:30:16", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-02-12", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-02-12", "time": "09:31:05", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-02-13", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-02-13", "time": "09:30:04", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-02-13", "time": "09:45:47", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:46", "mins_from_open": 16, "vs_prev_close": -0.1095, "vs_open": -0.0517, "pos_so_far": 0.213, "vs_avg_so_far": -0.0059, "mom5": 0.0133, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.3476}}
+{"date": "2026-02-13", "time": "09:47:44", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:48", "mins_from_open": 18, "vs_prev_close": -0.108, "vs_open": -0.0501, "pos_so_far": 0.23, "vs_avg_so_far": -0.0039, "mom5": 0.0136, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.3453}}
+{"date": "2026-02-24", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-02-24", "time": "09:31:13", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-02-25", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-02-25", "time": "09:30:04", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-02-26", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-02-26", "time": "09:30:07", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-02-27", "time": "09:30:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-02-27", "time": "09:30:01", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-02", "time": "09:30:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-02", "time": "09:30:07", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-02", "time": "10:51:47", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "10:52", "mins_from_open": 82, "vs_prev_close": -0.1128, "vs_open": 0.0225, "pos_so_far": 0.318, "vs_avg_so_far": -0.0074, "mom5": -0.0017, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.3526}}
+{"date": "2026-03-02", "time": "10:53:24", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "10:54", "mins_from_open": 84, "vs_prev_close": -0.1141, "vs_open": 0.0211, "pos_so_far": 0.297, "vs_avg_so_far": -0.0088, "mom5": -0.0021, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.3546}}
+{"date": "2026-03-03", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-03", "time": "09:30:05", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-03", "time": "09:31:38", "code": "110095", "name": "双良转债", "side": "买", "play": "转债", "rt": {"lab": "09:32", "mins_from_open": 2, "vs_prev_close": 0.0052, "vs_open": 0.004, "pos_so_far": 0.621, "vs_avg_so_far": 0.0013, "mom5": 0.0077, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1938}}
+{"date": "2026-03-03", "time": "09:32:08", "code": "110095", "name": "双良转债", "side": "卖", "play": null, "rt": {"lab": "09:33", "mins_from_open": 3, "vs_prev_close": 0.0137, "vs_open": 0.0125, "pos_so_far": 0.864, "vs_avg_so_far": 0.007, "mom5": 0.0061, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1838}}
+{"date": "2026-03-04", "time": "09:25:00", "code": "123092", "name": "天壕转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0108, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1872}}
+{"date": "2026-03-04", "time": "09:30:07", "code": "123092", "name": "天壕转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0139, "vs_open": 0.003, "pos_so_far": 1.013, "vs_avg_so_far": 0.0108, "mom5": -0.0352, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1836}}
+{"date": "2026-03-05", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-05", "time": "09:30:00", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-06", "time": "09:25:00", "code": "123092", "name": "天壕转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.006, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2072}}
+{"date": "2026-03-06", "time": "09:30:04", "code": "123092", "name": "天壕转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0053, "vs_open": 0.0007, "pos_so_far": 0.772, "vs_avg_so_far": 0.0043, "mom5": -0.0055, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2064}}
+{"date": "2026-03-09", "time": "09:30:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-09", "time": "09:30:10", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-09", "time": "09:30:40", "code": "123092", "name": "天壕转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.1071, "vs_open": 0.025, "pos_so_far": 1.237, "vs_avg_so_far": 0.017, "mom5": 0.0203, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.0839}}
+{"date": "2026-03-09", "time": "09:31:10", "code": "123092", "name": "天壕转债", "side": "卖", "play": null, "rt": {"lab": "09:32", "mins_from_open": 2, "vs_prev_close": 0.1147, "vs_open": 0.0321, "pos_so_far": 0.81, "vs_avg_so_far": 0.0145, "mom5": 0.0266, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.0765}}
+{"date": "2026-03-10", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-10", "time": "09:30:11", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-11", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-11", "time": "09:30:43", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-12", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-12", "time": "09:30:02", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-13", "time": "09:31:06", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-13", "time": "09:31:16", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-16", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-16", "time": "09:30:05", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-17", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-17", "time": "09:30:19", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-18", "time": "09:25:00", "code": "127075", "name": "百川转2", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-18", "time": "09:30:07", "code": "127075", "name": "百川转2", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-19", "time": "09:25:00", "code": "123092", "name": "天壕转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.045, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1483}}
+{"date": "2026-03-19", "time": "09:30:06", "code": "123092", "name": "天壕转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0502, "vs_open": 0.005, "pos_so_far": 0.359, "vs_avg_so_far": -0.0016, "mom5": 0.0009, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1426}}
+{"date": "2026-03-20", "time": "09:30:00", "code": "123092", "name": "天壕转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0498, "vs_open": 0.007, "pos_so_far": 0.216, "vs_avg_so_far": -0.011, "mom5": 0.0211, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2629}}
+{"date": "2026-03-20", "time": "09:30:02", "code": "123092", "name": "天壕转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0357, "vs_open": 0.0219, "pos_so_far": 0.67, "vs_avg_so_far": 0.0036, "mom5": 0.0211, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2444}}
+{"date": "2026-03-23", "time": "09:25:00", "code": "123259", "name": "锦浪转02", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0048, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2058}}
+{"date": "2026-03-23", "time": "09:30:03", "code": "123259", "name": "锦浪转02", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0038, "vs_open": 0.0086, "pos_so_far": 0.412, "vs_avg_so_far": -0.0031, "mom5": 0.0209, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1955}}
+{"date": "2026-03-23", "time": "09:30:38", "code": "113575", "name": "东时转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.1058, "vs_open": 0.0495, "pos_so_far": 0.909, "vs_avg_so_far": 0.0127, "mom5": 0.0408, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.0852}}
+{"date": "2026-03-23", "time": "09:30:52", "code": "113575", "name": "东时转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0999, "vs_open": 0.0439, "pos_so_far": 0.806, "vs_avg_so_far": 0.0073, "mom5": 0.0408, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.091}}
+{"date": "2026-03-24", "time": "09:25:00", "code": "118038", "name": "金宏转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-24", "time": "09:30:09", "code": "118038", "name": "金宏转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-26", "time": "09:25:00", "code": "118038", "name": "金宏转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-26", "time": "09:30:00", "code": "118038", "name": "金宏转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-26", "time": "09:30:50", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-26", "time": "09:30:59", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-27", "time": "09:25:00", "code": "113051", "name": "节能转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0166, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2203}}
+{"date": "2026-03-27", "time": "09:30:04", "code": "113051", "name": "节能转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0107, "vs_open": 0.006, "pos_so_far": 1.14, "vs_avg_so_far": 0.0088, "mom5": -0.0154, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.213}}
+{"date": "2026-03-27", "time": "09:30:12", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-27", "time": "09:30:15", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-30", "time": "09:25:00", "code": "127070", "name": "大中转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0043, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2052}}
+{"date": "2026-03-30", "time": "09:30:07", "code": "127070", "name": "大中转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0034, "vs_open": 0.0077, "pos_so_far": 0.912, "vs_avg_so_far": 0.0068, "mom5": -0.0208, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1959}}
+{"date": "2026-03-30", "time": "09:30:10", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-30", "time": "09:30:13", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-03-31", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-03-31", "time": "09:30:00", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-01", "time": "09:30:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-01", "time": "09:30:05", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-02", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-02", "time": "09:31:12", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-03", "time": "09:30:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-03", "time": "09:30:03", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-07", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-07", "time": "09:30:10", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-07", "time": "10:23:35", "code": "111013", "name": "新港转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-07", "time": "10:23:36", "code": "111013", "name": "新港转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-08", "time": "09:30:40", "code": "111013", "name": "新港转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-08", "time": "09:30:44", "code": "111013", "name": "新港转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-09", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-09", "time": "09:30:12", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-10", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-10", "time": "09:30:05", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-13", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-13", "time": "09:30:11", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-14", "time": "09:30:02", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-14", "time": "09:30:05", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-15", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-15", "time": "09:31:54", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-16", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-16", "time": "09:30:12", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-17", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-17", "time": "09:30:03", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-20", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-20", "time": "09:30:02", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-21", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-21", "time": "09:30:04", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-22", "time": "09:25:00", "code": "118038", "name": "金宏转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-22", "time": "09:30:11", "code": "118038", "name": "金宏转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0799, "vs_open": 0.0476, "pos_so_far": 0.777, "vs_avg_so_far": 0.0139, "mom5": 0.0385, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1113}}
+{"date": "2026-04-22", "time": "09:31:06", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-22", "time": "09:31:32", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-23", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-23", "time": "09:30:06", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-24", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-24", "time": "09:30:05", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0226, "vs_open": -0.0005, "pos_so_far": 0.363, "vs_avg_so_far": -0.0034, "mom5": 0.0052, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2277}}
+{"date": "2026-04-24", "time": "09:40:41", "code": "118033", "name": "华特转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-24", "time": "09:41:02", "code": "118033", "name": "华特转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-27", "time": "09:25:00", "code": "113618", "name": "美诺转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-27", "time": "09:30:04", "code": "113618", "name": "美诺转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0022, "vs_open": 0.0006, "pos_so_far": 0.258, "vs_avg_so_far": -0.0115, "mom5": 0.0175, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2027}}
+{"date": "2026-04-27", "time": "09:30:44", "code": "118033", "name": "华特转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-27", "time": "09:30:48", "code": "118033", "name": "华特转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-28", "time": "09:25:00", "code": "118033", "name": "华特转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-28", "time": "09:30:10", "code": "118033", "name": "华特转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-04-29", "time": "09:30:00", "code": "113618", "name": "Z美诺转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0338, "vs_open": -0.0008, "pos_so_far": -0.018, "vs_avg_so_far": -0.0084, "mom5": 0.0116, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1608}}
+{"date": "2026-04-29", "time": "09:30:04", "code": "113618", "name": "Z美诺转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0358, "vs_open": 0.0012, "pos_so_far": 0.067, "vs_avg_so_far": -0.0065, "mom5": 0.0116, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1585}}
+{"date": "2026-04-30", "time": "09:25:00", "code": "127070", "name": "大中转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0027, "vs_open": 0.0061, "pos_so_far": 0.5, "vs_avg_so_far": 0.0061, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1968}}
+{"date": "2026-04-30", "time": "09:30:22", "code": "127070", "name": "大中转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.009, "vs_open": 0.0124, "pos_so_far": 0.605, "vs_avg_so_far": -0.0031, "mom5": 0.0118, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1893}}
+{"date": "2026-04-30", "time": "09:33:47", "code": "118033", "name": "华特转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-04-30", "time": "09:33:59", "code": "118033", "name": "华特转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-06", "time": "09:30:23", "code": "118033", "name": "华特转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-06", "time": "09:30:29", "code": "118033", "name": "华特转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-07", "time": "09:30:00", "code": "127024", "name": "盈峰转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-07", "time": "09:30:13", "code": "127024", "name": "盈峰转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-08", "time": "09:25:00", "code": "127080", "name": "声迅转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0653, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1264}}
+{"date": "2026-05-08", "time": "09:30:23", "code": "127080", "name": "声迅转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0884, "vs_open": 0.0217, "pos_so_far": 0.953, "vs_avg_so_far": 0.0089, "mom5": 0.0218, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1025}}
+{"date": "2026-05-11", "time": "09:25:00", "code": "118003", "name": "华兴转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-11", "time": "09:30:04", "code": "118003", "name": "华兴转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0158, "vs_open": 0.0033, "pos_so_far": 0.759, "vs_avg_so_far": 0.0116, "mom5": -0.0223, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2193}}
+{"date": "2026-05-11", "time": "09:30:40", "code": "127080", "name": "声迅转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0551, "vs_open": -0.0467, "pos_so_far": 0.191, "vs_avg_so_far": -0.0257, "mom5": -0.0578, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.27}}
+{"date": "2026-05-11", "time": "09:30:43", "code": "127080", "name": "声迅转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.058, "vs_open": -0.0496, "pos_so_far": 0.142, "vs_avg_so_far": -0.0286, "mom5": -0.0578, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2739}}
+{"date": "2026-05-12", "time": "09:30:00", "code": "127024", "name": "盈峰转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-12", "time": "09:30:03", "code": "127024", "name": "盈峰转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-13", "time": "09:25:00", "code": "118033", "name": "华特转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-13", "time": "09:30:03", "code": "118033", "name": "华特转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-14", "time": "09:30:34", "code": "113702", "name": "斯达转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.063, "vs_open": 0.0282, "pos_so_far": 0.593, "vs_avg_so_far": 0.0046, "mom5": 0.0476, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1289}}
+{"date": "2026-05-14", "time": "09:30:41", "code": "113702", "name": "斯达转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0601, "vs_open": 0.0254, "pos_so_far": 0.534, "vs_avg_so_far": 0.0019, "mom5": 0.0476, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.132}}
+{"date": "2026-05-18", "time": "09:25:00", "code": "127044", "name": "蒙娜转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0348, "vs_open": 0.0037, "pos_so_far": 0.5, "vs_avg_so_far": 0.0037, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2433}}
+{"date": "2026-05-18", "time": "09:30:04", "code": "127044", "name": "蒙娜转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.034, "vs_open": 0.0046, "pos_so_far": 0.301, "vs_avg_so_far": -0.002, "mom5": 0.0059, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2422}}
+{"date": "2026-05-19", "time": "09:25:00", "code": "123267", "name": "珂玛转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.012, "vs_open": -0.012, "pos_so_far": 0.5, "vs_avg_so_far": -0.012, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2146}}
+{"date": "2026-05-19", "time": "09:30:02", "code": "123267", "name": "珂玛转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0178, "vs_open": -0.0178, "pos_so_far": 0.554, "vs_avg_so_far": 0.0061, "mom5": -0.0379, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2217}}
+{"date": "2026-05-19", "time": "09:31:15", "code": "118033", "name": "华特转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-19", "time": "09:31:35", "code": "118033", "name": "华特转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-21", "time": "09:25:00", "code": "123267", "name": "珂玛转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0458, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1474}}
+{"date": "2026-05-21", "time": "09:30:00", "code": "123267", "name": "珂玛转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0436, "vs_open": -0.0021, "pos_so_far": 0.887, "vs_avg_so_far": 0.0026, "mom5": -0.011, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1499}}
+{"date": "2026-05-21", "time": "09:31:38", "code": "123121", "name": "帝尔转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-21", "time": "09:31:41", "code": "123121", "name": "帝尔转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-22", "time": "09:25:00", "code": "118018", "name": "瑞科转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-22", "time": "09:30:13", "code": "118018", "name": "瑞科转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-25", "time": "09:30:24", "code": "123243", "name": "严牌转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0118, "vs_open": 0.0179, "pos_so_far": 0.65, "vs_avg_so_far": -0.0019, "mom5": 0.0181, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.186}}
+{"date": "2026-05-25", "time": "09:30:32", "code": "123243", "name": "严牌转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0139, "vs_open": 0.02, "pos_so_far": 0.725, "vs_avg_so_far": 0.0001, "mom5": 0.0181, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1835}}
+{"date": "2026-05-26", "time": "09:25:00", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0173, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1796}}
+{"date": "2026-05-26", "time": "09:30:01", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0221, "vs_open": 0.0047, "pos_so_far": 0.142, "vs_avg_so_far": -0.0151, "mom5": 0.0228, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1741}}
+{"date": "2026-05-26", "time": "09:30:20", "code": "118057", "name": "甬矽转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-26", "time": "09:30:24", "code": "118057", "name": "甬矽转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-27", "time": "09:30:00", "code": "118057", "name": "甬矽转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-27", "time": "09:30:01", "code": "118057", "name": "甬矽转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-28", "time": "09:25:00", "code": "118057", "name": "甬矽转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-28", "time": "09:30:03", "code": "118057", "name": "甬矽转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-29", "time": "09:30:00", "code": "118057", "name": "甬矽转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-05-29", "time": "09:30:00", "code": "118057", "name": "甬矽转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-05-29", "time": "09:30:07", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0867, "vs_open": 0.0615, "pos_so_far": 1.427, "vs_avg_so_far": 0.0335, "mom5": 0.0329, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1043}}
+{"date": "2026-05-29", "time": "09:30:28", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0876, "vs_open": 0.0624, "pos_so_far": 1.448, "vs_avg_so_far": 0.0344, "mom5": 0.0329, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1033}}
+{"date": "2026-06-01", "time": "09:25:00", "code": "128137", "name": "洁美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-01", "time": "09:30:02", "code": "128137", "name": "洁美转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-02", "time": "09:25:00", "code": "128137", "name": "洁美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-02", "time": "09:30:00", "code": "128137", "name": "洁美转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-02", "time": "09:30:13", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0422, "vs_open": -0.025, "pos_so_far": 0.199, "vs_avg_so_far": -0.0058, "mom5": -0.0254, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2529}}
+{"date": "2026-06-02", "time": "09:30:25", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0455, "vs_open": -0.0283, "pos_so_far": 0.092, "vs_avg_so_far": -0.0092, "mom5": -0.0254, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2572}}
+{"date": "2026-06-03", "time": "09:25:00", "code": "113667", "name": "春23转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-03", "time": "09:30:13", "code": "113667", "name": "春23转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-04", "time": "09:25:00", "code": "128137", "name": "洁美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-04", "time": "09:30:09", "code": "128137", "name": "洁美转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-05", "time": "09:30:19", "code": "128137", "name": "洁美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-05", "time": "09:30:34", "code": "128137", "name": "洁美转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-08", "time": "09:30:25", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0472, "vs_open": -0.0216, "pos_so_far": 0.409, "vs_avg_so_far": -0.0123, "mom5": -0.017, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2594}}
+{"date": "2026-06-08", "time": "09:31:01", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:32", "mins_from_open": 2, "vs_prev_close": -0.0416, "vs_open": -0.0158, "pos_so_far": 0.489, "vs_avg_so_far": -0.0054, "mom5": -0.0073, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2521}}
+{"date": "2026-06-09", "time": "09:30:00", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0556, "vs_open": 0.0059, "pos_so_far": 0.455, "vs_avg_so_far": 0.0018, "mom5": 0.0227, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1368}}
+{"date": "2026-06-09", "time": "09:30:02", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0507, "vs_open": 0.0012, "pos_so_far": 0.303, "vs_avg_so_far": -0.0029, "mom5": 0.0227, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1421}}
+{"date": "2026-06-09", "time": "09:30:40", "code": "128137", "name": "洁美转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-09", "time": "09:30:43", "code": "128137", "name": "洁美转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-10", "time": "09:25:00", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0354, "vs_open": -0.0204, "pos_so_far": 0.5, "vs_avg_so_far": -0.0204, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.244}}
+{"date": "2026-06-10", "time": "09:30:05", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0385, "vs_open": -0.0236, "pos_so_far": 0.475, "vs_avg_so_far": -0.0012, "mom5": -0.0344, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.248}}
+{"date": "2026-06-11", "time": "09:30:17", "code": "111001", "name": "山玻转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-11", "time": "09:30:20", "code": "111001", "name": "山玻转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-12", "time": "09:25:00", "code": "111001", "name": "山玻转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-12", "time": "09:30:02", "code": "111001", "name": "山玻转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-15", "time": "09:30:00", "code": "123267", "name": "珂玛转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.03, "vs_open": 0.0, "pos_so_far": 0.0, "vs_avg_so_far": -0.0047, "mom5": 0.0052, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.165}}
+{"date": "2026-06-15", "time": "09:30:05", "code": "123267", "name": "珂玛转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0353, "vs_open": 0.0051, "pos_so_far": 0.596, "vs_avg_so_far": 0.0004, "mom5": 0.0052, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1591}}
+{"date": "2026-06-15", "time": "09:30:55", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0414, "vs_open": 0.0158, "pos_so_far": 1.027, "vs_avg_so_far": 0.0104, "mom5": 0.0139, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1523}}
+{"date": "2026-06-15", "time": "09:30:59", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0388, "vs_open": 0.0133, "pos_so_far": 0.902, "vs_avg_so_far": 0.0079, "mom5": 0.0139, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1552}}
+{"date": "2026-06-16", "time": "09:25:00", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0278, "vs_open": 0.0195, "pos_so_far": 0.5, "vs_avg_so_far": 0.0195, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1675}}
+{"date": "2026-06-16", "time": "09:30:07", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0306, "vs_open": 0.0223, "pos_so_far": 0.579, "vs_avg_so_far": 0.0031, "mom5": 0.0308, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1644}}
+{"date": "2026-06-17", "time": "09:30:00", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0057, "vs_open": 0.0043, "pos_so_far": 0.228, "vs_avg_so_far": -0.0069, "mom5": 0.0087, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1932}}
+{"date": "2026-06-17", "time": "09:30:22", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0152, "vs_open": 0.0137, "pos_so_far": 0.729, "vs_avg_so_far": 0.0025, "mom5": 0.0087, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.182}}
+{"date": "2026-06-18", "time": "09:25:00", "code": "123091", "name": "长海转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0356, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2443}}
+{"date": "2026-06-18", "time": "09:30:00", "code": "123091", "name": "长海转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0391, "vs_open": -0.0036, "pos_so_far": -0.234, "vs_avg_so_far": -0.0094, "mom5": 0.0017, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2488}}
+{"date": "2026-06-18", "time": "09:30:22", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0263, "vs_open": 0.0161, "pos_so_far": 1.02, "vs_avg_so_far": 0.0071, "mom5": 0.0102, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2324}}
+{"date": "2026-06-18", "time": "09:30:49", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0297, "vs_open": 0.0125, "pos_so_far": 0.79, "vs_avg_so_far": 0.0035, "mom5": 0.0102, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2367}}
+{"date": "2026-06-22", "time": "09:30:00", "code": "118064", "name": "联瑞转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.058, "vs_open": 0.0207, "pos_so_far": 0.61, "vs_avg_so_far": -0.0005, "mom5": 0.0318, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1342}}
+{"date": "2026-06-22", "time": "09:30:09", "code": "118064", "name": "联瑞转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0595, "vs_open": 0.0221, "pos_so_far": 0.652, "vs_avg_so_far": 0.0008, "mom5": 0.0318, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1326}}
+{"date": "2026-06-23", "time": "09:30:00", "code": "113597", "name": "佳力转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-23", "time": "09:30:04", "code": "113597", "name": "佳力转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-24", "time": "09:25:00", "code": "118040", "name": "宏微转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-24", "time": "09:30:00", "code": "118040", "name": "宏微转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-24", "time": "09:30:25", "code": "118018", "name": "瑞科转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-24", "time": "09:30:40", "code": "118018", "name": "瑞科转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-06-26", "time": "09:30:00", "code": "118018", "name": "瑞科转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0035, "vs_open": 0.0075, "pos_so_far": 0.48, "vs_avg_so_far": 0.0016, "mom5": 0.0081, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2043}}
+{"date": "2026-06-26", "time": "09:30:08", "code": "118018", "name": "瑞科转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0051, "vs_open": 0.0059, "pos_so_far": 0.376, "vs_avg_so_far": -0.0, "mom5": 0.0081, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2062}}
+{"date": "2026-06-29", "time": "09:25:00", "code": "111001", "name": "山玻转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-29", "time": "09:30:01", "code": "111001", "name": "山玻转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0203, "vs_open": -0.0136, "pos_so_far": 0.5, "vs_avg_so_far": 0.0003, "mom5": -0.0234, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2248}}
+{"date": "2026-06-30", "time": "09:25:00", "code": "118053", "name": "正帆转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-06-30", "time": "09:30:05", "code": "118053", "name": "正帆转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-07-01", "time": "09:30:22", "code": "118053", "name": "正帆转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-07-01", "time": "09:30:36", "code": "118053", "name": "正帆转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-07-02", "time": "09:30:00", "code": "118053", "name": "正帆转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-07-02", "time": "09:30:00", "code": "118053", "name": "正帆转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-07-02", "time": "09:30:11", "code": "118011", "name": "银微转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-07-02", "time": "09:30:14", "code": "118011", "name": "银微转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-07-03", "time": "09:31:03", "code": "118011", "name": "银微转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-07-03", "time": "09:31:07", "code": "118011", "name": "银微转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-07-07", "time": "09:30:00", "code": "118011", "name": "银微转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-07-07", "time": "09:30:02", "code": "118011", "name": "银微转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-07-08", "time": "09:30:00", "code": "127080", "name": "声迅转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0, "vs_open": 0.0, "pos_so_far": 0.0, "vs_avg_so_far": -0.0044, "mom5": 0.0039, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2}}
+{"date": "2026-07-08", "time": "09:30:22", "code": "127080", "name": "声迅转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0115, "vs_open": 0.0116, "pos_so_far": 1.096, "vs_avg_so_far": 0.0071, "mom5": 0.0039, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1864}}
+{"date": "2026-07-08", "time": "09:32:04", "code": "118053", "name": "正帆转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-07-08", "time": "09:32:19", "code": "118053", "name": "正帆转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-07-09", "time": "09:25:00", "code": "118011", "name": "银微转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-07-09", "time": "09:30:05", "code": "118011", "name": "银微转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-07-10", "time": "09:25:00", "code": "118011", "name": "银微转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-07-10", "time": "09:30:03", "code": "118011", "name": "银微转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-07-10", "time": "09:30:37", "code": "118035", "name": "国力转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0311, "vs_open": 0.0368, "pos_so_far": 0.85, "vs_avg_so_far": 0.0132, "mom5": 0.0433, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1638}}
+{"date": "2026-07-10", "time": "09:30:49", "code": "118035", "name": "国力转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0487, "vs_open": 0.0545, "pos_so_far": 1.258, "vs_avg_so_far": 0.0305, "mom5": 0.0433, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1443}}
+{"date": "2026-07-13", "time": "09:25:00", "code": "127096", "name": "泰坦转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0198, "vs_open": 0.0001, "pos_so_far": 0.5, "vs_avg_so_far": 0.0001, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1767}}
+{"date": "2026-07-13", "time": "09:30:04", "code": "127096", "name": "泰坦转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0206, "vs_open": 0.0009, "pos_so_far": 0.843, "vs_avg_so_far": 0.0013, "mom5": -0.0162, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1758}}
+{"date": "2026-07-14", "time": "09:30:00", "code": "118069", "name": "爱科转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0474, "vs_open": 0.0067, "pos_so_far": 0.921, "vs_avg_so_far": 0.0154, "mom5": -0.0103, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1457}}
+{"date": "2026-07-14", "time": "09:30:08", "code": "118069", "name": "爱科转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0407, "vs_open": 0.0003, "pos_so_far": 0.732, "vs_avg_so_far": 0.0089, "mom5": -0.0103, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1531}}
+{"date": "2026-07-15", "time": "09:25:00", "code": "118070", "name": "南芯转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0128, "vs_open": 0.0001, "pos_so_far": 0.5, "vs_avg_so_far": 0.0001, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1848}}
+{"date": "2026-07-15", "time": "09:30:12", "code": "118070", "name": "南芯转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0245, "vs_open": 0.0116, "pos_so_far": 0.585, "vs_avg_so_far": -0.0019, "mom5": 0.0118, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1713}}
+{"date": "2026-07-16", "time": "09:25:00", "code": "113610", "name": "灵康转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.005, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.194}}
+{"date": "2026-07-16", "time": "09:30:00", "code": "113610", "name": "灵康转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0012, "vs_open": -0.0037, "pos_so_far": 0.889, "vs_avg_so_far": 0.0102, "mom5": -0.0174, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1986}}
+{"date": "2026-07-16", "time": "09:30:08", "code": "123270", "name": "盛德转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0226, "vs_open": -0.023, "pos_so_far": 0.129, "vs_avg_so_far": -0.0135, "mom5": -0.0191, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2277}}
+{"date": "2026-07-16", "time": "09:30:16", "code": "123270", "name": "盛德转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0395, "vs_open": -0.0399, "pos_so_far": -0.399, "vs_avg_so_far": -0.0305, "mom5": -0.0191, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2493}}
+{"date": "2026-07-17", "time": "09:25:00", "code": "123270", "name": "盛德转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0152, "vs_open": 0.0036, "pos_so_far": 0.5, "vs_avg_so_far": 0.0036, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2185}}
+{"date": "2026-07-17", "time": "09:30:46", "code": "123270", "name": "盛德转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0185, "vs_open": 0.0379, "pos_so_far": 0.843, "vs_avg_so_far": 0.0104, "mom5": 0.0338, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1782}}
+{"date": "2026-07-20", "time": "09:25:00", "code": "123270", "name": "盛德转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.019, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2232}}
+{"date": "2026-07-20", "time": "09:30:08", "code": "123270", "name": "盛德转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0141, "vs_open": 0.0049, "pos_so_far": 0.198, "vs_avg_so_far": -0.0083, "mom5": 0.0249, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2172}}
+{"date": "2026-07-21", "time": "09:25:00", "code": "123118", "name": "惠城转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0109, "vs_open": -0.0074, "pos_so_far": 0.5, "vs_avg_so_far": -0.0074, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1871}}
+{"date": "2026-07-21", "time": "09:30:00", "code": "123118", "name": "惠城转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0046, "vs_open": -0.0136, "pos_so_far": 0.693, "vs_avg_so_far": 0.0071, "mom5": -0.021, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1945}}
+{"date": "2026-07-22", "time": "09:25:00", "code": "118071", "name": "华峰转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0113, "vs_open": 0.0026, "pos_so_far": 0.5, "vs_avg_so_far": 0.0026, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2137}}
+{"date": "2026-07-22", "time": "09:30:00", "code": "118071", "name": "华峰转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0109, "vs_open": 0.003, "pos_so_far": 0.283, "vs_avg_so_far": -0.0033, "mom5": 0.0104, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2132}}
+{"date": "2026-07-23", "time": "09:25:00", "code": "123270", "name": "盛德转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0019, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1977}}
+{"date": "2026-07-23", "time": "09:30:28", "code": "123270", "name": "盛德转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.01, "vs_open": 0.008, "pos_so_far": 0.637, "vs_avg_so_far": 0.0014, "mom5": 0.0075, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1881}}
+{"date": "2026-07-24", "time": "09:25:00", "code": "123273", "name": "三江转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0219, "vs_open": 0.0002, "pos_so_far": 0.5, "vs_avg_so_far": 0.0002, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1743}}
+{"date": "2026-07-24", "time": "09:30:04", "code": "123273", "name": "三江转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0235, "vs_open": 0.0017, "pos_so_far": 0.049, "vs_avg_so_far": -0.0134, "mom5": 0.0214, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1724}}
+{"date": "2026-07-27", "time": "09:30:38", "code": "123118", "name": "惠城转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0291, "vs_open": 0.0392, "pos_so_far": 0.826, "vs_avg_so_far": 0.0019, "mom5": 0.036, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.236}}
+{"date": "2026-07-27", "time": "09:30:44", "code": "123118", "name": "惠城转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0297, "vs_open": 0.0385, "pos_so_far": 0.812, "vs_avg_so_far": 0.0013, "mom5": 0.036, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2367}}
+{"date": "2026-07-28", "time": "09:30:00", "code": "123273", "name": "三江转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0307, "vs_open": -0.0002, "pos_so_far": 0.652, "vs_avg_so_far": 0.0007, "mom5": 0.0001, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1643}}
+{"date": "2026-07-28", "time": "09:30:02", "code": "123273", "name": "三江转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0312, "vs_open": 0.0002, "pos_so_far": 0.675, "vs_avg_so_far": 0.0012, "mom5": 0.0001, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1637}}
+{"date": "2026-07-29", "time": "09:25:00", "code": "123157", "name": "科蓝转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0509, "vs_open": 0.0066, "pos_so_far": 0.5, "vs_avg_so_far": 0.0066, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1419}}
+{"date": "2026-07-29", "time": "09:30:04", "code": "123157", "name": "科蓝转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0604, "vs_open": 0.0157, "pos_so_far": 0.512, "vs_avg_so_far": 0.0017, "mom5": 0.0289, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1316}}
+{"date": "2026-07-30", "time": "09:25:00", "code": "118053", "name": "正帆转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-07-30", "time": "09:30:02", "code": "118053", "name": "正帆转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-07-31", "time": "09:25:00", "code": "118071", "name": "华峰转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0743, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.117}}
+{"date": "2026-07-31", "time": "09:30:39", "code": "118071", "name": "华峰转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0668, "vs_open": -0.0069, "pos_so_far": 0.233, "vs_avg_so_far": -0.0062, "mom5": -0.0052, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1249}}
+{"date": "2026-08-03", "time": "09:30:00", "code": "118053", "name": "正帆转债", "side": "买", "play": "转债", "rt": null}
+{"date": "2026-08-03", "time": "09:30:06", "code": "118053", "name": "正帆转债", "side": "卖", "play": null, "rt": null}
+{"date": "2026-09-07", "time": "09:25:00", "code": "118075", "name": "奥普转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0133, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1843}}
+{"date": "2026-09-07", "time": "09:30:10", "code": "118075", "name": "奥普转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0146, "vs_open": 0.0013, "pos_so_far": 0.09, "vs_avg_so_far": -0.0107, "mom5": 0.0212, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1827}}
+{"date": "2026-09-08", "time": "09:25:00", "code": "113706", "name": "金帝转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0013, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1984}}
+{"date": "2026-09-08", "time": "09:30:04", "code": "113706", "name": "金帝转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.013, "vs_open": 0.0117, "pos_so_far": 0.882, "vs_avg_so_far": 0.0163, "mom5": -0.0273, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1846}}
+{"date": "2026-09-09", "time": "09:25:00", "code": "123278", "name": "合金转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0159, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": -0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1812}}
+{"date": "2026-09-09", "time": "09:30:14", "code": "123278", "name": "合金转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0442, "vs_open": 0.0279, "pos_so_far": 0.725, "vs_avg_so_far": 0.002, "mom5": 0.0253, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1492}}
+{"date": "2026-09-14", "time": "09:30:00", "code": "123283", "name": "丰茂转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0052, "vs_open": 0.0027, "pos_so_far": 0.184, "vs_avg_so_far": -0.006, "mom5": 0.0057, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1938}}
+{"date": "2026-09-14", "time": "09:30:01", "code": "123283", "name": "丰茂转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0055, "vs_open": 0.0031, "pos_so_far": 0.208, "vs_avg_so_far": -0.0056, "mom5": 0.0057, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1934}}
+{"date": "2026-09-15", "time": "09:25:00", "code": "123284", "name": "强达转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.006, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2072}}
+{"date": "2026-09-15", "time": "09:30:14", "code": "123284", "name": "强达转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.0016, "vs_open": 0.0045, "pos_so_far": 0.669, "vs_avg_so_far": 0.0008, "mom5": 0.0041, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2019}}
+{"date": "2026-09-16", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0112, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2136}}
+{"date": "2026-09-16", "time": "09:30:07", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0246, "vs_open": 0.0362, "pos_so_far": 0.715, "vs_avg_so_far": -0.0041, "mom5": 0.0369, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1712}}
+{"date": "2026-09-17", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0455, "vs_open": 0.0345, "pos_so_far": 0.5, "vs_avg_so_far": 0.0345, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1478}}
+{"date": "2026-09-17", "time": "09:30:19", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0566, "vs_open": 0.0454, "pos_so_far": 0.825, "vs_avg_so_far": 0.0113, "mom5": 0.0503, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1357}}
+{"date": "2026-09-18", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0133, "vs_open": 0.0117, "pos_so_far": 0.5, "vs_avg_so_far": 0.0117, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1842}}
+{"date": "2026-09-18", "time": "09:30:08", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0402, "vs_open": 0.0386, "pos_so_far": 1.102, "vs_avg_so_far": 0.0144, "mom5": 0.0228, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1536}}
+{"date": "2026-09-21", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0194, "vs_open": -0.0134, "pos_so_far": 0.5, "vs_avg_so_far": -0.0134, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1772}}
+{"date": "2026-09-21", "time": "09:30:04", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0084, "vs_open": -0.024, "pos_so_far": 0.361, "vs_avg_so_far": -0.0072, "mom5": -0.0375, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.19}}
+{"date": "2026-09-22", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0261, "vs_open": -0.0029, "pos_so_far": 0.5, "vs_avg_so_far": -0.0029, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1695}}
+{"date": "2026-09-22", "time": "09:30:00", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0223, "vs_open": -0.0067, "pos_so_far": 0.709, "vs_avg_so_far": 0.0037, "mom5": -0.0187, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1738}}
+{"date": "2026-09-23", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0073, "vs_open": 0.0265, "pos_so_far": 0.5, "vs_avg_so_far": 0.0265, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1913}}
+{"date": "2026-09-23", "time": "09:30:24", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0341, "vs_open": 0.0539, "pos_so_far": 0.908, "vs_avg_so_far": 0.0073, "mom5": 0.051, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1604}}
+{"date": "2026-09-24", "time": "09:30:23", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.002, "vs_open": -0.0033, "pos_so_far": 0.49, "vs_avg_so_far": 0.0009, "mom5": -0.0074, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2024}}
+{"date": "2026-09-24", "time": "09:30:39", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0045, "vs_open": 0.0031, "pos_so_far": 0.776, "vs_avg_so_far": 0.0074, "mom5": -0.0074, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1946}}
+{"date": "2026-09-28", "time": "09:30:31", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0025, "vs_open": -0.0345, "pos_so_far": 0.208, "vs_avg_so_far": -0.0073, "mom5": -0.0399, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.197}}
+{"date": "2026-09-28", "time": "09:30:46", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0003, "vs_open": -0.0365, "pos_so_far": 0.161, "vs_avg_so_far": -0.0095, "mom5": -0.0399, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1996}}
+{"date": "2026-09-29", "time": "09:30:00", "code": "123243", "name": "严牌转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0004, "vs_open": 0.0159, "pos_so_far": 1.354, "vs_avg_so_far": 0.0123, "mom5": 0.0112, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1995}}
+{"date": "2026-09-29", "time": "09:30:02", "code": "123243", "name": "严牌转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.006, "vs_open": 0.0094, "pos_so_far": 0.864, "vs_avg_so_far": 0.0058, "mom5": 0.0112, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2072}}
+{"date": "2026-09-29", "time": "09:30:08", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0435, "vs_open": 0.0435, "pos_so_far": 0.968, "vs_avg_so_far": 0.0158, "mom5": 0.0419, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.15}}
+{"date": "2026-09-29", "time": "09:30:14", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0453, "vs_open": 0.0453, "pos_so_far": 1.007, "vs_avg_so_far": 0.0175, "mom5": 0.0419, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.148}}
+{"date": "2026-09-30", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0002, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2002}}
+{"date": "2026-09-30", "time": "09:30:03", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0044, "vs_open": 0.0046, "pos_so_far": 1.059, "vs_avg_so_far": 0.023, "mom5": -0.044, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1947}}
+{"date": "2026-10-08", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0175, "vs_open": 0.0098, "pos_so_far": 0.5, "vs_avg_so_far": 0.0098, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1794}}
+{"date": "2026-10-08", "time": "09:30:00", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0186, "vs_open": 0.0109, "pos_so_far": 1.108, "vs_avg_so_far": 0.0106, "mom5": 0.0001, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1781}}
+{"date": "2026-10-12", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": -0.0329, "vs_open": -0.008, "pos_so_far": 0.5, "vs_avg_so_far": -0.008, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2408}}
+{"date": "2026-10-12", "time": "09:30:00", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": -0.034, "vs_open": -0.0091, "pos_so_far": 0.666, "vs_avg_so_far": 0.0051, "mom5": -0.025, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.2422}}
+{"date": "2026-10-13", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.011, "vs_open": 0.0043, "pos_so_far": 0.5, "vs_avg_so_far": 0.0043, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1869}}
+{"date": "2026-10-13", "time": "09:30:13", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0224, "vs_open": 0.0157, "pos_so_far": 0.424, "vs_avg_so_far": -0.0026, "mom5": 0.0043, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1737}}
+{"date": "2026-10-14", "time": "09:25:00", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:30", "mins_from_open": 0, "vs_prev_close": 0.0168, "vs_open": 0.0, "pos_so_far": 0.5, "vs_avg_so_far": 0.0, "mom5": 0.0, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1802}}
+{"date": "2026-10-14", "time": "09:30:17", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0338, "vs_open": 0.0167, "pos_so_far": 0.556, "vs_avg_so_far": 0.0011, "mom5": 0.0186, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.1608}}
+{"date": "2026-10-15", "time": "09:30:43", "code": "111024", "name": "澳弘转债", "side": "买", "play": "转债", "rt": {"lab": "09:31", "mins_from_open": 1, "vs_prev_close": 0.0958, "vs_open": 0.1144, "pos_so_far": 1.358, "vs_avg_so_far": 0.0526, "mom5": 0.0843, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.0951}}
+{"date": "2026-10-15", "time": "09:31:04", "code": "111024", "name": "澳弘转债", "side": "卖", "play": null, "rt": {"lab": "09:32", "mins_from_open": 2, "vs_prev_close": 0.1162, "vs_open": 0.1351, "pos_so_far": 1.469, "vs_avg_so_far": 0.0624, "mom5": 0.0744, "touched_limit": false, "broke_limit": false, "at_limit": false, "to_limit": 0.0751}}
+{"date": "2026-01-05", "time": "09:30:29", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-06", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-06", "time": "09:50:36", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-07", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-08", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-08", "time": "09:34:48", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-08", "time": "09:30:14", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-08", "time": "09:34:48", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-09", "time": "09:39:35", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-12", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-12", "time": "09:45:02", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-12", "time": "09:30:04", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-12", "time": "09:45:02", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-13", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-14", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-14", "time": "09:35:30", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-15", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-16", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-19", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-19", "time": "09:31:34", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-20", "time": "09:30:10", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-21", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-21", "time": "09:31:25", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-21", "time": "09:30:19", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-21", "time": "09:31:25", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-22", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-22", "time": "09:42:59", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-23", "time": "09:30:22", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-26", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-27", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-28", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-28", "time": "09:37:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-01-29", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-02", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-03", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-03", "time": "09:31:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-03", "time": "09:30:04", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-03", "time": "09:31:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-04", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-04", "time": "09:31:11", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-05", "time": "09:30:12", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-06", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-06", "time": "09:31:04", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-06", "time": "09:46:06", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-06", "time": "09:30:07", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-06", "time": "09:31:04", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-06", "time": "09:46:06", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-09", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-09", "time": "09:30:08", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-09", "time": "09:30:05", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-09", "time": "09:30:41", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-09", "time": "09:30:08", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-10", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-10", "time": "09:30:19", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-11", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-11", "time": "09:35:55", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-12", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-12", "time": "09:31:49", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-13", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-13", "time": "09:45:47", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-13", "time": "09:30:04", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-13", "time": "09:31:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-13", "time": "09:45:47", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-24", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-24", "time": "09:30:07", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-25", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-25", "time": "09:30:25", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-26", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-26", "time": "09:30:37", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-02-27", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-02", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-02", "time": "10:51:47", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-02", "time": "09:30:07", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-02", "time": "10:51:47", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-03", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-03", "time": "09:31:38", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-03", "time": "09:30:05", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-03", "time": "09:31:38", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-04", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-05", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-05", "time": "09:31:28", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-06", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-09", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-09", "time": "09:30:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-09", "time": "09:30:10", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-09", "time": "09:30:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-10", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-11", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-12", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-13", "time": "09:31:06", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-16", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-16", "time": "09:30:14", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-17", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-17", "time": "09:30:28", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-18", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-18", "time": "09:30:49", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-19", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-20", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-23", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-23", "time": "09:30:38", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-23", "time": "09:30:03", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-23", "time": "09:30:38", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-24", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-26", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-26", "time": "09:30:50", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-26", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-26", "time": "09:30:50", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-27", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-27", "time": "09:30:12", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-27", "time": "09:30:04", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-27", "time": "09:30:12", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-30", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-30", "time": "09:30:10", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-30", "time": "09:30:07", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-30", "time": "09:30:10", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-31", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-03-31", "time": "09:32:03", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-01", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-02", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-02", "time": "09:31:50", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-03", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-07", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-07", "time": "10:23:35", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-07", "time": "09:30:10", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-07", "time": "09:30:14", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-07", "time": "10:23:35", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-08", "time": "09:30:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-08", "time": "09:36:07", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-09", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-09", "time": "09:30:34", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-10", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-10", "time": "09:30:09", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-13", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-13", "time": "09:30:15", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-14", "time": "09:30:02", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-15", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-15", "time": "09:35:34", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-16", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-16", "time": "09:30:23", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-17", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-17", "time": "09:30:15", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-20", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-20", "time": "09:31:17", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-21", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-21", "time": "09:30:25", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-22", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-22", "time": "09:31:06", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-22", "time": "09:30:11", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-22", "time": "09:31:06", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-23", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-23", "time": "09:30:09", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-24", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-24", "time": "09:40:41", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-24", "time": "09:30:05", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-24", "time": "09:30:32", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-24", "time": "09:40:41", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-27", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-27", "time": "09:30:44", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-27", "time": "09:30:04", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-27", "time": "09:30:44", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-28", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-28", "time": "09:31:36", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-29", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-30", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-30", "time": "09:33:47", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-30", "time": "09:30:22", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-30", "time": "09:31:21", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-04-30", "time": "09:33:47", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-06", "time": "09:30:23", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-06", "time": "09:35:47", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-07", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-08", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-11", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-11", "time": "09:30:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-11", "time": "09:30:04", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-11", "time": "09:30:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-12", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-13", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-14", "time": "09:30:34", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-18", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-18", "time": "09:30:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-19", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-19", "time": "09:31:15", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-19", "time": "09:30:02", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-19", "time": "09:31:05", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-19", "time": "09:31:15", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-21", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-21", "time": "09:31:38", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-21", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-21", "time": "09:31:38", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-22", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-22", "time": "09:30:12", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-25", "time": "09:30:24", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-26", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-26", "time": "09:30:20", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-26", "time": "09:30:01", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-26", "time": "09:30:20", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-27", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-28", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-29", "time": "09:30:07", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-29", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-05-29", "time": "09:30:07", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-01", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-02", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-02", "time": "09:30:13", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-02", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-02", "time": "09:30:13", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-03", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-04", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-04", "time": "09:30:25", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-05", "time": "09:30:19", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-08", "time": "09:30:25", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-09", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-09", "time": "09:30:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-09", "time": "09:30:02", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-09", "time": "09:30:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-10", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-10", "time": "09:30:40", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-11", "time": "09:30:17", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-12", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-12", "time": "09:30:48", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-15", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-15", "time": "09:30:55", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-15", "time": "09:30:05", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-15", "time": "09:30:55", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-16", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-16", "time": "09:30:19", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-17", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-18", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-18", "time": "09:30:22", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-18", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-18", "time": "09:30:22", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-22", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-23", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-24", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-24", "time": "09:30:25", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-24", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-24", "time": "09:30:25", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-26", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-29", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-30", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-06-30", "time": "09:30:13", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-01", "time": "09:30:22", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-02", "time": "09:30:11", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-02", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-02", "time": "09:30:11", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-03", "time": "09:31:03", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-07", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-08", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-08", "time": "09:32:04", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-08", "time": "09:30:22", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-08", "time": "09:32:04", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-09", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-10", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-10", "time": "09:30:37", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-10", "time": "09:30:03", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-10", "time": "09:30:37", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-13", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-13", "time": "09:30:16", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-14", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-15", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-16", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-16", "time": "09:30:08", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-16", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-16", "time": "09:30:08", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-17", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-17", "time": "09:30:01", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-20", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-21", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-21", "time": "09:30:20", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-22", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-22", "time": "09:30:24", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-23", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-24", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-27", "time": "09:30:38", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-28", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-29", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-29", "time": "09:30:23", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-30", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-07-31", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-08-03", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-07", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-08", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-09", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-14", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-15", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-16", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-17", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-17", "time": "09:30:47", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-18", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-18", "time": "09:32:08", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-21", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-21", "time": "09:31:05", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-22", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-22", "time": "09:30:19", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-23", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-23", "time": "09:30:36", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-24", "time": "09:30:23", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-28", "time": "09:30:31", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-29", "time": "09:30:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-29", "time": "09:30:08", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-29", "time": "09:30:02", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-29", "time": "09:30:08", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-09-30", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-10-08", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-10-08", "time": "09:35:06", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-10-12", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-10-12", "time": "09:30:26", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-10-13", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-10-13", "time": "09:30:55", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-10-14", "time": "09:25:00", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-10-15", "time": "09:30:43", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}
+{"date": "2026-10-15", "time": "10:17:56", "code": "", "name": null, "side": "日内事件", "play": null, "rt": null}

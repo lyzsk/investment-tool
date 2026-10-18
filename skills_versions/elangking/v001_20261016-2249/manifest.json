@@ -1,0 +1,59 @@
+{
+ "skill": "elangking",
+ "version": {
+  "v": 1,
+  "id": "v001_20261016-2249",
+  "ts": "2026-10-16T22:49:12",
+  "effective_from": "2026-10-16T00:06:02",
+  "persona_hash": "a2f4eae8868356d5e9d178e1b4c2db213fe7f0e25a2f3ffaee02617e4127efdc",
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": null,
+  "changed": {
+   "added": [
+    "cases.md"
+   ],
+   "modified": [],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 59,
+   "removed": 0
+  },
+  "bytes_weight": 4710,
+  "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+  "code": {
+   "chain": "efba4d3f961f",
+   "distill": "da70d3e6aa79"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "3e0ad9f149d5ebe81259534cf163f707fe9b6c6f1b3978c83670f5d1a4d5391f",
+   "bytes": 4710,
+   "lines": 59,
+   "mtime": "2026-10-16T00:06:02",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "efba4d3f961f",
+  "distill": "da70d3e6aa79",
+  "chain_files": {
+   "scripts/taoge-chain/run_taoge_chain.py": "09e7d486384c",
+   "skills/elangking-skill/workflows/chain.md": null,
+   "skills/elangking-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"
+  },
+  "distill_files": {
+   "skills/elangking-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "9ec70798c98a",
+   "scripts/tzzb/llm_batch_tzzb.py": "2c2246c6c7e1",
+   "scripts/tzzb/mentor_fingerprint.py": "d218700ea1cf",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "1109d4201eb3",
+   "scripts/md/gen_profile_index.py": "16926ed80e73",
+   "scripts/md/gen_rules_index.mjs": "654e7e6d356c",
+   "scripts/md/check_md_daily.py": "51cab73b861f"
+  }
+ }
+}

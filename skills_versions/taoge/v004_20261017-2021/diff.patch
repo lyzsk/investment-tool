@@ -1,0 +1,7 @@
+--- v003_20261017-0057/rules_index.md
++++ v004_20261017-2021/rules_index.md
+@@ -1,3 +1,3 @@
+-# rules_index.md — taoge 决策规则索引(B3 分级加载; 生成于 2026-10-16 16:51)
++# rules_index.md — taoge 决策规则索引(B3 分级加载; 生成于 2026-10-17 04:59)
+ > 源: rules.md(145 条/529KB)。本索引=常驻; **禁全量读 rules.md**。
+ > 捞全文: grep -n "<编号> " skills/taoge-skill/persona/rules.md 得行号, 读到下一条规则前(10/11 修: 原写死 taoge 路径)。

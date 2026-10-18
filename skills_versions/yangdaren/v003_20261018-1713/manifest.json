@@ -1,0 +1,64 @@
+{
+ "skill": "yangdaren",
+ "unit": "skill",
+ "version": {
+  "v": 3,
+  "id": "v003_20261018-1713",
+  "ts": "2026-10-18T17:13:25",
+  "effective_from": "2026-10-18T17:13:25",
+  "unit": "skill",
+  "version_hash": "1ee128ceec38db066417061b8bab2263707da31449afbc9db881b9dfa337025f",
+  "cat_hash": {
+   "画像": "1ee128ceec38db066417061b8bab2263707da31449afbc9db881b9dfa337025f"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v002_20261017-2021",
+  "changed": {
+   "added": [],
+   "modified": [],
+   "removed": []
+  },
+  "changed_by_cat": {},
+  "data_changed": [],
+  "lines": {
+   "added": 0,
+   "removed": 0
+  },
+  "bytes_weight": 4769,
+  "why": "10/18 全 skill 版本化首版",
+  "code": {
+   "chain": "3692462e468e",
+   "distill": "106175d0116a"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "2f1f0f9af1036bf5605fc51ed997a75dc3f588bc74cbf602f1d7b32cd5b7651b",
+   "bytes": 4769,
+   "lines": 59,
+   "mtime": "2026-10-17T00:02:59",
+   "cls": "画像",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "3692462e468e",
+  "distill": "106175d0116a",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "fc223ed4aca3",
+   "skills/yangdaren-skill/workflows/chain.md": null,
+   "skills/yangdaren-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/yangdaren-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "6de6f418c374",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "8603af62f9f6"
+  }
+ }
+}

@@ -1,0 +1,59 @@
+{
+ "skill": "mairutaiji",
+ "version": {
+  "v": 1,
+  "id": "v001_20261016-2249",
+  "ts": "2026-10-16T22:49:12",
+  "effective_from": "2026-10-16T00:06:02",
+  "persona_hash": "65447d3a790fe32d9a4eca6a4384ed925dc32827b430ecb09d1f480defb6883e",
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": null,
+  "changed": {
+   "added": [
+    "cases.md"
+   ],
+   "modified": [],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 50,
+   "removed": 0
+  },
+  "bytes_weight": 3863,
+  "why": "基线 v001(10/16 晚, TODO 二B-11 建线, 用当前文件)",
+  "code": {
+   "chain": "487ce9c4942d",
+   "distill": "c9bdf91c7cc3"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "5fb2256676e93498711492982139676194d6c304291ae1952f2bf3bb1b53c565",
+   "bytes": 3863,
+   "lines": 50,
+   "mtime": "2026-10-16T00:06:02",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "487ce9c4942d",
+  "distill": "c9bdf91c7cc3",
+  "chain_files": {
+   "scripts/taoge-chain/run_taoge_chain.py": "09e7d486384c",
+   "skills/mairutaiji-skill/workflows/chain.md": null,
+   "skills/mairutaiji-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"
+  },
+  "distill_files": {
+   "skills/mairutaiji-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "9ec70798c98a",
+   "scripts/tzzb/llm_batch_tzzb.py": "2c2246c6c7e1",
+   "scripts/tzzb/mentor_fingerprint.py": "d218700ea1cf",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "1109d4201eb3",
+   "scripts/md/gen_profile_index.py": "16926ed80e73",
+   "scripts/md/gen_rules_index.mjs": "654e7e6d356c",
+   "scripts/md/check_md_daily.py": "51cab73b861f"
+  }
+ }
+}

@@ -1,0 +1,895 @@
+{
+ "source": "BL-gaogailvfuli",
+ "kind": "baseline",
+ "ledger": "gaogailvfuli",
+ "name": "高概率复利",
+ "generated_at": "2026-10-18T00:05:41",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "常数",
+  "L1_n": 71,
+  "L2": "模型",
+  "L2_n": 71,
+  "L4": "延续",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 4716.46,
+ "positions": {
+  "300453": {
+   "qty": 1200,
+   "cost": 9.0542,
+   "since": "2026-10-09"
+  },
+  "159941": {
+   "qty": 6200,
+   "cost": 1.7468,
+   "since": "2026-10-09"
+  },
+  "301149": {
+   "qty": 1300,
+   "cost": 7.9438,
+   "since": "2026-10-09"
+  },
+  "300815": {
+   "qty": 100,
+   "cost": 15.6,
+   "since": "2026-10-12"
+  },
+  "301565": {
+   "qty": 500,
+   "cost": 18.79,
+   "since": "2026-10-13"
+  },
+  "511380": {
+   "qty": 800,
+   "cost": 12.7073,
+   "since": "2026-10-13"
+  },
+  "002997": {
+   "qty": 400,
+   "cost": 25.2125,
+   "since": "2026-10-13"
+  },
+  "603213": {
+   "qty": 100,
+   "cost": 13.75,
+   "since": "2026-10-15"
+  },
+  "300059": {
+   "qty": 500,
+   "cost": 18.31,
+   "since": "2026-10-16"
+  },
+  "159509": {
+   "qty": 3000,
+   "cost": 3.2547,
+   "since": "2026-10-16"
+  },
+  "603339": {
+   "qty": 800,
+   "cost": 11.5862,
+   "since": "2026-10-16"
+  }
+ },
+ "orders": [
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "300453",
+   "amount": 32666.67,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 弱势震荡(按打法) 池分 6.106",
+   "status": "filled",
+   "price": 9.05,
+   "qty": 3600
+  },
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "511380",
+   "amount": 32666.67,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 ETF/宽基(按打法) 池分 8.844",
+   "status": "filled",
+   "price": 13.036,
+   "qty": 2500
+  },
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "603339",
+   "amount": 32666.67,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 超跌反弹(按打法) 池分 4.74",
+   "status": "filled",
+   "price": 12.18,
+   "qty": 2600
+  },
+  {
+   "date": "2026-10-09",
+   "side": "SELL",
+   "code": "300453",
+   "qty": 3600,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 9.05
+  },
+  {
+   "date": "2026-10-09",
+   "side": "BUY",
+   "code": "300453",
+   "amount": 10860.0,
+   "why": "换股: 等额买入新票 | 打法 弱势震荡(按打法) 池分 6.383",
+   "status": "filled",
+   "price": 9.05,
+   "qty": 1200
+  },
+  {
+   "date": "2026-10-09",
+   "side": "BUY",
+   "code": "159941",
+   "amount": 10860.0,
+   "why": "换股: 等额买入新票 | 打法 ETF/宽基(按打法) 池分 6.419",
+   "status": "filled",
+   "price": 1.746,
+   "qty": 6200
+  },
+  {
+   "date": "2026-10-09",
+   "side": "BUY",
+   "code": "301149",
+   "amount": 10860.0,
+   "why": "换股: 等额买入新票 | 打法 超跌反弹(按打法) 池分 5.575",
+   "status": "filled",
+   "price": 7.94,
+   "qty": 1300
+  },
+  {
+   "date": "2026-10-12",
+   "side": "BUY",
+   "code": "300815",
+   "amount": 1675.12,
+   "why": "加仓: 目标总仓 98% | 打法 弱势震荡(按打法) 池分 6.255",
+   "status": "filled",
+   "price": 15.55,
+   "qty": 100
+  },
+  {
+   "date": "2026-10-13",
+   "side": "SELL",
+   "code": "511380",
+   "qty": 2500,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 12.701
+  },
+  {
+   "date": "2026-10-13",
+   "side": "BUY",
+   "code": "301565",
+   "amount": 10637.5,
+   "why": "换股: 等额买入新票 | 打法 弱势震荡(按打法) 池分 6.99",
+   "status": "filled",
+   "price": 18.78,
+   "qty": 500
+  },
+  {
+   "date": "2026-10-13",
+   "side": "BUY",
+   "code": "511380",
+   "amount": 10637.5,
+   "why": "换股: 等额买入新票 | 打法 ETF/宽基(按打法) 池分 10.363",
+   "status": "filled",
+   "price": 12.701,
+   "qty": 800
+  },
+  {
+   "date": "2026-10-13",
+   "side": "BUY",
+   "code": "002997",
+   "amount": 10637.5,
+   "why": "换股: 等额买入新票 | 打法 超跌反弹(按打法) 池分 5.071",
+   "status": "filled",
+   "price": 25.2,
+   "qty": 400
+  },
+  {
+   "date": "2026-10-14",
+   "side": "BUY",
+   "code": "605123",
+   "amount": 2204.54,
+   "why": "加仓: 目标总仓 98% | 打法 弱势震荡(按打法) 池分 3.795",
+   "status": "reject",
+   "note": "资金不足一手"
+  },
+  {
+   "date": "2026-10-15",
+   "side": "BUY",
+   "code": "603213",
+   "amount": 2237.55,
+   "why": "加仓: 目标总仓 98% | 打法 弱势震荡(按打法) 池分 7.034",
+   "status": "filled",
+   "price": 13.7,
+   "qty": 100
+  },
+  {
+   "date": "2026-10-16",
+   "side": "SELL",
+   "code": "603339",
+   "qty": 2600,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 11.58
+  },
+  {
+   "date": "2026-10-16",
+   "side": "BUY",
+   "code": "300059",
+   "amount": 9784.67,
+   "why": "换股: 等额买入新票 | 打法 弱势震荡(按打法) 池分 4.348",
+   "status": "filled",
+   "price": 18.3,
+   "qty": 500
+  },
+  {
+   "date": "2026-10-16",
+   "side": "BUY",
+   "code": "159509",
+   "amount": 9784.67,
+   "why": "换股: 等额买入新票 | 打法 ETF/宽基(按打法) 池分 6.717",
+   "status": "filled",
+   "price": 3.253,
+   "qty": 3000
+  },
+  {
+   "date": "2026-10-16",
+   "side": "BUY",
+   "code": "603339",
+   "amount": 9784.67,
+   "why": "换股: 等额买入新票 | 打法 超跌反弹(按打法) 池分 4.408",
+   "status": "filled",
+   "price": 11.58,
+   "qty": 800
+  }
+ ],
+ "trades": [
+  {
+   "id": "2026-10-08-BL-gaogailvfuli-001",
+   "side": "BUY",
+   "code": "300453",
+   "price": 9.05,
+   "qty": 3600,
+   "fee": 8.15,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 弱势震荡(按打法) 池分 6.106 | 开盘价"
+  },
+  {
+   "id": "2026-10-08-BL-gaogailvfuli-002",
+   "side": "BUY",
+   "code": "511380",
+   "price": 13.036,
+   "qty": 2500,
+   "fee": 8.15,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 ETF/宽基(按打法) 池分 8.844 | 开盘价"
+  },
+  {
+   "id": "2026-10-08-BL-gaogailvfuli-003",
+   "side": "BUY",
+   "code": "603339",
+   "price": 12.18,
+   "qty": 2600,
+   "fee": 7.92,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 超跌反弹(按打法) 池分 4.74 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-gaogailvfuli-004",
+   "side": "SELL",
+   "code": "300453",
+   "price": 9.05,
+   "qty": 3600,
+   "fee": 24.44,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-gaogailvfuli-005",
+   "side": "BUY",
+   "code": "300453",
+   "price": 9.05,
+   "qty": 1200,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 弱势震荡(按打法) 池分 6.383 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-gaogailvfuli-006",
+   "side": "BUY",
+   "code": "159941",
+   "price": 1.746,
+   "qty": 6200,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 ETF/宽基(按打法) 池分 6.419 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-gaogailvfuli-007",
+   "side": "BUY",
+   "code": "301149",
+   "price": 7.94,
+   "qty": 1300,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 超跌反弹(按打法) 池分 5.575 | 开盘价"
+  },
+  {
+   "id": "2026-10-12-BL-gaogailvfuli-008",
+   "side": "BUY",
+   "code": "300815",
+   "price": 15.55,
+   "qty": 100,
+   "fee": 5.0,
+   "why": "加仓: 目标总仓 98% | 打法 弱势震荡(按打法) 池分 6.255 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-gaogailvfuli-009",
+   "side": "SELL",
+   "code": "511380",
+   "price": 12.701,
+   "qty": 2500,
+   "fee": 23.81,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-gaogailvfuli-010",
+   "side": "BUY",
+   "code": "301565",
+   "price": 18.78,
+   "qty": 500,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 弱势震荡(按打法) 池分 6.99 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-gaogailvfuli-011",
+   "side": "BUY",
+   "code": "511380",
+   "price": 12.701,
+   "qty": 800,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 ETF/宽基(按打法) 池分 10.363 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-gaogailvfuli-012",
+   "side": "BUY",
+   "code": "002997",
+   "price": 25.2,
+   "qty": 400,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 超跌反弹(按打法) 池分 5.071 | 开盘价"
+  },
+  {
+   "id": "2026-10-15-BL-gaogailvfuli-013",
+   "side": "BUY",
+   "code": "603213",
+   "price": 13.7,
+   "qty": 100,
+   "fee": 5.0,
+   "why": "加仓: 目标总仓 98% | 打法 弱势震荡(按打法) 池分 7.034 | 开盘价"
+  },
+  {
+   "id": "2026-10-16-BL-gaogailvfuli-014",
+   "side": "SELL",
+   "code": "603339",
+   "price": 11.58,
+   "qty": 2600,
+   "fee": 22.58,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-16-BL-gaogailvfuli-015",
+   "side": "BUY",
+   "code": "300059",
+   "price": 18.3,
+   "qty": 500,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 弱势震荡(按打法) 池分 4.348 | 开盘价"
+  },
+  {
+   "id": "2026-10-16-BL-gaogailvfuli-016",
+   "side": "BUY",
+   "code": "159509",
+   "price": 3.253,
+   "qty": 3000,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 ETF/宽基(按打法) 池分 6.717 | 开盘价"
+  },
+  {
+   "id": "2026-10-16-BL-gaogailvfuli-017",
+   "side": "BUY",
+   "code": "603339",
+   "price": 11.58,
+   "qty": 800,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 超跌反弹(按打法) 池分 4.408 | 开盘价"
+  }
+ ],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 3137.79,
+   "mv": 96243.0,
+   "nav": 99380.79,
+   "filled": 3,
+   "orders": 3
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 3671.16,
+   "mv": 96130.8,
+   "nav": 99801.96,
+   "filled": 4,
+   "orders": 4
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 2111.16,
+   "mv": 96031.1,
+   "nav": 98142.26,
+   "filled": 1,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 4194.04,
+   "mv": 95281.0,
+   "nav": 99475.04,
+   "filled": 4,
+   "orders": 4
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 4194.04,
+   "mv": 93630.6,
+   "nav": 97824.64,
+   "filled": 0,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 2819.04,
+   "mv": 92696.4,
+   "nav": 95515.44,
+   "filled": 1,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 4716.46,
+   "mv": 92023.0,
+   "nav": 96739.46,
+   "filled": 4,
+   "orders": 4
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "300453",
+     "name": "三鑫医疗",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": true,
+     "price": 9.05,
+     "qty": 3600
+    },
+    {
+     "side": "BUY",
+     "code": "511380",
+     "name": "可转债ETF博时",
+     "play": "ETF/宽基",
+     "how": "按打法",
+     "filled": true,
+     "price": 13.036,
+     "qty": 2500
+    },
+    {
+     "side": "BUY",
+     "code": "603339",
+     "name": "四方科技",
+     "play": "超跌反弹",
+     "how": "按打法",
+     "filled": true,
+     "price": 12.18,
+     "qty": 2600
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 0.956,
+   "p_dir_given_trade": [
+    0.506,
+    0.426,
+    0.068
+   ],
+   "decision": {
+    "trade": true,
+    "dir": -1,
+    "tp_hat": 0.9897,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.683743286027789,
+    "tp_final_cap": 0.683743286027789,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "延续"
+    },
+    "add_step": 0.40824305135915406,
+    "red_step": 0.305956713972211,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.0,
+   "sizing": {
+    "single_size": 0.095,
+    "k": 3,
+    "top_play": "转债"
+   }
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "300453",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 9.05,
+     "qty": 3600
+    },
+    {
+     "side": "BUY",
+     "code": "300453",
+     "name": "三鑫医疗",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": true,
+     "price": 9.05,
+     "qty": 1200
+    },
+    {
+     "side": "BUY",
+     "code": "159941",
+     "name": "纳指ETF",
+     "play": "ETF/宽基",
+     "how": "按打法",
+     "filled": true,
+     "price": 1.746,
+     "qty": 6200
+    },
+    {
+     "side": "BUY",
+     "code": "301149",
+     "name": "隆华新材",
+     "play": "超跌反弹",
+     "how": "按打法",
+     "filled": true,
+     "price": 7.94,
+     "qty": 1300
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 0.611,
+   "p_dir_given_trade": [
+    0.261,
+    0.687,
+    0.052
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9895,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9895,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "延续"
+    },
+    "add_step": 0.40824305135915406,
+    "red_step": 0.305956713972211,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.968,
+   "sizing": {
+    "single_size": 0.095,
+    "k": 3,
+    "top_play": "转债"
+   }
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "300815",
+     "name": "玉禾田",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": true,
+     "price": 15.55,
+     "qty": 100
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 0.508,
+   "p_dir_given_trade": [
+    0.016,
+    0.167,
+    0.817
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.0,
+    "tp_target_cap": 0.0,
+    "tp_final": 0.40824305135915406,
+    "tp_final_cap": 0.40824305135915406,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "延续"
+    },
+    "add_step": 0.40824305135915406,
+    "red_step": 0.305956713972211,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.963,
+   "sizing": {
+    "single_size": 0.095,
+    "k": 1,
+    "top_play": "转债"
+   }
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "511380",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 12.701,
+     "qty": 2500
+    },
+    {
+     "side": "BUY",
+     "code": "301565",
+     "name": "中仑新材",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": true,
+     "price": 18.78,
+     "qty": 500
+    },
+    {
+     "side": "BUY",
+     "code": "511380",
+     "name": "可转债ETF博时",
+     "play": "ETF/宽基",
+     "how": "按打法",
+     "filled": true,
+     "price": 12.701,
+     "qty": 800
+    },
+    {
+     "side": "BUY",
+     "code": "002997",
+     "name": "瑞鹄模具",
+     "play": "超跌反弹",
+     "how": "按打法",
+     "filled": true,
+     "price": 25.2,
+     "qty": 400
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 0.933,
+   "p_dir_given_trade": [
+    0.282,
+    0.644,
+    0.074
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9978,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9978,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "延续"
+    },
+    "add_step": 0.4174534327573281,
+    "red_step": 0.305956713972211,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.978,
+   "sizing": {
+    "single_size": 0.097,
+    "k": 3,
+    "top_play": "转债"
+   }
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "605123",
+     "name": "派克新材",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": false,
+     "note": "资金不足一手"
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 0.96,
+   "p_dir_given_trade": [
+    0.166,
+    0.085,
+    0.749
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.3077,
+    "tp_target_cap": 0.3077,
+    "tp_final": 0.7251534327573281,
+    "tp_final_cap": 0.7251534327573281,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "延续"
+    },
+    "add_step": 0.4174534327573281,
+    "red_step": 0.3091893759643052,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.958,
+   "sizing": {
+    "single_size": 0.097,
+    "k": 1,
+    "top_play": "转债"
+   }
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "603213",
+     "name": "镇洋发展",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": true,
+     "price": 13.7,
+     "qty": 100
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-14",
+   "p_trade": 0.922,
+   "p_dir_given_trade": [
+    0.203,
+    0.212,
+    0.585
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.3611,
+    "tp_target_cap": 0.3611,
+    "tp_final": 0.769343051359154,
+    "tp_final_cap": 0.769343051359154,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "延续"
+    },
+    "add_step": 0.40824305135915406,
+    "red_step": 0.3091893759643052,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.957,
+   "sizing": {
+    "single_size": 0.097,
+    "k": 1,
+    "top_play": "转债"
+   }
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "603339",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 11.58,
+     "qty": 2600
+    },
+    {
+     "side": "BUY",
+     "code": "300059",
+     "name": "东方财富",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": true,
+     "price": 18.3,
+     "qty": 500
+    },
+    {
+     "side": "BUY",
+     "code": "159509",
+     "name": "纳指科技",
+     "play": "ETF/宽基",
+     "how": "按打法",
+     "filled": true,
+     "price": 3.253,
+     "qty": 3000
+    },
+    {
+     "side": "BUY",
+     "code": "603339",
+     "name": "四方科技",
+     "play": "超跌反弹",
+     "how": "按打法",
+     "filled": true,
+     "price": 11.58,
+     "qty": 800
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-15",
+   "p_trade": 0.938,
+   "p_dir_given_trade": [
+    0.353,
+    0.549,
+    0.097
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9585,
+    "tp_target_cap": 0.9585,
+    "tp_final": 0.9585,
+    "tp_final_cap": 0.9585,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "延续"
+    },
+    "add_step": 0.4174534327573281,
+    "red_step": 0.3091893759643052,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.97,
+   "sizing": {
+    "single_size": 0.097,
+    "k": 3,
+    "top_play": "转债"
+   }
+  }
+ ]
+}

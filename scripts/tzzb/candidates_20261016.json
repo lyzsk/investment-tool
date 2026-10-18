@@ -1,0 +1,58 @@
+[
+ {
+  "ledger": "cand_anlizhuohuo",
+  "name": "暗里着火",
+  "key": "XfDymq2",
+  "user_key": "160721",
+  "kind": "cand",
+  "note": "10/16 用户人工找的非短线候选 1"
+ },
+ {
+  "ledger": "cand_zjwzlclf",
+  "name": "zjwzlclf",
+  "key": "W7npdTc",
+  "user_key": "179326",
+  "kind": "cand",
+  "note": "候选 2"
+ },
+ {
+  "ledger": "cand_ynw01",
+  "name": "ynw01",
+  "key": "6Cy3NYm",
+  "user_key": "174594",
+  "kind": "cand",
+  "note": "候选 3"
+ },
+ {
+  "ledger": "cand_wudaokongfang",
+  "name": "悟到空方为悟道",
+  "key": "O3jkd6p",
+  "user_key": "145533",
+  "kind": "cand",
+  "note": "候选 4"
+ },
+ {
+  "ledger": "cand_mamimao",
+  "name": "妈咪猫",
+  "key": "pTWPJ3d",
+  "user_key": "195864",
+  "kind": "cand",
+  "note": "候选 5"
+ },
+ {
+  "ledger": "cand_fuduji",
+  "name": "復讀機",
+  "key": "t6W7pC2",
+  "user_key": "167945",
+  "kind": "cand",
+  "note": "候选 6"
+ },
+ {
+  "ledger": "cand_zuoshoudeirong",
+  "name": "做手德融",
+  "key": "NwYK3nj",
+  "user_key": "219235",
+  "kind": "cand",
+  "note": "候选 7"
+ }
+]

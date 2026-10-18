@@ -1,0 +1,2490 @@
+{
+ "date": "2026-10-16",
+ "generated_by": "scripts/dfcf/paper/t_profile.py",
+ "first_batch": [
+  "antoo",
+  "lianghuaxiaohao",
+  "gaogailvfuli"
+ ],
+ "mentors": {
+  "buchitudou0": {
+   "long": {
+    "n": 189,
+    "t_days": 154,
+    "freq": 0.819,
+    "type": {
+     "正T": 0.995,
+     "倒T": 0.005
+    },
+    "base_share": 0.0,
+    "base_w_p50": null,
+    "size_p25": null,
+    "size_p50": null,
+    "size_p75": null,
+    "win": 0.63,
+    "ret_mean": 0.00383,
+    "ret_p50": 0.00145,
+    "t": 3.92,
+    "pnl_asset_sum": 1.32457,
+    "dao": {
+     "n": 1,
+     "spread_p50": -0.00392,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.0,
+     "ret_mean": -0.00441
+    },
+    "zheng": {
+     "n": 188,
+     "spread_p50": 0.00197,
+     "first_hm_p50": "09:25",
+     "trig_vs_prev_p50": 0.0109,
+     "trig_vs_avg_p50": 0.0,
+     "win": 0.633,
+     "ret_mean": 0.00387
+    },
+    "why": {
+     "急跌先买": 0.037,
+     "开盘急动": 0.296,
+     "均价附近": 0.132,
+     "无分钟数据": 0.534
+    }
+   },
+   "recent": {
+    "n": 18,
+    "t_days": 17,
+    "freq": 0.85,
+    "type": {
+     "正T": 1.0
+    },
+    "base_share": 0.0,
+    "base_w_p50": null,
+    "size_p25": null,
+    "size_p50": null,
+    "size_p75": null,
+    "win": 0.667,
+    "ret_mean": 0.00723,
+    "ret_p50": 0.004,
+    "t": 2.51,
+    "pnl_asset_sum": 0.21879,
+    "dao": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "zheng": {
+     "n": 18,
+     "spread_p50": 0.00451,
+     "first_hm_p50": "09:25",
+     "trig_vs_prev_p50": 0.0092,
+     "trig_vs_avg_p50": 0.0004,
+     "win": 0.667,
+     "ret_mean": 0.00723
+    },
+    "why": {
+     "急跌先买": 0.111,
+     "开盘急动": 0.444,
+     "均价附近": 0.444
+    }
+   },
+   "mix": {
+    "n": 189,
+    "t_days": 154,
+    "freq": 0.83368,
+    "type": {
+     "正T": 0.997,
+     "倒T": 0.003
+    },
+    "base_share": 0.0,
+    "base_w_p50": null,
+    "size_p25": null,
+    "size_p50": null,
+    "size_p75": null,
+    "win": 0.64753,
+    "ret_mean": 0.00544,
+    "ret_p50": 0.00145,
+    "t": 3.92,
+    "pnl_asset_sum": 1.32457,
+    "dao": {
+     "n": 1,
+     "spread_p50": -0.00392,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.0,
+     "ret_mean": -0.00441
+    },
+    "zheng": {
+     "n": 188,
+     "spread_p50": 0.00197,
+     "first_hm_p50": "09:25",
+     "trig_vs_prev_p50": 0.0109,
+     "trig_vs_avg_p50": 0.0,
+     "win": 0.633,
+     "ret_mean": 0.00387
+    },
+    "why": {
+     "开盘急动": 0.366,
+     "均价附近": 0.28,
+     "急跌先买": 0.072,
+     "无分钟数据": 0.281
+    },
+    "alpha": 0.474
+   },
+   "verdict": "执行T",
+   "n_days": 188,
+   "window": [
+    "2025-12-31",
+    "2026-10-15"
+   ]
+  },
+  "liuyiqing": {
+   "long": {
+    "n": 29,
+    "t_days": 29,
+    "freq": 0.154,
+    "type": {
+     "正T": 0.862,
+     "倒T": 0.138
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.3988,
+    "size_p25": 0.3216,
+    "size_p50": 0.5693,
+    "size_p75": 0.9849,
+    "win": 0.655,
+    "ret_mean": 0.0098,
+    "ret_p50": 0.01038,
+    "t": 1.02,
+    "pnl_asset_sum": 0.05999,
+    "dao": {
+     "n": 4,
+     "spread_p50": 0.00984,
+     "first_hm_p50": "09:48",
+     "trig_vs_prev_p50": 0.0302,
+     "trig_vs_avg_p50": -0.0038,
+     "win": 1.0,
+     "ret_mean": 0.01442
+    },
+    "zheng": {
+     "n": 25,
+     "spread_p50": 0.01858,
+     "first_hm_p50": "09:31",
+     "trig_vs_prev_p50": -0.0166,
+     "trig_vs_avg_p50": -0.0182,
+     "win": 0.6,
+     "ret_mean": 0.00906
+    },
+    "why": {
+     "急跌先买": 0.414,
+     "开盘急动": 0.517,
+     "均价附近": 0.069
+    }
+   },
+   "recent": {
+    "n": 1,
+    "t_days": 1,
+    "freq": 0.05,
+    "type": {
+     "正T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.2029,
+    "size_p25": 1.0254,
+    "size_p50": 1.0254,
+    "size_p75": 1.0254,
+    "win": 0.0,
+    "ret_mean": -0.00872,
+    "ret_p50": -0.00872,
+    "t": 0.0,
+    "pnl_asset_sum": -0.00181,
+    "dao": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": -0.00769,
+     "first_hm_p50": "09:42",
+     "trig_vs_prev_p50": 0.0294,
+     "trig_vs_avg_p50": -0.0283,
+     "win": 0.0,
+     "ret_mean": -0.00872
+    },
+    "why": {
+     "急跌先买": 1.0
+    }
+   },
+   "mix": {
+    "n": 29,
+    "t_days": 29,
+    "freq": 0.14905,
+    "type": {
+     "正T": 0.869,
+     "倒T": 0.131
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.3988,
+    "size_p25": 0.3216,
+    "size_p50": 0.59102,
+    "size_p75": 0.9849,
+    "win": 0.62381,
+    "ret_mean": 0.00892,
+    "ret_p50": 0.01038,
+    "t": 1.02,
+    "pnl_asset_sum": 0.05999,
+    "dao": {
+     "n": 4,
+     "spread_p50": 0.00984,
+     "first_hm_p50": "09:48",
+     "trig_vs_prev_p50": 0.0302,
+     "trig_vs_avg_p50": -0.0038,
+     "win": 1.0,
+     "ret_mean": 0.01442
+    },
+    "zheng": {
+     "n": 25,
+     "spread_p50": 0.01858,
+     "first_hm_p50": "09:31",
+     "trig_vs_prev_p50": -0.0166,
+     "trig_vs_avg_p50": -0.0182,
+     "win": 0.6,
+     "ret_mean": 0.00906
+    },
+    "why": {
+     "开盘急动": 0.492,
+     "均价附近": 0.066,
+     "急跌先买": 0.442
+    },
+    "alpha": 0.048
+   },
+   "verdict": "执行T",
+   "n_days": 188,
+   "window": [
+    "2025-12-31",
+    "2026-10-15"
+   ]
+  },
+  "lianghuaxiaohao": {
+   "long": {
+    "n": 63,
+    "t_days": 42,
+    "freq": 0.213,
+    "type": {
+     "正T": 0.825,
+     "倒T": 0.175
+    },
+    "base_share": 0.302,
+    "base_w_p50": 0.3914,
+    "size_p25": 0.3842,
+    "size_p50": 0.4725,
+    "size_p75": 0.7171,
+    "win": 0.794,
+    "ret_mean": 0.00861,
+    "ret_p50": 0.00656,
+    "t": 4.56,
+    "pnl_asset_sum": 0.11226,
+    "dao": {
+     "n": 11,
+     "spread_p50": 0.02602,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": 0.0082,
+     "trig_vs_avg_p50": 0.0008,
+     "win": 1.0,
+     "ret_mean": 0.02943
+    },
+    "zheng": {
+     "n": 52,
+     "spread_p50": 0.00555,
+     "first_hm_p50": "10:40",
+     "trig_vs_prev_p50": 0.0127,
+     "trig_vs_avg_p50": 0.0027,
+     "win": 0.75,
+     "ret_mean": 0.00421
+    },
+    "why": {
+     "冲高先卖": 0.048,
+     "急跌先买": 0.175,
+     "开盘急动": 0.159,
+     "尾盘回转": 0.063,
+     "均价附近": 0.556
+    }
+   },
+   "recent": {
+    "n": 9,
+    "t_days": 6,
+    "freq": 0.3,
+    "type": {
+     "倒T": 0.333,
+     "正T": 0.667
+    },
+    "base_share": 0.444,
+    "base_w_p50": 0.506,
+    "size_p25": 0.3535,
+    "size_p50": 0.4143,
+    "size_p75": 0.4954,
+    "win": 0.778,
+    "ret_mean": 0.01002,
+    "ret_p50": 0.00547,
+    "t": 1.87,
+    "pnl_asset_sum": 0.0114,
+    "dao": {
+     "n": 3,
+     "spread_p50": 0.03248,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": -0.0039,
+     "trig_vs_avg_p50": 0.0,
+     "win": 1.0,
+     "ret_mean": 0.02746
+    },
+    "zheng": {
+     "n": 6,
+     "spread_p50": 0.00312,
+     "first_hm_p50": "10:33",
+     "trig_vs_prev_p50": 0.0007,
+     "trig_vs_avg_p50": 0.0027,
+     "win": 0.667,
+     "ret_mean": 0.00129
+    },
+    "why": {
+     "冲高先卖": 0.111,
+     "开盘急动": 0.222,
+     "尾盘回转": 0.111,
+     "均价附近": 0.556
+    }
+   },
+   "mix": {
+    "n": 63,
+    "t_days": 42,
+    "freq": 0.24,
+    "type": {
+     "正T": 0.776,
+     "倒T": 0.224
+    },
+    "base_share": 0.34607,
+    "base_w_p50": 0.3914,
+    "size_p25": 0.3842,
+    "size_p50": 0.45444,
+    "size_p75": 0.7171,
+    "win": 0.78903,
+    "ret_mean": 0.00905,
+    "ret_p50": 0.00656,
+    "t": 4.56,
+    "pnl_asset_sum": 0.11226,
+    "dao": {
+     "n": 11,
+     "spread_p50": 0.02602,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": 0.0082,
+     "trig_vs_avg_p50": 0.0008,
+     "win": 1.0,
+     "ret_mean": 0.02943
+    },
+    "zheng": {
+     "n": 52,
+     "spread_p50": 0.00555,
+     "first_hm_p50": "10:40",
+     "trig_vs_prev_p50": 0.0127,
+     "trig_vs_avg_p50": 0.0027,
+     "win": 0.75,
+     "ret_mean": 0.00421
+    },
+    "why": {
+     "均价附近": 0.556,
+     "急跌先买": 0.121,
+     "开盘急动": 0.179,
+     "尾盘回转": 0.078,
+     "冲高先卖": 0.068
+    },
+    "alpha": 0.31
+   },
+   "verdict": "执行T",
+   "n_days": 197,
+   "window": [
+    "2026-01-05",
+    "2026-10-15"
+   ]
+  },
+  "a658": {
+   "long": {
+    "n": 2,
+    "t_days": 2,
+    "freq": 0.011,
+    "type": {
+     "倒T": 0.5,
+     "正T": 0.5
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.7453,
+    "size_p25": 0.958,
+    "size_p50": 0.958,
+    "size_p75": 0.958,
+    "win": 0.5,
+    "ret_mean": 0.0084,
+    "ret_p50": 0.0084,
+    "t": 0.29,
+    "pnl_asset_sum": 0.02347,
+    "dao": {
+     "n": 1,
+     "spread_p50": -0.03197,
+     "first_hm_p50": "10:49",
+     "trig_vs_prev_p50": 0.0035,
+     "trig_vs_avg_p50": -0.0035,
+     "win": 0.0,
+     "ret_mean": -0.03246
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": 0.05157,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": -0.0661,
+     "trig_vs_avg_p50": 0.0088,
+     "win": 1.0,
+     "ret_mean": 0.04926
+    },
+    "why": {
+     "开盘急动": 0.5,
+     "均价附近": 0.5
+    }
+   },
+   "recent": null,
+   "mix": {
+    "n": 2,
+    "t_days": 2,
+    "freq": 0.011,
+    "type": {
+     "倒T": 0.5,
+     "正T": 0.5
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.7453,
+    "size_p25": 0.958,
+    "size_p50": 0.958,
+    "size_p75": 0.958,
+    "win": 0.5,
+    "ret_mean": 0.0084,
+    "ret_p50": 0.0084,
+    "t": 0.29,
+    "pnl_asset_sum": 0.02347,
+    "dao": {
+     "n": 1,
+     "spread_p50": -0.03197,
+     "first_hm_p50": "10:49",
+     "trig_vs_prev_p50": 0.0035,
+     "trig_vs_avg_p50": -0.0035,
+     "win": 0.0,
+     "ret_mean": -0.03246
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": 0.05157,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": -0.0661,
+     "trig_vs_avg_p50": 0.0088,
+     "win": 1.0,
+     "ret_mean": 0.04926
+    },
+    "why": {
+     "开盘急动": 0.5,
+     "均价附近": 0.5
+    },
+    "alpha": 0.0
+   },
+   "verdict": "数据不足",
+   "n_days": 188,
+   "window": [
+    "2025-12-31",
+    "2026-10-15"
+   ]
+  },
+  "xingjianye": {
+   "long": {
+    "n": 8,
+    "t_days": 8,
+    "freq": 0.031,
+    "type": {
+     "正T": 0.375,
+     "倒T": 0.625
+    },
+    "base_share": 0.625,
+    "base_w_p50": 0.9985,
+    "size_p25": 1.0034,
+    "size_p50": 1.0225,
+    "size_p75": 1.0267,
+    "win": 0.75,
+    "ret_mean": 0.00553,
+    "ret_p50": 0.00279,
+    "t": 1.43,
+    "pnl_asset_sum": 0.04674,
+    "dao": {
+     "n": 5,
+     "spread_p50": 0.00441,
+     "first_hm_p50": "13:28",
+     "trig_vs_prev_p50": 0.0248,
+     "trig_vs_avg_p50": 0.0,
+     "win": 1.0,
+     "ret_mean": 0.00927
+    },
+    "zheng": {
+     "n": 3,
+     "spread_p50": -0.00227,
+     "first_hm_p50": "13:35",
+     "trig_vs_prev_p50": -0.0655,
+     "trig_vs_avg_p50": -0.0277,
+     "win": 0.333,
+     "ret_mean": -0.00071
+    },
+    "why": {
+     "冲高先卖": 0.25,
+     "急跌先买": 0.125,
+     "开盘急动": 0.125,
+     "尾盘回转": 0.125,
+     "均价附近": 0.125,
+     "无分钟数据": 0.25
+    }
+   },
+   "recent": null,
+   "mix": {
+    "n": 8,
+    "t_days": 8,
+    "freq": 0.031,
+    "type": {
+     "正T": 0.375,
+     "倒T": 0.625
+    },
+    "base_share": 0.625,
+    "base_w_p50": 0.9985,
+    "size_p25": 1.0034,
+    "size_p50": 1.0225,
+    "size_p75": 1.0267,
+    "win": 0.75,
+    "ret_mean": 0.00553,
+    "ret_p50": 0.00279,
+    "t": 1.43,
+    "pnl_asset_sum": 0.04674,
+    "dao": {
+     "n": 5,
+     "spread_p50": 0.00441,
+     "first_hm_p50": "13:28",
+     "trig_vs_prev_p50": 0.0248,
+     "trig_vs_avg_p50": 0.0,
+     "win": 1.0,
+     "ret_mean": 0.00927
+    },
+    "zheng": {
+     "n": 3,
+     "spread_p50": -0.00227,
+     "first_hm_p50": "13:35",
+     "trig_vs_prev_p50": -0.0655,
+     "trig_vs_avg_p50": -0.0277,
+     "win": 0.333,
+     "ret_mean": -0.00071
+    },
+    "why": {
+     "冲高先卖": 0.25,
+     "急跌先买": 0.125,
+     "开盘急动": 0.125,
+     "尾盘回转": 0.125,
+     "均价附近": 0.125,
+     "无分钟数据": 0.25
+    },
+    "alpha": 0.0
+   },
+   "verdict": "数据不足",
+   "n_days": 256,
+   "window": [
+    "2025-09-25",
+    "2026-10-15"
+   ]
+  },
+  "daxingdaxingdadangxing": {
+   "long": {
+    "n": 1,
+    "t_days": 1,
+    "freq": 0.067,
+    "type": {
+     "正T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.3261,
+    "size_p25": 0.999,
+    "size_p50": 0.999,
+    "size_p75": 0.999,
+    "win": 0.0,
+    "ret_mean": -0.00296,
+    "ret_p50": -0.00296,
+    "t": 0.0,
+    "pnl_asset_sum": -0.00097,
+    "dao": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": -0.00196,
+     "first_hm_p50": "14:33",
+     "trig_vs_prev_p50": 0.0,
+     "trig_vs_avg_p50": -0.0042,
+     "win": 0.0,
+     "ret_mean": -0.00296
+    },
+    "why": {
+     "尾盘回转": 1.0
+    }
+   },
+   "recent": {
+    "n": 1,
+    "t_days": 1,
+    "freq": 0.067,
+    "type": {
+     "正T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.3261,
+    "size_p25": 0.999,
+    "size_p50": 0.999,
+    "size_p75": 0.999,
+    "win": 0.0,
+    "ret_mean": -0.00296,
+    "ret_p50": -0.00296,
+    "t": 0.0,
+    "pnl_asset_sum": -0.00097,
+    "dao": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": -0.00196,
+     "first_hm_p50": "14:33",
+     "trig_vs_prev_p50": 0.0,
+     "trig_vs_avg_p50": -0.0042,
+     "win": 0.0,
+     "ret_mean": -0.00296
+    },
+    "why": {
+     "尾盘回转": 1.0
+    }
+   },
+   "mix": {
+    "n": 1,
+    "t_days": 1,
+    "freq": 0.067,
+    "type": {
+     "正T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.3261,
+    "size_p25": 0.999,
+    "size_p50": 0.999,
+    "size_p75": 0.999,
+    "win": 0.0,
+    "ret_mean": -0.00296,
+    "ret_p50": -0.00296,
+    "t": 0.0,
+    "pnl_asset_sum": -0.00097,
+    "dao": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": -0.00196,
+     "first_hm_p50": "14:33",
+     "trig_vs_prev_p50": 0.0,
+     "trig_vs_avg_p50": -0.0042,
+     "win": 0.0,
+     "ret_mean": -0.00296
+    },
+    "why": {
+     "尾盘回转": 1.0
+    },
+    "alpha": 0.048
+   },
+   "verdict": "数据不足",
+   "n_days": 15,
+   "window": [
+    "2026-09-17",
+    "2026-10-15"
+   ]
+  },
+  "gaogailvfuli": {
+   "long": {
+    "n": 56,
+    "t_days": 37,
+    "freq": 0.468,
+    "type": {
+     "正T": 0.696,
+     "倒T": 0.304
+    },
+    "base_share": 0.536,
+    "base_w_p50": 0.2671,
+    "size_p25": 0.0848,
+    "size_p50": 0.231,
+    "size_p75": 0.5905,
+    "win": 0.536,
+    "ret_mean": 0.00356,
+    "ret_p50": 0.00135,
+    "t": 2.74,
+    "pnl_asset_sum": 0.03043,
+    "dao": {
+     "n": 17,
+     "spread_p50": 0.00574,
+     "first_hm_p50": "09:41",
+     "trig_vs_prev_p50": 0.0095,
+     "trig_vs_avg_p50": 0.0027,
+     "win": 0.588,
+     "ret_mean": 0.00232
+    },
+    "zheng": {
+     "n": 39,
+     "spread_p50": 0.00529,
+     "first_hm_p50": "10:10",
+     "trig_vs_prev_p50": 0.0,
+     "trig_vs_avg_p50": 0.0007,
+     "win": 0.513,
+     "ret_mean": 0.0041
+    },
+    "why": {
+     "冲高先卖": 0.107,
+     "急跌先买": 0.071,
+     "开盘急动": 0.125,
+     "尾盘回转": 0.018,
+     "均价附近": 0.554,
+     "无分钟数据": 0.125
+    }
+   },
+   "recent": {
+    "n": 10,
+    "t_days": 9,
+    "freq": 0.45,
+    "type": {
+     "正T": 0.9,
+     "倒T": 0.1
+    },
+    "base_share": 0.5,
+    "base_w_p50": 0.7573,
+    "size_p25": 0.0686,
+    "size_p50": 0.3119,
+    "size_p75": 0.4488,
+    "win": 0.7,
+    "ret_mean": 0.00878,
+    "ret_p50": 0.00467,
+    "t": 1.94,
+    "pnl_asset_sum": 0.01524,
+    "dao": {
+     "n": 1,
+     "spread_p50": 0.00881,
+     "first_hm_p50": "09:25",
+     "trig_vs_prev_p50": 0.0113,
+     "trig_vs_avg_p50": 0.0018,
+     "win": 1.0,
+     "ret_mean": 0.00577
+    },
+    "zheng": {
+     "n": 9,
+     "spread_p50": 0.00485,
+     "first_hm_p50": "09:33",
+     "trig_vs_prev_p50": 0.0031,
+     "trig_vs_avg_p50": 0.0035,
+     "win": 0.667,
+     "ret_mean": 0.00911
+    },
+    "why": {
+     "急跌先买": 0.1,
+     "开盘急动": 0.1,
+     "均价附近": 0.8
+    }
+   },
+   "mix": {
+    "n": 56,
+    "t_days": 37,
+    "freq": 0.462,
+    "type": {
+     "正T": 0.764,
+     "倒T": 0.236
+    },
+    "base_share": 0.524,
+    "base_w_p50": 0.2671,
+    "size_p25": 0.0848,
+    "size_p50": 0.25797,
+    "size_p75": 0.5905,
+    "win": 0.59067,
+    "ret_mean": 0.0053,
+    "ret_p50": 0.00135,
+    "t": 2.74,
+    "pnl_asset_sum": 0.03043,
+    "dao": {
+     "n": 17,
+     "spread_p50": 0.00574,
+     "first_hm_p50": "09:41",
+     "trig_vs_prev_p50": 0.0095,
+     "trig_vs_avg_p50": 0.0027,
+     "win": 0.588,
+     "ret_mean": 0.00232
+    },
+    "zheng": {
+     "n": 39,
+     "spread_p50": 0.00529,
+     "first_hm_p50": "10:10",
+     "trig_vs_prev_p50": 0.0,
+     "trig_vs_avg_p50": 0.0007,
+     "win": 0.513,
+     "ret_mean": 0.0041
+    },
+    "why": {
+     "均价附近": 0.636,
+     "急跌先买": 0.081,
+     "无分钟数据": 0.083,
+     "开盘急动": 0.117,
+     "尾盘回转": 0.012,
+     "冲高先卖": 0.071
+    },
+    "alpha": 0.333
+   },
+   "verdict": "执行T",
+   "n_days": 79,
+   "window": [
+    "2026-06-18",
+    "2026-10-15"
+   ]
+  },
+  "xuanqiucaijing": {
+   "long": {
+    "n": 16,
+    "t_days": 10,
+    "freq": 0.222,
+    "type": {
+     "倒T": 0.625,
+     "正T": 0.375
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.4667,
+    "size_p25": 0.1677,
+    "size_p50": 0.521,
+    "size_p75": 1.009,
+    "win": 0.438,
+    "ret_mean": -7e-05,
+    "ret_p50": -0.00057,
+    "t": -0.02,
+    "pnl_asset_sum": -0.01596,
+    "dao": {
+     "n": 10,
+     "spread_p50": -0.00234,
+     "first_hm_p50": "09:32",
+     "trig_vs_prev_p50": 0.0113,
+     "trig_vs_avg_p50": 0.0032,
+     "win": 0.3,
+     "ret_mean": -0.00649
+    },
+    "zheng": {
+     "n": 6,
+     "spread_p50": 0.0189,
+     "first_hm_p50": "10:01",
+     "trig_vs_prev_p50": -0.0297,
+     "trig_vs_avg_p50": -0.0058,
+     "win": 0.667,
+     "ret_mean": 0.01061
+    },
+    "why": {
+     "冲高先卖": 0.062,
+     "急跌先买": 0.125,
+     "开盘急动": 0.25,
+     "尾盘回转": 0.125,
+     "均价附近": 0.312,
+     "无分钟数据": 0.125
+    }
+   },
+   "recent": {
+    "n": 11,
+    "t_days": 5,
+    "freq": 0.25,
+    "type": {
+     "倒T": 0.545,
+     "正T": 0.455
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.4177,
+    "size_p25": 0.2484,
+    "size_p50": 0.5225,
+    "size_p75": 1.01,
+    "win": 0.455,
+    "ret_mean": -8e-05,
+    "ret_p50": -0.00014,
+    "t": -0.01,
+    "pnl_asset_sum": -0.00762,
+    "dao": {
+     "n": 6,
+     "spread_p50": -0.01161,
+     "first_hm_p50": "09:32",
+     "trig_vs_prev_p50": 0.0113,
+     "trig_vs_avg_p50": 0.0001,
+     "win": 0.167,
+     "ret_mean": -0.01093
+    },
+    "zheng": {
+     "n": 5,
+     "spread_p50": 0.01978,
+     "first_hm_p50": "09:50",
+     "trig_vs_prev_p50": -0.0288,
+     "trig_vs_avg_p50": -0.0043,
+     "win": 0.8,
+     "ret_mean": 0.01294
+    },
+    "why": {
+     "急跌先买": 0.182,
+     "开盘急动": 0.182,
+     "均价附近": 0.455,
+     "无分钟数据": 0.182
+    }
+   },
+   "mix": {
+    "n": 16,
+    "t_days": 10,
+    "freq": 0.23194,
+    "type": {
+     "正T": 0.403,
+     "倒T": 0.597
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.4667,
+    "size_p25": 0.1677,
+    "size_p50": 0.52153,
+    "size_p75": 1.009,
+    "win": 0.44403,
+    "ret_mean": -7e-05,
+    "ret_p50": -0.00057,
+    "t": -0.02,
+    "pnl_asset_sum": -0.01596,
+    "dao": {
+     "n": 10,
+     "spread_p50": -0.00234,
+     "first_hm_p50": "09:32",
+     "trig_vs_prev_p50": 0.0113,
+     "trig_vs_avg_p50": 0.0032,
+     "win": 0.3,
+     "ret_mean": -0.00649
+    },
+    "zheng": {
+     "n": 6,
+     "spread_p50": 0.0189,
+     "first_hm_p50": "10:01",
+     "trig_vs_prev_p50": -0.0297,
+     "trig_vs_avg_p50": -0.0058,
+     "win": 0.667,
+     "ret_mean": 0.01061
+    },
+    "why": {
+     "均价附近": 0.363,
+     "急跌先买": 0.145,
+     "无分钟数据": 0.145,
+     "开盘急动": 0.226,
+     "尾盘回转": 0.081,
+     "冲高先卖": 0.04
+    },
+    "alpha": 0.355
+   },
+   "verdict": "观察",
+   "n_days": 45,
+   "window": [
+    "2026-08-04",
+    "2026-10-13"
+   ]
+  },
+  "stzhilang": {
+   "long": {
+    "n": 25,
+    "t_days": 25,
+    "freq": 0.11,
+    "type": {
+     "倒T": 0.92,
+     "正T": 0.08
+    },
+    "base_share": 0.96,
+    "base_w_p50": 0.3356,
+    "size_p25": 0.9519,
+    "size_p50": 1.0413,
+    "size_p75": 1.0491,
+    "win": 0.12,
+    "ret_mean": -0.0064,
+    "ret_p50": -0.00323,
+    "t": -1.15,
+    "pnl_asset_sum": -0.04849,
+    "dao": {
+     "n": 23,
+     "spread_p50": -0.00313,
+     "first_hm_p50": "09:33",
+     "trig_vs_prev_p50": 0.0436,
+     "trig_vs_avg_p50": 0.0004,
+     "win": 0.043,
+     "ret_mean": -0.01298
+    },
+    "zheng": {
+     "n": 2,
+     "spread_p50": 0.07341,
+     "first_hm_p50": "09:36",
+     "trig_vs_prev_p50": -0.0993,
+     "trig_vs_avg_p50": -0.0365,
+     "win": 1.0,
+     "ret_mean": 0.06933
+    },
+    "why": {
+     "冲高先卖": 0.28,
+     "开盘急动": 0.68,
+     "均价附近": 0.04
+    }
+   },
+   "recent": null,
+   "mix": {
+    "n": 25,
+    "t_days": 25,
+    "freq": 0.11,
+    "type": {
+     "倒T": 0.92,
+     "正T": 0.08
+    },
+    "base_share": 0.96,
+    "base_w_p50": 0.3356,
+    "size_p25": 0.9519,
+    "size_p50": 1.0413,
+    "size_p75": 1.0491,
+    "win": 0.12,
+    "ret_mean": -0.0064,
+    "ret_p50": -0.00323,
+    "t": -1.15,
+    "pnl_asset_sum": -0.04849,
+    "dao": {
+     "n": 23,
+     "spread_p50": -0.00313,
+     "first_hm_p50": "09:33",
+     "trig_vs_prev_p50": 0.0436,
+     "trig_vs_avg_p50": 0.0004,
+     "win": 0.043,
+     "ret_mean": -0.01298
+    },
+    "zheng": {
+     "n": 2,
+     "spread_p50": 0.07341,
+     "first_hm_p50": "09:36",
+     "trig_vs_prev_p50": -0.0993,
+     "trig_vs_avg_p50": -0.0365,
+     "win": 1.0,
+     "ret_mean": 0.06933
+    },
+    "why": {
+     "冲高先卖": 0.28,
+     "开盘急动": 0.68,
+     "均价附近": 0.04
+    },
+    "alpha": 0.0
+   },
+   "verdict": "不学T",
+   "n_days": 228,
+   "window": [
+    "2025-11-05",
+    "2026-10-15"
+   ]
+  },
+  "chong5000w": {
+   "long": {
+    "n": 10,
+    "t_days": 8,
+    "freq": 0.059,
+    "type": {
+     "倒T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.7807,
+    "size_p25": 0.2068,
+    "size_p50": 0.3392,
+    "size_p75": 0.4826,
+    "win": 0.3,
+    "ret_mean": -9e-05,
+    "ret_p50": -0.00123,
+    "t": -0.03,
+    "pnl_asset_sum": 0.00112,
+    "dao": {
+     "n": 10,
+     "spread_p50": -0.00023,
+     "first_hm_p50": "13:13",
+     "trig_vs_prev_p50": -0.0006,
+     "trig_vs_avg_p50": -0.0078,
+     "win": 0.3,
+     "ret_mean": -9e-05
+    },
+    "zheng": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "why": {
+     "冲高先卖": 0.4,
+     "均价附近": 0.6
+    }
+   },
+   "recent": {
+    "n": 1,
+    "t_days": 1,
+    "freq": 0.05,
+    "type": {
+     "倒T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.7281,
+    "size_p25": 0.6071,
+    "size_p50": 0.6071,
+    "size_p75": 0.6071,
+    "win": 0.0,
+    "ret_mean": -0.00146,
+    "ret_p50": -0.00146,
+    "t": 0.0,
+    "pnl_asset_sum": -0.00065,
+    "dao": {
+     "n": 1,
+     "spread_p50": -0.00046,
+     "first_hm_p50": "14:13",
+     "trig_vs_prev_p50": 0.0406,
+     "trig_vs_avg_p50": 0.0135,
+     "win": 0.0,
+     "ret_mean": -0.00146
+    },
+    "zheng": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "why": {
+     "冲高先卖": 1.0
+    }
+   },
+   "mix": {
+    "n": 10,
+    "t_days": 8,
+    "freq": 0.05857,
+    "type": {
+     "倒T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.7807,
+    "size_p25": 0.2068,
+    "size_p50": 0.35196,
+    "size_p75": 0.4826,
+    "win": 0.28571,
+    "ret_mean": -0.00016,
+    "ret_p50": -0.00123,
+    "t": -0.03,
+    "pnl_asset_sum": 0.00112,
+    "dao": {
+     "n": 10,
+     "spread_p50": -0.00023,
+     "first_hm_p50": "13:13",
+     "trig_vs_prev_p50": -0.0006,
+     "trig_vs_avg_p50": -0.0078,
+     "win": 0.3,
+     "ret_mean": -9e-05
+    },
+    "zheng": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "why": {
+     "冲高先卖": 0.429,
+     "均价附近": 0.571
+    },
+    "alpha": 0.048
+   },
+   "verdict": "数据不足",
+   "n_days": 135,
+   "window": [
+    "2025-12-11",
+    "2026-07-06"
+   ]
+  },
+  "antoo": {
+   "long": {
+    "n": 421,
+    "t_days": 181,
+    "freq": 0.973,
+    "type": {
+     "倒T": 0.539,
+     "正T": 0.461
+    },
+    "base_share": 0.998,
+    "base_w_p50": 0.3844,
+    "size_p25": 0.042,
+    "size_p50": 0.1205,
+    "size_p75": 0.3509,
+    "win": 0.392,
+    "ret_mean": -0.00635,
+    "ret_p50": -0.00649,
+    "t": -4.82,
+    "pnl_asset_sum": -0.33098,
+    "dao": {
+     "n": 227,
+     "spread_p50": -0.00642,
+     "first_hm_p50": "09:34",
+     "trig_vs_prev_p50": -0.0141,
+     "trig_vs_avg_p50": -0.0122,
+     "win": 0.352,
+     "ret_mean": -0.00928
+    },
+    "zheng": {
+     "n": 194,
+     "spread_p50": -0.00225,
+     "first_hm_p50": "09:32",
+     "trig_vs_prev_p50": -0.0004,
+     "trig_vs_avg_p50": 0.0044,
+     "win": 0.438,
+     "ret_mean": -0.00292
+    },
+    "why": {
+     "冲高先卖": 0.083,
+     "急跌先买": 0.083,
+     "开盘急动": 0.226,
+     "均价附近": 0.276,
+     "无分钟数据": 0.333
+    }
+   },
+   "recent": {
+    "n": 38,
+    "t_days": 20,
+    "freq": 1.0,
+    "type": {
+     "倒T": 0.5,
+     "正T": 0.5
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.4088,
+    "size_p25": 0.0211,
+    "size_p50": 0.0456,
+    "size_p75": 0.2079,
+    "win": 0.5,
+    "ret_mean": 0.00106,
+    "ret_p50": -0.00025,
+    "t": 0.26,
+    "pnl_asset_sum": -0.01036,
+    "dao": {
+     "n": 19,
+     "spread_p50": -0.00315,
+     "first_hm_p50": "09:36",
+     "trig_vs_prev_p50": -0.0157,
+     "trig_vs_avg_p50": -0.0181,
+     "win": 0.368,
+     "ret_mean": -0.00705
+    },
+    "zheng": {
+     "n": 19,
+     "spread_p50": 0.00282,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": -0.0201,
+     "trig_vs_avg_p50": -0.0012,
+     "win": 0.632,
+     "ret_mean": 0.00916
+    },
+    "why": {
+     "冲高先卖": 0.079,
+     "急跌先买": 0.105,
+     "开盘急动": 0.368,
+     "均价附近": 0.237,
+     "无分钟数据": 0.211
+    }
+   },
+   "mix": {
+    "n": 421,
+    "t_days": 181,
+    "freq": 0.99069,
+    "type": {
+     "正T": 0.487,
+     "倒T": 0.513
+    },
+    "base_share": 0.99931,
+    "base_w_p50": 0.3844,
+    "size_p25": 0.042,
+    "size_p50": 0.07143,
+    "size_p75": 0.3509,
+    "win": 0.46276,
+    "ret_mean": -0.0015,
+    "ret_p50": -0.00649,
+    "t": -4.82,
+    "pnl_asset_sum": -0.33098,
+    "dao": {
+     "n": 227,
+     "spread_p50": -0.00642,
+     "first_hm_p50": "09:34",
+     "trig_vs_prev_p50": -0.0141,
+     "trig_vs_avg_p50": -0.0122,
+     "win": 0.352,
+     "ret_mean": -0.00928
+    },
+    "zheng": {
+     "n": 194,
+     "spread_p50": -0.00225,
+     "first_hm_p50": "09:32",
+     "trig_vs_prev_p50": -0.0004,
+     "trig_vs_avg_p50": 0.0044,
+     "win": 0.438,
+     "ret_mean": -0.00292
+    },
+    "why": {
+     "均价附近": 0.25,
+     "急跌先买": 0.097,
+     "无分钟数据": 0.253,
+     "开盘急动": 0.319,
+     "冲高先卖": 0.08
+    },
+    "alpha": 0.655
+   },
+   "verdict": "不学T",
+   "n_days": 186,
+   "window": [
+    "2025-12-31",
+    "2026-10-13"
+   ]
+  },
+  "zhiyingjuexin": {
+   "long": {
+    "n": 53,
+    "t_days": 50,
+    "freq": 0.198,
+    "type": {
+     "正T": 0.358,
+     "倒T": 0.642
+    },
+    "base_share": 0.962,
+    "base_w_p50": 0.5943,
+    "size_p25": 0.3023,
+    "size_p50": 0.6321,
+    "size_p75": 0.9997,
+    "win": 0.623,
+    "ret_mean": 0.01036,
+    "ret_p50": 0.00348,
+    "t": 2.23,
+    "pnl_asset_sum": 0.19409,
+    "dao": {
+     "n": 34,
+     "spread_p50": 0.00775,
+     "first_hm_p50": "09:35",
+     "trig_vs_prev_p50": 0.045,
+     "trig_vs_avg_p50": 0.0009,
+     "win": 0.588,
+     "ret_mean": 0.00748
+    },
+    "zheng": {
+     "n": 19,
+     "spread_p50": 0.01175,
+     "first_hm_p50": "09:43",
+     "trig_vs_prev_p50": -0.0441,
+     "trig_vs_avg_p50": -0.0206,
+     "win": 0.684,
+     "ret_mean": 0.0155
+    },
+    "why": {
+     "冲高先卖": 0.132,
+     "急跌先买": 0.226,
+     "开盘急动": 0.491,
+     "尾盘回转": 0.019,
+     "均价附近": 0.132
+    }
+   },
+   "recent": {
+    "n": 2,
+    "t_days": 2,
+    "freq": 0.1,
+    "type": {
+     "倒T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.6792,
+    "size_p25": 0.6471,
+    "size_p50": 0.7891,
+    "size_p75": 0.931,
+    "win": 0.5,
+    "ret_mean": -0.01674,
+    "ret_p50": -0.01674,
+    "t": -1.4,
+    "pnl_asset_sum": -0.01367,
+    "dao": {
+     "n": 2,
+     "spread_p50": -0.01602,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": 0.0777,
+     "trig_vs_avg_p50": -0.0171,
+     "win": 0.5,
+     "ret_mean": -0.01674
+    },
+    "zheng": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "why": {
+     "开盘急动": 1.0
+    }
+   },
+   "mix": {
+    "n": 53,
+    "t_days": 50,
+    "freq": 0.18909,
+    "type": {
+     "正T": 0.325,
+     "倒T": 0.675
+    },
+    "base_share": 0.96545,
+    "base_w_p50": 0.5943,
+    "size_p25": 0.3023,
+    "size_p50": 0.64637,
+    "size_p75": 0.9997,
+    "win": 0.61182,
+    "ret_mean": 0.0079,
+    "ret_p50": 0.00348,
+    "t": 2.23,
+    "pnl_asset_sum": 0.19409,
+    "dao": {
+     "n": 34,
+     "spread_p50": 0.00775,
+     "first_hm_p50": "09:35",
+     "trig_vs_prev_p50": 0.045,
+     "trig_vs_avg_p50": 0.0009,
+     "win": 0.588,
+     "ret_mean": 0.00748
+    },
+    "zheng": {
+     "n": 19,
+     "spread_p50": 0.01175,
+     "first_hm_p50": "09:43",
+     "trig_vs_prev_p50": -0.0441,
+     "trig_vs_avg_p50": -0.0206,
+     "win": 0.684,
+     "ret_mean": 0.0155
+    },
+    "why": {
+     "开盘急动": 0.537,
+     "尾盘回转": 0.017,
+     "均价附近": 0.12,
+     "急跌先买": 0.205,
+     "冲高先卖": 0.12
+    },
+    "alpha": 0.091
+   },
+   "verdict": "执行T",
+   "n_days": 252,
+   "window": [
+    "2025-09-24",
+    "2026-10-15"
+   ]
+  },
+  "yangdaren": {
+   "long": {
+    "n": 16,
+    "t_days": 14,
+    "freq": 0.057,
+    "type": {
+     "正T": 0.625,
+     "倒T": 0.375
+    },
+    "base_share": 0.938,
+    "base_w_p50": 0.1833,
+    "size_p25": 0.3171,
+    "size_p50": 0.9651,
+    "size_p75": 1.0672,
+    "win": 0.312,
+    "ret_mean": -0.01819,
+    "ret_p50": -0.02353,
+    "t": -1.32,
+    "pnl_asset_sum": -0.0561,
+    "dao": {
+     "n": 6,
+     "spread_p50": -0.02859,
+     "first_hm_p50": "10:49",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.0,
+     "ret_mean": -0.04814
+    },
+    "zheng": {
+     "n": 10,
+     "spread_p50": 0.00839,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.5,
+     "ret_mean": -0.00022
+    },
+    "why": {
+     "无分钟数据": 1.0
+    }
+   },
+   "recent": null,
+   "mix": {
+    "n": 16,
+    "t_days": 14,
+    "freq": 0.057,
+    "type": {
+     "正T": 0.625,
+     "倒T": 0.375
+    },
+    "base_share": 0.938,
+    "base_w_p50": 0.1833,
+    "size_p25": 0.3171,
+    "size_p50": 0.9651,
+    "size_p75": 1.0672,
+    "win": 0.312,
+    "ret_mean": -0.01819,
+    "ret_p50": -0.02353,
+    "t": -1.32,
+    "pnl_asset_sum": -0.0561,
+    "dao": {
+     "n": 6,
+     "spread_p50": -0.02859,
+     "first_hm_p50": "10:49",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.0,
+     "ret_mean": -0.04814
+    },
+    "zheng": {
+     "n": 10,
+     "spread_p50": 0.00839,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.5,
+     "ret_mean": -0.00022
+    },
+    "why": {
+     "无分钟数据": 1.0
+    },
+    "alpha": 0.0
+   },
+   "verdict": "不学T",
+   "n_days": 246,
+   "window": [
+    "2025-09-29",
+    "2026-10-12"
+   ]
+  },
+  "liurenih": {
+   "long": {
+    "n": 48,
+    "t_days": 40,
+    "freq": 0.36,
+    "type": {
+     "倒T": 0.292,
+     "正T": 0.708
+    },
+    "base_share": 0.917,
+    "base_w_p50": 0.2576,
+    "size_p25": 0.2352,
+    "size_p50": 0.8025,
+    "size_p75": 1.0007,
+    "win": 0.417,
+    "ret_mean": -0.00589,
+    "ret_p50": -0.00872,
+    "t": -1.19,
+    "pnl_asset_sum": -0.0099,
+    "dao": {
+     "n": 14,
+     "spread_p50": -0.01303,
+     "first_hm_p50": "09:47",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.071,
+     "ret_mean": -0.02404
+    },
+    "zheng": {
+     "n": 34,
+     "spread_p50": 0.00285,
+     "first_hm_p50": "09:49",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.559,
+     "ret_mean": 0.00159
+    },
+    "why": {
+     "无分钟数据": 1.0
+    }
+   },
+   "recent": {
+    "n": 12,
+    "t_days": 10,
+    "freq": 0.5,
+    "type": {
+     "正T": 0.833,
+     "倒T": 0.167
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.2183,
+    "size_p25": 0.3775,
+    "size_p50": 0.9282,
+    "size_p75": 1.0179,
+    "win": 0.417,
+    "ret_mean": -0.00615,
+    "ret_p50": -0.01362,
+    "t": -0.49,
+    "pnl_asset_sum": 0.01808,
+    "dao": {
+     "n": 2,
+     "spread_p50": -0.05328,
+     "first_hm_p50": "10:19",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.0,
+     "ret_mean": -0.05275
+    },
+    "zheng": {
+     "n": 10,
+     "spread_p50": -0.00178,
+     "first_hm_p50": "09:50",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.5,
+     "ret_mean": 0.00317
+    },
+    "why": {
+     "无分钟数据": 1.0
+    }
+   },
+   "mix": {
+    "n": 48,
+    "t_days": 40,
+    "freq": 0.4125,
+    "type": {
+     "正T": 0.755,
+     "倒T": 0.245
+    },
+    "base_share": 0.94812,
+    "base_w_p50": 0.2576,
+    "size_p25": 0.2352,
+    "size_p50": 0.84964,
+    "size_p75": 1.0007,
+    "win": 0.417,
+    "ret_mean": -0.00599,
+    "ret_p50": -0.00872,
+    "t": -1.19,
+    "pnl_asset_sum": -0.0099,
+    "dao": {
+     "n": 14,
+     "spread_p50": -0.01303,
+     "first_hm_p50": "09:47",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.071,
+     "ret_mean": -0.02404
+    },
+    "zheng": {
+     "n": 34,
+     "spread_p50": 0.00285,
+     "first_hm_p50": "09:49",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.559,
+     "ret_mean": 0.00159
+    },
+    "why": {
+     "无分钟数据": 1.0
+    },
+    "alpha": 0.375
+   },
+   "verdict": "不学T",
+   "n_days": 111,
+   "window": [
+    "2026-04-30",
+    "2026-10-15"
+   ]
+  },
+  "huweigang": {
+   "long": {
+    "n": 49,
+    "t_days": 47,
+    "freq": 0.19,
+    "type": {
+     "倒T": 0.327,
+     "正T": 0.673
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.3269,
+    "size_p25": 0.3216,
+    "size_p50": 0.5807,
+    "size_p75": 0.9403,
+    "win": 0.367,
+    "ret_mean": -0.00855,
+    "ret_p50": -0.01255,
+    "t": -1.46,
+    "pnl_asset_sum": -0.03869,
+    "dao": {
+     "n": 16,
+     "spread_p50": -0.0092,
+     "first_hm_p50": "09:34",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.375,
+     "ret_mean": -0.00903
+    },
+    "zheng": {
+     "n": 33,
+     "spread_p50": -0.01343,
+     "first_hm_p50": "09:37",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.364,
+     "ret_mean": -0.00831
+    },
+    "why": {
+     "无分钟数据": 1.0
+    }
+   },
+   "recent": {
+    "n": 1,
+    "t_days": 1,
+    "freq": 0.05,
+    "type": {
+     "正T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.6738,
+    "size_p25": 0.1137,
+    "size_p50": 0.1137,
+    "size_p75": 0.1137,
+    "win": 0.0,
+    "ret_mean": -0.00139,
+    "ret_p50": -0.00139,
+    "t": 0.0,
+    "pnl_asset_sum": -0.00011,
+    "dao": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": 0.00804,
+     "first_hm_p50": "11:03",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.0,
+     "ret_mean": -0.00139
+    },
+    "why": {
+     "无分钟数据": 1.0
+    }
+   },
+   "mix": {
+    "n": 49,
+    "t_days": 47,
+    "freq": 0.18333,
+    "type": {
+     "正T": 0.689,
+     "倒T": 0.311
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.3269,
+    "size_p25": 0.3216,
+    "size_p50": 0.55846,
+    "size_p75": 0.9403,
+    "win": 0.34952,
+    "ret_mean": -0.00821,
+    "ret_p50": -0.01255,
+    "t": -1.46,
+    "pnl_asset_sum": -0.03869,
+    "dao": {
+     "n": 16,
+     "spread_p50": -0.0092,
+     "first_hm_p50": "09:34",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.375,
+     "ret_mean": -0.00903
+    },
+    "zheng": {
+     "n": 33,
+     "spread_p50": -0.01343,
+     "first_hm_p50": "09:37",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.364,
+     "ret_mean": -0.00831
+    },
+    "why": {
+     "无分钟数据": 1.0
+    },
+    "alpha": 0.048
+   },
+   "verdict": "不学T",
+   "n_days": 248,
+   "window": [
+    "2025-09-30",
+    "2026-10-15"
+   ]
+  },
+  "mairutaiji": {
+   "long": {
+    "n": 18,
+    "t_days": 17,
+    "freq": 0.07,
+    "type": {
+     "倒T": 0.722,
+     "正T": 0.278
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.3114,
+    "size_p25": 0.2876,
+    "size_p50": 0.9805,
+    "size_p75": 1.0189,
+    "win": 0.111,
+    "ret_mean": -0.01469,
+    "ret_p50": -0.0171,
+    "t": -1.74,
+    "pnl_asset_sum": -0.05292,
+    "dao": {
+     "n": 13,
+     "spread_p50": -0.01222,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.0,
+     "ret_mean": -0.02665
+    },
+    "zheng": {
+     "n": 5,
+     "spread_p50": 0.00753,
+     "first_hm_p50": "09:31",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.4,
+     "ret_mean": 0.01642
+    },
+    "why": {
+     "无分钟数据": 1.0
+    }
+   },
+   "recent": {
+    "n": 3,
+    "t_days": 3,
+    "freq": 0.15,
+    "type": {
+     "倒T": 0.667,
+     "正T": 0.333
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.5208,
+    "size_p25": 0.6162,
+    "size_p50": 0.9618,
+    "size_p75": 1.0025,
+    "win": 0.0,
+    "ret_mean": -0.01938,
+    "ret_p50": -0.01573,
+    "t": -5.36,
+    "pnl_asset_sum": -0.02233,
+    "dao": {
+     "n": 2,
+     "spread_p50": -0.00597,
+     "first_hm_p50": "09:33",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.0,
+     "ret_mean": -0.01497
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": -0.02241,
+     "first_hm_p50": "09:31",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.0,
+     "ret_mean": -0.0282
+    },
+    "why": {
+     "无分钟数据": 1.0
+    }
+   },
+   "mix": {
+    "n": 18,
+    "t_days": 17,
+    "freq": 0.08043,
+    "type": {
+     "正T": 0.285,
+     "倒T": 0.715
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.3114,
+    "size_p25": 0.2876,
+    "size_p50": 0.97806,
+    "size_p75": 1.0189,
+    "win": 0.09652,
+    "ret_mean": -0.0153,
+    "ret_p50": -0.0171,
+    "t": -1.74,
+    "pnl_asset_sum": -0.05292,
+    "dao": {
+     "n": 13,
+     "spread_p50": -0.01222,
+     "first_hm_p50": "09:30",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.0,
+     "ret_mean": -0.02665
+    },
+    "zheng": {
+     "n": 5,
+     "spread_p50": 0.00753,
+     "first_hm_p50": "09:31",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.4,
+     "ret_mean": 0.01642
+    },
+    "why": {
+     "无分钟数据": 1.0
+    },
+    "alpha": 0.13
+   },
+   "verdict": "不学T",
+   "n_days": 243,
+   "window": [
+    "2025-10-15",
+    "2026-10-15"
+   ]
+  },
+  "elangking": {
+   "long": {
+    "n": 137,
+    "t_days": 76,
+    "freq": 0.817,
+    "type": {
+     "倒T": 0.343,
+     "正T": 0.657
+    },
+    "base_share": 0.985,
+    "base_w_p50": 0.278,
+    "size_p25": 0.2458,
+    "size_p50": 0.5096,
+    "size_p75": 0.9817,
+    "win": 0.766,
+    "ret_mean": 0.00526,
+    "ret_p50": 0.00348,
+    "t": 3.02,
+    "pnl_asset_sum": 0.1856,
+    "dao": {
+     "n": 47,
+     "spread_p50": 0.00588,
+     "first_hm_p50": "09:52",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.851,
+     "ret_mean": 0.00626
+    },
+    "zheng": {
+     "n": 90,
+     "spread_p50": 0.00486,
+     "first_hm_p50": "09:50",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.722,
+     "ret_mean": 0.00473
+    },
+    "why": {
+     "无分钟数据": 1.0
+    }
+   },
+   "recent": {
+    "n": 40,
+    "t_days": 19,
+    "freq": 0.95,
+    "type": {
+     "倒T": 0.375,
+     "正T": 0.625
+    },
+    "base_share": 0.975,
+    "base_w_p50": 0.2043,
+    "size_p25": 0.2878,
+    "size_p50": 0.7623,
+    "size_p75": 0.9907,
+    "win": 0.75,
+    "ret_mean": 0.00616,
+    "ret_p50": 0.00251,
+    "t": 2.07,
+    "pnl_asset_sum": 0.02892,
+    "dao": {
+     "n": 15,
+     "spread_p50": 0.00511,
+     "first_hm_p50": "09:50",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.867,
+     "ret_mean": 0.0114
+    },
+    "zheng": {
+     "n": 25,
+     "spread_p50": 0.0033,
+     "first_hm_p50": "09:47",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.68,
+     "ret_mean": 0.00301
+    },
+    "why": {
+     "无分钟数据": 1.0
+    }
+   },
+   "mix": {
+    "n": 137,
+    "t_days": 76,
+    "freq": 0.90567,
+    "type": {
+     "正T": 0.636,
+     "倒T": 0.364
+    },
+    "base_share": 0.97833,
+    "base_w_p50": 0.278,
+    "size_p25": 0.2458,
+    "size_p50": 0.67807,
+    "size_p75": 0.9817,
+    "win": 0.75533,
+    "ret_mean": 0.00586,
+    "ret_p50": 0.00348,
+    "t": 3.02,
+    "pnl_asset_sum": 0.1856,
+    "dao": {
+     "n": 47,
+     "spread_p50": 0.00588,
+     "first_hm_p50": "09:52",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.851,
+     "ret_mean": 0.00626
+    },
+    "zheng": {
+     "n": 90,
+     "spread_p50": 0.00486,
+     "first_hm_p50": "09:50",
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": 0.722,
+     "ret_mean": 0.00473
+    },
+    "why": {
+     "无分钟数据": 1.0
+    },
+    "alpha": 0.667
+   },
+   "verdict": "执行T",
+   "n_days": 93,
+   "window": [
+    "2026-05-29",
+    "2026-10-15"
+   ]
+  },
+  "zjwzlclf": {
+   "long": {
+    "n": 74,
+    "t_days": 63,
+    "freq": 0.335,
+    "type": {
+     "倒T": 0.635,
+     "正T": 0.365
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.1101,
+    "size_p25": 0.1296,
+    "size_p50": 0.2601,
+    "size_p75": 0.5087,
+    "win": 0.676,
+    "ret_mean": 0.01617,
+    "ret_p50": 0.00955,
+    "t": 4.13,
+    "pnl_asset_sum": 0.06219,
+    "dao": {
+     "n": 47,
+     "spread_p50": 0.01343,
+     "first_hm_p50": "09:34",
+     "trig_vs_prev_p50": 0.0279,
+     "trig_vs_avg_p50": 0.0107,
+     "win": 0.553,
+     "ret_mean": 0.00809
+    },
+    "zheng": {
+     "n": 27,
+     "spread_p50": 0.02001,
+     "first_hm_p50": "09:37",
+     "trig_vs_prev_p50": -0.0095,
+     "trig_vs_avg_p50": 0.0017,
+     "win": 0.889,
+     "ret_mean": 0.03025
+    },
+    "why": {
+     "冲高先卖": 0.243,
+     "急跌先买": 0.041,
+     "开盘急动": 0.473,
+     "均价附近": 0.23,
+     "无分钟数据": 0.014
+    }
+   },
+   "recent": {
+    "n": 1,
+    "t_days": 1,
+    "freq": 0.05,
+    "type": {
+     "正T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.1098,
+    "size_p25": 0.2514,
+    "size_p50": 0.2514,
+    "size_p75": 0.2514,
+    "win": 1.0,
+    "ret_mean": 0.05038,
+    "ret_p50": 0.05038,
+    "t": 0.0,
+    "pnl_asset_sum": 0.00139,
+    "dao": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": 0.05538,
+     "first_hm_p50": "09:37",
+     "trig_vs_prev_p50": -0.0211,
+     "trig_vs_avg_p50": -0.0081,
+     "win": 1.0,
+     "ret_mean": 0.05038
+    },
+    "why": {
+     "开盘急动": 1.0
+    }
+   },
+   "mix": {
+    "n": 74,
+    "t_days": 63,
+    "freq": 0.32143,
+    "type": {
+     "正T": 0.395,
+     "倒T": 0.605
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.1101,
+    "size_p25": 0.1296,
+    "size_p50": 0.25969,
+    "size_p75": 0.5087,
+    "win": 0.69143,
+    "ret_mean": 0.0178,
+    "ret_p50": 0.00955,
+    "t": 4.13,
+    "pnl_asset_sum": 0.06219,
+    "dao": {
+     "n": 47,
+     "spread_p50": 0.01343,
+     "first_hm_p50": "09:34",
+     "trig_vs_prev_p50": 0.0279,
+     "trig_vs_avg_p50": 0.0107,
+     "win": 0.553,
+     "ret_mean": 0.00809
+    },
+    "zheng": {
+     "n": 27,
+     "spread_p50": 0.02001,
+     "first_hm_p50": "09:37",
+     "trig_vs_prev_p50": -0.0095,
+     "trig_vs_avg_p50": 0.0017,
+     "win": 0.889,
+     "ret_mean": 0.03025
+    },
+    "why": {
+     "开盘急动": 0.498,
+     "均价附近": 0.219,
+     "急跌先买": 0.039,
+     "冲高先卖": 0.231,
+     "无分钟数据": 0.013
+    },
+    "alpha": 0.048
+   },
+   "verdict": "执行T",
+   "n_days": 188,
+   "window": [
+    "2025-12-31",
+    "2026-10-15"
+   ]
+  },
+  "ynw01": {
+   "long": {
+    "n": 1,
+    "t_days": 1,
+    "freq": 0.005,
+    "type": {
+     "正T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.1507,
+    "size_p25": 1.0683,
+    "size_p50": 1.0683,
+    "size_p75": 1.0683,
+    "win": 1.0,
+    "ret_mean": 0.12575,
+    "ret_p50": 0.12575,
+    "t": 0.0,
+    "pnl_asset_sum": 0.02024,
+    "dao": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": 0.13592,
+     "first_hm_p50": "09:33",
+     "trig_vs_prev_p50": 0.0,
+     "trig_vs_avg_p50": -0.0691,
+     "win": 1.0,
+     "ret_mean": 0.12575
+    },
+    "why": {
+     "急跌先买": 1.0
+    }
+   },
+   "recent": null,
+   "mix": {
+    "n": 1,
+    "t_days": 1,
+    "freq": 0.005,
+    "type": {
+     "正T": 1.0
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.1507,
+    "size_p25": 1.0683,
+    "size_p50": 1.0683,
+    "size_p75": 1.0683,
+    "win": 1.0,
+    "ret_mean": 0.12575,
+    "ret_p50": 0.12575,
+    "t": 0.0,
+    "pnl_asset_sum": 0.02024,
+    "dao": {
+     "n": 0,
+     "spread_p50": null,
+     "first_hm_p50": null,
+     "trig_vs_prev_p50": null,
+     "trig_vs_avg_p50": null,
+     "win": null,
+     "ret_mean": null
+    },
+    "zheng": {
+     "n": 1,
+     "spread_p50": 0.13592,
+     "first_hm_p50": "09:33",
+     "trig_vs_prev_p50": 0.0,
+     "trig_vs_avg_p50": -0.0691,
+     "win": 1.0,
+     "ret_mean": 0.12575
+    },
+    "why": {
+     "急跌先买": 1.0
+    },
+    "alpha": 0.0
+   },
+   "verdict": "数据不足",
+   "n_days": 186,
+   "window": [
+    "2025-12-31",
+    "2026-10-13"
+   ]
+  },
+  "wudaokongfang": {
+   "long": {
+    "n": 200,
+    "t_days": 153,
+    "freq": 0.622,
+    "type": {
+     "正T": 0.87,
+     "倒T": 0.13
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.2371,
+    "size_p25": 0.5832,
+    "size_p50": 0.9324,
+    "size_p75": 0.9985,
+    "win": 0.57,
+    "ret_mean": 0.01415,
+    "ret_p50": 0.00864,
+    "t": 5.24,
+    "pnl_asset_sum": 0.51412,
+    "dao": {
+     "n": 26,
+     "spread_p50": 0.00922,
+     "first_hm_p50": "10:00",
+     "trig_vs_prev_p50": 0.0373,
+     "trig_vs_avg_p50": 0.006,
+     "win": 0.577,
+     "ret_mean": 0.01426
+    },
+    "zheng": {
+     "n": 174,
+     "spread_p50": 0.01008,
+     "first_hm_p50": "09:31",
+     "trig_vs_prev_p50": -0.0119,
+     "trig_vs_avg_p50": -0.0024,
+     "win": 0.569,
+     "ret_mean": 0.01414
+    },
+    "why": {
+     "冲高先卖": 0.07,
+     "急跌先买": 0.18,
+     "开盘急动": 0.495,
+     "尾盘回转": 0.005,
+     "均价附近": 0.245,
+     "无分钟数据": 0.005
+    }
+   },
+   "recent": {
+    "n": 21,
+    "t_days": 14,
+    "freq": 0.7,
+    "type": {
+     "正T": 0.905,
+     "倒T": 0.095
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.171,
+    "size_p25": 0.5021,
+    "size_p50": 0.7011,
+    "size_p75": 0.9832,
+    "win": 0.714,
+    "ret_mean": 0.011,
+    "ret_p50": 0.01651,
+    "t": 1.45,
+    "pnl_asset_sum": 0.022,
+    "dao": {
+     "n": 2,
+     "spread_p50": 0.00685,
+     "first_hm_p50": "10:00",
+     "trig_vs_prev_p50": -0.0113,
+     "trig_vs_avg_p50": 0.001,
+     "win": 0.5,
+     "ret_mean": 0.00598
+    },
+    "zheng": {
+     "n": 19,
+     "spread_p50": 0.01772,
+     "first_hm_p50": "09:32",
+     "trig_vs_prev_p50": -0.0072,
+     "trig_vs_avg_p50": -0.0093,
+     "win": 0.737,
+     "ret_mean": 0.01153
+    },
+    "why": {
+     "冲高先卖": 0.048,
+     "急跌先买": 0.286,
+     "开盘急动": 0.476,
+     "均价附近": 0.19
+    }
+   },
+   "mix": {
+    "n": 200,
+    "t_days": 153,
+    "freq": 0.66195,
+    "type": {
+     "正T": 0.888,
+     "倒T": 0.112
+    },
+    "base_share": 1.0,
+    "base_w_p50": 0.2371,
+    "size_p25": 0.5832,
+    "size_p50": 0.81393,
+    "size_p75": 0.9985,
+    "win": 0.64376,
+    "ret_mean": 0.01254,
+    "ret_p50": 0.00864,
+    "t": 5.24,
+    "pnl_asset_sum": 0.51412,
+    "dao": {
+     "n": 26,
+     "spread_p50": 0.00922,
+     "first_hm_p50": "10:00",
+     "trig_vs_prev_p50": 0.0373,
+     "trig_vs_avg_p50": 0.006,
+     "win": 0.577,
+     "ret_mean": 0.01426
+    },
+    "zheng": {
+     "n": 174,
+     "spread_p50": 0.01008,
+     "first_hm_p50": "09:31",
+     "trig_vs_prev_p50": -0.0119,
+     "trig_vs_avg_p50": -0.0024,
+     "win": 0.569,
+     "ret_mean": 0.01414
+    },
+    "why": {
+     "均价附近": 0.217,
+     "急跌先买": 0.234,
+     "无分钟数据": 0.002,
+     "开盘急动": 0.485,
+     "尾盘回转": 0.002,
+     "冲高先卖": 0.059
+    },
+    "alpha": 0.512
+   },
+   "verdict": "执行T",
+   "n_days": 246,
+   "window": [
+    "2025-10-10",
+    "2026-10-15"
+   ]
+  }
+ }
+}

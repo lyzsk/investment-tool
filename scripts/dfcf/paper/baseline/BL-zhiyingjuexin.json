@@ -1,0 +1,646 @@
+{
+ "source": "BL-zhiyingjuexin",
+ "kind": "baseline",
+ "ledger": "zhiyingjuexin",
+ "name": "芷影攫心",
+ "generated_at": "2026-10-18T00:05:41",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "常数",
+  "L1_n": 147,
+  "L2": "模型",
+  "L2_n": 147,
+  "L4": "常数",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 2735.57,
+ "positions": {
+  "600241": {
+   "qty": 3500,
+   "cost": 12.9432,
+   "since": "2026-10-13"
+  },
+  "600831": {
+   "qty": 8000,
+   "cost": 4.021,
+   "since": "2026-10-14"
+  },
+  "603096": {
+   "qty": 600,
+   "cost": 21.8683,
+   "since": "2026-10-15"
+  }
+ },
+ "orders": [
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "000678",
+   "amount": 49000.0,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 连板接力(按打法) 池分 26.071",
+   "status": "filled",
+   "price": 13.0,
+   "qty": 3700
+  },
+  {
+   "date": "2026-10-08",
+   "side": "BUY",
+   "code": "600802",
+   "amount": 49000.0,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 15.457",
+   "status": "filled",
+   "price": 6.74,
+   "qty": 7200
+  },
+  {
+   "date": "2026-10-09",
+   "side": "SELL",
+   "code": "000678",
+   "qty": 2600,
+   "why": "减仓: 目标总仓 65%(持有最久优先)",
+   "status": "filled",
+   "price": 12.0
+  },
+  {
+   "date": "2026-10-09",
+   "side": "SELL",
+   "code": "600802",
+   "qty": 100,
+   "why": "减仓: 目标总仓 65%(持有最久优先)",
+   "status": "filled",
+   "price": 7.07
+  },
+  {
+   "date": "2026-10-12",
+   "side": "SELL",
+   "code": "000678",
+   "qty": 1100,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 11.66
+  },
+  {
+   "date": "2026-10-12",
+   "side": "BUY",
+   "code": "600408",
+   "amount": 13882.0,
+   "why": "换股: 等额买入新票 | 打法 连板接力(按打法) 池分 24.678",
+   "status": "filled",
+   "price": 3.77,
+   "qty": 3600
+  },
+  {
+   "date": "2026-10-13",
+   "side": "SELL",
+   "code": "600802",
+   "qty": 7100,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 6.36
+  },
+  {
+   "date": "2026-10-13",
+   "side": "BUY",
+   "code": "600241",
+   "amount": 46221.0,
+   "why": "换股: 等额买入新票 | 打法 连板接力(按打法) 池分 25.114",
+   "status": "filled",
+   "price": 12.94,
+   "qty": 3500
+  },
+  {
+   "date": "2026-10-14",
+   "side": "BUY",
+   "code": "600831",
+   "amount": 32432.92,
+   "why": "加仓: 目标总仓 98% | 打法 连板接力(按打法) 池分 21.303",
+   "status": "filled",
+   "price": 4.02,
+   "qty": 8000
+  },
+  {
+   "date": "2026-10-15",
+   "side": "SELL",
+   "code": "600408",
+   "qty": 3600,
+   "why": "换股: 卖持有最久",
+   "status": "filled",
+   "price": 3.82
+  },
+  {
+   "date": "2026-10-15",
+   "side": "BUY",
+   "code": "603096",
+   "amount": 14616.0,
+   "why": "换股: 等额买入新票 | 打法 连板接力(按打法) 池分 24.608",
+   "status": "filled",
+   "price": 21.86,
+   "qty": 600
+  }
+ ],
+ "trades": [
+  {
+   "id": "2026-10-08-BL-zhiyingjuexin-001",
+   "side": "BUY",
+   "code": "000678",
+   "price": 13.0,
+   "qty": 3700,
+   "fee": 12.03,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 连板接力(按打法) 池分 26.071 | 开盘价"
+  },
+  {
+   "id": "2026-10-08-BL-zhiyingjuexin-002",
+   "side": "BUY",
+   "code": "600802",
+   "price": 6.74,
+   "qty": 7200,
+   "fee": 12.13,
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 15.457 | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-zhiyingjuexin-003",
+   "side": "SELL",
+   "code": "000678",
+   "price": 12.0,
+   "qty": 2600,
+   "fee": 23.4,
+   "why": "减仓: 目标总仓 65%(持有最久优先) | 开盘价"
+  },
+  {
+   "id": "2026-10-09-BL-zhiyingjuexin-004",
+   "side": "SELL",
+   "code": "600802",
+   "price": 7.07,
+   "qty": 100,
+   "fee": 5.35,
+   "why": "减仓: 目标总仓 65%(持有最久优先) | 开盘价"
+  },
+  {
+   "id": "2026-10-12-BL-zhiyingjuexin-005",
+   "side": "SELL",
+   "code": "000678",
+   "price": 11.66,
+   "qty": 1100,
+   "fee": 11.41,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-12-BL-zhiyingjuexin-006",
+   "side": "BUY",
+   "code": "600408",
+   "price": 3.77,
+   "qty": 3600,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 连板接力(按打法) 池分 24.678 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-zhiyingjuexin-007",
+   "side": "SELL",
+   "code": "600802",
+   "price": 6.36,
+   "qty": 7100,
+   "fee": 33.87,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-13-BL-zhiyingjuexin-008",
+   "side": "BUY",
+   "code": "600241",
+   "price": 12.94,
+   "qty": 3500,
+   "fee": 11.32,
+   "why": "换股: 等额买入新票 | 打法 连板接力(按打法) 池分 25.114 | 开盘价"
+  },
+  {
+   "id": "2026-10-14-BL-zhiyingjuexin-009",
+   "side": "BUY",
+   "code": "600831",
+   "price": 4.02,
+   "qty": 8000,
+   "fee": 8.04,
+   "why": "加仓: 目标总仓 98% | 打法 连板接力(按打法) 池分 21.303 | 开盘价"
+  },
+  {
+   "id": "2026-10-15-BL-zhiyingjuexin-010",
+   "side": "SELL",
+   "code": "600408",
+   "price": 3.82,
+   "qty": 3600,
+   "fee": 11.88,
+   "why": "换股: 卖持有最久 | 开盘价"
+  },
+  {
+   "id": "2026-10-15-BL-zhiyingjuexin-011",
+   "side": "BUY",
+   "code": "603096",
+   "price": 21.86,
+   "qty": 600,
+   "fee": 5.0,
+   "why": "换股: 等额买入新票 | 打法 连板接力(按打法) 池分 24.608 | 开盘价"
+  }
+ ],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 3347.84,
+   "mv": 96696.0,
+   "nav": 100043.84,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 35226.09,
+   "mv": 64931.0,
+   "nav": 100157.09,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 34463.68,
+   "mv": 58929.0,
+   "nav": 93392.68,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 34284.49,
+   "mv": 58294.0,
+   "nav": 92578.49,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 2116.45,
+   "mv": 93251.0,
+   "nav": 95367.45,
+   "filled": 1,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 2735.57,
+   "mv": 92995.0,
+   "nav": 95730.57,
+   "filled": 2,
+   "orders": 2
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 2735.57,
+   "mv": 91565.0,
+   "nav": 94300.57,
+   "filled": 0,
+   "orders": 0
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "000678",
+     "name": "襄阳轴承",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 13.0,
+     "qty": 3700
+    },
+    {
+     "side": "BUY",
+     "code": "600802",
+     "name": "福建水泥",
+     "play": "涨停回调",
+     "how": "按打法",
+     "filled": true,
+     "price": 6.74,
+     "qty": 7200
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 0.991,
+   "p_dir_given_trade": [
+    0.221,
+    0.127,
+    0.652
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.9866,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9866,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.46870929160157515,
+    "red_step": 0.320760987119302,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "sizing": {
+    "single_size": 0.458,
+    "k": 2,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "000678",
+     "filled": true,
+     "why": "减仓: 目标总仓 65%(持有最久优先)",
+     "price": 12.0,
+     "qty": 2600
+    },
+    {
+     "side": "SELL",
+     "code": "600802",
+     "filled": true,
+     "why": "减仓: 目标总仓 65%(持有最久优先)",
+     "price": 7.07,
+     "qty": 100
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 0.985,
+   "p_dir_given_trade": [
+    0.577,
+    0.386,
+    0.038
+   ],
+   "decision": {
+    "trade": true,
+    "dir": -1,
+    "tp_hat": 0.98695,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.677239012880698,
+    "tp_final_cap": 0.677239012880698,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.47049665628922116,
+    "red_step": 0.320760987119302,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.967
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "000678",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 11.66,
+     "qty": 1100
+    },
+    {
+     "side": "BUY",
+     "code": "600408",
+     "name": "安泰集团",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 3.77,
+     "qty": 3600
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 0.983,
+   "p_dir_given_trade": [
+    0.445,
+    0.526,
+    0.028
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9866,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.982,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.47049665628922116,
+    "red_step": 0.320760987119302,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.648,
+   "sizing": {
+    "single_size": 0.456,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "600802",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 6.36,
+     "qty": 7100
+    },
+    {
+     "side": "BUY",
+     "code": "600241",
+     "name": "时代万恒",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 12.94,
+     "qty": 3500
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 0.977,
+   "p_dir_given_trade": [
+    0.326,
+    0.64,
+    0.034
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.98695,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.0,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.47049665628922116,
+    "red_step": 0.320760987119302,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.631,
+   "sizing": {
+    "single_size": 0.456,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "600831",
+     "name": "广电网络",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 4.02,
+     "qty": 8000
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 0.983,
+   "p_dir_given_trade": [
+    0.005,
+    0.012,
+    0.983
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.9866,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9866,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.47049665628922116,
+    "red_step": 0.32764131016773634,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.63,
+   "sizing": {
+    "single_size": 0.456,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [
+    {
+     "side": "SELL",
+     "code": "600408",
+     "filled": true,
+     "why": "换股: 卖持有最久",
+     "price": 3.82,
+     "qty": 3600
+    },
+    {
+     "side": "BUY",
+     "code": "603096",
+     "name": "新经典",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 21.86,
+     "qty": 600
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-14",
+   "p_trade": 0.983,
+   "p_dir_given_trade": [
+    0.438,
+    0.505,
+    0.057
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.98695,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9964999999999999,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.470703133083455,
+    "red_step": 0.32764131016773634,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.978,
+   "sizing": {
+    "single_size": 0.456,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-15",
+   "p_trade": 0.975,
+   "p_dir_given_trade": [
+    0.003,
+    0.0,
+    0.997
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.9866,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9866,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "常数"
+    },
+    "add_step": 0.470703133083455,
+    "red_step": 0.33452163321617073,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.971
+  }
+ ]
+}

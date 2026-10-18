@@ -1,0 +1,94 @@
+{
+ "skill": "qushitiange",
+ "version": {
+  "v": 5,
+  "id": "v005_20261018-0021",
+  "ts": "2026-10-18T00:21:25",
+  "effective_from": "2026-10-18T00:20:04",
+  "persona_hash": "1c849c5c552e42598d770c1cacd4792069b371f350ee049bace5c60ce9521f08",
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v004_20261017-2241",
+  "changed": {
+   "added": [],
+   "modified": [
+    "profile_index.md"
+   ],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 2,
+   "removed": 2
+  },
+  "bytes_weight": 1666073,
+  "why": "check-md 2026-10-16 00:21",
+  "code": {
+   "chain": "a1c5963101d1",
+   "distill": "2889b12fb331"
+  }
+ },
+ "files": {
+  "cases.md": {
+   "sha256": "fb7ae5e92aa5ebafb009f0b1ee6611c410359abe5ca651ba2e73023c2d9a68ab",
+   "bytes": 26794,
+   "lines": 97,
+   "mtime": "2026-10-16T23:00:56",
+   "cls": "weight"
+  },
+  "language.md": {
+   "sha256": "561520a6d77d734d211015fcf9fa876ab3c7ac40a8fc427fc7f7df68fd121b80",
+   "bytes": 336809,
+   "lines": 248,
+   "mtime": "2026-10-16T23:00:06",
+   "cls": "weight"
+  },
+  "profile.md": {
+   "sha256": "6ed68ebb75587b78d267bc46a904f2d5c46fedc38a0780a50085fc62f49838db",
+   "bytes": 592207,
+   "lines": 205,
+   "mtime": "2026-10-16T23:00:06",
+   "cls": "weight"
+  },
+  "profile_index.md": {
+   "sha256": "9b2662b6a151433570eddab629445be97db8daed5f3c85454c46f83e5dab9eb0",
+   "bytes": 16438,
+   "lines": 102,
+   "mtime": "2026-10-18T00:20:04",
+   "cls": "weight"
+  },
+  "rules.md": {
+   "sha256": "d94fda9c2934ec9e0351e12d7c3e4dc956349d65f7841683c31f21339a2c09b6",
+   "bytes": 686225,
+   "lines": 226,
+   "mtime": "2026-10-17T22:40:10",
+   "cls": "weight"
+  },
+  "rules_index.md": {
+   "sha256": "1a158da95551258e32af1410f62c46c82449bcc2623a7764b25b09f6d905a59f",
+   "bytes": 7600,
+   "lines": 39,
+   "mtime": "2026-10-17T22:40:51",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "a1c5963101d1",
+  "distill": "2889b12fb331",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "c7d108373e80",
+   "skills/qushitiange-skill/workflows/chain.md": "34f7a120fc42",
+   "skills/qushitiange-skill/SKILL.md": "5a14358a8f44",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/qushitiange-skill/workflows/distill.md": "797cab5e8d11",
+   "scripts/tzzb/distill_daily.py": "6de6f418c374",
+   "scripts/tzzb/llm_batch_tzzb.py": "9e80ff53ca5d",
+   "scripts/tzzb/mentor_fingerprint.py": "4fe126f8c888",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "cd74e57ffdd9",
+   "scripts/md/gen_rules_index.mjs": "a619b5374e59",
+   "scripts/md/check_md_daily.py": "2946ee81b249"
+  }
+ }
+}

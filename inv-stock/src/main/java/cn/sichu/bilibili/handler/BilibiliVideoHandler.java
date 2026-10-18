@@ -1,0 +1,133 @@
+package cn.sichu.bilibili.handler;
+
+import cn.sichu.bilibili.entity.BilibiliVideo;
+import cn.sichu.bilibili.service.IBilibiliVideoService;
+import cn.sichu.system.config.ProjectConfig;
+import cn.sichu.system.quartz.handler.JobHandler;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import exception.BusinessException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import utils.ProcessUtils;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
+/**
+ *
+ * @author sichu huang
+ * @since 2026/09/27 00:16
+ */
+
+@Component("bilibiliVideoHandler")
+@RequiredArgsConstructor
+public class BilibiliVideoHandler implements JobHandler {
+    private static final ObjectMapper OM = new ObjectMapper();
+    private static final long TIMEOUT_MIN = 3;
+    private final IBilibiliVideoService bilibiliVideoService;
+    private final ProjectConfig projectConfig;
+
+    @Override
+    public String execute(String params) {
+        /* 10/7 修: 10/2 域目录化迁入 scripts/bilibili/, 旧路径致 10/2 后视频发现全败 */
+        Path script =
+            Paths.get(projectConfig.getRootDir(), "scripts", "bilibili", "fetch_bilibili.mjs");
+        /* 多UP化: job 的 job_handler_param 透传给脚本(如 "--mid 550494308 --name 卢本圆复盘"),
+           桃哥 job param 为空=默认(向后兼容); 脚本侧 --mid/--name 决定发现目标 */
+        java.util.List<String> cmd = new java.util.ArrayList<>();
+        cmd.add("node");
+        cmd.add(script.toString());
+        cmd.add("--list");
+        if (params != null && !params.isBlank()) {
+            cmd.addAll(java.util.Arrays.asList(params.trim().split("\\s+")));
+        }
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(Paths.get(projectConfig.getRootDir()).toFile());
+        pb.redirectErrorStream(true);
+        String jsonLine = null;
+        int exit;
+        StringBuilder tail = new StringBuilder();
+        try {
+            /* 健壮性 H6: 改用 ProcessUtils.run(超时真生效);
+               10/17 修: JSON 摘要行很长(带 _raw, 常 >4000 字符), 从 4000 字符的输出尾部取会截掉行首 "JSON:" → 误报"发现失败 exit=0"; 改为按前缀整行另存 */
+            ProcessUtils.Result res = ProcessUtils.run(pb, TIMEOUT_MIN, "JSON:");
+            String out = res.tail();
+            tail.append(out.length() > 1500 ? "…" + out.substring(out.length() - 1500) : out);
+            if (res.timedOut()) {
+                throw new BusinessException(
+                    "fetch_bilibili.mjs --list 超时 " + TIMEOUT_MIN + "min(进程树已杀)");
+            }
+            if (res.kept() != null) {
+                jsonLine = res.kept().substring(5).trim();
+            }
+            exit = res.exit();
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BusinessException("调 fetch_bilibili.mjs 异常: " + e.getMessage());
+        }
+        if (exit != 0 || jsonLine == null) {
+            throw new BusinessException("发现失败 exit=" + exit + ", 输出尾部: " + tail);
+        }
+
+        int inserted = 0, skipped = 0;
+        try {
+            for (JsonNode v : OM.readTree(jsonLine)) {
+                String bvid = v.get("bvid").asText();
+                /* 10/12: 含已逻辑删除的行(用户删除的误捞 2020 旧稿不再重新入队) */
+                if (bilibiliVideoService.existsAnyByBvid(bvid)) {
+                    skipped++;
+                    continue;
+                }
+                /* 10/7 晚五修: 48h 发现窗口闸——job 只管当天增量, 历史稿一律 backfill 域(用户立法:
+                   此前窗口把桃哥 9/8-9/13 历史稿捞进 job 队列, 与归属闸/队列语义三重打架) */
+                long pubMs = v.get("pubdate").asLong() * 1000L;
+                if (pubMs < System.currentTimeMillis() - 48L * 3600 * 1000) {
+                    skipped++;
+                    continue;
+                }
+                BilibiliVideo video = new BilibiliVideo();
+                video.setBvid(bvid);
+                video.setAuthorMid(v.get("mid").asText());
+                video.setTitle(v.get("title").asText());
+                video.setPublishTime(
+                    LocalDateTime.ofInstant(Instant.ofEpochSecond(v.get("pubdate").asLong()),
+                        ZoneId.of("Asia/Shanghai")));
+                video.setDuration(v.get("duration").asInt());
+                video.setUrl("https://www.bilibili.com/video/" + bvid);
+                video.setStep("NEW");
+                bilibiliVideoService.save(video);
+                inserted++;
+            }
+        } catch (Exception e) {
+            throw new BusinessException("解析/入库异常: " + e.getMessage());
+        }
+        /* UP 隔离(10/7 晚二修): 从 job param 解析本 job 的目标 mid, 队列只处理自己 UP 的行
+           ——此前全局队列让桃哥 job 捞卢本圆的稿, 被 fetch 脚本归属闸拒绝空烧 retry(10 稿×3 轮全灭) */
+        /* mid 对照表(B站 card 接口 10/11 实核; job_handler_param 用 --mid 指定, 为空=桃哥):
+           625315686  = 股市-桃哥复盘(md 小节 "#### 股市 - 桃哥复盘")
+           550494308  = 卢本圆复盘
+           1372241958 = 趋势天哥 */
+        /* 桃哥=job param 为空的默认 */
+        String authorMid = "625315686";
+        if (params != null) {
+            java.util.regex.Matcher m =
+                java.util.regex.Pattern.compile("--mid\\s+(\\d+)").matcher(params);
+            if (m.find()) {
+                authorMid = m.group(1);
+            }
+        }
+        /* 第二段: 下载所有 step=NEW 的(mp4+m4a+json) → DOWNLOADED */
+        String downloadResult = bilibiliVideoService.downloadPendingVideos(3, authorMid);
+        /* 第三段: 直链处理所有 step=DOWNLOADED 的(process_video.py: ASR→纠错→视觉→聚合) → VISION_DONE,
+           单视频~15-20min; 认领制+显存闸防跨 job 双开(10/7 事故修复) */
+        String processResult = bilibiliVideoService.processPendingVideos(3, authorMid);
+        return String.format("B站视频拉取完成(多UP): 发现新增 %d/跳过 %d, %s, %s", inserted,
+            skipped, downloadResult, processResult);
+    }
+
+}

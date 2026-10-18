@@ -1,0 +1,80 @@
+{
+ "skill": "control",
+ "version": {
+  "v": 2,
+  "id": "v002_20261016-2300",
+  "ts": "2026-10-16T23:00:45",
+  "effective_from": "2026-10-16T23:00:04",
+  "persona_hash": "3d1822f31c6010ace815099c8259dd34f26d6f4e397c35d092ecb2f6af755fb3",
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v001_20261016-2249",
+  "changed": {
+   "added": [],
+   "modified": [
+    "profile_index.md"
+   ],
+   "removed": []
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 1,
+   "removed": 1
+  },
+  "bytes_weight": 2052,
+  "why": "check-md 2026-10-16 23:00",
+  "code": {
+   "chain": "9c1235108530",
+   "distill": "6921009eae95"
+  }
+ },
+ "files": {
+  "profile.md": {
+   "sha256": "24932d0caef90530eb9166d64052457675a8a781f516ebf0d69e16b9ec03542f",
+   "bytes": 618,
+   "lines": 6,
+   "mtime": "2026-10-11T01:04:18",
+   "cls": "weight"
+  },
+  "profile_index.md": {
+   "sha256": "99bbee104df1bea93ebce7633f9bb25c52ed672dd61c5ce33962e4535d64c273",
+   "bytes": 1216,
+   "lines": 13,
+   "mtime": "2026-10-16T23:00:04",
+   "cls": "weight"
+  },
+  "rules.md": {
+   "sha256": "234b192112412b6a95aa0ec0c4093e921324d9edf758da82b2f9613d1b61b699",
+   "bytes": 139,
+   "lines": 3,
+   "mtime": "2026-10-11T01:04:18",
+   "cls": "weight"
+  },
+  "rules_index.md": {
+   "sha256": "03bd0fa8b8d7f14a695999542905c48435beeac385b8ef552999ed067baba807",
+   "bytes": 79,
+   "lines": 1,
+   "mtime": "2026-10-11T01:04:27",
+   "cls": "weight"
+  }
+ },
+ "code": {
+  "chain": "9c1235108530",
+  "distill": "6921009eae95",
+  "chain_files": {
+   "scripts/taoge-chain/run_taoge_chain.py": "3c945631c843",
+   "skills/control-skill/workflows/chain.md": "b5b9627b2ca3",
+   "skills/control-skill/SKILL.md": "f15c6b5eebf8",
+   "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"
+  },
+  "distill_files": {
+   "skills/control-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "9ec70798c98a",
+   "scripts/tzzb/llm_batch_tzzb.py": "2c2246c6c7e1",
+   "scripts/tzzb/mentor_fingerprint.py": "d218700ea1cf",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "1109d4201eb3",
+   "scripts/md/gen_profile_index.py": "16926ed80e73",
+   "scripts/md/gen_rules_index.mjs": "654e7e6d356c",
+   "scripts/md/check_md_daily.py": "5b076474beb5"
+  }
+ }
+}

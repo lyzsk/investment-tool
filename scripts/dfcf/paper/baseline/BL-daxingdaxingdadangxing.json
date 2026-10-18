@@ -1,0 +1,300 @@
+{
+ "source": "BL-daxingdaxingdadangxing",
+ "kind": "baseline",
+ "ledger": "daxingdaxingdadangxing",
+ "name": "大兴大兴大A当兴",
+ "generated_at": "2026-10-18T00:05:41",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "模型",
+  "L1_n": 7,
+  "L2": "延续",
+  "L2_n": 7,
+  "L4": "延续",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 100000.0,
+ "positions": {},
+ "orders": [],
+ "trades": [],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 0.95,
+   "p_dir_given_trade": [
+    0.476,
+    0.449,
+    0.075
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.9636,
+    "tp_target_cap": 0.9636,
+    "tp_final": 1.2851605529349257,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "模型",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.3215605529349258,
+    "red_step": 0.2,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "note": "指纹池不可用(样本不足, 不出池), 不买"
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 0.739,
+   "p_dir_given_trade": [
+    0.477,
+    0.503,
+    0.02
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 1.0,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.0,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "模型",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.3215605529349258,
+    "red_step": 0.2,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "note": "指纹池不可用(样本不足, 不出池), 不买"
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 0.818,
+   "p_dir_given_trade": [
+    0.35,
+    0.554,
+    0.096
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9843999999999999,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9843999999999999,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "模型",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.3215605529349258,
+    "red_step": 0.2,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "note": "指纹池不可用(样本不足, 不出池), 不买"
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 0.886,
+   "p_dir_given_trade": [
+    0.324,
+    0.547,
+    0.128
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9985999999999999,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9985999999999999,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "模型",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.3215605529349258,
+    "red_step": 0.2,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "note": "指纹池不可用(样本不足, 不出池), 不买"
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 0.873,
+   "p_dir_given_trade": [
+    0.33,
+    0.605,
+    0.065
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9903,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9903,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "模型",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.3215605529349258,
+    "red_step": 0.2,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "note": "指纹池不可用(样本不足, 不出池), 不买"
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-14",
+   "p_trade": 0.886,
+   "p_dir_given_trade": [
+    0.346,
+    0.158,
+    0.496
+   ],
+   "decision": {
+    "trade": true,
+    "dir": -1,
+    "tp_hat": 0.6812,
+    "tp_target_cap": 0.6812,
+    "tp_final": 0.4118076637411062,
+    "tp_final_cap": 0.4118076637411062,
+    "src": {
+     "L1": "模型",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.3215605529349258,
+    "red_step": 0.2693923362588938,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "note": "指纹池不可用(样本不足, 不出池), 不买"
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-15",
+   "p_trade": 0.9,
+   "p_dir_given_trade": [
+    0.561,
+    0.381,
+    0.058
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.9989,
+    "tp_target_cap": 0.98,
+    "tp_final": 1.3196019944251676,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "模型",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.32070199442516767,
+    "red_step": 0.2693923362588938,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "note": "指纹池不可用(样本不足, 不出池), 不买"
+  }
+ ]
+}

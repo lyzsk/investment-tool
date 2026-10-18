@@ -1,0 +1,66 @@
+{
+ "skill": "_global",
+ "unit": "global",
+ "version": {
+  "v": 2,
+  "id": "v002_20261018-1943",
+  "ts": "2026-10-18T19:43:54",
+  "effective_from": "2026-10-18T18:48:00",
+  "unit": "global",
+  "version_hash": "27f8e6629f4a2e0313b5e8183dd221c18c5e14541f61d9ec042697230cdbafed",
+  "cat_hash": {
+   "全局": "27f8e6629f4a2e0313b5e8183dd221c18c5e14541f61d9ec042697230cdbafed"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v001_20261018-1713",
+  "changed": {
+   "added": [],
+   "modified": [
+    "scripts/claude_profile/chain_flags.txt",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "全局": [
+    "scripts/claude_profile/chain_flags.txt",
+    "scripts/taoge-chain/run_chain.py"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 62,
+   "removed": 9
+  },
+  "bytes_weight": 408916,
+  "why": "10/18 新导师 含笑96998 入库",
+  "code": null
+ },
+ "files": {
+  "scripts/dfcf/paper/params.yaml": {
+   "sha256": "4c981cf5972930f4e5cbe8c296fad04756f6301bb35c375104fc11ba77d8014e",
+   "bytes": 11083,
+   "lines": 156,
+   "mtime": "2026-10-18T00:15:17",
+   "cls": "全局",
+   "bulk": false
+  },
+  "scripts/claude_profile/chain_flags.txt": {
+   "sha256": "29d84b49e93d2c59bdbb9d530ba33d075ecd2cca97c5fb229e1c40ab6456ba9a",
+   "bytes": 8040,
+   "lines": 72,
+   "mtime": "2026-10-18T18:48:00",
+   "cls": "全局",
+   "bulk": false
+  },
+  "scripts/taoge-chain/run_chain.py": {
+   "sha256": "62b0c54b3cb9aec2ef48eb5110950d2f1d1c9eae10784dfe7226b0b066605f7d",
+   "bytes": 389793,
+   "lines": 5823,
+   "mtime": "2026-10-18T18:40:18",
+   "cls": "全局",
+   "bulk": false
+  }
+ },
+ "code": null
+}

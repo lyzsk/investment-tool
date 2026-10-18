@@ -1,0 +1,293 @@
+{
+ "source": "BL-zjwzlclf",
+ "kind": "baseline",
+ "ledger": "zjwzlclf",
+ "name": "zjwzlclf",
+ "generated_at": "2026-10-18T00:05:41",
+ "since": "2026-10-08",
+ "until": "2026-10-16",
+ "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
+ "layer_choice": {
+  "L1": "延续",
+  "L1_n": 0,
+  "L2": "延续",
+  "L2_n": 0,
+  "L4": "延续",
+  "L3": "常数",
+  "size": "常数"
+ },
+ "eval_used": "scripts\\tzzb\\model_out\\eval_2026-10-17.json",
+ "config": {
+  "initCash": 100000.0,
+  "feeRate": 0.00025,
+  "minFee": 5.0,
+  "stampTax": 0.0005
+ },
+ "cash": 100000.0,
+ "positions": {},
+ "orders": [],
+ "trades": [],
+ "nav": [
+  {
+   "date": "2026-10-08",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-09",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-12",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-13",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-14",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-15",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-16",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  }
+ ],
+ "daily": [
+  {
+   "date": "2026-10-08",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-09-30",
+   "p_trade": 0.292,
+   "p_dir_given_trade": [
+    0.327,
+    0.229,
+    0.444
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0858,
+    "tp_target_cap": 0.0858,
+    "tp_final": 0.0858,
+    "tp_final_cap": 0.0858,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.1435151004306456,
+    "red_step": 0.18763639562365872,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-09",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 0.699,
+   "p_dir_given_trade": [
+    0.254,
+    0.543,
+    0.203
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.1098,
+    "tp_target_cap": 0.1098,
+    "tp_final": 0.1098,
+    "tp_final_cap": 0.1098,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.1435151004306456,
+    "red_step": 0.18763639562365872,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-12",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-09",
+   "p_trade": 0.658,
+   "p_dir_given_trade": [
+    0.019,
+    0.414,
+    0.567
+   ],
+   "decision": {
+    "trade": true,
+    "dir": -1,
+    "tp_hat": 0.0286,
+    "tp_target_cap": 0.0286,
+    "tp_final": 0.0,
+    "tp_final_cap": 0.0,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.1435151004306456,
+    "red_step": 0.18141187331733677,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-13",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-12",
+   "p_trade": 0.329,
+   "p_dir_given_trade": [
+    0.05,
+    0.0,
+    0.95
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0286,
+    "tp_target_cap": 0.0286,
+    "tp_final": 0.0286,
+    "tp_final_cap": 0.0286,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.1435151004306456,
+    "red_step": 0.18141187331733677,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-14",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-13",
+   "p_trade": 0.279,
+   "p_dir_given_trade": [
+    0.025,
+    0.351,
+    0.625
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0285,
+    "tp_target_cap": 0.0285,
+    "tp_final": 0.0285,
+    "tp_final_cap": 0.0285,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.1435151004306456,
+    "red_step": 0.18141187331733677,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-15",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-14",
+   "p_trade": 0.227,
+   "p_dir_given_trade": [
+    0.033,
+    0.097,
+    0.87
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0281,
+    "tp_target_cap": 0.0281,
+    "tp_final": 0.0281,
+    "tp_final_cap": 0.0281,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.1435151004306456,
+    "red_step": 0.18141187331733677,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-16",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-15",
+   "p_trade": 0.188,
+   "p_dir_given_trade": [
+    0.05,
+    0.384,
+    0.566
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0274,
+    "tp_target_cap": 0.0274,
+    "tp_final": 0.0274,
+    "tp_final_cap": 0.0274,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.1435151004306456,
+    "red_step": 0.18141187331733677,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  }
+ ]
+}
