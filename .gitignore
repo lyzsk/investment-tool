@@ -100,3 +100,12 @@ scripts/tzzb/tudou_select/cache/
 scripts/tzzb/model_out/orders_recs/
 scripts/lhb/seat_profile.json
 .git.bak
+
+### 10/19: 本地 .git 备份目录, 永不进库
+.git.bak-*/
+### 10/19: 每天重写的运行噪音(可再生成, 不进库; 已跟踪的需 git rm --cached 一次)
+scripts/dfcf/paper/*.tmp
+scripts/dfcf/paper/retry_log.jsonl
+scripts/dfcf/paper/report.html
+scripts/dfcf/paper/state_digest.md
+scripts/quotes/sources_health.json

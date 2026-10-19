@@ -121,6 +121,45 @@
     "chain": "a0e5412f55bb",
     "distill": "4477b8801618"
    }
+  },
+  {
+   "v": 4,
+   "id": "v004_20261019-0800",
+   "ts": "2026-10-19T08:00:00",
+   "effective_from": "2026-10-19T02:15:43",
+   "unit": "skill",
+   "version_hash": "fe47846ad408d83eeb640094bd68531cea428e0affa346517cde88fa1c98dacb",
+   "cat_hash": {
+    "提示词": "2a99e95fa0f9ece3d7c550f8a6af8ab04b09a34fc7b208345a1953caf38079cd",
+    "画像": "3264fed80a8045dfbe0d5262cf580aec7d204c10538217d6ee69e2b5b65b7cd9"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v003_20261019-0026",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/profile.md",
+     "persona/rules.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/profile.md",
+     "persona/rules.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 6,
+    "removed": 1
+   },
+   "bytes_weight": 8579,
+   "why": "check-md 2026-10-16 08:00",
+   "code": {
+    "chain": "a0e5412f55bb",
+    "distill": "4477b8801618"
+   }
   }
  ],
  "events": [],
