@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "bianbenling",
  "name": "边学本领边实践",
- "generated_at": "2026-10-18T00:05:41",
+ "generated_at": "2026-10-19T19:46:50",
  "since": "2026-10-08",
- "until": "2026-10-16",
+ "until": "2026-10-19",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "延续",
@@ -110,6 +110,14 @@
    "nav": 73111.03,
    "filled": 0,
    "orders": 0
+  },
+  {
+   "date": "2026-10-19",
+   "cash": 4111.03,
+   "mv": 68175.0,
+   "nav": 72286.03,
+   "filled": 0,
+   "orders": 0
   }
  ],
  "daily": [
@@ -129,11 +137,11 @@
    ],
    "stale": 0,
    "state_day": "2026-09-30",
-   "p_trade": 0.097,
+   "p_trade": 0.1,
    "p_dir_given_trade": [
-    0.704,
-    0.179,
-    0.117
+    0.673,
+    0.213,
+    0.114
    ],
    "decision": {
     "trade": false,
@@ -163,11 +171,11 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-08",
-   "p_trade": 0.092,
+   "p_trade": 0.101,
    "p_dir_given_trade": [
-    0.763,
-    0.192,
-    0.045
+    0.639,
+    0.322,
+    0.039
    ],
    "decision": {
     "trade": false,
@@ -192,11 +200,11 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-09",
-   "p_trade": 0.069,
+   "p_trade": 0.07,
    "p_dir_given_trade": [
-    0.797,
-    0.107,
-    0.096
+    0.762,
+    0.147,
+    0.092
    ],
    "decision": {
     "trade": false,
@@ -221,11 +229,11 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-12",
-   "p_trade": 0.118,
+   "p_trade": 0.134,
    "p_dir_given_trade": [
-    0.946,
+    0.952,
     0.0,
-    0.054
+    0.048
    ],
    "decision": {
     "trade": false,
@@ -250,11 +258,11 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-13",
-   "p_trade": 0.083,
+   "p_trade": 0.095,
    "p_dir_given_trade": [
-    0.507,
-    0.341,
-    0.152
+    0.446,
+    0.412,
+    0.142
    ],
    "decision": {
     "trade": false,
@@ -279,11 +287,11 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-14",
-   "p_trade": 0.088,
+   "p_trade": 0.101,
    "p_dir_given_trade": [
-    0.905,
-    0.0,
-    0.095
+    0.806,
+    0.112,
+    0.082
    ],
    "decision": {
     "trade": false,
@@ -308,11 +316,11 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-15",
-   "p_trade": 0.078,
+   "p_trade": 0.088,
    "p_dir_given_trade": [
-    0.891,
-    0.039,
-    0.07
+    0.764,
+    0.173,
+    0.063
    ],
    "decision": {
     "trade": false,
@@ -331,6 +339,35 @@
     "n_new": 1
    },
    "tp_acct_prev": 0.945
+  },
+  {
+   "date": "2026-10-19",
+   "orders": [],
+   "stale": 1,
+   "state_day": "2026-10-15",
+   "p_trade": 0.077,
+   "p_dir_given_trade": [
+    0.852,
+    0.051,
+    0.097
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9855,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9516,
+    "tp_final_cap": 0.9516,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.9387577013609175,
+    "red_step": 0.6962965669550853,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.944
   }
  ]
 }

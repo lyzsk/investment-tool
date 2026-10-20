@@ -448,10 +448,22 @@
    "mech": null,
    "mech_text": null,
    "level": "话术级"
+  },
+  "R38": {
+   "id": "R38",
+   "title": "持仓票盘中封涨停时在涨停价加仓, 同日又在板价附近卖出近等量(\"板上T\"), 只见于 2025-11~12 打板期",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
   }
  },
- "n": 37,
+ "n": 38,
  "n_mech": 1,
- "n_dir": 26,
+ "n_dir": 27,
  "n_distilled": 0
 }

@@ -126,11 +126,43 @@ def card(lid, D):
             "ret30": r30, "mdd": round(mdd, 4), "avg_pos": avg_pos}
 
 
+def up_pool(uid):
+    """10/19 用户: UP 没有账本, 风格靠"常讲股票池" —— skills/<id>-skill/persona/stock_pool.md(POOL / THEME 行) +
+    md/rules.md(桃哥 2025-08~09 整理的半导体 / AI 硬件细分表, 去年口径, 今年资金惯性方向有变, 只作参考) 里这些票所在的细分 → 衍生板块"""
+    f = ROOT / "skills" / f"{uid}-skill" / "persona" / "stock_pool.md"
+    if not f.exists():
+        return None
+    import re
+    t = f.read_text(encoding="utf-8")
+    m, th = re.search(r"^POOL: ([\d,]+)", t, re.M), re.search(r"^THEME: (.+)$", t, re.M)
+    codes = m.group(1).split(",") if m else []
+    names = dict(re.findall(r"^\| ([^|（(]+?)(?:（[^）]*）)? \| (\d{6}) \|", t, re.M))
+    names = {v: k.strip() for k, v in names.items()} if names else {}
+    secs = collections.Counter()
+    try:
+        rt = (ROOT / "md" / "rules.md").read_text(encoding="utf-8")
+        cur, big = None, None
+        for line in rt.splitlines():
+            if line.startswith("## "):
+                big = line[3:].strip()
+            elif line.startswith("### "):
+                cur = f"{big}/{line[4:].strip()}" if big in ("半导体", "AI 硬件") else None
+            elif cur and line.startswith("|"):
+                cell = line.strip("|").split("|")[0].strip()
+                if cell and any(cell == n or cell in n or n in cell for n in names.values()):
+                    secs[cur] += 1
+    except OSError:
+        pass
+    return {"theme": th.group(1).strip() if th else "", "codes": codes, "names": [names.get(c, c) for c in codes],
+            "sectors": [s for s, _ in secs.most_common(8)], "src": f"skills/{uid}-skill/persona/stock_pool.md + md/rules.md(桃哥 2025 细分表, 参考)"}
+
+
 def title(e, c):
     """facts 节标题: 名字(机械标签; 业绩风险; 截至 MM-DD 近 N 日) —— 名字在最前, 驱动器按名字切小节(MENTOR_HEAD)不受影响"""
     head = M.head(e["id"])
     if e["type"] == "UP":
-        return f"{head}(B站 UP, 视频披露; 无账本)"
+        pl = up_pool(e["id"])
+        return f"{head}(B站 UP, 视频披露; 无账本" + (f"; 关注: {pl['theme']}" if pl and pl.get("theme") else "") + ")"
     if not c:
         return f"{head}(账本数据不足, 暂无机械标签)"
     return f"{head}({'·'.join(c['style'])}; {'·'.join(c['perf'])}; 截至 {c['asof']} 近 {c['n_days']} 个交易日)"
@@ -143,6 +175,8 @@ def build(D):
             continue
         c = card(e["id"], D) if e["type"] == "tzzb" else None
         res["cards"][e["id"]] = {"name": e["name"], "type": e["type"], "online": e.get("online"), "card": c, "title": title(e, c)}
+        if e["type"] == "UP" and up_pool(e["id"]):
+            res["cards"][e["id"]]["pool"] = up_pool(e["id"])
     OUT.mkdir(exist_ok=True)
     (OUT / f"{D}.json").write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
     L = [f"# 导师名片（机械统计，{D} 之前的数据；每天自动重算）", "",
@@ -154,7 +188,11 @@ def build(D):
         if c:
             L.append(f"| {v['name']} | {v['type']} | {v.get('online') or ''} | {' · '.join(c['style'])} | {' · '.join(c['perf'])} | {'、'.join(c['top_names'])} | {c['window'][0][5:]}~{c['window'][1][5:]}({c['n_days']} 天, 新开仓 {c['new_buys']} 笔) |")
         else:
-            L.append(f"| {v['name']} | {v['type']} | {v.get('online') or ''} | {'B站 UP，视频披露，无账本' if v['type'] == 'UP' else '数据不足'} | | | |")
+            pl = v.get("pool")
+            if pl:   # 10/19: UP 常讲股票池 + 衍生板块(md/rules.md 细分表)
+                L.append(f"| {v['name']} | {v['type']} | {v.get('online') or ''} | B站 UP，视频披露，无账本；关注 {pl['theme']}；衍生细分：{'、'.join(pl['sectors']) or '—'} | | {'、'.join(pl['names'][:8])}… | 股票池 |")
+            else:
+                L.append(f"| {v['name']} | {v['type']} | {v.get('online') or ''} | {'B站 UP，视频披露，无账本' if v['type'] == 'UP' else '数据不足'} | | | |")
     latest = max((p.stem for p in OUT.glob("20*-*-*.json")), default=D)
     if D < latest:   # 10/18: as-of 回放算历史某天的名片时不覆盖给你看的 md(md 只展示最新一天)
         return res

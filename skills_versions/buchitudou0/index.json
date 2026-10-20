@@ -393,6 +393,306 @@
     "chain": "09a50fcc6c03",
     "distill": "252af833c9b5"
    }
+  },
+  {
+   "v": 11,
+   "id": "v011_20261019-1946",
+   "ts": "2026-10-19T19:46:52",
+   "effective_from": "2026-10-19T19:41:23",
+   "unit": "skill",
+   "version_hash": "730f6ee75ef091b8b732003cf9cef42296c49ef5c4f1a3eb6540171ffec517e3",
+   "cat_hash": {
+    "提示词": "d48ffb1be63dde9dddfb6b9f6c78f4985c5357abc0dc524a806a0a8eaec8e02d",
+    "数据": "37f121f9a933937c5148c8b6d8250be824b85e7f9d0b3b0f437d36688c8459cf",
+    "画像": "34fddb1a28cef589d403e34c73b8114271728bc1bc2e5214e4f77211c327caec"
+   },
+   "data_hash": "ace2e85e031433892ec8bc1e3497595dfdcc9912d0dbaaa342a042ac7cb4d04b",
+   "parent": "v010_20261019-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 20,
+    "removed": 3
+   },
+   "bytes_weight": 155976,
+   "why": "check-md 2026-10-19 19:46",
+   "code": {
+    "chain": "09a50fcc6c03",
+    "distill": "c48c39052876"
+   }
+  },
+  {
+   "v": 12,
+   "id": "v012_20261019-2023",
+   "ts": "2026-10-19T20:23:12",
+   "effective_from": "2026-10-19T19:49:48",
+   "unit": "skill",
+   "version_hash": "0bf4ed765ed3375d222dfddee9bdae4328ec83686c70b27296ea76a64b5dad64",
+   "cat_hash": {
+    "提示词": "d48ffb1be63dde9dddfb6b9f6c78f4985c5357abc0dc524a806a0a8eaec8e02d",
+    "数据": "078c20ce158561859a8fe67ace3c60c78a706afbd29b62124c8a02c118052902",
+    "画像": "34fddb1a28cef589d403e34c73b8114271728bc1bc2e5214e4f77211c327caec"
+   },
+   "data_hash": "945e215e4ce12d18fcaec8732005c472705a91436a1802c9814e3b06ac8e95e4",
+   "parent": "v011_20261019-1946",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md"
+    ]
+   },
+   "data_changed": [
+    "persona/case_log/2026-01.md",
+    "persona/case_log/2026-02.md",
+    "persona/case_log/2026-03.md",
+    "persona/case_log/2026-04.md",
+    "persona/case_log/2026-05.md",
+    "persona/case_log/2026-06.md",
+    "persona/case_log/2026-07.md",
+    "persona/case_log/2026-08.md",
+    "persona/case_log/2026-09.md",
+    "persona/case_log/2026-10.md"
+   ],
+   "lines": {
+    "added": 0,
+    "removed": 1
+   },
+   "bytes_weight": 155974,
+   "why": "check-md 2026-10-19 20:23",
+   "code": {
+    "chain": "09a50fcc6c03",
+    "distill": "3c9c56bd634c"
+   }
+  },
+  {
+   "v": 13,
+   "id": "v013_20261019-2047",
+   "ts": "2026-10-19T20:47:32",
+   "effective_from": "2026-10-19T20:26:29",
+   "unit": "skill",
+   "version_hash": "ffd2f308022255fba6f35c40f0f9b936967f9e05f18f9f84986bf04aa749a8cf",
+   "cat_hash": {
+    "提示词": "d48ffb1be63dde9dddfb6b9f6c78f4985c5357abc0dc524a806a0a8eaec8e02d",
+    "数据": "adc2c2a33d55010513ec5a5cbf26868acb0724ff7c0673b99aee9ed08712f818",
+    "画像": "34fddb1a28cef589d403e34c73b8114271728bc1bc2e5214e4f77211c327caec"
+   },
+   "data_hash": "945e215e4ce12d18fcaec8732005c472705a91436a1802c9814e3b06ac8e95e4",
+   "parent": "v012_20261019-2023",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 5,
+    "removed": 5
+   },
+   "bytes_weight": 155988,
+   "why": "10/18 thicken 历史挖掘加厚",
+   "code": {
+    "chain": "09a50fcc6c03",
+    "distill": "3c9c56bd634c"
+   }
+  },
+  {
+   "v": 14,
+   "id": "v014_20261019-2114",
+   "ts": "2026-10-19T21:14:14",
+   "effective_from": "2026-10-19T21:14:00",
+   "unit": "skill",
+   "version_hash": "fd1ba458ae479a8a47b8a91bfc1502b9c418f9846671b1a927ea1aaebb903d81",
+   "cat_hash": {
+    "提示词": "d48ffb1be63dde9dddfb6b9f6c78f4985c5357abc0dc524a806a0a8eaec8e02d",
+    "数据": "645985ff238c6957b872a2bdb9bd0ed806a85796eee70b9b62c74ceedb4358f3",
+    "画像": "cf120e3e34de15e7a93257726e1c7c54cad52e9c44e7a36d4771bbec240f98a1"
+   },
+   "data_hash": "945e215e4ce12d18fcaec8732005c472705a91436a1802c9814e3b06ac8e95e4",
+   "parent": "v013_20261019-2047",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 40,
+    "removed": 28
+   },
+   "bytes_weight": 158753,
+   "why": "10/19 用户定性: 阶段妖债反复套利(R0) + R7 只降仓不否决",
+   "code": {
+    "chain": "09a50fcc6c03",
+    "distill": "3c9c56bd634c"
+   }
+  },
+  {
+   "v": 15,
+   "id": "v015_20261019-2303",
+   "ts": "2026-10-19T23:03:41",
+   "effective_from": "2026-10-19T22:01:40",
+   "unit": "skill",
+   "version_hash": "90bccca65545b1b082e6247476607b7b73fc92edf6f1e7f47f6611bcf6b159b9",
+   "cat_hash": {
+    "提示词": "d48ffb1be63dde9dddfb6b9f6c78f4985c5357abc0dc524a806a0a8eaec8e02d",
+    "数据": "1829122871c60e2c381cf02e42c1f7b3d0832ef0acd221e3e444735e90114d0f",
+    "画像": "be6630865b6a6b3f5bee4a4b46ae4bc36939e739681573c69572cf589bd6818b"
+   },
+   "data_hash": "945e215e4ce12d18fcaec8732005c472705a91436a1802c9814e3b06ac8e95e4",
+   "parent": "v014_20261019-2114",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 31,
+    "removed": 26
+   },
+   "bytes_weight": 159380,
+   "why": "check-md 2026-10-19 23:03",
+   "code": {
+    "chain": "d38c83a63792",
+    "distill": "423f8d520fdc"
+   }
+  },
+  {
+   "v": 16,
+   "id": "v016_20261020-0041",
+   "ts": "2026-10-20T00:41:55",
+   "effective_from": "2026-10-20T00:19:04",
+   "unit": "skill",
+   "version_hash": "4c30f2449376fce4659471e7ec8042769cf4c0e0c8e9cc56b07c362ff49a6795",
+   "cat_hash": {
+    "提示词": "d48ffb1be63dde9dddfb6b9f6c78f4985c5357abc0dc524a806a0a8eaec8e02d",
+    "数据": "9beabc3a2bec4a25494f478d06bee3cec2f4520841db90f3393c270b75946b2e",
+    "画像": "4189d945da2ba18ab070804b076a78f08fd5bad4d18b8d04ac6a5d7766f39fa9"
+   },
+   "data_hash": "2422810ff8933569dd7f84c354f1ce1bc38c7020628b9a90ae17523451ee65c5",
+   "parent": "v015_20261019-2303",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/fingerprint.md",
+     "persona/profile.md",
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md",
+     "persona/profile.md",
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/fingerprint.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [
+    "persona/case_log/2026-10.md",
+    "persona/case_log/index.md"
+   ],
+   "lines": {
+    "added": 63,
+    "removed": 50
+   },
+   "bytes_weight": 161956,
+   "why": "check-md 2026-10-19 00:41",
+   "code": {
+    "chain": "825bd5ff6117",
+    "distill": "6c761eaacba3"
+   }
+  },
+  {
+   "v": 17,
+   "id": "v017_20261020-0800",
+   "ts": "2026-10-20T08:00:00",
+   "effective_from": "2026-10-20T00:44:48",
+   "unit": "skill",
+   "version_hash": "f5dff93d9bc6d584483c9afe9567091401aa6524bc2a37039db098b53c39944b",
+   "cat_hash": {
+    "提示词": "d48ffb1be63dde9dddfb6b9f6c78f4985c5357abc0dc524a806a0a8eaec8e02d",
+    "数据": "f7a73c6a7a3cd8a81464fa9f86fb5cf242602535b58c014de73b7cdbe847604f",
+    "画像": "4189d945da2ba18ab070804b076a78f08fd5bad4d18b8d04ac6a5d7766f39fa9"
+   },
+   "data_hash": "2422810ff8933569dd7f84c354f1ce1bc38c7020628b9a90ae17523451ee65c5",
+   "parent": "v016_20261020-0041",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 1
+   },
+   "bytes_weight": 161956,
+   "why": "check-md 2026-10-19 08:00",
+   "code": {
+    "chain": "825bd5ff6117",
+    "distill": "6c761eaacba3"
+   }
   }
  ],
  "events": [],

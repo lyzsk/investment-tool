@@ -1,0 +1,7 @@
+--- v003_20261019-0026/scripts/claude_profile/chain_flags.txt
++++ v004_20261019-1946/scripts/claude_profile/chain_flags.txt
+@@ -76,2 +76,4 @@
+ CHAIN_RISK_SIZE=0      # 06 买单按 1% 风险倒推建议股数 + ¼凯利上限, 只记账不拦单(quality_hooks._post_risk)
+ MIX_REGIME=0           # A-mix-sw 按该票三态 × 导师在该状态的历史期望加权(mix_plans.regime_mult)
++T_DECIDE_READ=1   # 10/19 决策T 可用 Read 按资料索引行号捞 facts 原文(0 = 只给索引不给工具)
++CHAIN_MENTOR_HOLD_FACTS=0   # 10/19 facts 加「导师真人昨日持仓」节 + 这些票进关注票快照(T-1 公开数据, 不偷看; 是否跟由 skill 裁决); 等你点头再开

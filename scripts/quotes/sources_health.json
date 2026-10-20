@@ -9671,6 +9671,918 @@
    "src": "sina",
    "ok": true,
    "err": null
+  },
+  {
+   "ts": "2026-10-19T01:27:02.092Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:27:06.543Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:27:08.513Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:27:09.445Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:27:11.369Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:27:14.879Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:35:02.148Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:35:06.506Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:35:08.047Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:35:10.070Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:35:12.369Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:35:16.895Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:45:00.578Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:45:02.571Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:45:04.430Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:45:06.283Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:45:07.617Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T01:45:13.464Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:00:01.802Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:00:09.730Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:00:11.625Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:00:12.750Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:00:15.070Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:00:20.427Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:30:00.700Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:30:04.420Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:30:06.303Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:30:08.006Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:30:09.675Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T02:30:15.356Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T03:00:05.135Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T03:00:09.907Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T03:00:11.566Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T03:00:12.715Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T03:00:19.610Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": null,
+   "ok": false,
+   "err": "东财: [BLOCKED] em_clist_delay 熔断中(UNAVAILABLE: 连败 3 次, 末次 UNAVAILABLE socket hang up https://push2delay.eastmoney.com/api"
+  },
+  {
+   "ts": "2026-10-19T03:00:27.021Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T04:30:02.875Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T04:30:05.736Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T04:30:07.166Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T04:30:09.010Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T04:30:15.649Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": null,
+   "ok": false,
+   "err": "东财: socket hang up; 本地备源: 无输出"
+  },
+  {
+   "ts": "2026-10-19T04:30:21.424Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T05:00:02.126Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T05:00:05.527Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T05:00:07.218Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T05:00:08.525Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T05:00:14.863Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": null,
+   "ok": false,
+   "err": "东财: [BLOCKED] em_clist_delay 熔断中(UNAVAILABLE: 连败 3 次, 末次 UNAVAILABLE socket hang up https://push2delay.eastmoney.com/api"
+  },
+  {
+   "ts": "2026-10-19T05:00:35.245Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:00:00.672Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:00:01.971Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:00:03.403Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:00:04.531Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:00:06.132Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:00:11.921Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:35:02.572Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:35:05.581Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:35:07.435Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:35:08.462Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T06:35:15.365Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": null,
+   "ok": false,
+   "err": "东财: [BLOCKED] em_clist_delay 熔断中(UNAVAILABLE: 连败 3 次, 末次 UNAVAILABLE socket hang up https://push2delay.eastmoney.com/api"
+  },
+  {
+   "ts": "2026-10-19T06:35:27.183Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": null,
+   "ok": false,
+   "err": "HTTP 502"
+  },
+  {
+   "ts": "2026-10-19T07:40:01.351Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T07:40:02.925Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T07:40:04.332Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T07:40:05.812Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T07:40:13.440Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": null,
+   "ok": false,
+   "err": "东财: socket hang up; 本地备源: 无输出"
+  },
+  {
+   "ts": "2026-10-19T07:40:18.501Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T10:49:55.243Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T10:49:57.598Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T10:49:59.120Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T10:50:00.022Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T10:50:05.249Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "local-db(东财失败兜底)",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T10:50:09.886Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:43:35.122Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:43:37.458Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:43:38.817Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:43:40.257Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:43:45.237Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "local-db(东财失败兜底)",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:43:49.007Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:58:57.550Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:58:59.574Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:59:00.615Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:59:02.152Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:59:07.756Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "local-db(东财失败兜底)",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T11:59:12.749Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T12:20:23.392Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T12:20:25.581Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T12:20:27.490Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T12:20:28.740Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T12:20:34.302Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "local-db(东财失败兜底)",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T12:20:40.005Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T13:06:07.100Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T13:06:09.527Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T13:06:11.031Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T13:06:12.168Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T13:06:17.566Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "local-db(东财失败兜底)",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T13:06:22.922Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T14:30:01.412Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T14:30:04.044Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T14:30:05.549Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T14:30:06.663Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T14:30:12.896Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "local-db(东财失败兜底)",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T14:30:18.116Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T15:45:01.125Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T15:45:02.543Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T15:45:03.747Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T15:45:05.486Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T15:45:10.965Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "local-db(东财失败兜底)",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-19T15:45:16.474Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "sina",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-20T00:05:00.438Z",
+   "script": "scan",
+   "board": "涨跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-20T00:05:01.916Z",
+   "script": "scan",
+   "board": "跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-20T00:05:03.692Z",
+   "script": "scan",
+   "board": "连板梯队",
+   "src": "eastmoney-ztpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-20T00:05:04.545Z",
+   "script": "scan",
+   "board": "跌停榜",
+   "src": "eastmoney-dtpool",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-20T00:05:05.601Z",
+   "script": "scan",
+   "board": "次新区间跌幅榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
+  },
+  {
+   "ts": "2026-10-20T00:05:09.673Z",
+   "script": "scan",
+   "board": "板块榜",
+   "src": "eastmoney",
+   "ok": true,
+   "err": null
   }
  ]
 }

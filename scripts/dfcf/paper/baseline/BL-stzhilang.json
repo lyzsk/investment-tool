@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "stzhilang",
  "name": "ST之狼",
- "generated_at": "2026-10-18T00:05:41",
+ "generated_at": "2026-10-19T19:46:50",
  "since": "2026-10-08",
- "until": "2026-10-16",
+ "until": "2026-10-19",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "延续",
@@ -23,7 +23,7 @@
   "minFee": 5.0,
   "stampTax": 0.0005
  },
- "cash": 9229.31,
+ "cash": 2440.31,
  "positions": {
   "001231": {
    "qty": 800,
@@ -44,6 +44,11 @@
    "qty": 1300,
    "cost": 17.9745,
    "since": "2026-10-16"
+  },
+  "600668": {
+   "qty": 800,
+   "cost": 8.4863,
+   "since": "2026-10-19"
   }
  },
  "orders": [
@@ -72,7 +77,7 @@
    "side": "BUY",
    "code": "002343",
    "amount": 26095.83,
-   "why": "加仓: 目标总仓 67% | 打法 连板接力(按打法) 池分 15.972",
+   "why": "加仓: 目标总仓 67% | 打法 连板接力(按打法) 池分 15.969",
    "status": "filled",
    "price": 8.91,
    "qty": 2900
@@ -86,6 +91,16 @@
    "status": "filled",
    "price": 17.97,
    "qty": 1300
+  },
+  {
+   "date": "2026-10-19",
+   "side": "BUY",
+   "code": "600668",
+   "amount": 7369.61,
+   "why": "加仓: 目标总仓 98% | 打法 连板接力(按打法) 池分 14.344",
+   "status": "filled",
+   "price": 8.48,
+   "qty": 800
   }
  ],
  "trades": [
@@ -114,7 +129,7 @@
    "price": 8.91,
    "qty": 2900,
    "fee": 6.46,
-   "why": "加仓: 目标总仓 67% | 打法 连板接力(按打法) 池分 15.972 | 开盘涨停、盘中开板, 按涨停价"
+   "why": "加仓: 目标总仓 67% | 打法 连板接力(按打法) 池分 15.969 | 开盘涨停、盘中开板, 按涨停价"
   },
   {
    "id": "2026-10-16-BL-stzhilang-004",
@@ -124,6 +139,15 @@
    "qty": 1300,
    "fee": 5.84,
    "why": "加仓: 目标总仓 92% | 打法 连板接力(按打法) 池分 14.695 | 开盘价"
+  },
+  {
+   "id": "2026-10-19-BL-stzhilang-005",
+   "side": "BUY",
+   "code": "600668",
+   "price": 8.48,
+   "qty": 800,
+   "fee": 5.0,
+   "why": "加仓: 目标总仓 98% | 打法 连板接力(按打法) 池分 14.344 | 开盘价"
   }
  ],
  "nav": [
@@ -182,6 +206,14 @@
    "nav": 92985.31,
    "filled": 1,
    "orders": 1
+  },
+  {
+   "date": "2026-10-19",
+   "cash": 2440.31,
+   "mv": 92744.0,
+   "nav": 95184.31,
+   "filled": 1,
+   "orders": 1
   }
  ],
  "daily": [
@@ -190,36 +222,7 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-09-30",
-   "p_trade": 0.501,
-   "p_dir_given_trade": [
-    0.013,
-    0.0,
-    0.987
-   ],
-   "decision": {
-    "trade": false,
-    "dir": 0,
-    "tp_hat": 0.0,
-    "tp_target_cap": 0.0,
-    "tp_final": 0.0,
-    "tp_final_cap": 0.0,
-    "src": {
-     "L1": "延续",
-     "L2": "常数",
-     "L4": "延续"
-    },
-    "add_step": 0.26295259680905225,
-    "red_step": 0.2859744312196734,
-    "n_new": 1
-   },
-   "tp_acct_prev": 0.0
-  },
-  {
-   "date": "2026-10-09",
-   "orders": [],
-   "stale": 0,
-   "state_day": "2026-10-08",
-   "p_trade": 0.417,
+   "p_trade": 0.466,
    "p_dir_given_trade": [
     0.012,
     0.0,
@@ -244,11 +247,40 @@
    "tp_acct_prev": 0.0
   },
   {
+   "date": "2026-10-09",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-08",
+   "p_trade": 0.399,
+   "p_dir_given_trade": [
+    0.01,
+    0.0,
+    0.99
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0,
+    "tp_target_cap": 0.0,
+    "tp_final": 0.0,
+    "tp_final_cap": 0.0,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.26295259680905225,
+    "red_step": 0.2859744312196734,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
    "date": "2026-10-12",
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-09",
-   "p_trade": 0.404,
+   "p_trade": 0.366,
    "p_dir_given_trade": [
     0.008,
     0.0,
@@ -277,7 +309,7 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-12",
-   "p_trade": 0.433,
+   "p_trade": 0.426,
    "p_dir_given_trade": [
     0.006,
     0.0,
@@ -327,11 +359,11 @@
    ],
    "stale": 0,
    "state_day": "2026-10-13",
-   "p_trade": 0.801,
+   "p_trade": 0.802,
    "p_dir_given_trade": [
-    0.733,
-    0.058,
-    0.209
+    0.747,
+    0.056,
+    0.197
    ],
    "decision": {
     "trade": true,
@@ -372,11 +404,11 @@
    ],
    "stale": 0,
    "state_day": "2026-10-14",
-   "p_trade": 0.583,
+   "p_trade": 0.586,
    "p_dir_given_trade": [
     0.009,
-    0.082,
-    0.909
+    0.106,
+    0.885
    ],
    "decision": {
     "trade": true,
@@ -417,11 +449,11 @@
    ],
    "stale": 0,
    "state_day": "2026-10-15",
-   "p_trade": 0.757,
+   "p_trade": 0.76,
    "p_dir_given_trade": [
-    0.656,
+    0.635,
     0.0,
-    0.344
+    0.365
    ],
    "decision": {
     "trade": true,
@@ -440,6 +472,51 @@
     "n_new": 1
    },
    "tp_acct_prev": 0.655,
+   "sizing": {
+    "single_size": 0.247,
+    "k": 1,
+    "top_play": "连板接力"
+   }
+  },
+  {
+   "date": "2026-10-19",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "600668",
+     "name": "尖峰集团",
+     "play": "连板接力",
+     "how": "按打法",
+     "filled": true,
+     "price": 8.48,
+     "qty": 800
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-16",
+   "p_trade": 0.563,
+   "p_dir_given_trade": [
+    0.01,
+    0.2,
+    0.79
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.0,
+    "tp_target_cap": 0.0,
+    "tp_final": 0.26295259680905225,
+    "tp_final_cap": 0.26295259680905225,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.26295259680905225,
+    "red_step": 0.2859744312196734,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.901,
    "sizing": {
     "single_size": 0.247,
     "k": 1,

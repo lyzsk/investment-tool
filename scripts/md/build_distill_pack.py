@@ -191,6 +191,14 @@ def build(skill, d):
     else:
         L.append("(profile_index.md 缺失)")
     L.append("")
+    # 10/19 用户定: "paper 和导师为什么偏离" 直接在蒸馏里消费(不另存报告) —— 读 fingerprint.md 的 AUTO:paper偏离 块(paper_vs_real.py 每晚写)
+    try:
+        fpt = (ROOT / "skills" / f"{skill}-skill" / "persona" / "fingerprint.md").read_text(encoding="utf-8")
+        m = re.search(r"<!-- AUTO:paper偏离 -->([\s\S]*?)<!-- /AUTO:paper偏离 -->", fpt)
+        if m:
+            L += ["## ⑥ paper 链 vs 本人 偏离(看'看见没选'和'仓位差'两类: 这是规则 / 画像要改进的地方; '看不见'是候选池问题, 不要为它改规则)", "", m.group(1).strip(), ""]
+    except OSError:
+        pass
     out = OUT / d / f"{skill}.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(L), encoding="utf-8")

@@ -74,6 +74,34 @@ PROMPT2 = """任务: 给 tzzb 导师「{name}」(ledger={id}) 的 skill **第二
 5. 全部写完后单独一行输出 `THICKEN2_OK {id}`。
 """
 
+# 10/19(TODO 二-8 "精读 50 天新手法升规则"): 日卡解读时标了 new=true(现有规则解释不了)的日子, 逐张精读后升规则
+PROMPT3 = """任务: 导师「{name}」(ledger={id}) 的日卡解读里有 {n_new} 天被标为"新手法候选"(现有规则解释不了), 逐天精读、能升规则的升规则。元指令: 任务优先, 禁反问; 只读下面列的文件, 只写暂存目录 {out}/。
+材料:
+- 这些日期: {dates}
+- 日卡: `skills/{id}-skill/persona/case_log/<YYYY-MM>.md` 里这些日期的 `### 日期` 段(只读这些段); 日卡末尾已有当时的"解读"(手法类 + 竞争假设 + 概率)
+- 解读原始记录: `skills/{id}-skill/persona/case_log/annotations.jsonl` 里 new=true 的行
+- 现有规则: `skills/{id}-skill/persona/rules_index.md`(一行一条); 需要细节按行号读 rules.md
+要做:
+1. 逐天判断: 这天的手法 ①能并入现有某条规则(写"应并入 R<n>, 补充什么") ②是新规则(同类出现 ≥2 天 或 单天但很有代表性, 单样本标 [单样本]) ③只是噪声 / 数据缺口(写理由)。
+2. 新规则 → `{out}/rules_new.md`, 编号从 R{next_r} 起, 格式同现有规则(标题 `### R<n> <一句话> [画像]（10/19 新手法升规则）` + 规则 / 证据链(引用具体日卡日期) / 竞争假设(概率合计 100%, 必含"其他/证据不足") / 证伪条件 / 时间状态); 数字只抄日卡, 不许编。
+3. `{out}/cases_new.md`: 每条新规则配 1 张案例卡(格式同 cases.md 的 `### [类型] 日期 …`); 没有新规则就写一行 "(无)"。
+4. `{out}/report.md`: 逐天的判断表(日期 / 手法 / ①②③ / 理由一句)、并入现有规则的建议清单(下次蒸馏核销时用)。
+5. 写完单独一行输出 `THICKEN3_OK {id}`。
+"""
+
+
+def new_dates(sk):
+    f = ROOT / "skills" / f"{sk}-skill" / "persona" / "case_log" / "annotations.jsonl"
+    out = []
+    for l in (f.read_text(encoding="utf-8").splitlines() if f.exists() else []):
+        try:
+            r = json.loads(l)
+        except ValueError:
+            continue
+        if r.get("new") and r.get("date") not in out:
+            out.append(r["date"])
+    return sorted(out)
+
 
 def counts(sk):
     rules = (ROOT / "skills" / f"{sk}-skill" / "persona" / "rules.md").read_text(encoding="utf-8")
@@ -87,14 +115,14 @@ def n_cards(sk):
     return len(re.findall(r"^- \[\d{4}-\d\d-\d\d\]", f.read_text(encoding="utf-8"), re.M)) if f.exists() else 0
 
 
-def run(sk, force, pass2=False):
+def run(sk, force, pass2=False, pass3=False):
     try:   # 10/18: 用户去掉不进 paper 的导师, 要不要继续加厚 skill 待定 → 先跳过(省 token), 定了再跑
         if sk in (json.loads((ROOT / "scripts" / "tzzb" / "paper_excluded.json").read_text(encoding="utf-8")).get("excluded") or {}) and not force:
             print(f"{sk}: 不进 paper(paper_excluded.json), 加厚先跳过(--force 强跑)")
             return 0
     except (OSError, ValueError):
         pass
-    out = ROOT / "results" / ("thicken2" if pass2 else "thicken") / sk
+    out = ROOT / "results" / ("thicken3" if pass3 else "thicken2" if pass2 else "thicken") / sk
     if (out / "DONE").exists() and not force:
         print(f"{sk}: 已有暂存(DONE), 跳过(--force 重跑)")
         return 0
@@ -104,15 +132,21 @@ def run(sk, force, pass2=False):
     out.mkdir(parents=True, exist_ok=True)
     nr, nc, nx = counts(sk)
     rel = str(out.relative_to(ROOT)).replace("\\", "/")
-    if pass2:
+    if pass3:
+        nd = new_dates(sk)
+        if not nd:
+            print(f"{sk}: 没有新手法候选, 跳过")
+            return 0
+        prompt = PROMPT3.format(name=M.get(sk)["name"], id=sk, out=rel, next_r=nx, n_new=len(nd), dates=", ".join(nd))
+    elif pass2:
         if not n_cards(sk):
             print(f"{sk}: 缺 case_log 日卡, 先跑 case_log.py")
             return 1
         prompt = PROMPT2.format(name=M.get(sk)["name"], id=sk, out=rel, n_rules=nr, n_cases=nc, next_r=nx, n_cards=n_cards(sk))
     else:
         prompt = PROMPT.format(name=M.get(sk)["name"], id=sk, out=rel, n_rules=nr, n_cases=nc, next_r=nx)
-    tok = "THICKEN2_OK" if pass2 else "THICKEN_OK"
-    r = claude_call(prompt, tag=f"tzzb-thicken{'2' if pass2 else ''}:{sk}", permission="acceptEdits", timeout=3600, extra_args=LEAN_ARGS,
+    tok = "THICKEN3_OK" if pass3 else "THICKEN2_OK" if pass2 else "THICKEN_OK"
+    r = claude_call(prompt, tag=f"tzzb-thicken{'3' if pass3 else '2' if pass2 else ''}:{sk}", permission="acceptEdits", timeout=3600, extra_args=LEAN_ARGS,
                     sentinels=[f"{tok} {sk}"], require_sentinels=True, expect_files=[out / "rules_new.md", out / "cases_new.md", out / "report.md"])
     print(f"{sk}: ok={r.ok} cost=${r.cost_usd:.2f} 用时 {r.duration_s:.0f}s errors={r.errors[:3]}")
     if r.ok:
@@ -120,22 +154,26 @@ def run(sk, force, pass2=False):
     return 0 if r.ok else 1
 
 
-def merge(sk, pass2=False):
-    out = ROOT / "results" / ("thicken2" if pass2 else "thicken") / sk
+def merge(sk, pass2=False, pass3=False):
+    out = ROOT / "results" / ("thicken3" if pass3 else "thicken2" if pass2 else "thicken") / sk
     pdir = ROOT / "skills" / f"{sk}-skill" / "persona"
     rn, cn = (out / "rules_new.md").read_text(encoding="utf-8").strip(), (out / "cases_new.md").read_text(encoding="utf-8").strip()
     rules, cases = (pdir / "rules.md").read_text(encoding="utf-8"), (pdir / "cases.md").read_text(encoding="utf-8")
-    bak = ROOT / "scripts" / "temp" / "night_bak" / ("thicken2_before" if pass2 else "thicken_before") / sk
+    bak = ROOT / "scripts" / "temp" / "night_bak" / ("thicken3_before" if pass3 else "thicken2_before" if pass2 else "thicken_before") / sk
+    if pass3 and not re.search(r"^#{3,4} +R\d+", rn, re.M):   # 没有新规则标题(写的是"(无)"/"(无新规则)"等) = 不动 skills
+        print(f"{sk}: 新手法没升出新规则(见 {out.relative_to(ROOT)}/report.md 的并入建议), 不改 skills")
+        return
     bak.mkdir(parents=True, exist_ok=True)
     (bak / "rules.md").write_text(rules, encoding="utf-8")
     (bak / "cases.md").write_text(cases, encoding="utf-8")
     rn = "\n".join(l for l in rn.splitlines() if not l.startswith("# "))   # 去掉暂存文件自带的一级标题
-    cn = "\n".join(l for l in cn.splitlines() if not l.startswith("# "))
-    block_r = (f"\n\n## 逐日日卡第二轮新增（10/18 thicken.py --pass2; 来源 case_log/ + hold_mining_{sk}.md 滚动验证）\n\n{rn}\n\n" if pass2 else
+    cn = "\n".join(l for l in cn.splitlines() if not l.startswith("# ") and l.strip() != "(无)")
+    block_r = (f"\n\n## 新手法升规则（10/19 thicken.py --pass3; 来源 日卡解读里 new=true 的日子）\n\n{rn}\n\n" if pass3 else
+               f"\n\n## 逐日日卡第二轮新增（10/18 thicken.py --pass2; 来源 case_log/ + hold_mining_{sk}.md 滚动验证）\n\n{rn}\n\n" if pass2 else
                f"\n\n## 历史全量挖掘新增（10/18 thicken.py; 来源 fingerprint.md + hold_mining_{sk}.md）\n\n{rn}\n\n")
     m = re.search(r"^## 速览行", rules, re.M)
     rules = rules[:m.start()] + block_r.lstrip("\n") + rules[m.start():] if m else rules.rstrip() + block_r
-    block_c = f"\n## {'逐日日卡第二轮案例卡（10/18 thicken.py --pass2）' if pass2 else '历史全量挖掘案例卡（10/18 thicken.py）'}\n\n{cn}\n\n"
+    block_c = f"\n## {'新手法升规则案例卡（10/19 thicken.py --pass3）' if pass3 else '逐日日卡第二轮案例卡（10/18 thicken.py --pass2）' if pass2 else '历史全量挖掘案例卡（10/18 thicken.py）'}\n\n{cn}\n\n"
     m = re.search(r"^## 执行质量双尾样本库", cases, re.M)
     cases = cases[:m.start()] + block_c.lstrip("\n") + cases[m.start():] if m else cases.rstrip() + "\n" + block_c
     (pdir / "rules.md").write_text(rules, encoding="utf-8")
@@ -152,10 +190,11 @@ def main():
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--merge", action="store_true")
     ap.add_argument("--pass2", action="store_true", help="第二轮: 读逐日日卡 case_log + 滚动验证挖掘")
+    ap.add_argument("--pass3", action="store_true", help="10/19: 日卡解读里 new=true 的新手法候选 → 升规则")
     a = ap.parse_args()
     rc = 0
     for sk in a.ledger.split(","):
-        rc |= (merge(sk, a.pass2) or 0) if a.merge else run(sk, a.force, a.pass2)
+        rc |= (merge(sk, a.pass2, a.pass3) or 0) if a.merge else run(sk, a.force, a.pass2, a.pass3)
     if a.merge:
         subprocess.run([PY, "-X", "utf8", "scripts/skills_ver/persona_versions.py", "snapshot", "--all", "--why", "10/18 thicken 历史挖掘加厚"], cwd=ROOT, creationflags=NOWIN, capture_output=True)
         subprocess.run(["node", "scripts/sync_skills.mjs"], cwd=ROOT, creationflags=NOWIN, capture_output=True)

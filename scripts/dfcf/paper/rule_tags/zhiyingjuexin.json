@@ -428,10 +428,34 @@
    },
    "mech_text": null,
    "level": "机械"
+  },
+  "R36": {
+   "id": "R36",
+   "title": "新开仓逆着 R9 走: 低吸前期强势票的日内深跌(较昨收 -5%~-8%, 日内位置 ≤0.26), 已见 2 天都是市",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R37": {
+   "id": "R37",
+   "title": "平开/低开日照例卖掉隔夜重仓后, 14~20 分钟内在卖价附近或更高买回同票一部分, 收盘净减仓——R24 高开反T 之",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
   }
  },
- "n": 35,
+ "n": 37,
  "n_mech": 2,
- "n_dir": 30,
+ "n_dir": 32,
  "n_distilled": 0
 }

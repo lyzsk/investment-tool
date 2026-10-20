@@ -469,10 +469,22 @@
    "mech": null,
    "mech_text": null,
    "level": "话术级"
+  },
+  "R40": {
+   "id": "R40",
+   "title": "当日触板又炸开的票, 回落到较昨收 +6%~+8% 时一笔满仓追入(不在涨停价)",
+   "level_tag": null,
+   "struck": false,
+   "dir": "持有",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
   }
  },
- "n": 39,
+ "n": 40,
  "n_mech": 0,
- "n_dir": 23,
+ "n_dir": 24,
  "n_distilled": 3
 }

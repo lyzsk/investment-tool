@@ -2484,6 +2484,7 @@ _SLIM_KEYS = ("content", "new_string", "old_string")   # 写入类工具的大�
 # (逗号白名单, '*'=全部, 缺省/空=无) 时: 06 出单后每个 action 落 decisions/<skill>.jsonl; 04/06 prompt 末尾注入本链已结算反思。
 # 结算/反思由 scripts/dfcf/paper/settle_decisions.py 收盘后跑; 读写逻辑在 scripts/dfcf/paper/decision_memory.py(仅开启时懒加载)
 REFLECT = _flag("CHAIN_REFLECTION")
+DECISION_LOG = _flag("CHAIN_DECISION_LOG")   # 10/19 晚: 决策日志 + 延迟结算对全链开(零 token), 和反思回注(花 token、改 prompt)分开
 # 10/16 晚 TODO 二B-6 反思回注 FinCon 式触发(CHAIN_REFLECT_TRIGGER, 默认关; 关=逐字节旧行为): 收盘后 scripts/dfcf/paper/reflect_trigger.py --date D
 # 机械判"拟人偏差连续 N 日同维度偏离导师真人 / 账户回撤超阈"(阈值 params.yaml reflection_trigger) → reflection/<D>.json;
 # 开启时 04/06 prompt 末尾(紧随已结算反思块)注入"运行日之前最近一份"里本链的 inject 原文(只含执行参数 + ≤3 条 07 case, 不改画像/规则); 本链未触发=不注入
@@ -3566,11 +3567,19 @@ def tudou_t0_block(step, ctx):
                + (f"({(r['close'] / r['preClose'] - 1) * 100:+.1f}%)" if r.get("preClose") else "") for i, r in enumerate(rows[:3], 1)]
         if not top:
             return ""
+        # 10/19 用户口述的转债逻辑(正股涨停→转债 20cm 空间 / 临赎回临期 / 负溢价拉回 / 同热点最强一支)落成事实表 → 注入精选(collect_cb_facts.py 每晚产)
+        cbf = ""
+        try:
+            cbf = (mk / prev / "cb_facts.md").read_text(encoding="utf-8")
+            cbf = "\n".join(l for l in cbf.splitlines() if not l.startswith("# "))[:3500]
+        except OSError:
+            cbf = ""
         return ("\n\n# 驱动器注入: 竞价T 机械选债(10/18 逆向他的 103 个竞价日: 09:25 竞价买的那只 ≈ 前一交易日全市场转债成交额第一, "
                 "top1 命中 60% / 前三 88%, 时间外 68% / 95%; 他连做同一只时它通常仍是额第一, 掉出前二多半换票)\n"
                 f"- {prev} 转债成交额前三: " + " | ".join(top) + "\n"
                 "- 用法: 首选第 1 名下 op=\"竞价T\"(竞价买、开盘即卖), 金额按他的固定名义本金习惯; 正股竞价高开 ≥2% 时他胜率 91%(0915 看不到当天竞价, 这只是参考); "
-                "第 1 名正股前一日大跌且他近 8 日做过别的熟票时, 他偶尔回到老票(17/103 天)。\n")
+                "第 1 名正股前一日大跌且他近 8 日做过别的熟票时, 他偶尔回到老票(17/103 天)。\n"
+                + (f"\n## 前一交易日 {prev} 可转债事实表精选(collect_cb_facts.py; 只是事实, 用不用按 R0 阶段妖债 / R4 / R6 / R8 裁决)\n{cbf}\n" if cbf else ""))
     except Exception as e:   # noqa: BLE001  fail-open
         print(f"WARN: 竞价T 选债注入失败(fail-open): {e}")
         return ""
@@ -3622,6 +3631,53 @@ SESSION_COST = {}                      # session_id → claude 报的累计美�
 #   ①02 也附 cand_snap/paper_state ②附"工作目录清单"(文件名+大小)免摸目录 ③工作方式约定: 不自检 contract(驱动器写完立刻机械校验并回传原因)、产物一次写全、rules 按索引行号一次读
 STEP_PACK = _flag("CHAIN_STEP_PACK")
 STEP_PACK_EXTRA = {"02": ["@ps"]}   # 10/18 查因: 0915 的 cand_snap 要到 03j 后才生成, 02 附它 20/20 次都是"不存在" → 去掉
+# 10/19 晚(TODO 二-13, 用户: "相关性只能参考, 最终 LLM 判断, 但要确保被消费、引发 LLM 思考"): 市场拓扑注入 04/06
+#   持仓 + 已出现的候选票(02/03j/04/05 合同里的 6 位代码)各一行: 行业 | 前 3 邻居(昨日涨跌) | 期货; 只用前一晚的拓扑(不偷看); 子链不注入(省 token)
+TOPOLOGY = _flag("CHAIN_TOPOLOGY")
+
+
+def topology_block(step, ctx):
+    if not TOPOLOGY or step not in ("04", "06") or ctx.get("sub"):
+        return ""
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "market"))
+        import topology as TOPO
+        held = list(((ctx.get("book") or {}).get("positions") or {}).keys())
+        seen = re.findall(r"(?<!\d)([036]\d{5})(?!\d)", json.dumps({k: ctx["contracts"].get(k) for k in ("02", "03j", "04", "05")}, ensure_ascii=False))
+        codes = list(dict.fromkeys(held + seen))[:10]
+        rows = TOPO.brief(codes, ctx.get("date_dash") or datetime.now().strftime("%Y-%m-%d"))
+        if not rows:
+            return ""
+        return ("\n\n# 驱动器补充: 市场拓扑(持仓 / 候选的关联票, 扣大盘后近 60/20 日联动 + 同行业 + 期货; 括号 = 昨日涨跌)\n"
+                + "\n".join("- " + r for r in rows)
+                + "\n- 用法: 对每只要动的票想一句 —— 它和邻居昨天同向还是背离? 同向 = 板块行情, 背离 = 个股消息/资金或补涨补跌(去事实包找原因)。"
+                  "这是过去的统计, 题材刚切换会滞后, 只作参考, 不改变本导师的规则与判断")
+    except Exception as e:  # noqa: BLE001
+        print(f"WARN: 拓扑注入失败(本步不注入): {e}")
+        return ""
+
+
+# 10/19 晚(TODO 二-6 省钱, 用户令"没做的话现在可以做"): 子链版素材包 CHAIN_SUB_PACK —— 10/18 拆账: 盘中子链 sub3 80 个会话占全天输入 64%、花费 53%,
+#   每个平均 16 轮 / 19.6 次工具(摸目录 / 重读 rules / 自写校验); 0915 的 CHAIN_STEP_PACK 没覆盖子链(代码路径不经过 _a6_prompt)。
+#   开 = sub3 合并调用前面加同一份工作方式约定 + 直接附 rules_index / paper_state / cand_snap 原文(免 Read); 关 = 逐字节旧行为
+SUB_PACK = _flag("CHAIN_SUB_PACK")
+
+
+def sub_pack_block(run_dir):
+    if not SUB_PACK:
+        return ""
+    try:
+        att, used, missing = a6_attach(["@ri", "@ps", "@cs"], run_dir)
+    except Exception as e:   # noqa: BLE001  fail-open
+        print(f"WARN: 子链素材包附件失败(fail-open): {e}")
+        att, used, missing = "", [], []
+    keep = STEP_PACK
+    globals()["STEP_PACK"] = True   # 复用同一段约定文字(不受 0915 开关影响)
+    try:
+        head = step_pack_block("sub3", run_dir).replace("CHAIN_STEP_PACK", "CHAIN_SUB_PACK")
+    finally:
+        globals()["STEP_PACK"] = keep
+    return (head + "# 已附原文(不用再 Read): " + ("、".join(used) or "无") + ("; 未附: " + "、".join(missing) if missing else "") + "\n" + att + "\n")
 
 
 def step_pack_block(step, run_dir):
@@ -4008,6 +4064,7 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
         p_ += ledger_block(step, ctx)       # 10/16 晚 三-2 账本约束/基线/候选池(02/04/06): 关=空串
         p_ += quality_block(step, ctx)      # 10/17 ② 决策质量参考(相似市况/时段/T 法/挂价规则): 全关=空串
         p_ += tudou_t0_block(step, ctx)     # 10/18 土豆竞价T 机械选债(非土豆=空串)
+        p_ += topology_block(step, ctx)     # 10/19 晚 市场拓扑(CHAIN_TOPOLOGY; 关=空串)
         p_ += late_news_block(step, run_dir, date_dash, slot)   # 10/16: 0915 链开跑后才入库的发哥推演, 作增量注入后续步
         if SKILL_NAME not in ("taoge", "control", "buchitudou0") and step in ((("03b", "03s", "03j") if mimic_on() else ("blind", "03b", "03s", "03j"))):   # 10/16 审计#8: 盲审/辩论模板残留桃哥口径
             p_ += ("\n\n# 驱动器补充(10/16 方案 A): 本链按本导师自己的框架决策。盲审/辩论只按本导师的能力圈与规则审, "
@@ -4061,7 +4118,7 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
         if step not in a6["tail"]:   # 每步算一次(neg_warn 随机抽卡, 回炉沿用同一份, 与原路径一致)
             a6["tail"][step] = (((neg_warn() + reject_rules()) if step == "05" else "") + profile_block(step, ctx)
                                 + (constraint_text(ctx["pc"], step) if step in ("04", "05", "06") else "")
-                                + reflection_block(step, ctx) + fix_block(step, ctx) + ledger_block(step, ctx) + quality_block(step, ctx) + horizon_block(step, ctx) + tudou_t0_block(step, ctx))
+                                + reflection_block(step, ctx) + fix_block(step, ctx) + ledger_block(step, ctx) + quality_block(step, ctx) + horizon_block(step, ctx) + tudou_t0_block(step, ctx) + topology_block(step, ctx))
         tpl = templates[tpl_key(step, templates)].replace("{date_dash}", date_dash).replace("{date}", date).replace("{run_dir}", rd)
         main = a6["main"] and step in A6_MAIN_STEPS and not a6["main_broken"]
         if main and a6["msid"]:
@@ -4145,7 +4202,7 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
         else:
             stance_note = ""
         parts = [(s, p_ + (stance_note if s in ("04", "05", "06") else "")) for s, p_ in parts]
-        p_all = (_asof_note() if ASOF else "") + merge_prompt(parts, date, run_dir)
+        p_all = (_asof_note() if ASOF else "") + sub_pack_block(run_dir) + merge_prompt(parts, date, run_dir)
         since0 = time.time()
         ctx["final_attempt"] = False
         rc, usage, cost, dur = call_claude(p_all, trace=(run_dir / "tool_calls" / "sub3.jsonl", {"slot": slot, "step": "sub3", "attempt": 1}))
@@ -4403,7 +4460,7 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
     if "06" in steps:
         emit_plans(date_dash, slot, source, ctx["contracts"].get("06", {}), book,
                    (("【未过拟人审】" if mimic_on() else "【未过盲审】") if ctx.get("blind_fail") else ""))
-        if reflect_on():   # 10/14 §3-A 第 6 条: 每个 action 落待结算记录(关闭=不调用)
+        if reflect_on() or DECISION_LOG:   # 10/14 §3-A 第 6 条; 10/19 晚: 决策日志(零 token)与反思回注拆开 —— CHAIN_DECISION_LOG=1 全链都记, 回注仍看 CHAIN_REFLECTION
             log_decisions(date_dash, slot, source, ctx["contracts"].get("06", {}), ctx)
     print(f"链完成 {date} slot {slot} steps {'→'.join(steps)}")
     if ctx.get("esc_exit"):   # 10/14 晚 修④: 重跑后 06 仍 escalate(或时间预算不够重跑)——单照发, 出口 3 让 Java 记警告

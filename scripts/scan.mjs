@@ -66,9 +66,11 @@ async function emClist({ fs: fss, fid = 'f3', po = 1, pz = 30, fields = 'f12,f14
   return rows;
 }
 async function emClist2x(opt) {
-  try { return await emClist(opt); }
-  catch (e) { await jitter(); return await emClist(opt, 'push2delay.eastmoney.com'); }
+  // 10/19 收盘后两栈实测: push2delay 的 clist 走 IPv4 / IPv6 都 socket hang up(10/13 起每天 0~1 次成功, 天天熔断报红)
+  // → delay 从"push2 失败后第二选择"降到各榜备源(新浪 / 本地库)之后, 由 emDelay() 在备源也失败时最后一试
+  return await emClist(opt);
 }
+async function emDelay(opt) { await jitter(); return await emClist(opt, 'push2delay.eastmoney.com'); }
 const fmtPct = v => (v === '-' || v == null) ? '?' : (+v).toFixed(2) + '%';
 const fmtAmt = v => (v === '-' || v == null) ? '?' : (v >= 1e8 ? (v / 1e8).toFixed(1) + '亿' : (v / 1e4).toFixed(0) + '万');
 
@@ -135,7 +137,13 @@ async function rankBoard(asc, top, label) {
     const md = rows.map((r, i) => `${i + 1}. ${r.f14}(${r.f12}) ${fmtPct(r.f3)} 额${fmtAmt(r.f6)}`).join('\n');
     return { src: 'eastmoney', md, raw: rows };
   } catch (e1) {
-    const rows = await sinaRank(asc, top);  // 备源也灭=异常上抛, 由主流程闭环
+    let rows;
+    try { rows = await sinaRank(asc, top); }
+    catch (e2) {   // 新浪也灭 → 东财延迟镜像最后一试(10/19 降级); 再灭=异常上抛, 由主流程闭环
+      const er = await emDelay({ fs: FS_ALL_A, fid: 'f3', po: asc ? 0 : 1, pz: top });
+      return { src: 'eastmoney-delay15m', md: er.map((r, i) => `${i + 1}. ${r.f14}(${r.f12}) ${fmtPct(r.f3)} 额${fmtAmt(r.f6)}`).join('\n'), raw: er,
+        warn: `东财主源失败: ${e1.message}; 新浪失败: ${e2.message}` };
+    }
     const md = rows.map((r, i) => `${i + 1}. ${r.name}(${r.code}) ${fmtPct(r.pct)} 额${fmtAmt(r.amt)}`).join('\n');
     return { src: 'sina', md, raw: rows, warn: '东财主源失败: ' + e1.message };
   }
@@ -214,7 +222,14 @@ async function board次新(top) {
       { encoding: 'utf8', windowsHide: true, timeout: 30000 });
     let j = null;
     try { j = JSON.parse((r.stdout || '').trim().split('\n').pop()); } catch { /* 下面统一报错 */ }
-    if (!j || j.error || !j.rows?.length) throw new Error(`东财: ${e.message}; 本地备源: ${j?.error || r.error?.message || (r.stderr || '').slice(0, 120) || '无输出'}`);
+    if (!j || j.error || !j.rows?.length) {
+      try {   // 10/19: 本地库也不行 → 东财延迟镜像最后一试
+        const er = await emDelay({ fs: 'b:BK0959', fid: 'f24', po: 0, pz: top, fields: 'f12,f14,f2,f3,f24,f26' });
+        return { src: 'eastmoney-delay15m', warn: String(e.message || e).slice(0, 80), raw: er,
+          md: [`(次新股板块 BK0959, 东财延迟镜像, 按60日涨跌幅升序)`].concat(er.map((r, i) => `${i + 1}. ${r.f14}(${r.f12}) 上市${r.f26 || '?'} 60日${fmtPct(r.f24)} 今日${fmtPct(r.f3)}`)).join('\n') };
+      } catch { /* 下面统一报错 */ }
+      throw new Error(`东财: ${e.message}; 本地备源: ${j?.error || r.error?.message || (r.stderr || '').slice(0, 120) || '无输出'}`);
+    }
     const md = [`(东财失败, 本地行情库兜底: 近一年上市 ${j.n} 只, 数据日 ${j.asof} 收盘, 按60日涨跌幅升序; 60日=对60个交易日前收盘, 上市不足60日对首日收盘, 与东财口径近似)`]
       .concat(j.rows.map((x, i) => `${i + 1}. ${x.name}(${x.code}) 上市${x.list_date} 60日${fmtPct(x.pct60)} ${j.asof.slice(5)}日${fmtPct(x.pct_today)}`));
     return { src: 'local-db(东财失败兜底)', warn: String(e.message || e).slice(0, 80), md: md.join('\n'), raw: j.rows };
@@ -233,7 +248,15 @@ async function board板块() {
   } catch (e) {
     // 10/11 夜: 东财 push2/push2delay 整个 IP 被断连时板块榜整榜缺失 → 新浪行业/概念板块兜底(多源切换铁律)
     await jitter();
-    return await sina板块(e.message);
+    try { return await sina板块(e.message); }
+    catch (e2) {   // 10/19: 新浪也灭 → 东财延迟镜像最后一试
+      const hy = await emDelay({ fs: 'm:90+t:2', fid: 'f3', po: 1, pz: 8, fields: 'f14,f3' });
+      const hyDn = await emDelay({ fs: 'm:90+t:2', fid: 'f3', po: 0, pz: 8, fields: 'f14,f3' });
+      const gn = await emDelay({ fs: 'm:90+t:3', fid: 'f3', po: 1, pz: 8, fields: 'f14,f3' });
+      const line = (tag, rows) => `${tag}: ` + rows.map(x => `${x.f14}${fmtPct(x.f3)}`).join(' ');
+      return { src: 'eastmoney-delay15m', warn: `东财: ${e.message}; 新浪: ${e2.message}`,
+        md: [line('行业涨幅Top8', hy), line('行业跌幅Top8', hyDn), line('概念涨幅Top8', gn)].join('\n'), raw: { hy, hyDn, gn } };
+    }
   }
 }
 // 新浪板块: "var X = {"id":"id,名称,家数,均价,涨跌额,涨跌幅%,量,额,领涨代码,领涨涨幅,..."}"; 板块划分与东财不同, 输出标注口径

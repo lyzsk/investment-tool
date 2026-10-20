@@ -1,6 +1,18 @@
 {
- "builtAt": "2026-10-09T13:46:08.892Z",
+ "builtAt": "2026-10-19T11:52:02.122Z",
  "books": [
+  {
+   "src": "A-xingjianye",
+   "days": 8,
+   "nav": 107188.46,
+   "ret": 0.07188459999999997,
+   "mdd": -0.021499924596261266,
+   "sharpe": 5.293253787251806,
+   "filled": 29,
+   "voided": 7,
+   "voidRate": 0.19444444444444445,
+   "position": 0.9668204954152714
+  },
   {
    "src": "C-taoge",
    "days": 3,
@@ -26,127 +38,151 @@
    "position": 0
   },
   {
-   "src": "A-liuyiqing",
-   "days": 2,
-   "nav": 102775,
-   "ret": 0.02774999999999994,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0.8710192167355875
-  },
-  {
-   "src": "A-xingjianye",
-   "days": 2,
-   "nav": 100114,
-   "ret": 0.0011399999999999189,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0.0957208781988533
-  },
-  {
-   "src": "A-bianbenling",
-   "days": 2,
-   "nav": 100083,
-   "ret": 0.0008300000000001084,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0.050008492950850796
-  },
-  {
-   "src": "A-a658",
-   "days": 2,
-   "nav": 100000,
-   "ret": 0,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0
-  },
-  {
-   "src": "A-cb",
-   "days": 2,
-   "nav": 100000,
-   "ret": 0,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0
-  },
-  {
-   "src": "A-chong5000w",
-   "days": 2,
-   "nav": 100000,
-   "ret": 0,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0
-  },
-  {
-   "src": "A-daxingdaxingdadangxing",
-   "days": 2,
-   "nav": 100000,
-   "ret": 0,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0
-  },
-  {
-   "src": "A-gaogailvfuli",
-   "days": 2,
-   "nav": 100000,
-   "ret": 0,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0
-  },
-  {
-   "src": "A-lianghuaxiaohao",
-   "days": 2,
-   "nav": 100000,
-   "ret": 0,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0
-  },
-  {
-   "src": "A-lubenyuan",
-   "days": 2,
-   "nav": 100000,
-   "ret": 0,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0
+   "src": "A-stzhilang",
+   "days": 8,
+   "nav": 101417.43,
+   "ret": 0.014174299999999862,
+   "mdd": -0.014881666728023712,
+   "sharpe": 2.648730106374299,
+   "filled": 23,
+   "voided": 3,
+   "voidRate": 0.11538461538461539,
+   "position": 0.20552680145809257
   },
   {
    "src": "A-qushitiange",
+   "days": 8,
+   "nav": 101390.99,
+   "ret": 0.01390990000000003,
+   "mdd": -0.0011994828449518602,
+   "sharpe": 6.255984810614594,
+   "filled": 14,
+   "voided": 19,
+   "voidRate": 0.5757575757575758,
+   "position": 0
+  },
+  {
+   "src": "A-mix-eq",
+   "days": 2,
+   "nav": 100402.6,
+   "ret": 0.004026000000000085,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 2,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0.08529659590488692
+  },
+  {
+   "src": "A-meiyuelu",
+   "days": 1,
+   "nav": 100286.92,
+   "ret": 0.002869199999999905,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 1,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0.8117509242481472
+  },
+  {
+   "src": "A-chong5000w",
+   "days": 8,
+   "nav": 100187,
+   "ret": 0.0018700000000000383,
+   "mdd": -0.010650000000000048,
+   "sharpe": 0.7621806609847496,
+   "filled": 18,
+   "voided": 2,
+   "voidRate": 0.1,
+   "position": 0.8374539610927565
+  },
+  {
+   "src": "A-dbank",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-dmuyuan",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-dndq",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-hanxiao",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-hbank",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-hmuyuan",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-hndq",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-mix-lhb",
    "days": 2,
    "nav": 100000,
    "ret": 0,
@@ -158,7 +194,19 @@
    "position": 0
   },
   {
-   "src": "A-stzhilang",
+   "src": "A-mix-sw",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-mix",
    "days": 2,
    "nav": 100000,
    "ret": 0,
@@ -168,69 +216,273 @@
    "voided": 0,
    "voidRate": 0,
    "position": 0
+  },
+  {
+   "src": "A-tbank",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-tmuyuan",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-tndq",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-ynw01",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-zjwzlclf",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-zuoshoudeirong",
+   "days": 1,
+   "nav": 100000,
+   "ret": 0,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 0,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0
+  },
+  {
+   "src": "A-wudaokongfang",
+   "days": 1,
+   "nav": 99797,
+   "ret": -0.0020299999999999763,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 1,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0.17536599296572042
+  },
+  {
+   "src": "A-anlizhuohuo",
+   "days": 1,
+   "nav": 98766.36,
+   "ret": -0.012336400000000025,
+   "mdd": 0,
+   "sharpe": null,
+   "filled": 2,
+   "voided": 0,
+   "voidRate": 0,
+   "position": 0.8638568840645742
   },
   {
    "src": "A-xuanqiucaijing",
-   "days": 2,
-   "nav": 100000,
-   "ret": 0,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
+   "days": 8,
+   "nav": 98328.16,
+   "ret": -0.01671839999999991,
+   "mdd": -0.04119544317914092,
+   "sharpe": -1.4109993472594213,
+   "filled": 35,
+   "voided": 5,
+   "voidRate": 0.125,
+   "position": 0.2664546961928302
+  },
+  {
+   "src": "A-lubenyuan",
+   "days": 8,
+   "nav": 98295.05,
+   "ret": -0.01704949999999994,
+   "mdd": -0.025942740187811175,
+   "sharpe": -6.954417072491591,
+   "filled": 21,
+   "voided": 8,
+   "voidRate": 0.27586206896551724,
+   "position": 0.02370414379971321
+  },
+  {
+   "src": "A-liuyiqing",
+   "days": 8,
+   "nav": 97946.18,
+   "ret": -0.020538200000000062,
+   "mdd": -0.04898293034982293,
+   "sharpe": -5.84445217450149,
+   "filled": 28,
+   "voided": 5,
+   "voidRate": 0.15151515151515152,
    "position": 0
   },
   {
-   "src": "B-cb",
-   "days": 4,
-   "nav": 100000,
-   "ret": 0,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
+   "src": "A-antoo",
+   "days": 8,
+   "nav": 97576.94,
+   "ret": -0.02423059999999999,
+   "mdd": -0.02782531312219927,
+   "sharpe": -3.4405279349870104,
+   "filled": 14,
+   "voided": 4,
+   "voidRate": 0.2222222222222222,
+   "position": 0.9127361444210077
+  },
+  {
+   "src": "A-control",
+   "days": 6,
+   "nav": 97408.97,
+   "ret": -0.02591029999999994,
+   "mdd": -0.026352475405902576,
+   "sharpe": -14.115307691241807,
+   "filled": 12,
+   "voided": 7,
+   "voidRate": 0.3684210526315789,
    "position": 0
   },
   {
-   "src": "B-taoge",
-   "days": 5,
-   "nav": 100000,
-   "ret": 0,
-   "mdd": 0,
-   "sharpe": null,
-   "filled": 0,
-   "voided": 0,
-   "voidRate": 0,
-   "position": 0
+   "src": "A-bianbenling",
+   "days": 8,
+   "nav": 97316.81,
+   "ret": -0.02683190000000002,
+   "mdd": -0.040835698797555664,
+   "sharpe": -5.32135946552573,
+   "filled": 34,
+   "voided": 15,
+   "voidRate": 0.30612244897959184,
+   "position": 0.32071540363889856
+  },
+  {
+   "src": "A-gaogailvfuli",
+   "days": 8,
+   "nav": 97140.6,
+   "ret": -0.028593999999999897,
+   "mdd": -0.03930588945280422,
+   "sharpe": -5.720572144289374,
+   "filled": 17,
+   "voided": 1,
+   "voidRate": 0.05555555555555555,
+   "position": 0.25572211824921814
   },
   {
    "src": "A-taoge",
-   "days": 2,
-   "nav": 99798,
-   "ret": -0.0020200000000000218,
-   "mdd": -0.0020200000000000218,
-   "sharpe": null,
-   "filled": 2,
+   "days": 8,
+   "nav": 95897.25,
+   "ret": -0.041027499999999995,
+   "mdd": -0.06142278292699632,
+   "sharpe": -4.934710849879302,
+   "filled": 27,
+   "voided": 4,
+   "voidRate": 0.12903225806451613,
+   "position": 0.2891094374447651
+  },
+  {
+   "src": "A-zhiyingjuexin",
+   "days": 8,
+   "nav": 94924.04,
+   "ret": -0.050759600000000016,
+   "mdd": -0.048579896542980006,
+   "sharpe": -6.2520613691038145,
+   "filled": 15,
+   "voided": 5,
+   "voidRate": 0.25,
+   "position": 0.5300659348253615
+  },
+  {
+   "src": "A-lianghuaxiaohao",
+   "days": 8,
+   "nav": 94650.93,
+   "ret": -0.05349070000000011,
+   "mdd": -0.061284572579246355,
+   "sharpe": -13.184531531640458,
+   "filled": 36,
+   "voided": 10,
+   "voidRate": 0.21739130434782608,
+   "position": 0.9922776247417749
+  },
+  {
+   "src": "A-daxingdaxingdadangxing",
+   "days": 8,
+   "nav": 93138.48,
+   "ret": -0.06861519999999999,
+   "mdd": -0.0742161920381691,
+   "sharpe": -6.2623520636330685,
+   "filled": 12,
    "voided": 6,
-   "voidRate": 0.75,
-   "position": 0.14721737910579372
+   "voidRate": 0.3333333333333333,
+   "position": 0.8096760866185491
+  },
+  {
+   "src": "A-cb",
+   "days": 8,
+   "nav": 92414.86,
+   "ret": -0.07585140000000001,
+   "mdd": -0.0771080174342631,
+   "sharpe": -7.178318968814525,
+   "filled": 9,
+   "voided": 1,
+   "voidRate": 0.1,
+   "position": 0
+  },
+  {
+   "src": "A-a658",
+   "days": 8,
+   "nav": 91496.58,
+   "ret": -0.08503419999999995,
+   "mdd": -0.0898994157035321,
+   "sharpe": -12.586190888563452,
+   "filled": 16,
+   "voided": 2,
+   "voidRate": 0.1111111111111111,
+   "position": 0
   }
  ],
  "cost": {
-  "usd": 564.8159,
-  "tokens": 43647729,
+  "usd": 3113.9093,
+  "tokens": 110125834,
   "byStep": {
    "01": {
-    "cost": 49.420061999999994,
-    "tokens": 4197942,
-    "n": 60
+    "cost": 141.6868118,
+    "tokens": 8449370,
+    "n": 168
    },
    "02": {
-    "cost": 75.10859095,
-    "tokens": 6464826,
-    "n": 111
+    "cost": 395.7321388500001,
+    "tokens": 14237264,
+    "n": 478
    },
    "03": {
     "cost": 1.706143,
@@ -238,44 +490,79 @@
     "n": 4
    },
    "04": {
-    "cost": 102.2536205,
-    "tokens": 7264610,
-    "n": 63
+    "cost": 574.8285521000001,
+    "tokens": 17949048,
+    "n": 352
    },
    "05": {
-    "cost": 60.31525599999999,
-    "tokens": 4668188,
-    "n": 50
+    "cost": 274.10210249999983,
+    "tokens": 10748923,
+    "n": 216
    },
    "06": {
-    "cost": 134.96686749999995,
-    "tokens": 9362175,
-    "n": 90
+    "cost": 636.1545229000005,
+    "tokens": 21132415,
+    "n": 468
    },
    "blind": {
-    "cost": 31.558196499999998,
-    "tokens": 2490130,
-    "n": 43
+    "cost": 165.96264840000006,
+    "tokens": 6876909,
+    "n": 239
    },
    "03b": {
-    "cost": 33.475924,
-    "tokens": 2798740,
-    "n": 41
+    "cost": 144.72176860000005,
+    "tokens": 6041718,
+    "n": 205
    },
    "03s": {
-    "cost": 33.3189412,
-    "tokens": 2720891,
-    "n": 40
+    "cost": 150.06614820000001,
+    "tokens": 5868950,
+    "n": 204
    },
    "03j": {
-    "cost": 37.121568999999994,
-    "tokens": 3169725,
-    "n": 39
+    "cost": 171.58057640000015,
+    "tokens": 6735476,
+    "n": 203
    },
    "07": {
-    "cost": 5.570731,
-    "tokens": 306179,
+    "cost": 180.93614659999997,
+    "tokens": 5555681,
+    "n": 64
+   },
+   "01m": {
+    "cost": 5.8975478,
+    "tokens": 69991,
     "n": 5
+   },
+   "sub3": {
+    "cost": 263.68460560000017,
+    "tokens": 6141065,
+    "n": 165
+   },
+   "sub3-06": {
+    "cost": 1.7098969999999998,
+    "tokens": 39221,
+    "n": 8
+   },
+   "sub3-02": {
+    "cost": 1.8608440000000002,
+    "tokens": 32915,
+    "n": 4
+   },
+   "prefix": {
+    "cost": 0.2055578,
+    "tokens": 12,
+    "n": 2
+   },
+   "cprime": {
+    "cost": 2.4229309999999997,
+    "tokens": 29864,
+    "n": 15
+   },
+   "sub3-04": {
+    "cost": 0.6503470000000001,
+    "tokens": 12689,
+    "n": 6
    }
   }
  }

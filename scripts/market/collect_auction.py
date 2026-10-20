@@ -76,7 +76,15 @@ def targets(day):
             continue
     syms += [AR.symbol(c) for c in dict.fromkeys(codes) if len(c) == 6 and c.isdigit()]
     syms = [s for s in syms if s[:2] in ("sh", "sz")]
-    return list(dict.fromkeys(INDEXES + syms))[:MAX_SYMS], (dirs[-1].name if dirs else None)
+    # 10/19(TODO 二-5 土豆竞价T, 用户令提前做): 全市场可转债都进竞价采集 —— 土豆 103 天竞价 09:25 买、09:30 卖, 他最可能看的信号是
+    #   全市场转债 09:25 的竞价额排名; 原名单只有关注集里的十几只转债。转债放在关注集之后(超 MAX_SYMS 时先截转债, 不挤掉正股)
+    cb = []
+    try:
+        sm = sorted(p for p in MARKET.glob("20*-*-*") if p.name <= day and (p / "security_master.jsonl").exists())
+        cb = [r["symbol"] for r in read_jsonl(sm[-1] / "security_master.jsonl") if r.get("secType") == "CB" and str(r.get("symbol", ""))[:2] in ("sh", "sz")] if sm else []
+    except (OSError, ValueError, KeyError):
+        cb = []
+    return list(dict.fromkeys(INDEXES + syms + cb))[:MAX_SYMS], (dirs[-1].name if dirs else None)
 
 
 def prev_volumes(day):

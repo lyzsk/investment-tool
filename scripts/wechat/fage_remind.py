@@ -24,6 +24,13 @@ def main():
            "08:05 前把公众号链接发给 hermes(或在 Claude Code 里贴), 链才看得到发哥。")
     if "--dry" in sys.argv:
         return "DRY: " + msg
+    try:   # 10/19 起统一出口 scripts/hermes/wx_send.py(配额退避 / 落账); 导入失败退回直接 hermes send
+        sys.path.insert(0, str(ROOT / "scripts" / "hermes"))
+        import wx_send
+        st = wx_send.send(msg, src="fage_remind", wait=300, verbose=False)
+        return "已提醒" if st in ("ok", "dup") else f"微信发送失败({st}), 已进 outbox"
+    except Exception:   # noqa: BLE001
+        pass
     for t in range(3):
         r = subprocess.run([HERMES, "send", "--to", "weixin", msg], capture_output=True, text=True,
                            encoding="utf-8", errors="replace", creationflags=NOWIN)

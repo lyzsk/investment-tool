@@ -48,7 +48,44 @@
     "chain": "0249239e62d2",
     "distill": "bfee2a128a5b"
    }
+  },
+  {
+   "v": 2,
+   "id": "v002_20261020-0041",
+   "ts": "2026-10-20T00:41:56",
+   "effective_from": "2026-10-20T00:14:16",
+   "unit": "skill",
+   "version_hash": "c2ea834992cbab8015a5e9b28ce22c69abdd9ca7d9ed22d266078f1bd2abf3e7",
+   "cat_hash": {
+    "提示词": "c2ea834992cbab8015a5e9b28ce22c69abdd9ca7d9ed22d266078f1bd2abf3e7"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v001_20261018-1713",
+   "changed": {
+    "added": [],
+    "modified": [
+     "PROCESS.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "PROCESS.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 0
+   },
+   "bytes_weight": 47997,
+   "why": "check-md 2026-10-19 00:41",
+   "code": {
+    "chain": "ab4a249cacfc",
+    "distill": "6a7dbe404067"
+   }
   }
  ],
- "events": []
+ "events": [],
+ "group": "active"
 }

@@ -9,7 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ACCOUNTS, TABLE_ONLY, INIT, NAME } from "./accounts.mjs";
+import { ACCOUNTS, INIT, NAME } from "./accounts.mjs";
 import { skillMatrixSection, tSkillSection, SKILL_JS } from "./report_skills.mjs";   // 10/18 晚: skill 多维对比 + 做 T 品种 skill
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -56,8 +56,7 @@ async function indexBars(lastDate) {
 // ---- 读账本 ----
 const load = (src) => { try { return JSON.parse(fs.readFileSync(path.join(BOOKS, src + ".json"), "utf8")); } catch { return null; } };
 const accounts = ACCOUNTS.map(([src, name, kind], slot) => ({ src, name, kind, slot, b: load(src) })).filter((a) => a.b);
-const extras = TABLE_ONLY.map(([src, name, kind]) => ({ src, name, kind, b: load(src) })).filter((a) => a.b);
-const all = [...accounts, ...extras];
+const all = accounts;   // 10/19: B 线(表格行 extras)已删
 
 // x 轴=账本 nav 日期并集 ∩ 交易日(md 文件名=Java 交易日 md 生成, 排除节假日 EOD 空跑行), 实盘自首跑日起
 // 10/11: 10/8 前的 nav 行=建账占位/试跑期 10 万平值, 画进来会被误读成"那几天 0 收益"(实为无数据)
@@ -188,6 +187,23 @@ function stats(a) {
 
 const lastClose = (code) => { const k = readKl(code); return k.length ? k.at(-1) : null; };
 
+// ---- 10/19 用户: "隐藏不在 paper 线跑的" + "导师页 tzzb 跳转" + "paper 持仓 vs 导师真人持仓" ----
+const rjs = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
+const TZ_DIR = path.resolve(SCRIPT_DIR, "../../tzzb");
+const EXCL = new Set(Object.keys(rjs(path.join(TZ_DIR, "paper_excluded.json"))?.excluded || {}).map((k) => "A-" + k));   // 退出 paper 的导师(只留持仓不出新单)
+const LEDG = Object.fromEntries((rjs(path.join(TZ_DIR, "tzzb_ledgers.json")) || []).filter((x) => x.book).map((x) => [x.book, x]));
+const tzzbUrl = (src) => { const x = LEDG[src]; return x && x.key && x.user_key ? `https://tzzb.10jqka.com.cn/tzzbWeb/community/matchHomePageWeb.html?key=${encodeURIComponent(x.key)}&user_key=${encodeURIComponent(x.user_key)}&user_name=${encodeURIComponent(x.name || "")}` : null; };
+const isOff = (a) => EXCL.has(a.src);
+function realHold(src) {   // 导师真人最新持仓(tzzb position.json: 只有仓位比例, 没有股数); 日期取 nav_daily 最后一天
+    const led = src === "A-cb" ? "buchitudou0" : src.replace(/^A-/, "");
+    const p = rjs(path.join(TZZB, led, "position.json"));
+    if (!p) return null;
+    const nav = rjs(path.join(TZZB, led, "nav_daily.json"))?.ex_data?.index_list || [];
+    const d = nav.at(-1)?.date || "";
+    return { date: d ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}` : "?", all: p.ex_data?.all_position_percent,
+        list: (p.ex_data?.position_list || []).filter((x) => +x.position_percent > 0).sort((a, b) => b.position_percent - a.position_percent) };
+}
+
 // ---- 10/12 晚: 按市况分组的各线收益("什么市况听谁的"的数据底座; 只统计, 不改链) ----
 // 标签=各链 0915 盘前 02 的 market_state(决策时已知, 无后见之明), 当日共识=15 链多数票; 对照看=上证当日实际涨跌(事后, 客观)。
 // 0915 版取数优先级: run_dir/slots/0915/02_analysis.md(10/13 起驱动器存档) → 顶层 02(无 .prev=当日没跑盘中子链, 顶层即盘前版)
@@ -284,7 +300,9 @@ async function main() {
     const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     // 一套曲线数据集: 9/28-30 as-of 回放 + 10/8 起实盘 合并一条时间轴(mergedData)
     const merged = await mergedData(fs.existsSync(path.join(SANDBOX, "books")) ? await chartData(SANDBOX, true) : null, await chartData(DIR, false));
-    const DATA = { generated: new Date().toLocaleString("sv-SE").slice(0, 16), live: merged, asof: null };
+    const mlast = Object.values(LEDG).map((x) => rjs(path.join(TZZB, x.ledger, "nav_daily.json"))?.ex_data?.index_list?.at(-1)?.date).filter(Boolean).sort().at(-1) || "";
+    const DATA = { generated: new Date().toLocaleString("sv-SE").slice(0, 16), live: merged, asof: null, off: [...EXCL],
+        mlast: mlast ? `${mlast.slice(0, 4)}-${mlast.slice(4, 6)}-${mlast.slice(6)}` : "" };   // 10/19: 退出 paper 的线 / 导师真人数据最新日
     // 拟人度表(similarity.mjs 产物; EOD 自动算前一交易日)
     let simRows = `<tr><td colspan="5" class="muted">尚无拟人度数据(导师真值次日才齐, 首个交易日收盘后生成)</td></tr>`, simUpd = "";
     try {
@@ -310,15 +328,63 @@ async function main() {
     }).sort((x, y) => y.s.cum - x.s.cum);
     const sign = (x, d = 2) => (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x * 100).toFixed(d) + "%";
     const cls = (x) => (x > 0 ? "up" : x < 0 ? "dn" : "");
-    const sumRows = rows.map(({ a, s }, i) => `<tr><td class="num">${i + 1}</td><td><span class="sw" data-slot="${a.slot ?? ""}" data-src="${a.src}"></span>${esc(a.name)}<span class="muted"> ${a.src}</span></td><td>${a.kind}</td>`
-        + `<td class="num ${cls(s.cum)}"><b>${sign(s.cum)}</b></td><td class="num ${cls(s.day)}">${sign(s.day)}</td><td class="num">${s.nav.toFixed(0)}</td>`
-        + `<td class="num dn2">${s.mdd ? sign(s.mdd) : "0.00%"}</td><td class="num">${(s.cashPct * 100).toFixed(0)}%</td><td class="num">${s.pos}</td><td class="num">${s.fills}</td><td class="num">${(s.voidRate * 100).toFixed(0)}%</td><td class="muted">${s.date}</td></tr>`).join("");
+    const tz = (a) => { const u = tzzbUrl(a.src); return u ? ` <a class="small" href="${u}" target="_blank" rel="noopener" title="导师真人同花顺投资账本">tzzb↗</a>` : ""; };
+    const dv = (v) => (v == null || Number.isNaN(v) ? "" : String(v));
+    const sumRows = rows.map(({ a, s }, i) => `<tr${isOff(a) ? ' data-off="1"' : ""}><td class="num" data-v="${i + 1}">${i + 1}</td><td><span class="sw" data-slot="${a.slot ?? ""}" data-src="${a.src}"></span>${esc(a.name)}<span class="muted"> ${a.src}</span>${isOff(a) ? '<span class="qbadge">已退出 paper</span>' : ""}${tz(a)}</td><td>${a.kind}</td>`
+        + `<td class="num ${cls(s.cum)}" data-v="${dv(s.cum)}"><b>${sign(s.cum)}</b></td><td class="num ${cls(s.day)}" data-v="${dv(s.day)}">${sign(s.day)}</td><td class="num" data-v="${dv(s.nav)}">${s.nav.toFixed(0)}</td>`
+        + `<td class="num dn2" data-v="${dv(s.mdd)}">${s.mdd ? sign(s.mdd) : "0.00%"}</td><td class="num" data-v="${dv(s.cashPct)}">${(s.cashPct * 100).toFixed(0)}%</td><td class="num" data-v="${s.pos}">${s.pos}</td><td class="num" data-v="${s.fills}">${s.fills}</td><td class="num" data-v="${dv(s.voidRate)}">${(s.voidRate * 100).toFixed(0)}%</td><td class="muted">${s.date}</td></tr>`).join("");
 
-    const posRows = all.flatMap((a) => Object.entries(a.b.positions || {}).map(([c, p]) => {
-        const lc = lastClose(c), px = lc?.c, pnl = px ? px / p.cost - 1 : null;
-        return `<tr><td>${esc(a.name)}</td><td>${esc(nm(c))}</td><td class="num">${p.qty}</td><td class="num">${p.cost.toFixed(2)}</td>`
-            + `<td class="num">${px ?? "-"}<span class="muted"> ${lc ? lc.d.slice(5) : ""}</span></td><td class="num ${pnl == null ? "" : cls(pnl)}">${pnl == null ? "-" : sign(pnl)}</td><td class="num">${(p.qty * (px || p.cost)).toFixed(0)}</td></tr>`;
-    })).join("") || `<tr><td colspan="7" class="muted">全部空仓</td></tr>`;
+    // 10/19: paper 持仓 vs 导师真人持仓(真人只有仓位比例; paper 按市值算比例) —— 看"像不像"最直观的一张表
+    //   逐日: paper = 成交流水重放到当天收盘的持仓; 真人 = tzzb day_positions(同花顺导师) / UP 日卡"自选股紫色(持仓)高亮"(视频抽帧, 只有名字、可能不全)
+    const paperByDay = (a) => {
+        const pos = {}, out = {}, tr = [...a.b.trades].sort((x, y) => String(x.id).localeCompare(String(y.id)));
+        let i = 0;
+        for (const d of [...new Set(a.b.nav.map((n) => n.date))].filter((d) => d >= "2026-10-08").sort()) {
+            while (i < tr.length && String(tr[i].id).slice(0, 10) <= d) { const t = tr[i++]; pos[t.code] = (pos[t.code] || 0) + (t.side === "BUY" ? t.qty : -t.qty); }
+            out[d] = Object.keys(pos).filter((c) => pos[c] > 0);
+        }
+        return out;
+    };
+    const realByDay = (src) => {
+        const led = src === "A-cb" ? "buchitudou0" : src.replace(/^A-/, "");
+        const dp = rjs(path.join(TZZB, led, "day_positions.json"));
+        if (dp) return { kind: "tzzb", days: Object.fromEntries(Object.entries(dp).map(([d8, v]) => [`${d8.slice(0, 4)}-${d8.slice(4, 6)}-${d8.slice(6)}`,
+            (v.list || []).filter((x) => +x.position_percent > 0).map((x) => ({ code: x.code, name: x.name, w: +x.position_percent }))])) };
+        const cl = path.resolve(SCRIPT_DIR, "../../../skills", `${led}-skill`, "persona", "case_log");
+        if (!fs.existsSync(cl)) return null;
+        const days = {};
+        for (const f of fs.readdirSync(cl).filter((x) => /^20\d\d-\d\d\.md$/.test(x))) {
+            const t = fs.readFileSync(path.join(cl, f), "utf8");
+            for (const m of t.matchAll(/^### (20\d\d-\d\d-\d\d)[\s\S]*?(?=^### |(?![\s\S]))/gm)) {
+                const h = /自选股紫色\(持仓\)高亮: ([^\n]+)/.exec(m[0]);
+                if (h) days[m[1]] = h[1].split(/[、,，]/).map((s) => s.trim()).filter(Boolean).map((n) => ({ code: null, name: n, w: null }));
+            }
+        }
+        return Object.keys(days).length ? { kind: "UP 视频抽帧", days } : null;
+    };
+    const sameOf = (pcodes, rl) => pcodes.filter((c) => rl.some((x) => (x.code && x.code === c) || (!x.code && names[c] && names[c].replace(/\s/g, "") === x.name.replace(/\s/g, ""))));
+    const holdRows = all.filter((a) => /^A-/.test(a.src) && !/^A-(mix|[tdh](bank|ndq|muyuan)$)/.test(a.src)).map((a) => {
+        const rb = realByDay(a.src), pb = paperByDay(a);
+        const st = stats(a);
+        const pp = Object.entries(a.b.positions || {}).map(([c, p]) => { const px = lastClose(c)?.c || p.cost; return [c, p.qty * px / (st.nav || INIT)]; }).sort((x, y) => y[1] - x[1]);
+        if (!rb && !pp.length) return "";
+        const rdays = rb ? Object.keys(rb.days).filter((d) => d >= "2026-10-08").sort() : [];
+        const rLast = rdays.at(-1);
+        const rl = rLast ? rb.days[rLast] : [];
+        const fmtP = (arr) => arr.map(([c, w, n]) => `${esc(n ? (c ? `${c} ${n}` : n) : nm(c))}${w == null ? "" : " " + (w * 100).toFixed(0) + "%"}`).join("<br>") || `<span class="muted">空仓</span>`;
+        const cmp = rdays.filter((d) => pb[d]).map((d) => ({ d, p: pb[d], r: rb.days[d], s: sameOf(pb[d], rb.days[d]) }));
+        const hitD = cmp.filter((x) => x.s.length).length;
+        const detail = cmp.length ? `<details><summary>${hitD}/${cmp.length} 天</summary>` + cmp.reverse().map((x) => `<div class="small"><b>${x.d.slice(5)}</b> paper: ${x.p.map((c) => esc(nm(c))).join("、") || "空仓"} ｜ 真人: ${x.r.map((y) => esc(y.name)).join("、") || "空仓"}${x.s.length ? ` ｜ <b>重合 ${x.s.map((c) => esc(nm(c))).join("、")}</b>` : ""}</div>`).join("") + "</details>" : "—";
+        return `<tr${isOff(a) ? ' data-off="1"' : ""}><td>${esc(a.name)}${tz(a)}</td><td class="small">${fmtP(pp)}</td>`
+            + `<td class="small">${rb ? fmtP(rl.map((x) => [x.code, x.w, x.name])) : '<span class="muted">无真人数据</span>'}</td>`
+            + `<td class="muted small">${rb ? `${rLast || "10/8 后无记录"}<br>${rb.kind}` : "—"}</td><td class="num">${rLast ? (sameOf(Object.keys(a.b.positions || {}), rl).map((c) => esc(nm(c))).join("、") || "0 只") : "—"}</td><td class="small">${detail}</td></tr>`;
+    }).join("");
+
+    const posRows = all.flatMap((a) => { const nv = stats(a).nav || INIT; return Object.entries(a.b.positions || {}).map(([c, p]) => {
+        const lc = lastClose(c), px = lc?.c, pnl = px ? px / p.cost - 1 : null, mv = p.qty * (px || p.cost);
+        return `<tr${isOff(a) ? ' data-off="1"' : ""}><td>${esc(a.name)}</td><td>${esc(nm(c))}</td><td class="num">${p.qty}</td><td class="num">${p.cost.toFixed(2)}</td>`
+            + `<td class="num">${px ?? "-"}<span class="muted"> ${lc ? lc.d.slice(5) : ""}</span></td><td class="num ${pnl == null ? "" : cls(pnl)}">${pnl == null ? "-" : sign(pnl)}</td><td class="num">${mv.toFixed(0)}</td><td class="num"><b>${(mv / nv * 100).toFixed(1)}%</b></td></tr>`;
+    }); }).join("") || `<tr><td colspan="8" class="muted">全部空仓</td></tr>`;
 
     const openRows = all.flatMap((a) => a.b.orders.filter((o) => o.status === "open").map((o) => `<tr><td>${esc(a.name)}</td><td>${o.date}</td><td class="${o.side === "BUY" ? "up" : "dn"}">${o.side === "BUY" ? "买" : "卖"}</td><td>${esc(nm(o.code))}</td><td class="num">${o.price}</td><td class="num">${o.qty}</td><td class="muted small">${esc((o.note || "").slice(0, 120))}</td></tr>`)).join("") || `<tr><td colspan="7" class="muted">无挂单</td></tr>`;
 
@@ -340,15 +406,33 @@ async function main() {
         + groupTable("mkt", "按上证当日实际涨跌分组(事后客观口径, 对照看)");
 
     const ATTR = attrSection(esc, sign, cls);
-    const SKM = skillMatrixSection({ merged, accounts, esc, sign }), TSK = tSkillSection({ esc, sign });
+    const SKM = skillMatrixSection({ merged, accounts, esc, sign, tzUrl: tzzbUrl }), TSK0 = tSkillSection({ esc, sign });
+    // 10/19: 做 T 账本一笔没成交时说清原因, 不让人以为是"没数据"
+    const tBooks = ["A-dbank", "A-tbank", "A-hbank", "A-dndq", "A-tndq", "A-hndq"].map((s) => rjs(path.join(BOOKS, s + ".json"))).filter(Boolean);
+    const TSK = tBooks.length && tBooks.every((b) => !(b.trades || []).length)
+        ? TSK0.replace("</h2>", "</h2><p class=\"legend-note\"><b>为什么全是空值</b>: 6 本做 T 账本到现在一笔没成交——10/19 本该 09:30 建底仓, 但取现价的函数(t_bot.snap)把 snapshot.mjs 末行的 JSON 汇总也截进去导致解析失败, 每次都拿不到价, 静默跳过(10/19 晚已修)。底仓从下一个交易日 09:30 起建, 当天不做 T, 再下一天开始有数。</p>")
+        : TSK0;
 
-    const trades = [...all.flatMap((a) => a.b.trades.map((t) => ({ ...t, who: a.name }))), ...sbTrades].sort((x, y) => String(y.id).localeCompare(String(x.id)));
-    const tradeRows = trades.map((t) => `<tr><td>${String(t.id).slice(0, 10)}</td><td>${esc(t.who)}</td><td class="${t.side === "BUY" ? "up" : "dn"}">${t.side === "BUY" ? "买" : "卖"}</td><td>${esc(nm(t.code))}</td><td class="num">${t.price}</td><td class="num">${t.qty}</td><td class="num">${(+t.price * t.qty).toFixed(0)}</td><td class="muted small">${esc(String(t.why || "").slice(0, 80))}</td></tr>`).join("") || `<tr><td colspan="8" class="muted">无成交</td></tr>`;
+    // 10/19 用户: 成交明细要看出"哪条链 / 哪个时段"下的单 → 按成交 id 关联原挂单: 时段=挂单时间(0915 盘前链 / 子链时段), 来源=挂单备注(mix 写了哪几条链共识)
+    const trades = [...all.flatMap((a) => { const od = Object.fromEntries((a.b.orders || []).map((o) => [o.id, o]));
+        return a.b.trades.map((t) => { const o = od[t.id] || od[String(t.id).replace(/-T$/, "")] || {}; return { ...t, who: a.name, src: a.src, otime: o.time || "", onote: o.note || "" }; }); }), ...sbTrades].sort((x, y) => String(y.id).localeCompare(String(x.id)));
+    const srcOf = (t) => { const m = /链: ([^;|]+)/.exec(t.onote); if (m) return "混合: " + m[1].trim(); if (/^A-t|^A-h/.test(t.src || "")) return "机械做T"; if (/^A-d/.test(t.src || "")) return "决策T"; return t.src ? `${t.src} 自己的链` : ""; };
+    // 10/19 用户: 成交明细要能看到结果, 并能和账户的 收益率 / 相对导师本人 / 相对对照组 对照看
+    const lastCum = (pts) => { const p = (pts || []).filter((x) => x && x.cum != null).at(-1); return p ? p.cum : null; };
+    const ctrlCum = lastCum(merged.series.find((s) => s.kind === "对照")?.pts);
+    const REL = Object.fromEntries(merged.series.map((s) => { const c = lastCum(s.pts), m = lastCum(s.mentor);
+        return [s.src, { c, vm: c != null && m != null ? (1 + c) / (1 + m) - 1 : null, vc: c != null && ctrlCum != null ? (1 + c) / (1 + ctrlCum) - 1 : null }]; }));
+    const pc = (x) => (x == null ? `<span class="muted">—</span>` : `<span class="${cls(x)}">${sign(x)}</span>`);
+    const resOf = (t) => { const px = lastClose(t.code)?.c; if (!px) return null; return t.side === "BUY" ? px / t.price - 1 : t.price / px - 1; };   // 买: 至今涨跌; 卖: 卖价比现在高多少(正=卖对, 负=卖飞)
+    const tradeRows = trades.map((t) => { const r = resOf(t), R = REL[t.src] || {};
+        return `<tr${EXCL.has(t.src) ? ' data-off="1"' : ""}><td>${String(t.id).slice(0, 10)}</td><td>${esc(t.otime)}</td><td>${esc(t.who)}</td><td class="small">${esc(srcOf(t))}</td><td class="${t.side === "BUY" ? "up" : "dn"}">${t.side === "BUY" ? "买" : "卖"}</td><td>${esc(nm(t.code))}</td><td class="num">${t.price}</td><td class="num">${t.qty}</td><td class="num">${(+t.price * t.qty).toFixed(0)}</td>`
+        + `<td class="num" data-v="${r ?? ""}">${pc(r)}</td><td class="num">${pc(R.c)}</td><td class="num">${pc(R.vm)}</td><td class="num">${pc(R.vc)}</td>`
+        + `<td class="muted small">${esc(String(t.why || "").slice(0, 40))}${t.onote ? " · " + esc(t.onote.slice(0, 80)) : ""}</td></tr>`; }).join("") || `<tr><td colspan="14" class="muted">无成交</td></tr>`;
 
     const dataJson = JSON.stringify(DATA).replace(/</g, "\\u003c");
     const fill = { TITLE: ASOF ? "paper 模拟盘 · as-of 回放(沙盒)" : "paper 模拟盘 · 收益率走势", GEN: DATA.generated,
         NACC: String(DATA.live.series.length), NDAY: String(DATA.live.dates.length), SUM: sumRows, POS: posRows, OPEN: openRows,
-        TRADES: tradeRows, NTRADE: String(trades.length), DATA: dataJson, SIM: simRows, SIMUPD: simUpd, REGIME, ATTR, SKM, TSK, SKILLJS: SKILL_JS };
+        HOLD: holdRows || `<tr><td colspan="6" class="muted">无数据</td></tr>`, TRADES: tradeRows, NTRADE: String(trades.length), DATA: dataJson, SIM: simRows, SIMUPD: simUpd, REGIME, ATTR, SKM, TSK, SKILLJS: SKILL_JS };
     const html = TEMPLATE.replace(/%%(\w+)%%/g, (m, k) => (k in fill ? fill[k] : m));  // 函数式替换: 数据里的 $ 不被当替换模式
     fs.writeFileSync(OUT, html);
     console.log(`report.html 已生成: ${merged.series.length} 条收益线, ${merged.dates.length} 个交易日(含回放 ${merged.dates.filter((d) => merged.quality[d] === "as-of回放").length} 日), ${OUT}`);
@@ -393,7 +477,7 @@ details summary{cursor:pointer;color:var(--text-secondary);font-size:13px;margin
 </style></head>
 <body><div class="viz-root"><div class="wrap">
 <header><h1>%%TITLE%%</h1><span class="muted">生成 %%GEN%% · %%NACC%% 条收益线 · %%NDAY%% 个交易日</span>
-<span style="flex:1"></span><button class="btn" id="theme">切换明暗</button></header>
+<span style="flex:1"></span><button class="btn on" id="offbtn" title="隐藏已退出 paper 的导师(只留持仓、不再出新单)">只看在跑</button><button class="btn" id="theme">切换明暗</button></header>
 
 <div class="card">
 <h2><span id="mtitle">累计收益率走势</span> <span class="muted small">(本金各 10 万; 悬停看当日全部账户, 点图例只看选中)</span></h2>
@@ -412,17 +496,19 @@ details summary{cursor:pointer;color:var(--text-secondary);font-size:13px;margin
 
 %%TSK%%
 
-<div class="card"><h2>账户排行(按累计收益)</h2><div class="scroll"><table class="t"><tr><th class="num">#</th><th>账户</th><th>类型</th><th class="num">累计收益</th><th class="num">最新一日</th><th class="num">净值</th><th class="num">最大回撤</th><th class="num">现金占比</th><th class="num">持仓数</th><th class="num">成交笔数</th><th class="num">废单率</th><th>截至</th></tr>%%SUM%%</table></div></div>
+<div class="card"><h2>账户排行 <span class="muted small">(点表头排序, 默认按累计; 「最新一日」= 当日收益率)</span></h2><div class="toolbar"><button class="btn srt-q" data-t="rank" data-c="4">按当日收益排序</button><button class="btn srt-q" data-t="rank" data-c="3">按累计收益排序</button></div><div class="scroll"><table class="t srt" id="rank"><tr><th class="num" data-c="0">#</th><th>账户</th><th>类型</th><th class="num" data-c="3">累计收益</th><th class="num" data-c="4">最新一日</th><th class="num" data-c="5">净值</th><th class="num" data-c="6">最大回撤</th><th class="num" data-c="7">现金占比</th><th class="num" data-c="8">持仓数</th><th class="num" data-c="9">成交笔数</th><th class="num" data-c="10">废单率</th><th>截至</th></tr>%%SUM%%</table></div></div>
+
+<div class="card"><h2>paper 持仓 vs 导师真人持仓 <span class="muted small">(同花顺导师 = 投资账本每天的仓位比例, 只有比例没有股数; 桃哥 / 卢本圆 = 视频画面里的持仓高亮, 只有名字、可能不全; paper = 按最近收盘市值 / 净值; 重合 = 两边都持有的票)</span></h2><div class="scroll"><table class="t"><tr><th>账户</th><th>paper 持仓(占净值)</th><th>导师真人持仓(仓位)</th><th>真人数据日 · 来源</th><th class="num">现在重合</th><th>逐日重合(10/8 起, 点开看每天)</th></tr>%%HOLD%%</table></div></div>
 
 <div class="card"><h2>按市况分组的各线收益 <span class="muted small">(格内=该组日的平均日收益 · 天数 · 其中跑赢上证的天数; 样本少时只看方向不看大小, 至少每组 10 天以上才有参考意义)</span></h2>%%REGIME%%</div>
 
 %%ATTR%%
 
-<div class="card"><h2>当前持仓</h2><div class="scroll"><table class="t"><tr><th>账户</th><th>股票</th><th class="num">数量</th><th class="num">成本</th><th class="num">最近收盘</th><th class="num">浮盈亏</th><th class="num">市值</th></tr>%%POS%%</table></div></div>
+<div class="card"><h2>当前持仓</h2><div class="scroll"><table class="t"><tr><th>账户</th><th>股票</th><th class="num">数量</th><th class="num">成本</th><th class="num">最近收盘</th><th class="num">浮盈亏</th><th class="num">市值</th><th class="num">仓位(占该账户净值)</th></tr>%%POS%%</table></div></div>
 
 <div class="card"><h2>挂单中</h2><div class="scroll"><table class="t"><tr><th>账户</th><th>日期</th><th>方向</th><th>股票</th><th class="num">价格</th><th class="num">数量</th><th>条件/备注</th></tr>%%OPEN%%</table></div></div>
 
-<div class="card"><details><summary>成交明细(%%NTRADE%% 笔, 点开)</summary><div class="scroll"><table class="t"><tr><th>日期</th><th>账户</th><th>方向</th><th>股票</th><th class="num">价格</th><th class="num">数量</th><th class="num">金额</th><th>原因</th></tr>%%TRADES%%</table></div></details></div>
+<div class="card"><details><summary>成交明细(%%NTRADE%% 笔, 点开)</summary><div class="scroll"><table class="t"><tr><th>日期</th><th>挂单时段</th><th>账户</th><th>谁下的单</th><th>方向</th><th>股票</th><th class="num">价格</th><th class="num">数量</th><th class="num">金额</th><th class="num" title="买: 最近收盘/成交价−1; 卖: 成交价/最近收盘−1(正=卖对, 负=卖飞)">这笔至今</th><th class="num">账户累计</th><th class="num">相对导师本人</th><th class="num">相对对照组</th><th>成交原因 · 挂单备注</th></tr>%%TRADES%%</table></div></details></div>
 <p class="muted small">机械生成零 token: node scripts/dfcf/paper/report.mjs(matcher --eod 收盘后自动刷新)。数值红涨绿跌并带 +/− 号。</p>
 </div></div>
 <script>
@@ -441,6 +527,7 @@ initAll();
 // 10/11 超额口径(书 ch2/ch5/ch8: 只做多的选股要看相对基准的超额): 超额=(1+账户累计)/(1+基准累计)−1, 自基准首个有数日起算;
 //   基准线本身在该口径下恒为 0, 不画(0 轴即基准)
 let RNG="all",MODE="abs";
+let OFFON=true;   // 10/19: 只看在跑(隐藏已退出 paper 的导师线 / 行), 默认开
 const MODES={abs:["累计收益率走势","累计","当日"],ctrl:["相对对照组的超额收益","超额","当日超额"],bench:["相对上证指数的超额收益","超额","当日超额"],mentor:["相对导师真人的超额收益","超额","当日超额"]};
 const refOf=m=>m==="ctrl"?all.find(s=>s.kind==="对照"):m==="bench"?all.find(s=>s.kind==="基准"):null;
 const hasData=s=>!!s&&s.raw.some(p=>p&&p.cum!=null);
@@ -455,11 +542,13 @@ function recompute(){
  all.forEach(s=>{const p0=rebase(s.raw,k);
   if(MODE==="mentor"){s.hide=s.kind==="基准";const mr=s.mentor||(bn?bn.raw:null);s.pts=s.hide?p0:rel(p0,mr?rebase(mr,k):null);return;}
   s.hide=!!ref&&s===ref;s.pts=!ref?p0:rel(p0,rp);});
+ if(OFFON)all.forEach(s=>{if((DS.off||[]).includes(s.src))s.hide=true;});
  document.getElementById("mtitle").textContent=MODES[MODE][0];
  document.getElementById("mnote").textContent=MODE==="abs"?"":MODE==="mentor"?"超额=(1+账户累计)/(1+导师真人累计)−1; 导师=tzzb 账本净值, 无真人账本的 UP/对照组用上证; 0 轴=导师本人, 线在 0 上方=跑赢导师":"超额=(1+账户累计)/(1+"+(MODE==="ctrl"?"对照组":"上证")+"累计)−1"+(ref&&ref.raw.findIndex(p=>p&&p.cum!=null)>0?", 自"+(MODE==="ctrl"?"对照组":"上证")+"首个有数日起算":"")+"; 0 轴=基准本身, 线在 0 上方=跑赢";
  document.querySelectorAll(".rng").forEach(x=>x.classList.toggle("on",x.dataset.r===RNG));
  document.querySelectorAll(".mode").forEach(x=>{x.classList.toggle("on",x.dataset.m===MODE);const ok=x.dataset.m==="abs"||(x.dataset.m==="mentor"?D.series.some(s=>s.mentor)||!!D.bench:hasData(refOf(x.dataset.m)));x.disabled=!ok;x.title=ok?"":"该数据集里基准还没有数据";});
- buildLegend();buildTable();draw();}
+ buildLegend();buildTable();draw();
+ if(MODE==="mentor"&&DS.mlast)document.getElementById("mnote").textContent+=" ｜ 导师真人数据最新到 "+DS.mlast+"(同花顺账本每晚抓取后才有当天, 当天的超额要等晚上)";}
 function setRange(r){RNG=r;recompute();}
 document.querySelectorAll(".rng").forEach(x=>x.onclick=()=>setRange(x.dataset.r));
 document.querySelectorAll(".mode").forEach(x=>x.onclick=()=>{if(x.disabled)return;MODE=x.dataset.m;recompute();});
@@ -520,6 +609,16 @@ function buildTable(){const t=document.createElement("table");t.className="t";co
  const host=document.getElementById("dtable");host.textContent="";host.appendChild(t);}
 recompute();addEventListener("resize",()=>draw());
 %%SKILLJS%%
+(function(){
+// 10/19: 通用表格排序(table.srt 里 th[data-c] 可点; 单元格 data-v 为数值) + 快捷排序按钮 + 只看在跑
+const sortT=(t,c,force)=>{const th=t.querySelector('th[data-c="'+c+'"]');const dir=force!=null?force:(t.dataset.sc==c?-(+t.dataset.sd||-1):-1);t.dataset.sc=c;t.dataset.sd=dir;
+ const rows=[...t.querySelectorAll("tr")].slice(1);rows.sort((a,b)=>{const x=a.children[c]?.dataset.v,y=b.children[c]?.dataset.v;if(!x&&!y)return 0;if(!x)return 1;if(!y)return -1;return dir*(parseFloat(x)-parseFloat(y));});
+ rows.forEach(r=>t.appendChild(r));t.querySelectorAll("th[data-c]").forEach(h=>h.textContent=h.textContent.replace(/ [▲▼]$/,""));if(th)th.textContent+=dir<0?" ▼":" ▲";};
+document.querySelectorAll("table.srt").forEach(t=>t.querySelectorAll("th[data-c]").forEach(th=>{th.style.cursor="pointer";th.title="点击排序";th.onclick=()=>sortT(t,+th.dataset.c);}));
+document.querySelectorAll("button.srt-q").forEach(b=>b.onclick=()=>{const t=document.getElementById(b.dataset.t);sortT(t,+b.dataset.c,-1);document.querySelectorAll('button.srt-q[data-t="'+b.dataset.t+'"]').forEach(x=>x.classList.toggle("on",x===b));});
+const ob=document.getElementById("offbtn");const applyOff=()=>{document.querySelectorAll('[data-off="1"]').forEach(e=>e.style.display=OFFON?"none":"");ob.classList.toggle("on",OFFON);ob.textContent=OFFON?"只看在跑":"显示全部";recompute();};
+ob.onclick=()=>{OFFON=!OFFON;applyOff();};applyOff();
+})();
 </script></body></html>`;
 
 main().catch((e) => { console.error("report 生成失败:", e); process.exit(1); });

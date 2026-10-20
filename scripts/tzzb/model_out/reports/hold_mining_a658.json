@@ -235,8 +235,8 @@
      "base": 0.662
     }
    },
-   "next_avg": 0.0103,
-   "next_n": 62,
+   "next_avg": 0.0107,
+   "next_n": 63,
    "examples": [
     {
      "date": "2026-10-16",
@@ -248,7 +248,7 @@
      "rate": 0.0152,
      "hold": 8,
      "sell_t": null,
-     "next": null
+     "next": 0.0305
     },
     {
      "date": "2026-10-15",
@@ -318,8 +318,8 @@
      "base": 0.662
     }
    },
-   "next_avg": 0.014,
-   "next_n": 72,
+   "next_avg": 0.0143,
+   "next_n": 73,
    "examples": [
     {
      "date": "2026-10-16",
@@ -331,7 +331,7 @@
      "rate": 0.0152,
      "hold": 8,
      "sell_t": null,
-     "next": null
+     "next": 0.0305
     },
     {
      "date": "2026-10-15",
@@ -569,8 +569,8 @@
      "base": 0.921
     }
    },
-   "next_avg": 0.0053,
-   "next_n": 41,
+   "next_avg": 0.0059,
+   "next_n": 42,
    "examples": [
     {
      "date": "2026-10-16",
@@ -582,7 +582,7 @@
      "rate": 0.0152,
      "hold": 8,
      "sell_t": null,
-     "next": null
+     "next": 0.0305
     },
     {
      "date": "2026-10-13",
@@ -1241,8 +1241,8 @@
      "base": 0.643
     }
    },
-   "next_avg": -0.0126,
-   "next_n": 16,
+   "next_avg": -0.0101,
+   "next_n": 17,
    "examples": [
     {
      "date": "2026-10-16",
@@ -1254,7 +1254,7 @@
      "rate": 0.0152,
      "hold": 8,
      "sell_t": null,
-     "next": null
+     "next": 0.0305
     },
     {
      "date": "2026-09-30",
@@ -1325,8 +1325,8 @@
      "base": 0.662
     }
    },
-   "next_avg": 0.009,
-   "next_n": 104,
+   "next_avg": 0.0092,
+   "next_n": 105,
    "examples": [
     {
      "date": "2026-10-16",
@@ -1338,7 +1338,7 @@
      "rate": 0.0152,
      "hold": 8,
      "sell_t": null,
-     "next": null
+     "next": 0.0305
     },
     {
      "date": "2026-10-14",

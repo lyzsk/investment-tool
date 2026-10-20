@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { ACCOUNTS, INIT, NAME } from "./accounts.mjs";
+import { ACTIVE as ACCOUNTS, INIT, NAME } from "./accounts.mjs";   // 10/19: 日报只列在跑的(退出 paper 的 8 位导师不列)
 import { summaryLines as realLines } from "./real_vs_chain.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -61,7 +61,8 @@ try {   // 10/16 晚 B8 初版权重(skill_weights.py, check md 收盘后算; �
     const wd = path.join(SCRIPT_DIR, "weights");
     const wf = fs.readdirSync(wd).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f.slice(0, 10) <= DATE).sort().pop();
     if (wf) {
-        const W = JSON.parse(fs.readFileSync(path.join(wd, wf), "utf8")).rows;
+        const ON = new Set(ACCOUNTS.map(([s]) => s));   // 10/19: 退出 paper 的导师不列
+        const W = JSON.parse(fs.readFileSync(path.join(wd, wf), "utf8")).rows.filter((r) => !r.src || ON.has(r.src));
         const fmt = (r) => `${r.name}${(r.w * 100).toFixed(1)}%`;
         lines.push(`权重(${wf.slice(5, 10)} 初版, 拟人度×真人业绩, 样本少≈等权): 前 ${W.slice(0, 3).map(fmt).join("、")} | 后 ${W.slice(-3).map(fmt).join("、")}`);
     }
@@ -76,18 +77,27 @@ try {
 } catch { /* 无被拒 */ }
 try {
     const sim = JSON.parse(fs.readFileSync(path.join(DIR, "similarity.json"), "utf8"));
-    const s = sim.summary.filter((x) => x.delta != null).sort((a, b) => b.delta - a.delta);
+    const ON = new Set(ACCOUNTS.map(([s0]) => s0));
+    const s = sim.summary.filter((x) => x.delta != null && ON.has(x.book)).sort((a, b) => b.delta - a.delta);
     if (s.length) lines.push(`拟人度(截至${sim.updated.slice(4, 6)}/${sim.updated.slice(6)}, skill−对照): ` +
         s.slice(0, 3).map((x) => `${NAME[x.book] || x.name} ${lvl(x.comp)}(${dlt(x.delta)})`).join("、") +
         (s.length > 3 ? `; 垫底 ${NAME[s.at(-1).book] || s.at(-1).name} ${lvl(s.at(-1).comp)}(${dlt(s.at(-1).delta)})` : ""));
 } catch { /* 拟人度未生成 */ }
 // 10/15 用户令: B 线=导师真人(tzzb), 挂"真人当日/链当日/持仓重合"对照; 全表(含持仓明细)落 real_vs_chain/<日>.md
-try { lines.push(...realLines(DATE)); } catch (e) { lines.push(`B线真人对照生成失败: ${e.message}`); }
+try { lines.push(...realLines(DATE)); } catch (e) { lines.push(`导师真人对照生成失败: ${e.message}`); }
 lines.push("详情: scripts/dfcf/paper/report.html(悬停看全部账户); 真人对照全表 real_vs_chain/" + DATE + ".md");
 const msg = lines.join("\n");
 console.log(msg);
 if (process.argv.includes("--send")) {
-    for (let t = 1; t <= 5; t++) {   // iLink 限流冷却 30s+, 最多重试 5 次
+    // 10/19 起统一出口 scripts/hermes/wx_send.py(--raw: 日报本身已是微信格式, 只用它的配额退避 / 分段 / 落账); 出口不在就退回直接 hermes send
+    const WX = path.resolve(SCRIPT_DIR, "../../hermes/wx_send.py");
+    const PY = path.resolve(SCRIPT_DIR, "../../venv/Scripts/python.exe");
+    let done = false;
+    if (fs.existsSync(WX) && fs.existsSync(PY)) {
+        try { execFileSync(PY, ["-X", "utf8", WX, "-", "--raw", "--src", "daily_digest", "--wait", "600"], { input: msg, encoding: "utf8", windowsHide: true, stdio: ["pipe", "inherit", "inherit"] }); done = true; }
+        catch (e) { console.warn(`wx_send 未发出(退出码 ${e.status}; 2=限频已进 outbox): ${String(e.message).slice(-120)}`); done = e.status === 2; }
+    }
+    for (let t = 1; !done && t <= 5; t++) {   // iLink 限流冷却 30s+, 最多重试 5 次
         try { console.log(execFileSync(HERMES, ["send", "--to", "weixin", msg], { encoding: "utf8", windowsHide: true }).trim()); break; }
         catch (e) { console.warn(`微信发送失败(第${t}次): ${String(e.stdout || e.message).slice(-120)}`); if (t < 5) execFileSync(process.execPath, ["-e", "setTimeout(()=>{},60000)"], { windowsHide: true }); }
     }

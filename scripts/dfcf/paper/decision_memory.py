@@ -3,8 +3,8 @@
 
 三个文件按 skill 分(每条链进程互斥, 按 skill 分文件=并发 15 链不会互相穿插写), 全部只追加:
   <dir>/<skill>.jsonl          决策记录(驱动器 06 出单后写; 或 settle_decisions.py --backfill 从 plans+06 产物补)
-  <dir>/<skill>.settle.jsonl   结算记录(settle_decisions.py 写; 每单 T+1、T+3 各一行, 零 token)
-  <dir>/<skill>.reflect.jsonl  反思记录(settle_decisions.py 调 claude -p 写; 每单一行, 基于 T+1 结算)
+  <dir>/<skill>.settle.jsonl   结算记录(settle_decisions.py 写; 每单 T+1/2/3/5/10 各一行, 零 token)
+  <dir>/<skill>.reflect.jsonl  反思记录(settle_decisions.py 调 claude -p 写; 每单一行, 基于本导师持有期窗口 T+h 的结算, 10/20 前=T+1)
 <dir> 实盘=scripts/dfcf/paper/decisions; as-of 回放=<沙盒>/decisions(不污染实盘)
 回注口径(防偷看未来): 只用 resolved(=反思所依据的那根收盘的日期) < 链运行日 的记录。
 被驱动器懒加载(仅 CHAIN_REFLECTION=1 时 import), 只用标准库。
@@ -18,6 +18,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 DIR = Path(__file__).resolve().parent / "decisions"
 FLAGS = ROOT / "scripts" / "claude_profile" / "chain_flags.txt"
+# 10/20 用户: "反思窗口要按导师持有期, 这样才动态起来, 准确性才高" —— 结算全窗口, 反思 / 回注 / 评估按各导师真实持有交易日中位数挑窗口
+WINDOWS = (1, 2, 3, 5, 10)
+HOLD_OVERRIDE = {}   # 自测 / 手动钉死用: {skill: 窗口}
+
+
+def hold_window(skill):
+    """该导师真实持有交易日中位数(skills/<skill>-skill/persona/fingerprint.md, 每晚 mentor_fingerprint 刷新) → 最近的结算窗口(平手取短);
+    取不到(土豆日内转债 / 对照组 / 没 fingerprint) = 1。fingerprint 更新后窗口自动跟着变"""
+    if skill in HOLD_OVERRIDE:
+        return HOLD_OVERRIDE[skill]
+    try:
+        t = (ROOT / "skills" / f"{skill}-skill" / "persona" / "fingerprint.md").read_text(encoding="utf-8")
+    except OSError:
+        return 1
+    m = re.search(r"持有交易日(?:\(非日内\))?[:：]?\s*(\d+(?:\.\d+)?)", t)
+    if not m:
+        return 1
+    h = float(m.group(1))
+    return min(WINDOWS, key=lambda w: (abs(w - h), w))
 
 
 # ---------- 开关(与驱动器 _flag 同口径: 环境变量优先, 其次 chain_flags.txt) ----------
@@ -170,17 +189,17 @@ def _pct(v):
     return "—" if v is None else f"{v * 100:+.1f}%"
 
 
-def _fmt_entry(d, sts, rf, as_of):
+def _fmt_entry(d, sts, rf, as_of, hw=1):
     side = "买" if d["side"] == "BUY" else "卖"
     s1 = sts.get(1) or {}
     st = {"filled": f"已成交@{s1.get('fill_px'):g}" if s1.get("fill_px") else "已成交",
           "void": "未成交(废单)", "cxl": "被后续时段撤单", "invalid": "失效条件触发撤单", "reject": "matcher 拒单",
           "open": "未成交", "unknown": "账本无对应挂单"}.get(s1.get("status"), s1.get("status") or "未结算")
     parts = []
-    for w in (1, 3):
+    for w in WINDOWS:   # 已到期(resolved < as_of)的窗口全给, ★ = 本导师典型持有期
         s = sts.get(w)
         if s and s.get("resolved", "9") < as_of:
-            parts.append(f"T+{w} 方向收益 {_pct(s.get('signed_ret'))}, 超上证 {_pct(s.get('ex_idx'))}"
+            parts.append(f"T+{w}{'★' if w == hw else ''} 方向收益 {_pct(s.get('signed_ret'))}, 超上证 {_pct(s.get('ex_idx'))}"
                          + (f", 超对照组 {_pct(s.get('ex_ctrl'))}" if s.get("ex_ctrl") is not None else ""))
     slot = f"{d['slot'][:2]}:{d['slot'][2:]}" if str(d.get("slot", "")).isdigit() else d.get("slot", "")
     head = (f"- {d['date'][5:]} {slot} {side} {d.get('name') or ''}({d['code']}) 挂{d['px']:g}×{d['qty']}"
@@ -215,11 +234,12 @@ def past_context(dirs, skill, codes, as_of, n_same=5, n_cross=3, cap_same=15):
     cross = [d for d in pool if d["id"] not in used and d["code"] not in codes][:n_cross]
     if not same and not cross:
         return "", 0, 0
+    hw = hold_window(skill)
     out = [f"\n\n# 本链过往决策复盘(驱动器注入, CHAIN_REFLECTION; 只含 {as_of} 之前已结算的本链自己的单子, 机械结算+执行复盘)",
            "- 用途: 只用于改进**执行细节**(挂价离现价多远、仓位大小、下单时段、止损/失效条件松紧)。导师规则、选股逻辑、方向判断一律以 persona/rules 为准, "
-           "下面任何内容都不得作为改写、否定或绕开导师规则的理由; T+1/T+3 窗口很短, 不足以证明论点对错。产物里不必逐条回应本块。"]
+           f"下面任何内容都不得作为改写、否定或绕开导师规则的理由; 单笔结果不足以证明论点对错。T+{hw}★ = 本导师真实持有交易日中位数对应的窗口, 主看它。产物里不必逐条回应本块。"]
     if same:
-        out += ["", "## 同票(本次涉及的持仓/挂单/候选票, 最近在前)"] + [_fmt_entry(d, sets.get(d["id"], {}), refs[d["id"]], as_of) for d in same]
+        out += ["", "## 同票(本次涉及的持仓/挂单/候选票, 最近在前)"] + [_fmt_entry(d, sets.get(d["id"], {}), refs[d["id"]], as_of, hw) for d in same]
     if cross:
-        out += ["", "## 本链其他票(最近在前)"] + [_fmt_entry(d, sets.get(d["id"], {}), refs[d["id"]], as_of) for d in cross]
+        out += ["", "## 本链其他票(最近在前)"] + [_fmt_entry(d, sets.get(d["id"], {}), refs[d["id"]], as_of, hw) for d in cross]
     return "\n".join(out), len(same), len(cross)

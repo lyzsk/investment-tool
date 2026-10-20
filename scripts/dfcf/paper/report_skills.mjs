@@ -21,17 +21,22 @@ const skillOf = (src) => (src === "A-cb" ? "buchitudou0" : src.replace(/^A-/, ""
 function thickness(id) {
     const p = path.join(SK, `${id}-skill`, "persona");
     const rules = rd(path.join(p, "rules.md")), cases = rd(path.join(p, "cases.md"));
-    let days = null, ann = null;
+    let days = null, ann = null, tdays = null;
     const cl = path.join(p, "case_log");
     if (fs.existsSync(cl)) {
         days = 0;
-        for (const f of fs.readdirSync(cl)) if (/^20\d\d-\d\d\.md$/.test(f)) days += count(rd(path.join(cl, f)), /^### 20\d\d-\d\d-\d\d/gm) || 0;
+        tdays = new Set();
+        for (const f of fs.readdirSync(cl)) if (/^20\d\d-\d\d\.md$/.test(f)) for (const m of rd(path.join(cl, f)).matchAll(/^### (20\d\d-\d\d-\d\d)[^|\n]*\|\s*([^/\n]*)/gm)) {
+            days++;
+            if (!/^(持仓不动|收盘满仓|空仓|—|疑似出金|疑似入金|仓位变动无成交明细)\s*$/.test(m[2].trim())) tdays.add(m[1]);   // 10/19: 没成交的日卡本来就不解读, 不进覆盖率分母; "仓位变动无成交明细" = 账本没给成交明细, 无从解读(数据缺口)
+        }
         const a = rd(path.join(cl, "annotations.jsonl"));
-        ann = a ? new Set(a.split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l).date; } catch { return null; } }).filter(Boolean)).size : 0;
+        const aset = a ? new Set(a.split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l).date; } catch { return null; } }).filter(Boolean)) : new Set();
+        ann = [...aset].filter((d) => tdays.has(d)).length;
     }
     const st = (k) => count(rules, new RegExp(`时间状态.*状态 ${k}`, "g"));
     const vi = rj(path.join(ROOT, "skills_versions", id, "index.json"));
-    return { rules: count(rules, /^#{3,4} +[A-Z]{0,2}\d+/gm) || count(rules, /^- \*\*[A-Z]{0,2}\d+/gm), cases: count(cases, /^### /gm), days, ann, cov: days ? ann / days : null,   // tzzb/品种=### R1 标题; UP=### A1 或 - **B1** 列表
+    return { rules: count(rules, /^#{3,4} +[A-Z]{0,2}\d+/gm) || count(rules, /^- \*\*[A-Z]{0,2}\d+/gm), cases: count(cases, /^### /gm), days, ann, tdays: tdays ? tdays.size : null, cov: tdays && tdays.size ? ann / tdays.size : null,   // tzzb/品种=### R1 标题; UP=### A1 或 - **B1** 列表
         active: st("活跃"), stale: st("待复核"), neg: st("已否定"), versions: vi?.versions?.length ?? null };
 }
 
@@ -64,7 +69,7 @@ function perfOf(pts) {
 }
 
 // ---- 卡 1: skill 多维对比 ----
-export function skillMatrixSection({ merged, accounts, esc, sign }) {
+export function skillMatrixSection({ merged, accounts, esc, sign, tzUrl }) {
     const ex = rj(path.join(ROOT, "scripts", "tzzb", "paper_excluded.json"))?.excluded || {};
     const cardsF = latest(path.join(ROOT, "scripts", "tzzb", "mentor_cards")).at(-1);
     const cards = (cardsF && rj(cardsF)?.cards) || {};
@@ -99,7 +104,8 @@ export function skillMatrixSection({ merged, accounts, esc, sign }) {
         ["thick", "规则"], ["thick", "叙事案例"], ["thick", "日卡天数"], ["thick", "已解读"], ["thick", "解读覆盖"], ["thick", "活跃/待复核/否定"], ["thick", "版本数"],
         ["cost", "链日均(近5日)"], ["cost", "建设累计"]];
     const head = `<tr><th data-g="id">skill</th><th data-g="id">状态</th><th data-g="id">风格(真人近 60 日机械标签)</th>${cols.map(([g, n], i) => `<th class="num${n === "判定" ? "" : " sortable"}" data-g="${g}" data-c="${i + 3}">${n}</th>`).join("")}</tr>`;
-    const body = rows.map((r) => `<tr><td data-g="id">${esc(r.s.name)}<span class="muted small"> ${r.id}</span></td><td data-g="id">${r.status === "在跑" ? r.status : `<span class="muted">${r.status}</span>`}</td><td data-g="id" class="muted small">${esc(r.style)}</td>`
+    const tzA = (r) => { const u = tzUrl && tzUrl(r.s.src); return u ? ` <a class="small" href="${u}" target="_blank" rel="noopener" title="导师真人同花顺投资账本">tzzb↗</a>` : ""; };
+    const body = rows.map((r) => `<tr${r.status === "退出paper" ? ' data-off="1"' : ""}><td data-g="id">${esc(r.s.name)}<span class="muted small"> ${r.id}</span>${tzA(r)}</td><td data-g="id">${r.status === "在跑" ? r.status : `<span class="muted">${r.status}</span>`}</td><td data-g="id" class="muted small">${esc(r.style)}</td>`
         + cell(r.P?.cum, P(r.P?.cum, 2), "perf", ud(r.P?.cum)) + cell(r.P?.mean, P(r.P?.mean, 2), "perf", ud(r.P?.mean)) + cell(r.P?.win, r.P ? (r.P.win * 100).toFixed(0) + "%" : null, "perf")
         + cell(r.P?.sd, r.P ? (r.P.sd * 100).toFixed(2) + "%" : null, "perf") + cell(r.P?.mdd, P(r.P?.mdd), "perf")
         + cell(r.vsM, P(r.vsM), "cmp", ud(r.vsM)) + cell(r.vsC, P(r.vsC), "cmp", ud(r.vsC)) + cell(r.mimic, r.mimic == null ? null : (r.mimic * 100).toFixed(0) + "%", "cmp") + cell(r.mimicD, P(r.mimicD, 0), "cmp", ud(r.mimicD)) + cell(r.rpct, r.rpct == null ? null : (r.rpct * 100).toFixed(0) + "%", "cmp", r.rpct == null ? "" : r.rpct >= 0.8 ? "up" : r.rpct <= 0.2 ? "dn" : "")
@@ -114,7 +120,7 @@ export function skillMatrixSection({ merged, accounts, esc, sign }) {
         + `<div class="toolbar"><span class="muted small">维度</span>${chips}<button class="btn" id="dim-all">全部</button></div>`
         + `<div class="scroll" style="max-height:560px"><table class="t" id="skm">${head}${body}</table></div>`
         + `<p class="legend-note"><b>paper 表现</b>按走势图同一条合并时间轴(9/28 起回放 + 10/8 起实盘连乘); <b>相对真人</b>=同期 paper 累计 − 导师真人净值累计(UP / 对照组无账本 = —); <b>拟人度</b>=similarity.json 滚动窗口; <b>跑赢随机</b>=RAND 抛硬币基准(rand_baseline.py: 买卖日期 / 金额照抄该链, 只把"买哪只"换成当天候选池随机一只, 几百次随机里该链排第几百分位; 50%=和运气一样, 样本少时只看方向);
-<b>真人近 60 日</b>=导师名片(mentor_cards, 每晚重算); <b>真人做 T</b>=t_profile 全历史(频率=做 T 日 / 出手日); <b>skill 厚度</b>: 日卡=全量操作日志卡天数, 已解读=日卡解读天数, 覆盖=已解读/日卡;
+<b>真人近 60 日</b>=导师名片(mentor_cards, 每晚重算); <b>真人做 T</b>=t_profile 全历史(频率=做 T 日 / 出手日); <b>skill 厚度</b>: 日卡=全量操作日志卡天数, 已解读=日卡解读天数, 覆盖=已解读 / 有成交的日卡(持仓不动、空仓、只有资金进出的日卡本来就不解读, 10/19 起不进分母); UP 三人日卡解读还没开始(10/19 晚试跑桃哥), 所以是 0%;
 <b>成本</b>: 链日均=token_log 近 5 个实盘日该链平均花费, 建设累计=蒸馏 / 加厚 / 日卡解读 / 推测层修复等一次性花费合计(claude_cost.csv 按 tag 归属)。退出 paper 的导师只保留历史数据, 不再花 token。</p></div>`;
 }
 

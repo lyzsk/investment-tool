@@ -479,9 +479,21 @@
    "mech": null,
    "mech_text": null,
    "level": "话术级"
+  },
+  "R40": {
+   "id": "R40",
+   "title": "高开 7% 以上后回落到日内最低位, 开盘 3~8 分钟内分 5 腿接成当天最大仓(R12 反例)",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
   }
  },
- "n": 39,
+ "n": 40,
  "n_mech": 3,
  "n_dir": 28,
  "n_distilled": 3

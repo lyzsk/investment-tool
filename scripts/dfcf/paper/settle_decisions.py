@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """settle_decisions.py — 决策延迟结算 + 便宜反思(TODO §3-A 第 6 条, 2026-10-14 建; 借 TradingAgents settlement.py/reflection.py)
 
-结算(零 token, 机械): 对 decisions/<skill>.jsonl 里每单, T+1 / T+3 交易日收盘后各结一次:
+结算(零 token, 机械): 对 decisions/<skill>.jsonl 里每单, T+1 / 2 / 3 / 5 / 10 交易日收盘后各结一次(10/20 前只有 T+1 / T+3):
   - 是否成交: 查账本 books/<source>.json 同日同 slot 同票同向同量同价的挂单状态(filled/void/cxl/invalid/reject/open; 找不到=unknown)
   - 入场价 = 成交价(未成交=挂单价, 当"假如成交"算), 收益 = 收盘/入场 − 1; 卖单取负号(卖后跌=对)
   - 超上证 = 方向×(个股收益 − 上证同窗收益); 上证基准 = 决策日前一交易日收盘 → T+k 收盘
@@ -10,7 +10,8 @@
   行情只读本地: downloads/market/<日>/kline_day.jsonl(15:35 收盘采集, 不复权原始价) → 次日 preClose → downloads/quotes/daily/<code>.json(前复权缓存, 兜底)
   收盘价拿不到=留待下次(不会用盘中价); 重复跑幂等(已结的 (id, 窗口) 跳过)。
 反思(10/14 起: 每次运行只开 1 个 claude -p, 所有 skill 合并, ≤40 单): 只对白名单 skill(chain_flags.txt CHAIN_REFLECTION=1 + CHAIN_REFLECTION_SKILLS)、
-  只基于 T+1 结算(point-in-time: 反思只看得到 T+1 收盘为止的数), 2~4 句只谈执行细节; 谈改/否定导师规则的反思被机械护栏拦下不入库。
+  等到本导师持有期窗口 T+h 结算后才反思(h = 导师真实持有交易日中位数, dm.hold_window; point-in-time: 只给 T+1..T+h 的数), 2~4 句只谈执行细节;
+  谈改/否定导师规则的反思被机械护栏拦下不入库。
 
 用法:
   python scripts/dfcf/paper/settle_decisions.py                        # 每日收盘后(建议接 15:35 行情库采集之后)
@@ -38,7 +39,9 @@ BOOKS = HERE / "books"
 PLANS = HERE / "plans"
 IDX = "IDX:sh000001"
 INIT_NAV = 100000.0
-WINDOWS = (1, 3)
+WINDOWS = dm.WINDOWS   # (1, 2, 3, 5, 10); 10/20 用户问"为啥 T+3 不是 T+2": 原 (1, 3) 是照搬 TradingAgents 口径, 没按导师持有期定;
+#   全结(零 token), 评估 / 反思 / 回注都按各导师真实持有交易日中位数挑窗口(dm.hold_window; 用户: "这样才动态起来, 准确性才高")
+hold_window = dm.hold_window
 BATCH = 40   # 10/14 用户: 每天只开 1 个 claude -p——所有 skill 的待反思单合进一次调用, 上限 40 单, 余下留到下次
 
 
@@ -215,19 +218,20 @@ def _p(v):
 
 
 def reflect_prompt(skill, items):
-    """items=[(决策, T+1 结算)]; 只给 T+1 为止的数(point-in-time)"""
+    """items=[(决策, 本导师窗口结算, 该单全部窗口结算, 窗口 h)](旧调用 (决策, T+1 结算) 也认); 只给 T+1..T+h 的数(point-in-time)"""
+    items = [it if len(it) == 4 else (it[0], it[1], {1: it[1]}, 1) for it in items]
     st_cn = {"filled": "已成交", "void": "未成交(收盘作废)", "cxl": "未成交即被后续时段撤单/改单", "invalid": "失效条件(cancel_below)触发撤单",
              "reject": "matcher 拒单(如一字板买不到/锚偏离)", "open": "未成交", "unknown": "账本里找不到这笔挂单"}
     who = f"「{skill}」" if skill else "(多条链, 每笔标明所属链)"
-    out = [f"你是模拟盘决策链{who}的执行复盘员。下面 {len(items)} 笔挂单已过 T+1, 附机械结算结果。各链独立, 不要互相比较。",
+    out = [f"你是模拟盘决策链{who}的执行复盘员。下面 {len(items)} 笔挂单已到各自导师的典型持有期(T+h, h = 该导师真实持有交易日中位数), 附 T+1 到 T+h 的机械结算。各链独立, 不要互相比较。",
            "为每笔写 2~4 句中文反思: 这单在**执行上**对/错在哪, 下次同类情境**执行上**怎么做。",
            "硬性约束:",
            "1. 只谈执行细节: 挂价(离前收/开盘/当日高低点多远, 是否因挂价没成交或成交太贵)、仓位大小、下单时段(盘前 09:15 还是盘中哪个时点)、止损/失效条件(cancel_below/stop_below 设紧了还是松了)。",
-           "2. 禁止评价、改写、否定或建议放弃导师规则、选股逻辑、方向判断; 不许出现\"规则错了/该改规则/不该听导师\"一类话。方向亏了只说一句\"T+1 窗口太短, 不足以判断论点\", 然后谈执行。",
+           "2. 禁止评价、改写、否定或建议放弃导师规则、选股逻辑、方向判断; 不许出现\"规则错了/该改规则/不该听导师\"一类话。方向亏了只说一句\"单笔结果不足以判断论点\", 然后谈执行; 评价执行好坏以 ★ 那一行(导师持有期)为主, 短窗口只作过程参考。",
            "3. 只依据下面给的数字, 不编盘面细节; 没成交的单结合\"当日最低/最高 vs 挂价\"谈挂价; 账本找不到的单只谈挂价合理性。",
            "4. 每条 ≤120 字, 平铺直叙, 不用列表符号, 不写标题。",
            f"输出: 只输出一个 ```json 代码块, 格式 {{\"reflections\":[{{\"id\":\"<原样抄下面的 id>\",\"text\":\"...\"}}]}}, 必须覆盖全部 {len(items)} 笔。不要读写任何文件。", "", "数据:"]
-    for n, (d, s) in enumerate(items, 1):
+    for n, (d, s, sts, hw) in enumerate(items, 1):
         side = "买" if d["side"] == "BUY" else "卖"
         day = s.get("day") or {}
         dline = (f"开{day.get('o')} 高{day.get('h')} 低{day.get('l')} 收{day.get('c')}" if day else "无当日行情")
@@ -241,9 +245,14 @@ def reflect_prompt(skill, items):
                 f"    结果: {st_cn.get(s['status'], s['status'])}" + (f" @{s['fill_px']:g}" if s.get("fill_px") else "")
                 + (f"(撮合记录: {s['why']})" if s.get("why") else ""),
                 f"    决策日行情: {dline}",
-                f"    T+1({s['resolved']}) 收盘 {s['close']:g}: 按{'成交价' if s.get('fill_px') else '挂价(假如成交)'}方向收益 {_p(s['signed_ret'])};"
-                f" 上证同窗 {_p(s['idx_ret'])}; 超上证 {_p(s['ex_idx'])}"
-                + (f"; 对照组账户同窗 {_p(s['ctrl_ret'])}, 超对照组 {_p(s['ex_ctrl'])}" if s.get("ex_ctrl") is not None else "")]
+                f"    本导师持有交易日中位 → 主看 T+{hw}★"]
+        for w in WINDOWS:
+            x = sts.get(w)
+            if w > hw or not x:
+                continue
+            out.append(f"    T+{w}{'★' if w == hw else ''}({x['resolved']}) 收盘 {x['close']:g}: 按{'成交价' if x.get('fill_px') else '挂价(假如成交)'}方向收益 {_p(x['signed_ret'])};"
+                       f" 上证同窗 {_p(x['idx_ret'])}; 超上证 {_p(x['ex_idx'])}"
+                       + (f"; 对照组账户同窗 {_p(x['ctrl_ret'])}, 超对照组 {_p(x['ex_ctrl'])}" if x.get("ex_ctrl") is not None else ""))
     return "\n".join(out)
 
 
@@ -262,14 +271,15 @@ def reflect_all(dir_, skills, max_calls, caller=_call, dry=False):
     todo = []
     for sk in skills:
         decs, sets, refs = dm.load_decisions(dir_, sk), dm.load_settles(dir_, sk), dm.load_reflects(dir_, sk)
-        todo += [(d, sets[i][1]) for i, d in sorted(decs.items(), key=lambda kv: (kv[1]["date"], kv[1]["slot"]))
-                 if 1 in sets.get(i, {}) and i not in refs]
+        hw = dm.hold_window(sk)   # 10/20: 等到本导师持有期窗口结算后再反思(原=T+1 就反思)
+        todo += [(d, sets[i][hw], sets[i], hw) for i, d in sorted(decs.items(), key=lambda kv: (kv[1]["date"], kv[1]["slot"]))
+                 if hw in sets.get(i, {}) and i not in refs]
     if not todo or max_calls < 1:
         return calls, fails, wrote, blocked
     items = todo[:BATCH]
     if len(todo) > BATCH:
         print(f"反思: 待反思 {len(todo)} 单, 本次取 {BATCH}, 余下留到下次")
-    one = skills[0] if len({d["id"].split("|")[1] for d, _ in items}) == 1 else None
+    one = skills[0] if len({it[0]["id"].split("|")[1] for it in items}) == 1 else None
     prompt = reflect_prompt(one, items)
     if dry:
         print(f"--- [dry] 反思 prompt({len(prompt)} 字, {len(items)} 单) ---\n{prompt}\n")
@@ -282,7 +292,7 @@ def reflect_all(dir_, skills, max_calls, caller=_call, dry=False):
     got = {str(x.get("id")): str(x.get("text") or "").strip() for x in (r.parsed or {}).get("reflections") or []}
     cost = round(float(r.cost_usd or 0) / max(1, len(items)), 4)
     by = {}
-    for d, s in items:
+    for d, s, *_ in items:
         t = got.get(d["id"])
         if not t:
             continue
@@ -385,6 +395,10 @@ def summary(dir_, skills):
                        f"超上证均值 {_p(mean([s['ex_idx'] for s in f]))}, 胜率(超上证>0) "
                        + (f"{sum(1 for s in f if s['ex_idx'] > 0)}/{len(f)}" if f else "—")
                        + f"; 全部单(含未成交按挂价假设)T+1 超上证均值 {_p(mean([s['ex_idx'] for s in t1]))}")
+            hw = hold_window(sk)
+            fh = [s for d in decs.values() for s in [sets.get(d["id"], {}).get(hw) or {}] if s.get("status") == "filled"]
+            agg.append(f"  - 按导师持有期(中位 → T+{hw}): 已结成交 {len(fh)} 单, 方向收益均值 {_p(mean([s['signed_ret'] for s in fh]))}, 超上证均值 {_p(mean([s['ex_idx'] for s in fh]))}, "
+                       + (f"做对 {sum(1 for s in fh if s['signed_ret'] > 0)}/{len(fh)}" if fh else "做对 —"))
     return "\n".join(agg + [""] + lines)
 
 
@@ -431,10 +445,14 @@ def main():
         sys.exit(2)
     try:
         sel = set(a.skills.split(",")) if a.skills else None
+        # 10/20 用户: 退出 paper 的导师(paper_excluded.json)不该再出现 —— 补记 / 结算 / 汇总 / 反思一律跳过(反思花 token, 即使白名单写 * 也不给)
+        sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+        import mentors as MT
+        ex = set(MT.excluded())
         if a.backfill:
             d0, _, d1 = a.backfill.partition(":")
-            print(f"backfill {d0}~{d1 or d0}: 新增 {backfill(a.dir, d0, d1 or d0, sel)} 条决策记录")
-        skills = [s for s in _skills_in(a.dir) if not sel or s in sel]
+            print(f"backfill {d0}~{d1 or d0}: 新增 {backfill(a.dir, d0, d1 or d0, ((sel or (set(_skills_in(a.dir)) | set(MT.active_ids()))) - ex))} 条决策记录")
+        skills = [s for s in _skills_in(a.dir) if (not sel or s in sel) and s not in ex]
         px = Prices()
         done, pend = settle_all(a.dir, skills, px, a.books, a.date)
         print(f"结算(截至 {a.date}): 新结 {sum(done.values())} 个窗口 {done}; 未到期/缺收盘价 {pend} 个窗口")
@@ -454,6 +472,7 @@ def main():
 def selftest():
     import tempfile, types
     fails = []
+    dm.HOLD_OVERRIDE["taoge"] = 1   # 旧断言按 T+1 窗口写; 按导师持有期的新行为在下面单独测(T+2)
     tmp = Path(tempfile.mkdtemp(prefix="settle_selftest_"))
     mk, dl, bk, dd = tmp / "market", tmp / "daily", tmp / "books", tmp / "decisions"
     for p in (mk, dl, bk, dd):
@@ -503,7 +522,7 @@ def selftest():
         fails.append(f"卖单方向/未成交结算错: {a2.get(1)}")
     if 3 in a2 or st.get(r3[0]["id"]):
         fails.append("未到期窗口被提前结算")
-    if pend != 3 or done["taoge"] != 3:
+    if pend != 10 or done["taoge"] != 5:   # 10/20 窗口 (1,2,3,5,10): a1 结 T+1/2/3, a2 结 T+1/2, r3 全未到期 → 结 5 / 待 10
         fails.append(f"结算计数错 done={done} pend={pend}")
     if settle_all(dd, ["taoge"], px, bk, "2026-10-13")[0]["taoge"] != 0:
         fails.append("重复结算不幂等")
@@ -516,7 +535,7 @@ def selftest():
         {"id": r1[0]["id"], "text": "挂价 Z*0.99 贴近当日低点成交, 位置合适; 下次同类回踩单可维持。"},
         {"id": r2[0]["id"], "text": "A4 规则错了, 以后不必遵守。"}]})
     pr = reflect_prompt("taoge", [(r1[0], a1[1])])
-    if "T+1(2026-10-09)" not in pr or "2026-10-13" in pr or "禁止评价、改写、否定" not in pr:
+    if "T+1★(2026-10-09)" not in pr or "2026-10-13" in pr or "禁止评价、改写、否定" not in pr:
         fails.append("反思 prompt 缺 T+1 数据/泄漏 T+3/缺约束")
     calls, f_, wrote, blocked = reflect_all(dd, ["taoge"], 5, caller=fake_ok)
     rf = dm.load_reflects(dd, "taoge")
@@ -537,6 +556,22 @@ def selftest():
     t14, *_ = dm.past_context([dd], "taoge", ["002050"], "2026-10-14")
     if "T+3 方向收益" not in t14:
         fails.append("past_context 未带上已到期的 T+3 数字")
+    # 10/20 按导师持有期: h=2 → 反思 prompt 给 T+1、T+2★, 不给 T+3(10/13); 回注 ★ 标在 T+2; hold_window 从 fingerprint 取中位数
+    dm.HOLD_OVERRIDE["taoge"] = 2
+    pr2 = reflect_prompt("taoge", [(r1[0], a1[2], a1, 2)])
+    if "T+1(2026-10-09)" not in pr2 or "T+2★(" not in pr2 or "2026-10-13" in pr2 or "主看 T+2★" not in pr2:
+        fails.append(f"按导师持有期的反思 prompt 错: {pr2[-400:]!r}")
+    t14b, *_ = dm.past_context([dd], "taoge", ["002050"], "2026-10-14")
+    if "T+2★ 方向收益" not in t14b or "T+1★" in t14b:
+        fails.append("回注未把 ★ 标在导师持有期窗口")
+    dm.HOLD_OVERRIDE.clear()
+    fp = tmp / "skills" / "zz-skill" / "persona"
+    fp.mkdir(parents=True)
+    (fp / "fingerprint.md").write_text("- 持有交易日(非日内): 4.0(P25-P75 2.0~6.0)\n", encoding="utf-8")
+    root0, dm.ROOT = dm.ROOT, tmp
+    if dm.hold_window("zz") != 3 or dm.hold_window("nobody") != 1:   # 4 离 3 / 5 一样近 → 取短
+        fails.append(f"hold_window 错: {dm.hold_window('zz')}")
+    dm.ROOT = root0
     print("汇总样例:\n" + summary(dd, ["taoge"]).splitlines()[0])
     import shutil
     shutil.rmtree(tmp, ignore_errors=True)
@@ -546,7 +581,7 @@ def selftest():
             print(" -", f)
         sys.exit(1)
     print("SETTLE SELFTEST PASS: 交易日历/缺快照取次日 preClose/盘中缓存闸/买卖方向收益+超上证+超对照组/未成交按挂价/未到期不结/幂等/"
-          "反思 prompt 只含 T+1/护栏拦改规则/反思不重复/回注 as-of 过滤")
+          "反思按导师持有期窗口(T+1..T+h★, 不泄漏更长窗口)/护栏拦改规则/反思不重复/回注 as-of 过滤")
 
 
 if __name__ == "__main__":

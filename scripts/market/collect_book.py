@@ -49,6 +49,7 @@ def sym(code):
 
 def watch(D):
     codes = {"601988", "159941", "002714"}   # 做 T 账本标的
+    real = set()   # 用户实盘成交里出现过的票
     for f in (PAPER / "books").glob("*.json"):
         try:
             b = json.loads(f.read_text(encoding="utf-8"))
@@ -66,9 +67,20 @@ def watch(D):
                 t = l.split()
                 if len(t) >= 5 and t[0].isdigit() and len(t[0]) <= 3 and len(t[1]) == 6 and t[1].isdigit():
                     codes.add(t[1])
+                    real.add(t[1])
     except Exception:   # noqa: BLE001
         pass
-    out = [s for s in (sym(c) for c in sorted(codes) if re.fullmatch(r"\d{6}", c) and not c.startswith(("204", "1318"))) if s and not s.startswith("bj")]
+    core = sorted(codes & ({"601988", "159941", "002714"} | real))
+    nbr = []
+    try:   # 10/19 晚: 实盘 / 做T 标的的拓扑前 3 邻居也录盘口 → ctx_index 能给模型看"邻居此刻涨跌", 不另开请求源
+        sys.path.insert(0, str(ROOT / "scripts" / "market"))
+        import topology as TOPO
+        for c in core:
+            nbr += [x["c"] for x in ((TOPO.load(c, D, strict=True) or {}).get("nb") or [])[:3]]
+    except Exception:   # noqa: BLE001
+        pass
+    order = list(dict.fromkeys(core + nbr + sorted(codes)))
+    out = [s for s in (sym(c) for c in order if re.fullmatch(r"\d{6}", c) and not c.startswith(("204", "1318"))) if s and not s.startswith("bj")]
     return out[:MAXN]
 
 

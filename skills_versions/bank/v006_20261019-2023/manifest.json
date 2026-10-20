@@ -1,0 +1,103 @@
+{
+ "skill": "bank",
+ "unit": "skill",
+ "version": {
+  "v": 6,
+  "id": "v006_20261019-2023",
+  "ts": "2026-10-19T20:23:12",
+  "effective_from": "2026-10-19T19:47:00",
+  "unit": "skill",
+  "version_hash": "4629ae9a1739cb44c52d556cfeea06e893188a493eb8bfa5a503ca77930a9704",
+  "cat_hash": {
+   "提示词": "251611b0161c317c9a6d98cf92848bed221591ccecc2dae7c3cdd571ad1d198a",
+   "画像": "41d9664cc92148718648fc8d00129c7b6f8d323110d2d9f105fe7e21c394b595"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v005_20261019-0800",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/cases.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "画像": [
+    "persona/cases.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 6,
+   "removed": 0
+  },
+  "bytes_weight": 13060,
+  "why": "check-md 2026-10-19 20:23",
+  "code": {
+   "chain": "4a3cb5a676c1",
+   "distill": "3171796597ef"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "b269cc0c7766aa7f0aad2b3700e3c06b20858768049b847936eb894126e5aade",
+   "bytes": 952,
+   "lines": 20,
+   "mtime": "2026-10-19T19:47:00",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "35c2599672f3c45878686ab0e139dc2241d0a8fd77c1774f711e42c8f5a971d6",
+   "bytes": 6041,
+   "lines": 81,
+   "mtime": "2026-10-19T19:47:01",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "d6a41efc0559d88d0189734dc1ba3d83fae3de8fad8a23c2d34699934f2134be",
+   "bytes": 3649,
+   "lines": 41,
+   "mtime": "2026-10-19T02:15:42",
+   "cls": "画像",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "7f402daf4980774d47fa00b8048a4a7f54d662cbdcd984ff34afcf559e4725e7",
+   "bytes": 1609,
+   "lines": 15,
+   "mtime": "2026-10-18T22:08:36",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/distill.md": {
+   "sha256": "42a58f5222ee68b2c19121d44eb765ec565f1a67e27129de66f234ddafb300ec",
+   "bytes": 809,
+   "lines": 10,
+   "mtime": "2026-10-18T21:54:54",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "4a3cb5a676c1",
+  "distill": "3171796597ef",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "730e297e80ae",
+   "skills/bank-skill/workflows/chain.md": null,
+   "skills/bank-skill/SKILL.md": "7f402daf4980",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/bank-skill/workflows/distill.md": "42a58f5222ee",
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "62647ac02e84",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "d3e4ce279b11"
+  }
+ }
+}

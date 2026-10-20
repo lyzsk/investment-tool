@@ -43,7 +43,7 @@ DATA = TB.DATA
 STATE = DATA / "t_decide_state.json"
 TLOG = DATA / "t_log"
 
-DISCIPLINE = """用户本人的做 T 纪律(必须遵守):
+DISCIPLINE = """做 T 硬纪律(规则与费用口径, 必须遵守):
 - 参数按该品种近 30 日振幅分布定, 禁止固定模板; 规模三档: 1/3 底仓、1/2 底仓、全部底仓(把握越大档越高, 不确定就 1/3 或不做)
 - 按走势情景分配挂单(例: 高开冲高情景挂高抛、回落情景挂低吸), 单子要能放一段时间(用户隔段看盘), 不要贴着现价追
 - 收盘股数可以浮动: 多出来的 = 隔夜正 T(次日处理); 少了的 14:45 会被机械买回
@@ -82,6 +82,22 @@ def auction(D, code):
         return json.dumps({k: s.get(k) for k in ("p1", "p1_hi", "p1_lo", "p2_first", "p2", "fin", "vol_ratio", "tags")}, ensure_ascii=False)
     except (OSError, ValueError):
         return "(今天竞价过程未采到)"
+
+
+def _flag(name, default=None):
+    import decision_memory as DM   # 与驱动器同口径: 环境变量优先, 其次 chain_flags.txt
+    v = DM.flag_raw(name)
+    return default if v is None else v
+
+
+def ctx_pack(code, D, slot):
+    """10/19 用户定"索引化, 模型按需捞": 盘中资料索引(scripts/lib/ctx_index.py, 实盘 order-skill 共用); 失败不拖垮决策"""
+    try:
+        import ctx_index as CI
+        before = None if slot == "0915" else (slot if slot.isdigit() else None)
+        return CI.pack(code, D, before=before)
+    except Exception as e:   # noqa: BLE001
+        return f"(资料索引生成失败: {e})"
 
 
 def facts_sections(D):
@@ -166,6 +182,8 @@ PROMPT = """你是做 T 交易员, 管理一个 paper 账本 {src}: 标的 {name
 {cons}
 ## 隔夜外围 / 期货(纳指 ETF 主要看美股和纳指期货; 注意 A 股白天美股已收盘, 场内价格跟期货和溢价走):
 {ext}
+## 盘中资料索引(10/19 起; ① 3 秒盘口走势 L0 ② 本时段最新事实包: 驱动器按本品种关键词预取的行 + 全文目录(带行号) ③ 结构 / 三态 ④ 最新外围期货; 先看"资料覆盖", ❌ 的项不要假设):
+{idx}
 ## 账本: 今日已成交 {today}; 未成交挂单 {opens}
 ## {discipline}
 ## 本品种 skill(你的主要依据: 品种画像 + 做 T 规则 + 最近日卡):
@@ -175,7 +193,7 @@ PROMPT = """你是做 T 交易员, 管理一个 paper 账本 {src}: 标的 {name
 ## 本账本近几天复盘(事后最优 T vs 当时决策):
 {reviews}
 
-只输出一个 ```json 块:
+{read_hint}只输出一个 ```json 块:
 {{"action":"观望|正T|反T|改单|撤单","tier":"0|1/3|1/2|全","reason":"一两句, 说清依据哪些信号(竞价/市况/位置/量能)",
  "cancel_open": true/false,   // 是否撤掉现有未成交挂单(改单时设 true 再给新单)
  "orders":[{{"side":"BUY|SELL","price":数值,"frac":底仓比例(0~1),"why":"情景"}}],
@@ -220,20 +238,23 @@ def decide(src, cfg, D, slot, dry):
     last = float(q.get("last") or 0) if not q.get("stale") else 0.0
     vwap = (float(q["amt"]) / (float(q["vol"]) * (100 if not str(code).startswith("1") else 100))) if q.get("amt") and q.get("vol") else None
     quote = (f"开 {q.get('open')} 高 {q.get('high')} 低 {q.get('low')} 现 {q.get('last')} 涨跌 {q.get('pct')}%" + (f" 均价约 {vwap:.3f}" if vwap else "")) if last else "(未开盘/行情不是今天)"
-    prompt = PROMPT.format(src=src, name=cfg["name"], code=code, base=base, pos=pos, cash=TB.t_cash(b, cfg), D=D, hm=dt.datetime.now().strftime("%H:%M"),
+    idx, can_read = ctx_pack(code, D, slot), _flag("T_DECIDE_READ", "1") == "1"
+    read_hint = ("要细节可以用 Read 工具按上面目录的行号读原文(facts.md 某节 / 3 秒盘口 5 分钟K 用不了 Read, 不要读 book_snap); 最多 Read 3 次、每次 ≤80 行, 够用就别读。\n" if can_read else "")
+    prompt = PROMPT.format(idx=idx, read_hint=read_hint, src=src, name=cfg["name"], code=code, base=base, pos=pos, cash=TB.t_cash(b, cfg), D=D, hm=dt.datetime.now().strftime("%H:%M"),
                            slot=slot, up=P["up"], dn=P["dn"], prev=P["prev"], quote=quote, auc=auction(D, code), cons=consensus(D), ext=facts_sections(D),
                            today=[(t["side"], t["price"], t["qty"]) for t in today] or "无", opens=[(o["id"], o["side"], o["price"], o["qty"]) for o in opens] or "无",
-                           discipline=DISCIPLINE, scale=("本账本按用户实盘真实规模跑(底仓 = 用户真实持股数), 费用每笔最低 5 元在这个规模下影响较小; T 的颗粒度参考用户习惯 100~300 股一笔、价差 0.17~0.4 元。" if cfg.get("real") else "本账本只动 1 万(底仓约 5000 元), 小档位费用占比高。"), skill=skill_notes(cfg["skill"], skill_dir=cfg.get("skill_dir")), notes=mentor_notes(), reviews=recent_reviews(src, D))
+                           discipline=DISCIPLINE, scale=("本账本按用户实盘真实规模跑(底仓 = 用户真实持股数), 费用每笔最低 5 元在这个规模下影响较小; T 的规模按本品种 skill 规则的三档定(10/19 用户定: 决策T 学 skill 里的正负样本, 不模仿用户本人; 日卡里「你的实盘」那一行只是一条带盈亏的样本)。" if cfg.get("real") else "本账本只动 1 万(底仓约 5000 元), 小档位费用占比高。"), skill=skill_notes(cfg["skill"], skill_dir=cfg.get("skill_dir")), notes=mentor_notes(), reviews=recent_reviews(src, D))
     if dry:
-        return {"slot": slot, "dry": True, "prompt_chars": len(prompt)}
+        return {"slot": slot, "dry": True, "prompt_chars": len(prompt), "idx_chars": len(idx), "coverage": idx.splitlines()[0] if idx else ""}
     from claude_call import LEAN_ARGS
-    r = call(prompt, tag=f"t-decide:{src}", permission="default", timeout=600, extra_args=LEAN_ARGS + ["--tools", ""], json_tag="json")
+    r = call(prompt, tag=f"t-decide:{src}", permission="default", timeout=600, extra_args=LEAN_ARGS + ["--tools", "Read" if can_read else ""], json_tag="json")
     m = re.findall(r"```json\s*\n([\s\S]*?)```", r.result or "")
     try:
         dec = json.loads(m[-1]) if m else {}
     except ValueError:
         dec = {}
-    rec = {"slot": slot, "at": dt.datetime.now().isoformat(timespec="seconds"), "cost": round(r.cost_usd or 0, 3), "decision": dec, "quote": quote}
+    rec = {"slot": slot, "at": dt.datetime.now().isoformat(timespec="seconds"), "cost": round(r.cost_usd or 0, 3), "decision": dec, "quote": quote,
+           "coverage": idx.splitlines()[0] if idx else ""}
     if not dec:
         rec["error"] = f"模型输出解析失败 {r.errors[:2]}"
         return rec
@@ -274,6 +295,8 @@ def tick(D, dry, force_slot=None):
                     if not dry:
                         s["base_order"] = {"at": now, "imp": TB.write_import(D, src, [line])}
                     out.append(f"{src} 建底仓: {line}")
+                elif "0930" <= now <= "1500":
+                    TB.FAILS.append(f"{src} 建底仓取不到 {code} 现价")   # 10/19: 不再静默(见 t_bot.snap 解析 bug)
             if s.get("base_order") and not s.get("base_set") and now >= CLOSE_AT and pos:
                 b["_t_base"] = pos
                 if not dry:
@@ -304,6 +327,9 @@ def tick(D, dry, force_slot=None):
     if not dry:
         STATE.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
     print("\n".join(out) or f"{now} 无到点动作")
+    if TB.FAILS and "0930" <= now <= "1500":
+        print("ERROR: " + " | ".join(TB.FAILS))
+        sys.exit(2)
 
 
 def main():

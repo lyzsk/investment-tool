@@ -70,12 +70,26 @@ if (marked.n) console.log(`一字封死标注: ${marked.n} 行 (${[...seals.entr
 
 // ②持仓+挂单票快照(从6账本扫)
 const watch = new Map();
-for (const f of fs.existsSync(path.join(DIR, "books")) ? fs.readdirSync(path.join(DIR, "books")) : []) {
+for (const f of (fs.existsSync(path.join(DIR, "books")) ? fs.readdirSync(path.join(DIR, "books")) : []).filter((x) => x.endsWith(".json"))) {   // 10/19: books/_retired/ 子目录(停用账本)不读
     const b = JSON.parse(fs.readFileSync(path.join(DIR, "books", f), "utf8"));
     for (const c of Object.keys(b.positions || {})) watch.set(c, "持仓");
     for (const o of (b.orders || []).filter((o) => o.status === "open")) watch.set(o.code, "挂单");
 }
 const snaps = [];
+// 10/19(用户定: 打开; 范围 = 每条链只看自己导师的, 开关 CHAIN_MENTOR_HOLD_FACTS): 各导师真人 T-1 持仓 + 近 5 个交易日操作过的票
+//   (同花顺账本前一晚已公开 = 决策时已知, 不偷看)写进「导师信号速览」各导师自己的 ### 小节 —— 驱动器 slim_facts 只给本链留本导师小节,
+//   public_facts 共享开头整段删掉, 所以 paper-A 只看到导师 A 的; 价格单独拉, 不进公共「关注票实时快照」(否则等于告诉所有链)
+//   起因: 真人买的票只有 36% 出现在给链的事实包里, 链看不见就选不到(paper_vs_real.py); 跟不跟由 skill 规则裁决
+const MHOLD_ON = chainFlag("CHAIN_MENTOR_HOLD_FACTS");
+const MHOLD = MHOLD_ON ? mentorHolds() : [];
+const MHSNAP = {};
+const POOLC = MHOLD_ON ? MENTORS.active().flatMap((e) => { try { return (/^POOL: ([\d,]+)/m.exec(fs.readFileSync(path.resolve("skills", `${e.id}-skill`, "persona", "stock_pool.md"), "utf8"))?.[1] || "").split(",").filter(Boolean); } catch { return []; } }) : [];
+for (const c of [...MHOLD.flatMap((m) => [...m.list.map((x) => x.code), ...m.recent.map((x) => x.code)]), ...POOLC]) {
+    if (MHSNAP[c] || watch.has(c)) continue;
+    const s = await snapAt(c);
+    if (!s.error) MHSNAP[c] = s;
+    await sleep(ASOF ? 50 : 500);
+}
 for (const [code, tag] of watch) {
     const s = await snapAt(code);
     if (s.error) console.error(`快照失败 ${code}: ${s.error}`);
@@ -196,13 +210,17 @@ function mentorDigest() {
     // 节标题须含 run_chain.py MENTOR_HEAD 关键词(各链 01 按它切本导师小节, 同导师只能一个 ### 块)
     // 10/17 二B-4: 名单读导师登记表(scripts/lib/mentors.mjs): [skill, 节标题=short, UP 的 md 小节名=name]; 桃哥另有专节(上方)不在此列, 对照组无导师
     // (顺序=登记表序: tzzb 在前、B站 UP 在后; 与 10/17 前写死表相比土豆从第 6 节移到第 1 节、天哥/卢本圆互换, 内容逐节不变)
-    const mentors = [...MENTORS.all().filter((e) => e.type === "tzzb"), ...MENTORS.all().filter((e) => e.type === "UP" && e.id !== "taoge")]
+    const mentors = [...MENTORS.active().filter((e) => e.type === "tzzb"), ...MENTORS.active().filter((e) => e.type === "UP" && e.id !== "taoge")]   // 10/19: 退出 paper 的导师不再进导师信号速览(没人读, 白占 token)
         .map((e) => (e.type === "UP" ? [e.id, cardTitle(e), e.name] : [e.id, cardTitle(e)]));
     const mdDate = D1 || date;  // as-of: D 的 md 复盘节=D 盘后才写入(后见之明), 改读 D1 的(D 盘前已存在)
     for (const [skill, label, mdName] of mentors) {
         const lines = ruleLines(skill, !!mdName);
         const s = mdName ? latestMdSection(mdName, mdDate) : null;
         if (s) lines.push(`- ${s.day === date ? "当日" : s.day} md 小节速览(截断): ${s.sec}`);
+        const mh = MHOLD.find((m) => m.id === skill);
+        if (mh) lines.push(mentorHoldLine(mh));
+        // 10/19 用户: 天哥只评盘不透露 BS 点, 评盘核心 = 图里的票(英伟达链 AI 硬件) + 衍生板块 + 创新药 → 常讲股票池进本导师小节(只本链看得见)
+        if (MHOLD_ON) { const sp = stockPoolLine(skill); if (sp) lines.push(sp); }
         out.push("### " + label + "\n" + (lines.length ? lines.join("\n") : `(skills/${skill}-skill/persona/rules.md 无可读规则行)`));
     }
     return out.length ? out.join("\n\n") : "(导师速览构建失败, 各源信号本次缺席)";
@@ -335,6 +353,45 @@ function lhbDigest() {
 }
 
 // ---- 10/18 晚(用户定"周三接, 先备好"): 关注票三态 / 箱体 / 均线 / 止损候选, 开关 CHAIN_REGIME_FACTS(chain_flags.txt; 环境变量优先), 关=本节不出现 ----
+function mentorHolds() {
+    const excl = (() => { try { return new Set(Object.keys(JSON.parse(fs.readFileSync(path.resolve("scripts/tzzb/paper_excluded.json"), "utf8")).excluded || {})); } catch { return new Set(); } })();
+    let dev = {};
+    try { const j = JSON.parse(fs.readFileSync(path.resolve("scripts/dfcf/paper/paper_vs_real.json"), "utf8")); if (String(j.date || "") < date) dev = j.mentors || {}; } catch { /* 无 */ }
+    const out = [];
+    for (const e of MENTORS.all().filter((x) => x.type === "tzzb" && !excl.has(x.id))) {
+        let dp;
+        try { dp = JSON.parse(fs.readFileSync(path.resolve("downloads/tzzb", e.id, "day_positions.json"), "utf8")); } catch { continue; }
+        const d8 = Object.keys(dp).filter((k) => k < date.replaceAll("-", "")).sort().pop();   // as-of: 只取决策日之前的
+        if (!d8) continue;
+        const list = (dp[d8].list || []).filter((x) => +x.position_percent > 0).sort((a, b) => b.position_percent - a.position_percent).map((x) => ({ code: x.code, name: x.name, w: +x.position_percent }));
+        const recent = [];   // 近 5 个(有操作的)交易日买卖过的票, 只取决策日之前的
+        try {
+            const rows = fs.readFileSync(path.resolve("skills", `${e.id}-skill`, "persona", "cases_auto.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } })
+                .filter((r) => r && (r.side === "买" || r.side === "卖") && r.date < date && r.code);
+            const days = [...new Set(rows.map((r) => r.date))].sort().slice(-5);
+            for (const r of rows.filter((x) => days.includes(x.date)).reverse()) if (!recent.some((y) => y.code === String(r.code)) && recent.length < 8) recent.push({ code: String(r.code), name: r.name || "", d: r.date, side: r.side });
+        } catch { /* 无日志 */ }
+        out.push({ id: e.id, book: e.book, name: e.short?.split("(")[0] || e.name, d8, list, recent, dev: dev[e.book]?.summary });
+    }
+    return out;
+}
+function stockPoolLine(skill) {
+    let t;
+    try { t = fs.readFileSync(path.resolve("skills", `${skill}-skill`, "persona", "stock_pool.md"), "utf8"); } catch { return null; }
+    const m = /^POOL: ([\d,]+)/m.exec(t);
+    if (!m) return null;
+    const theme = /^THEME: (.+)$/m.exec(t)?.[1] || "";
+    const codes = m[1].split(",").filter(Boolean);
+    const px = (c) => { const q = MHSNAP[c] || snaps.find((x) => x.code === c); return q ? `${q.name || c} ${c} 现${q.last}(${q.pct > 0 ? "+" : ""}${q.pct}%)` : c; };
+    return `- **本人常讲股票池**(skills/${skill}-skill/persona/stock_pool.md${theme ? "; " + theme : ""}): ${codes.map(px).join("、")}(关注范围, 不是持仓; 买不买按规则)`;
+}
+function mentorHoldLine(m) {
+    const px = (c) => { const q = MHSNAP[c] || snaps.find((x) => x.code === c); return q ? ` 现${q.last}(${q.pct > 0 ? "+" : ""}${q.pct}%)` : ""; };
+    return `- **本人真实持仓**(同花顺账本 ${m.d8.slice(4, 6)}-${m.d8.slice(6)} 收盘, 决策时已知): ` + (m.list.map((x) => `${x.name} ${x.code} ${(x.w * 100).toFixed(0)}%${px(x.code)}`).join("、") || "空仓")
+        + (m.recent.length ? `｜近 5 个操作日买卖过: ${m.recent.map((x) => `${x.name || x.code} ${x.code}(${x.d.slice(5)}${x.side})${px(x.code)}`).join("、")}` : "")
+        + (m.dev ? `｜本链近 ${m.dev.days} 天与本人持仓重合 ${m.dev.overlap_days} 天、股票仓位比本人 ${(m.dev.avg_pos_gap * 100).toFixed(0)} 个百分点` : "")
+        + "(跟不跟、跟多少按本导师规则自己裁决, 不是指令; 偏离只是提醒, 不为像而像)";
+}
 function chainFlag(name) {
     if (process.env[name] === "0" || process.env[name] === "1") return process.env[name] === "1";
     try {
@@ -395,6 +452,9 @@ const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${S
     "## 隔夜外围(美股/中概/港股/日英/A50·美股期货/金油/离岸人民币)", overseas(), "",
     "## 期货(国内主力+外围期货, 现场拉取)", ASOF ? "(as-of 回放: 无期货历史快照, 不可得)" : await futuresMd(), "",
     "## 今日盘前资讯(当日早报+发哥推演, 盘前蒸馏要点原文)", premarket(), "",
+    // 10/19 用户: 天哥只评盘不说买卖 → 当盘面分析源(像发哥, 但发哥是盘前 T 日发 T 日核销; 天哥是 T-1 盘后评盘, T 日收盘后核销准不准)
+    ...(chainFlag("CHAIN_TIANGE_MARKET") ? (() => { const prevD = (D1 || date) === date ? (() => { const x = new Date(`${date}T12:00:00`); x.setDate(x.getDate() - 1); return x.toLocaleDateString("sv-SE"); })() : D1;
+        const s = latestMdSection("趋势天哥", prevD); return s ? ["## 趋势天哥 T-1 盘后评盘(" + s.day + " B站视频转写摘要; 达链 AI 硬件 + 衍生板块 + 创新药方向; 只评盘不说买卖, 当市况参考, 次日收盘后核销准不准)", s.sec, ""] : []; })() : []),
     "## 昨日龙虎榜(机械摘录: 概况+关注票+净买/净卖前列)", lhbDigest(), "",
     "## 新到电报(自上一 slot)", telegraph(), "",
     // 10/17 健壮性 H3: 盘前(行情停在上一交易日的盘, snapshot stale=true)标清口径: 价=该日收盘=今日前收, 涨跌幅/高低=该日, 不是今天的盘

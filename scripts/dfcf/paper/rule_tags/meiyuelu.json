@@ -508,10 +508,34 @@
    "mech": null,
    "mech_text": null,
    "level": "话术级"
+  },
+  "R43": {
+   "id": "R43",
+   "title": "跌停价接刀: 个股昨日已大跌, 当日在跌停价(含跌停开盘)开新仓, 次日还跌就竞价再加; 3 次新开次日收盘全跌",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R44": {
+   "id": "R44",
+   "title": "9–10 月亏损个股不在竞价砍: 3 次止损都在盘中(10:04–13:09)、卖在日内低位(位置 ≤0.17)、一腿清",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
   }
  },
- "n": 42,
+ "n": 44,
  "n_mech": 1,
- "n_dir": 33,
+ "n_dir": 34,
  "n_distilled": 0
 }

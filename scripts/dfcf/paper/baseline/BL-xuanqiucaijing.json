@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "xuanqiucaijing",
  "name": "宣秋财经",
- "generated_at": "2026-10-18T00:05:41",
+ "generated_at": "2026-10-19T19:46:50",
  "since": "2026-10-08",
- "until": "2026-10-16",
+ "until": "2026-10-19",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "延续",
@@ -42,7 +42,7 @@
    "side": "BUY",
    "code": "301689",
    "amount": 49000.0,
-   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 12.752",
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 12.753",
    "status": "filled",
    "price": 73.45,
    "qty": 600
@@ -90,7 +90,7 @@
    "side": "BUY",
    "code": "688806",
    "amount": 53004.0,
-   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 12.008",
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 12.006",
    "status": "filled",
    "price": 32.39,
    "qty": 1600
@@ -123,7 +123,7 @@
    "price": 73.45,
    "qty": 600,
    "fee": 11.02,
-   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 12.752 | 开盘价"
+   "why": "建仓对齐: 目标总仓 98%(账户从未持仓) | 打法 涨停回调(按打法) 池分 12.753 | 开盘价"
   },
   {
    "id": "2026-10-08-BL-xuanqiucaijing-002",
@@ -168,7 +168,7 @@
    "price": 32.39,
    "qty": 1600,
    "fee": 12.96,
-   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 12.008 | 开盘价"
+   "why": "换股: 等额买入新票 | 打法 涨停回调(按打法) 池分 12.006 | 开盘价"
   },
   {
    "id": "2026-10-13-BL-xuanqiucaijing-007",
@@ -245,6 +245,14 @@
    "nav": 83058.06,
    "filled": 0,
    "orders": 0
+  },
+  {
+   "date": "2026-10-19",
+   "cash": 18266.06,
+   "mv": 64156.0,
+   "nav": 82422.06,
+   "filled": 0,
+   "orders": 0
   }
  ],
  "daily": [
@@ -274,11 +282,11 @@
    ],
    "stale": 0,
    "state_day": "2026-09-30",
-   "p_trade": 0.912,
+   "p_trade": 0.905,
    "p_dir_given_trade": [
-    0.315,
-    0.604,
-    0.081
+    0.31,
+    0.607,
+    0.083
    ],
    "decision": {
     "trade": true,
@@ -327,10 +335,10 @@
    ],
    "stale": 0,
    "state_day": "2026-10-08",
-   "p_trade": 0.862,
+   "p_trade": 0.857,
    "p_dir_given_trade": [
-    0.257,
-    0.72,
+    0.248,
+    0.729,
     0.023
    ],
    "decision": {
@@ -380,11 +388,11 @@
    ],
    "stale": 0,
    "state_day": "2026-10-09",
-   "p_trade": 0.896,
+   "p_trade": 0.889,
    "p_dir_given_trade": [
-    0.281,
-    0.685,
-    0.034
+    0.3,
+    0.666,
+    0.035
    ],
    "decision": {
     "trade": true,
@@ -433,11 +441,11 @@
    ],
    "stale": 0,
    "state_day": "2026-10-12",
-   "p_trade": 0.918,
+   "p_trade": 0.917,
    "p_dir_given_trade": [
-    0.124,
+    0.125,
     0.847,
-    0.029
+    0.028
    ],
    "decision": {
     "trade": true,
@@ -467,11 +475,11 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-13",
-   "p_trade": 0.234,
+   "p_trade": 0.245,
    "p_dir_given_trade": [
-    0.779,
-    0.137,
-    0.084
+    0.756,
+    0.151,
+    0.093
    ],
    "decision": {
     "trade": false,
@@ -496,11 +504,11 @@
    "orders": [],
    "stale": 1,
    "state_day": "2026-10-13",
-   "p_trade": 0.21,
+   "p_trade": 0.225,
    "p_dir_given_trade": [
-    0.562,
-    0.372,
-    0.066
+    0.55,
+    0.382,
+    0.068
    ],
    "decision": {
     "trade": false,
@@ -525,11 +533,11 @@
    "orders": [],
    "stale": 2,
    "state_day": "2026-10-13",
-   "p_trade": 0.199,
+   "p_trade": 0.208,
    "p_dir_given_trade": [
-    0.428,
-    0.539,
-    0.032
+    0.407,
+    0.558,
+    0.035
    ],
    "decision": {
     "trade": false,
@@ -548,6 +556,35 @@
     "n_new": 2
    },
    "tp_acct_prev": 0.787
+  },
+  {
+   "date": "2026-10-19",
+   "orders": [],
+   "stale": 3,
+   "state_day": "2026-10-13",
+   "p_trade": 0.19,
+   "p_dir_given_trade": [
+    0.717,
+    0.211,
+    0.072
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 2.20525,
+    "tp_target_cap": 0.98,
+    "tp_final": 2.1856,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.1398970158413741,
+    "red_step": 0.0629985673748078,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.78
   }
  ]
 }

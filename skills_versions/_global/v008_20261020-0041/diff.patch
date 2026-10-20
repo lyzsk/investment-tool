@@ -1,0 +1,97 @@
+--- v007_20261019-2303/scripts/claude_profile/chain_flags.txt
++++ v008_20261020-0041/scripts/claude_profile/chain_flags.txt
+@@ -78,2 +78,7 @@
+ T_DECIDE_READ=1   # 10/19 决策T 可用 Read 按资料索引行号捞 facts 原文(0 = 只给索引不给工具)
+ CHAIN_MENTOR_HOLD_FACTS=1   # 10/19 用户定打开: 各导师小节加本人 T-1 真实持仓 + 近 5 个操作日买卖过的票(带现价); 每条链只看自己导师的(slim_facts 切小节), 跟不跟由 skill 裁决
++CHAIN_SUB_PACK=1   # 10/19 晚(用户令现在做): 盘中子链 sub3 合并调用加工作方式约定 + 附 rules_index / paper_state / cand_snap 原文; 估每天省 $15~30, 看 10/20 token_log 子链行
++CHAIN_TIANGE_MARKET=1   # 10/19 用户定: 趋势天哥 T-1 盘后评盘当市况参考进 facts 公共节(全链可见); 次日收盘后核销准不准
++CHAIN_DECISION_LOG=1   # 10/19 晚: 全链 06 每单落决策日志, 收盘后 T+1/T+3 机械结算(零 token); 反思回注仍看 CHAIN_REFLECTION
++# 10/19 晚 TODO 二-13 市场拓扑: 04/06 注入持仓+候选的关联票(行业/前3邻居昨日涨跌/期货)+一句同向背离思考提示; 只参考不改规则; 子链不注入
++CHAIN_TOPOLOGY=1   # 用户 10/19 定"今晚做然后上线"
+--- v007_20261019-2303/scripts/taoge-chain/run_chain.py
++++ v008_20261020-0041/scripts/taoge-chain/run_chain.py
+@@ -2485,4 +2485,5 @@
+ # 结算/反思由 scripts/dfcf/paper/settle_decisions.py 收盘后跑; 读写逻辑在 scripts/dfcf/paper/decision_memory.py(仅开启时懒加载)
+ REFLECT = _flag("CHAIN_REFLECTION")
++DECISION_LOG = _flag("CHAIN_DECISION_LOG")   # 10/19 晚: 决策日志 + 延迟结算对全链开(零 token), 和反思回注(花 token、改 prompt)分开
+ # 10/16 晚 TODO 二B-6 反思回注 FinCon 式触发(CHAIN_REFLECT_TRIGGER, 默认关; 关=逐字节旧行为): 收盘后 scripts/dfcf/paper/reflect_trigger.py --date D
+ # 机械判"拟人偏差连续 N 日同维度偏离导师真人 / 账户回撤超阈"(阈值 params.yaml reflection_trigger) → reflection/<D>.json;
+@@ -3631,4 +3632,51 @@
+ STEP_PACK = _flag("CHAIN_STEP_PACK")
+ STEP_PACK_EXTRA = {"02": ["@ps"]}   # 10/18 查因: 0915 的 cand_snap 要到 03j 后才生成, 02 附它 20/20 次都是"不存在" → 去掉
++# 10/19 晚(TODO 二-13, 用户: "相关性只能参考, 最终 LLM 判断, 但要确保被消费、引发 LLM 思考"): 市场拓扑注入 04/06
++#   持仓 + 已出现的候选票(02/03j/04/05 合同里的 6 位代码)各一行: 行业 | 前 3 邻居(昨日涨跌) | 期货; 只用前一晚的拓扑(不偷看); 子链不注入(省 token)
++TOPOLOGY = _flag("CHAIN_TOPOLOGY")
++
++
++def topology_block(step, ctx):
++    if not TOPOLOGY or step not in ("04", "06") or ctx.get("sub"):
++        return ""
++    try:
++        sys.path.insert(0, str(ROOT / "scripts" / "market"))
++        import topology as TOPO
++        held = list(((ctx.get("book") or {}).get("positions") or {}).keys())
++        seen = re.findall(r"(?<!\d)([036]\d{5})(?!\d)", json.dumps({k: ctx["contracts"].get(k) for k in ("02", "03j", "04", "05")}, ensure_ascii=False))
++        codes = list(dict.fromkeys(held + seen))[:10]
++        rows = TOPO.brief(codes, ctx.get("date_dash") or datetime.now().strftime("%Y-%m-%d"))
++        if not rows:
++            return ""
++        return ("\n\n# 驱动器补充: 市场拓扑(持仓 / 候选的关联票, 扣大盘后近 60/20 日联动 + 同行业 + 期货; 括号 = 昨日涨跌)\n"
++                + "\n".join("- " + r for r in rows)
++                + "\n- 用法: 对每只要动的票想一句 —— 它和邻居昨天同向还是背离? 同向 = 板块行情, 背离 = 个股消息/资金或补涨补跌(去事实包找原因)。"
++                  "这是过去的统计, 题材刚切换会滞后, 只作参考, 不改变本导师的规则与判断")
++    except Exception as e:  # noqa: BLE001
++        print(f"WARN: 拓扑注入失败(本步不注入): {e}")
++        return ""
++
++
++# 10/19 晚(TODO 二-6 省钱, 用户令"没做的话现在可以做"): 子链版素材包 CHAIN_SUB_PACK —— 10/18 拆账: 盘中子链 sub3 80 个会话占全天输入 64%、花费 53%,
++#   每个平均 16 轮 / 19.6 次工具(摸目录 / 重读 rules / 自写校验); 0915 的 CHAIN_STEP_PACK 没覆盖子链(代码路径不经过 _a6_prompt)。
++#   开 = sub3 合并调用前面加同一份工作方式约定 + 直接附 rules_index / paper_state / cand_snap 原文(免 Read); 关 = 逐字节旧行为
++SUB_PACK = _flag("CHAIN_SUB_PACK")
++
++
++def sub_pack_block(run_dir):
++    if not SUB_PACK:
++        return ""
++    try:
++        att, used, missing = a6_attach(["@ri", "@ps", "@cs"], run_dir)
++    except Exception as e:   # noqa: BLE001  fail-open
++        print(f"WARN: 子链素材包附件失败(fail-open): {e}")
++        att, used, missing = "", [], []
++    keep = STEP_PACK
++    globals()["STEP_PACK"] = True   # 复用同一段约定文字(不受 0915 开关影响)
++    try:
++        head = step_pack_block("sub3", run_dir).replace("CHAIN_STEP_PACK", "CHAIN_SUB_PACK")
++    finally:
++        globals()["STEP_PACK"] = keep
++    return (head + "# 已附原文(不用再 Read): " + ("、".join(used) or "无") + ("; 未附: " + "、".join(missing) if missing else "") + "\n" + att + "\n")
+ 
+ 
+@@ -4017,4 +4065,5 @@
+         p_ += quality_block(step, ctx)      # 10/17 ② 决策质量参考(相似市况/时段/T 法/挂价规则): 全关=空串
+         p_ += tudou_t0_block(step, ctx)     # 10/18 土豆竞价T 机械选债(非土豆=空串)
++        p_ += topology_block(step, ctx)     # 10/19 晚 市场拓扑(CHAIN_TOPOLOGY; 关=空串)
+         p_ += late_news_block(step, run_dir, date_dash, slot)   # 10/16: 0915 链开跑后才入库的发哥推演, 作增量注入后续步
+         if SKILL_NAME not in ("taoge", "control", "buchitudou0") and step in ((("03b", "03s", "03j") if mimic_on() else ("blind", "03b", "03s", "03j"))):   # 10/16 审计#8: 盲审/辩论模板残留桃哥口径
+@@ -4070,5 +4119,5 @@
+             a6["tail"][step] = (((neg_warn() + reject_rules()) if step == "05" else "") + profile_block(step, ctx)
+                                 + (constraint_text(ctx["pc"], step) if step in ("04", "05", "06") else "")
+-                                + reflection_block(step, ctx) + fix_block(step, ctx) + ledger_block(step, ctx) + quality_block(step, ctx) + horizon_block(step, ctx) + tudou_t0_block(step, ctx))
++                                + reflection_block(step, ctx) + fix_block(step, ctx) + ledger_block(step, ctx) + quality_block(step, ctx) + horizon_block(step, ctx) + tudou_t0_block(step, ctx) + topology_block(step, ctx))
+         tpl = templates[tpl_key(step, templates)].replace("{date_dash}", date_dash).replace("{date}", date).replace("{run_dir}", rd)
+         main = a6["main"] and step in A6_MAIN_STEPS and not a6["main_broken"]
+@@ -4154,5 +4203,5 @@
+             stance_note = ""
+         parts = [(s, p_ + (stance_note if s in ("04", "05", "06") else "")) for s, p_ in parts]
+-        p_all = (_asof_note() if ASOF else "") + merge_prompt(parts, date, run_dir)
++        p_all = (_asof_note() if ASOF else "") + sub_pack_block(run_dir) + merge_prompt(parts, date, run_dir)
+         since0 = time.time()
+         ctx["final_attempt"] = False
+@@ -4412,5 +4461,5 @@
+         emit_plans(date_dash, slot, source, ctx["contracts"].get("06", {}), book,
+                    (("【未过拟人审】" if mimic_on() else "【未过盲审】") if ctx.get("blind_fail") else ""))
+-        if reflect_on():   # 10/14 §3-A 第 6 条: 每个 action 落待结算记录(关闭=不调用)
++        if reflect_on() or DECISION_LOG:   # 10/14 §3-A 第 6 条; 10/19 晚: 决策日志(零 token)与反思回注拆开 —— CHAIN_DECISION_LOG=1 全链都记, 回注仍看 CHAIN_REFLECTION
+             log_decisions(date_dash, slot, source, ctx["contracts"].get("06", {}), ctx)
+     print(f"链完成 {date} slot {slot} steps {'→'.join(steps)}")

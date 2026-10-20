@@ -1,0 +1,10 @@
+--- v006_20261019-2201/scripts/taoge-chain/run_chain.py
++++ v007_20261019-2303/scripts/taoge-chain/run_chain.py
+@@ -3578,5 +3578,6 @@
+                 f"- {prev} 转债成交额前三: " + " | ".join(top) + "\n"
+                 "- 用法: 首选第 1 名下 op=\"竞价T\"(竞价买、开盘即卖), 金额按他的固定名义本金习惯; 正股竞价高开 ≥2% 时他胜率 91%(0915 看不到当天竞价, 这只是参考); "
+-                "第 1 名正股前一日大跌且他近 8 日做过别的熟票时, 他偶尔回到老票(17/103 天)。\n")
++                "第 1 名正股前一日大跌且他近 8 日做过别的熟票时, 他偶尔回到老票(17/103 天)。\n"
++                + (f"\n## 前一交易日 {prev} 可转债事实表精选(collect_cb_facts.py; 只是事实, 用不用按 R0 阶段妖债 / R4 / R6 / R8 裁决)\n{cbf}\n" if cbf else ""))
+     except Exception as e:   # noqa: BLE001  fail-open
+         print(f"WARN: 竞价T 选债注入失败(fail-open): {e}")

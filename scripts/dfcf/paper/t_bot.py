@@ -151,11 +151,15 @@ def snap(code):
         if l.startswith("JSON:"):
             break
     try:
-        j = json.loads(r.stdout[r.stdout.index("{"):r.stdout.rindex("}") + 1])
+        # 10/19 修: snapshot.mjs 末行是 "JSON:{"ok":1,...}", 旧写法 rindex("}") 把它也截进来 → json 解析失败 → 恒返回 None
+        #   → 10/19 做T 6 本 + 决策T 3 本全天"无到点动作", 底仓一股没建(静默失败)。现在只取 JSON: 行之前的主体
+        body = r.stdout.split("\nJSON:")[0]
+        j = json.loads(body[body.index("{"):body.rindex("}") + 1])
         s = (j.get("snaps") or j.get("data") or {})
         s = s.get(code) if isinstance(s, dict) else next((x for x in s if x.get("code") == code), None)
         return s
-    except Exception:   # noqa: BLE001
+    except Exception as e:   # noqa: BLE001
+        print(f"WARN: snap({code}) 解析失败: {e}; stdout 尾 {(r.stdout or '')[-120:]!r} stderr {(r.stderr or '')[-120:]!r}", file=sys.stderr)
         return None
 
 
@@ -179,6 +183,8 @@ def tick(D, dry):
                 q0 = snap(code) or {}
                 last = float(q0.get("last") or 0) if not q0.get("stale") else 0
                 if not last:
+                    # 10/19 教训: 这里原先静默 continue, snap 解析 bug 让 9 本账本全天没建底仓、日志只写"无到点动作"
+                    FAILS.append(f"{src} 建底仓取不到 {code} 现价(snap={'None' if not q0 else 'stale'})")
                     continue
                 q = base_qty(cfg, last)
                 lines.append(f"- {now[:2]}:{now[2:]} | {src} | BUY | {code} | {tick_px(code, last * 1.005):g} | {q} | day | {last:g} | - | 做T 建底仓(开盘后按现价)")
@@ -223,6 +229,12 @@ def tick(D, dry):
     if not dry:
         STATE.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
     print("\n".join(out) or f"{now} 无到点动作")
+    if FAILS and "0930" <= now <= "1500":
+        print("ERROR: " + " | ".join(FAILS))   # 盘中取不到价 = 失败退出(check_md 记"t_bot 失败", 体检变红), 不再静默
+        sys.exit(2)
+
+
+FAILS = []
 
 
 def main():

@@ -880,11 +880,23 @@ def main():
                 st_bl["baseline_books"] = {"at": dt.datetime.now().isoformat(timespec="seconds"), "ok": rc_b == 0}
                 save_state(state)
                 summary["baseline_books"] = "完成" if rc_b == 0 else "失败"
+                if rc_b == 0:   # 10/20: 拟人度第三条基线"导师行为统计先验"读 BL-*.json, 基线账户更新后重算一次(上面 weights 段那次读的是昨天的 BL)
+                    run([PY, "-X", "utf8", "scripts/dfcf/paper/mimicry_score.py", "--since", "2026-10-08", "--quiet"], "拟人度累计重算(含模型基线)", 1800)
         # 10/16 晚 一-9: 混合账本(mix_plans.py)盘中跟单 + 收盘学习; 只在显式 --only mix / mix_learn 时跑(sys_job 每 5 分钟 + 15:25 各一条)
         if only and "mix" in only and not a.dry:
             # 10/18 晚 P3: 盘口五档快照采集器(新浪, 不占腾讯额度)没在跑就后台拉起(无窗口); 挂了下一轮自动重拉
             run([PY, "-X", "utf8", "scripts/market/collect_book.py", "--ensure"], "盘口快照采集", 60)
             st_mix = state.setdefault(d.isoformat(), {}).setdefault("mix", {})
+            # 10/19 用户定: 午间 12:00~13:00 体检一次 paper(空转 / 做T 底仓没建 / 单全被拒), 有问题推微信
+            # 10/19 晚用户: 快速单要 LLM+机械 → 09:25 竞价定格后让 LLM 写开盘情景剧本(私有 order-skill/playbook.py), 后台起、不挡本轮
+            _pb = ROOT / "scripts" / "dfcf" / "snapshots" / "order-skill" / "playbook.py"
+            if _pb.exists() and "0924" <= dt.datetime.now().strftime("%H%M") < "0932" and not st_mix.get("playbook"):
+                subprocess.Popen([PY, "-X", "utf8", str(ROOT / "scripts" / "dfcf" / "snapshots" / "order-skill" / "playbook_wait.py"), "--date", d.isoformat()],
+                                 cwd=ROOT, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) | getattr(subprocess, "DETACHED_PROCESS", 0))
+                st_mix["playbook"] = {"at": dt.datetime.now().isoformat(timespec="seconds")}
+            if "1200" <= dt.datetime.now().strftime("%H%M") < "1300" and not st_mix.get("idle_check"):
+                rc_i, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/paper_idle_check.py", "--date", d.isoformat(), "--push"], "paper 午间体检", 420)
+                st_mix["idle_check"] = {"at": dt.datetime.now().isoformat(timespec="seconds"), "rc": rc_i}
             import manual_backfill as _mb   # noqa: PLC0415  (UP 步已把 backfill_bilibili 加进 path)
             cur = _mb.db().cursor()
             cur.execute("select job_handler_param, cron_expression from sys_job where job_handler_name='paperChainHandler' and status=0 and is_deleted=0")
@@ -945,16 +957,29 @@ def main():
         # 10/18: 导师名片按最新账本数据给下一交易日重算(原只在次日 0915 facts 首次用到时懒生成, 已存在就不再刷新 → 当晚补进的账本数据进不去)
         if (not only or "case_log" in only) and not a.dry:   # 10/18 用户定: 停用 32B 推测层, 改由全量操作日志卡(机械, 零 token, 幂等; 全量重算约 3 秒)
             rc_cl, _ = run([PY, "-X", "utf8", "scripts/tzzb/case_log.py"], "导师操作日志卡", 300)
+            # 10/19: 日卡解读按 100% 覆盖做 —— 原先只在 10/18 晚全量跑过一次, 之后新出的有成交日卡没人解读(覆盖率逐日下滑);
+            #   每晚对在跑导师补当月(和上月, 防月初)缺的; 已解读的日期自动跳过, 一般每人 0~1 个会话
+            _m0 = d.strftime("%Y-%m")
+            _m1 = (d.replace(day=1) - dt.timedelta(days=1)).strftime("%Y-%m")
+            run([PY, "-X", "utf8", "scripts/tzzb/case_annotate.py", "--months", f"{_m0},{_m1}"], "日卡解读增量(在跑导师, 补新出的有成交日)", 3600)
+            run([PY, "-X", "utf8", "scripts/tzzb/case_log.py"], "导师操作日志卡(并入新解读)", 300)
             run([PY, "-X", "utf8", "scripts/tzzb/hold_mining.py"], "持仓手法挖掘(滚动验证)", 300)
             summary["case_log"] = "完成" if rc_cl == 0 else "失败"
             run([PY, "-X", "utf8", "scripts/dfcf/paper/t_review.py", "--date", d.isoformat()], "做T 复盘(事后最优 T 标签)", 300)   # 10/18 晚
             run([PY, "-X", "utf8", "scripts/dfcf/paper/t_knowledge.py"], "做T 知识包", 120)   # 10/18 晚: 全体 skill 做T 技巧(正反面)给决策T
             run([PY, "-X", "utf8", "scripts/dfcf/paper/t_skill.py"], "品种 skill 数据画像(银行股/纳指)", 120)   # 10/18 晚
             run([PY, "-X", "utf8", "scripts/dfcf/paper/t_private_report.py"], "牧原私有报告(snapshots/report_private.html)", 120)   # 10/18 晚: 不进 git
+            if (ROOT / "scripts" / "dfcf" / "snapshots" / "order-skill" / "eval_day.py").exists():   # 10/19: 盘中挂单建议逐档对账(私有, 不进 git)
+                run([PY, "-X", "utf8", "scripts/dfcf/snapshots/order-skill/eval_day.py", "--date", d.isoformat()], "盘中挂单建议对账(私有 order-skill)", 120)
+                run([PY, "-X", "utf8", "scripts/dfcf/snapshots/order-skill/real_log.py", "--date", d.isoformat()], "实盘决策日志+T+1/T+3 结算(私有, 照建议 vs 自主)", 120)   # 10/19 晚
             run([PY, "-X", "utf8", "scripts/dfcf/paper/rand_baseline.py"], "RAND 抛硬币基准", 600)   # 10/18 晚 P0: 各链 vs 随机选股
             run([PY, "-X", "utf8", "scripts/dfcf/paper/signal_lab.py"], "分钟级信号实验室", 1200)   # 10/18 晚 P2: MOM/REV/VWAP/TFI/RAND 滚动验证
             run([PY, "-X", "utf8", "scripts/quotes/indicators_db.py", "--date", d.isoformat()], "均线/三态/风险仓位 全市场快照", 900)   # 10/18 晚 A+C: downloads/market/<日>/indicators.jsonl
-            run([PY, "-X", "utf8", "scripts/tzzb/regime_trades.py"], "导师×三态 胜率/盈亏比/期望", 1200)   # 10/18 晚 B: 写各导师 fingerprint.md AUTO:三态 块
+            run([PY, "-X", "utf8", "scripts/market/collect_cb_facts.py", "--date", d.isoformat()], "可转债事实表(溢价率/强赎/正股涨停/热点妖债; 土豆链次日注入)", 300)   # 10/19 用户口述转债逻辑
+            run([PY, "-X", "utf8", "scripts/market/topology.py", "--date", d.isoformat()], "市场拓扑(每只票的邻居: 扣大盘相关60/20 + 东财行业 + 申万 + F10 概念 + 期货; 只做预取参考)", 300)   # 10/19 晚 TODO 二-13
+            run([PY, "-X", "utf8", "scripts/tzzb/regime_trades.py"], "导师×三态 胜率/盈亏比/期望", 1200)
+            run([PY, "-X", "utf8", "scripts/dfcf/paper/settle_decisions.py", "--date", d.isoformat(), "--backfill", f"{d.isoformat()}:{d.isoformat()}", "--summary", "scripts/dfcf/paper/decisions/summary.md"], "决策日志延迟结算(T+1/T+3, 零 token; 反思按 CHAIN_REFLECTION 白名单)", 900)   # 10/19 晚
+            run([PY, "-X", "utf8", "scripts/dfcf/paper/paper_vs_real.py", "--date", d.isoformat()], "paper vs 导师真人 偏离归因(写进各 skill fingerprint, 蒸馏消费)", 300)   # 10/19   # 10/18 晚 B: 写各导师 fingerprint.md AUTO:三态 块
             run([PY, "-X", "utf8", "scripts/bilibili/up_case_log.py"], "B站 UP 日卡", 600)   # 10/18 晚: 画面 BS / 持仓 / 原话 + 行情
         if (not only or "mentor_cards" in only) and not a.dry:
             nd = _next_td(d, _bb().load_holidays()).isoformat()

@@ -8,7 +8,7 @@
       状态来自 scripts/quotes/indicators_db.py(同一套前复权 + 三态阈值)
 统计(按 导师 × 买入时状态): 平仓笔数 / 胜率 / 平均盈利 / 平均亏损 / 盈亏比 / 期望值(每笔平均收益) / 1/4 凯利仓位 / 中位持有天数;
       另按 买入时在 EMA144 上方 vs 下方、交易区间里 箱体下部(<0.33)/中部/上部(>0.67) 拆
-口径限制: pnl 是不含费用的价差收益(cases_auto 口径); 同日来回(做 T)也算一笔; 样本 <10 笔的格子只看方向
+口径: pnl = 价差收益 − 来回费用近似(股票 0.10% / 转债 ETF 0.05%, 10/19 起; 小单最低 5 元佣金未计); 同日来回(做 T)也算一笔; 样本 <10 笔的格子只看方向
 产物: scripts/tzzb/model_out/regime_trades.json + scripts/tzzb/model_out/reports/regime_trades_<日>.md
       + 每位导师 skills/<id>-skill/persona/fingerprint.md 末尾 <!-- AUTO:三态 --> 块(蒸馏 / 链 / mix 读)
 用法: scripts/venv/Scripts/python.exe -X utf8 scripts/tzzb/regime_trades.py [--ledger a,b]
@@ -33,6 +33,12 @@ import indicators_db as ID  # noqa: E402
 OUT = ROOT / "scripts" / "tzzb" / "model_out"
 MARK0, MARK1 = "<!-- AUTO:三态 -->", "<!-- /AUTO:三态 -->"
 STATES = ["上涨趋势", "下跌趋势", "交易区间", "无规则", "数据不足"]
+
+
+def FEE_RT(code):
+    """10/19(TODO 二-10 "导师 pnl 不含费用"): 来回费用近似扣掉 —— 股票 = 卖出印花税 0.05% + 两边佣金约 0.05%(万 2.5×2, 大额单不触最低 5 元) ≈ 0.10%;
+    转债 / ETF 免印花税 ≈ 0.05%。cases_auto 只有收益率没有金额, 最低 5 元佣金对小单的放大没法算(偏乐观, 记在口径里)"""
+    return 0.0005 if AR.symbol(code) and str(code)[:1] in ("1", "5") else 0.0010
 
 
 def stats(xs):
@@ -69,7 +75,7 @@ def main():
             res = r.get("result") or {}
             if r.get("side") != "卖" or res.get("pnl") is None or AR.symbol(str(r.get("code"))) is None:
                 continue
-            T.append((r["date"], str(r["code"]), float(res["pnl"]), int(res.get("hold_days") or 0), r.get("name") or ""))
+            T.append((r["date"], str(r["code"]), float(res["pnl"]) - FEE_RT(str(r["code"])), int(res.get("hold_days") or 0), r.get("name") or ""))
         trades[sk] = T
         syms |= {AR.symbol(c) for _, c, _, _, _ in T}
     syms.add("sh000001")
@@ -124,7 +130,7 @@ def main():
     fmt = lambda s: "—" if not s else (f"{s['n']} 笔 · 胜率 {s['win']:.0%} · 盈亏比 {s['payoff'] if s['payoff'] is not None else '—'} · 期望 {s['exp'] * 100:+.2f}%"   # noqa: E731
                                      + (f" · ¼凯利 {s['kelly4']:.0%}" if s.get("kelly4") is not None else ""))
     md = [f"# 导师 × 三态 胜率 / 盈亏比 / 期望值({dt.date.today()}; regime_trades.py 机械生成)", "",
-          "> 状态 = 买入前一交易日收盘时的三态(indicators_db.py); 收益 = 该笔平仓价差(不含费用); 期望 = 每笔平均收益; ¼凯利 = 按胜率和盈亏比算的建议仓位上限的 1/4(0 = 期望为负)。<10 笔的格子只看方向。", "",
+          "> 状态 = 买入前一交易日收盘时的三态(indicators_db.py); 收益 = 该笔平仓价差 − 来回费用近似; 期望 = 每笔平均收益; ¼凯利 = 按胜率和盈亏比算的建议仓位上限的 1/4(0 = 期望为负)。<10 笔的格子只看方向。", "",
           "| 导师 | 全部 | 上涨趋势 | 下跌趋势 | 交易区间 | 无规则 |", "|---|---|---|---|---|---|"]
     for sk, R in res.items():
         try:
@@ -135,7 +141,7 @@ def main():
         # 写进导师指纹(AUTO 块)
         fp = ROOT / "skills" / f"{sk}-skill" / "persona" / "fingerprint.md"
         if fp.exists():
-            blk = [MARK0, f"## 三态 × 胜率 / 盈亏比 / 期望值(regime_trades.py 机械生成 {dt.date.today()}; 状态 = 买入前一日收盘, 收益不含费用)", ""]
+            blk = [MARK0, f"## 三态 × 胜率 / 盈亏比 / 期望值(regime_trades.py 机械生成 {dt.date.today()}; 状态 = 买入前一日收盘, 收益已扣来回费用近似)", ""]
             for grp, keys in (("按买入时状态", ["状态|上涨趋势", "状态|下跌趋势", "状态|交易区间", "状态|无规则"]),
                               ("按 EMA144", ["EMA144|上方", "EMA144|下方"]), ("交易区间里的位置", ["区间位置|下部", "区间位置|中部", "区间位置|上部"])):
                 blk.append(f"- **{grp}**: " + " ; ".join(f"{k.split('|')[1]} {fmt(R.get(k))}" for k in keys if R.get(k)))

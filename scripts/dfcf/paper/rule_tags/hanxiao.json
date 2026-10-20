@@ -473,10 +473,34 @@
    "mech": null,
    "mech_text": null,
    "level": "话术级"
+  },
+  "R40": {
+   "id": "R40",
+   "title": "T 做反了也当日按原股数平回, 认小亏, 不把 T 的买腿留成净加仓补 R4、R26",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R41": {
+   "id": "R41",
+   "title": "(小样本)新开卫星头一周内跌到约 -10% 以上 → 绿盘一次清, 不走老卫星\"拖着+红盘解套\"那条路补 R7、R33、",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
   }
  },
- "n": 39,
+ "n": 41,
  "n_mech": 1,
- "n_dir": 31,
+ "n_dir": 32,
  "n_distilled": 0
 }

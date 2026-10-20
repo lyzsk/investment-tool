@@ -439,10 +439,22 @@
    "mech": null,
    "mech_text": null,
    "level": "话术级"
+  },
+  "R37": {
+   "id": "R37",
+   "title": "有仓时早盘同票先卖后买(反 T): 先卖一笔, 3~13 分钟内以更低价买回且买得更多, 收盘该票仓位反而上升",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
   }
  },
- "n": 36,
+ "n": 37,
  "n_mech": 2,
- "n_dir": 28,
+ "n_dir": 29,
  "n_distilled": 0
 }

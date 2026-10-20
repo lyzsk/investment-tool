@@ -1,632 +1,632 @@
 {
- "updated": "2026-10-19T00:29:31",
+ "updated": "2026-10-20T00:44:47",
  "mentors": {
   "buchitudou0": {
    "状态|无规则": {
     "n": 25,
     "win": 0.72,
-    "avg_win": 0.0102,
-    "avg_loss": 0.0057,
-    "payoff": 1.8,
-    "exp": 0.0058,
-    "kelly4": 0.141
+    "avg_win": 0.0097,
+    "avg_loss": 0.0062,
+    "payoff": 1.57,
+    "exp": 0.0053,
+    "kelly4": 0.1354
    },
    "全部|全部": {
     "n": 87,
-    "win": 0.678,
-    "avg_win": 0.01,
-    "avg_loss": 0.0059,
-    "payoff": 1.68,
-    "exp": 0.0049,
-    "kelly4": 0.1217
+    "win": 0.655,
+    "avg_win": 0.0098,
+    "avg_loss": 0.006,
+    "payoff": 1.63,
+    "exp": 0.0044,
+    "kelly4": 0.1111
    },
    "EMA144|上方": {
     "n": 85,
-    "win": 0.694,
-    "avg_win": 0.01,
-    "avg_loss": 0.0059,
-    "payoff": 1.68,
-    "exp": 0.0051,
-    "kelly4": 0.128
+    "win": 0.671,
+    "avg_win": 0.0098,
+    "avg_loss": 0.006,
+    "payoff": 1.64,
+    "exp": 0.0046,
+    "kelly4": 0.1174
    },
    "状态×EMA144|无规则·上方": {
     "n": 25,
     "win": 0.72,
-    "avg_win": 0.0102,
-    "avg_loss": 0.0057,
-    "payoff": 1.8,
-    "exp": 0.0058,
-    "kelly4": 0.141
+    "avg_win": 0.0097,
+    "avg_loss": 0.0062,
+    "payoff": 1.57,
+    "exp": 0.0053,
+    "kelly4": 0.1354
    },
    "状态|数据不足": {
     "n": 14,
-    "win": 0.643,
-    "avg_win": 0.0083,
-    "avg_loss": 0.0048,
-    "payoff": 1.73,
-    "exp": 0.0036,
-    "kelly4": 0.1092
+    "win": 0.5,
+    "avg_win": 0.01,
+    "avg_loss": 0.0038,
+    "payoff": 2.65,
+    "exp": 0.0031,
+    "kelly4": 0.0778
    },
    "状态×EMA144|数据不足·上方": {
     "n": 14,
-    "win": 0.643,
-    "avg_win": 0.0083,
-    "avg_loss": 0.0048,
-    "payoff": 1.73,
-    "exp": 0.0036,
-    "kelly4": 0.1092
+    "win": 0.5,
+    "avg_win": 0.01,
+    "avg_loss": 0.0038,
+    "payoff": 2.65,
+    "exp": 0.0031,
+    "kelly4": 0.0778
    },
    "状态|上涨趋势": {
     "n": 42,
     "win": 0.667,
-    "avg_win": 0.0106,
-    "avg_loss": 0.0065,
-    "payoff": 1.64,
-    "exp": 0.0049,
-    "kelly4": 0.1159
+    "avg_win": 0.0101,
+    "avg_loss": 0.007,
+    "payoff": 1.45,
+    "exp": 0.0044,
+    "kelly4": 0.1093
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 42,
     "win": 0.667,
-    "avg_win": 0.0106,
-    "avg_loss": 0.0065,
-    "payoff": 1.64,
-    "exp": 0.0049,
-    "kelly4": 0.1159
+    "avg_win": 0.0101,
+    "avg_loss": 0.007,
+    "payoff": 1.45,
+    "exp": 0.0044,
+    "kelly4": 0.1093
    },
    "状态|交易区间": {
     "n": 5,
     "win": 0.8,
-    "avg_win": 0.008,
-    "avg_loss": 0.0062,
-    "payoff": 1.3,
-    "exp": 0.0052,
-    "kelly4": 0.1615
+    "avg_win": 0.0076,
+    "avg_loss": 0.0067,
+    "payoff": 1.13,
+    "exp": 0.0047,
+    "kelly4": 0.1556
    },
    "状态×EMA144|交易区间·上方": {
     "n": 4,
     "win": 1.0,
-    "avg_win": 0.008,
+    "avg_win": 0.0076,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.008,
+    "exp": 0.0076,
     "kelly4": null
    },
    "区间位置|下部": {
     "n": 2,
     "win": 1.0,
-    "avg_win": 0.0029,
+    "avg_win": 0.0024,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0029,
+    "exp": 0.0024,
     "kelly4": null
    },
    "区间位置|中部": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0148,
+    "avg_win": 0.0143,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0148,
+    "exp": 0.0143,
     "kelly4": null
    },
    "状态|下跌趋势": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0053,
+    "avg_loss": 0.0058,
     "payoff": 0.0,
-    "exp": -0.0053,
+    "exp": -0.0058,
     "kelly4": null
    },
    "EMA144|下方": {
     "n": 2,
-    "win": 0.0,
-    "avg_win": 0.0,
-    "avg_loss": 0.0057,
-    "payoff": 0.0,
-    "exp": -0.0057,
-    "kelly4": null
-   },
-   "状态×EMA144|下跌趋势·下方": {
-    "n": 1,
-    "win": 0.0,
-    "avg_win": 0.0,
-    "avg_loss": 0.0053,
-    "payoff": 0.0,
-    "exp": -0.0053,
-    "kelly4": null
-   },
-   "区间位置|上部": {
-    "n": 2,
-    "win": 0.5,
-    "avg_win": 0.0116,
-    "avg_loss": 0.0062,
-    "payoff": 1.87,
-    "exp": 0.0027,
-    "kelly4": 0.0582
-   },
-   "状态×EMA144|交易区间·下方": {
-    "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
     "avg_loss": 0.0062,
     "payoff": 0.0,
     "exp": -0.0062,
     "kelly4": null
+   },
+   "状态×EMA144|下跌趋势·下方": {
+    "n": 1,
+    "win": 0.0,
+    "avg_win": 0.0,
+    "avg_loss": 0.0058,
+    "payoff": 0.0,
+    "exp": -0.0058,
+    "kelly4": null
+   },
+   "区间位置|上部": {
+    "n": 2,
+    "win": 0.5,
+    "avg_win": 0.0111,
+    "avg_loss": 0.0067,
+    "payoff": 1.66,
+    "exp": 0.0022,
+    "kelly4": 0.0495
+   },
+   "状态×EMA144|交易区间·下方": {
+    "n": 1,
+    "win": 0.0,
+    "avg_win": 0.0,
+    "avg_loss": 0.0067,
+    "payoff": 0.0,
+    "exp": -0.0067,
+    "kelly4": null
    }
   },
   "liuyiqing": {
    "状态|上涨趋势": {
     "n": 98,
-    "win": 0.653,
-    "avg_win": 0.0846,
-    "avg_loss": 0.0625,
-    "payoff": 1.35,
-    "exp": 0.0336,
-    "kelly4": 0.0992
+    "win": 0.643,
+    "avg_win": 0.085,
+    "avg_loss": 0.0617,
+    "payoff": 1.38,
+    "exp": 0.0326,
+    "kelly4": 0.0958
    },
    "全部|全部": {
     "n": 135,
-    "win": 0.615,
-    "avg_win": 0.0783,
-    "avg_loss": 0.0572,
+    "win": 0.607,
+    "avg_win": 0.0782,
+    "avg_loss": 0.0571,
     "payoff": 1.37,
-    "exp": 0.0261,
-    "kelly4": 0.0834
+    "exp": 0.0251,
+    "kelly4": 0.0803
    },
    "EMA144|上方": {
     "n": 123,
-    "win": 0.626,
-    "avg_win": 0.0811,
-    "avg_loss": 0.06,
-    "payoff": 1.35,
-    "exp": 0.0283,
-    "kelly4": 0.0874
+    "win": 0.618,
+    "avg_win": 0.0812,
+    "avg_loss": 0.0597,
+    "payoff": 1.36,
+    "exp": 0.0273,
+    "kelly4": 0.0842
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 98,
-    "win": 0.653,
-    "avg_win": 0.0846,
-    "avg_loss": 0.0625,
-    "payoff": 1.35,
-    "exp": 0.0336,
-    "kelly4": 0.0992
+    "win": 0.643,
+    "avg_win": 0.085,
+    "avg_loss": 0.0617,
+    "payoff": 1.38,
+    "exp": 0.0326,
+    "kelly4": 0.0958
    },
    "状态|无规则": {
     "n": 26,
     "win": 0.538,
-    "avg_win": 0.0592,
-    "avg_loss": 0.0447,
-    "payoff": 1.32,
-    "exp": 0.0112,
-    "kelly4": 0.0475
+    "avg_win": 0.0582,
+    "avg_loss": 0.0457,
+    "payoff": 1.27,
+    "exp": 0.0103,
+    "kelly4": 0.0441
    },
    "状态×EMA144|无规则·上方": {
     "n": 20,
     "win": 0.55,
-    "avg_win": 0.0552,
-    "avg_loss": 0.0437,
-    "payoff": 1.26,
-    "exp": 0.0107,
-    "kelly4": 0.0483
+    "avg_win": 0.0542,
+    "avg_loss": 0.0447,
+    "payoff": 1.21,
+    "exp": 0.0097,
+    "kelly4": 0.0447
    },
    "状态|交易区间": {
     "n": 10,
     "win": 0.4,
-    "avg_win": 0.0596,
-    "avg_loss": 0.0516,
-    "payoff": 1.16,
-    "exp": -0.0071,
+    "avg_win": 0.0586,
+    "avg_loss": 0.0526,
+    "payoff": 1.11,
+    "exp": -0.0081,
     "kelly4": 0.0
    },
    "状态×EMA144|交易区间·上方": {
     "n": 5,
     "win": 0.4,
-    "avg_win": 0.1107,
-    "avg_loss": 0.0795,
-    "payoff": 1.39,
-    "exp": -0.0034,
+    "avg_win": 0.1097,
+    "avg_loss": 0.0805,
+    "payoff": 1.36,
+    "exp": -0.0044,
     "kelly4": 0.0
    },
    "区间位置|上部": {
     "n": 8,
     "win": 0.375,
-    "avg_win": 0.0788,
-    "avg_loss": 0.0605,
-    "payoff": 1.3,
-    "exp": -0.0083,
+    "avg_win": 0.0778,
+    "avg_loss": 0.0615,
+    "payoff": 1.26,
+    "exp": -0.0093,
     "kelly4": 0.0
    },
    "EMA144|下方": {
     "n": 12,
     "win": 0.5,
-    "avg_win": 0.042,
-    "avg_loss": 0.0356,
-    "payoff": 1.18,
-    "exp": 0.0032,
-    "kelly4": 0.019
+    "avg_win": 0.041,
+    "avg_loss": 0.0366,
+    "payoff": 1.12,
+    "exp": 0.0022,
+    "kelly4": 0.0134
    },
    "状态×EMA144|无规则·下方": {
     "n": 6,
     "win": 0.5,
-    "avg_win": 0.0739,
-    "avg_loss": 0.0476,
-    "payoff": 1.55,
-    "exp": 0.0132,
-    "kelly4": 0.0446
+    "avg_win": 0.0729,
+    "avg_loss": 0.0486,
+    "payoff": 1.5,
+    "exp": 0.0122,
+    "kelly4": 0.0418
    },
    "状态|下跌趋势": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0131,
+    "avg_win": 0.0121,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0131,
+    "exp": 0.0121,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0131,
+    "avg_win": 0.0121,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0131,
+    "exp": 0.0121,
     "kelly4": null
    },
    "状态×EMA144|交易区间·下方": {
     "n": 5,
     "win": 0.4,
-    "avg_win": 0.0086,
-    "avg_loss": 0.0237,
-    "payoff": 0.36,
-    "exp": -0.0108,
+    "avg_win": 0.0075,
+    "avg_loss": 0.0247,
+    "payoff": 0.31,
+    "exp": -0.0118,
     "kelly4": 0.0
    },
    "区间位置|下部": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.0022,
-    "avg_loss": 0.0069,
-    "payoff": 0.32,
-    "exp": -0.0023,
+    "avg_win": 0.0012,
+    "avg_loss": 0.0079,
+    "payoff": 0.15,
+    "exp": -0.0034,
     "kelly4": 0.0
    }
   },
   "lianghuaxiaohao": {
    "状态|无规则": {
     "n": 218,
-    "win": 0.583,
-    "avg_win": 0.0302,
-    "avg_loss": 0.0273,
-    "payoff": 1.11,
-    "exp": 0.0062,
-    "kelly4": 0.0513
+    "win": 0.55,
+    "avg_win": 0.0309,
+    "avg_loss": 0.0262,
+    "payoff": 1.18,
+    "exp": 0.0052,
+    "kelly4": 0.0422
    },
    "全部|全部": {
     "n": 406,
-    "win": 0.576,
-    "avg_win": 0.0308,
-    "avg_loss": 0.0285,
-    "payoff": 1.08,
-    "exp": 0.0057,
-    "kelly4": 0.0461
+    "win": 0.552,
+    "avg_win": 0.0312,
+    "avg_loss": 0.0279,
+    "payoff": 1.12,
+    "exp": 0.0047,
+    "kelly4": 0.0376
    },
    "EMA144|上方": {
     "n": 320,
-    "win": 0.55,
-    "avg_win": 0.0335,
-    "avg_loss": 0.03,
-    "payoff": 1.12,
-    "exp": 0.0049,
-    "kelly4": 0.0369
+    "win": 0.522,
+    "avg_win": 0.0343,
+    "avg_loss": 0.0292,
+    "payoff": 1.18,
+    "exp": 0.004,
+    "kelly4": 0.0289
    },
    "状态×EMA144|无规则·上方": {
     "n": 162,
-    "win": 0.556,
-    "avg_win": 0.0326,
-    "avg_loss": 0.0292,
-    "payoff": 1.12,
-    "exp": 0.0051,
-    "kelly4": 0.0393
+    "win": 0.512,
+    "avg_win": 0.0343,
+    "avg_loss": 0.0276,
+    "payoff": 1.25,
+    "exp": 0.0041,
+    "kelly4": 0.0302
    },
    "状态|上涨趋势": {
     "n": 116,
-    "win": 0.543,
-    "avg_win": 0.0294,
-    "avg_loss": 0.0327,
+    "win": 0.526,
+    "avg_win": 0.0293,
+    "avg_loss": 0.0325,
     "payoff": 0.9,
-    "exp": 0.001,
-    "kelly4": 0.0084
+    "exp": -0.0,
+    "kelly4": 0.0
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 116,
-    "win": 0.543,
-    "avg_win": 0.0294,
-    "avg_loss": 0.0327,
+    "win": 0.526,
+    "avg_win": 0.0293,
+    "avg_loss": 0.0325,
     "payoff": 0.9,
-    "exp": 0.001,
-    "kelly4": 0.0084
+    "exp": -0.0,
+    "kelly4": 0.0
    },
    "状态|数据不足": {
     "n": 5,
     "win": 0.6,
-    "avg_win": 0.1299,
-    "avg_loss": 0.0756,
-    "payoff": 1.72,
-    "exp": 0.0477,
-    "kelly4": 0.0918
+    "avg_win": 0.1289,
+    "avg_loss": 0.0766,
+    "payoff": 1.68,
+    "exp": 0.0467,
+    "kelly4": 0.0906
    },
    "状态×EMA144|数据不足·上方": {
     "n": 3,
     "win": 0.667,
-    "avg_win": 0.169,
-    "avg_loss": 0.0235,
-    "payoff": 7.19,
-    "exp": 0.1048,
-    "kelly4": 0.1551
+    "avg_win": 0.168,
+    "avg_loss": 0.0245,
+    "payoff": 6.86,
+    "exp": 0.1038,
+    "kelly4": 0.1545
    },
    "状态|交易区间": {
     "n": 51,
     "win": 0.608,
-    "avg_win": 0.0272,
-    "avg_loss": 0.024,
-    "payoff": 1.13,
-    "exp": 0.0071,
-    "kelly4": 0.0654
+    "avg_win": 0.0262,
+    "avg_loss": 0.0249,
+    "payoff": 1.05,
+    "exp": 0.0062,
+    "kelly4": 0.0587
    },
    "状态×EMA144|交易区间·上方": {
     "n": 37,
     "win": 0.514,
-    "avg_win": 0.0353,
-    "avg_loss": 0.0253,
-    "payoff": 1.4,
-    "exp": 0.0058,
-    "kelly4": 0.0414
+    "avg_win": 0.0344,
+    "avg_loss": 0.0262,
+    "payoff": 1.31,
+    "exp": 0.0049,
+    "kelly4": 0.0357
    },
    "区间位置|中部": {
     "n": 9,
     "win": 0.556,
-    "avg_win": 0.0261,
-    "avg_loss": 0.0164,
-    "payoff": 1.59,
-    "exp": 0.0072,
-    "kelly4": 0.0689
+    "avg_win": 0.0252,
+    "avg_loss": 0.0174,
+    "payoff": 1.45,
+    "exp": 0.0062,
+    "kelly4": 0.062
    },
    "区间位置|上部": {
     "n": 31,
     "win": 0.613,
-    "avg_win": 0.0298,
-    "avg_loss": 0.02,
-    "payoff": 1.49,
-    "exp": 0.0106,
-    "kelly4": 0.0884
+    "avg_win": 0.0288,
+    "avg_loss": 0.021,
+    "payoff": 1.37,
+    "exp": 0.0096,
+    "kelly4": 0.0828
    },
    "EMA144|下方": {
     "n": 86,
-    "win": 0.674,
-    "avg_win": 0.0227,
-    "avg_loss": 0.0211,
-    "payoff": 1.07,
-    "exp": 0.0084,
-    "kelly4": 0.0928
+    "win": 0.663,
+    "avg_win": 0.0221,
+    "avg_loss": 0.0214,
+    "payoff": 1.03,
+    "exp": 0.0074,
+    "kelly4": 0.084
    },
    "状态×EMA144|无规则·下方": {
     "n": 56,
     "win": 0.661,
-    "avg_win": 0.0242,
-    "avg_loss": 0.0198,
-    "payoff": 1.22,
-    "exp": 0.0093,
-    "kelly4": 0.0959
+    "avg_win": 0.0232,
+    "avg_loss": 0.0208,
+    "payoff": 1.12,
+    "exp": 0.0083,
+    "kelly4": 0.0892
    },
    "状态|下跌趋势": {
     "n": 16,
-    "win": 0.625,
-    "avg_win": 0.0304,
-    "avg_loss": 0.0105,
-    "payoff": 2.9,
-    "exp": 0.0151,
-    "kelly4": 0.1239
+    "win": 0.562,
+    "avg_win": 0.0327,
+    "avg_loss": 0.0099,
+    "payoff": 3.29,
+    "exp": 0.014,
+    "kelly4": 0.1074
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 14,
-    "win": 0.571,
-    "avg_win": 0.0247,
-    "avg_loss": 0.0105,
-    "payoff": 2.35,
-    "exp": 0.0096,
-    "kelly4": 0.0973
+    "win": 0.5,
+    "avg_win": 0.0271,
+    "avg_loss": 0.0099,
+    "payoff": 2.73,
+    "exp": 0.0086,
+    "kelly4": 0.0792
    },
    "状态×EMA144|下跌趋势·上方": {
     "n": 2,
     "win": 1.0,
-    "avg_win": 0.0533,
+    "avg_win": 0.0523,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0533,
+    "exp": 0.0523,
     "kelly4": null
    },
    "状态×EMA144|交易区间·下方": {
     "n": 14,
     "win": 0.857,
-    "avg_win": 0.0142,
-    "avg_loss": 0.0124,
-    "payoff": 1.14,
-    "exp": 0.0104,
-    "kelly4": 0.1831
+    "avg_win": 0.0132,
+    "avg_loss": 0.0135,
+    "payoff": 0.98,
+    "exp": 0.0094,
+    "kelly4": 0.178
    },
    "区间位置|下部": {
     "n": 11,
     "win": 0.636,
-    "avg_win": 0.0207,
-    "avg_loss": 0.0436,
-    "payoff": 0.47,
-    "exp": -0.0027,
+    "avg_win": 0.0198,
+    "avg_loss": 0.0443,
+    "payoff": 0.45,
+    "exp": -0.0035,
     "kelly4": 0.0
    },
    "状态×EMA144|数据不足·下方": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.0518,
-    "avg_loss": 0.1278,
-    "payoff": 0.41,
-    "exp": -0.038,
+    "avg_win": 0.0508,
+    "avg_loss": 0.1288,
+    "payoff": 0.39,
+    "exp": -0.039,
     "kelly4": 0.0
    }
   },
   "a658": {
    "状态|上涨趋势": {
     "n": 19,
-    "win": 0.474,
-    "avg_win": 0.1096,
-    "avg_loss": 0.0351,
-    "payoff": 3.12,
-    "exp": 0.0334,
-    "kelly4": 0.0763
+    "win": 0.368,
+    "avg_win": 0.1398,
+    "avg_loss": 0.0302,
+    "payoff": 4.63,
+    "exp": 0.0324,
+    "kelly4": 0.058
    },
    "全部|全部": {
     "n": 67,
-    "win": 0.448,
-    "avg_win": 0.0836,
-    "avg_loss": 0.0658,
-    "payoff": 1.27,
-    "exp": 0.0011,
-    "kelly4": 0.0033
+    "win": 0.418,
+    "avg_win": 0.0885,
+    "avg_loss": 0.0634,
+    "payoff": 1.4,
+    "exp": 0.0001,
+    "kelly4": 0.0003
    },
    "EMA144|上方": {
     "n": 47,
-    "win": 0.489,
-    "avg_win": 0.0918,
-    "avg_loss": 0.0697,
-    "payoff": 1.32,
-    "exp": 0.0093,
-    "kelly4": 0.0254
+    "win": 0.447,
+    "avg_win": 0.0995,
+    "avg_loss": 0.0653,
+    "payoff": 1.52,
+    "exp": 0.0083,
+    "kelly4": 0.021
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 19,
-    "win": 0.474,
-    "avg_win": 0.1096,
-    "avg_loss": 0.0351,
-    "payoff": 3.12,
-    "exp": 0.0334,
-    "kelly4": 0.0763
+    "win": 0.368,
+    "avg_win": 0.1398,
+    "avg_loss": 0.0302,
+    "payoff": 4.63,
+    "exp": 0.0324,
+    "kelly4": 0.058
    },
    "状态|无规则": {
     "n": 35,
     "win": 0.457,
-    "avg_win": 0.0758,
-    "avg_loss": 0.0698,
-    "payoff": 1.09,
-    "exp": -0.0033,
+    "avg_win": 0.0748,
+    "avg_loss": 0.0708,
+    "payoff": 1.06,
+    "exp": -0.0043,
     "kelly4": 0.0
    },
    "状态×EMA144|无规则·上方": {
     "n": 24,
     "win": 0.542,
-    "avg_win": 0.0845,
-    "avg_loss": 0.0873,
-    "payoff": 0.97,
-    "exp": 0.0058,
-    "kelly4": 0.017
+    "avg_win": 0.0835,
+    "avg_loss": 0.0883,
+    "payoff": 0.95,
+    "exp": 0.0048,
+    "kelly4": 0.0143
    },
    "状态|交易区间": {
     "n": 7,
     "win": 0.143,
-    "avg_win": 0.0543,
-    "avg_loss": 0.0953,
-    "payoff": 0.57,
-    "exp": -0.0739,
+    "avg_win": 0.0533,
+    "avg_loss": 0.0963,
+    "payoff": 0.55,
+    "exp": -0.0749,
     "kelly4": 0.0
    },
    "状态×EMA144|交易区间·上方": {
     "n": 3,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.1201,
+    "avg_loss": 0.1211,
     "payoff": 0.0,
-    "exp": -0.1201,
+    "exp": -0.1211,
     "kelly4": null
    },
    "区间位置|上部": {
     "n": 6,
     "win": 0.167,
-    "avg_win": 0.0543,
-    "avg_loss": 0.0967,
-    "payoff": 0.56,
-    "exp": -0.0716,
+    "avg_win": 0.0533,
+    "avg_loss": 0.0977,
+    "payoff": 0.55,
+    "exp": -0.0726,
     "kelly4": 0.0
    },
    "EMA144|下方": {
     "n": 20,
     "win": 0.35,
-    "avg_win": 0.0566,
-    "avg_loss": 0.0586,
-    "payoff": 0.96,
-    "exp": -0.0183,
+    "avg_win": 0.0556,
+    "avg_loss": 0.0596,
+    "payoff": 0.93,
+    "exp": -0.0193,
     "kelly4": 0.0
    },
    "状态×EMA144|无规则·下方": {
     "n": 11,
     "win": 0.273,
-    "avg_win": 0.0378,
-    "avg_loss": 0.0458,
-    "payoff": 0.83,
-    "exp": -0.023,
+    "avg_win": 0.0368,
+    "avg_loss": 0.0467,
+    "payoff": 0.79,
+    "exp": -0.0239,
     "kelly4": 0.0
    },
    "状态|数据不足": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0258,
+    "avg_win": 0.0248,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0258,
+    "exp": 0.0248,
     "kelly4": null
    },
    "状态×EMA144|数据不足·上方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0258,
+    "avg_win": 0.0248,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0258,
+    "exp": 0.0248,
     "kelly4": null
    },
    "状态|下跌趋势": {
     "n": 5,
     "win": 0.6,
-    "avg_win": 0.0761,
-    "avg_loss": 0.0925,
-    "payoff": 0.82,
-    "exp": 0.0087,
-    "kelly4": 0.0284
+    "avg_win": 0.0751,
+    "avg_loss": 0.0935,
+    "payoff": 0.8,
+    "exp": 0.0077,
+    "kelly4": 0.0255
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 5,
     "win": 0.6,
-    "avg_win": 0.0761,
-    "avg_loss": 0.0925,
-    "payoff": 0.82,
-    "exp": 0.0087,
-    "kelly4": 0.0284
+    "avg_win": 0.0751,
+    "avg_loss": 0.0935,
+    "payoff": 0.8,
+    "exp": 0.0077,
+    "kelly4": 0.0255
    },
    "状态×EMA144|交易区间·下方": {
     "n": 4,
     "win": 0.25,
-    "avg_win": 0.0543,
-    "avg_loss": 0.0704,
-    "payoff": 0.77,
-    "exp": -0.0392,
+    "avg_win": 0.0533,
+    "avg_loss": 0.0714,
+    "payoff": 0.75,
+    "exp": -0.0402,
     "kelly4": 0.0
    },
    "区间位置|下部": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0879,
+    "avg_loss": 0.0889,
     "payoff": 0.0,
-    "exp": -0.0879,
+    "exp": -0.0889,
     "kelly4": null
    }
   },
@@ -634,118 +634,118 @@
    "状态|无规则": {
     "n": 20,
     "win": 0.7,
-    "avg_win": 0.125,
-    "avg_loss": 0.0611,
-    "payoff": 2.04,
-    "exp": 0.0692,
-    "kelly4": 0.1383
+    "avg_win": 0.124,
+    "avg_loss": 0.0621,
+    "payoff": 2.0,
+    "exp": 0.0682,
+    "kelly4": 0.1374
    },
    "全部|全部": {
     "n": 33,
-    "win": 0.667,
-    "avg_win": 0.1028,
-    "avg_loss": 0.0617,
-    "payoff": 1.67,
-    "exp": 0.048,
-    "kelly4": 0.1167
+    "win": 0.636,
+    "avg_win": 0.1067,
+    "avg_loss": 0.0575,
+    "payoff": 1.86,
+    "exp": 0.047,
+    "kelly4": 0.1101
    },
    "EMA144|上方": {
     "n": 30,
-    "win": 0.633,
-    "avg_win": 0.1087,
-    "avg_loss": 0.0617,
-    "payoff": 1.76,
-    "exp": 0.0462,
-    "kelly4": 0.1063
+    "win": 0.6,
+    "avg_win": 0.1137,
+    "avg_loss": 0.0575,
+    "payoff": 1.98,
+    "exp": 0.0452,
+    "kelly4": 0.0994
    },
    "状态×EMA144|无规则·上方": {
     "n": 19,
     "win": 0.684,
-    "avg_win": 0.1331,
-    "avg_loss": 0.0611,
-    "payoff": 2.18,
-    "exp": 0.0718,
-    "kelly4": 0.1348
+    "avg_win": 0.1321,
+    "avg_loss": 0.0621,
+    "payoff": 2.13,
+    "exp": 0.0708,
+    "kelly4": 0.1339
    },
    "状态|上涨趋势": {
     "n": 9,
-    "win": 0.556,
-    "avg_win": 0.06,
-    "avg_loss": 0.0742,
-    "payoff": 0.81,
-    "exp": 0.0003,
-    "kelly4": 0.0014
+    "win": 0.444,
+    "avg_win": 0.0737,
+    "avg_loss": 0.0602,
+    "payoff": 1.23,
+    "exp": -0.0007,
+    "kelly4": 0.0
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 9,
-    "win": 0.556,
-    "avg_win": 0.06,
-    "avg_loss": 0.0742,
-    "payoff": 0.81,
-    "exp": 0.0003,
-    "kelly4": 0.0014
+    "win": 0.444,
+    "avg_win": 0.0737,
+    "avg_loss": 0.0602,
+    "payoff": 1.23,
+    "exp": -0.0007,
+    "kelly4": 0.0
    },
    "状态|交易区间": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.0347,
-    "avg_loss": 0.0152,
-    "payoff": 2.28,
-    "exp": 0.0098,
-    "kelly4": 0.0702
+    "avg_win": 0.0337,
+    "avg_loss": 0.0162,
+    "payoff": 2.08,
+    "exp": 0.0088,
+    "kelly4": 0.0649
    },
    "状态×EMA144|交易区间·上方": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.0347,
-    "avg_loss": 0.0152,
-    "payoff": 2.28,
-    "exp": 0.0098,
-    "kelly4": 0.0702
+    "avg_win": 0.0337,
+    "avg_loss": 0.0162,
+    "payoff": 2.08,
+    "exp": 0.0088,
+    "kelly4": 0.0649
    },
    "区间位置|上部": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.0347,
-    "avg_loss": 0.0152,
-    "payoff": 2.28,
-    "exp": 0.0098,
-    "kelly4": 0.0702
+    "avg_win": 0.0337,
+    "avg_loss": 0.0162,
+    "payoff": 2.08,
+    "exp": 0.0088,
+    "kelly4": 0.0649
    },
    "状态|下跌趋势": {
     "n": 2,
     "win": 1.0,
-    "avg_win": 0.0889,
+    "avg_win": 0.0879,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0889,
+    "exp": 0.0879,
     "kelly4": null
    },
    "EMA144|下方": {
     "n": 3,
     "win": 1.0,
-    "avg_win": 0.0657,
+    "avg_win": 0.0647,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0657,
+    "exp": 0.0647,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 2,
     "win": 1.0,
-    "avg_win": 0.0889,
+    "avg_win": 0.0879,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0889,
+    "exp": 0.0879,
     "kelly4": null
    },
    "状态×EMA144|无规则·下方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0192,
+    "avg_win": 0.0182,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0192,
+    "exp": 0.0182,
     "kelly4": null
    }
   },
@@ -753,145 +753,145 @@
    "状态|无规则": {
     "n": 54,
     "win": 0.537,
-    "avg_win": 0.0491,
-    "avg_loss": 0.0326,
-    "payoff": 1.5,
-    "exp": 0.0112,
-    "kelly4": 0.0572
+    "avg_win": 0.0481,
+    "avg_loss": 0.0336,
+    "payoff": 1.43,
+    "exp": 0.0102,
+    "kelly4": 0.0532
    },
    "全部|全部": {
     "n": 95,
     "win": 0.568,
-    "avg_win": 0.0511,
-    "avg_loss": 0.0331,
-    "payoff": 1.55,
-    "exp": 0.0148,
-    "kelly4": 0.0723
+    "avg_win": 0.0501,
+    "avg_loss": 0.0341,
+    "payoff": 1.47,
+    "exp": 0.0138,
+    "kelly4": 0.0687
    },
    "EMA144|上方": {
     "n": 69,
     "win": 0.594,
-    "avg_win": 0.0533,
-    "avg_loss": 0.0343,
-    "payoff": 1.55,
-    "exp": 0.0177,
-    "kelly4": 0.0832
+    "avg_win": 0.0523,
+    "avg_loss": 0.0353,
+    "payoff": 1.48,
+    "exp": 0.0167,
+    "kelly4": 0.08
    },
    "状态×EMA144|无规则·上方": {
     "n": 33,
     "win": 0.606,
-    "avg_win": 0.0472,
-    "avg_loss": 0.0333,
-    "payoff": 1.42,
-    "exp": 0.0155,
-    "kelly4": 0.0821
+    "avg_win": 0.0462,
+    "avg_loss": 0.0343,
+    "payoff": 1.35,
+    "exp": 0.0145,
+    "kelly4": 0.0785
    },
    "状态|上涨趋势": {
     "n": 19,
     "win": 0.632,
-    "avg_win": 0.0711,
-    "avg_loss": 0.0499,
-    "payoff": 1.43,
-    "exp": 0.0265,
-    "kelly4": 0.0933
+    "avg_win": 0.0701,
+    "avg_loss": 0.0509,
+    "payoff": 1.38,
+    "exp": 0.0255,
+    "kelly4": 0.0911
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 19,
     "win": 0.632,
-    "avg_win": 0.0711,
-    "avg_loss": 0.0499,
-    "payoff": 1.43,
-    "exp": 0.0265,
-    "kelly4": 0.0933
+    "avg_win": 0.0701,
+    "avg_loss": 0.0509,
+    "payoff": 1.38,
+    "exp": 0.0255,
+    "kelly4": 0.0911
    },
    "EMA144|下方": {
     "n": 26,
     "win": 0.5,
-    "avg_win": 0.0444,
-    "avg_loss": 0.0305,
-    "payoff": 1.46,
-    "exp": 0.0069,
-    "kelly4": 0.0392
+    "avg_win": 0.0434,
+    "avg_loss": 0.0315,
+    "payoff": 1.38,
+    "exp": 0.0059,
+    "kelly4": 0.0343
    },
    "状态×EMA144|无规则·下方": {
     "n": 21,
     "win": 0.429,
-    "avg_win": 0.0532,
-    "avg_loss": 0.032,
-    "payoff": 1.66,
-    "exp": 0.0045,
-    "kelly4": 0.0213
+    "avg_win": 0.0522,
+    "avg_loss": 0.033,
+    "payoff": 1.58,
+    "exp": 0.0035,
+    "kelly4": 0.0169
    },
    "状态|交易区间": {
     "n": 21,
     "win": 0.571,
-    "avg_win": 0.0392,
-    "avg_loss": 0.0212,
-    "payoff": 1.85,
-    "exp": 0.0133,
-    "kelly4": 0.0848
+    "avg_win": 0.0382,
+    "avg_loss": 0.0222,
+    "payoff": 1.72,
+    "exp": 0.0123,
+    "kelly4": 0.0805
    },
    "状态×EMA144|交易区间·上方": {
     "n": 17,
     "win": 0.529,
-    "avg_win": 0.043,
-    "avg_loss": 0.0224,
-    "payoff": 1.92,
-    "exp": 0.0122,
-    "kelly4": 0.0711
+    "avg_win": 0.042,
+    "avg_loss": 0.0234,
+    "payoff": 1.79,
+    "exp": 0.0112,
+    "kelly4": 0.0668
    },
    "区间位置|上部": {
     "n": 17,
     "win": 0.647,
-    "avg_win": 0.0419,
-    "avg_loss": 0.029,
-    "payoff": 1.44,
-    "exp": 0.0169,
-    "kelly4": 0.1006
+    "avg_win": 0.0409,
+    "avg_loss": 0.0301,
+    "payoff": 1.36,
+    "exp": 0.0159,
+    "kelly4": 0.097
    },
    "区间位置|下部": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.0087,
-    "avg_loss": 0.0026,
-    "payoff": 3.35,
-    "exp": 0.003,
-    "kelly4": 0.0876
+    "avg_win": 0.0077,
+    "avg_loss": 0.0036,
+    "payoff": 2.14,
+    "exp": 0.002,
+    "kelly4": 0.0666
    },
    "状态×EMA144|交易区间·下方": {
     "n": 4,
     "win": 0.75,
-    "avg_win": 0.0278,
-    "avg_loss": 0.012,
-    "payoff": 2.31,
-    "exp": 0.0178,
-    "kelly4": 0.1605
+    "avg_win": 0.0268,
+    "avg_loss": 0.013,
+    "payoff": 2.06,
+    "exp": 0.0168,
+    "kelly4": 0.1571
    },
    "区间位置|中部": {
     "n": 2,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.007,
+    "avg_loss": 0.008,
     "payoff": 0.0,
-    "exp": -0.007,
+    "exp": -0.008,
     "kelly4": null
    },
    "状态|下跌趋势": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0143,
+    "avg_win": 0.0133,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0143,
+    "exp": 0.0133,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0143,
+    "avg_win": 0.0133,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0143,
+    "exp": 0.0133,
     "kelly4": null
    }
   },
@@ -899,821 +899,821 @@
    "状态|无规则": {
     "n": 5,
     "win": 0.2,
-    "avg_win": 0.0234,
-    "avg_loss": 0.0327,
-    "payoff": 0.72,
-    "exp": -0.0215,
+    "avg_win": 0.0224,
+    "avg_loss": 0.0337,
+    "payoff": 0.66,
+    "exp": -0.0225,
     "kelly4": 0.0
    },
    "全部|全部": {
     "n": 12,
     "win": 0.5,
-    "avg_win": 0.046,
-    "avg_loss": 0.0301,
-    "payoff": 1.53,
-    "exp": 0.0079,
-    "kelly4": 0.0432
+    "avg_win": 0.045,
+    "avg_loss": 0.0311,
+    "payoff": 1.45,
+    "exp": 0.0069,
+    "kelly4": 0.0386
    },
    "EMA144|下方": {
     "n": 6,
     "win": 0.333,
-    "avg_win": 0.0275,
-    "avg_loss": 0.0291,
-    "payoff": 0.95,
-    "exp": -0.0102,
+    "avg_win": 0.0265,
+    "avg_loss": 0.0301,
+    "payoff": 0.88,
+    "exp": -0.0112,
     "kelly4": 0.0
    },
    "状态×EMA144|无规则·下方": {
     "n": 2,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0333,
+    "avg_loss": 0.0343,
     "payoff": 0.0,
-    "exp": -0.0333,
+    "exp": -0.0343,
     "kelly4": null
    },
    "状态|交易区间": {
     "n": 3,
     "win": 0.667,
-    "avg_win": 0.0275,
-    "avg_loss": 0.0206,
-    "payoff": 1.33,
-    "exp": 0.0115,
-    "kelly4": 0.1042
+    "avg_win": 0.0265,
+    "avg_loss": 0.0216,
+    "payoff": 1.23,
+    "exp": 0.0105,
+    "kelly4": 0.0987
    },
    "状态×EMA144|交易区间·下方": {
     "n": 3,
     "win": 0.667,
-    "avg_win": 0.0275,
-    "avg_loss": 0.0206,
-    "payoff": 1.33,
-    "exp": 0.0115,
-    "kelly4": 0.1042
+    "avg_win": 0.0265,
+    "avg_loss": 0.0216,
+    "payoff": 1.23,
+    "exp": 0.0105,
+    "kelly4": 0.0987
    },
    "区间位置|下部": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0206,
+    "avg_loss": 0.0216,
     "payoff": 0.0,
-    "exp": -0.0206,
+    "exp": -0.0216,
     "kelly4": null
    },
    "状态|上涨趋势": {
     "n": 3,
     "win": 1.0,
-    "avg_win": 0.0658,
+    "avg_win": 0.0648,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0658,
+    "exp": 0.0648,
     "kelly4": null
    },
    "EMA144|上方": {
     "n": 6,
     "win": 0.667,
-    "avg_win": 0.0552,
-    "avg_loss": 0.032,
-    "payoff": 1.72,
-    "exp": 0.0261,
-    "kelly4": 0.1183
+    "avg_win": 0.0542,
+    "avg_loss": 0.033,
+    "payoff": 1.64,
+    "exp": 0.0251,
+    "kelly4": 0.1159
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 3,
     "win": 1.0,
-    "avg_win": 0.0658,
+    "avg_win": 0.0648,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0658,
+    "exp": 0.0648,
     "kelly4": null
    },
    "状态×EMA144|无规则·上方": {
     "n": 3,
     "win": 0.333,
-    "avg_win": 0.0234,
-    "avg_loss": 0.032,
-    "payoff": 0.73,
-    "exp": -0.0136,
+    "avg_win": 0.0224,
+    "avg_loss": 0.033,
+    "payoff": 0.68,
+    "exp": -0.0146,
     "kelly4": 0.0
    },
    "状态|下跌趋势": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0291,
+    "avg_loss": 0.0301,
     "payoff": 0.0,
-    "exp": -0.0291,
+    "exp": -0.0301,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0291,
+    "avg_loss": 0.0301,
     "payoff": 0.0,
-    "exp": -0.0291,
+    "exp": -0.0301,
     "kelly4": null
    },
    "区间位置|上部": {
     "n": 2,
     "win": 1.0,
-    "avg_win": 0.0275,
+    "avg_win": 0.0265,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0275,
+    "exp": 0.0265,
     "kelly4": null
    }
   },
   "gaogailvfuli": {
    "状态|无规则": {
     "n": 67,
-    "win": 0.701,
+    "win": 0.672,
     "avg_win": 0.019,
-    "avg_loss": 0.0197,
-    "payoff": 0.96,
-    "exp": 0.0074,
-    "kelly4": 0.0979
+    "avg_loss": 0.0185,
+    "payoff": 1.03,
+    "exp": 0.0067,
+    "kelly4": 0.088
    },
    "全部|全部": {
     "n": 106,
-    "win": 0.736,
-    "avg_win": 0.0208,
-    "avg_loss": 0.0204,
-    "payoff": 1.02,
-    "exp": 0.0099,
-    "kelly4": 0.1192
+    "win": 0.708,
+    "avg_win": 0.0209,
+    "avg_loss": 0.0191,
+    "payoff": 1.09,
+    "exp": 0.0092,
+    "kelly4": 0.11
    },
    "EMA144|下方": {
     "n": 67,
-    "win": 0.746,
-    "avg_win": 0.021,
-    "avg_loss": 0.0121,
-    "payoff": 1.74,
-    "exp": 0.0126,
-    "kelly4": 0.1501
+    "win": 0.716,
+    "avg_win": 0.0211,
+    "avg_loss": 0.0114,
+    "payoff": 1.86,
+    "exp": 0.0119,
+    "kelly4": 0.141
    },
    "状态×EMA144|无规则·下方": {
     "n": 42,
-    "win": 0.69,
-    "avg_win": 0.0224,
-    "avg_loss": 0.0136,
-    "payoff": 1.65,
-    "exp": 0.0113,
-    "kelly4": 0.1258
+    "win": 0.643,
+    "avg_win": 0.0233,
+    "avg_loss": 0.0123,
+    "payoff": 1.89,
+    "exp": 0.0106,
+    "kelly4": 0.1135
    },
    "状态|下跌趋势": {
     "n": 14,
     "win": 0.929,
-    "avg_win": 0.0206,
-    "avg_loss": 0.0044,
-    "payoff": 4.68,
-    "exp": 0.0188,
-    "kelly4": 0.2283
+    "avg_win": 0.0199,
+    "avg_loss": 0.0049,
+    "payoff": 4.06,
+    "exp": 0.0181,
+    "kelly4": 0.2277
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 14,
     "win": 0.929,
-    "avg_win": 0.0206,
-    "avg_loss": 0.0044,
-    "payoff": 4.68,
-    "exp": 0.0188,
-    "kelly4": 0.2283
+    "avg_win": 0.0199,
+    "avg_loss": 0.0049,
+    "payoff": 4.06,
+    "exp": 0.0181,
+    "kelly4": 0.2277
    },
    "EMA144|上方": {
     "n": 39,
-    "win": 0.718,
+    "win": 0.692,
     "avg_win": 0.0204,
-    "avg_loss": 0.0333,
-    "payoff": 0.61,
-    "exp": 0.0053,
-    "kelly4": 0.0646
+    "avg_loss": 0.0313,
+    "payoff": 0.65,
+    "exp": 0.0045,
+    "kelly4": 0.055
    },
    "状态×EMA144|无规则·上方": {
     "n": 25,
     "win": 0.72,
-    "avg_win": 0.0133,
-    "avg_loss": 0.031,
-    "payoff": 0.43,
-    "exp": 0.0009,
-    "kelly4": 0.0173
+    "avg_win": 0.0126,
+    "avg_loss": 0.0318,
+    "payoff": 0.4,
+    "exp": 0.0002,
+    "kelly4": 0.0036
    },
    "状态|交易区间": {
     "n": 15,
     "win": 0.8,
-    "avg_win": 0.0157,
-    "avg_loss": 0.0162,
-    "payoff": 0.97,
-    "exp": 0.0093,
-    "kelly4": 0.1485
+    "avg_win": 0.015,
+    "avg_loss": 0.0168,
+    "payoff": 0.89,
+    "exp": 0.0086,
+    "kelly4": 0.1439
    },
    "状态×EMA144|交易区间·上方": {
     "n": 6,
     "win": 0.833,
-    "avg_win": 0.0121,
-    "avg_loss": 0.0244,
-    "payoff": 0.49,
-    "exp": 0.006,
-    "kelly4": 0.124
+    "avg_win": 0.0113,
+    "avg_loss": 0.0249,
+    "payoff": 0.45,
+    "exp": 0.0052,
+    "kelly4": 0.1162
    },
    "区间位置|中部": {
     "n": 5,
     "win": 1.0,
-    "avg_win": 0.0131,
+    "avg_win": 0.0125,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0131,
+    "exp": 0.0125,
     "kelly4": null
    },
    "状态|上涨趋势": {
     "n": 8,
-    "win": 0.625,
-    "avg_win": 0.0545,
-    "avg_loss": 0.0417,
-    "payoff": 1.31,
-    "exp": 0.0184,
-    "kelly4": 0.0844
+    "win": 0.5,
+    "avg_win": 0.067,
+    "avg_loss": 0.0322,
+    "payoff": 2.08,
+    "exp": 0.0174,
+    "kelly4": 0.0649
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 8,
-    "win": 0.625,
-    "avg_win": 0.0545,
-    "avg_loss": 0.0417,
-    "payoff": 1.31,
-    "exp": 0.0184,
-    "kelly4": 0.0844
+    "win": 0.5,
+    "avg_win": 0.067,
+    "avg_loss": 0.0322,
+    "payoff": 2.08,
+    "exp": 0.0174,
+    "kelly4": 0.0649
    },
    "区间位置|上部": {
     "n": 6,
     "win": 0.5,
-    "avg_win": 0.0138,
-    "avg_loss": 0.0162,
-    "payoff": 0.85,
-    "exp": -0.0012,
+    "avg_win": 0.0128,
+    "avg_loss": 0.0168,
+    "payoff": 0.76,
+    "exp": -0.002,
     "kelly4": 0.0
    },
    "状态×EMA144|交易区间·下方": {
     "n": 9,
     "win": 0.778,
-    "avg_win": 0.0183,
-    "avg_loss": 0.0121,
-    "payoff": 1.52,
-    "exp": 0.0116,
-    "kelly4": 0.1579
+    "avg_win": 0.0177,
+    "avg_loss": 0.0128,
+    "payoff": 1.38,
+    "exp": 0.0109,
+    "kelly4": 0.1542
    },
    "区间位置|下部": {
     "n": 4,
     "win": 1.0,
-    "avg_win": 0.0204,
+    "avg_win": 0.0197,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0204,
+    "exp": 0.0197,
     "kelly4": null
    },
    "状态|数据不足": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.0035,
-    "avg_loss": -0.0,
-    "payoff": null,
-    "exp": 0.0018,
-    "kelly4": null
+    "avg_win": 0.003,
+    "avg_loss": 0.0005,
+    "payoff": 6.0,
+    "exp": 0.0013,
+    "kelly4": 0.1042
    },
    "状态×EMA144|数据不足·下方": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.0035,
-    "avg_loss": -0.0,
-    "payoff": null,
-    "exp": 0.0018,
-    "kelly4": null
+    "avg_win": 0.003,
+    "avg_loss": 0.0005,
+    "payoff": 6.0,
+    "exp": 0.0013,
+    "kelly4": 0.1042
    }
   },
   "xuanqiucaijing": {
    "状态|上涨趋势": {
     "n": 8,
     "win": 0.625,
-    "avg_win": 0.0262,
-    "avg_loss": 0.0791,
-    "payoff": 0.33,
-    "exp": -0.0133,
+    "avg_win": 0.0252,
+    "avg_loss": 0.0801,
+    "payoff": 0.31,
+    "exp": -0.0143,
     "kelly4": 0.0
    },
    "全部|全部": {
     "n": 62,
-    "win": 0.597,
-    "avg_win": 0.0483,
-    "avg_loss": 0.0691,
-    "payoff": 0.7,
-    "exp": 0.001,
-    "kelly4": 0.005
+    "win": 0.581,
+    "avg_win": 0.0487,
+    "avg_loss": 0.0675,
+    "payoff": 0.72,
+    "exp": -0.0,
+    "kelly4": 0.0
    },
    "EMA144|上方": {
     "n": 39,
     "win": 0.538,
-    "avg_win": 0.0595,
-    "avg_loss": 0.0661,
-    "payoff": 0.9,
-    "exp": 0.0015,
-    "kelly4": 0.0064
+    "avg_win": 0.0585,
+    "avg_loss": 0.0671,
+    "payoff": 0.87,
+    "exp": 0.0005,
+    "kelly4": 0.0022
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 8,
     "win": 0.625,
-    "avg_win": 0.0262,
-    "avg_loss": 0.0791,
-    "payoff": 0.33,
-    "exp": -0.0133,
+    "avg_win": 0.0252,
+    "avg_loss": 0.0801,
+    "payoff": 0.31,
+    "exp": -0.0143,
     "kelly4": 0.0
    },
    "状态|无规则": {
     "n": 42,
     "win": 0.643,
-    "avg_win": 0.0402,
-    "avg_loss": 0.0764,
-    "payoff": 0.53,
-    "exp": -0.0015,
+    "avg_win": 0.0392,
+    "avg_loss": 0.0774,
+    "payoff": 0.51,
+    "exp": -0.0025,
     "kelly4": 0.0
    },
    "EMA144|下方": {
     "n": 23,
-    "win": 0.696,
-    "avg_win": 0.0338,
-    "avg_loss": 0.077,
-    "payoff": 0.44,
-    "exp": 0.0001,
-    "kelly4": 0.0004
+    "win": 0.652,
+    "avg_win": 0.035,
+    "avg_loss": 0.0683,
+    "payoff": 0.51,
+    "exp": -0.0009,
+    "kelly4": 0.0
    },
    "状态×EMA144|无规则·下方": {
     "n": 19,
     "win": 0.632,
-    "avg_win": 0.0331,
-    "avg_loss": 0.077,
-    "payoff": 0.43,
-    "exp": -0.0074,
+    "avg_win": 0.0321,
+    "avg_loss": 0.078,
+    "payoff": 0.41,
+    "exp": -0.0084,
     "kelly4": 0.0
    },
    "状态×EMA144|无规则·上方": {
     "n": 23,
     "win": 0.652,
-    "avg_win": 0.0458,
-    "avg_loss": 0.0759,
-    "payoff": 0.6,
-    "exp": 0.0035,
-    "kelly4": 0.019
+    "avg_win": 0.0448,
+    "avg_loss": 0.0769,
+    "payoff": 0.58,
+    "exp": 0.0025,
+    "kelly4": 0.0139
    },
    "状态|交易区间": {
     "n": 10,
     "win": 0.3,
-    "avg_win": 0.1783,
-    "avg_loss": 0.0493,
-    "payoff": 3.62,
-    "exp": 0.019,
-    "kelly4": 0.0266
+    "avg_win": 0.1773,
+    "avg_loss": 0.0503,
+    "payoff": 3.53,
+    "exp": 0.018,
+    "kelly4": 0.0254
    },
    "状态×EMA144|交易区间·下方": {
     "n": 2,
     "win": 1.0,
-    "avg_win": 0.0526,
+    "avg_win": 0.0516,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0526,
+    "exp": 0.0516,
     "kelly4": null
    },
    "区间位置|上部": {
     "n": 9,
     "win": 0.222,
-    "avg_win": 0.2388,
-    "avg_loss": 0.0493,
-    "payoff": 4.85,
-    "exp": 0.0147,
-    "kelly4": 0.0154
+    "avg_win": 0.2378,
+    "avg_loss": 0.0503,
+    "payoff": 4.73,
+    "exp": 0.0137,
+    "kelly4": 0.0144
    },
    "状态|下跌趋势": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.037,
+    "avg_win": 0.036,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.037,
+    "exp": 0.036,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.037,
+    "avg_win": 0.036,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.037,
+    "exp": 0.036,
     "kelly4": null
    },
    "区间位置|中部": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0574,
+    "avg_win": 0.0564,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0574,
+    "exp": 0.0564,
     "kelly4": null
    },
    "状态|数据不足": {
     "n": 1,
-    "win": 1.0,
-    "avg_win": 0.0004,
-    "avg_loss": 0.0,
-    "payoff": null,
-    "exp": 0.0004,
+    "win": 0.0,
+    "avg_win": 0.0,
+    "avg_loss": 0.0006,
+    "payoff": 0.0,
+    "exp": -0.0006,
     "kelly4": null
    },
    "状态×EMA144|数据不足·下方": {
     "n": 1,
-    "win": 1.0,
-    "avg_win": 0.0004,
-    "avg_loss": 0.0,
-    "payoff": null,
-    "exp": 0.0004,
+    "win": 0.0,
+    "avg_win": 0.0,
+    "avg_loss": 0.0006,
+    "payoff": 0.0,
+    "exp": -0.0006,
     "kelly4": null
    },
    "状态×EMA144|交易区间·上方": {
     "n": 8,
     "win": 0.125,
-    "avg_win": 0.4298,
-    "avg_loss": 0.0493,
-    "payoff": 8.72,
-    "exp": 0.0106,
-    "kelly4": 0.0062
+    "avg_win": 0.4288,
+    "avg_loss": 0.0503,
+    "payoff": 8.53,
+    "exp": 0.0096,
+    "kelly4": 0.0056
    }
   },
   "stzhilang": {
    "状态|上涨趋势": {
     "n": 59,
     "win": 0.627,
-    "avg_win": 0.0718,
-    "avg_loss": 0.0708,
-    "payoff": 1.01,
-    "exp": 0.0187,
-    "kelly4": 0.0649
+    "avg_win": 0.0708,
+    "avg_loss": 0.0718,
+    "payoff": 0.99,
+    "exp": 0.0177,
+    "kelly4": 0.0623
    },
    "全部|全部": {
     "n": 113,
     "win": 0.655,
-    "avg_win": 0.0585,
-    "avg_loss": 0.0651,
-    "payoff": 0.9,
-    "exp": 0.0158,
-    "kelly4": 0.0677
+    "avg_win": 0.0575,
+    "avg_loss": 0.0661,
+    "payoff": 0.87,
+    "exp": 0.0148,
+    "kelly4": 0.0645
    },
    "EMA144|上方": {
     "n": 80,
     "win": 0.65,
-    "avg_win": 0.0584,
-    "avg_loss": 0.0697,
-    "payoff": 0.84,
-    "exp": 0.0136,
-    "kelly4": 0.0581
+    "avg_win": 0.0574,
+    "avg_loss": 0.0707,
+    "payoff": 0.81,
+    "exp": 0.0126,
+    "kelly4": 0.0548
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 59,
     "win": 0.627,
-    "avg_win": 0.0718,
-    "avg_loss": 0.0708,
-    "payoff": 1.01,
-    "exp": 0.0187,
-    "kelly4": 0.0649
+    "avg_win": 0.0708,
+    "avg_loss": 0.0718,
+    "payoff": 0.99,
+    "exp": 0.0177,
+    "kelly4": 0.0623
    },
    "状态|无规则": {
     "n": 42,
     "win": 0.643,
-    "avg_win": 0.0292,
-    "avg_loss": 0.048,
-    "payoff": 0.61,
-    "exp": 0.0016,
-    "kelly4": 0.014
+    "avg_win": 0.0282,
+    "avg_loss": 0.049,
+    "payoff": 0.58,
+    "exp": 0.0006,
+    "kelly4": 0.0056
    },
    "EMA144|下方": {
     "n": 33,
     "win": 0.667,
-    "avg_win": 0.0586,
-    "avg_loss": 0.0533,
-    "payoff": 1.1,
-    "exp": 0.0213,
-    "kelly4": 0.0908
+    "avg_win": 0.0576,
+    "avg_loss": 0.0543,
+    "payoff": 1.06,
+    "exp": 0.0203,
+    "kelly4": 0.088
    },
    "状态×EMA144|无规则·下方": {
     "n": 24,
     "win": 0.625,
-    "avg_win": 0.0341,
-    "avg_loss": 0.0361,
-    "payoff": 0.95,
-    "exp": 0.0078,
-    "kelly4": 0.0571
+    "avg_win": 0.0331,
+    "avg_loss": 0.0371,
+    "payoff": 0.89,
+    "exp": 0.0068,
+    "kelly4": 0.0513
    },
    "状态×EMA144|无规则·上方": {
     "n": 18,
     "win": 0.667,
-    "avg_win": 0.023,
-    "avg_loss": 0.0658,
-    "payoff": 0.35,
-    "exp": -0.0066,
+    "avg_win": 0.022,
+    "avg_loss": 0.0668,
+    "payoff": 0.33,
+    "exp": -0.0076,
     "kelly4": 0.0
    },
    "状态|下跌趋势": {
     "n": 10,
     "win": 0.9,
-    "avg_win": 0.0936,
-    "avg_loss": 0.2094,
-    "payoff": 0.45,
-    "exp": 0.0633,
-    "kelly4": 0.1691
+    "avg_win": 0.0926,
+    "avg_loss": 0.2104,
+    "payoff": 0.44,
+    "exp": 0.0623,
+    "kelly4": 0.1682
    },
    "状态×EMA144|下跌趋势·上方": {
     "n": 2,
     "win": 1.0,
-    "avg_win": 0.0326,
+    "avg_win": 0.0316,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0326,
+    "exp": 0.0316,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 8,
     "win": 0.875,
-    "avg_win": 0.111,
-    "avg_loss": 0.2094,
-    "payoff": 0.53,
-    "exp": 0.0709,
-    "kelly4": 0.1598
+    "avg_win": 0.11,
+    "avg_loss": 0.2104,
+    "payoff": 0.52,
+    "exp": 0.0699,
+    "kelly4": 0.159
    },
    "状态|交易区间": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.0399,
-    "avg_loss": 0.0524,
-    "payoff": 0.76,
-    "exp": -0.0063,
+    "avg_win": 0.0389,
+    "avg_loss": 0.0534,
+    "payoff": 0.73,
+    "exp": -0.0073,
     "kelly4": 0.0
    },
    "状态×EMA144|交易区间·上方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0399,
+    "avg_win": 0.0389,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0399,
+    "exp": 0.0389,
     "kelly4": null
    },
    "区间位置|上部": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0399,
+    "avg_win": 0.0389,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0399,
+    "exp": 0.0389,
     "kelly4": null
    },
    "状态×EMA144|交易区间·下方": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0524,
+    "avg_loss": 0.0534,
     "payoff": 0.0,
-    "exp": -0.0524,
+    "exp": -0.0534,
     "kelly4": null
    },
    "区间位置|中部": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0524,
+    "avg_loss": 0.0534,
     "payoff": 0.0,
-    "exp": -0.0524,
+    "exp": -0.0534,
     "kelly4": null
    }
   },
   "chong5000w": {
    "状态|交易区间": {
     "n": 4,
-    "win": 1.0,
-    "avg_win": 0.6119,
-    "avg_loss": 0.0,
+    "win": 0.75,
+    "avg_win": 0.8145,
+    "avg_loss": -0.0,
     "payoff": null,
-    "exp": 0.6119,
+    "exp": 0.6109,
     "kelly4": null
    },
    "全部|全部": {
     "n": 51,
-    "win": 0.804,
-    "avg_win": 0.3067,
-    "avg_loss": 0.074,
-    "payoff": 4.15,
-    "exp": 0.2321,
-    "kelly4": 0.1892
+    "win": 0.784,
+    "avg_win": 0.3134,
+    "avg_loss": 0.0682,
+    "payoff": 4.6,
+    "exp": 0.2311,
+    "kelly4": 0.1843
    },
    "EMA144|上方": {
     "n": 51,
-    "win": 0.804,
-    "avg_win": 0.3067,
-    "avg_loss": 0.074,
-    "payoff": 4.15,
-    "exp": 0.2321,
-    "kelly4": 0.1892
+    "win": 0.784,
+    "avg_win": 0.3134,
+    "avg_loss": 0.0682,
+    "payoff": 4.6,
+    "exp": 0.2311,
+    "kelly4": 0.1843
    },
    "状态×EMA144|交易区间·上方": {
     "n": 4,
-    "win": 1.0,
-    "avg_win": 0.6119,
-    "avg_loss": 0.0,
+    "win": 0.75,
+    "avg_win": 0.8145,
+    "avg_loss": -0.0,
     "payoff": null,
-    "exp": 0.6119,
+    "exp": 0.6109,
     "kelly4": null
    },
    "区间位置|上部": {
     "n": 4,
-    "win": 1.0,
-    "avg_win": 0.6119,
-    "avg_loss": 0.0,
+    "win": 0.75,
+    "avg_win": 0.8145,
+    "avg_loss": -0.0,
     "payoff": null,
-    "exp": 0.6119,
+    "exp": 0.6109,
     "kelly4": null
    },
    "状态|无规则": {
     "n": 30,
     "win": 0.8,
-    "avg_win": 0.2816,
-    "avg_loss": 0.0498,
-    "payoff": 5.65,
-    "exp": 0.2153,
-    "kelly4": 0.1912
+    "avg_win": 0.2806,
+    "avg_loss": 0.0508,
+    "payoff": 5.52,
+    "exp": 0.2143,
+    "kelly4": 0.1909
    },
    "状态×EMA144|无规则·上方": {
     "n": 30,
     "win": 0.8,
-    "avg_win": 0.2816,
-    "avg_loss": 0.0498,
-    "payoff": 5.65,
-    "exp": 0.2153,
-    "kelly4": 0.1912
+    "avg_win": 0.2806,
+    "avg_loss": 0.0508,
+    "payoff": 5.52,
+    "exp": 0.2143,
+    "kelly4": 0.1909
    },
    "状态|上涨趋势": {
     "n": 17,
     "win": 0.765,
-    "avg_win": 0.2593,
-    "avg_loss": 0.1103,
-    "payoff": 2.35,
-    "exp": 0.1723,
-    "kelly4": 0.1662
+    "avg_win": 0.2583,
+    "avg_loss": 0.1113,
+    "payoff": 2.32,
+    "exp": 0.1713,
+    "kelly4": 0.1658
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 17,
     "win": 0.765,
-    "avg_win": 0.2593,
-    "avg_loss": 0.1103,
-    "payoff": 2.35,
-    "exp": 0.1723,
-    "kelly4": 0.1662
+    "avg_win": 0.2583,
+    "avg_loss": 0.1113,
+    "payoff": 2.32,
+    "exp": 0.1713,
+    "kelly4": 0.1658
    }
   },
   "antoo": {
    "状态|上涨趋势": {
     "n": 296,
-    "win": 0.611,
-    "avg_win": 0.1255,
-    "avg_loss": 0.0708,
-    "payoff": 1.77,
-    "exp": 0.0492,
-    "kelly4": 0.0981
+    "win": 0.608,
+    "avg_win": 0.1252,
+    "avg_loss": 0.0712,
+    "payoff": 1.76,
+    "exp": 0.0482,
+    "kelly4": 0.0963
    },
    "全部|全部": {
     "n": 661,
-    "win": 0.611,
-    "avg_win": 0.1062,
-    "avg_loss": 0.0661,
-    "payoff": 1.61,
-    "exp": 0.0392,
-    "kelly4": 0.0923
+    "win": 0.607,
+    "avg_win": 0.106,
+    "avg_loss": 0.0663,
+    "payoff": 1.6,
+    "exp": 0.0382,
+    "kelly4": 0.0901
    },
    "EMA144|上方": {
     "n": 636,
-    "win": 0.612,
-    "avg_win": 0.1005,
-    "avg_loss": 0.067,
-    "payoff": 1.5,
-    "exp": 0.0355,
-    "kelly4": 0.0882
+    "win": 0.607,
+    "avg_win": 0.1003,
+    "avg_loss": 0.0672,
+    "payoff": 1.49,
+    "exp": 0.0345,
+    "kelly4": 0.0859
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 296,
-    "win": 0.611,
-    "avg_win": 0.1255,
-    "avg_loss": 0.0708,
-    "payoff": 1.77,
-    "exp": 0.0492,
-    "kelly4": 0.0981
+    "win": 0.608,
+    "avg_win": 0.1252,
+    "avg_loss": 0.0712,
+    "payoff": 1.76,
+    "exp": 0.0482,
+    "kelly4": 0.0963
    },
    "状态|无规则": {
     "n": 307,
-    "win": 0.603,
-    "avg_win": 0.0805,
-    "avg_loss": 0.0641,
-    "payoff": 1.26,
-    "exp": 0.023,
-    "kelly4": 0.0715
+    "win": 0.596,
+    "avg_win": 0.0804,
+    "avg_loss": 0.064,
+    "payoff": 1.25,
+    "exp": 0.022,
+    "kelly4": 0.0685
    },
    "状态×EMA144|无规则·上方": {
     "n": 292,
-    "win": 0.613,
-    "avg_win": 0.081,
-    "avg_loss": 0.0657,
+    "win": 0.606,
+    "avg_win": 0.0809,
+    "avg_loss": 0.0655,
     "payoff": 1.23,
-    "exp": 0.0242,
-    "kelly4": 0.0748
+    "exp": 0.0232,
+    "kelly4": 0.0718
    },
    "状态|交易区间": {
     "n": 52,
     "win": 0.615,
-    "avg_win": 0.0651,
-    "avg_loss": 0.051,
-    "payoff": 1.28,
-    "exp": 0.0204,
-    "kelly4": 0.0785
+    "avg_win": 0.0641,
+    "avg_loss": 0.052,
+    "payoff": 1.23,
+    "exp": 0.0194,
+    "kelly4": 0.0758
    },
    "状态×EMA144|交易区间·上方": {
     "n": 48,
     "win": 0.604,
-    "avg_win": 0.0655,
-    "avg_loss": 0.0518,
-    "payoff": 1.27,
-    "exp": 0.0191,
-    "kelly4": 0.0729
+    "avg_win": 0.0645,
+    "avg_loss": 0.0528,
+    "payoff": 1.22,
+    "exp": 0.0181,
+    "kelly4": 0.0701
    },
    "区间位置|上部": {
     "n": 36,
     "win": 0.528,
-    "avg_win": 0.0649,
-    "avg_loss": 0.0522,
-    "payoff": 1.24,
-    "exp": 0.0096,
-    "kelly4": 0.037
+    "avg_win": 0.0639,
+    "avg_loss": 0.0532,
+    "payoff": 1.2,
+    "exp": 0.0086,
+    "kelly4": 0.0336
    },
    "区间位置|下部": {
     "n": 7,
     "win": 0.857,
-    "avg_win": 0.0723,
-    "avg_loss": 0.0375,
-    "payoff": 1.93,
-    "exp": 0.0566,
-    "kelly4": 0.1958
+    "avg_win": 0.0713,
+    "avg_loss": 0.0385,
+    "payoff": 1.85,
+    "exp": 0.0556,
+    "kelly4": 0.195
    },
    "EMA144|下方": {
     "n": 25,
     "win": 0.6,
-    "avg_win": 0.2521,
-    "avg_loss": 0.0434,
-    "payoff": 5.81,
-    "exp": 0.1339,
-    "kelly4": 0.1328
+    "avg_win": 0.2511,
+    "avg_loss": 0.0444,
+    "payoff": 5.66,
+    "exp": 0.1329,
+    "kelly4": 0.1323
    },
    "状态×EMA144|无规则·下方": {
     "n": 15,
     "win": 0.4,
-    "avg_win": 0.0653,
-    "avg_loss": 0.0442,
-    "payoff": 1.48,
-    "exp": -0.0004,
+    "avg_win": 0.0643,
+    "avg_loss": 0.0452,
+    "payoff": 1.42,
+    "exp": -0.0014,
     "kelly4": 0.0
    },
    "区间位置|中部": {
     "n": 9,
     "win": 0.778,
-    "avg_win": 0.0593,
-    "avg_loss": 0.047,
-    "payoff": 1.26,
-    "exp": 0.0356,
-    "kelly4": 0.1504
+    "avg_win": 0.0583,
+    "avg_loss": 0.048,
+    "payoff": 1.21,
+    "exp": 0.0346,
+    "kelly4": 0.1487
    },
    "状态×EMA144|交易区间·下方": {
     "n": 4,
     "win": 0.75,
-    "avg_win": 0.0604,
-    "avg_loss": 0.0359,
-    "payoff": 1.68,
-    "exp": 0.0363,
-    "kelly4": 0.1504
+    "avg_win": 0.0594,
+    "avg_loss": 0.0369,
+    "payoff": 1.61,
+    "exp": 0.0353,
+    "kelly4": 0.1487
    },
    "状态|下跌趋势": {
     "n": 6,
     "win": 1.0,
-    "avg_win": 0.5347,
+    "avg_win": 0.5337,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.5347,
+    "exp": 0.5337,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 6,
     "win": 1.0,
-    "avg_win": 0.5347,
+    "avg_win": 0.5337,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.5347,
+    "exp": 0.5337,
     "kelly4": null
    }
   },
@@ -1721,309 +1721,309 @@
    "状态|交易区间": {
     "n": 50,
     "win": 0.52,
-    "avg_win": 0.0476,
-    "avg_loss": 0.0394,
-    "payoff": 1.21,
-    "exp": 0.0059,
-    "kelly4": 0.0308
+    "avg_win": 0.0466,
+    "avg_loss": 0.0404,
+    "payoff": 1.15,
+    "exp": 0.0049,
+    "kelly4": 0.0261
    },
    "全部|全部": {
     "n": 347,
-    "win": 0.516,
-    "avg_win": 0.0591,
-    "avg_loss": 0.0483,
-    "payoff": 1.22,
-    "exp": 0.0071,
-    "kelly4": 0.0299
+    "win": 0.51,
+    "avg_win": 0.0587,
+    "avg_loss": 0.0488,
+    "payoff": 1.2,
+    "exp": 0.0061,
+    "kelly4": 0.0258
    },
    "EMA144|上方": {
     "n": 310,
-    "win": 0.513,
-    "avg_win": 0.0597,
-    "avg_loss": 0.0504,
-    "payoff": 1.18,
-    "exp": 0.0061,
-    "kelly4": 0.0254
+    "win": 0.506,
+    "avg_win": 0.0594,
+    "avg_loss": 0.0507,
+    "payoff": 1.17,
+    "exp": 0.0051,
+    "kelly4": 0.0213
    },
    "状态×EMA144|交易区间·上方": {
     "n": 42,
     "win": 0.524,
-    "avg_win": 0.0412,
-    "avg_loss": 0.0399,
-    "payoff": 1.03,
-    "exp": 0.0026,
-    "kelly4": 0.0156
+    "avg_win": 0.0402,
+    "avg_loss": 0.0409,
+    "payoff": 0.98,
+    "exp": 0.0016,
+    "kelly4": 0.0098
    },
    "区间位置|上部": {
     "n": 35,
     "win": 0.514,
-    "avg_win": 0.0465,
-    "avg_loss": 0.0391,
-    "payoff": 1.19,
-    "exp": 0.0049,
-    "kelly4": 0.0265
+    "avg_win": 0.0455,
+    "avg_loss": 0.0401,
+    "payoff": 1.14,
+    "exp": 0.0039,
+    "kelly4": 0.0216
    },
    "状态|无规则": {
     "n": 134,
     "win": 0.493,
-    "avg_win": 0.0513,
-    "avg_loss": 0.0432,
-    "payoff": 1.19,
-    "exp": 0.0033,
-    "kelly4": 0.0163
+    "avg_win": 0.0503,
+    "avg_loss": 0.0442,
+    "payoff": 1.14,
+    "exp": 0.0023,
+    "kelly4": 0.0116
    },
    "状态×EMA144|无规则·上方": {
     "n": 106,
     "win": 0.472,
-    "avg_win": 0.0526,
-    "avg_loss": 0.0473,
-    "payoff": 1.11,
-    "exp": -0.0001,
+    "avg_win": 0.0516,
+    "avg_loss": 0.0483,
+    "payoff": 1.07,
+    "exp": -0.0011,
     "kelly4": 0.0
    },
    "状态|下跌趋势": {
     "n": 2,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0435,
+    "avg_loss": 0.0445,
     "payoff": 0.0,
-    "exp": -0.0435,
+    "exp": -0.0445,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·上方": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0138,
+    "avg_loss": 0.0148,
     "payoff": 0.0,
-    "exp": -0.0138,
+    "exp": -0.0148,
     "kelly4": null
    },
    "状态|上涨趋势": {
     "n": 161,
-    "win": 0.54,
-    "avg_win": 0.0683,
-    "avg_loss": 0.0561,
-    "payoff": 1.22,
-    "exp": 0.0112,
-    "kelly4": 0.0408
+    "win": 0.528,
+    "avg_win": 0.0689,
+    "avg_loss": 0.0556,
+    "payoff": 1.24,
+    "exp": 0.0102,
+    "kelly4": 0.0369
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 161,
-    "win": 0.54,
-    "avg_win": 0.0683,
-    "avg_loss": 0.0561,
-    "payoff": 1.22,
-    "exp": 0.0112,
-    "kelly4": 0.0408
+    "win": 0.528,
+    "avg_win": 0.0689,
+    "avg_loss": 0.0556,
+    "payoff": 1.24,
+    "exp": 0.0102,
+    "kelly4": 0.0369
    },
    "区间位置|下部": {
     "n": 6,
     "win": 0.5,
-    "avg_win": 0.0234,
-    "avg_loss": 0.0238,
-    "payoff": 0.98,
-    "exp": -0.0002,
+    "avg_win": 0.0224,
+    "avg_loss": 0.0248,
+    "payoff": 0.9,
+    "exp": -0.0012,
     "kelly4": 0.0
    },
    "区间位置|中部": {
     "n": 9,
     "win": 0.556,
-    "avg_win": 0.066,
-    "avg_loss": 0.0521,
-    "payoff": 1.27,
-    "exp": 0.0135,
-    "kelly4": 0.0512
+    "avg_win": 0.065,
+    "avg_loss": 0.0531,
+    "payoff": 1.22,
+    "exp": 0.0125,
+    "kelly4": 0.0481
    },
    "EMA144|下方": {
     "n": 37,
     "win": 0.541,
-    "avg_win": 0.0543,
-    "avg_loss": 0.0301,
-    "payoff": 1.8,
-    "exp": 0.0155,
-    "kelly4": 0.0715
+    "avg_win": 0.0533,
+    "avg_loss": 0.0311,
+    "payoff": 1.71,
+    "exp": 0.0145,
+    "kelly4": 0.0681
    },
    "状态×EMA144|交易区间·下方": {
     "n": 8,
     "win": 0.5,
-    "avg_win": 0.0827,
-    "avg_loss": 0.0364,
-    "payoff": 2.27,
-    "exp": 0.0231,
-    "kelly4": 0.07
+    "avg_win": 0.0817,
+    "avg_loss": 0.0374,
+    "payoff": 2.18,
+    "exp": 0.0221,
+    "kelly4": 0.0678
    },
    "状态×EMA144|无规则·下方": {
     "n": 28,
     "win": 0.571,
-    "avg_win": 0.0471,
-    "avg_loss": 0.0244,
-    "payoff": 1.93,
-    "exp": 0.0165,
-    "kelly4": 0.0875
+    "avg_win": 0.0461,
+    "avg_loss": 0.0254,
+    "payoff": 1.82,
+    "exp": 0.0155,
+    "kelly4": 0.0839
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0731,
+    "avg_loss": 0.0741,
     "payoff": 0.0,
-    "exp": -0.0731,
+    "exp": -0.0741,
     "kelly4": null
    }
   },
   "zjwzlclf": {
    "状态|无规则": {
     "n": 118,
-    "win": 0.678,
-    "avg_win": 0.0553,
-    "avg_loss": 0.0628,
-    "payoff": 0.88,
-    "exp": 0.0173,
-    "kelly4": 0.0781
+    "win": 0.669,
+    "avg_win": 0.0551,
+    "avg_loss": 0.0621,
+    "payoff": 0.89,
+    "exp": 0.0164,
+    "kelly4": 0.0742
    },
    "全部|全部": {
     "n": 222,
-    "win": 0.707,
-    "avg_win": 0.0621,
-    "avg_loss": 0.0565,
-    "payoff": 1.1,
-    "exp": 0.0274,
-    "kelly4": 0.1102
+    "win": 0.698,
+    "avg_win": 0.062,
+    "avg_loss": 0.0557,
+    "payoff": 1.11,
+    "exp": 0.0265,
+    "kelly4": 0.1068
    },
    "EMA144|上方": {
     "n": 176,
-    "win": 0.71,
+    "win": 0.699,
     "avg_win": 0.0586,
-    "avg_loss": 0.059,
-    "payoff": 0.99,
-    "exp": 0.0245,
-    "kelly4": 0.1046
+    "avg_loss": 0.0576,
+    "payoff": 1.02,
+    "exp": 0.0236,
+    "kelly4": 0.1007
    },
    "状态×EMA144|无规则·上方": {
     "n": 102,
-    "win": 0.686,
-    "avg_win": 0.0543,
-    "avg_loss": 0.0669,
-    "payoff": 0.81,
-    "exp": 0.0163,
-    "kelly4": 0.075
+    "win": 0.676,
+    "avg_win": 0.0542,
+    "avg_loss": 0.0657,
+    "payoff": 0.82,
+    "exp": 0.0154,
+    "kelly4": 0.071
    },
    "状态|交易区间": {
     "n": 28,
-    "win": 0.679,
-    "avg_win": 0.0864,
-    "avg_loss": 0.0476,
-    "payoff": 1.82,
-    "exp": 0.0434,
-    "kelly4": 0.1254
+    "win": 0.643,
+    "avg_win": 0.0902,
+    "avg_loss": 0.0437,
+    "payoff": 2.07,
+    "exp": 0.0424,
+    "kelly4": 0.1175
    },
    "状态×EMA144|交易区间·上方": {
     "n": 20,
-    "win": 0.65,
-    "avg_win": 0.0765,
-    "avg_loss": 0.0545,
-    "payoff": 1.4,
-    "exp": 0.0306,
-    "kelly4": 0.1001
+    "win": 0.6,
+    "avg_win": 0.0818,
+    "avg_loss": 0.0485,
+    "payoff": 1.69,
+    "exp": 0.0297,
+    "kelly4": 0.0907
    },
    "区间位置|下部": {
     "n": 13,
-    "win": 0.615,
-    "avg_win": 0.1135,
-    "avg_loss": 0.0592,
-    "payoff": 1.92,
-    "exp": 0.0471,
-    "kelly4": 0.1037
+    "win": 0.538,
+    "avg_win": 0.1286,
+    "avg_loss": 0.0501,
+    "payoff": 2.57,
+    "exp": 0.0461,
+    "kelly4": 0.0896
    },
    "状态|上涨趋势": {
     "n": 53,
     "win": 0.774,
-    "avg_win": 0.0587,
-    "avg_loss": 0.0405,
-    "payoff": 1.45,
-    "exp": 0.0363,
-    "kelly4": 0.1544
+    "avg_win": 0.0578,
+    "avg_loss": 0.0413,
+    "payoff": 1.4,
+    "exp": 0.0354,
+    "kelly4": 0.153
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 53,
     "win": 0.774,
-    "avg_win": 0.0587,
-    "avg_loss": 0.0405,
-    "payoff": 1.45,
-    "exp": 0.0363,
-    "kelly4": 0.1544
+    "avg_win": 0.0578,
+    "avg_loss": 0.0413,
+    "payoff": 1.4,
+    "exp": 0.0354,
+    "kelly4": 0.153
    },
    "区间位置|中部": {
     "n": 6,
     "win": 0.5,
-    "avg_win": 0.0365,
-    "avg_loss": 0.0166,
-    "payoff": 2.19,
-    "exp": 0.0099,
-    "kelly4": 0.068
+    "avg_win": 0.0355,
+    "avg_loss": 0.0176,
+    "payoff": 2.01,
+    "exp": 0.0089,
+    "kelly4": 0.0629
    },
    "状态|下跌趋势": {
     "n": 23,
     "win": 0.739,
-    "avg_win": 0.075,
-    "avg_loss": 0.0619,
-    "payoff": 1.21,
-    "exp": 0.0393,
-    "kelly4": 0.1309
+    "avg_win": 0.0742,
+    "avg_loss": 0.0629,
+    "payoff": 1.18,
+    "exp": 0.0384,
+    "kelly4": 0.1295
    },
    "EMA144|下方": {
     "n": 46,
     "win": 0.696,
-    "avg_win": 0.076,
-    "avg_loss": 0.0474,
-    "payoff": 1.6,
-    "exp": 0.0384,
-    "kelly4": 0.1264
+    "avg_win": 0.0751,
+    "avg_loss": 0.0484,
+    "payoff": 1.55,
+    "exp": 0.0375,
+    "kelly4": 0.1248
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 22,
     "win": 0.727,
-    "avg_win": 0.0725,
-    "avg_loss": 0.0619,
-    "payoff": 1.17,
-    "exp": 0.0358,
-    "kelly4": 0.1236
+    "avg_win": 0.0717,
+    "avg_loss": 0.0629,
+    "payoff": 1.14,
+    "exp": 0.035,
+    "kelly4": 0.1219
    },
    "状态×EMA144|无规则·下方": {
     "n": 16,
     "win": 0.625,
-    "avg_win": 0.0624,
-    "avg_loss": 0.041,
-    "payoff": 1.52,
-    "exp": 0.0236,
-    "kelly4": 0.0946
+    "avg_win": 0.0614,
+    "avg_loss": 0.042,
+    "payoff": 1.46,
+    "exp": 0.0226,
+    "kelly4": 0.0921
    },
    "区间位置|上部": {
     "n": 9,
     "win": 0.889,
-    "avg_win": 0.0781,
-    "avg_loss": 0.0821,
-    "payoff": 0.95,
-    "exp": 0.0603,
-    "kelly4": 0.193
+    "avg_win": 0.0772,
+    "avg_loss": 0.0831,
+    "payoff": 0.93,
+    "exp": 0.0594,
+    "kelly4": 0.1923
    },
    "状态×EMA144|交易区间·下方": {
     "n": 8,
     "win": 0.75,
-    "avg_win": 0.108,
-    "avg_loss": 0.0232,
-    "payoff": 4.65,
-    "exp": 0.0752,
-    "kelly4": 0.174
+    "avg_win": 0.107,
+    "avg_loss": 0.0243,
+    "payoff": 4.41,
+    "exp": 0.0742,
+    "kelly4": 0.1733
    },
    "状态×EMA144|下跌趋势·上方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.1157,
+    "avg_win": 0.1147,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.1157,
+    "exp": 0.1147,
     "kelly4": null
    }
   },
@@ -2031,192 +2031,192 @@
    "状态|上涨趋势": {
     "n": 25,
     "win": 0.68,
-    "avg_win": 0.2381,
-    "avg_loss": 0.15,
-    "payoff": 1.59,
-    "exp": 0.1139,
-    "kelly4": 0.1196
+    "avg_win": 0.2371,
+    "avg_loss": 0.151,
+    "payoff": 1.57,
+    "exp": 0.1129,
+    "kelly4": 0.119
    },
    "全部|全部": {
     "n": 37,
     "win": 0.703,
-    "avg_win": 0.2865,
-    "avg_loss": 0.1278,
-    "payoff": 2.24,
-    "exp": 0.1633,
-    "kelly4": 0.1425
+    "avg_win": 0.2855,
+    "avg_loss": 0.1288,
+    "payoff": 2.22,
+    "exp": 0.1623,
+    "kelly4": 0.1422
    },
    "EMA144|上方": {
     "n": 37,
     "win": 0.703,
-    "avg_win": 0.2865,
-    "avg_loss": 0.1278,
-    "payoff": 2.24,
-    "exp": 0.1633,
-    "kelly4": 0.1425
+    "avg_win": 0.2855,
+    "avg_loss": 0.1288,
+    "payoff": 2.22,
+    "exp": 0.1623,
+    "kelly4": 0.1422
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 25,
     "win": 0.68,
-    "avg_win": 0.2381,
-    "avg_loss": 0.15,
-    "payoff": 1.59,
-    "exp": 0.1139,
-    "kelly4": 0.1196
+    "avg_win": 0.2371,
+    "avg_loss": 0.151,
+    "payoff": 1.57,
+    "exp": 0.1129,
+    "kelly4": 0.119
    },
    "状态|交易区间": {
     "n": 4,
     "win": 0.75,
-    "avg_win": 0.2569,
-    "avg_loss": 0.0668,
-    "payoff": 3.85,
-    "exp": 0.176,
-    "kelly4": 0.1712
+    "avg_win": 0.2559,
+    "avg_loss": 0.0678,
+    "payoff": 3.77,
+    "exp": 0.175,
+    "kelly4": 0.1709
    },
    "状态×EMA144|交易区间·上方": {
     "n": 4,
     "win": 0.75,
-    "avg_win": 0.2569,
-    "avg_loss": 0.0668,
-    "payoff": 3.85,
-    "exp": 0.176,
-    "kelly4": 0.1712
+    "avg_win": 0.2559,
+    "avg_loss": 0.0678,
+    "payoff": 3.77,
+    "exp": 0.175,
+    "kelly4": 0.1709
    },
    "区间位置|上部": {
     "n": 4,
     "win": 0.75,
-    "avg_win": 0.2569,
-    "avg_loss": 0.0668,
-    "payoff": 3.85,
-    "exp": 0.176,
-    "kelly4": 0.1712
+    "avg_win": 0.2559,
+    "avg_loss": 0.0678,
+    "payoff": 3.77,
+    "exp": 0.175,
+    "kelly4": 0.1709
    },
    "状态|无规则": {
     "n": 8,
     "win": 0.75,
-    "avg_win": 0.4386,
-    "avg_loss": 0.0693,
-    "payoff": 6.33,
-    "exp": 0.3116,
-    "kelly4": 0.1776
+    "avg_win": 0.4376,
+    "avg_loss": 0.0703,
+    "payoff": 6.22,
+    "exp": 0.3106,
+    "kelly4": 0.1775
    },
    "状态×EMA144|无规则·上方": {
     "n": 8,
     "win": 0.75,
-    "avg_win": 0.4386,
-    "avg_loss": 0.0693,
-    "payoff": 6.33,
-    "exp": 0.3116,
-    "kelly4": 0.1776
+    "avg_win": 0.4376,
+    "avg_loss": 0.0703,
+    "payoff": 6.22,
+    "exp": 0.3106,
+    "kelly4": 0.1775
    }
   },
   "wudaokongfang": {
    "状态|上涨趋势": {
     "n": 345,
-    "win": 0.565,
-    "avg_win": 0.074,
-    "avg_loss": 0.0664,
-    "payoff": 1.11,
-    "exp": 0.013,
-    "kelly4": 0.0438
+    "win": 0.562,
+    "avg_win": 0.0734,
+    "avg_loss": 0.0669,
+    "payoff": 1.1,
+    "exp": 0.012,
+    "kelly4": 0.0408
    },
    "全部|全部": {
     "n": 468,
-    "win": 0.558,
-    "avg_win": 0.0697,
-    "avg_loss": 0.0616,
-    "payoff": 1.13,
-    "exp": 0.0116,
-    "kelly4": 0.0417
+    "win": 0.556,
+    "avg_win": 0.069,
+    "avg_loss": 0.0624,
+    "payoff": 1.11,
+    "exp": 0.0106,
+    "kelly4": 0.0385
    },
    "EMA144|上方": {
     "n": 464,
-    "win": 0.556,
-    "avg_win": 0.0701,
-    "avg_loss": 0.0617,
-    "payoff": 1.14,
-    "exp": 0.0116,
-    "kelly4": 0.0412
+    "win": 0.554,
+    "avg_win": 0.0694,
+    "avg_loss": 0.0624,
+    "payoff": 1.11,
+    "exp": 0.0106,
+    "kelly4": 0.0381
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 345,
-    "win": 0.565,
-    "avg_win": 0.074,
-    "avg_loss": 0.0664,
-    "payoff": 1.11,
-    "exp": 0.013,
-    "kelly4": 0.0438
+    "win": 0.562,
+    "avg_win": 0.0734,
+    "avg_loss": 0.0669,
+    "payoff": 1.1,
+    "exp": 0.012,
+    "kelly4": 0.0408
    },
    "状态|无规则": {
     "n": 121,
     "win": 0.537,
-    "avg_win": 0.0579,
-    "avg_loss": 0.0491,
-    "payoff": 1.18,
-    "exp": 0.0084,
-    "kelly4": 0.0363
+    "avg_win": 0.0569,
+    "avg_loss": 0.0501,
+    "payoff": 1.14,
+    "exp": 0.0074,
+    "kelly4": 0.0325
    },
    "状态×EMA144|无规则·上方": {
     "n": 118,
     "win": 0.534,
-    "avg_win": 0.0581,
-    "avg_loss": 0.0492,
-    "payoff": 1.18,
-    "exp": 0.0081,
-    "kelly4": 0.0348
+    "avg_win": 0.0571,
+    "avg_loss": 0.0502,
+    "payoff": 1.14,
+    "exp": 0.0071,
+    "kelly4": 0.031
    },
    "EMA144|下方": {
     "n": 4,
     "win": 0.75,
-    "avg_win": 0.0401,
-    "avg_loss": 0.0425,
-    "payoff": 0.94,
-    "exp": 0.0194,
-    "kelly4": 0.1212
+    "avg_win": 0.0392,
+    "avg_loss": 0.0435,
+    "payoff": 0.9,
+    "exp": 0.0186,
+    "kelly4": 0.1182
    },
    "状态×EMA144|无规则·下方": {
     "n": 3,
     "win": 0.667,
-    "avg_win": 0.0537,
-    "avg_loss": 0.0425,
-    "payoff": 1.26,
-    "exp": 0.0216,
-    "kelly4": 0.1007
+    "avg_win": 0.0527,
+    "avg_loss": 0.0435,
+    "payoff": 1.21,
+    "exp": 0.0206,
+    "kelly4": 0.0979
    },
    "状态|下跌趋势": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0128,
+    "avg_win": 0.0123,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0128,
+    "exp": 0.0123,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0128,
+    "avg_win": 0.0123,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0128,
+    "exp": 0.0123,
     "kelly4": null
    },
    "状态|数据不足": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0592,
+    "avg_loss": 0.0602,
     "payoff": 0.0,
-    "exp": -0.0592,
+    "exp": -0.0602,
     "kelly4": null
    },
    "状态×EMA144|数据不足·上方": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0592,
+    "avg_loss": 0.0602,
     "payoff": 0.0,
-    "exp": -0.0592,
+    "exp": -0.0602,
     "kelly4": null
    }
   },
@@ -2224,118 +2224,118 @@
    "状态|无规则": {
     "n": 8,
     "win": 0.5,
-    "avg_win": 0.7316,
-    "avg_loss": 0.0326,
-    "payoff": 22.46,
-    "exp": 0.3495,
-    "kelly4": 0.1194
+    "avg_win": 0.7306,
+    "avg_loss": 0.0336,
+    "payoff": 21.76,
+    "exp": 0.3485,
+    "kelly4": 0.1193
    },
    "全部|全部": {
     "n": 15,
     "win": 0.4,
-    "avg_win": 0.508,
-    "avg_loss": 0.0483,
-    "payoff": 10.51,
-    "exp": 0.1742,
-    "kelly4": 0.0857
+    "avg_win": 0.507,
+    "avg_loss": 0.0493,
+    "payoff": 10.28,
+    "exp": 0.1732,
+    "kelly4": 0.0854
    },
    "EMA144|上方": {
     "n": 14,
     "win": 0.429,
-    "avg_win": 0.508,
-    "avg_loss": 0.0541,
-    "payoff": 9.39,
-    "exp": 0.1868,
-    "kelly4": 0.0919
+    "avg_win": 0.507,
+    "avg_loss": 0.0551,
+    "payoff": 9.2,
+    "exp": 0.1858,
+    "kelly4": 0.0916
    },
    "状态×EMA144|无规则·上方": {
     "n": 8,
     "win": 0.5,
-    "avg_win": 0.7316,
-    "avg_loss": 0.0326,
-    "payoff": 22.46,
-    "exp": 0.3495,
-    "kelly4": 0.1194
+    "avg_win": 0.7306,
+    "avg_loss": 0.0336,
+    "payoff": 21.76,
+    "exp": 0.3485,
+    "kelly4": 0.1193
    },
    "状态|交易区间": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.013,
-    "avg_loss": 0.0127,
-    "payoff": 1.02,
-    "exp": 0.0001,
-    "kelly4": 0.0029
+    "avg_win": 0.012,
+    "avg_loss": 0.0137,
+    "payoff": 0.88,
+    "exp": -0.0009,
+    "kelly4": 0.0
    },
    "状态×EMA144|交易区间·上方": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.013,
-    "avg_loss": 0.0127,
-    "payoff": 1.02,
-    "exp": 0.0001,
-    "kelly4": 0.0029
+    "avg_win": 0.012,
+    "avg_loss": 0.0137,
+    "payoff": 0.88,
+    "exp": -0.0009,
+    "kelly4": 0.0
    },
    "区间位置|上部": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.013,
+    "avg_win": 0.012,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.013,
+    "exp": 0.012,
     "kelly4": null
    },
    "状态|上涨趋势": {
     "n": 4,
     "win": 0.25,
-    "avg_win": 0.1086,
-    "avg_loss": 0.0967,
-    "payoff": 1.12,
-    "exp": -0.0454,
+    "avg_win": 0.1076,
+    "avg_loss": 0.0977,
+    "payoff": 1.1,
+    "exp": -0.0463,
     "kelly4": 0.0
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 4,
     "win": 0.25,
-    "avg_win": 0.1086,
-    "avg_loss": 0.0967,
-    "payoff": 1.12,
-    "exp": -0.0454,
+    "avg_win": 0.1076,
+    "avg_loss": 0.0977,
+    "payoff": 1.1,
+    "exp": -0.0463,
     "kelly4": 0.0
    },
    "状态|下跌趋势": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.002,
+    "avg_loss": 0.003,
     "payoff": 0.0,
-    "exp": -0.002,
+    "exp": -0.003,
     "kelly4": null
    },
    "EMA144|下方": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.002,
+    "avg_loss": 0.003,
     "payoff": 0.0,
-    "exp": -0.002,
+    "exp": -0.003,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.002,
+    "avg_loss": 0.003,
     "payoff": 0.0,
-    "exp": -0.002,
+    "exp": -0.003,
     "kelly4": null
    },
    "区间位置|中部": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.0127,
+    "avg_loss": 0.0137,
     "payoff": 0.0,
-    "exp": -0.0127,
+    "exp": -0.0137,
     "kelly4": null
    }
   },
@@ -2343,273 +2343,273 @@
    "状态|上涨趋势": {
     "n": 26,
     "win": 0.692,
-    "avg_win": 0.0869,
-    "avg_loss": 0.0514,
-    "payoff": 1.69,
-    "exp": 0.0443,
-    "kelly4": 0.1276
+    "avg_win": 0.0859,
+    "avg_loss": 0.0524,
+    "payoff": 1.64,
+    "exp": 0.0433,
+    "kelly4": 0.1261
    },
    "全部|全部": {
     "n": 74,
     "win": 0.622,
-    "avg_win": 0.0656,
-    "avg_loss": 0.0617,
-    "payoff": 1.06,
-    "exp": 0.0174,
-    "kelly4": 0.0665
+    "avg_win": 0.0646,
+    "avg_loss": 0.0626,
+    "payoff": 1.03,
+    "exp": 0.0165,
+    "kelly4": 0.0637
    },
    "EMA144|上方": {
     "n": 61,
     "win": 0.607,
-    "avg_win": 0.0714,
-    "avg_loss": 0.0582,
-    "payoff": 1.23,
-    "exp": 0.0204,
-    "kelly4": 0.0715
+    "avg_win": 0.0705,
+    "avg_loss": 0.0591,
+    "payoff": 1.19,
+    "exp": 0.0195,
+    "kelly4": 0.0691
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 26,
     "win": 0.692,
-    "avg_win": 0.0869,
-    "avg_loss": 0.0514,
-    "payoff": 1.69,
-    "exp": 0.0443,
-    "kelly4": 0.1276
+    "avg_win": 0.0859,
+    "avg_loss": 0.0524,
+    "payoff": 1.64,
+    "exp": 0.0433,
+    "kelly4": 0.1261
    },
    "状态|无规则": {
     "n": 40,
     "win": 0.525,
-    "avg_win": 0.0528,
-    "avg_loss": 0.0651,
-    "payoff": 0.81,
-    "exp": -0.0032,
+    "avg_win": 0.0519,
+    "avg_loss": 0.066,
+    "payoff": 0.79,
+    "exp": -0.0041,
     "kelly4": 0.0
    },
    "状态×EMA144|无规则·上方": {
     "n": 31,
     "win": 0.516,
-    "avg_win": 0.0578,
-    "avg_loss": 0.0603,
-    "payoff": 0.96,
-    "exp": 0.0006,
-    "kelly4": 0.0027
+    "avg_win": 0.0568,
+    "avg_loss": 0.0613,
+    "payoff": 0.93,
+    "exp": -0.0003,
+    "kelly4": 0.0
    },
    "状态|交易区间": {
     "n": 7,
     "win": 0.857,
-    "avg_win": 0.0497,
-    "avg_loss": 0.0796,
-    "payoff": 0.62,
-    "exp": 0.0312,
-    "kelly4": 0.1571
+    "avg_win": 0.0488,
+    "avg_loss": 0.0806,
+    "payoff": 0.61,
+    "exp": 0.0303,
+    "kelly4": 0.1553
    },
    "状态×EMA144|交易区间·上方": {
     "n": 4,
     "win": 0.75,
-    "avg_win": 0.0514,
-    "avg_loss": 0.0796,
-    "payoff": 0.65,
-    "exp": 0.0186,
-    "kelly4": 0.0907
+    "avg_win": 0.0506,
+    "avg_loss": 0.0806,
+    "payoff": 0.63,
+    "exp": 0.0178,
+    "kelly4": 0.0879
    },
    "区间位置|上部": {
     "n": 6,
     "win": 0.833,
-    "avg_win": 0.0503,
-    "avg_loss": 0.0796,
-    "payoff": 0.63,
-    "exp": 0.0286,
-    "kelly4": 0.1423
+    "avg_win": 0.0494,
+    "avg_loss": 0.0806,
+    "payoff": 0.61,
+    "exp": 0.0277,
+    "kelly4": 0.1403
    },
    "EMA144|下方": {
     "n": 13,
     "win": 0.692,
-    "avg_win": 0.0417,
-    "avg_loss": 0.0828,
-    "payoff": 0.5,
-    "exp": 0.0034,
-    "kelly4": 0.0203
+    "avg_win": 0.0408,
+    "avg_loss": 0.0837,
+    "payoff": 0.49,
+    "exp": 0.0025,
+    "kelly4": 0.0151
    },
    "状态×EMA144|无规则·下方": {
     "n": 9,
     "win": 0.556,
-    "avg_win": 0.037,
-    "avg_loss": 0.0828,
-    "payoff": 0.45,
-    "exp": -0.0162,
+    "avg_win": 0.0361,
+    "avg_loss": 0.0837,
+    "payoff": 0.43,
+    "exp": -0.0171,
     "kelly4": 0.0
    },
    "状态×EMA144|交易区间·下方": {
     "n": 3,
     "win": 1.0,
-    "avg_win": 0.048,
+    "avg_win": 0.047,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.048,
+    "exp": 0.047,
     "kelly4": null
    },
    "区间位置|中部": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0469,
+    "avg_win": 0.0459,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0469,
+    "exp": 0.0459,
     "kelly4": null
    },
    "状态|下跌趋势": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0461,
+    "avg_win": 0.0451,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0461,
+    "exp": 0.0451,
     "kelly4": null
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0461,
+    "avg_win": 0.0451,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0461,
+    "exp": 0.0451,
     "kelly4": null
    }
   },
   "hanxiao": {
    "状态|上涨趋势": {
     "n": 70,
-    "win": 0.671,
-    "avg_win": 0.0806,
-    "avg_loss": 0.0707,
-    "payoff": 1.14,
-    "exp": 0.0309,
-    "kelly4": 0.0958
+    "win": 0.657,
+    "avg_win": 0.0813,
+    "avg_loss": 0.0687,
+    "payoff": 1.18,
+    "exp": 0.0299,
+    "kelly4": 0.0919
    },
    "全部|全部": {
     "n": 153,
-    "win": 0.719,
+    "win": 0.712,
     "avg_win": 0.1101,
-    "avg_loss": 0.0694,
-    "payoff": 1.59,
-    "exp": 0.0596,
-    "kelly4": 0.1354
+    "avg_loss": 0.0688,
+    "payoff": 1.6,
+    "exp": 0.0586,
+    "kelly4": 0.1332
    },
    "EMA144|上方": {
     "n": 151,
-    "win": 0.722,
+    "win": 0.715,
     "avg_win": 0.1092,
-    "avg_loss": 0.0682,
-    "payoff": 1.6,
-    "exp": 0.0598,
-    "kelly4": 0.137
+    "avg_loss": 0.0676,
+    "payoff": 1.62,
+    "exp": 0.0588,
+    "kelly4": 0.1347
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 70,
-    "win": 0.671,
-    "avg_win": 0.0806,
-    "avg_loss": 0.0707,
-    "payoff": 1.14,
-    "exp": 0.0309,
-    "kelly4": 0.0958
+    "win": 0.657,
+    "avg_win": 0.0813,
+    "avg_loss": 0.0687,
+    "payoff": 1.18,
+    "exp": 0.0299,
+    "kelly4": 0.0919
    },
    "状态|无规则": {
     "n": 68,
     "win": 0.75,
-    "avg_win": 0.1332,
-    "avg_loss": 0.0696,
-    "payoff": 1.92,
-    "exp": 0.0825,
-    "kelly4": 0.1549
+    "avg_win": 0.1322,
+    "avg_loss": 0.0706,
+    "payoff": 1.87,
+    "exp": 0.0815,
+    "kelly4": 0.1541
    },
    "状态×EMA144|无规则·上方": {
     "n": 68,
     "win": 0.75,
-    "avg_win": 0.1332,
-    "avg_loss": 0.0696,
-    "payoff": 1.92,
-    "exp": 0.0825,
-    "kelly4": 0.1549
+    "avg_win": 0.1322,
+    "avg_loss": 0.0706,
+    "payoff": 1.87,
+    "exp": 0.0815,
+    "kelly4": 0.1541
    },
    "状态|交易区间": {
     "n": 14,
     "win": 0.786,
-    "avg_win": 0.1197,
-    "avg_loss": 0.0589,
-    "payoff": 2.03,
-    "exp": 0.0815,
-    "kelly4": 0.1701
+    "avg_win": 0.1187,
+    "avg_loss": 0.0599,
+    "payoff": 1.98,
+    "exp": 0.0805,
+    "kelly4": 0.1694
    },
    "状态×EMA144|交易区间·上方": {
     "n": 13,
     "win": 0.846,
-    "avg_win": 0.1197,
-    "avg_loss": 0.0278,
-    "payoff": 4.31,
-    "exp": 0.097,
-    "kelly4": 0.2026
+    "avg_win": 0.1187,
+    "avg_loss": 0.0288,
+    "payoff": 4.13,
+    "exp": 0.096,
+    "kelly4": 0.2022
    },
    "区间位置|上部": {
     "n": 10,
     "win": 0.7,
-    "avg_win": 0.1127,
-    "avg_loss": 0.0589,
-    "payoff": 1.91,
-    "exp": 0.0612,
-    "kelly4": 0.1358
+    "avg_win": 0.1117,
+    "avg_loss": 0.0599,
+    "payoff": 1.87,
+    "exp": 0.0602,
+    "kelly4": 0.1348
    },
    "区间位置|中部": {
     "n": 2,
     "win": 1.0,
-    "avg_win": 0.0831,
+    "avg_win": 0.0821,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0831,
+    "exp": 0.0821,
     "kelly4": null
    },
    "状态|下跌趋势": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.2104,
+    "avg_win": 0.2094,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.2104,
+    "exp": 0.2094,
     "kelly4": null
    },
    "EMA144|下方": {
     "n": 2,
     "win": 0.5,
-    "avg_win": 0.2104,
-    "avg_loss": 0.1212,
-    "payoff": 1.74,
-    "exp": 0.0446,
-    "kelly4": 0.053
+    "avg_win": 0.2094,
+    "avg_loss": 0.1222,
+    "payoff": 1.71,
+    "exp": 0.0436,
+    "kelly4": 0.0521
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.2104,
+    "avg_win": 0.2094,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.2104,
+    "exp": 0.2094,
     "kelly4": null
    },
    "状态×EMA144|交易区间·下方": {
     "n": 1,
     "win": 0.0,
     "avg_win": 0.0,
-    "avg_loss": 0.1212,
+    "avg_loss": 0.1222,
     "payoff": 0.0,
-    "exp": -0.1212,
+    "exp": -0.1222,
     "kelly4": null
    },
    "区间位置|下部": {
     "n": 2,
     "win": 1.0,
-    "avg_win": 0.1809,
+    "avg_win": 0.1799,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.1809,
+    "exp": 0.1799,
     "kelly4": null
    }
   },
@@ -2617,154 +2617,154 @@
    "状态|交易区间": {
     "n": 24,
     "win": 0.333,
-    "avg_win": 0.0256,
-    "avg_loss": 0.0252,
-    "payoff": 1.02,
-    "exp": -0.0083,
+    "avg_win": 0.0247,
+    "avg_loss": 0.0262,
+    "payoff": 0.94,
+    "exp": -0.0092,
     "kelly4": 0.0
    },
    "全部|全部": {
     "n": 227,
-    "win": 0.471,
-    "avg_win": 0.0394,
-    "avg_loss": 0.0263,
-    "payoff": 1.5,
-    "exp": 0.0047,
-    "kelly4": 0.0298
+    "win": 0.449,
+    "avg_win": 0.0404,
+    "avg_loss": 0.0261,
+    "payoff": 1.55,
+    "exp": 0.0038,
+    "kelly4": 0.0235
    },
    "EMA144|上方": {
     "n": 151,
-    "win": 0.483,
-    "avg_win": 0.0408,
-    "avg_loss": 0.0282,
-    "payoff": 1.45,
-    "exp": 0.0051,
-    "kelly4": 0.0316
+    "win": 0.464,
+    "avg_win": 0.0417,
+    "avg_loss": 0.0281,
+    "payoff": 1.49,
+    "exp": 0.0043,
+    "kelly4": 0.0256
    },
    "状态×EMA144|交易区间·上方": {
     "n": 12,
     "win": 0.417,
-    "avg_win": 0.0249,
-    "avg_loss": 0.0337,
-    "payoff": 0.74,
-    "exp": -0.0093,
+    "avg_win": 0.024,
+    "avg_loss": 0.0347,
+    "payoff": 0.69,
+    "exp": -0.0102,
     "kelly4": 0.0
    },
    "区间位置|上部": {
     "n": 17,
     "win": 0.353,
-    "avg_win": 0.0232,
-    "avg_loss": 0.0292,
-    "payoff": 0.79,
-    "exp": -0.0107,
+    "avg_win": 0.0223,
+    "avg_loss": 0.0302,
+    "payoff": 0.74,
+    "exp": -0.0117,
     "kelly4": 0.0
    },
    "状态|下跌趋势": {
     "n": 16,
     "win": 0.625,
-    "avg_win": 0.0517,
-    "avg_loss": 0.0372,
-    "payoff": 1.39,
-    "exp": 0.0183,
-    "kelly4": 0.0887
+    "avg_win": 0.0508,
+    "avg_loss": 0.0382,
+    "payoff": 1.33,
+    "exp": 0.0174,
+    "kelly4": 0.0857
    },
    "EMA144|下方": {
     "n": 76,
-    "win": 0.447,
-    "avg_win": 0.0364,
-    "avg_loss": 0.0226,
-    "payoff": 1.61,
-    "exp": 0.0038,
-    "kelly4": 0.026
+    "win": 0.421,
+    "avg_win": 0.0377,
+    "avg_loss": 0.0225,
+    "payoff": 1.68,
+    "exp": 0.0029,
+    "kelly4": 0.019
    },
    "状态×EMA144|下跌趋势·下方": {
     "n": 15,
     "win": 0.6,
-    "avg_win": 0.0571,
-    "avg_loss": 0.0372,
-    "payoff": 1.53,
-    "exp": 0.0194,
-    "kelly4": 0.0848
+    "avg_win": 0.0562,
+    "avg_loss": 0.0382,
+    "payoff": 1.47,
+    "exp": 0.0184,
+    "kelly4": 0.082
    },
    "状态|无规则": {
     "n": 121,
-    "win": 0.446,
-    "avg_win": 0.0404,
-    "avg_loss": 0.0256,
-    "payoff": 1.58,
-    "exp": 0.0039,
-    "kelly4": 0.024
+    "win": 0.413,
+    "avg_win": 0.0427,
+    "avg_loss": 0.025,
+    "payoff": 1.71,
+    "exp": 0.003,
+    "kelly4": 0.0174
    },
    "状态×EMA144|无规则·上方": {
     "n": 72,
-    "win": 0.444,
-    "avg_win": 0.0481,
-    "avg_loss": 0.0289,
-    "payoff": 1.67,
-    "exp": 0.0054,
-    "kelly4": 0.0278
+    "win": 0.417,
+    "avg_win": 0.0504,
+    "avg_loss": 0.0284,
+    "payoff": 1.78,
+    "exp": 0.0044,
+    "kelly4": 0.022
    },
    "区间位置|中部": {
     "n": 3,
     "win": 0.333,
-    "avg_win": 0.0416,
-    "avg_loss": 0.0226,
-    "payoff": 1.84,
-    "exp": -0.0012,
+    "avg_win": 0.0406,
+    "avg_loss": 0.0235,
+    "payoff": 1.72,
+    "exp": -0.0022,
     "kelly4": 0.0
    },
    "状态|上涨趋势": {
     "n": 66,
-    "win": 0.53,
-    "avg_win": 0.0374,
+    "win": 0.515,
+    "avg_win": 0.0377,
     "avg_loss": 0.0261,
-    "payoff": 1.43,
-    "exp": 0.0076,
-    "kelly4": 0.0506
+    "payoff": 1.44,
+    "exp": 0.0067,
+    "kelly4": 0.0447
    },
    "状态×EMA144|上涨趋势·上方": {
     "n": 66,
-    "win": 0.53,
-    "avg_win": 0.0374,
+    "win": 0.515,
+    "avg_win": 0.0377,
     "avg_loss": 0.0261,
-    "payoff": 1.43,
-    "exp": 0.0076,
-    "kelly4": 0.0506
+    "payoff": 1.44,
+    "exp": 0.0067,
+    "kelly4": 0.0447
    },
    "状态×EMA144|无规则·下方": {
     "n": 49,
-    "win": 0.449,
-    "avg_win": 0.0292,
-    "avg_loss": 0.0207,
-    "payoff": 1.41,
-    "exp": 0.0017,
-    "kelly4": 0.0146
+    "win": 0.408,
+    "avg_win": 0.0312,
+    "avg_loss": 0.0201,
+    "payoff": 1.55,
+    "exp": 0.0008,
+    "kelly4": 0.0067
    },
    "状态×EMA144|交易区间·下方": {
     "n": 12,
     "win": 0.25,
-    "avg_win": 0.0268,
-    "avg_loss": 0.0186,
-    "payoff": 1.44,
-    "exp": -0.0072,
+    "avg_win": 0.0258,
+    "avg_loss": 0.0196,
+    "payoff": 1.32,
+    "exp": -0.0082,
     "kelly4": 0.0
    },
    "区间位置|下部": {
     "n": 4,
     "win": 0.25,
-    "avg_win": 0.0242,
-    "avg_loss": 0.0123,
-    "payoff": 1.97,
-    "exp": -0.0032,
+    "avg_win": 0.0232,
+    "avg_loss": 0.0133,
+    "payoff": 1.75,
+    "exp": -0.0042,
     "kelly4": 0.0
    },
    "状态×EMA144|下跌趋势·上方": {
     "n": 1,
     "win": 1.0,
-    "avg_win": 0.0029,
+    "avg_win": 0.0019,
     "avg_loss": 0.0,
     "payoff": null,
-    "exp": 0.0029,
+    "exp": 0.0019,
     "kelly4": null
    }
   }

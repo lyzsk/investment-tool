@@ -196,6 +196,17 @@ def render(up, cards, dry):
         return len(by)
     d.mkdir(parents=True, exist_ok=True)
     keep = set()
+    # 10/19: 日卡解读(case_annotate.py 写 annotations.jsonl)并进卡尾, 与同花顺导师日卡同口径(复用 case_log.py 的读 / 渲染)
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "tzzb"))
+        import case_log as _CL
+        ann = _CL.load_annot(up)
+        cards = [(D, h + (f" / 【{ann[D]['class']}】" if D in ann and ann[D].get("class") else ""), L + ([_CL.annot_line(ann[D])] if D in ann else [])) for D, h, L in cards]
+        by = collections.defaultdict(list)
+        for D, h, L in cards:
+            by[D[:7]].append((D, h, L))
+    except Exception as e:   # noqa: BLE001
+        print(f"WARN: 解读未并入({e})")
     head = (f"> 机械生成(up_case_log.py, 零 token): md「今日操作」+ 视频抽帧(BS 点 / 持仓页 / 紫色持仓高亮)+ 转写原话 + 行情库; "
             "BS 价位不在当日区间 = 标存疑; 「结果(次日)」是唯一后见信息; 原话只截提到该票的句子, 是动机的一手证据。")
     for m, cs in sorted(by.items()):

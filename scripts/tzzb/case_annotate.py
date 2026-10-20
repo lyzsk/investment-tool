@@ -31,7 +31,7 @@ STAGE = ROOT / "results" / "case_annot"
 CHUNK = 40
 WIN = 2   # 一轮 = 2 个月; 每轮所有导师各做一次再进下一轮(进度持平), 一个会话最多 40 天
 
-PROMPT = """任务: 给 tzzb 导师「{name}」(ledger={id}) {month} 的逐日操作日志卡写"解读"。元指令: 任务优先, 禁反问; 只读下面列的文件, 只写 {out}。
+PROMPT = """任务: 给导师「{name}」(id={id}) {month} 的逐日操作日志卡写"解读"。{up_note}元指令: 任务优先, 禁反问; 只读下面列的文件, 只写 {out}。
 
 读: `skills/{id}-skill/persona/case_log/` 下 {files} 里这些日期的日卡(只看这些): {dates}
 参考: `skills/{id}-skill/persona/rules_index.md`(他的规则, 一行一条, 编号 R<n>); 需要细节再按行号读 rules.md。
@@ -59,7 +59,7 @@ def action_days(sk, month):
     out = []
     for blk in re.split(r"^### ", f.read_text(encoding="utf-8"), flags=re.M)[1:]:
         d = blk[:10]
-        if re.fullmatch(r"\d{4}-\d\d-\d\d", d) and re.search(r"^- 成交", blk, re.M):
+        if re.fullmatch(r"\d{4}-\d\d-\d\d", d) and re.search(r"^- (成交|口述操作|画面 ?BS)", blk, re.M):   # 10/19: UP 日卡(up_case_log.py)= 口述操作 / 画面BS
             out.append(d)
     return out
 
@@ -99,7 +99,10 @@ def session(sk, month, dates, k, dry):
     A = annotated(sk)
     classes = [c for c, _ in collections.Counter(a.get("class") for a in A.values() if a.get("class")).most_common(25)]
     files = " / ".join(f"{m}.md" for m in sorted({d[:7] for d in dates}))
-    prompt = PROMPT.format(name=M.get(sk)["name"], id=sk, month=month, files=files, dates=", ".join(dates), out=str(out.relative_to(ROOT)).replace("\\", "/"),
+    up = M.get(sk).get("type") == "UP"
+    up_note = ("(B站 UP: 日卡里的「原话」是他视频里亲口说的, 动机假设优先引用原话、给高概率; 「画面 BS」是视频截图读出的买卖点, 约一半和当日日线对不上, 对不上的当存疑、不作主要依据; "
+               "他没说明的操作才靠盘面推测)") if up else ""
+    prompt = PROMPT.format(up_note=up_note, name=M.get(sk)["name"], id=sk, month=month, files=files, dates=", ".join(dates), out=str(out.relative_to(ROOT)).replace("\\", "/"),
                            classes=" / ".join(classes) or "(还没有, 你来定, 后面的会沿用)")
     if dry:
         print(f"[dry] {sk} {month}#{k}: {len(dates)} 天")
@@ -133,7 +136,7 @@ def main():
     ap.add_argument("--max-sessions", type=int, default=999)
     ap.add_argument("--dry", action="store_true")
     a = ap.parse_args()
-    ids = a.ledger.split(",") if a.ledger else M.active_ids("tzzb")   # 10/18: 退出 paper 的导师不解读(花 token)
+    ids = a.ledger.split(",") if a.ledger else M.active_ids("tzzb", "UP")   # 10/18: 退出 paper 的导师不解读(花 token); 10/19: UP(桃哥 / 卢本圆有口述操作)也解读, 天哥没有操作日自动跳过
     allm = sorted({m for sk in ids for m in months_of(sk)}, reverse=True)
     if a.months:
         allm = [m for m in allm if m in a.months.split(",")]

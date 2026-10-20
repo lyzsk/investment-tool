@@ -53,6 +53,8 @@ import mentors  # noqa: E402  10/17 二B-4: 导师登记表
 TZZB_LEDGERS = [x for x in mentors.ids("tzzb") if x != "buchitudou0"]
 PAIRS = [("A-" + l, l) for l in TZZB_LEDGERS] + [("A-cb", "buchitudou0")]
 CONTROL = "A-control"
+BASEDIR = HERE / "baseline"   # 10/20: mentor_model --baseline-books 写的基线虚拟账户 BL-<ledger>.json(导师行为统计先验)
+BASES = ("persist", "ctrl", "model")   # 延续 / 对照 / 导师行为统计先验(模型)
 START = "2026-10-08"          # 10/8 实盘重新开户(real_vs_chain.mjs 同口径)
 # 阈值(10/16 晚: 挪到 params.yaml mimicry 节, 支持按导师动态 auto; 下面四个=回落值/无配置时的默认, 也是 selftest 口径)
 EPS_DIR = 0.05                # 方向阈值: 净额 > 5% 资产才算净加/净减
@@ -208,9 +210,9 @@ class Real:
 class Chain:
     """A 线账本: trades 按 id 前缀日期重放到 d 日收盘; 权重 = qty×收盘价/当日 nav。"""
 
-    def __init__(self, book, names=None):
+    def __init__(self, book, names=None, path=None):
         self.book = book
-        p = BOOKS / f"{book}.json"
+        p = path or BOOKS / f"{book}.json"
         b = load(p) or {}
         self.mtime = dt.datetime.fromtimestamp(p.stat().st_mtime).isoformat(timespec="seconds") if p.exists() else None
         self.trades = sorted(b.get("trades") or [], key=lambda t: str(t.get("id")))
@@ -458,7 +460,7 @@ def aggregate(rows, metric, min_rank=None):
     cv = [r["chain"][metric] for r in rows if r["chain"] and r["chain"].get(metric) is not None]
     out = {"kind": kind, "n_chain": len(cv), "chain": mean(cv)}
     out["chain_ci"] = wilson(sum(cv), len(cv)) if kind == "acc" else boot_ci(cv)
-    for base in ("persist", "ctrl"):
+    for base in BASES:
         pr = [(r["chain"][metric], r[base][metric]) for r in rows
               if r["chain"] and r.get(base) and r["chain"].get(metric) is not None and r[base].get(metric) is not None]
         diffs = [(y - x) if kind == "err" else (x - y) for x, y in pr]
@@ -470,7 +472,7 @@ def aggregate(rows, metric, min_rank=None):
 
 
 # ---------------- 主计算 ----------------
-def build_days(pair, chain, real, ctrl, px, days, th=None):
+def build_days(pair, chain, real, ctrl, px, days, th=None, model=None):
     rows = []
     for d in days:
         if not (real.has(d) and chain.has(d)):
@@ -485,8 +487,9 @@ def build_days(pair, chain, real, ctrl, px, days, th=None):
         cf = derive(chain.snap(p1, px) if p1 else None, chain.snap(d, px), ret, th)
         pf = derive(real.snap(p2, mw) if p2 else None, rp1, lambda c, a=p2, b=p1: px.ret(c, a, b) if a else None, th) if rp1 else None
         kf = derive(ctrl.snap(p1, px) if p1 else None, ctrl.snap(d, px), ret, th) if ctrl and ctrl.has(d) else None
-        rows.append({"date": d, "real": rf, "chainf": cf, "persistf": pf, "ctrlf": kf,
-                     "chain": compare(cf, rf, th), "persist": compare(pf, rf, th), "ctrl": compare(kf, rf, th)})
+        mf = derive(model.snap(p1, px) if p1 else None, model.snap(d, px), ret, th) if model and model.has(d) else None
+        rows.append({"date": d, "real": rf, "chainf": cf, "persistf": pf, "ctrlf": kf, "modelf": mf,
+                     "chain": compare(cf, rf, th), "persist": compare(pf, rf, th), "ctrl": compare(kf, rf, th), "model": compare(mf, rf, th)})
     return rows
 
 
@@ -536,6 +539,7 @@ def run(days, mode_label):
     reals = {l: Real(l) for _, l in pairs}
     chains = {b: Chain(b, names) for b, _ in pairs}
     ctrl = Chain(CONTROL, names) if (BOOKS / f"{CONTROL}.json").exists() else None
+    models = {l: Chain(f"BL-{l}", names, path=BASEDIR / f"BL-{l}.json") for _, l in pairs if (BASEDIR / f"BL-{l}.json").exists()}
     # 行情: 窗口前 20 天起, 覆盖真人持仓/动作票 + 链成交票
     beg = (dt.date.fromisoformat(days[0]) - dt.timedelta(days=25)).isoformat()
     codes = set()
@@ -543,7 +547,7 @@ def run(days, mode_label):
         for k, rec in r.dp.items():
             if k >= beg.replace("-", ""):
                 codes |= {str(x.get("code")) for x in (rec or {}).get("list") or []}
-    for c in list(chains.values()) + ([ctrl] if ctrl else []):
+    for c in list(chains.values()) + list(models.values()) + ([ctrl] if ctrl else []):
         codes |= {str(t["code"]) for t in c.trades}
     px = Prices.from_db(codes, beg)
     if not px.ok:   # 退化日历: 真人 day_positions 日期并集(工作日)
@@ -555,12 +559,12 @@ def run(days, mode_label):
            "params": {"fallback": {"EPS_DIR": EPS_DIR, "MIN_W": MIN_W, "TP_BINS": TP_BINS, "MIN_RANK": MIN_RANK}, "BOOT_N": BOOT_N, "SEED": SEED,
                       "mimicry_cfg": CFG},
            "price_source": "本地行情库 kline_day" if px.c else "无(成交价/中性漂移)", "pairs": {}, "skipped": {}, "checks": {}}
-    pooled = collections.defaultdict(lambda: {"persist": [], "ctrl": []})
+    pooled = collections.defaultdict(lambda: {b: [] for b in BASES})
     ind_cov = [0, 0]
     for b, l in pairs:
         real, chain = reals[l], chains[b]
         th, th_info = calibrate(real_snaps(real, (tdays or days)[-1], CFG), CFG)   # 10/16 晚: 按导师动态阈值(params.yaml mimicry)
-        rows = build_days((b, l), chain, real, ctrl, px, tdays, th)
+        rows = build_days((b, l), chain, real, ctrl, px, tdays, th, models.get(l))
         if not rows:
             res["skipped"][b] = f"窗口内无配对日(真人数据最新 {real.last}, 链 nav 最新 {max(chain.nav) if chain.nav else None})"
             continue
@@ -577,17 +581,18 @@ def run(days, mode_label):
                 ind_cov[1] += f["foot_n"]
         aggs = {m: aggregate(rows, m, th["min_rank"]) for m in METRICS}
         for m, a in aggs.items():
-            for base in ("persist", "ctrl"):
+            for base in BASES:
                 pooled[m][base] += a[base]["diffs"]
         wins = sum(1 for m in MAIN if (aggs[m]["persist"]["lift"] or 0) > 1e-12)
         res["pairs"][b] = {"ledger": l, "name": l, "real_last": real.last, "n_days": len(rows), "thresholds": th_info,
-                           "metrics": {m: {k: v for k, v in a.items()} | {"persist": {k: v for k, v in a["persist"].items() if k != "diffs"},
-                                                                          "ctrl": {k: v for k, v in a["ctrl"].items() if k != "diffs"}}
+                           "metrics": {m: {k: v for k, v in a.items()} | {base: {k: v for k, v in a[base].items() if k != "diffs"} for base in BASES}
                                        for m, a in aggs.items()},
-                           "main_wins_vs_persist": wins, "diagnosis": diagnose(rows),
+                           "main_wins_vs_persist": wins, "main_wins_vs_model": sum(1 for m in MAIN if (aggs[m]["model"]["lift"] or 0) > 1e-12) if aggs[MAIN[0]]["model"]["n"] else None,
+                           "diagnosis": diagnose(rows),
                            "daily": [{"date": r["date"], "real": brief(r["real"], real.names), "chain": brief(r["chainf"], names),
                                       "persist": brief(r["persistf"], real.names) if r["persistf"] else None,
-                                      "scores": {"chain": r["chain"], "persist": r["persist"], "ctrl": r["ctrl"]}} for r in rows]}
+                                      "model": brief(r["modelf"], names) if r["modelf"] else None,
+                                      "scores": {"chain": r["chain"], "persist": r["persist"], "ctrl": r["ctrl"], "model": r["model"]}} for r in rows]}
     led_names = {x["ledger"]: x.get("name") for x in load(ROOT / "scripts" / "tzzb" / "tzzb_ledgers.json") or []}
     for b, p in res["pairs"].items():
         p["name"] = led_names.get(p["ledger"], p["ledger"])
@@ -595,7 +600,7 @@ def run(days, mode_label):
     res["pooled"] = {}
     for m in METRICS:
         res["pooled"][m] = {}
-        for base in ("persist", "ctrl"):
+        for base in BASES:
             xs = pooled[m][base]
             ci = boot_ci(xs)
             res["pooled"][m][base] = {"n": len(xs), "lift": mean(xs), "lift_ci": ci, "verdict": verdict(mean(xs) or 0, ci, len(xs))}
@@ -628,18 +633,19 @@ def markdown(res):
     L = [f"# 分层拟人度(A 线 vs 导师真人) {res['mode']}", "",
          f"> 生成 {res['generated_at']}(零 token, 只读) | 交易日 {', '.join(res['days'])} | 价格源: {res['price_source']} | 行业缓存覆盖率 {fmt(res['industry_coverage'])}",
          f"> books 读取的是生成时刻的实盘版(文件修改时间见 json books_read; 今晚重跑后会整本替换, 届时需重算)",
-         "> 基线: 延续=导师真人前一交易日原样当今天的预测(MILA 口径); 对照=A-control(无 persona)。lift>0=链比基线更像; 误差类 lift=基线误差−链误差。",
+         "> 基线: 延续=导师真人前一交易日原样当今天的预测(MILA 口径); 对照=A-control(无 persona); 模型=导师行为统计先验(mentor_model.py 基线虚拟账户 BL-<导师>: 交不交易/方向/仓位用统计模型, 选股用 fingerprint 池)。lift>0=链比基线更像; 误差类 lift=基线误差−链误差。",
          f"> 配对天数 < 该导师 min_rank(见阈值表; 全链合并用固定 {MIN_RANK})一律标\"不足以排序\"; 区间=Wilson(0/1)/bootstrap(lift) 95%。", "",
-         "## 一、主指标(每层一个) 链 / 延续 / lift(vs 延续) / lift(vs 对照)", "",
-         "| 链 | 导师 | 天 | L1 交易一致 | L2 方向一致 | L3 持仓 Jaccard | L4 总仓误差 | 主指标赢延续 | 诊断标签 |",
-         "|---|---|---|---|---|---|---|---|---|"]
+         "## 一、主指标(每层一个) 链 / 延续 / lift(vs 延续) / lift(vs 对照) / lift(vs 模型)", "",
+         "| 链 | 导师 | 天 | L1 交易一致 | L2 方向一致 | L3 持仓 Jaccard | L4 总仓误差 | 主指标赢延续 | 赢模型 | 诊断标签 |",
+         "|---|---|---|---|---|---|---|---|---|---|"]
     for b, p in res["pairs"].items():
         cells = []
         for m in MAIN:
             a = p["metrics"][m]
             k = a["kind"]
-            cells.append(f"{fmt(a['chain'], k)} / {fmt(a['persist']['base'], k)} / {fmt_lift(a['persist']['lift'], k)} / {fmt_lift(a['ctrl']['lift'], k)}")
-        L.append(f"| {b} | {p['name']} | {p['n_days']} | " + " | ".join(cells) + f" | {p['main_wins_vs_persist']}/4 | {'、'.join(p['diagnosis'].get('标签') or []) or '—'} |")
+            cells.append(f"{fmt(a['chain'], k)} / {fmt(a['persist']['base'], k)} / {fmt_lift(a['persist']['lift'], k)} / {fmt_lift(a['ctrl']['lift'], k)} / {fmt_lift(a['model']['lift'], k)}")
+        wm = p.get("main_wins_vs_model")
+        L.append(f"| {b} | {p['name']} | {p['n_days']} | " + " | ".join(cells) + f" | {p['main_wins_vs_persist']}/4 | {'—' if wm is None else f'{wm}/4'} | {'、'.join(p['diagnosis'].get('标签') or []) or '—'} |")
     if res["skipped"]:
         L += ["", "未进表: " + "; ".join(f"{b}: {why}" for b, why in res["skipped"].items())]
     L += ["", f"## 阈值(params.yaml mimicry 节; auto=按该导师近 {CFG.get('lookback_days')} 个有记录日的分布算, 样本不足/退化回落 fixed)", "",
@@ -649,11 +655,11 @@ def markdown(res):
         tc = lambda k: (f"{t[k]['value']} · {t[k]['src']}" + (f" n={t[k]['n']}" if t[k].get("n") is not None else "")) if k in t else "—"  # noqa: E731
         L.append(f"| {b} | {p['name']} | {tc('eps_dir')} | {tc('min_w')} | {tc('tp_bins')} | {tc('min_rank')} |")
     L += ["", "## 二、全链合并(所有导师配对日拼在一起; 检验\"LLM 链整体\"是否赢基线)", "",
-          "| 指标 | vs 延续: n / lift [95%] / 判定 | vs 对照: n / lift [95%] / 判定 |", "|---|---|---|"]
+          "| 指标 | vs 延续: n / lift [95%] / 判定 | vs 对照: n / lift [95%] / 判定 | vs 模型: n / lift [95%] / 判定 |", "|---|---|---|---|"]
     for m, v in res["pooled"].items():
         k = METRICS[m][0]
         cell = lambda x: f"{x['n']} / {fmt_lift(x['lift'], k)} [{fmt_lift(x['lift_ci'][0], k)}, {fmt_lift(x['lift_ci'][1], k)}] / {x['verdict']}"  # noqa: E731
-        L.append(f"| {m} | {cell(v['persist'])} | {cell(v['ctrl'])} |")
+        L.append(f"| {m} | {cell(v['persist'])} | {cell(v['ctrl'])} | {cell(v['model'])} |")
     L += ["", "## 三、逐链全部指标", ""]
     for b, p in res["pairs"].items():
         dg = p["diagnosis"]
@@ -661,13 +667,13 @@ def markdown(res):
               f"- 交易率 真人 {fmt(dg.get('真人交易率'))} / 链 {fmt(dg.get('链交易率'))}; 空仓率 真人 {fmt(dg.get('真人空仓率'))} / 链 {fmt(dg.get('链空仓率'))}; "
               f"真人动的日子链也动 {fmt(dg.get('真人动日链也动'))}(延续 {fmt(dg.get('延续_真人动日也动'))}); L1 一致里双静占 {fmt(dg.get('L1一致中双静占比'))}; "
               f"真人有仓日链持同票 {fmt(dg.get('真人有仓日链有同票'))}", "",
-              "| 指标 | n | 链 [95%] | 延续(配对) | lift vs 延续 [95%] | 判定 | 对照(配对) | lift vs 对照 | 判定 |", "|---|---|---|---|---|---|---|---|---|"]
+              "| 指标 | n | 链 [95%] | 延续(配对) | lift vs 延续 [95%] | 判定 | 对照(配对) | lift vs 对照 | 判定 | 模型(配对) | lift vs 模型 | 判定 |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
         for m, a in p["metrics"].items():
             k = a["kind"]
-            ps, cs = a["persist"], a["ctrl"]
+            ps, cs, ms = a["persist"], a["ctrl"], a["model"]
             L.append(f"| {m} | {a['n_chain']} | {fmt(a['chain'], k)} [{fmt(a['chain_ci'][0], k)}, {fmt(a['chain_ci'][1], k)}] | {fmt(ps['base'], k)} | "
                      f"{fmt_lift(ps['lift'], k)} [{fmt_lift(ps['lift_ci'][0], k)}, {fmt_lift(ps['lift_ci'][1], k)}] | {ps['verdict']} | "
-                     f"{fmt(cs['base'], k)} | {fmt_lift(cs['lift'], k)} | {cs['verdict']} |")
+                     f"{fmt(cs['base'], k)} | {fmt_lift(cs['lift'], k)} | {cs['verdict']} | {fmt(ms['base'], k)} | {fmt_lift(ms['lift'], k)} | {ms['verdict']} |")
         L.append("")
         if len(p["daily"]) <= 12:
             L += ["| 日 | 真人 持仓(总仓) / 买入 / 方向 | 链 持仓(总仓) / 买入 / 方向 |", "|---|---|---|"]

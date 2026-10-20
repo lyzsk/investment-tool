@@ -2,6 +2,18 @@
  "skill": "buchitudou0",
  "file": "skills/buchitudou0-skill/persona/rules.md",
  "rules": {
+  "R0": {
+   "id": "R0",
+   "title": "核心定性: 阶段妖债反复套利",
+   "level_tag": "可跟",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
   "R1": {
    "id": "R1",
    "title": "开盘双通道入场, 从不尾盘开仓",
@@ -303,7 +315,7 @@
    "level": "话术级"
   }
  },
- "n": 25,
+ "n": 26,
  "n_mech": 0,
  "n_dir": 12,
  "n_distilled": 4

@@ -232,8 +232,14 @@ def _wechat(msg):
     if time.time() - last < 3600 and "已切换" not in msg:   # 只告警类 1 小时内只发一次; 真切换必发
         return
     try:
-        if _HERMES.exists():
-            subprocess.run([str(_HERMES), "send", "--to", "weixin", msg], capture_output=True, timeout=60, creationflags=NOWIN)
+        try:   # 10/19 起统一出口 wx_send(配额退避 / 落账); wait=0: 这里在 claude -p 包装层里, 不能等, 限频就进 outbox
+            import sys as _sys
+            _sys.path.insert(0, str(HERE.parent / "hermes"))
+            import wx_send
+            wx_send.send(msg, src="rotation", wait=0, verbose=False)
+        except Exception:   # noqa: BLE001
+            if _HERMES.exists():
+                subprocess.run([str(_HERMES), "send", "--to", "weixin", msg], capture_output=True, timeout=60, creationflags=NOWIN)
         _ALERT_STAMP.write_text(f"{time.time()} {msg[:80]}", encoding="utf-8")
     except Exception:   # noqa: BLE001  推送失败不影响主流程
         pass

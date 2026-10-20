@@ -159,6 +159,12 @@ def _is_human(d):
         return True
     return isinstance(c, list) and not any(isinstance(b, dict) and b.get("type") == "tool_result" for b in c)
 
+def _is_notice(d):
+    """系统塞进来的 user 行(后台任务完成通知 / 系统提醒), 不是真人新一轮"""
+    c = (d.get("message") or {}).get("content")
+    s = c if isinstance(c, str) else " ".join(b.get("text", "") for b in c if isinstance(b, dict) and b.get("type") == "text") if isinstance(c, list) else ""
+    return s.lstrip().startswith(("<task-notification>", "<system-reminder>"))
+
 def _carries(d, mark):
     """这一行是不是"带标记的那条消息本身": 真人 user 行, 或对方忙时排队进来的 queued_command 附件行(不认 last-prompt 等元数据行)"""
     if d.get("type") == "user" and _is_human(d):
@@ -182,8 +188,13 @@ def read(mark):
             continue
         texts, done = [], False
         for d in rows[start + 1:]:
-            if (d.get("type") == "user" and _is_human(d)) or (d.get("type") == "attachment" and "queued" in json.dumps(d.get("attachment"))[:200]):
-                break                                 # 下一条真人消息/排队消息=本轮结束
+            if d.get("type") == "user" and _is_human(d) and not _is_notice(d):
+                break                                 # 下一条真人消息 = 本轮结束(对方没写 turn_duration 就开始新一轮)
+            # 10/19 修(pc3 诊断): 旧版把所有 queued 附件都当"本轮结束"就 break —— ①后台 agent 的 <task-notification> 排队附件
+            # ②用户在对方忙时的插话(排队附件, 回复写在插话之后)都会截断, 读到空 → pending → 30 分钟超时。
+            # 现在: 排队附件一律不 break(通知跳过; 真人插话合并进同一轮回答), 只认 turn_duration / 新的真人 user 行
+            if d.get("type") == "attachment":
+                continue
             if d.get("type") == "assistant":
                 for b in (d.get("message") or {}).get("content") or []:
                     if isinstance(b, dict) and b.get("type") == "text" and b.get("text", "").strip():

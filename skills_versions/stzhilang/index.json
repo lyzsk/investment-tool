@@ -431,6 +431,274 @@
     "chain": "4ea5d7561b78",
     "distill": "939e754e12ef"
    }
+  },
+  {
+   "v": 12,
+   "id": "v012_20261019-1946",
+   "ts": "2026-10-19T19:46:52",
+   "effective_from": "2026-10-19T19:41:23",
+   "unit": "skill",
+   "version_hash": "0cb83bf6934f146de6abb0fea9dcceefa56775166c96a6c2e1c6af7a3cd2d951",
+   "cat_hash": {
+    "提示词": "975da26585081419e25548c10de5baa766bef197700ce08fdce6e4c9c0ecb82b",
+    "数据": "0f1bc6c205a3a3855ab9c94eecef5a4e10dbba344f2de9521416a40186ca663c",
+    "画像": "aeaad743ea5565854a784e9f05c7c8565f89956cbd3846c2eaf3035be61180f7"
+   },
+   "data_hash": "d9eccc544ebf3f02e54f088a581f6b97e22bed26559bbf208b9e037459dd85db",
+   "parent": "v011_20261019-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md",
+     "persona/profile_index.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md",
+     "persona/profile_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 78,
+    "removed": 53
+   },
+   "bytes_weight": 237396,
+   "why": "check-md 2026-10-19 19:46",
+   "code": {
+    "chain": "4ea5d7561b78",
+    "distill": "50deea69592c"
+   }
+  },
+  {
+   "v": 13,
+   "id": "v013_20261019-2023",
+   "ts": "2026-10-19T20:23:12",
+   "effective_from": "2026-10-19T20:21:54",
+   "unit": "skill",
+   "version_hash": "704d43912ea7844e9a264375de5f4c2fcfc5725220f8ff98998b2d9a24c77c22",
+   "cat_hash": {
+    "提示词": "975da26585081419e25548c10de5baa766bef197700ce08fdce6e4c9c0ecb82b",
+    "数据": "be61088e4fcd1d52a1acfa0aef50e4aa2c69b7dd9010b69c9ea6919242be8890",
+    "画像": "aeaad743ea5565854a784e9f05c7c8565f89956cbd3846c2eaf3035be61180f7"
+   },
+   "data_hash": "4d2a17776f2cb923ceae43dda9a11563318b341516c43cc5716fd9661e20b0d0",
+   "parent": "v012_20261019-1946",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md",
+     "persona/profile_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md",
+     "persona/profile_index.md"
+    ]
+   },
+   "data_changed": [
+    "persona/case_log/2025-11.md",
+    "persona/case_log/2025-12.md",
+    "persona/case_log/2026-01.md",
+    "persona/case_log/2026-02.md",
+    "persona/case_log/2026-03.md",
+    "persona/case_log/2026-04.md",
+    "persona/case_log/2026-05.md",
+    "persona/case_log/2026-06.md",
+    "persona/case_log/2026-07.md",
+    "persona/case_log/2026-08.md",
+    "persona/case_log/2026-09.md",
+    "persona/case_log/2026-10.md",
+    "persona/case_log/index.md"
+   ],
+   "lines": {
+    "added": 2,
+    "removed": 3
+   },
+   "bytes_weight": 237421,
+   "why": "check-md 2026-10-19 20:23",
+   "code": {
+    "chain": "4ea5d7561b78",
+    "distill": "ca1aa95c1371"
+   }
+  },
+  {
+   "v": 14,
+   "id": "v014_20261019-2047",
+   "ts": "2026-10-19T20:47:32",
+   "effective_from": "2026-10-19T20:47:32",
+   "unit": "skill",
+   "version_hash": "4b2dd1998fa5a337b746a08494a5350ed0451629c230c02d1c83f5a93074af14",
+   "cat_hash": {
+    "提示词": "975da26585081419e25548c10de5baa766bef197700ce08fdce6e4c9c0ecb82b",
+    "数据": "69589ed5d99526f4354b9869bc93924d90d8049262191a44339444e1886e0f6d",
+    "画像": "59562e1008379c0e0c8ff2bee6e7acf29b546f09ad85675bf59996fbcf5132c2"
+   },
+   "data_hash": "4d2a17776f2cb923ceae43dda9a11563318b341516c43cc5716fd9661e20b0d0",
+   "parent": "v013_20261019-2023",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/fingerprint.md",
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md",
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/fingerprint.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 18,
+    "removed": 7
+   },
+   "bytes_weight": 238313,
+   "why": "10/18 thicken 历史挖掘加厚",
+   "code": {
+    "chain": "4ea5d7561b78",
+    "distill": "ca1aa95c1371"
+   }
+  },
+  {
+   "v": 15,
+   "id": "v015_20261019-2047",
+   "ts": "2026-10-19T20:47:55",
+   "effective_from": "2026-10-19T20:47:55",
+   "unit": "skill",
+   "version_hash": "51d6a4cad85fbc2710a8ebcbd975f66cd3618fff87eb4e3edbfb2f8c67ca6054",
+   "cat_hash": {
+    "提示词": "975da26585081419e25548c10de5baa766bef197700ce08fdce6e4c9c0ecb82b",
+    "数据": "69589ed5d99526f4354b9869bc93924d90d8049262191a44339444e1886e0f6d",
+    "画像": "55f9577a292da4f8c559e1aa7c48890b4142730656f779904d9d14f556caa126"
+   },
+   "data_hash": "4d2a17776f2cb923ceae43dda9a11563318b341516c43cc5716fd9661e20b0d0",
+   "parent": "v014_20261019-2047",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/rules.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md",
+     "persona/rules.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 0,
+    "removed": 11
+   },
+   "bytes_weight": 237930,
+   "why": "10/19 新手法升规则(thicken --pass3)",
+   "code": {
+    "chain": "4ea5d7561b78",
+    "distill": "ca1aa95c1371"
+   }
+  },
+  {
+   "v": 16,
+   "id": "v016_20261020-0041",
+   "ts": "2026-10-20T00:41:56",
+   "effective_from": "2026-10-20T00:38:52",
+   "unit": "skill",
+   "version_hash": "f54cc0cbabab5abd1e6e072f3e56d0d63e9a77da1bec5a52b8b291dd5a295d83",
+   "cat_hash": {
+    "提示词": "975da26585081419e25548c10de5baa766bef197700ce08fdce6e4c9c0ecb82b",
+    "数据": "1ae457ad6ad4240380e0ade077da56601cac959b53ab4a6e7f6b3010d8e05d0f",
+    "画像": "35b5df01eb5227b61a811f7379c3592c1f75a271088fd866372092cbf43795a4"
+   },
+   "data_hash": "4d2a17776f2cb923ceae43dda9a11563318b341516c43cc5716fd9661e20b0d0",
+   "parent": "v015_20261019-2047",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md",
+     "persona/profile.md",
+     "persona/profile_index.md",
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md",
+     "persona/profile_index.md",
+     "persona/rules_index.md"
+    ],
+    "画像": [
+     "persona/profile.md",
+     "persona/rules.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 96,
+    "removed": 96
+   },
+   "bytes_weight": 238983,
+   "why": "check-md 2026-10-19 00:41",
+   "code": {
+    "chain": "10de7c3c9e51",
+    "distill": "d85e74c66150"
+   }
+  },
+  {
+   "v": 17,
+   "id": "v017_20261020-0800",
+   "ts": "2026-10-20T08:00:00",
+   "effective_from": "2026-10-20T00:44:48",
+   "unit": "skill",
+   "version_hash": "724c831cf305c5314c2579ef86996a268ec73e01fddea082804c01efd6313ff0",
+   "cat_hash": {
+    "提示词": "975da26585081419e25548c10de5baa766bef197700ce08fdce6e4c9c0ecb82b",
+    "数据": "f30eb287ba4c623a83673eaaf0e4943229f75ebb0a325169eb518bf62b89bbe4",
+    "画像": "35b5df01eb5227b61a811f7379c3592c1f75a271088fd866372092cbf43795a4"
+   },
+   "data_hash": "4d2a17776f2cb923ceae43dda9a11563318b341516c43cc5716fd9661e20b0d0",
+   "parent": "v016_20261020-0041",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 1
+   },
+   "bytes_weight": 238983,
+   "why": "check-md 2026-10-19 08:00",
+   "code": {
+    "chain": "10de7c3c9e51",
+    "distill": "d85e74c66150"
+   }
   }
  ],
  "events": [],

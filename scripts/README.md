@@ -203,3 +203,21 @@ check-cls-md(Java 侧已灌) → **taoge-skill sum**(results→md 桃哥小节; 
 → **fage-skill 入口②**(发哥推演 T+1 核销; 盘前蒸馏=入口①归 hermes 早上)
 
 各 skill 的过程性事件(跑批/格式/立法/事故)追加到对应 `skills/<skill>/PROCESS.md`。
+
+## 盘中资料索引
+
+| 脚本 | 用法 | 说明 |
+|---|---|---|
+| `scripts/lib/ctx_index.py` | `python scripts/lib/ctx_index.py --code 601988 [--before 1033] [--l1] [--section 新到电报]`；代码里 `ctx_index.pack(code, D, before)` | **盘中资料索引(10/19, 零 token)**：资料覆盖表 + ①3 秒盘口 L0 一句话(L1 5 分钟 K 按需) ②最新时段 facts 目录(带行号) + 按品种关键词预取 ③结构 / 三态 ④外围期货；决策T(t_decide，开关 T_DECIDE_READ=1 时模型可按行号 Read 原文)与实盘挂单共用；--before 回放不偷看；book_snap 收盘后 .gz 也认 |
+| `scripts/dfcf/paper/paper_idle_check.py` | `python ... [--date D] [--push]` | **paper 午间体检(10/19)**：在跑账本里 空转(没持仓没挂单没成交) / 做T 底仓没建 / 当天单全被拒，有问题推微信；check md `--only mix` 每天 12:00~13:00 自动跑一次 |
+| `scripts/dfcf/paper/paper_vs_real.py` | `python ... [--date D]`(check md 每晚自动) | **paper vs 导师真人 偏离归因(10/19)**：按 日期+代码+导师 串真人持仓 / paper 持仓 / 真人买入 / 当天事实包；逐日算重合、仓位差、候选召回(真人买的票链看不看得见)、收益差和归因；写进各 skill `fingerprint.md` 的 AUTO:paper偏离 块，蒸馏素材包 ⑥ 节读它 |
+| `scripts/dfcf/paper/restate_fills.py` | `python ... --date D [--dry]` | **按 10/19 新成交价口径重算某天成交(零 token)**：盘前单越价→开盘价、排板单没触板→撤销；先校验流水能复现账本，整目录备份，最后 matcher --eod --restate |
+| `scripts/market/collect_cb_facts.py` | `python ... [--date D] [--no-fetch]`(check md 每晚自动) | **可转债事实表(10/19, 用户口述转债逻辑)**：东财 datacenter 条款表 1~2 个请求 + 行情库算 转股价值 / 溢价率 / 强赎计数(30 日内 ≥130% 天数) / 正股涨停 / 近 5 日涨停次数 / 临期；产物 `downloads/market/<日>/cb_facts.jsonl` + `.md`(成交额前 10、正股涨停的债、负溢价、临赎回临期、热点妖债同族最强)；土豆链次日 04/06 注入精选 |
+| `scripts/market/topology.py` | `python ... [--date D] [--show 代码]`(check md 每晚自动) | **市场拓扑(10/19 深夜)**：每只 A 股的邻居 = 扣大盘后近 60/20 日收益相关 + 东财行业 + 申万三级 + F10 精准概念, 可信度 = 相关强度 × 来源数; 期货按行业关键词 + 指数成分。产物 `downloads/market/<日>/topology.jsonl`。消费: `ctx_index` ⑥ 节(邻居此刻涨跌 + 同向/背离思考提示, 预取关键词/期货兜底)、`collect_book` 录实盘/做T 标的前 3 邻居盘口、paper 链 04/06(`CHAIN_TOPOLOGY`)、`paper_vs_real` 同板块半重合。只作参考, 不进任何买卖规则 |
+
+## hermes/ 微信桥接
+
+| 脚本 | 用法 | 说明 |
+|---|---|---|
+| `cli_relay.py` / `cli_inject.py` | 见 CLAUDE.md「跨机转接」 | `pcN cli: xxx` 转给别的电脑上的 Claude Code 窗口 |
+| `fmt_cli_reply.py` | `python fmt_cli_reply.py "原文"` / stdin / `--from-jsonl [--at HH:MM] [--grep 词]`；`--kind` 强制类型、`--debug` 看每行归类、`--send` 排好直接推微信 | **CLI 回复 → 微信格式(10/19, 零 token)**：自动认挂单 / 日报 / 预判 / 兜底；挂单 = 📊状态 → 🔴B档(买) → 🟢S档(卖) → 🔗配对 → ⚡改单条件(触发价加粗)，改单行旧档"撤→新价"、新档"改(原价)"都进表，依据压到约 20 字；日报 = 异常前置、正常压一句 |

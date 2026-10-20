@@ -1,5 +1,7 @@
+### 目录一律写 xxx/** (只认仓库根下这一处) 或 **/xxx/** (任意层同名目录都忽略), 不写裸 xxx/
+
 ### Java / Maven ###
-**/target/
+**/target/**
 !.mvn/wrapper/maven-wrapper.jar
 *.class
 *.jar
@@ -7,7 +9,7 @@
 *.ear
 *.log
 .DS_Store
-logs/
+**/logs/**
 
 ### STS ###
 .apt_generated
@@ -25,87 +27,74 @@ logs/
 *.ipr
 
 ### NetBeans ###
-/nbproject/private/
-/build/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+/nbproject/private/**
+/build/**
+/nbbuild/**
+/dist/**
+/nbdist/**
+/.nb-gradle/**
 
-### uploads ###
-uploads/
-
-### downloads ###
-downloads/
+### uploads / downloads(行情库 / 语料 / 拓扑 等全部数据) ###
+**/uploads/**
+**/downloads/**
 
 **/pom.xml.versionsBackup
 
 tree.txt
 
 ### npm ###
-node_modules/
+**/node_modules/**
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 .npm
 .yarn
-results/
-**/tessdata/
-backups/
+**/results/**
+**/tessdata/**
+**/backups/**
 
-### dfcf 实盘语料(隐私) ###
-scripts/dfcf/snapshots/
-### paper 模拟盘: 状态隔离(代码 *.mjs/README 可追踪) ###
-scripts/dfcf/paper/facts/
-scripts/dfcf/paper/plans/
-scripts/dfcf/paper/books/
-scripts/dfcf/paper/decisions/
-scripts/dfcf/paper/books.bak-*/
-scripts/dfcf/paper/sandbox/
-scripts/dfcf/paper/nav_*.csv
-scripts/dfcf/paper/*.log
-# 10/18 晚: 做 T 运行态(含挂单行 / 复盘, 牧原账本按用户真实规模)
-scripts/dfcf/paper/t_log/
-scripts/dfcf/paper/t_bot_state.json
-scripts/dfcf/paper/t_decide_state.json
+### dfcf 实盘语料(隐私: 成交 / 持仓 / order-skill / 实盘决策日志) ###
+scripts/dfcf/snapshots/**
+
+### paper 模拟盘: 白名单 —— 只跟踪代码(*.py / *.mjs) + README + params.yaml
+### 其余全是运行态: 账本 / 净值 / 计划 / 事实包 / 决策日志 decisions / 基线 / 报告 / 状态 json
+scripts/dfcf/paper/**
+!scripts/dfcf/paper/**/
+!scripts/dfcf/paper/*.py
+!scripts/dfcf/paper/*.mjs
+!scripts/dfcf/paper/README.md
+!scripts/dfcf/paper/params.yaml
 
 ### 环境和模型
-scripts/venv/
-scripts/models/
-**/__pycache__/
+scripts/venv/**
+scripts/models/**
+**/__pycache__/**
 
 ### backfill_bilibili 追溯(只在本机跑, 索引/状态/日志/备份全本地) ###
-scripts/backfill_bilibili/
+scripts/backfill_bilibili/**
 
 ### temp文件
-
-temp/
-**/temp/
-scripts/hermes/state/
-scripts/taoge-chain/.claude_slots/
+**/temp/**
+scripts/hermes/state/**
+scripts/taoge-chain/.claude_slots/**
 scripts/claude_profile/rotation.txt
 scripts/claude_profile/.rotation_state.json
 scripts/claude_profile/.rotation_state.*.tmp
 scripts/claude_profile/profile_log.csv
 scripts/lib/claude_cost.csv
 scripts/claude_profile/max_concurrency.txt
-
-### 10/19 用户问 push 体积: 可重算的大缓存只留本地(已跟踪的需用户 git rm -r --cached 一次)
-
-### local state & regenerable caches (2026-10-19) ###
-.claude/
-scripts/tzzb/reverse_lianghua/open_ticks/
-scripts/tzzb/tudou_select/cache/
-scripts/tzzb/model_out/orders_recs/
-scripts/lhb/seat_profile.json
-.git.bak
-
-### 10/19: 本地 .git 备份目录, 永不进库
-.git.bak-*/
-### 10/19: 每天重写的运行噪音(可再生成, 不进库; 已跟踪的需 git rm --cached 一次)
-scripts/dfcf/paper/*.tmp
-scripts/dfcf/paper/retry_log.jsonl
-scripts/dfcf/paper/report.html
-scripts/dfcf/paper/state_digest.md
 scripts/quotes/sources_health.json
+scripts/md/*.lock
+
+### local state & regenerable caches (可重算的大缓存只留本地) ###
+.claude/**
+scripts/tzzb/reverse_lianghua/open_ticks/**
+scripts/tzzb/tudou_select/cache/**
+scripts/tzzb/model_out/orders_recs/**
+scripts/lhb/seat_profile.json
+
+### 本地 .git 备份
+.git.bak
+.git.bak/**
+.git.bak-*/**

@@ -16,6 +16,18 @@ ROOT = Path(__file__).resolve().parents[2]
 STATE = Path(__file__).with_name("revival_state.json")
 HERMES = Path(r"C:\Users\admin\AppData\Local\hermes\hermes-agent\bin\hermes.exe")
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+
+def _wx(msg):
+    """10/19 起推送统一走 scripts/hermes/wx_send.py(排版 + 微信配额退避 + 落账); 导入失败退回直接 hermes send"""
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "hermes"))
+        import wx_send
+        return wx_send.send(msg, src="revival_check", wait=300, verbose=False)
+    except Exception:   # noqa: BLE001
+        if HERMES.exists():
+            subprocess.run([str(HERMES), "send", "--to", "weixin", msg], capture_output=True, timeout=60, creationflags=NOWIN)
+        return "fallback"
 STALE_TD = 10   # 10/18: 在跑的导师链, 账本连续 ≥10 个交易日没更新 → 建议暂停
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 sys.path.insert(0, str(ROOT / "scripts" / "backfill_bilibili"))
@@ -68,8 +80,7 @@ def main():
             out.append(msg)
             if not a.dry:
                 try:
-                    if HERMES.exists():
-                        subprocess.run([str(HERMES), "send", "--to", "weixin", msg], capture_output=True, timeout=60, creationflags=NOWIN)
+                    _wx(msg)
                     state[sk] = nav
                 except Exception as e:   # noqa: BLE001
                     out.append(f"推送失败: {e}")
@@ -94,8 +105,7 @@ def main():
             out.append(msg)
             if not a.dry:
                 try:
-                    if HERMES.exists():
-                        subprocess.run([str(HERMES), "send", "--to", "weixin", msg], capture_output=True, timeout=60, creationflags=NOWIN)
+                    _wx(msg)
                     state[key] = nav
                 except Exception as e:   # noqa: BLE001
                     out.append(f"推送失败: {e}")

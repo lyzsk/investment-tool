@@ -68,7 +68,11 @@ for (const letter of Object.keys(groups).sort()) {
 }
 const _qi = process.argv.indexOf("--query");
 if (_qi === -1) {   // 检索模式纯读(不重写索引/不打印构建行)
-    fs.writeFileSync(OUT, out.join("\n"));
+    // 10/19: 只有"生成于"时间戳变了就不重写(原每晚 20 多个索引文件 git 里只差一行时间)
+    const strip = (s) => s.replace(/生成于 [\d: -]+/, "");
+    let prevT = null;
+    try { prevT = fs.readFileSync(OUT, "utf8"); } catch { /* 首次 */ }
+    if (prevT === null || strip(prevT) !== strip(out.join("\n"))) fs.writeFileSync(OUT, out.join("\n"));
     console.log(`rules_index.md: ${rows.length} 条, ${(out.join("\n").length / 1024).toFixed(1)}KB(源 ${(text.length / 1024).toFixed(0)}KB)`);
     console.log(`JSON:${JSON.stringify({ rules: rows.length, outKB: +(out.join("\n").length / 1024).toFixed(1), srcKB: +(text.length / 1024).toFixed(0) })}`);
 }

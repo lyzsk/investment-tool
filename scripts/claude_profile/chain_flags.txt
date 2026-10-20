@@ -75,3 +75,10 @@ CHAIN_STEP_PACK=1   # 10/18 晚查因后开: 0915 输入 -16%、工具调用 -24
 CHAIN_REGIME_FACTS=0   # facts 加「关注票状态」节(三态 / 箱体 / EMA / 止损候选; facts.mjs)
 CHAIN_RISK_SIZE=0      # 06 买单按 1% 风险倒推建议股数 + ¼凯利上限, 只记账不拦单(quality_hooks._post_risk)
 MIX_REGIME=0           # A-mix-sw 按该票三态 × 导师在该状态的历史期望加权(mix_plans.regime_mult)
+T_DECIDE_READ=1   # 10/19 决策T 可用 Read 按资料索引行号捞 facts 原文(0 = 只给索引不给工具)
+CHAIN_MENTOR_HOLD_FACTS=1   # 10/19 用户定打开: 各导师小节加本人 T-1 真实持仓 + 近 5 个操作日买卖过的票(带现价); 每条链只看自己导师的(slim_facts 切小节), 跟不跟由 skill 裁决
+CHAIN_SUB_PACK=1   # 10/19 晚(用户令现在做): 盘中子链 sub3 合并调用加工作方式约定 + 附 rules_index / paper_state / cand_snap 原文; 估每天省 $15~30, 看 10/20 token_log 子链行
+CHAIN_TIANGE_MARKET=1   # 10/19 用户定: 趋势天哥 T-1 盘后评盘当市况参考进 facts 公共节(全链可见); 次日收盘后核销准不准
+CHAIN_DECISION_LOG=1   # 10/19 晚: 全链 06 每单落决策日志, 收盘后 T+1/T+3 机械结算(零 token); 反思回注仍看 CHAIN_REFLECTION
+# 10/19 晚 TODO 二-13 市场拓扑: 04/06 注入持仓+候选的关联票(行业/前3邻居昨日涨跌/期货)+一句同向背离思考提示; 只参考不改规则; 子链不注入
+CHAIN_TOPOLOGY=1   # 用户 10/19 定"今晚做然后上线"

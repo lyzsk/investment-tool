@@ -86,7 +86,9 @@ def FEE(side, amt, code=None, date=None):
 # ---------------- 基础 ----------------
 def mentor_chains():
     """导师链名单(UP/tzzb 导师, 不含对照组与混合账本) → [(book, 显示名)]; 10/17 唯一真源改为导师登记表(原解析 accounts.mjs 文本)"""
-    return [(e["book"], e["display"]) for e in mentors.all() if e["type"] in ("UP", "tzzb")]
+    # 10/19 修: 退出 paper 的导师(paper_excluded.json)不再出新单, 却仍分到权重(8 位约占 1/3 权重质量), 稀释了混合账本的目标金额和"高权重链"门槛 → 只算在跑的
+    ex = mentors.excluded()
+    return [(e["book"], e["display"]) for e in mentors.all() if e["type"] in ("UP", "tzzb") and e["id"] not in ex]
 
 
 def cluster_of(src):

@@ -15,6 +15,12 @@ export const get = (id) => all().find((e) => e.id === id);
 export const book = (id) => get(id).book;
 export const byBook = (bk) => all().find((e) => e.book === bk)?.id;
 export const head = (id) => get(id).short.split("(")[0];
+// 10/19 补(与 mentors.py excluded()/active_ids() 对等): 退出 paper 的导师(scripts/tzzb/paper_excluded.json, 10/18 用户定)
+//   账本只留持仓做结算(matcher 照常 EOD), 不再出新单; 人看的日报 / 真人对照 / 报告默认不列它们
+export const excluded = () => { try { return rd("paper_excluded.json").excluded || {}; } catch { return {}; } };
+export const active = () => { const ex = excluded(); return all().filter((e) => !(e.id in ex)); };
+export const activeIds = (...types) => active().filter((e) => !types.length || types.includes(e.type)).map((e) => e.id);
+export const isActiveBook = (bk) => { const id = byBook(bk); return !id || !(id in excluded()); };   // 非导师账本(混合 / 做T)恒视为在跑
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) && process.argv.includes("--selftest")) {
     const E = all(), ok = (c, m) => { if (!c) { console.error("FAIL: " + m); process.exit(1); } };
@@ -24,5 +30,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const { execFileSync } = await import("child_process");   // 与 py 版逐项一致
     const py = execFileSync(process.env.PY || "python", ["-X", "utf8", "-c", "import sys,json;sys.path.insert(0,sys.argv[1]);import mentors;print(json.dumps(mentors.all(),ensure_ascii=False))", path.join(T, "..", "lib")], { windowsHide: true }).toString();
     ok(JSON.stringify(JSON.parse(py)) === JSON.stringify(E), "py/mjs 读出不一致");
+    const pyA = execFileSync(process.env.PY || "python", ["-X", "utf8", "-c", "import sys,json;sys.path.insert(0,sys.argv[1]);import mentors;print(json.dumps(mentors.active_ids()))", path.join(T, "..", "lib")], { windowsHide: true }).toString();
+    ok(JSON.stringify(JSON.parse(pyA)) === JSON.stringify(activeIds()), "active_ids py/mjs 不一致");
     console.log(`mentors.mjs selftest OK: ${E.length} 条链, 与 mentors.py 逐项一致`);
 }

@@ -20,7 +20,8 @@ const readJson = (f) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); }
 
 function pairs() {
     const ledgers = readJson(path.join(ROOT, "scripts", "tzzb", "tzzb_ledgers.json")) || [];
-    return ledgers.filter((l) => l.kind !== "neg")
+    const ex = readJson(path.join(ROOT, "scripts", "tzzb", "paper_excluded.json"))?.excluded || {};   // 10/19: 退出 paper 的导师不列
+    return ledgers.filter((l) => l.kind !== "neg" && l.book && !(l.ledger in ex))
         .map((l) => ({ book: l.ledger === "buchitudou0" ? "A-cb" : "A-" + l.ledger, ledger: l.ledger, name: NAME[l.ledger === "buchitudou0" ? "A-cb" : "A-" + l.ledger] || l.name || l.ledger }));
 }
 
@@ -73,7 +74,7 @@ export function summaryLines(date) {
     if (!rows.length) return [];
     const same = rows.filter((x) => Math.sign(x.rRet) === Math.sign(x.cRet)).length;
     const stale = rows.filter((x) => x.d !== date).length;
-    const out = [`B线真人对照(真人/链 当日, 持仓重合): 真人红${rows.filter((x) => x.rRet > 0).length}绿${rows.filter((x) => x.rRet < 0).length}, ` +
+    const out = [`导师真人对照(真人/链 当日, 持仓重合): 真人红${rows.filter((x) => x.rRet > 0).length}绿${rows.filter((x) => x.rRet < 0).length}, ` +
         `链红${rows.filter((x) => x.cRet > 0).length}绿${rows.filter((x) => x.cRet < 0).length}, 同向 ${same}/${rows.length}, 持仓重合合计 ${rows.reduce((s, x) => s + x.overlap, 0)} 只` +
         (stale ? `(${stale} 位真人今日未更新, 用最近一日)` : "")];
     for (const x of rows) out.push(`· ${x.name.replace(/\(.*\)$/, "")}${x.d !== date ? "[" + x.d.slice(5) + "]" : ""} ${pct(x.rRet)}/${pct(x.cRet)} 重合${x.overlap}`);
@@ -81,7 +82,7 @@ export function summaryLines(date) {
 }
 
 function markdown(date, rows) {
-    const L = [`# B线(导师真人) vs A线(skill 链) ${date}`, "",
+    const L = [`# 导师真人 vs skill 链 ${date}`, "",
         "> 真人=同花顺投资账本 index 日环比; 链=paper 账本 nav 日环比; 真人当日未更新的取最近一日(日期列标出), 链同取那天", "",
         "| 导师 | 日期 | 真人当日 | 链当日 | 同向 | 真人持仓(仓位) | 链持仓 | 重合 |", "|---|---|---|---|---|---|---|---|"];
     for (const x of rows) {

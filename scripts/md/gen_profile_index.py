@@ -199,8 +199,14 @@ def build(skill, refresh=False, no_llm=False):
     for s in secs:
         lines.append(f"| {s['id']} | {s['title']} | {s['about']} | L{s['start']}-{s['end']} | {s['bytes'] / 1024:.1f} | "
                      f"{','.join(s['steps']) or '—'} | {s['prio']} | {s['sha8']} |")
-    with open(out, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write("\n".join(lines) + "\n")
+    body = "\n".join(lines) + "\n"
+    try:   # 10/19: 只有"生成于"时间戳变了就不重写(原每晚 20 多个索引文件 git 里只差一行时间)
+        same = re.sub(r"生成于 [\d: -]+", "", out.read_text(encoding="utf-8"), count=1) == re.sub(r"生成于 [\d: -]+", "", body, count=1)
+    except OSError:
+        same = False
+    if not same:
+        with open(out, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(body)
     chk = read_index(out)
     assert chk and len(chk[2]) == len(secs), "索引回读行数不符(表格转义问题)"
     print(f"[{skill}] → {out.relative_to(ROOT)}: {len(secs)} 节, {model_note}, 注入量 {per_step}")

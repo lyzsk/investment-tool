@@ -1,10 +1,595 @@
 {
  "since": "2026-10-08",
  "until": "2026-10-19",
- "days": [],
- "rows": [],
- "summary": {},
+ "days": [
+  "2026-10-19"
+ ],
+ "rows": [
+  {
+   "skill": "a658",
+   "date": "2026-10-19",
+   "slot": "0915",
+   "layers": [
+    "L1",
+    "L2"
+   ],
+   "score": {
+    "L1": null,
+    "L2": null
+   },
+   "declared": [
+    "L1"
+   ],
+   "ret_diff": 0.045897566844688376,
+   "no_truth": true
+  },
+  {
+   "skill": "anlizhuohuo",
+   "date": "2026-10-19",
+   "slot": "0915",
+   "layers": [
+    "L1",
+    "L2",
+    "L4"
+   ],
+   "score": {
+    "L4": null,
+    "L2": null,
+    "L1": null
+   },
+   "declared": [
+    "L1",
+    "L4"
+   ],
+   "ret_diff": null,
+   "no_truth": true
+  },
+  {
+   "skill": "antoo",
+   "date": "2026-10-19",
+   "slot": "0915",
+   "layers": [
+    "L2",
+    "L4"
+   ],
+   "score": {
+    "L4": -1,
+    "L2": -1
+   },
+   "declared": [
+    "L2",
+    "L4"
+   ],
+   "ret_diff": 0.016146585990283735,
+   "no_truth": false
+  },
+  {
+   "skill": "antoo",
+   "date": "2026-10-19",
+   "slot": "1030",
+   "layers": [
+    "L1"
+   ],
+   "score": {
+    "L1": -1
+   },
+   "declared": [
+    "L4"
+   ],
+   "ret_diff": 0.016146585990283735,
+   "no_truth": false
+  },
+  {
+   "skill": "hanxiao",
+   "date": "2026-10-19",
+   "slot": "0915",
+   "layers": [
+    "L1",
+    "L2",
+    "L4"
+   ],
+   "score": {
+    "L4": 0,
+    "L2": -1,
+    "L1": -1
+   },
+   "declared": [
+    "L1",
+    "L4"
+   ],
+   "ret_diff": null,
+   "no_truth": false
+  },
+  {
+   "skill": "lianghuaxiaohao",
+   "date": "2026-10-19",
+   "slot": "0915",
+   "layers": [
+    "L4"
+   ],
+   "score": {
+    "L4": 0
+   },
+   "declared": [
+    "L4"
+   ],
+   "ret_diff": -0.01999090894479061,
+   "no_truth": false
+  },
+  {
+   "skill": "lianghuaxiaohao",
+   "date": "2026-10-19",
+   "slot": "0927",
+   "layers": [
+    "L2"
+   ],
+   "score": {
+    "L2": -1
+   },
+   "declared": [],
+   "ret_diff": -0.01999090894479061,
+   "no_truth": false
+  },
+  {
+   "skill": "lianghuaxiaohao",
+   "date": "2026-10-19",
+   "slot": "1100",
+   "layers": [
+    "L1"
+   ],
+   "score": {
+    "L1": -1
+   },
+   "declared": [],
+   "ret_diff": -0.01999090894479061,
+   "no_truth": false
+  },
+  {
+   "skill": "liuyiqing",
+   "date": "2026-10-19",
+   "slot": "0915",
+   "layers": [
+    "L4"
+   ],
+   "score": {
+    "L4": -1
+   },
+   "declared": [
+    "L4"
+   ],
+   "ret_diff": 0.01356682726072822,
+   "no_truth": false
+  },
+  {
+   "skill": "liuyiqing",
+   "date": "2026-10-19",
+   "slot": "0927",
+   "layers": [
+    "L2"
+   ],
+   "score": {
+    "L2": -1
+   },
+   "declared": [
+    "L2",
+    "L4"
+   ],
+   "ret_diff": 0.01356682726072822,
+   "no_truth": false
+  },
+  {
+   "skill": "liuyiqing",
+   "date": "2026-10-19",
+   "slot": "1000",
+   "layers": [
+    "L1"
+   ],
+   "score": {
+    "L1": -1
+   },
+   "declared": [
+    "L2",
+    "L4"
+   ],
+   "ret_diff": 0.01356682726072822,
+   "no_truth": false
+  },
+  {
+   "skill": "meiyuelu",
+   "date": "2026-10-19",
+   "slot": "0915",
+   "layers": [
+    "L2",
+    "L4"
+   ],
+   "score": {
+    "L4": -1,
+    "L2": 1
+   },
+   "declared": [
+    "L2",
+    "L4"
+   ],
+   "ret_diff": null,
+   "no_truth": false
+  },
+  {
+   "skill": "meiyuelu",
+   "date": "2026-10-19",
+   "slot": "1030",
+   "layers": [
+    "L1"
+   ],
+   "score": {
+    "L1": -1
+   },
+   "declared": [],
+   "ret_diff": null,
+   "no_truth": false
+  },
+  {
+   "skill": "stzhilang",
+   "date": "2026-10-19",
+   "slot": "0927",
+   "layers": [
+    "L1"
+   ],
+   "score": {
+    "L1": 1
+   },
+   "declared": [],
+   "ret_diff": -0.02378899115206179,
+   "no_truth": false
+  },
+  {
+   "skill": "wudaokongfang",
+   "date": "2026-10-19",
+   "slot": "0915",
+   "layers": [
+    "L2",
+    "L4"
+   ],
+   "score": {
+    "L4": -1,
+    "L2": 1
+   },
+   "declared": [
+    "L2",
+    "L4"
+   ],
+   "ret_diff": null,
+   "no_truth": false
+  },
+  {
+   "skill": "wudaokongfang",
+   "date": "2026-10-19",
+   "slot": "0927",
+   "layers": [
+    "L1"
+   ],
+   "score": {
+    "L1": -1
+   },
+   "declared": [
+    "L2",
+    "L4"
+   ],
+   "ret_diff": null,
+   "no_truth": false
+  },
+  {
+   "skill": "xingjianye",
+   "date": "2026-10-19",
+   "slot": "0915",
+   "layers": [
+    "L1",
+    "L2"
+   ],
+   "score": {
+    "L1": -1,
+    "L2": -1
+   },
+   "declared": [
+    "L1"
+   ],
+   "ret_diff": 0.08308586935739881,
+   "no_truth": false
+  },
+  {
+   "skill": "xingjianye",
+   "date": "2026-10-19",
+   "slot": "1300",
+   "layers": [
+    "L4"
+   ],
+   "score": {
+    "L4": 0
+   },
+   "declared": [
+    "L4"
+   ],
+   "ret_diff": 0.08308586935739881,
+   "no_truth": false
+  },
+  {
+   "skill": "zhiyingjuexin",
+   "date": "2026-10-19",
+   "slot": "0915",
+   "layers": [
+    "L2"
+   ],
+   "score": {
+    "L2": 0
+   },
+   "declared": [
+    "L2"
+   ],
+   "ret_diff": 0.047192359679651186,
+   "no_truth": false
+  },
+  {
+   "skill": "zhiyingjuexin",
+   "date": "2026-10-19",
+   "slot": "0927",
+   "layers": [
+    "L4"
+   ],
+   "score": {
+    "L4": -1
+   },
+   "declared": [
+    "L2",
+    "L4"
+   ],
+   "ret_diff": 0.047192359679651186,
+   "no_truth": false
+  }
+ ],
+ "summary": {
+  "antoo": {
+   "L1": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L2": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L4": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   }
+  },
+  "hanxiao": {
+   "L1": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L2": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L4": {
+    "win": 0,
+    "loss": 0,
+    "tie": 1,
+    "n": 1,
+    "net20": 0,
+    "days_in_window": 1,
+    "locked": false
+   }
+  },
+  "lianghuaxiaohao": {
+   "L1": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L2": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L4": {
+    "win": 0,
+    "loss": 0,
+    "tie": 1,
+    "n": 1,
+    "net20": 0,
+    "days_in_window": 1,
+    "locked": false
+   }
+  },
+  "liuyiqing": {
+   "L1": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L2": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L4": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   }
+  },
+  "meiyuelu": {
+   "L1": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L2": {
+    "win": 1,
+    "loss": 0,
+    "tie": 0,
+    "n": 1,
+    "net20": 1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L4": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   }
+  },
+  "stzhilang": {
+   "L1": {
+    "win": 1,
+    "loss": 0,
+    "tie": 0,
+    "n": 1,
+    "net20": 1,
+    "days_in_window": 1,
+    "locked": false
+   }
+  },
+  "wudaokongfang": {
+   "L1": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L2": {
+    "win": 1,
+    "loss": 0,
+    "tie": 0,
+    "n": 1,
+    "net20": 1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L4": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   }
+  },
+  "xingjianye": {
+   "L1": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L2": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L4": {
+    "win": 0,
+    "loss": 0,
+    "tie": 1,
+    "n": 1,
+    "net20": 0,
+    "days_in_window": 1,
+    "locked": false
+   }
+  },
+  "zhiyingjuexin": {
+   "L2": {
+    "win": 0,
+    "loss": 0,
+    "tie": 1,
+    "n": 1,
+    "net20": 0,
+    "days_in_window": 1,
+    "locked": false
+   },
+   "L4": {
+    "win": 0,
+    "loss": 1,
+    "tie": 0,
+    "n": 1,
+    "net20": -1,
+    "days_in_window": 1,
+    "locked": false
+   }
+  }
+ },
  "locks": {},
  "rule": "近 20 个记账交易日 net=胜−负<0 且记账天数≥20 → 锁层",
- "ret_diff_mean": {}
+ "ret_diff_mean": {
+  "a658": 0.045897566844688376,
+  "antoo": 0.016146585990283735,
+  "lianghuaxiaohao": -0.01999090894479061,
+  "liuyiqing": 0.01356682726072822,
+  "stzhilang": -0.02378899115206179,
+  "xingjianye": 0.08308586935739881,
+  "zhiyingjuexin": 0.047192359679651186
+ }
 }

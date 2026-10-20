@@ -1,0 +1,14 @@
+--- v005_20261019-2023/scripts/taoge-chain/run_chain.py
++++ v006_20261019-2201/scripts/taoge-chain/run_chain.py
+@@ -3567,4 +3567,11 @@
+         if not top:
+             return ""
++        # 10/19 用户口述的转债逻辑(正股涨停→转债 20cm 空间 / 临赎回临期 / 负溢价拉回 / 同热点最强一支)落成事实表 → 注入精选(collect_cb_facts.py 每晚产)
++        cbf = ""
++        try:
++            cbf = (mk / prev / "cb_facts.md").read_text(encoding="utf-8")
++            cbf = "\n".join(l for l in cbf.splitlines() if not l.startswith("# "))[:3500]
++        except OSError:
++            cbf = ""
+         return ("\n\n# 驱动器注入: 竞价T 机械选债(10/18 逆向他的 103 个竞价日: 09:25 竞价买的那只 ≈ 前一交易日全市场转债成交额第一, "
+                 "top1 命中 60% / 前三 88%, 时间外 68% / 95%; 他连做同一只时它通常仍是额第一, 掉出前二多半换票)\n"

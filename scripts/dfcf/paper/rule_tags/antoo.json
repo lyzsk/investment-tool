@@ -484,10 +484,34 @@
    "mech": null,
    "mech_text": null,
    "level": "话术级"
+  },
+  "R41": {
+   "id": "R41",
+   "title": "新票首日重仓(≥35%)= 核心接棒: 同日先砍旧核心/零散仓, 一笔大单买入, 总仓位基本不变",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
+  },
+  "R42": {
+   "id": "R42",
+   "title": "收盘集合竞价(14:57 后)买入是日常动作: 3 月起多数买入日都有, 10 月 8/8 日",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "买",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
   }
  },
- "n": 40,
+ "n": 42,
  "n_mech": 1,
- "n_dir": 30,
+ "n_dir": 32,
  "n_distilled": 2
 }
