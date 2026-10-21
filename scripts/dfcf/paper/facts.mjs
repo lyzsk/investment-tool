@@ -352,6 +352,49 @@ function lhbDigest() {
     return L.join("\n");
 }
 
+// ---- 10/20 晚(市况改造 R3, 用户批): 多指数箱体位置表(位置层; 口径见 docs/knowledge/box.md) —— 前一交易日收盘, 20 日箱体取 indicators.jsonl, 60 日箱体用历史日线 + 每日 kline_day 现算 ----
+const BOX_IDX = [["sh000001", "上证"], ["sz399001", "深成"], ["sz399006", "创业板"], ["sh000688", "科创50"], ["sh000016", "上证50"], ["sh000300", "沪深300"], ["sh000905", "中证500"], ["sh000852", "中证1000"], ["sz399303", "国证2000"]];
+function boxStage(pos, regime, er) {
+    if (pos == null) return "?";
+    if (pos <= 0.02 && regime === "下跌趋势") return "向下破位";
+    if (pos <= 0.2) return "下沿";
+    if (pos >= 0.98 && regime === "上涨趋势") return "向上突破";
+    if (pos >= 0.8) return "上沿";
+    return "中部震荡";
+}
+function indexBoxMd() {
+    const MK = path.resolve("downloads/market");
+    const days = fs.readdirSync(MK).filter((d) => /^\d{4}-\d\d-\d\d$/.test(d) && d < date).sort();
+    const indDay = [...days].reverse().find((d) => fs.existsSync(path.join(MK, d, "indicators.jsonl")));
+    if (!indDay) return "(无 indicators.jsonl)";
+    const want = new Set(BOX_IDX.map(([s]) => s));
+    const ind = {};
+    for (const l of fs.readFileSync(path.join(MK, indDay, "indicators.jsonl"), "utf8").split("\n")) {
+        const m = l.match(/"symbol":"(\w+)"/);
+        if (m && want.has(m[1])) ind[m[1]] = JSON.parse(l);
+    }
+    const closes = Object.fromEntries(BOX_IDX.map(([s]) => [s, {}]));
+    for (const [s] of BOX_IDX) {   // 历史日线(到 10/9 前后) + 之后每天的 kline_day
+        try { for (const l of fs.readFileSync(path.join(MK, "history", "kline_day", `${s}.jsonl`), "utf8").split("\n")) if (l) { const r = JSON.parse(l); if (r.tradeDate <= indDay) closes[s][r.tradeDate] = r.close; } } catch { /* 无历史 */ }
+    }
+    for (const d of days.filter((x) => x <= indDay).slice(-70)) {
+        let t; try { t = fs.readFileSync(path.join(MK, d, "kline_day.jsonl"), "utf8"); } catch { continue; }
+        for (const [s] of BOX_IDX) { const m = t.match(new RegExp(`\\{[^\\n]*"symbol": ?"${s}"[^\\n]*\\}`)); if (m) { const r = JSON.parse(m[0]); if (r.close) closes[s][d] = r.close; } }
+    }
+    const L = [`前一交易日 ${indDay} 收盘; 20 日箱体=近 20 日收盘最高 / 最低(indicators), 60 日箱体=近 60 日收盘; 位置 0=箱底 1=箱顶; 五阶段=向下破位 / 下沿 / 中部震荡 / 上沿 / 向上突破`,
+        "| 指数 | 收盘 | 三态 | 20日箱体 | 20日位置 | 阶段(20日) | 60日箱体 | 60日位置 | 阶段(60日) |", "|---|---|---|---|---|---|---|---|---|"];
+    for (const [s, n] of BOX_IDX) {
+        const r = ind[s];
+        if (!r) { L.push(`| ${n} | 缺 | | | | | | | |`); continue; }
+        const c60 = Object.entries(closes[s]).sort(([a], [b]) => (a < b ? -1 : 1)).slice(-60).map(([, v]) => v);
+        const lo60 = c60.length >= 40 ? Math.min(...c60) : null, hi60 = c60.length >= 40 ? Math.max(...c60) : null;
+        const p60 = lo60 != null && hi60 > lo60 ? (r.close - lo60) / (hi60 - lo60) : null;
+        const f = (x) => (x == null ? "?" : (+x).toFixed(2));
+        L.push(`| ${n} | ${f(r.close)} | ${r.regime} | ${f(r.box_lo)}~${f(r.box_hi)} | ${r.box_pos == null ? "?" : (+r.box_pos).toFixed(2)} | ${boxStage(r.box_pos, r.regime)} | ${lo60 == null ? "?" : `${f(lo60)}~${f(hi60)}`} | ${p60 == null ? "?" : p60.toFixed(2)} | ${boxStage(p60, r.regime)} |`);
+    }
+    return L.join("\n");
+}
+
 // ---- 10/18 晚(用户定"周三接, 先备好"): 关注票三态 / 箱体 / 均线 / 止损候选, 开关 CHAIN_REGIME_FACTS(chain_flags.txt; 环境变量优先), 关=本节不出现 ----
 function mentorHolds() {
     const excl = (() => { try { return new Set(Object.keys(JSON.parse(fs.readFileSync(path.resolve("scripts/tzzb/paper_excluded.json"), "utf8")).excluded || {})); } catch { return new Set(); } })();
@@ -449,8 +492,26 @@ const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${S
     ...(tmp ? ["## 竞价异动临时池(接力池取数口, 当日有效)", tmp.md, ""] : []),
     // 10/18 用户定: 集合竞价过程进所有链(0927 子链=按竞价结果修正 0915 的单); 只给 09:25~09:59 的时段, 之后连续竞价已覆盖; as-of 读当日存档(09:25:40 前的数据, 无后见)
     ...(SLOT >= "0925" && SLOT < "1000" ? ["## 集合竞价(09:15~09:25, 关注票=各链持仓+挂单)", auctionMd(loadAuction(ASOF || date), [...watch.keys()]), ""] : []),
+    // 10/20 晚用户: 竞价有明显抢筹 / 砸盘是全天都要参考的事实, 不只 0927 → 10:00 及以后的时段给精简版(关注票每只一行 + 指数 + 抬价 / 压价最多各 3 只)
+    ...(SLOT >= "1000" && SLOT !== "review" ? ["## 集合竞价回顾(今日 09:25 结果, 盘中参考: 竞价抢筹 / 砸盘对盘中强弱是一条事实)", auctionMd(loadAuction(ASOF || date), [...watch.keys()], { top: 3, title: false }), ""] : []),
     "## 隔夜外围(美股/中概/港股/日英/A50·美股期货/金油/离岸人民币)", overseas(), "",
-    "## 期货(国内主力+外围期货, 现场拉取)", ASOF ? "(as-of 回放: 无期货历史快照, 不可得)" : await futuresMd(), "",
+    ...((() => { try { return ["## 多指数箱体位置(市况位置层 R3; 和下面多指数面板的当日过程一起看: 在哪 + 正在怎么走)", indexBoxMd(), ""]; } catch (e) { return ["## 多指数箱体位置", `(生成失败: ${String(e).slice(0, 80)})`, ""]; } })()),
+    // 10/20 用户定: 02 市况判定的固定多指数面板(过程: 今日最低 / 离低点反弹 / 近 15 分钟方向 / 深跌后反转标记), collect_panel.py 07:30 起每分钟采
+    ...((() => { if (ASOF) return []; try {
+        const PYV = path.join("scripts", "venv", "Scripts", "python.exe");
+        try { execFileSync(PYV, ["-X", "utf8", "scripts/market/collect_panel.py", "--ensure"], { stdio: "pipe", timeout: 20000, windowsHide: true }); } catch { /* 拉不起不挡事实包 */ }
+        const t = execFileSync(PYV, ["-X", "utf8", "scripts/market/collect_panel.py", "--show", "--date", date],
+            { stdio: "pipe", timeout: 20000, windowsHide: true }).toString("utf8").trim();
+        return t && !t.startsWith("(") ? ["## 多指数面板(日经/KOSPI/A50连续/小纳指连续/上证/中证2000/创业板/恒生科技; 判市况必须逐个看过程, 不只看收盘)", t, ""] : [];
+    } catch { return []; } })()),
+    // 10/20 晚用户批: 开盘实况(open_live.py 09:31~10:30 每分钟机械判定市况, 触发才判)进 0927~1030 时段全链; --before=本时段, as-of 回放读当日存档无后见
+    ...(SLOT >= "0927" && SLOT <= "1030" ? (() => { try {
+        if (!ASOF) { try { execFileSync(path.join("scripts", "venv", "Scripts", "python.exe"), ["-X", "utf8", "scripts/market/open_live.py", "--ensure"], { stdio: "pipe", timeout: 20000, windowsHide: true }); } catch { /* 拉不起不挡事实包 */ } }
+        const t = execFileSync(path.join("scripts", "venv", "Scripts", "python.exe"), ["-X", "utf8", "scripts/market/open_live.py", "--show", "--date", ASOF || date, "--before", SLOT],
+            { stdio: "pipe", timeout: 20000, windowsHide: true }).toString("utf8").trim();
+        return t && !t.startsWith("(") ? ["## 开盘实况(09:25 竞价 → 09:31~10:30 逐分钟; 市况结论会变, 以最新一次判定为准, 和 02 不一致要在正文写理由)", t, ""] : [];
+    } catch { return []; } })() : []),
+    "## 期货(国内主力+外围期货, 现场拉取; 注意: 国内股指期货没有夜盘, 盘前看到的涨跌=上一交易日日盘, 不是隔夜信号)", ASOF ? "(as-of 回放: 无期货历史快照, 不可得)" : await futuresMd(), "",
     "## 今日盘前资讯(当日早报+发哥推演, 盘前蒸馏要点原文)", premarket(), "",
     // 10/19 用户: 天哥只评盘不说买卖 → 当盘面分析源(像发哥, 但发哥是盘前 T 日发 T 日核销; 天哥是 T-1 盘后评盘, T 日收盘后核销准不准)
     ...(chainFlag("CHAIN_TIANGE_MARKET") ? (() => { const prevD = (D1 || date) === date ? (() => { const x = new Date(`${date}T12:00:00`); x.setDate(x.getDate() - 1); return x.toLocaleDateString("sv-SE"); })() : D1;

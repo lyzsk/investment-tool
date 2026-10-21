@@ -530,7 +530,7 @@ def step_review07(c, state):
             continue
         for sk in _review_chains():
             rd = ROOT / "results" / f"{sk}_chain" / (f"asof-{d8}" if rerun.exists() else f"live-{d8}")
-            if not rd.exists():
+            if not rd.exists() or (rd / "ABORTED").exists():   # 10/21: 用户令停掉的链日(半截产物)不做 07, 省 token
                 continue
             if (rd / "slots" / "review" / "07_review.md").exists() or (rd / "07_review.md").exists():
                 done += 1
@@ -569,6 +569,8 @@ def step_review07(c, state):
             rec[sk] = {"at": now.isoformat(timespec="seconds"), "n": r.get("n", 0) + 1, "why": why}
             started.append(f"{sk}@{day:%m-%d}({why})")
     if jobs:   # 交给排队执行器: 同时最多 REVIEW07_MAX(默认 4)条, 跑完一条补一条(scripts/md/review07_queue.py; 耗时记 logs/review07_runs.jsonl)
+        if not c.dry:   # 10/21 用户批迁移: 原 15:50 决策结算定时任务删除 → 每轮 07 发起前先跑一次机械结算(幂等), 07 素材包读它的结果
+            run([PY, "-X", "utf8", "scripts/dfcf/paper/settle_decisions.py", "--date", c.d.isoformat()], "决策结算(机械, 原 15:50 任务迁到 07 前)", 600)
         sys.path.insert(0, str(ROOT / "scripts" / "md"))
         import review07_queue
         review07_queue.enqueue(jobs)
@@ -886,6 +888,10 @@ def main():
         if only and "mix" in only and not a.dry:
             # 10/18 晚 P3: 盘口五档快照采集器(新浪, 不占腾讯额度)没在跑就后台拉起(无窗口); 挂了下一轮自动重拉
             run([PY, "-X", "utf8", "scripts/market/collect_book.py", "--ensure"], "盘口快照采集", 60)
+            run([PY, "-X", "utf8", "scripts/market/collect_panel.py", "--ensure"], "多指数面板采集(日经/KOSPI/A50/小纳指/上证/中证2000/创业板/恒生科技)", 60)   # 10/20 用户定
+            run([PY, "-X", "utf8", "scripts/market/open_live.py", "--ensure"], "开盘实况(09:20~10:30 机械市况判定)", 60)   # 10/20 晚用户批
+            run([PY, "-X", "utf8", "scripts/dfcf/paper/shadow_exec.py", "--ensure"], "零成本影子(全天连续模拟盘的重定策略次数, 不下单)", 60)   # 10/21 凌晨用户批 D1
+            run([PY, "-X", "utf8", "scripts/dfcf/paper/t_event.py", "--ensure"], "决策T 事件驱动(纳指; 开关 T_EVENT)", 60)   # 10/20 晚用户批 TODO 一-2
             st_mix = state.setdefault(d.isoformat(), {}).setdefault("mix", {})
             # 10/19 用户定: 午间 12:00~13:00 体检一次 paper(空转 / 做T 底仓没建 / 单全被拒), 有问题推微信
             # 10/19 晚用户: 快速单要 LLM+机械 → 09:25 竞价定格后让 LLM 写开盘情景剧本(私有 order-skill/playbook.py), 后台起、不挡本轮
@@ -934,6 +940,9 @@ def main():
             # 10/18 晚: 决策 T 两本(A-dbank / A-dndq, 花 token; 时段 0915/0933/1033/1303/1433 + 14:45 机械收口; 幂等, 到点才调模型)
             rc_d, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/t_decide.py", "--tick", "--date", d.isoformat()], "决策T 账本", 900)
             summary["t_decide"] = "ok" if rc_d == 0 else "失败"
+            # 10/20 用户定"今天先让 paper 有数据": 波段T 四本(A-sbank/A-sndq 机械零 token; A-wbank/A-wndq 决策 0935/1435 各一次; 14:45 收口; 幂等)
+            rc_s, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/t_swing.py", "--tick", "--date", d.isoformat()], "波段T 账本", 600)
+            summary["t_swing"] = "ok" if rc_s == 0 else "失败"
         if only and "mix_learn" in only and not a.dry:
             rc_l, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/mix_plans.py", "--learn", "--date", d.isoformat()], "混合账本收盘学习", 600)
             summary["mix_learn"] = "完成" if rc_l == 0 else "失败"
@@ -974,6 +983,7 @@ def main():
                 run([PY, "-X", "utf8", "scripts/dfcf/snapshots/order-skill/real_log.py", "--date", d.isoformat()], "实盘决策日志+T+1/T+3 结算(私有, 照建议 vs 自主)", 120)   # 10/19 晚
             run([PY, "-X", "utf8", "scripts/dfcf/paper/rand_baseline.py"], "RAND 抛硬币基准", 600)   # 10/18 晚 P0: 各链 vs 随机选股
             run([PY, "-X", "utf8", "scripts/dfcf/paper/signal_lab.py"], "分钟级信号实验室", 1200)   # 10/18 晚 P2: MOM/REV/VWAP/TFI/RAND 滚动验证
+            run(["node", "scripts/quotes/refresh_daily_cache.mjs"], "日线缓存整体补到最新(读本地行情库, 零网络; report / daily_digest / 撮合前收兜底 / 振幅中位都读它)", 900)   # 10/20 晚: 原只按需补, 1570 只里 1554 只过期
             run([PY, "-X", "utf8", "scripts/quotes/indicators_db.py", "--date", d.isoformat()], "均线/三态/风险仓位 全市场快照", 900)   # 10/18 晚 A+C: downloads/market/<日>/indicators.jsonl
             run([PY, "-X", "utf8", "scripts/market/collect_cb_facts.py", "--date", d.isoformat()], "可转债事实表(溢价率/强赎/正股涨停/热点妖债; 土豆链次日注入)", 300)   # 10/19 用户口述转债逻辑
             run([PY, "-X", "utf8", "scripts/market/topology.py", "--date", d.isoformat()], "市场拓扑(每只票的邻居: 扣大盘相关60/20 + 东财行业 + 申万 + F10 概念 + 期货; 只做预取参考)", 300)   # 10/19 晚 TODO 二-13

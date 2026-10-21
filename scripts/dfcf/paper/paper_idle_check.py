@@ -18,7 +18,40 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
-T_BOOKS = {"A-dbank", "A-tbank", "A-hbank", "A-dndq", "A-tndq", "A-hndq", "A-dmuyuan", "A-tmuyuan", "A-hmuyuan"}
+T_BOOKS = {"A-dbank", "A-tbank", "A-hbank", "A-dndq", "A-tndq", "A-hndq", "A-dmuyuan", "A-tmuyuan", "A-hmuyuan", "A-sbank", "A-sndq", "A-wbank", "A-wndq"}   # 10/20 +波段T 四本
+TRADE_OPS = {"1", "2", "3", "4", "7", "8", "9"}   # day_positions op 码: 建/加/减/清/当日买卖(同 mimicry_score)
+LOW_FREQ = 0.35   # 10/20 用户定"体检按出手频率过滤波段型": 导师真人近 60 个交易日出手日占比低于它 = 低频 / 波段型, 链空转属正常, 只列不推
+
+
+def mentor_freq(src):
+    """链账本 → 导师真人近 60 个交易日的出手日占比(tzzb day_positions 有 op 码的天 / 有记录的天);
+    B站 UP / 无账本 → 用 fingerprint 持有交易日中位数 ≥5 视为低频(返回 0.0), 取不到 = None(按常规报)"""
+    sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+    try:
+        import mentors as MT
+        mid = next((e["id"] for e in MT.all() if e.get("book") == src), None)
+    except Exception:   # noqa: BLE001
+        mid = None
+    if not mid:
+        return None
+    dp = ROOT / "downloads" / "tzzb" / mid / "day_positions.json"
+    if dp.exists():
+        try:
+            d = json.loads(dp.read_text(encoding="utf-8"))
+            days = sorted(d)[-60:]
+            if len(days) >= 10:
+                return sum(1 for k in days if any(str(x.get("op")) in TRADE_OPS for x in (d[k] or {}).get("list") or [])) / len(days)
+        except (OSError, ValueError):
+            pass
+    try:
+        import re
+        t = (ROOT / "skills" / f"{mid}-skill" / "persona" / "fingerprint.md").read_text(encoding="utf-8")
+        m = re.search(r"持有交易日(?:\(非日内\))?[:：]?\s*(\d+(?:\.\d+)?)", t)
+        if m and float(m.group(1)) >= 5:
+            return 0.0
+    except OSError:
+        pass
+    return None
 
 
 def main():
@@ -33,7 +66,7 @@ def main():
         excl = {"A-" + k for k in json.loads((ROOT / "scripts" / "tzzb" / "paper_excluded.json").read_text(encoding="utf-8")).get("excluded", {})}
     except (OSError, ValueError):
         excl = set()
-    idle, tbad, allbad, ok = [], [], [], 0
+    idle, tbad, allbad, lowfq, ok = [], [], [], [], 0
     for f in sorted((HERE / "books").glob("*.json")):
         src = f.stem
         if src in excl or not src.startswith("A-"):
@@ -50,7 +83,12 @@ def main():
         if src in T_BOOKS and not int(b.get("_t_base") or 0) and not fills:
             tbad.append(src)
         elif not pos and not open_o and not fills:
-            idle.append(src + ("(今天出过单但全没成)" if today_o else "(今天没出单)"))
+            fq = mentor_freq(src)
+            tag = src + ("(今天出过单但全没成)" if today_o else "(今天没出单)")
+            if fq is not None and fq < LOW_FREQ and not today_o:
+                lowfq.append(f"{src}(真人出手日 {fq:.0%})")
+            else:
+                idle.append(tag)
         else:
             ok += 1
         if today_o and len(bad) == len(today_o):
@@ -62,13 +100,15 @@ def main():
         lines.append(f"⚠️ 空转=没持仓没挂单没成交({len(idle)}): " + "、".join(idle))
     if allbad:
         lines.append(f"⚠️ 今天的单全被拒({len(allbad)}): " + "; ".join(allbad[:4]))
+    if lowfq:
+        lines.append(f"ℹ️ 低频 / 波段型导师今天没动(真人本来就少出手, 不算空转)({len(lowfq)}): " + "、".join(lowfq))
     if not (tbad or idle or allbad):
         lines.append("✅ 每本都有持仓 / 挂单 / 成交")
     msg = "\n".join(lines)
     print(msg)
     out = HERE / "quality_log"
     out.mkdir(exist_ok=True)
-    (out / f"idle_{D}.json").write_text(json.dumps({"at": dt.datetime.now().isoformat(timespec="seconds"), "t_no_base": tbad, "idle": idle, "all_rejected": allbad, "ok": ok},
+    (out / f"idle_{D}.json").write_text(json.dumps({"at": dt.datetime.now().isoformat(timespec="seconds"), "t_no_base": tbad, "idle": idle, "low_freq": lowfq, "all_rejected": allbad, "ok": ok},
                                                    ensure_ascii=False, indent=1), encoding="utf-8")
     if a.push and (tbad or idle or allbad):
         subprocess.run([sys.executable, "-X", "utf8", str(ROOT / "scripts" / "hermes" / "wx_send.py"), "--raw", "--src", "paper_idle", msg],

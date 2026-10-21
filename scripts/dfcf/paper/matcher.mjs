@@ -37,7 +37,7 @@ const CONFIG = { initCash: 100000, feeRate: 0.00025, minFee: 5, stampTax: 0.0005
 const SOURCES = [...new Set([  // 10/10 去重: 原名单 10 本重复列两次 → replay/eod/once 同账本载入两份副本各自存盘(后写覆盖, 成交统计翻倍)
     // 10/7 两级制扩容: A=纯机械, B=机械+人工; 10/17 二B-4: A 线导师链(UP/tzzb/对照组)读导师登记表, 加导师不用改这里
     ...MENTORS.all().map((e) => e.book),
-    "A-mix", "A-mix-eq", "A-mix-lhb", "A-mix-sw", "A-tbank", "A-tndq", "A-hbank", "A-hndq", "A-dbank", "A-dndq", "A-tmuyuan", "A-hmuyuan", "A-dmuyuan"])];   // 10/18 晚 +牧原三本(私有: 不进 accounts.mjs / 公共 report)   // 10/18 晚 +做T 两本(t_bot.py)   // 10/17 晚 +A-mix-sw 扬长避短  // 10/16 混合 skill 跟跑三本(mix_plans.py 机械合成; LINE 正则源名放开连字符 A-[\w-]+); C 线 10/7 作废(并入 B=机械+人工), books/C-*.json 留档只读
+    "A-mix", "A-mix-eq", "A-mix-lhb", "A-mix-sw", "A-tbank", "A-tndq", "A-hbank", "A-hndq", "A-dbank", "A-dndq", "A-tmuyuan", "A-hmuyuan", "A-dmuyuan", "A-sbank", "A-sndq", "A-wbank", "A-wndq"])];   // 10/20 +波段T 四本(t_swing.py)   // 10/18 晚 +牧原三本(私有: 不进 accounts.mjs / 公共 report)   // 10/18 晚 +做T 两本(t_bot.py)   // 10/17 晚 +A-mix-sw 扬长避短  // 10/16 混合 skill 跟跑三本(mix_plans.py 机械合成; LINE 正则源名放开连字符 A-[\w-]+); C 线 10/7 作废(并入 B=机械+人工), books/C-*.json 留档只读
 const arg = (k) => { const i = process.argv.indexOf("--" + k); return i > -1 ? process.argv[i + 1] : null; };
 // 10/16 审计#14: 真实涨停价(limitOf 是 9.7/19.7/29.7 的"判定阈值", 留了 0.3pt 余量, 不能当涨停价用)
 // 10/16 晚: 改走 a_rules(按日期/名称; 转债 20% 且按 0.001 价位四舍五入; 新股无涨跌幅=null)。原式对转债按 10% 且两位小数
@@ -78,7 +78,7 @@ function initBooks() {
 // 10/16 审计#2/#12 新 cond 键(旧行不受影响): not_before=HHMM(此刻前不撮合, 三种撮合模式都执行; 生效后按连续竞价新报单吃笼子)
 //   open_sell=1(仅 SELL: 开盘卖=市价卖, 挂价列只是参考; --once 09:30 后首次撮合按现价 / --replay 开盘价 / --replay-min 首个 bar 开盘价, 不吃笼子)
 //   oid=<挂单号> / side=BUY|SELL(仅 CXL: 撤指定挂单 / 只撤该方向; 都不写=旧口径撤该票最早一笔 open 单)
-const LINE = /^-\s*(\d{1,2}:\d{2})\s*\|\s*(A-[\w-]+|C-\w+)\s*\|\s*(BUY|SELL|CXL|买|卖)\s*\|\s*(\d{6})\s*\|\s*([\d.]+|-)\s*\|\s*(\d+|-)\s*\|\s*(\S+)\s*\|\s*(?:(\d+(?:\.\d+)?(?:@\d+(?:\.\d+)?)?|-)\s*\|\s*)?(?:((?:cancel_below=[\d.]+|stop_below=[\d.]+|not_before=\d{4}|open_sell=1|t0_open_exit=1|reprice=\d+|oid=[\w-]+|side=(?:BUY|SELL))(?:;(?:cancel_below=[\d.]+|stop_below=[\d.]+|not_before=\d{4}|open_sell=1|t0_open_exit=1|reprice=\d+|oid=[\w-]+|side=(?:BUY|SELL)))*|-)\s*\|\s*)?(.+)$/;
+const LINE = /^-\s*(\d{1,2}:\d{2})\s*\|\s*(A-[\w-]+|C-\w+)\s*\|\s*(BUY|SELL|CXL|买|卖)\s*\|\s*(\d{6})\s*\|\s*([\d.]+|-)\s*\|\s*(\d+|-)\s*\|\s*(\S+)\s*\|\s*(?:(\d+(?:\.\d+)?(?:@\d+(?:\.\d+)?)?|-)\s*\|\s*)?(?:((?:cancel_below=[\d.]+|stop_below=[\d.]+|not_before=\d{4}|open_sell=1|t0_open_exit=1|reprice=\d+|chase_cap=[\d.]+|oid=[\w-]+|side=(?:BUY|SELL))(?:;(?:cancel_below=[\d.]+|stop_below=[\d.]+|not_before=\d{4}|open_sell=1|t0_open_exit=1|reprice=\d+|chase_cap=[\d.]+|oid=[\w-]+|side=(?:BUY|SELL)))*|-)\s*\|\s*)?(.+)$/;
 function parseCond(s) {
     const o = {};
     if (!s || s === "-") return o;
@@ -89,6 +89,7 @@ function parseCond(s) {
         else if (k === "open_sell" && v === "1") o.open_sell = true;
         else if (k === "t0_open_exit" && v === "1") o.t0_open_exit = true;   // 10/18 竞价T: 转债集合竞价买、开盘后首个价卖(土豆 R8)
         else if (k === "reprice" && /^\d+$/.test(v) && +v >= 1 && +v <= 240) o.reprice = +v;   // 10/17 ② 2b 改单生命周期
+        else if (k === "chase_cap" && +v > 0) o.chase_cap = +v;   // 10/20 晚 ②(用户批): 追价单上限价 —— 锚偏离闸对它改按上限判(现价 > 上限才作废), 改单不越过上限
         else if (k === "oid" && /^[\w-]+$/.test(v)) o.oid = v;
         else if (k === "side" && (v === "BUY" || v === "SELL")) o.side = v;
         else throw new Error(`cond 坏片段: ${p}`);
@@ -106,7 +107,7 @@ function qRepriceTo(o, ref, t) {
     const tk = qTick(o.code), from = o.price;
     if (!(ref > 0)) return false;
     let np;
-    if (o.side === "BUY" && ref > from + tk / 2) { np = Math.floor((from + (ref - from) / 2) / tk + 1e-9) * tk; if (np < from + tk / 2) np = from + tk; if (np > ref) np = ref; }
+    if (o.side === "BUY" && ref > from + tk / 2) { np = Math.floor((from + (ref - from) / 2) / tk + 1e-9) * tk; if (np < from + tk / 2) np = from + tk; if (np > ref) np = ref; if (o.cond?.chase_cap && np > o.cond.chase_cap) np = o.cond.chase_cap; if (np <= from) return false; }
     else if (o.side === "SELL" && ref < from - tk / 2) { np = Math.ceil((from - (from - ref) / 2) / tk - 1e-9) * tk; if (np > from - tk / 2) np = from - tk; if (np < ref) np = ref; }
     else return false;
     np = +np.toFixed(tk < 0.005 ? 3 : 2);
@@ -226,6 +227,7 @@ async function importPlans(file) {
         if (cond.oid || cond.side) { console.error(`坏行 ${i + 1}: oid/side 仅 CXL 行可带`); bad++; continue; }
         if (cond.t0_open_exit && (side !== "BUY" || !/^1[12]/.test(code) || cond.not_before)) { console.error(`坏行 ${i + 1}: t0_open_exit 仅转债(11/12 开头) BUY 盘前单可带, 不与 not_before 同用`); bad++; continue; }
         if (cond.open_sell && (side !== "SELL" || cond.stop_below || cond.cancel_below)) { console.error(`坏行 ${i + 1}: open_sell 仅 SELL 单可带, 且不与 stop_below/cancel_below 同用`); bad++; continue; }
+        if (cond.chase_cap && (side !== "BUY" || cond.chase_cap < +price)) { console.error(`坏行 ${i + 1}: chase_cap 仅 BUY 单可带, 且不能低于挂价`); bad++; continue; }
         // 防重复挂单闸(10/9 双成交案): 同 code 同向已有 open 单 → 先 CXL 旧单再挂新单
         // (链回炉重 emit 时新行哈希不同绕过行级幂等; plans 语义本就=同票新单取代旧单)
         const dupOpen = b.orders.find((o) => o.code === code && o.side === side && o.status === "open");
@@ -234,7 +236,7 @@ async function importPlans(file) {
             console.log(`防重撤单 ${src} ${code} #${dupOpen.id}(旧单 ${dupOpen.price}x${dupOpen.qty} → 新 ${price}x${qty})`);
         }
         const id = `${date}-${src}-${String(b.orders.length + 1).padStart(3, "0")}`;
-        b.orders.push({ id, date, time, side, code, price: +price, qty: +qty, valid, anchor, anchorPct, cond, note, status: "open" });
+        b.orders.push({ id, date, time, side, code, price: +price, qty: +qty, valid, anchor, anchorPct, cond, note, status: "open", placedAt: new Date().toTimeString().slice(0, 8) });   // placedAt: 10/20 想法 C 路径撮合的窗口起点(只看落单之后的价格)
         b.imported.push(h);
         saveBook(b, `挂单 ${side} ${code}@${price}x${qty}${cond.cancel_below ? ` cancel<${cond.cancel_below}` : ""}${cond.stop_below ? ` stop<${cond.stop_below}` : ""}${cond.open_sell ? " 开盘卖" : ""}${cond.not_before ? ` ≥${cond.not_before}` : ""}`);
         console.log(`挂单 ${src} #${id} ${side} ${code} @${price} x${qty}`);
@@ -310,6 +312,20 @@ function auctionT(b, o, openPx, exitPx, tag, dry) {
     const s = { id: `${o.id}-T`, date: o.date, time: "09:30", side: "SELL", code: o.code, price: exitPx, qty: o.qty, valid: "day", cond: {}, note: `竞价T自动卖(配对 ${o.id})`, status: "open" };
     b.orders.push(s);
     return `${m1} ; ${fill(b, s, exitPx, `竞价T卖: 开盘后首个价${exitPx}(${tag})`, dry, exitPx)}`;
+}
+// 10/20 竞价T 实时卖价: 3 秒盘口(collect_book → book_snap.jsonl)里连续竞价的首个快照(累计量超过 09:25 竞价量)的买一价(卖=吃买一)。
+//   原口径"09:30 后首轮快照现价"在 09:30 刚过时拿到的还是竞价价 → 10/20 澳弘转债卖价=开盘价 250.747, 只吃手续费;
+//   盘口实际 09:30:01 已 253、09:30:13 到 258.2(土豆 R8 真人卖在 09:30:00~09:30:13)。返回 {px, t} | null(盘口还没有连续竞价快照)
+function firstContinuousBid(date, code) {
+    const f = path.join(SCRIPT_DIR, "..", "..", "..", "downloads", "market", date, "book_snap.jsonl");
+    let rows;
+    try { rows = fs.readFileSync(f, "utf8").split(/\r?\n/).filter((l) => l.includes(code)).map((l) => { try { return JSON.parse(l); } catch { return null; } }); } catch { return null; }
+    rows = rows.filter((r) => r && String(r.s).slice(2) === code).sort((x, y) => String(x.t).localeCompare(String(y.t)));
+    const auc = rows.filter((r) => r.t >= "09:25:00" && r.t < "09:30:00" && r.v > 0).pop();
+    const r = rows.find((x) => x.t >= "09:30:00" && x.v > (auc ? auc.v : 0) && x.p > 0);
+    if (!r) return null;
+    const bid = r.b && r.b[0] && r.b[0][0] > 0 ? r.b[0][0] : r.p;
+    return { px: bid, t: r.t };
 }
 function fill(b, o, px, why, dry, atPrice) { // atPrice=实际记账价(默认挂价; 止损哨兵按快照市价)
     const price = atPrice ?? o.price;
@@ -530,6 +546,54 @@ async function replay(date, dry) {
     }
     console.log(`回放 ${date}: 成交 ${filled} / 拒(资金/持仓/T+1) ${blockedFill} / 未触 ${missed} / 缺线 ${noData}${dry ? " (dry)" : ""}`);
 }
+// ---- 10/20 晚 想法 C(用户批"按特殊处理执行"): 撮合读 3 秒盘口价格路径(开关 MATCH_PATH, chain_flags.txt / 环境变量) ----
+// 原口径每分钟只看一个快照现价, 一分钟内的低点 / 高点看不到; 路径口径看"窗口起点 → 现在"之间该票全部 3 秒快照:
+//   窗口起点 = max(落单时刻 placedAt(旧单没有=挂单时刻), not_before, 09:30, 改单时刻)          ← 特殊情况 6 / 改单
+//   坏行过滤: 现价 ≤0 / 09:30 前 / 超出当日涨跌停 ±0.5% / 14:57~15:00 尾盘竞价中间价           ← 10 / 4
+//   时间顺序找第一个事件: 买单 价 ≤ 挂价(挂在涨停价的买单要价 < 涨停 = 炸板才算)               ← 1 / 2(碰到就算, 与原口径一致)
+//                         卖单 价 ≥ 挂价(挂在跌停价的卖单要价 > 跌停 = 开板才算)
+//                         cancel_below: 价 < 线(谁先发生谁算: 买单必先穿过挂价才能跌破失效线 → 先成交; 原口径会误撤)
+//                         stop_below: 连续 2 个快照 < 止损线才触发, 按第 2 个快照的买一价卖                ← 8
+//   成交价: 排过队(restedAt)= 挂价; 盘前单首个穿越 = 开盘价与挂价取优; 盘中新单首个快照就越价 = 该快照价与挂价取优 ← 3
+//   盘口里没有这只票 / 窗口里没有快照 → 退回原单快照口径                                                ← 11 / 5(停牌=无快照=不成交)
+//   未处理(已知): 部分成交(12) / 同一轮多张单严格按时间排序(7, 现按挂单顺序) / 3 秒内的尖峰(9)
+const flagOn = (name) => { if (process.env[name] === "0" || process.env[name] === "1") return process.env[name] === "1"; try { return fs.readFileSync(path.join(SCRIPT_DIR, "..", "..", "claude_profile", "chain_flags.txt"), "utf8").split(/\r?\n/).some((l) => l.split("#")[0].trim() === `${name}=1`); } catch { return false; } };
+let PATH_CACHE = null;
+const MATCH_PATH = flagOn("MATCH_PATH");
+function pathRows(date) {
+    if (PATH_CACHE && PATH_CACHE.d === date) return PATH_CACHE.m;
+    const m = {};
+    try {
+        const f = path.join(SCRIPT_DIR, "..", "..", "..", "downloads", "market", date, "book_snap.jsonl");
+        for (const l of fs.readFileSync(f, "utf8").split(/\r?\n/)) {
+            if (!l) continue;
+            let r; try { r = JSON.parse(l); } catch { continue; }
+            if (!(r.p > 0) || r.t < "09:30:00" || r.t > "15:00:59" || (r.t >= "14:57:00" && r.t < "15:00:00")) continue;
+            (m[String(r.s).slice(2)] ||= []).push({ t: r.t, p: +r.p, b1: r.b?.[0]?.[0] > 0 ? +r.b[0][0] : +r.p });
+        }
+        for (const k in m) m[k].sort((a, b) => (a.t < b.t ? -1 : 1));
+    } catch { /* 没有盘口文件 = 全部退回快照口径 */ }
+    PATH_CACHE = { d: date, m };
+    return m;
+}
+function pathEvent(o, cond, rows, upPx, dnPx, tick, limitIntent) {
+    const st = [o.placedAt || `${o.time || "09:30"}:00`, cond.not_before ? `${cond.not_before}:00` : "", "09:30:00", o.repriced?.t ? `${o.repriced.t}:00` : ""].sort().pop();
+    const lo = dnPx ? dnPx * 0.995 : 0, hi = upPx ? upPx * 1.005 : Infinity;
+    const seg = rows.filter((r) => r.t > st && r.p >= lo && r.p <= hi);
+    if (!seg.length) return { covered: false };
+    const atUp = upPx && o.side === "BUY" && o.price >= upPx - tick / 2, atDn = dnPx && o.side === "SELL" && o.price <= dnPx + tick / 2;
+    let touched = !(atUp && limitIntent);   // 排板意图的涨停价买单: 先摸到涨停(排上队)再炸板才成交(同 10/19 华力创通案口径)
+    for (let i = 0; i < seg.length; i++) {
+        const r = seg[i];
+        if (atUp && r.p >= upPx - tick / 2) touched = true;
+        if (o.side === "BUY" && touched && r.p <= o.price && !(atUp && r.p >= upPx - tick / 2)) return { covered: true, kind: "fill", ...r, first: i === 0 };
+        if (o.side === "SELL" && r.p >= o.price && !(atDn && r.p <= dnPx + tick / 2)) return { covered: true, kind: "fill", ...r, first: i === 0 };
+        if (cond.cancel_below && r.p < cond.cancel_below) return { covered: true, kind: "cancel", ...r };
+        if (o.side === "SELL" && cond.stop_below && r.p < cond.stop_below && seg[i + 1] && seg[i + 1].p < cond.stop_below) return { covered: true, kind: "stop", ...seg[i + 1], p: seg[i + 1].b1 };
+    }
+    return { covered: true, kind: null, last: seg[seg.length - 1] };
+}
+
 async function once(dry) {
     if (ASOF) { console.error("as-of 回放模式禁用 --once(实时撮合), 用 --replay --date"); process.exit(1); }
     const hm = new Date().toTimeString().slice(0, 5);
@@ -567,14 +631,20 @@ async function once(dry) {
         if (cond.not_before && hm < cond.not_before) continue;   // 10/16 not_before: 未到生效时刻=休眠(不撮合也不跑哨兵)
         if (cond.t0_open_exit) {   // 10/18 竞价T: 09:30 后首轮按开盘价买 + 现价卖(盘前单才有意义; 09:30 后才导入的迟到单=竞价已过, 作废)
             if (String(o.time || "") > "09:25") { o.status = "invalid"; o.note += " | 竞价T迟到(09:25 后导入, 竞价已结束)"; if (!dry) saveBook(b, `竞价T迟到 ${o.id}`); continue; }
-            console.log(auctionT(b, o, q.open, q.last, `实时 ${hm}`, dry));
+            const fb = firstContinuousBid(today, o.code);   // 10/20: 卖价改取 3 秒盘口连续竞价首个买一(见 firstContinuousBid)
+            if (!fb && hm < "0932") { console.log(`竞价T等盘口: ${b.source} #${o.id} ${o.code} 还没有连续竞价快照, 下一轮再撮合`); continue; }
+            console.log(auctionT(b, o, q.open, fb ? fb.px : q.last, fb ? `实时·盘口 ${fb.t} 买一` : `实时 ${hm}·盘口缺失按现价`, dry));
             if (!dry) saveBook(b, `竞价T ${o.id}`);
             continue;
         }
         // 哨兵0(10/3 C10 执行层双保险): 顶一字涨停拒买 —— LLM 无视 facts 🔒 标注也不许成交(9/28 新华传媒四连一字废单案)
         // 10/16 用户令(排板/炸板回封是真人打法): 涨停价上挂买单=排队, 只有开板(现价低于涨停价)才可能成交; 封死时不拒单, 继续排队, 收盘仍封=EOD 作废
         const upPx = upLimit(o.code, q.prevClose, o.date, q.name);
-        if (o.side === "BUY" && upPx && o.price >= upPx - AR.tick(o.code) / 2 && q.last >= upPx - AR.tick(o.code) / 2) {   // 审计#14: 只管挂在涨停价上的单
+        const limitIntent = /挂法:排板/.test(o.note || "") || (String(o.time || "") >= "09:30" || !!cond.not_before);
+        // 10/20 想法 C: 路径事件(开关 MATCH_PATH; 盘口缺这只票 = covered:false → 下面全部退回原快照口径)
+        const pe = MATCH_PATH && !cond.open_sell ? pathEvent(o, cond, pathRows(today)[o.code] || [], upPx,
+            q.prevClose > 0 ? AR.limitPrices(o.code, o.date, q.prevClose, { name: q.name ?? null })[1] : null, AR.tick(o.code), limitIntent) : { covered: false };
+        if (o.side === "BUY" && upPx && o.price >= upPx - AR.tick(o.code) / 2 && q.last >= upPx - AR.tick(o.code) / 2 && !(pe.covered && pe.kind === "fill")) {   // 审计#14: 只管挂在涨停价上的单; 10/20: 路径里中途炸板过 = 照常成交
             if (!/排板中/.test(o.note || "")) { o.note += ` | 排板中@${upPx}(封板未开, 开板才成交)`; if (!dry) saveBook(b, `排板 ${o.id}`); }
             continue;
         }
@@ -582,21 +652,22 @@ async function once(dry) {
         //   原逻辑只管"封住时不成交", 没摸到涨停(现价 13.63 < 涨停 15.24)直接按 15.24 成交, 当日 −14.58% 里约 9.7 千是它造成的
         //   10/19 晚补: 只管**排板意图**的单(挂法写了"排板", 或盘中 09:30 后才报的涨停价买单); 盘前竞价用涨停价买 = 为了保证开盘成交(用户自己也这么挂),
         //   照常按开盘集合竞价价成交(下面 preOpen 分支), 不受本条限制
-        const limitIntent = /挂法:排板/.test(o.note || "") || (String(o.time || "") >= "09:30" || !!cond.not_before);
         if (o.side === "BUY" && upPx && limitIntent && o.price >= upPx - AR.tick(o.code) / 2 && !/排板中/.test(o.note || "") && !(+q.high >= upPx - AR.tick(o.code) / 2)) {
             if (!/排板待触板/.test(o.note || "")) { o.note += ` | 排板待触板@${upPx}(今天还没摸到涨停, 不成交)`; if (!dry) saveBook(b, `排板待触板 ${o.id}`); }
             continue;
         }
         // 哨兵1(C7-② cancel_below): 失效条件=跌破即撤, 形态已坏不许再接刀
-        if (cond.cancel_below && q.last < cond.cancel_below) {
-            o.status = "invalid"; o.note += ` | 失效撤单@${q.last}<${cond.cancel_below}`;
+        if (pe.covered ? pe.kind === "cancel" : (cond.cancel_below && q.last < cond.cancel_below)) {
+            const px = pe.covered ? pe.p : q.last;
+            o.status = "invalid"; o.note += ` | 失效撤单@${px}<${cond.cancel_below}` + (pe.covered ? `(盘口 ${pe.t})` : "");
             if (!dry) saveBook(b, `失效撤单 ${o.id}`);
-            console.log(`失效撤单 ${b.source} #${o.id} ${o.code}: 现价${q.last}破${cond.cancel_below}`);
+            console.log(`失效撤单 ${b.source} #${o.id} ${o.code}: 现价${px}破${cond.cancel_below}`);
             continue;
         }
-        // 哨兵2(C7-② stop_below): 止损哨兵=SELL 挂单跌破止损价, 不等挂价按快照市价出
-        if (o.side === "SELL" && cond.stop_below && q.last < cond.stop_below) {
-            console.log(fill(b, o, q.last, `止损哨兵: 现价${q.last}<stop${cond.stop_below}`, dry, q.last));
+        // 哨兵2(C7-② stop_below): 止损哨兵=SELL 挂单跌破止损价, 不等挂价按快照市价出(10/20 路径口径: 连续 2 个 3 秒快照在线下才触发, 按第 2 个的买一价)
+        if (o.side === "SELL" && cond.stop_below && (pe.covered ? pe.kind === "stop" : q.last < cond.stop_below)) {
+            const px = pe.covered ? pe.p : q.last;
+            console.log(fill(b, o, px, `止损哨兵: 现价${px}<stop${cond.stop_below}` + (pe.covered ? `(盘口 ${pe.t} 连续 2 个快照在线下, 按买一)` : ""), dry, px));
             if (!dry) saveBook(b, `止损 ${o.id}`);
             continue;
         }
@@ -613,7 +684,15 @@ async function once(dry) {
         // 锚偏离守卫(10/3): 链自报估算锚 vs 真实前收+现价, 双偏超阈=锚编了/市场变了 → 自动废单,
         // 绝不按挂单价机械成交(10/3 大亚教训: 锚14.00 vs 实际前收7.6 偏45%, 失效条款只是注释没拦住)。
         // 双条件都偏才废: 防大涨日盘中子链以现价为锚被前收误杀; matcher 只废单不改价, 重锚=链重裁
-        if (o.anchor && q.prevClose > 0) {
+        if (o.side === "BUY" && cond.chase_cap) {   // 10/20 晚 ②(用户批): 追价单按链自己写的上限判, 不按 3%(10/20 量化斯菱 / 奥比 被 3% 作废时其实也已超链自己的上限 → 新口径照样作废)
+            if (q.last > cond.chase_cap) {
+                o.status = "void";
+                o.note += ` | 超追价上限作废: 现价${q.last} > 上限${cond.chase_cap}`;
+                console.log(`超追价上限作废 ${b.source} #${o.id} ${o.code}: 现价${q.last} > ${cond.chase_cap}`);
+                if (!dry) saveBook(b, `超追价上限作废 ${o.id}`);
+                continue;
+            }
+        } else if (o.anchor && q.prevClose > 0) {
             const devPC = Math.abs(q.prevClose - o.anchor) / o.anchor;
             const devLast = Math.abs(q.last - o.anchor) / o.anchor;
             if (devPC > o.anchorPct && devLast > o.anchorPct) {
@@ -638,8 +717,9 @@ async function once(dry) {
             }
         }
         let hit = null;
-        if (o.side === "BUY" && q.last <= o.price) hit = `现价${q.last}≤挂${o.price}`;
-        if (o.side === "SELL" && q.last >= o.price) hit = `现价${q.last}≥挂${o.price}`;
+        const cp = pe.covered ? (pe.kind === "fill" ? pe.p : null) : q.last;   // 10/20 想法 C: 穿越价(路径口径 = 第一个穿过挂价的 3 秒快照价)
+        if (cp != null && o.side === "BUY" && cp <= o.price) hit = `现价${cp}≤挂${o.price}` + (pe.covered ? `(盘口 ${pe.t})` : "");
+        if (cp != null && o.side === "SELL" && cp >= o.price) hit = `现价${cp}≥挂${o.price}` + (pe.covered ? `(盘口 ${pe.t})` : "");
         if (!hit) {
             // 10/19 用户定成交价口径: 挂单"挂着没成交过"一次(o.restedAt) 之后被价格碰到 = 挂价成交(排队等到的);
             //   首次撮合时现价就已经越过挂价(盘前单开盘就低于买价 / 盘中新单挂在对手价外) = 立即成交, 按现价(对手价, 对你更有利; 规则文档 §7)
@@ -652,7 +732,7 @@ async function once(dry) {
         // 10/16 审计#1: 盘前(09:30 前)挂的单是竞价/开盘前报单, 不受连续竞价笼子约束(原: 09:30 首个快照按 ±2% 判, 低开的买单/高开的卖单=对你有利的跳空反被废, 42 张笼子废单 41 张如此)
         // 10/16: 带 not_before 的单=生效时刻(≥09:30)才报出的连续竞价新单, 吃笼子
         if (String(o.time || "") >= "09:30" || cond.not_before) {
-            const cageOk = !cageViolated(o, q.last, o.date);   // 10/16 晚: a_rules 笼子(低价股 10 价位、北交所 5%、ETF/转债无笼子)
+            const cageOk = !cageViolated(o, cp, o.date);   // 10/16 晚: a_rules 笼子(低价股 10 价位、北交所 5%、ETF/转债无笼子); 10/20: 基准=穿越价
             if (!cageOk) {
                 o.status = "reject"; o.note += ` | 价格笼子废单(挂${o.price} vs 现价${q.last}±2%笼)`;
                 if (!dry) saveBook(b, `笼子废单 ${o.id}`);
@@ -665,8 +745,8 @@ async function once(dry) {
         //   快照无五档时用现价近似; 盘中单越出价格笼子在上面已作废单(无效申报, 不是按笼子上限成交)
         const preOpen = String(o.time || "") < "09:30" && !cond.not_before;
         const better = (x) => (o.side === "BUY" ? Math.min(o.price, x) : Math.max(o.price, x));
-        const atPx = o.restedAt ? o.price : (preOpen && +q.open > 0 ? better(+q.open) : better(q.last));
-        console.log(fill(b, o, q.last, hit + (atPx !== o.price ? ` → 立即成交按现价${atPx}` : ""), dry, atPx));
+        const atPx = o.restedAt ? o.price : (preOpen && +q.open > 0 ? better(+q.open) : better(cp));
+        console.log(fill(b, o, cp, hit + (atPx !== o.price ? ` → 立即成交按现价${atPx}` : ""), dry, atPx));
         if (!dry) saveBook(b, `成交 ${o.id}`);
     }
     console.log(`JSON:${JSON.stringify({ open: open.length, dry: !!dry })}`);

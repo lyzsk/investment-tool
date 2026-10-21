@@ -1,0 +1,103 @@
+{
+ "skill": "nasdaq",
+ "unit": "skill",
+ "version": {
+  "v": 7,
+  "id": "v007_20261020-2002",
+  "ts": "2026-10-20T20:02:56",
+  "effective_from": "2026-10-20T19:26:03",
+  "unit": "skill",
+  "version_hash": "666dbfc604c05f5a86ea8c585dc116e16f632c56b00d34a7da4f7ebd197c4f72",
+  "cat_hash": {
+   "提示词": "2a99e95fa0f9ece3d7c550f8a6af8ab04b09a34fc7b208345a1953caf38079cd",
+   "画像": "8958eaeab84b9b0bf834aeb52af5131157e48c09fb358925952f710f7bf19031"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v006_20261020-0800",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/cases.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "画像": [
+    "persona/cases.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 6,
+   "removed": 0
+  },
+  "bytes_weight": 9193,
+  "why": "check-md 2026-10-20 20:02",
+  "code": {
+   "chain": "0722fb8c9cfa",
+   "distill": "2a6f68558efc"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "581a72e4309ebec1077e7afd5020e706a067ea8a5526d58947539574f676695a",
+   "bytes": 996,
+   "lines": 19,
+   "mtime": "2026-10-20T19:26:03",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "42c6956452b7d178a3f7546906fc2e0c8062bd352ab9a456fb88adbd79dd2fdd",
+   "bytes": 3502,
+   "lines": 51,
+   "mtime": "2026-10-20T19:26:03",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "e3a60de557eb260f5a606655e417c8dde3a2e503fb41ca491a77ba7cf24b8dc3",
+   "bytes": 2580,
+   "lines": 34,
+   "mtime": "2026-10-19T02:15:43",
+   "cls": "画像",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "bb4daa6a890cafda6978ed97d5b79ec2ba1c2704c4622b7119927f4c0d35b3c8",
+   "bytes": 1309,
+   "lines": 14,
+   "mtime": "2026-10-18T21:54:15",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/distill.md": {
+   "sha256": "4fc529343efe5a5cb1ea3eb031ab866a55bcdf569070014f0e8d22adc69052bf",
+   "bytes": 806,
+   "lines": 10,
+   "mtime": "2026-10-18T21:54:54",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "0722fb8c9cfa",
+  "distill": "2a6f68558efc",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "bc375cea79e4",
+   "skills/nasdaq-skill/workflows/chain.md": null,
+   "skills/nasdaq-skill/SKILL.md": "bb4daa6a890c",
+   "scripts/dfcf/paper/params.yaml": "4c981cf59729"
+  },
+  "distill_files": {
+   "skills/nasdaq-skill/workflows/distill.md": "4fc529343efe",
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "62647ac02e84",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "811f063e8fd5"
+  }
+ }
+}

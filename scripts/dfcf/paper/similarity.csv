@@ -75,3 +75,17 @@ date,book,导师,real_n,sim_n,jac,op,comp,ctrl,delta
 20261016,A-xingjianye,xingjianye,1,1,0,1,0.4,0.2,0.2
 20261016,A-zhiyingjuexin,zhiyingjuexin,1,1,0,0,0,0,0
 20261016,A-zuoshoudeirong,zuoshoudeirong,3,0,0,0,0,0,0
+20261019,A-antoo,antoo,4,3,0.1667,0.3333,0.2333,0,0.2333
+20261019,A-bianbenling,bianbenling,2,4,0,1,0.4,0.2,0.2
+20261019,A-cb,buchitudou0,0,0,1,0,0.6,0.6,0
+20261019,A-daxingdaxingdadangxing,daxingdaxingdadangxing,2,2,0.3333,0,0.2,0,0.2
+20261019,A-gaogailvfuli,gaogailvfuli,1,2,0.5,0,0.3,0,0.3
+20261019,A-hanxiao,hanxiao,0,0,,,,0.8,
+20261019,A-lianghuaxiaohao,lianghuaxiaohao,2,2,0,0,0,0,0
+20261019,A-liuyiqing,liuyiqing,1,0,0,0,0,0,0
+20261019,A-meiyuelu,meiyuelu,3,1,0,0,0,0,0
+20261019,A-stzhilang,stzhilang,0,1,0,0.5,0.2,0.8,-0.6
+20261019,A-wudaokongfang,wudaokongfang,3,1,0,0,0,0,0
+20261019,A-xingjianye,xingjianye,1,1,0,0.5,0.2,0.2,0
+20261019,A-zhiyingjuexin,zhiyingjuexin,1,1,0,0.5,0.2,0.2,0
+20261019,A-zuoshoudeirong,zuoshoudeirong,1,0,0,0,0,0,0

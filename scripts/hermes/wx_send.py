@@ -98,9 +98,15 @@ def render(text, raw=False, kind=None):
     text = text.strip()
     if raw:
         return "raw", text
+    if len(text) < 50:   # 10/20 用户: <50 字的短消息不套"日报 / 挂单"等格式头, 直接裸发
+        return "raw", text
     if not kind and len(text) <= 280 and text.count("\n") <= 3:
         return "short", F.clean_inline(text)
     k, msg = F.format_text(text, kind=kind)
+    # 10/20 事故: 我给 T1 影响点 / key 逻辑 指定 --kind report, 日报排版器按"日报结构"抽取, 正文全丢, 只发出"【日报】✅ 正常: 📋概要 9 项"(18~29 字)
+    # → 排版后正文剩不到原文 40% = 排版器认错了类型, 退回原文(只去 md 记号), 不发残缺的假格式
+    if len(msg) < len(text) * 0.4:
+        return "raw-fallback", F.clean_inline(text)
     return k, msg
 
 
@@ -183,6 +189,10 @@ def send_one(msg, src="", kind="", wait=600, verbose=True):
 
 
 def send(text, src="", raw=False, kind=None, wait=600, mx=1800, dry=False, force=False, verbose=True):
+    # 10/20 用户令: 测试推送一律 --dry, 不许真发到微信 —— src / 正文里带 test / selftest / 自测 / 测试推送 的自动转 dry(防忘加 --dry)
+    if not dry and re.search(r"(?i)\b(self)?test\b|自测|测试推送", f"{src} {text[:80]}"):
+        print(f"[自动 dry] src={src!r} 像测试推送, 不真发(10/20 用户令); 真要发请换 src", file=sys.stderr)
+        dry = True
     k, msg = render(text, raw, kind)
     t0, used = quota()
     parts = split(msg, mx)

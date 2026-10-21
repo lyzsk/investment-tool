@@ -93,9 +93,94 @@ def real_position(code):
     return 0
 
 
-def base_qty(cfg, last):
-    """第 1 天建底仓的股数: 牧原 = 用户真实持股数; 其他 = 1 万的 50%"""
-    return real_position(cfg["code"]) if cfg.get("real") else lot(cfg["code"], BASE_FRAC * CAPITAL / last)
+def real_qty(code, D):
+    """10/20 用户定"跟随用户实盘": 持没持 = ≤D 最近一份 md「### 当前持仓」(只放名字, 隐私口径);
+    持多少 = 最近一份带持仓表(表头含"持仓数量")的导出里该票股数(表里没有=0) + 之后各日成交净额(持仓表是收盘后导出, 同文件成交已含在内)。
+    返回 (股数, 说明); md 列了但导出算出 ≤0 / 从没导出过持仓表 → (None, 说明), 调用方大声报错、不猜股数。
+    10/20 教训: 原 real_position 只认持仓表, 清仓那天导出没有持仓表 → 回落到前一天的 2300 股, 清仓后照样做 T"""
+    sys.path.insert(0, str(SNAP / "order-skill"))
+    import holdings as HD
+    if code not in [c for c, _ in HD.codes(D)]:
+        return 0, f"md 当前持仓没有 {code}"
+    md_d = HD.names(D)[1] or ""
+    files = [f for f in _snap_files() if f.name[:10] <= D]
+    base_d, qty, last_d = None, 0, ""
+    for f in files:
+        ls = f.read_text(encoding="utf-8").splitlines()
+        if any("持仓数量" in l for l in ls):
+            base_d, qty, last_d = f.name[:10], 0, f.name[:10]
+            for l in ls:
+                t = l.split()
+                if len(t) >= 5 and t[0].isdigit() and len(t[0]) <= 3 and t[1] == code:
+                    qty = int(t[3])
+    if base_d is None:
+        return None, f"md 当前持仓有 {code}, 但 snapshots 里从没有带持仓表的导出, 不知道股数"
+    for d in sorted({f.name[:10] for f in files if f.name[:10] > base_d}):
+        tr = real_trades(d, {code})
+        qty += sum(q if side == "BUY" else -q for _, _, side, q, *_ in tr)
+        last_d = d if tr else last_d
+    if qty <= 0 and last_d >= md_d:   # 导出比 md 新: md 是早上写的, 当天 / 之后的成交把它清了 → 以导出为准
+        return 0, f"md({md_d}) 当前持仓还有 {code}, 但 {last_d} 成交导出显示已清仓(导出更新, 以导出为准)"
+    if qty <= 0:
+        return None, f"md({md_d}) 当前持仓有 {code}, 但导出算出 {qty} 股(导出只到 {last_d}): 新买了还没贴成交?"
+    return qty, f"md 当前持仓有 {code}, 导出算出 {qty} 股({base_d} 持仓表+之后成交)"
+
+
+def real_follow(src, cfg, D, now, s, dry):
+    """real 账本(牧原)先跟随用户实盘, 再做 T(10/20 用户定): 返回 True = 今天本账本不做 T。
+    用户没持仓 → 账本有货就开盘市价清掉、底仓归 0、不挂单; 持仓股数变了(加/减仓) → 按现价补齐到用户股数、底仓改成用户股数、当天不 T;
+    用户新持仓且账本空 → 返回 False 交给原"第 1 天建底仓"分支(股数 = real_qty)。md / 成交导出有变化(新贴了 txt)就重新对一次"""
+    code = cfg["code"]
+    files = [f.name for f in _snap_files() if f.name[:10] <= D]
+    sig = f"{D}|{len(files)}|{files[-1] if files else ''}"
+    f0 = s.get("follow") or {}
+    if f0.get("sig") == sig:
+        return f0.get("skip", False)
+    b = book(src)
+    pos = int(((b.get("positions") or {}).get(code) or {}).get("qty") or 0)
+    base = int(b.get("_t_base") or 0)
+    tgt, why = real_qty(code, D)
+    if tgt is None:
+        if now >= "0930":   # 开盘前 FAILS 不打印, 等开盘后再记(只记一次)
+            FAILS.append(f"{src} 跟随实盘: {why}; 今天本账本不动")
+            s["follow"] = {"sig": sig, "skip": True, "why": why}
+        return True
+    if (tgt == base and (pos or not tgt)) or (tgt and not base and not pos):   # 不用跟 / 新持仓走建底仓分支
+        s["follow"] = {"sig": sig, "skip": not tgt, "why": why}
+        return not tgt
+    if tgt == pos:   # 只差底仓记账(如账本早已空、底仓还记着旧数)
+        b["_t_base"] = tgt
+        if not dry:
+            (DATA / "books" / f"{src}.json").write_text(json.dumps(b, ensure_ascii=False, indent=1), encoding="utf-8")
+        s["follow"] = {"sig": sig, "skip": True, "why": why + f"; 底仓改记 {tgt}"}
+        return True
+    if now < "0930":   # 跟随单等开盘后按现价下
+        return True
+    q0 = snap(code) or {}
+    last = float(q0.get("last") or 0) if not q0.get("stale") else 0
+    if not last:
+        FAILS.append(f"{src} 跟随实盘取不到 {code} 现价, 下一轮再试")
+        return True
+    hm = f"{now[:2]}:{now[2:]}"
+    if tgt < pos:
+        line = f"- {hm} | {src} | SELL | {code} | {tick_px(code, last):g} | {pos - tgt} | day | {last:g} | open_sell=1 | 跟随用户实盘减到 {tgt} 股: {why}"
+    else:
+        line = f"- {hm} | {src} | BUY | {code} | {tick_px(code, last * 1.005):g} | {tgt - pos} | day | {last:g} | - | 跟随用户实盘加到 {tgt} 股: {why}"
+    b["_t_base"] = tgt
+    imp = None
+    if not dry:
+        (DATA / "books" / f"{src}.json").write_text(json.dumps(b, ensure_ascii=False, indent=1), encoding="utf-8")
+        imp = write_import(D, src, [line])
+    s["follow"] = {"sig": sig, "skip": True, "why": why, "line": line, "imp": imp}
+    print(f"{src} 跟随实盘: {line}")
+    return True
+
+
+def base_qty(cfg, last, D=None):
+    """第 1 天建底仓的股数: 牧原 = 用户真实持股数(real_qty, 股数不明=0 不建); 其他 = 1 万的 50%"""
+    if cfg.get("real"):
+        return real_qty(cfg["code"], D or dt.date.today().isoformat())[0] or 0
+    return lot(cfg["code"], BASE_FRAC * CAPITAL / last)
 STATE = DATA / "t_bot_state.json"
 
 
@@ -170,7 +255,7 @@ def tick(D, dry):
     out = []
     for src, cfg in BOTS.items():
         code, s = cfg["code"], sd.setdefault(src, {})
-        if cfg.get("real") and not real_position(code):   # 用户已清仓 / 没导出过 → 本品种不再挂新单
+        if cfg.get("real") and real_follow(src, cfg, D, now, s, dry):   # 10/20: 先跟随用户实盘(清仓/加减仓), 跟随日 / 不持仓日不做 T
             continue
         b = book(src)
         pos = int((b.get("positions") or {}).get(code, {}).get("qty") or 0)
@@ -186,7 +271,7 @@ def tick(D, dry):
                     # 10/19 教训: 这里原先静默 continue, snap 解析 bug 让 9 本账本全天没建底仓、日志只写"无到点动作"
                     FAILS.append(f"{src} 建底仓取不到 {code} 现价(snap={'None' if not q0 else 'stale'})")
                     continue
-                q = base_qty(cfg, last)
+                q = base_qty(cfg, last, D)
                 lines.append(f"- {now[:2]}:{now[2:]} | {src} | BUY | {code} | {tick_px(code, last * 1.005):g} | {q} | day | {last:g} | - | 做T 建底仓(开盘后按现价)")
                 s["base_plan"] = q
             elif cfg.get("hold"):   # 不 T 对照: 建完底仓就只拿着

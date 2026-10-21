@@ -202,6 +202,33 @@ def mentor_series(skill, asof=None):
     return out, meta
 
 
+EMPTY_TP = 0.3   # 10/20 下限收窄: 收盘总仓 < 30% = 空仓日(真人 day_positions / 链 nav 同口径)
+
+
+def real_empty_spell_max(skill, asof=None, window=120):
+    """真人近 window(默认 120, 10/20 用户批的口径)个记录日(< asof)里, 收盘总仓 < EMPTY_TP 的最长连续天数; 无账本=None(A658 10/20 = 3)"""
+    dp = _load(skill)[0]
+    days = sorted(k for k in dp if k < _cut(asof))[-window:]
+    if not days:
+        return None
+    best = run = 0
+    for d in days:
+        run = run + 1 if sum(_held(dp[d]).values()) < EMPTY_TP else 0
+        best = max(best, run)
+    return best
+
+
+def chain_empty_days(book, date_dash):
+    """本链到上一交易日收盘为止连续空仓(收盘 mv/nav < EMPTY_TP)的天数(10/8 实盘重新开户起算)"""
+    n = 0
+    for x in sorted((x for x in book.get("nav") or [] if "2026-10-08" <= x.get("date", "") < date_dash), key=lambda x: x["date"], reverse=True):
+        if float(x.get("nav") or 0) > 0 and float(x.get("mv") or 0) / float(x["nav"]) < EMPTY_TP:
+            n += 1
+        else:
+            break
+    return n
+
+
 def _scope(skill):
     sc = (_jl(TZZB / "mentor_scope.json", {}) or {}).get(skill) or {}
     return None if sc.get("kind") == "no_stat" else sc

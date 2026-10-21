@@ -82,3 +82,14 @@ CHAIN_TIANGE_MARKET=1   # 10/19 用户定: 趋势天哥 T-1 盘后评盘当市�
 CHAIN_DECISION_LOG=1   # 10/19 晚: 全链 06 每单落决策日志, 收盘后 T+1/T+3 机械结算(零 token); 反思回注仍看 CHAIN_REFLECTION
 # 10/19 晚 TODO 二-13 市场拓扑: 04/06 注入持仓+候选的关联票(行业/前3邻居昨日涨跌/期货)+一句同向背离思考提示; 只参考不改规则; 子链不注入
 CHAIN_TOPOLOGY=1   # 用户 10/19 定"今晚做然后上线"
+# 10/20 用户定"多指数面板今天肯定要做": collect_panel.py 07:30~15:05 每分钟采 日经/KOSPI/A50连续/小纳指连续/上证/中证2000/国证2000/创业板/恒生科技(盘后实测通过); 关=--ensure 不拉起
+PANEL_COLLECT=1
+
+CHAIN_FLOOR_RELAX=1   # 10/20 晚用户批: 硬下限导师连续空仓 < 真人最长空仓段 → 软下限 + 新开仓须引方向=买且情境成立的规则; 超了恢复硬下限
+T_EVENT=1   # 10/20 晚用户批 TODO 一-2: 决策T 事件驱动(先纳指 A-dndq): t_event.py 每分钟算 7 个触发条件, 触发才调模型; 开 = A-dndq 只跑 0915 固定时段, 收口 14:50
+CHAIN_REGIME_EVIDENCE=1   # 10/20 晚用户批 市况改造 R1: 02 必填 evidence 因子表(6 因子), stance 与因子多数方向相反 → 回炉一次(末次放行)
+MIX_REGIME_R4=1   # 10/20 晚用户批 市况改造 R4: mix 市况结构标签改用对照组最新 02(不再按导师链计票), 各链 02 因子表加权方向分一并记录
+MATCH_PATH=1   # 10/20 晚用户批 想法 C: matcher --once 读 3 秒盘口价格路径撮合(特殊情况 1~11 处理见 matcher.mjs pathEvent 注释); 盘口缺票退回单快照
+CHAIN_ATTRIBUTION=1   # 10/20 晚用户批 ④: 07 注入归因推导链(attribution.py 现算) + contract root_causes 必答(软闸回炉一次)
+CHAIN_PACK07=1   # 10/21 凌晨用户批: 07 素材包(pack07.py): 当日行情 / 导师腿 / 引用规则 + 相似规则 / cases 错题 / lessons / 多日结算 / 知识库目录, 包头覆盖表; 公用部分落盘 results/_pack07/<日>/ 增量
+EVENT_CHAIN_SKILLS=   # 10/21 08:15 用户澄清: 旧 paper 全停(土豆例外), 事件触发子链不上线(空=全关); 机制留着备用, 开=填链名

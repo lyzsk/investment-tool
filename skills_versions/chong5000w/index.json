@@ -583,6 +583,82 @@
     "chain": "5f748eddb0ea",
     "distill": "671147b323d1"
    }
+  },
+  {
+   "v": 16,
+   "id": "v016_20261021-0031",
+   "ts": "2026-10-21T00:31:10",
+   "effective_from": "2026-10-21T00:16:15",
+   "unit": "skill",
+   "version_hash": "b408e23d351710ae1360db7a67d292d7b8bee16df0d8db846ead74cac02fdb07",
+   "cat_hash": {
+    "提示词": "eb260bf3899ee96a5783db1a4e679027103796721dd6ecb9551b22781506ba9e",
+    "数据": "3bd5de11a118ea131d6b5140fc1ab6fc44be38c8a9f22819380364462e3130cb",
+    "画像": "28b830edb316e375ed7e3957fbe6507920fa93322448881f96828c93064fa002"
+   },
+   "data_hash": "b6eac7d589a7e51805d862a90bbf5c4d4aeabee943aa34f1c81a4c50095e2105",
+   "parent": "v015_20261020-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 1
+   },
+   "bytes_weight": 155762,
+   "why": "check-md 2026-10-20 00:31",
+   "code": {
+    "chain": "4ba9f5e835f5",
+    "distill": "5597bcb9f8d1"
+   }
+  },
+  {
+   "v": 17,
+   "id": "v017_20261021-0800",
+   "ts": "2026-10-21T08:00:00",
+   "effective_from": "2026-10-21T00:38:32",
+   "unit": "skill",
+   "version_hash": "2b6dbeefb323512af6705bc62b6900cdbddc6c3f234306686b86970eaa7c45ef",
+   "cat_hash": {
+    "提示词": "eb260bf3899ee96a5783db1a4e679027103796721dd6ecb9551b22781506ba9e",
+    "数据": "d527c02587d6e6dc5f78452352a9f3b36b9ae254061e124a433eb35fcd9c8cc3",
+    "画像": "28b830edb316e375ed7e3957fbe6507920fa93322448881f96828c93064fa002"
+   },
+   "data_hash": "b6eac7d589a7e51805d862a90bbf5c4d4aeabee943aa34f1c81a4c50095e2105",
+   "parent": "v016_20261021-0031",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 1
+   },
+   "bytes_weight": 155762,
+   "why": "check-md 2026-10-20 08:00",
+   "code": {
+    "chain": "4ba9f5e835f5",
+    "distill": "24dd32c2b9ab"
+   }
   }
  ],
  "events": [],

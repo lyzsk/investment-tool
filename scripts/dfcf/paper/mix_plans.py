@@ -329,10 +329,19 @@ def baselines():
     return _BASE
 
 
+REGIME_SLOT = None   # 10/20 晚(市况改造 R5 + open_live, 用户批): run_slot 设成当前时段 → 市况读 ≤ 该时段最新一次子链 02(子链已看过开盘实况), 没有才退回 0915
+
+
 def chain_state(src, d):
     d8 = d.replace("-", "")
     for key in (f"live-{d8}", f"asof-{d8}"):
         dr = RESULTS / f"{skill_of(src)}_chain" / key
+        if REGIME_SLOT:
+            later = sorted(x.name for x in (dr / "slots").glob("*") if x.name.isdigit() and "0915" < x.name <= REGIME_SLOT and (x / "02_analysis.md").exists()) if (dr / "slots").exists() else []
+            for s in reversed(later):
+                st_ = norm_state((last_contract(dr / "slots" / s / "02_analysis.md") or {}).get("market_state"))
+                if st_:
+                    return st_
         f = dr / "slots" / "0915" / "02_analysis.md"
         if f.exists():
             return norm_state((last_contract(f) or {}).get("market_state"))
@@ -344,8 +353,55 @@ def chain_state(src, d):
     return None
 
 
+def _latest_02(src, d):
+    """该链 ≤ REGIME_SLOT 最新一次 02 合同(子链优先, 没有退 0915 / 顶层)"""
+    d8 = d.replace("-", "")
+    for key in (f"live-{d8}", f"asof-{d8}"):
+        dr = RESULTS / f"{skill_of(src)}_chain" / key
+        if not dr.exists():
+            continue
+        cands = sorted(x.name for x in (dr / "slots").glob("*") if x.name.isdigit() and (not REGIME_SLOT or x.name <= REGIME_SLOT) and (x / "02_analysis.md").exists()) if (dr / "slots").exists() else []
+        for s in reversed(cands):
+            c = last_contract(dr / "slots" / s / "02_analysis.md")
+            if c:
+                return c
+        if (dr / "02_analysis.md").exists():
+            return last_contract(dr / "02_analysis.md")
+    return None
+
+
+def evidence_lean(d, srcs):
+    """10/20 晚 市况改造 R4: 各链 02 evidence 因子表按 params.yaml regime_evidence_weights 加权 → 每链 [-1, 1], 再取平均(偏强 +1 / 中性 0 / 偏弱 −1)"""
+    try:
+        import yaml
+        w = (yaml.safe_load((HERE / "params.yaml").read_text(encoding="utf-8")) or {}).get("regime_evidence_weights") or {}
+    except Exception:   # noqa: BLE001
+        w = {}
+    w = w or {"外围过程": 1.0, "亚洲盘实时": 1.5, "多指数对比": 1.0, "T-1结构": 1.0, "开盘情景": 1.0, "相似市况": 0.5}
+    val = {"偏强": 1, "中性": 0, "偏弱": -1}
+    per = {}
+    for s in srcs:
+        ev = (_latest_02(s, d) or {}).get("evidence") or []
+        num = sum(float(w.get(x.get("factor"), 0)) * val.get(x.get("lean"), 0) for x in ev if isinstance(x, dict))
+        den = sum(float(w.get(x.get("factor"), 0)) for x in ev if isinstance(x, dict) and x.get("lean") in val)
+        if den:
+            per[s] = round(num / den, 3)
+    return (round(sum(per.values()) / len(per), 3) if per else None), per
+
+
 def day_regime(d, chains):
     votes = Counter(s for s in (chain_state(c, d) for c in chains) if s)
+    # 10/20 晚 市况改造 R4(用户批, 开关 MIX_REGIME_R4): 市况结构标签不再按 16 个导师视角计票(各链按本导师能力圈判, 多数票≠全市场),
+    #   改用对照组(无导师视角)的最新 02; 对照组缺 → 退回计票。各链 02 因子表加权得到的方向分(lean, −1~+1)一并记录
+    if _mix_flag("MIX_REGIME_R4"):
+        ctl = chain_state("A-control", d)
+        lean, per = evidence_lean(d, list(chains) + ["A-control"])
+        extra = {"_口径": "对照组 02" if ctl else "对照组缺, 退回计票", "_因子方向分": lean}
+        if ctl:
+            return ctl, {**dict(votes), **extra}
+        if not votes:
+            return None, extra
+        return max(votes.items(), key=lambda kv: (kv[1], -STATES.index(kv[0])))[0], {**dict(votes), **extra}
     if not votes:
         return None, {}
     best = max(votes.items(), key=lambda kv: (kv[1], -STATES.index(kv[0])))[0]
@@ -956,6 +1012,8 @@ def run_slot(d, slot, dry):
         init_books()
     books = load_books(chains + ["A-control"] + list(MIX))
     state = State(DATA / "mix_state.json")
+    global REGIME_SLOT
+    REGIME_SLOT = slot
     W = weights_for(d, books, chains, state)
     if not dry:
         state.put(d, "weights", {"regime": W["regime"], "votes": W["votes"], "T": round(W["T"], 4), "hedge_from": W["hedge_from"],

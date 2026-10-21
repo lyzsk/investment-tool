@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""settle_decisions.py — 决策延迟结算 + 便宜反思(TODO §3-A 第 6 条, 2026-10-14 建; 借 TradingAgents settlement.py/reflection.py)
+"""settle_decisions.py — 决策延迟结算(TODO §3-A 第 6 条, 2026-10-14 建; 借 TradingAgents settlement.py)
+10/21 用户批迁移: 原 15:50 定时任务(结算 + LLM 便宜反思)删除 —— 机械结算改由 07 复盘流程每轮先跑一次(check md step_review07, 幂等), 结果进 07 素材包;
+  LLM 反思删除, 由 07 的 root_causes / lessons 按票挂到决策上代替(decision_memory.reflects_from_07)
 
 结算(零 token, 机械): 对 decisions/<skill>.jsonl 里每单, T+1 / 2 / 3 / 5 / 10 交易日收盘后各结一次(10/20 前只有 T+1 / T+3):
   - 是否成交: 查账本 books/<source>.json 同日同 slot 同票同向同量同价的挂单状态(filled/void/cxl/invalid/reject/open; 找不到=unknown)
@@ -15,7 +17,7 @@
 
 用法:
   python scripts/dfcf/paper/settle_decisions.py                        # 每日收盘后(建议接 15:35 行情库采集之后)
-  python scripts/dfcf/paper/settle_decisions.py --date 2026-10-14 --reflect off --summary <md>
+  python scripts/dfcf/paper/settle_decisions.py --date 2026-10-14 --summary <md>
   python scripts/dfcf/paper/settle_decisions.py --backfill 2026-10-08:2026-10-13 --dir scripts/temp/x   # 从 plans+06 产物补决策记录
   python scripts/dfcf/paper/settle_decisions.py --selftest
 出口: 0=完成 1=有反思调用失败(结算照常落盘) 2=用法/锁
@@ -42,7 +44,6 @@ INIT_NAV = 100000.0
 WINDOWS = dm.WINDOWS   # (1, 2, 3, 5, 10); 10/20 用户问"为啥 T+3 不是 T+2": 原 (1, 3) 是照搬 TradingAgents 口径, 没按导师持有期定;
 #   全结(零 token), 评估 / 反思 / 回注都按各导师真实持有交易日中位数挑窗口(dm.hold_window; 用户: "这样才动态起来, 准确性才高")
 hold_window = dm.hold_window
-BATCH = 40   # 10/14 用户: 每天只开 1 个 claude -p——所有 skill 的待反思单合进一次调用, 上限 40 单, 余下留到下次
 
 
 # ---------- 行情(只读本地, 零网络) ----------
@@ -208,103 +209,10 @@ def settle_all(dir_, skills, px, books_dir, asof_date):
     return done, pend
 
 
-# ---------- 反思 ----------
-REFLECT_SCHEMA = {"type": "object", "required": ["reflections"], "properties": {"reflections": {"type": "array", "items": {
-    "type": "object", "required": ["id", "text"], "properties": {"id": {"type": "string"}, "text": {"type": "string"}}}}}}
-
-
+# ---------- 反思: 10/21 用户批迁移 —— 不再单独调 LLM 反思; 由 07 复盘的 root_causes / lessons 按票挂到决策上
+#   (decision_memory.reflects_from_07, run_chain 07 通过时写), 以后 04/06 经 reflection_block 照常读 ----------
 def _p(v):
     return "—" if v is None else f"{v * 100:+.2f}%"
-
-
-def reflect_prompt(skill, items):
-    """items=[(决策, 本导师窗口结算, 该单全部窗口结算, 窗口 h)](旧调用 (决策, T+1 结算) 也认); 只给 T+1..T+h 的数(point-in-time)"""
-    items = [it if len(it) == 4 else (it[0], it[1], {1: it[1]}, 1) for it in items]
-    st_cn = {"filled": "已成交", "void": "未成交(收盘作废)", "cxl": "未成交即被后续时段撤单/改单", "invalid": "失效条件(cancel_below)触发撤单",
-             "reject": "matcher 拒单(如一字板买不到/锚偏离)", "open": "未成交", "unknown": "账本里找不到这笔挂单"}
-    who = f"「{skill}」" if skill else "(多条链, 每笔标明所属链)"
-    out = [f"你是模拟盘决策链{who}的执行复盘员。下面 {len(items)} 笔挂单已到各自导师的典型持有期(T+h, h = 该导师真实持有交易日中位数), 附 T+1 到 T+h 的机械结算。各链独立, 不要互相比较。",
-           "为每笔写 2~4 句中文反思: 这单在**执行上**对/错在哪, 下次同类情境**执行上**怎么做。",
-           "硬性约束:",
-           "1. 只谈执行细节: 挂价(离前收/开盘/当日高低点多远, 是否因挂价没成交或成交太贵)、仓位大小、下单时段(盘前 09:15 还是盘中哪个时点)、止损/失效条件(cancel_below/stop_below 设紧了还是松了)。",
-           "2. 禁止评价、改写、否定或建议放弃导师规则、选股逻辑、方向判断; 不许出现\"规则错了/该改规则/不该听导师\"一类话。方向亏了只说一句\"单笔结果不足以判断论点\", 然后谈执行; 评价执行好坏以 ★ 那一行(导师持有期)为主, 短窗口只作过程参考。",
-           "3. 只依据下面给的数字, 不编盘面细节; 没成交的单结合\"当日最低/最高 vs 挂价\"谈挂价; 账本找不到的单只谈挂价合理性。",
-           "4. 每条 ≤120 字, 平铺直叙, 不用列表符号, 不写标题。",
-           f"输出: 只输出一个 ```json 代码块, 格式 {{\"reflections\":[{{\"id\":\"<原样抄下面的 id>\",\"text\":\"...\"}}]}}, 必须覆盖全部 {len(items)} 笔。不要读写任何文件。", "", "数据:"]
-    for n, (d, s, sts, hw) in enumerate(items, 1):
-        side = "买" if d["side"] == "BUY" else "卖"
-        day = s.get("day") or {}
-        dline = (f"开{day.get('o')} 高{day.get('h')} 低{day.get('l')} 收{day.get('c')}" if day else "无当日行情")
-        slot = f"{d['slot'][:2]}:{d['slot'][2:]}" if d["slot"].isdigit() else d["slot"]
-        out += [f"[{n}] id={d['id']}" + ("" if skill else f" | 链={d['id'].split('|')[1]}"),
-                f"    {d['date']} {slot}({'盘中子链' if d.get('sub') else '盘前全链'}) {side} {d.get('name') or ''} {d['code']} 挂 {d['px']:g} × {d['qty']}"
-                f" | 自报锚 {d.get('anchor')} | cancel_below {d.get('cancel_below') or '-'} | stop_below {d.get('stop_below') or '-'}"
-                + (" | 【未过盲审/拟人审】" if d.get("blind_fail") else ""),
-                f"    下单理由: {d.get('why') or '(06 未写)'}",
-                f"    失效条件: {d.get('invalid_if') or '-'}",
-                f"    结果: {st_cn.get(s['status'], s['status'])}" + (f" @{s['fill_px']:g}" if s.get("fill_px") else "")
-                + (f"(撮合记录: {s['why']})" if s.get("why") else ""),
-                f"    决策日行情: {dline}",
-                f"    本导师持有交易日中位 → 主看 T+{hw}★"]
-        for w in WINDOWS:
-            x = sts.get(w)
-            if w > hw or not x:
-                continue
-            out.append(f"    T+{w}{'★' if w == hw else ''}({x['resolved']}) 收盘 {x['close']:g}: 按{'成交价' if x.get('fill_px') else '挂价(假如成交)'}方向收益 {_p(x['signed_ret'])};"
-                       f" 上证同窗 {_p(x['idx_ret'])}; 超上证 {_p(x['ex_idx'])}"
-                       + (f"; 对照组账户同窗 {_p(x['ctrl_ret'])}, 超对照组 {_p(x['ex_ctrl'])}" if x.get("ex_ctrl") is not None else ""))
-    return "\n".join(out)
-
-
-def _call(prompt, skill):
-    sys.path.insert(0, str(ROOT / "scripts" / "lib"))
-    from claude_call import call
-    model = os.environ.get("CHAIN_REFLECT_MODEL")
-    return call(prompt, tag=f"chain-reflect:{skill}", permission="default", timeout=900, json_schema=REFLECT_SCHEMA,
-                extra_args=["--exclude-dynamic-system-prompt-sections", "--disable-slash-commands", "--strict-mcp-config", "--tools", ""]
-                + (["--model", model] if model else []))
-
-
-def reflect_all(dir_, skills, max_calls, caller=_call, dry=False):
-    """10/14 改: 所有 skill 合并成一次 claude -p(原=每 skill 每 12 单一次); 结果按 id 第二段(skill)分回各自 reflect.jsonl"""
-    calls, fails, wrote, blocked = 0, 0, 0, 0
-    todo = []
-    for sk in skills:
-        decs, sets, refs = dm.load_decisions(dir_, sk), dm.load_settles(dir_, sk), dm.load_reflects(dir_, sk)
-        hw = dm.hold_window(sk)   # 10/20: 等到本导师持有期窗口结算后再反思(原=T+1 就反思)
-        todo += [(d, sets[i][hw], sets[i], hw) for i, d in sorted(decs.items(), key=lambda kv: (kv[1]["date"], kv[1]["slot"]))
-                 if hw in sets.get(i, {}) and i not in refs]
-    if not todo or max_calls < 1:
-        return calls, fails, wrote, blocked
-    items = todo[:BATCH]
-    if len(todo) > BATCH:
-        print(f"反思: 待反思 {len(todo)} 单, 本次取 {BATCH}, 余下留到下次")
-    one = skills[0] if len({it[0]["id"].split("|")[1] for it in items}) == 1 else None
-    prompt = reflect_prompt(one, items)
-    if dry:
-        print(f"--- [dry] 反思 prompt({len(prompt)} 字, {len(items)} 单) ---\n{prompt}\n")
-        return calls, fails, wrote, blocked
-    calls = 1
-    r = caller(prompt, one or "multi")
-    if not r.ok:
-        print(f"WARN: 反思调用失败(留到下次): {r.errors[:2]}")
-        return calls, 1, wrote, blocked
-    got = {str(x.get("id")): str(x.get("text") or "").strip() for x in (r.parsed or {}).get("reflections") or []}
-    cost = round(float(r.cost_usd or 0) / max(1, len(items)), 4)
-    by = {}
-    for d, s, *_ in items:
-        t = got.get(d["id"])
-        if not t:
-            continue
-        ok = dm.guard_ok(t)
-        blocked += 0 if ok else 1
-        by.setdefault(d["id"].split("|")[1], []).append({"id": d["id"], "resolved": s["resolved"], "text": t[:400], "guard": "ok" if ok else "rejected",
-                                                           "ts": datetime.now().isoformat(timespec="seconds"), "cost_usd": cost})
-    for sk, recs in by.items():
-        dm.append_reflects(dir_, sk, recs)
-        wrote += len(recs)
-    print(f"反思: 1 次调用, {wrote}/{len(items)} 条入库(护栏拦 {blocked}), ${r.cost_usd}")
-    return calls, fails, wrote, blocked
 
 
 # ---------- backfill: plans 行 + 06 产物 → 决策记录(历史/他 skill 补账用) ----------
@@ -430,9 +338,7 @@ def main():
     ap.add_argument("--dir", default=str(dm.DIR), help="决策日志目录(默认 scripts/dfcf/paper/decisions)")
     ap.add_argument("--books", default=str(BOOKS))
     ap.add_argument("--skills", help="逗号分隔; 缺省=目录里所有")
-    ap.add_argument("--reflect", choices=("auto", "on", "off", "dry"), default="auto",
-                    help="auto=按 chain_flags 白名单; on=对所选 skill 都写; dry=只打印反思 prompt")
-    ap.add_argument("--max-calls", type=int, default=6, help="本次反思 claude -p 调用上限(成本闸)")
+    ap.add_argument("--reflect", help="10/21 起无效(LLM 反思已删, 由 07 代替); 保留参数只为旧调用不报错")
     ap.add_argument("--backfill", metavar="D0:D1", help="先从 plans+06 产物补决策记录(只补缺的)")
     ap.add_argument("--summary", help="汇总表写到此 md")
     ap.add_argument("--selftest", action="store_true")
@@ -456,14 +362,11 @@ def main():
         px = Prices()
         done, pend = settle_all(a.dir, skills, px, a.books, a.date)
         print(f"结算(截至 {a.date}): 新结 {sum(done.values())} 个窗口 {done}; 未到期/缺收盘价 {pend} 个窗口")
-        rs = {"auto": [s for s in skills if dm.skill_enabled(s)], "on": skills, "off": [], "dry": skills}[a.reflect]
-        calls, fails, wrote, blocked = reflect_all(a.dir, rs, a.max_calls, dry=a.reflect == "dry") if rs else (0, 0, 0, 0)
-        print(f"反思: skill {rs or '无(白名单为空或总开关关)'}; 调用 {calls} 次(失败 {fails}), 入库 {wrote} 条(护栏拦 {blocked})")
         if a.summary:
             Path(a.summary).parent.mkdir(parents=True, exist_ok=True)
             Path(a.summary).write_text(f"# 决策结算汇总(截至 {a.date}, {datetime.now():%Y-%m-%d %H:%M})\n\n" + summary(a.dir, skills) + "\n", encoding="utf-8")
             print(f"汇总 → {a.summary}")
-        sys.exit(1 if fails else 0)
+        sys.exit(0)
     finally:
         lk.unlink(missing_ok=True)
 
@@ -530,40 +433,27 @@ def selftest():
     px_early = Prices(tmp / "nomarket", dl, now=datetime(2026, 10, 13, 10, 0))
     if px_early.close(IDX, "2026-10-13") is not None or px_early.close(IDX, "2026-10-12") != 3790:
         fails.append("盘中缓存当日 bar 闸错")
-    # 反思: 假 claude; 护栏拦"改规则"; resolved=T+1 日
-    fake_ok = lambda prompt, sk: types.SimpleNamespace(ok=True, errors=[], cost_usd=0.2, parsed={"reflections": [
-        {"id": r1[0]["id"], "text": "挂价 Z*0.99 贴近当日低点成交, 位置合适; 下次同类回踩单可维持。"},
-        {"id": r2[0]["id"], "text": "A4 规则错了, 以后不必遵守。"}]})
-    pr = reflect_prompt("taoge", [(r1[0], a1[1])])
-    if "T+1★(2026-10-09)" not in pr or "2026-10-13" in pr or "禁止评价、改写、否定" not in pr:
-        fails.append("反思 prompt 缺 T+1 数据/泄漏 T+3/缺约束")
-    calls, f_, wrote, blocked = reflect_all(dd, ["taoge"], 5, caller=fake_ok)
+    # 10/21: 07 → 反思记忆(代替原 LLM 反思): 点名了该票的 root_causes / lessons 挂到当天决策; 谈改规则的被护栏标 blocked 不回注
+    c07 = {"root_causes": [{"layer": "驱动器", "item": "002050 挂价离现价 3% 没成交", "fix": "低吸挂价贴近当日低点", "replay": "+1.2%"}],
+           "lessons": [{"type": "错误归因", "text": "三花 A4 规则错了, 以后不必遵守"}, {"type": "规则草案", "text": "别的票的话, 不该挂到 002050"}]}
+    n = dm.reflects_from_07(dd, "taoge", "2026-10-08", c07, {"002050": "三花"})
     rf = dm.load_reflects(dd, "taoge")
-    if calls != 1 or wrote != 2 or blocked != 1 or rf[r1[0]["id"]]["guard"] != "ok" or rf[r2[0]["id"]]["guard"] != "rejected" \
-            or rf[r1[0]["id"]]["resolved"] != "2026-10-09":
-        fails.append(f"反思入库/护栏错: calls={calls} wrote={wrote} blocked={blocked} {rf}")
-    if reflect_all(dd, ["taoge"], 5, caller=fake_ok)[0] != 0:
-        fails.append("已反思的单被重复调用")
-    for t, want in (("挂价离现价 3%, 下次贴近一点", True), ("按 A4 的失效条件撤单是对的", True),
-                    ("规则不对, 应改", False), ("导师这条可以突破", False), ("C24 已过时", False)):
-        if dm.guard_ok(t) != want:
-            fails.append(f"护栏误判: {t}")
-    # 回注 as-of: 10/09 resolved 的反思, 链日 10/09 不可见 / 10/12 可见; 被拦的不注入
+    x = rf.get(r1[0]["id"]) or {}
+    if n != 1 or x.get("resolved") != "2026-10-08" or "挂价离现价" not in x.get("text", "") or x.get("guard") != "ok" or "不必遵守" in x.get("text", "") or x.get("blocked_n") != 1:
+        fails.append(f"07 → 反思记忆错: n={n} {x}")
+    dm.append_reflects(dd, "taoge", [{"id": r1[0]["id"], "text": "挂价贴近当日低点成交, 位置合适", "resolved": "2026-10-09", "guard": "ok"}])
+    for t_, want in (("挂价离现价 3%, 下次贴近一点", True), ("按 A4 的失效条件撤单是对的", True),
+                     ("规则不对, 应改", False), ("导师这条可以突破", False), ("C24 已过时", False)):
+        if dm.guard_ok(t_) != want:
+            fails.append(f"护栏误判: {t_}")
+    # 回注 as-of: 10/09 resolved 的反思, 链日 10/09 不可见 / 10/12 可见
     t09, *_ = dm.past_context([dd], "taoge", ["002050"], "2026-10-09")
     t12, ns, nc = dm.past_context([dd], "taoge", ["002050"], "2026-10-12")
-    if t09 or "贴近当日低点" not in t12 or "不必遵守" in t12 or ns != 1 or "T+3 方向收益" in t12:
-        fails.append(f"past_context as-of/护栏过滤错: {t12!r}")
+    if t09 or "贴近当日低点" not in t12 or ns != 1:
+        fails.append(f"past_context as-of 过滤错: {t12!r}")
     t14, *_ = dm.past_context([dd], "taoge", ["002050"], "2026-10-14")
     if "T+3 方向收益" not in t14:
         fails.append("past_context 未带上已到期的 T+3 数字")
-    # 10/20 按导师持有期: h=2 → 反思 prompt 给 T+1、T+2★, 不给 T+3(10/13); 回注 ★ 标在 T+2; hold_window 从 fingerprint 取中位数
-    dm.HOLD_OVERRIDE["taoge"] = 2
-    pr2 = reflect_prompt("taoge", [(r1[0], a1[2], a1, 2)])
-    if "T+1(2026-10-09)" not in pr2 or "T+2★(" not in pr2 or "2026-10-13" in pr2 or "主看 T+2★" not in pr2:
-        fails.append(f"按导师持有期的反思 prompt 错: {pr2[-400:]!r}")
-    t14b, *_ = dm.past_context([dd], "taoge", ["002050"], "2026-10-14")
-    if "T+2★ 方向收益" not in t14b or "T+1★" in t14b:
-        fails.append("回注未把 ★ 标在导师持有期窗口")
     dm.HOLD_OVERRIDE.clear()
     fp = tmp / "skills" / "zz-skill" / "persona"
     fp.mkdir(parents=True)
@@ -581,7 +471,7 @@ def selftest():
             print(" -", f)
         sys.exit(1)
     print("SETTLE SELFTEST PASS: 交易日历/缺快照取次日 preClose/盘中缓存闸/买卖方向收益+超上证+超对照组/未成交按挂价/未到期不结/幂等/"
-          "反思按导师持有期窗口(T+1..T+h★, 不泄漏更长窗口)/护栏拦改规则/反思不重复/回注 as-of 过滤")
+          "07 → 反思记忆(按票挂接 + 护栏)/回注 as-of 过滤")
 
 
 if __name__ == "__main__":

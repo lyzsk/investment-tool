@@ -1,7 +1,7 @@
-# profile_index.md — liuyiqing 导师画像目录(链改造 F; 生成于 2026-10-20 00:36)
+# profile_index.md — liuyiqing 导师画像目录(链改造 F; 生成于 2026-10-20 18:52)
 > 源: skills/liuyiqing-skill/persona/profile.md sha12=0c4f8cb7fe6e · 160 行 · 17.9KB · 21 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: claude -p 标注 1/21 节($0.26, 81s); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill liuyiqing`(未变节复用标注)
+> 标注来源: 复用旧标注, 原标注=claude -p 标注 1/21 节($0.26, 81s); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill liuyiqing`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 1.4KB / 03 9.4KB / 04 8.5KB / 05 5.5KB / 06 9.4KB
 
 ## 核心摘要

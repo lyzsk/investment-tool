@@ -185,7 +185,28 @@ function stats(a) {
         fills, voidRate: fills + voids ? voids / (fills + voids) : 0 };
 }
 
-const lastClose = (code) => { const k = readKl(code); return k.length ? k.at(-1) : null; };
+// 10/20 用户: 当前持仓"最近收盘"卡在 10-16 —— downloads/quotes/daily 是 matcher 缺档才补的前复权缓存, 持仓票不会天天刷新;
+//   改为先读行情库每晚全市场日线(downloads/market/<日>/kline_day.jsonl, 不复权 = 和持仓成本同口径), 取不到再退回缓存
+const MKT_DIR = path.join(SCRIPT_DIR, "..", "..", "..", "downloads", "market");
+const _mktDays = (() => { try { return fs.readdirSync(MKT_DIR).filter((d) => /^\d{4}-\d\d-\d\d$/.test(d) && fs.existsSync(path.join(MKT_DIR, d, "kline_day.jsonl"))).sort().reverse(); } catch { return []; } })();
+const _mktCache = {};
+const mktClose = (code) => {
+    const c = String(code).replace(/^\d\./, "");
+    const sym = (/^(6|5|9|11)/.test(c) ? "sh" : /^(4|8|920)/.test(c) ? "bj" : "sz") + c;
+    for (const d of _mktDays.slice(0, 10)) {
+        if (!_mktCache[d]) {
+            _mktCache[d] = {};
+            for (const l of fs.readFileSync(path.join(MKT_DIR, d, "kline_day.jsonl"), "utf8").split("\n")) {
+                const m = l.match(/^\{"symbol":"(\w+)"/);
+                if (m) _mktCache[d][m[1]] = l;
+            }
+        }
+        const l = _mktCache[d][sym];
+        if (l) { const j = JSON.parse(l); if (j.close) return { d, c: j.close }; }
+    }
+    return null;
+};
+const lastClose = (code) => { const m = mktClose(code); if (m) return m; const k = readKl(code); return k.length ? k.at(-1) : null; };
 
 // ---- 10/19 用户: "隐藏不在 paper 线跑的" + "导师页 tzzb 跳转" + "paper 持仓 vs 导师真人持仓" ----
 const rjs = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
@@ -193,6 +214,18 @@ const TZ_DIR = path.resolve(SCRIPT_DIR, "../../tzzb");
 const EXCL = new Set(Object.keys(rjs(path.join(TZ_DIR, "paper_excluded.json"))?.excluded || {}).map((k) => "A-" + k));   // 退出 paper 的导师(只留持仓不出新单)
 const LEDG = Object.fromEntries((rjs(path.join(TZ_DIR, "tzzb_ledgers.json")) || []).filter((x) => x.book).map((x) => [x.book, x]));
 const tzzbUrl = (src) => { const x = LEDG[src]; return x && x.key && x.user_key ? `https://tzzb.10jqka.com.cn/tzzbWeb/community/matchHomePageWeb.html?key=${encodeURIComponent(x.key)}&user_key=${encodeURIComponent(x.user_key)}&user_name=${encodeURIComponent(x.name || "")}` : null; };
+// 10/20 用户: 排行表加"相对导师真人"(同日、同窗口对比; 无真人账本的 UP / 对照组 = 空). 同窗口 = 该账本第一天 nav 之前一个交易日 → 截至日
+const realVs = (a, s) => {
+    const list = rjs(path.join(TZZB, ledgerOf(a.src), "nav_daily.json"))?.ex_data?.index_list;
+    if (!list || !a.b.nav.length || s.date === "-") return {};
+    const idx = Object.fromEntries(list.map((x) => [`${x.date.slice(0, 4)}-${x.date.slice(4, 6)}-${x.date.slice(6)}`, +x.index]));
+    const ks = Object.keys(idx).sort(), d1 = a.b.nav[0].date;
+    const before = (d) => ks.filter((k) => k < d).at(-1);
+    const o = {};
+    if (idx[s.date] !== undefined && before(s.date)) { o.rday = idx[s.date] / idx[before(s.date)] - 1; o.dday = s.day - o.rday; }
+    if (idx[s.date] !== undefined && before(d1)) { o.rcum = idx[s.date] / idx[before(d1)] - 1; o.dcum = (a.b.nav.at(-1).nav / INIT - 1) - o.rcum; }
+    return o;
+};
 const isOff = (a) => EXCL.has(a.src);
 function realHold(src) {   // 导师真人最新持仓(tzzb position.json: 只有仓位比例, 没有股数); 日期取 nav_daily 最后一天
     const led = src === "A-cb" ? "buchitudou0" : src.replace(/^A-/, "");
@@ -331,7 +364,7 @@ async function main() {
     const tz = (a) => { const u = tzzbUrl(a.src); return u ? ` <a class="small" href="${u}" target="_blank" rel="noopener" title="导师真人同花顺投资账本">tzzb↗</a>` : ""; };
     const dv = (v) => (v == null || Number.isNaN(v) ? "" : String(v));
     const sumRows = rows.map(({ a, s }, i) => `<tr${isOff(a) ? ' data-off="1"' : ""}><td class="num" data-v="${i + 1}">${i + 1}</td><td><span class="sw" data-slot="${a.slot ?? ""}" data-src="${a.src}"></span>${esc(a.name)}<span class="muted"> ${a.src}</span>${isOff(a) ? '<span class="qbadge">已退出 paper</span>' : ""}${tz(a)}</td><td>${a.kind}</td>`
-        + `<td class="num ${cls(s.cum)}" data-v="${dv(s.cum)}"><b>${sign(s.cum)}</b></td><td class="num ${cls(s.day)}" data-v="${dv(s.day)}">${sign(s.day)}</td><td class="num" data-v="${dv(s.nav)}">${s.nav.toFixed(0)}</td>`
+        + `<td class="num ${cls(s.cum)}" data-v="${dv(s.cum)}"><b>${sign(s.cum)}</b></td><td class="num ${cls(s.day)}" data-v="${dv(s.day)}">${sign(s.day)}</td>${(() => { const r = realVs(a, s); const c = (x) => `<td class="num ${x == null ? "" : cls(x)}" data-v="${dv(x)}">${x == null ? "—" : sign(x)}</td>`; return c(r.rday) + c(r.dday) + c(r.dcum); })()}<td class="num" data-v="${dv(s.nav)}">${s.nav.toFixed(0)}</td>`
         + `<td class="num dn2" data-v="${dv(s.mdd)}">${s.mdd ? sign(s.mdd) : "0.00%"}</td><td class="num" data-v="${dv(s.cashPct)}">${(s.cashPct * 100).toFixed(0)}%</td><td class="num" data-v="${s.pos}">${s.pos}</td><td class="num" data-v="${s.fills}">${s.fills}</td><td class="num" data-v="${dv(s.voidRate)}">${(s.voidRate * 100).toFixed(0)}%</td><td class="muted">${s.date}</td></tr>`).join("");
 
     // 10/19: paper 持仓 vs 导师真人持仓(真人只有仓位比例; paper 按市值算比例) —— 看"像不像"最直观的一张表
@@ -496,7 +529,7 @@ details summary{cursor:pointer;color:var(--text-secondary);font-size:13px;margin
 
 %%TSK%%
 
-<div class="card"><h2>账户排行 <span class="muted small">(点表头排序, 默认按累计; 「最新一日」= 当日收益率)</span></h2><div class="toolbar"><button class="btn srt-q" data-t="rank" data-c="4">按当日收益排序</button><button class="btn srt-q" data-t="rank" data-c="3">按累计收益排序</button></div><div class="scroll"><table class="t srt" id="rank"><tr><th class="num" data-c="0">#</th><th>账户</th><th>类型</th><th class="num" data-c="3">累计收益</th><th class="num" data-c="4">最新一日</th><th class="num" data-c="5">净值</th><th class="num" data-c="6">最大回撤</th><th class="num" data-c="7">现金占比</th><th class="num" data-c="8">持仓数</th><th class="num" data-c="9">成交笔数</th><th class="num" data-c="10">废单率</th><th>截至</th></tr>%%SUM%%</table></div></div>
+<div class="card"><h2>账户排行 <span class="muted small">(点表头排序, 默认按累计; 「最新一日」= 当日收益率)</span></h2><div class="toolbar"><button class="btn srt-q" data-t="rank" data-c="4">按当日收益排序</button><button class="btn srt-q" data-t="rank" data-c="3">按累计收益排序</button><button class="btn srt-q" data-t="rank" data-c="6">按当日相对真人排序</button><button class="btn srt-q" data-t="rank" data-c="7">按同窗累计相对真人排序</button></div><div class="scroll"><table class="t srt" id="rank"><tr><th class="num" data-c="0">#</th><th>账户</th><th>类型</th><th class="num" data-c="3">累计收益</th><th class="num" data-c="4">最新一日</th><th class="num" data-c="5" title="导师真人同一天收益(同花顺账本)">真人当日</th><th class="num" data-c="6" title="paper 当日 − 真人当日">当日差</th><th class="num" data-c="7" title="同窗口: 账本第一天起 paper 累计 − 真人累计">同窗累计差</th><th class="num" data-c="8">净值</th><th class="num" data-c="9">最大回撤</th><th class="num" data-c="10">现金占比</th><th class="num" data-c="11">持仓数</th><th class="num" data-c="12">成交笔数</th><th class="num" data-c="13">废单率</th><th>截至</th></tr>%%SUM%%</table></div></div>
 
 <div class="card"><h2>paper 持仓 vs 导师真人持仓 <span class="muted small">(同花顺导师 = 投资账本每天的仓位比例, 只有比例没有股数; 桃哥 / 卢本圆 = 视频画面里的持仓高亮, 只有名字、可能不全; paper = 按最近收盘市值 / 净值; 重合 = 两边都持有的票)</span></h2><div class="scroll"><table class="t"><tr><th>账户</th><th>paper 持仓(占净值)</th><th>导师真人持仓(仓位)</th><th>真人数据日 · 来源</th><th class="num">现在重合</th><th>逐日重合(10/8 起, 点开看每天)</th></tr>%%HOLD%%</table></div></div>
 

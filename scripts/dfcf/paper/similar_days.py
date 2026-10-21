@@ -39,8 +39,19 @@ CAND_FROM = "2025-01-02"
 GAP_AFTER = 6                 # 候选须在查询日前 ≥6 个交易日(有 5 日后续)
 HALF_LIFE = 250.0             # 时间衰减半衰期(交易日)
 TOPK, MIN_SEP = 3, 3
-FEATS = ["idx1", "idx5", "idx20", "cy1", "amt_r", "up_ratio", "zt", "dt", "zb_rate", "max_lb", "lb2"]
-W = {"idx1": 1.0, "idx5": 1.0, "idx20": 0.8, "cy1": 0.6, "amt_r": 1.0, "up_ratio": 1.0, "zt": 1.2, "dt": 0.8, "zb_rate": 0.8, "max_lb": 1.0, "lb2": 1.0}
+FEATS = ["idx1", "idx5", "idx20", "cy1", "amt_r", "up_ratio", "zt", "dt", "zb_rate", "max_lb", "lb2", "box60", "dd20", "ndx1", "a50_1", "hsi1"]
+W = {"idx1": 1.0, "idx5": 1.0, "idx20": 0.8, "cy1": 0.6, "amt_r": 1.0, "up_ratio": 1.0, "zt": 1.2, "dt": 0.8, "zb_rate": 0.8, "max_lb": 1.0, "lb2": 1.0,
+     "box60": 1.0, "dd20": 0.8, "ndx1": 0.8, "a50_1": 0.8, "hsi1": 0.5}   # 10/20 晚 R6: 位置(60 日箱体 / 20 日回撤) + 外盘(纳指 / A50 / 恒指期货 前一根)
+
+
+def _ext_series(key):
+    """downloads/market/history/global/<key>.jsonl(backfill_global_daily.py) → 收盘 Series(index=日期); 没有 = None"""
+    import pandas as pd
+    f = ROOT / "downloads" / "market" / "history" / "global" / f"{key}.jsonl"
+    if not f.exists():
+        return None
+    rows = [json.loads(l) for l in f.read_text(encoding="utf-8").splitlines() if l.strip()]
+    return pd.Series({r["d"]: r["c"] for r in rows}).sort_index()
 CN = {"idx1": "上证当日", "idx5": "上证5日", "idx20": "上证20日", "cy1": "创业板当日", "amt_r": "成交额/20日均", "up_ratio": "上涨占比",
       "zt": "涨停", "dt": "跌停", "zb_rate": "炸板率", "max_lb": "最高连板", "lb2": "2板+"}
 
@@ -62,7 +73,7 @@ def market_table(start=START, until=None):
     try:
         cur = conn.cursor()
         cur.execute("select symbol, trade_date, cast(high as double), cast(low as double), cast(close as double), cast(pre_close as double), "
-                    "cast(amount as double) from kline_day where trade_date >= %s and trade_date < %s and (symbol like 'sh60%%' or symbol like 'sz00%%' "
+                    "cast(amount as double), cast(volume as double) from kline_day where trade_date >= %s and trade_date < %s and (symbol like 'sh60%%' or symbol like 'sz00%%' "
                     "or symbol like 'sz30%%' or symbol like 'sh68%%' or symbol like 'bj%%' or symbol in ('sh000001', 'sz399006'))",
                     (start, until or "2999-12-31"))
         rows = cur.fetchall()
@@ -70,7 +81,7 @@ def market_table(start=START, until=None):
         sm = {s: (n or "", ld) for s, n, ld in cur.fetchall()}
     finally:
         conn.close()
-    df = pd.DataFrame(rows, columns=["sym", "d", "h", "l", "c", "pc", "amt"])
+    df = pd.DataFrame(rows, columns=["sym", "d", "h", "l", "c", "pc", "amt", "vol"])
     df["d"] = df["d"].astype(str)
     idx = df[df.sym == "sh000001"].set_index("d")["c"].sort_index()
     cy = df[df.sym == "sz399006"].set_index("d")["c"].sort_index()
@@ -95,16 +106,24 @@ def market_table(start=START, until=None):
     g = (~st.zt).groupby(st.sym).cumsum()
     st["lb"] = st.zt.groupby([st.sym, g]).cumsum()
     day = st.groupby("d").agg(zt=("zt", "sum"), touch=("touch", "sum"), dt=("dt", "sum"), up=("up", "sum"), dn=("dn", "sum"),
-                              amt=("amt", "sum"), max_lb=("lb", "max"), lb2=("lb", lambda x: int((x >= 2).sum())))
+                              amt=("amt", "sum"), vol=("vol", "sum"), max_lb=("lb", "max"), lb2=("lb", lambda x: int((x >= 2).sum())))
     dates = [d for d in day.index if d in idx.index]
     day = day.loc[dates]
     ix = idx.reindex(dates)
     cyx = cy.reindex(dates)
     amt20 = day.amt.rolling(20, min_periods=10).mean().shift(1)
+    vol20 = day.vol.rolling(20, min_periods=10).mean().shift(1)   # 10/20 晚: 行情库 10/09 前(腾讯回补段)没有成交额 → 量能比改用成交量(单位换源前后一致, 都是股)
     raw = {"idx1": (ix / ix.shift(1) - 1), "idx5": (ix / ix.shift(5) - 1), "idx20": (ix / ix.shift(20) - 1), "cy1": (cyx / cyx.shift(1) - 1),
-           "amt_r": np.log(day.amt / amt20), "up_ratio": day.up / (day.up + day.dn).clip(lower=1), "zt": np.log1p(day.zt.astype(float)),
+           "amt_r": np.log(day.vol / vol20), "up_ratio": day.up / (day.up + day.dn).clip(lower=1), "zt": np.log1p(day.zt.astype(float)),
            "dt": np.log1p(day.dt.astype(float)), "zb_rate": (day.touch - day.zt) / day.touch.clip(lower=1),
            "max_lb": day.max_lb.clip(upper=10).astype(float), "lb2": np.log1p(day.lb2.astype(float))}
+    # 10/20 晚 市况改造 R6(用户批): 外盘 + 位置特征 —— 外盘取 ≤ 该日的最近一根(美股 d 日收盘在北京时间 d 日夜里, 次日 08:05 链开跑前已知, 不越未来)
+    ixl = ix.reindex(dates)
+    raw["box60"] = (ixl - ixl.rolling(60, min_periods=40).min()) / (ixl.rolling(60, min_periods=40).max() - ixl.rolling(60, min_periods=40).min()).replace(0, np.nan)
+    raw["dd20"] = ixl / ixl.rolling(20, min_periods=10).max() - 1
+    for key, feat in (("ndx", "ndx1"), ("A50", "a50_1"), ("HSI", "hsi1")):
+        s = _ext_series(key)
+        raw[feat] = (s / s.shift(1) - 1).reindex(sorted(set(s.index) | set(dates))).ffill().reindex(dates) if s is not None else pd.Series(np.nan, index=dates)
     raw_out = {k: [None if (v is None or not np.isfinite(v)) else float(v) for v in raw[k].values] for k in FEATS}
     show = {"zt_n": day.zt.astype(int).tolist(), "dt_n": day.dt.astype(int).tolist(), "lb2_n": day.lb2.astype(int).tolist(),
             "amt_e8": (day.amt / 1e8).round(0).tolist(), "idx_close": ix.round(2).tolist()}

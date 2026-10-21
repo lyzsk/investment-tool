@@ -1,0 +1,189 @@
+--- v010_20261020-2303/scripts/claude_profile/chain_flags.txt
++++ v011_20261021-0031/scripts/claude_profile/chain_flags.txt
+@@ -87,2 +87,8 @@
+ 
+ CHAIN_FLOOR_RELAX=1   # 10/20 晚用户批: 硬下限导师连续空仓 < 真人最长空仓段 → 软下限 + 新开仓须引方向=买且情境成立的规则; 超了恢复硬下限
++T_EVENT=1   # 10/20 晚用户批 TODO 一-2: 决策T 事件驱动(先纳指 A-dndq): t_event.py 每分钟算 7 个触发条件, 触发才调模型; 开 = A-dndq 只跑 0915 固定时段, 收口 14:50
++CHAIN_REGIME_EVIDENCE=1   # 10/20 晚用户批 市况改造 R1: 02 必填 evidence 因子表(6 因子), stance 与因子多数方向相反 → 回炉一次(末次放行)
++MIX_REGIME_R4=1   # 10/20 晚用户批 市况改造 R4: mix 市况结构标签改用对照组最新 02(不再按导师链计票), 各链 02 因子表加权方向分一并记录
++MATCH_PATH=1   # 10/20 晚用户批 想法 C: matcher --once 读 3 秒盘口价格路径撮合(特殊情况 1~11 处理见 matcher.mjs pathEvent 注释); 盘口缺票退回单快照
++CHAIN_ATTRIBUTION=1   # 10/20 晚用户批 ④: 07 注入归因推导链(attribution.py 现算) + contract root_causes 必答(软闸回炉一次)
++CHAIN_PACK07=1   # 10/21 凌晨用户批: 07 素材包(pack07.py): 当日行情 / 导师腿 / 引用规则 + 相似规则 / cases 错题 / lessons / 多日结算 / 知识库目录, 包头覆盖表; 公用部分落盘 results/_pack07/<日>/ 增量
+--- v010_20261020-2303/scripts/dfcf/paper/params.yaml
++++ v011_20261021-0031/scripts/dfcf/paper/params.yaml
+@@ -155,2 +155,12 @@
+ distill:
+   per_session: 6
++
++# ---- 10/20 晚 市况改造 R4(用户批; 消费方 mix_plans.evidence_lean, 开关 MIX_REGIME_R4): 02 因子表各因子权重 ----
++# 亚洲盘实时最高(10/20 误判根因: 链没看 A50 / 小纳指 当日过程); 相似市况最低(外盘历史还没回补, R6 做完再调)
++regime_evidence_weights:
++  外围过程: 1.0
++  亚洲盘实时: 1.5
++  多指数对比: 1.0
++  T-1结构: 1.0
++  开盘情景: 1.0
++  相似市况: 0.5
+--- v010_20261020-2303/scripts/taoge-chain/run_chain.py
++++ v011_20261021-0031/scripts/taoge-chain/run_chain.py
+@@ -348,5 +348,5 @@
+         print(f"WARN: 02 stance 写法不认识({c.get('stance')}), 按'多'处理")
+     c["stance"] = st or "多"
+-    return outlook_check(c, ctx) or defer_check(c, ctx, "02")
++    return outlook_check(c, ctx) or evidence_check(c, ctx) or defer_check(c, ctx, "02")
+ 
+ 
+@@ -1186,4 +1186,8 @@
+         if a.get("stop_below") is not None and a.get("op") != "卖":
+             return f"{a.get('name')} stop_below 只许卖单带(止损哨兵)"
++        if a.get("chase_cap") is not None:   # 10/20 晚 ②: 追价上限价(可选, 只许买单; ≥ 挂价且 ≤ 涨停价)
++            cc = a["chase_cap"]
++            if a.get("op") != "买" or not isinstance(cc, (int, float)) or cc < a["_px"]:
++                return f"{a.get('name')} chase_cap 只许买单带, 且是不低于挂价的数值(你写的 {cc}, 挂价 {a['_px']})"
+         if MIMIC_REVIEW and a.get("op") == "买" and isinstance(a.get("cancel_below"), (int, float)) and a["cancel_below"] > a["_px"]:   # 10/16 晚: 原盲审⑥语义矛盾价归机械层
+             return f"{a.get('name')} 买单 cancel_below {a['cancel_below']} 高于挂单价 {a['_px']}(跌到挂单价之前先触发撤单=永远成交不了), 撤单线要低于挂单价"
+@@ -1276,4 +1280,9 @@
+     if not c.get("预案对照"):
+         return "预案对照 空"
++    if ATTRIBUTION and SKILL_NAME != "control":   # 10/20 晚 ④: 根因必答(软闸, 回炉一次)
++        rc = c.get("root_causes")
++        if not isinstance(rc, list) and not _soft_once(ctx, "root07"):
++            return ("contract 缺 root_causes: 每个亏损来源落到一层 [{\"layer\":\"数据|驱动器|规则|判断|撮合\",\"item\":\"哪一项\",\"fix\":\"改哪里\",\"affects\":\"波及哪些链\","
++                    "\"replay\":\"用今天数据回放改了是否更好\"}](当天确实没亏损来源写 [] 并在正文说明)")
+     return lessons_check(c, ctx)
+ 
+@@ -2763,4 +2772,14 @@
+             print("WARN: cand_snap.json 解析败, 验价降级")
+     print(f"cand_snap: {len(snaps)}/{len(codes)} 票有价格锚 → {md.name}")
++    if not ASOF and md.exists():   # 10/20 晚 想法 B(用户批: 只给信息不设闸): 每只候选附一句 3 秒盘口分时(as-of 回放不加, 防看到未来)
++        try:
++            sys.path.insert(0, str(ROOT / "scripts" / "lib"))
++            import ctx_index as _CI
++            dd = datetime.now().strftime("%Y-%m-%d")
++            lines = [f"- {c}: {_CI.tape_l0(c, dd)[1]}" for c in codes]
++            with md.open("a", encoding="utf-8") as fh:
++                fh.write("\n\n## 分时一句话(3 秒盘口, 截至此刻; 不在采集名单的票写\"无\")\n" + "\n".join(lines) + "\n")
++        except Exception as e:  # noqa: BLE001
++            print(f"WARN: cand_snap 分时一句话失败(不影响链): {e}")
+     return snaps
+ 
+@@ -2809,4 +2828,6 @@
+         if a.get("_nb"):            # 10/16 新字段: 此刻前不撮合
+             conds.append(f"not_before={a['_nb'].replace(':', '')}")
++        if a.get("op") == "买" and isinstance(a.get("chase_cap"), (int, float)) and a["chase_cap"] >= px:   # 10/20 晚 ②: 追价上限(matcher 按它判作废、改单不越过)
++            conds.append(f"chase_cap={float(a['chase_cap']):g}")
+         if any(QF.values()):        # 10/17 ② 2b: 规则低吸单的改单生命周期(matcher cond reprice=N); 全关=不加
+             conds += _qh().plan_conds(a, QF)
+@@ -3252,4 +3273,12 @@
+ 
+ 
++def _jl_names():
++    """paper/names.json 代码 → 名称(07 反思按票挂接用); 读不到 = {}"""
++    try:
++        return json.loads((Path(__file__).resolve().parents[1] / "dfcf" / "paper" / "names.json").read_text(encoding="utf-8"))
++    except (OSError, ValueError):
++        return {}
++
++
+ def reflect_on():
+     if not REFLECT:
+@@ -3708,4 +3737,56 @@
+ #   持仓 + 已出现的候选票(02/03j/04/05 合同里的 6 位代码)各一行: 行业 | 前 3 邻居(昨日涨跌) | 期货; 只用前一晚的拓扑(不偷看); 子链不注入(省 token)
+ TOPOLOGY = _flag("CHAIN_TOPOLOGY")
++
++
++# ---------- 10/20 晚 市况改造 R1(用户批): 02 必填因子表 evidence[], 结论与因子多数方向相反 → 回炉一次 ----------
++REGIME_EVIDENCE = _flag("CHAIN_REGIME_EVIDENCE")
++ATTRIBUTION = _flag("CHAIN_ATTRIBUTION")   # 10/20 晚 ④ 归因推导链注入 07 + root_causes 必答
++EVIDENCE_FACTORS = ("外围过程", "亚洲盘实时", "多指数对比", "T-1结构", "开盘情景", "相似市况")
++EVIDENCE_LEANS = ("偏强", "中性", "偏弱")
++
++
++def regime_block(step, ctx):
++    if step == "06" and SKILL_NAME != "buchitudou0":   # 10/20 晚 ② 追价上限 + 想法 B(用户批: 只给信息, 不设闸)
++        return ("\n\n# 驱动器补充: 追价单(10/20)\n"
++                "- 追价买单可以带 \"chase_cap\": 你愿意追到的最高价(数值, ≥ 挂价)。撮合时现价超过它才作废; 没超过就不按 3% 锚偏离作废, 改单也不会越过它。不写 = 照旧 3% 锚偏离\n"
++                "- 追价单的正文要写清右侧条件(cand_snap.md 末尾有每只候选的分时一句话): ①分时冲高回踩有没有守住均价线 ②市况 ③板块 / 同题材有没有共振 "
++                "④今天能不能继续走强甚至封板 ⑤明天能不能冲高; 以及没封住时的 T+1 处理(第二天冲高在哪个价 / 时段卖、走弱在哪认错)")
++    if not REGIME_EVIDENCE or step != "02" or SKILL_NAME == "buchitudou0":
++        return ""
++    return ("\n\n# 驱动器补充: 市况因子表(10/20 市况改造 R1, 驱动器校验)\n"
++            "contract 必须带 \"evidence\": [{\"factor\": 因子, \"fact\": \"事实包里的具体数字/原话(写清来自哪节、几点的数)\", \"lean\": \"偏强|中性|偏弱\"}, ...], 6 个因子逐个给(相似市况事实包没有就写 中性 + fact 写\"无\"):\n"
++            "- 外围过程: 隔夜美股 / 中概 / 港股, 看过程不只看收盘(尾盘拉升还是跳水)\n"
++            "- 亚洲盘实时: 多指数面板里 日经 / KOSPI / A50 连续 / 小纳指 现在的涨跌和近 15 分钟方向(面板是每分钟的, 写清是几点的数); 注意国内股指期货没有夜盘\n"
++            "- 多指数对比: 多指数箱体位置表(在哪) + 面板(上证 / 中证2000 / 创业板谁强谁弱)\n"
++            "- T-1结构: 昨日涨跌家数、成交额、涨停 / 跌停、连板梯队、主线\n"
++            "- 开盘情景: 你给今天开盘三种情景的概率(高开 / 平开 / 低开, 合计 100%), lean 按概率最大的那个\n"
++            "- 相似市况: 相似日检索的结果(没有就中性)\n"
++            "stance(多/中立/空)要和因子表的多数方向一致: 偏强多于偏弱却判空、或偏弱多于偏强却判多 = 驱动器回炉一次; 坚持就在正文写清哪个因子分量最重、为什么压过多数")
++
++
++def evidence_check(c, ctx):
++    if not REGIME_EVIDENCE or SKILL_NAME == "buchitudou0":
++        return None
++    ev = c.get("evidence")
++    if not isinstance(ev, list) or not ev:
++        return None if ctx.get("final_attempt") else "contract 缺 evidence 因子表(6 个因子: " + "、".join(EVIDENCE_FACTORS) + "; 每个 {factor, fact, lean})"
++    got = {}
++    for x in ev:
++        if not isinstance(x, dict):
++            return "evidence 每项须为对象 {factor, fact, lean}"
++        f = next((k for k in EVIDENCE_FACTORS if k.replace("-", "") in str(x.get("factor") or "").replace("-", "").replace(" ", "")), None)
++        ln = norm_enum(x.get("lean"), EVIDENCE_LEANS)
++        if not f or not ln:
++            return f"evidence 项不认识: {json.dumps(x, ensure_ascii=False)[:80]}(factor 只许 {'/'.join(EVIDENCE_FACTORS)}, lean 只许 偏强/中性/偏弱)"
++        x["factor"], x["lean"] = f, ln
++        got[f] = ln
++    miss = [k for k in EVIDENCE_FACTORS if k not in got]
++    if len(miss) > 1 and not ctx.get("final_attempt"):
++        return f"evidence 缺因子: {'、'.join(miss)}(6 个都要给, 事实包没有的写 中性 + fact 写\"无\")"
++    up, dn = sum(v == "偏强" for v in got.values()), sum(v == "偏弱" for v in got.values())
++    st = c.get("stance")
++    if ((up > dn and st == "空") or (dn > up and st == "多")) and not _soft_once(ctx, "evidence02"):
++        return f"stance={st} 和因子表多数方向相反(偏强 {up} / 偏弱 {dn}): 改 stance, 或在正文写清哪个因子分量最重、为什么压过多数(回炉只这一次)"
++    return None
+ 
+ 
+@@ -4139,4 +4220,5 @@
+         p_ += tudou_t0_block(step, ctx)     # 10/18 土豆竞价T 机械选债(非土豆=空串)
+         p_ += topology_block(step, ctx)     # 10/19 晚 市场拓扑(CHAIN_TOPOLOGY; 关=空串)
++        p_ += regime_block(step, ctx)       # 10/20 晚 市况改造 R1(CHAIN_REGIME_EVIDENCE; 关=空串)
+         p_ += late_news_block(step, run_dir, date_dash, slot)   # 10/16: 0915 链开跑后才入库的发哥推演, 作增量注入后续步
+         if SKILL_NAME not in ("taoge", "control", "buchitudou0") and step in ((("03b", "03s", "03j") if mimic_on() else ("blind", "03b", "03s", "03j"))):   # 10/16 审计#8: 盲审/辩论模板残留桃哥口径
+@@ -4154,4 +4236,18 @@
+             except Exception as e:   # noqa: BLE001
+                 print(f"WARN: 链 T 成绩注入失败(不影响 07): {e}")
++        if step == "07" and ATTRIBUTION:   # 10/20 晚 ④ 归因推导链(用户批): 机械算好的逐票盈亏 / 检测项 / 反事实 / 跨链汇总 + 必答 root_causes
++            try:
++                sys.path.insert(0, str(ROOT / "scripts" / "dfcf" / "paper"))
++                import attribution as _AT   # noqa: PLC0415
++                p_ += _AT.block_07(SKILL_NAME, date_dash)
++            except Exception as e:   # noqa: BLE001
++                print(f"WARN: 归因推导链注入失败(不影响 07): {e}")
++        if step == "07" and _flag("CHAIN_PACK07"):   # 10/21 凌晨用户批: 07 素材包(当日行情 / 导师腿 / 规则 + 相似规则 / cases 错题 / lessons / 多日结算 / 知识库目录, 包头覆盖表)
++            try:
++                sys.path.insert(0, str(ROOT / "scripts" / "dfcf" / "paper"))
++                import pack07 as _P7   # noqa: PLC0415
++                p_ += _P7.block_07(SKILL_NAME, date_dash)
++            except Exception as e:   # noqa: BLE001
++                print(f"WARN: 07 素材包注入失败(不影响 07): {e}")
+         return p_
+ 
+@@ -4192,5 +4288,5 @@
+             a6["tail"][step] = (((neg_warn() + reject_rules()) if step == "05" else "") + profile_block(step, ctx)
+                                 + (constraint_text(ctx["pc"], step) if step in ("04", "05", "06") else "")
+-                                + reflection_block(step, ctx) + fix_block(step, ctx) + ledger_block(step, ctx) + quality_block(step, ctx) + horizon_block(step, ctx) + tudou_t0_block(step, ctx) + topology_block(step, ctx))
++                                + reflection_block(step, ctx) + fix_block(step, ctx) + ledger_block(step, ctx) + quality_block(step, ctx) + horizon_block(step, ctx) + tudou_t0_block(step, ctx) + topology_block(step, ctx) + regime_block(step, ctx))
+         tpl = templates[tpl_key(step, templates)].replace("{date_dash}", date_dash).replace("{date}", date).replace("{run_dir}", rd)
+         main = a6["main"] and step in A6_MAIN_STEPS and not a6["main_broken"]
+@@ -4237,4 +4333,10 @@
+         """单步 contract 通过后的机械后处理(与原逐步路径相同)"""
+         ctx["contracts"][step] = c
++        if step == "07" and not dry:   # 10/21 用户批: 07 的 root_causes / lessons 按票挂到当天决策 = 反思记忆(代替原 15:50 LLM 反思), 以后 04/06 经 reflection_block 读
++            try:
++                n7 = _dm().reflects_from_07(PAPER_DATA / "decisions", SKILL_NAME, date_dash, c, _jl_names())
++                print(f"07 → 反思记忆: {n7} 条")
++            except Exception as e:  # noqa: BLE001
++                print(f"WARN: 07 写反思记忆失败(不影响 07): {e}")
+         if step == "02":   # 10/14 §3-A 第 8 条: 02 定了态度, 立刻按态度调总仓下限(04/05/06 的约束块与校验都用调后的)
+             apply_stance(ctx)

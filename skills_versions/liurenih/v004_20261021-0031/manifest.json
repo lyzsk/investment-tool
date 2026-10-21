@@ -1,0 +1,70 @@
+{
+ "skill": "liurenih",
+ "unit": "skill",
+ "version": {
+  "v": 4,
+  "id": "v004_20261021-0031",
+  "ts": "2026-10-21T00:31:10",
+  "effective_from": "2026-10-21T00:16:15",
+  "unit": "skill",
+  "version_hash": "c279ce0b47d897a53d939fc819865e912c5cd7cdbf356d6595047abd083b8911",
+  "cat_hash": {
+   "画像": "c279ce0b47d897a53d939fc819865e912c5cd7cdbf356d6595047abd083b8911"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v003_20261018-1713",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/cases.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "画像": [
+    "persona/cases.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 10,
+   "removed": 3
+  },
+  "bytes_weight": 5102,
+  "why": "check-md 2026-10-20 00:31",
+  "code": {
+   "chain": "966b92284565",
+   "distill": "f93111cf0439"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "4d28f5d94d11341305cedd1fc33120db2ab55a405b5f9aa9b50eb4174f2fc2a4",
+   "bytes": 5102,
+   "lines": 63,
+   "mtime": "2026-10-21T00:16:15",
+   "cls": "画像",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "966b92284565",
+  "distill": "f93111cf0439",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "cf43a5fd991a",
+   "skills/liurenih-skill/workflows/chain.md": null,
+   "skills/liurenih-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "8aa4869152ad"
+  },
+  "distill_files": {
+   "skills/liurenih-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "62647ac02e84",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "04e251310c6f"
+  }
+ }
+}

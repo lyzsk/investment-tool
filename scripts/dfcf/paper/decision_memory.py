@@ -129,6 +129,34 @@ def append_reflects(dir_, skill, recs):
     _append(Path(dir_) / f"{skill}.reflect.jsonl", recs)
 
 
+def reflects_from_07(dir_, skill, date, contract, names=None):
+    """10/21 用户批(15:50 的 LLM 反思删掉, 由 07 的结论代替, 注入以后的 04/06): 07 contract 的 root_causes + lessons 按票挂到当天各决策上 →
+    {skill}.reflect.jsonl(与原反思同格式, past_context 照常读); 只挂文字里点名了该票代码 / 名称的, 不点名的不硬挂; 谈改规则的过护栏(guard)。返回写入条数"""
+    decs = [d for d in load_decisions(dir_, skill).values() if d.get("date") == date]
+    if not decs:
+        return 0
+    items = []
+    for r in contract.get("root_causes") or []:
+        if isinstance(r, dict):
+            items.append(f"[根因·{r.get('layer', '')}] {r.get('item', '')}; 改: {r.get('fix', '')}; 回放: {r.get('replay', '')}")
+    for x in contract.get("lessons") or []:
+        if isinstance(x, dict) and x.get("text"):
+            items.append(f"[{x.get('type', '教训')}] {x['text']}")
+    names = names or {}
+    recs = []
+    for d in decs:
+        keys = [k for k in (str(d.get("code")), d.get("name") or names.get(str(d.get("code")), "")) if k]
+        hit = [t for t in items if any(k in t for k in keys)]
+        good = [t for t in hit if guard_ok(t)]   # 逐段过护栏: 谈改规则的那段不回注, 其余照挂
+        if not good:
+            continue
+        text = " | ".join(good)[:600]
+        recs.append({"id": d["id"], "text": text, "resolved": date, "guard": "ok", "blocked_n": len(hit) - len(good), "src": "07", "ts": datetime.now().isoformat(timespec="seconds")})
+    if recs:
+        append_reflects(dir_, skill, recs)
+    return len(recs)
+
+
 # ---------- 读 ----------
 def _read_jsonl(path):
     out = []

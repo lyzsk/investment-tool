@@ -274,6 +274,111 @@
    "bytes_weight": 414453,
    "why": "check-md 2026-10-19 00:41",
    "code": null
+  },
+  {
+   "v": 9,
+   "id": "v009_20261020-1925",
+   "ts": "2026-10-20T19:25:52",
+   "effective_from": "2026-10-20T15:13:29",
+   "unit": "global",
+   "version_hash": "c1afcd902e75b38cb2a49bbc49b3e1570d25f88b7e8db75598a9b8f58d2a057a",
+   "cat_hash": {
+    "全局": "c1afcd902e75b38cb2a49bbc49b3e1570d25f88b7e8db75598a9b8f58d2a057a"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v008_20261020-0041",
+   "changed": {
+    "added": [],
+    "modified": [
+     "scripts/claude_profile/chain_flags.txt"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "全局": [
+     "scripts/claude_profile/chain_flags.txt"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 0
+   },
+   "bytes_weight": 414700,
+   "why": "check-md 2026-10-20 19:25",
+   "code": null
+  },
+  {
+   "v": 10,
+   "id": "v010_20261020-2303",
+   "ts": "2026-10-20T23:03:50",
+   "effective_from": "2026-10-20T22:19:33",
+   "unit": "global",
+   "version_hash": "8731606756e8390a9e4ceba6921555d551faa2ad60aad4558ebbdee7531f9032",
+   "cat_hash": {
+    "全局": "8731606756e8390a9e4ceba6921555d551faa2ad60aad4558ebbdee7531f9032"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v009_20261020-1925",
+   "changed": {
+    "added": [],
+    "modified": [
+     "scripts/claude_profile/chain_flags.txt",
+     "scripts/taoge-chain/run_chain.py"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "全局": [
+     "scripts/claude_profile/chain_flags.txt",
+     "scripts/taoge-chain/run_chain.py"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 75,
+    "removed": 0
+   },
+   "bytes_weight": 426227,
+   "why": "check-md 2026-10-20 23:03",
+   "code": null
+  },
+  {
+   "v": 11,
+   "id": "v011_20261021-0031",
+   "ts": "2026-10-21T00:31:10",
+   "effective_from": "2026-10-21T00:18:14",
+   "unit": "global",
+   "version_hash": "333b6c0f49152596b8370e803733ffa1f7e82188aac4b7926d5e83a5cc19f0e1",
+   "cat_hash": {
+    "全局": "333b6c0f49152596b8370e803733ffa1f7e82188aac4b7926d5e83a5cc19f0e1"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v010_20261020-2303",
+   "changed": {
+    "added": [],
+    "modified": [
+     "scripts/claude_profile/chain_flags.txt",
+     "scripts/dfcf/paper/params.yaml",
+     "scripts/taoge-chain/run_chain.py"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "全局": [
+     "scripts/claude_profile/chain_flags.txt",
+     "scripts/dfcf/paper/params.yaml",
+     "scripts/taoge-chain/run_chain.py"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 120,
+    "removed": 2
+   },
+   "bytes_weight": 436366,
+   "why": "check-md 2026-10-20 00:31",
+   "code": null
   }
  ],
  "events": [],

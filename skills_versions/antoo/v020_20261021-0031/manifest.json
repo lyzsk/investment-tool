@@ -1,0 +1,282 @@
+{
+ "skill": "antoo",
+ "unit": "skill",
+ "version": {
+  "v": 20,
+  "id": "v020_20261021-0031",
+  "ts": "2026-10-21T00:31:10",
+  "effective_from": "2026-10-21T00:30:00",
+  "unit": "skill",
+  "version_hash": "d7f80b653a0368681a0eaa9407c1a2a19649d24654c9ffe60bb200cfc1d62563",
+  "cat_hash": {
+   "提示词": "7f39d9b0a15f383d00c3276dfda64649168c8d51f65ef06139a4e2b4fe50b12a",
+   "数据": "64f2c4cab2e9b9f4fae9915618ff6f9f116b00ba73e0654c666f9e94512d3252",
+   "画像": "1900014c198fdf33ccb9eecd205c7213d0ca8d54fa4e67d73402e51eff1a26fc"
+  },
+  "data_hash": "fc343f3d72ce3594e151145b24c4aaab2a265948bb58cfd10782871dece0a374",
+  "parent": "v019_20261020-2002",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/cases.md",
+    "persona/profile.md",
+    "persona/profile_index.md",
+    "persona/rules.md",
+    "persona/rules_index.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "画像": [
+    "persona/cases.md",
+    "persona/profile.md",
+    "persona/rules.md"
+   ],
+   "数据": [
+    "persona/profile_index.md",
+    "persona/rules_index.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 171,
+   "removed": 102
+  },
+  "bytes_weight": 482422,
+  "why": "check-md 2026-10-20 00:31",
+  "code": {
+   "chain": "97e1a398c54b",
+   "distill": "d7a2a5742759"
+  }
+ },
+ "files": {
+  "persona/case_log/2025-12.md": {
+   "sha256": "ec9e0859085e0d38197d75b09de10834a533daefe6ad06e260a50c2a5c66205d",
+   "bytes": 1023,
+   "lines": 11,
+   "mtime": "2026-10-19T19:46:54",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/2026-01.md": {
+   "sha256": "12a3f96552207f0af41804bf54249a9ba66f68e732fad9fc0c4b1317c84acec3",
+   "bytes": 66191,
+   "lines": 307,
+   "mtime": "2026-10-19T19:46:54",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/2026-02.md": {
+   "sha256": "626d2f81a0a23a12c7aa77a169d776fde2b2aa8c5f75382d00a9b210c59a05e2",
+   "bytes": 73468,
+   "lines": 291,
+   "mtime": "2026-10-19T19:46:54",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/2026-03.md": {
+   "sha256": "850b0dcc681b741faca7a24071b4b3136c16e7fd864711cf9e516bf571c6a99f",
+   "bytes": 91076,
+   "lines": 389,
+   "mtime": "2026-10-19T19:46:54",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/2026-04.md": {
+   "sha256": "e6bda9b4d948b509019c0492c5603469de9e2e2903c97837035a0c572948a2af",
+   "bytes": 79332,
+   "lines": 350,
+   "mtime": "2026-10-19T19:46:54",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/2026-05.md": {
+   "sha256": "d602ecb0ffe6ec792393698aa419fa562575d09247e8169914afacd3db9c39d6",
+   "bytes": 70583,
+   "lines": 312,
+   "mtime": "2026-10-19T19:46:54",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/2026-06.md": {
+   "sha256": "23d897e9785f5b6e51db273def71234d81053c70f2d386badaed5ebc1db2a787",
+   "bytes": 92383,
+   "lines": 394,
+   "mtime": "2026-10-19T19:46:54",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/2026-07.md": {
+   "sha256": "e00b37d000458c5e31eb0dcdfd616c49916064cbcac6562701906020d95228a3",
+   "bytes": 70981,
+   "lines": 345,
+   "mtime": "2026-10-19T19:46:54",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/2026-08.md": {
+   "sha256": "b4f6ca6a1ada3c649063d770d835f0e7eb9bb4253b478cd2c67fa674381b7144",
+   "bytes": 75461,
+   "lines": 337,
+   "mtime": "2026-10-19T19:46:55",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/2026-09.md": {
+   "sha256": "29e8ee7c92529b51110a5ddd9a9ca30ed04f3c19d0239eb21fbdd3c68caa302c",
+   "bytes": 66992,
+   "lines": 318,
+   "mtime": "2026-10-19T19:46:55",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/2026-10.md": {
+   "sha256": "4816abfd030789214da5a1826a424dc40faa50d86759ad36900ae62273d86260",
+   "bytes": 15483,
+   "lines": 103,
+   "mtime": "2026-10-20T19:25:54",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/annotations.jsonl": {
+   "sha256": "2eef9c735cc2590335260465f0d97c48339c9b39e345ab63c409e4599d878495",
+   "bytes": 109573,
+   "lines": 185,
+   "mtime": "2026-10-18T22:46:15",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/case_log/index.md": {
+   "sha256": "0f451b76fd2e5916176f99979a28193b53c226c5d8ed4f4917e0d5493439f36f",
+   "bytes": 30547,
+   "lines": 195,
+   "mtime": "2026-10-20T19:25:54",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/cases.md": {
+   "sha256": "a1134021ed0e36506f4e01b156a2acf300cdfeb5c537445d3004e136973f60d5",
+   "bytes": 242568,
+   "lines": 2632,
+   "mtime": "2026-10-21T00:16:15",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/cases_auto.jsonl": {
+   "sha256": "fc7c184266447a9cdf763204ae6314dd147798b4f25544193acfcfd3a4fafda4",
+   "bytes": 1988219,
+   "lines": 2438,
+   "mtime": "2026-10-17T00:03:40",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/fills_rt.jsonl": {
+   "sha256": "6bcb13b984f44953018f13932cf87b50646f95628c8896872f79cbfbc580a23c",
+   "bytes": 551687,
+   "lines": 2438,
+   "mtime": "2026-10-18T14:23:41",
+   "cls": "数据",
+   "bulk": true
+  },
+  "persona/fingerprint.md": {
+   "sha256": "216203d859794579605be42fdc909b79b057ace8305179a1bedcaa596d8a4108",
+   "bytes": 18148,
+   "lines": 253,
+   "mtime": "2026-10-20T23:06:57",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/orders_inferred.json": {
+   "sha256": "4db51f44ebbd125f554c3d1791ca7d97673e6b82f2ab6cf4c5ded9a992a88b7d",
+   "bytes": 25282,
+   "lines": 1214,
+   "mtime": "2026-10-17T13:16:14",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "cbfc74c340b2fe147ba89171e6e82ca545f801b8809e1ebe8e6be6131e5352f3",
+   "bytes": 18084,
+   "lines": 141,
+   "mtime": "2026-10-21T00:05:16",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile_index.md": {
+   "sha256": "8cd344a0773d13256b01f121b62fdef1ba8b85323d03478831532d1b8afa794a",
+   "bytes": 9258,
+   "lines": 88,
+   "mtime": "2026-10-21T00:30:00",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "26d49c5b1734d8e832352e8ebdc71ac5dc83ee8ce678fdb19204a0b4459afe63",
+   "bytes": 100021,
+   "lines": 631,
+   "mtime": "2026-10-21T00:04:28",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules_index.md": {
+   "sha256": "0c0967cf7cba290d69ea059450e8e4e735abd4b22a6e4fd913fe3fc3c9711812",
+   "bytes": 16545,
+   "lines": 48,
+   "mtime": "2026-10-21T00:05:16",
+   "cls": "数据",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "a3b4e1d938c39ce71424b0ce4b67117765eaa7a5708e3105858f00b594d28c32",
+   "bytes": 1138,
+   "lines": 12,
+   "mtime": "2026-10-15T02:40:51",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/chain.md": {
+   "sha256": "bb0f1cd9312472a35fe324473914401f872172385573cd53c3c393472717415a",
+   "bytes": 50498,
+   "lines": 370,
+   "mtime": "2026-10-17T12:36:13",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/distill.md": {
+   "sha256": "c3c176cce85e52314776a5af9359433e1bea8877929a6689dade0c744fab0a80",
+   "bytes": 349,
+   "lines": 8,
+   "mtime": "2026-10-15T02:40:51",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/sum.md": {
+   "sha256": "b2449639b6659c6ecb59a33e3124886831ebf2f6cead04cded6c1ee1485c4c29",
+   "bytes": 531,
+   "lines": 15,
+   "mtime": "2026-10-15T02:40:51",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "97e1a398c54b",
+  "distill": "d7a2a5742759",
+  "chain_files": {
+   "scripts/taoge-chain/run_chain.py": "cf43a5fd991a",
+   "skills/antoo-skill/workflows/chain.md": "bb0f1cd93124",
+   "skills/antoo-skill/SKILL.md": "a3b4e1d938c3",
+   "scripts/dfcf/paper/params.yaml": "8aa4869152ad"
+  },
+  "distill_files": {
+   "skills/antoo-skill/workflows/distill.md": "c3c176cce85e",
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "62647ac02e84",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "04e251310c6f"
+  }
+ }
+}

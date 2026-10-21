@@ -508,6 +508,84 @@
     "chain": "bbcb7cb00129",
     "distill": "daaadccd0e30"
    }
+  },
+  {
+   "v": 14,
+   "id": "v014_20261020-1925",
+   "ts": "2026-10-20T19:25:52",
+   "effective_from": "2026-10-20T18:52:36",
+   "unit": "skill",
+   "version_hash": "aeac5e65b79f82713e7c7aadfa2093cd22e35bcd7e161cd1988625cbdcd09f27",
+   "cat_hash": {
+    "提示词": "950fbf9512350781e0464f5916d58e32a40b35da2b550b2755e63bdcafcbba43",
+    "数据": "9361fde4964a6df50bc9767d4dcbb5d1bc57c309a7c967b50994a40d111de5c2",
+    "画像": "458a0827a4cf068eb42f9d3ab235621dfdd0f86ed293fea51d12b7819e222317"
+   },
+   "data_hash": "23df9f1b67bb919f618bf71aaaaf7c6075fe1062cce961a8df98b11bde4d51cc",
+   "parent": "v013_20261020-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/profile_index.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/profile_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 43,
+    "removed": 41
+   },
+   "bytes_weight": 934248,
+   "why": "check-md 2026-10-20 19:25",
+   "code": {
+    "chain": "bbcb7cb00129",
+    "distill": "c848b9c7320b"
+   }
+  },
+  {
+   "v": 15,
+   "id": "v015_20261020-2002",
+   "ts": "2026-10-20T20:02:56",
+   "effective_from": "2026-10-20T20:01:53",
+   "unit": "skill",
+   "version_hash": "52631df6b557b2a1a33d0f5e597e6fc741dc9409442c520d347d56f05c457be0",
+   "cat_hash": {
+    "提示词": "950fbf9512350781e0464f5916d58e32a40b35da2b550b2755e63bdcafcbba43",
+    "数据": "dbfd85d6bac87d184f654daf32caa0f1e25ecdeaacda7eb0c162da03767209e7",
+    "画像": "458a0827a4cf068eb42f9d3ab235621dfdd0f86ed293fea51d12b7819e222317"
+   },
+   "data_hash": "23df9f1b67bb919f618bf71aaaaf7c6075fe1062cce961a8df98b11bde4d51cc",
+   "parent": "v014_20261020-1925",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/profile_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/profile_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 2
+   },
+   "bytes_weight": 934275,
+   "why": "check-md 2026-10-20 20:02",
+   "code": {
+    "chain": "bbcb7cb00129",
+    "distill": "c848b9c7320b"
+   }
   }
  ],
  "events": [],

@@ -347,7 +347,7 @@ def v02(c, ctx):
     if c.get("stance") and not st:
         print(f"WARN: 02 stance 写法不认识({c.get('stance')}), 按'多'处理")
     c["stance"] = st or "多"
-    return outlook_check(c, ctx) or defer_check(c, ctx, "02")
+    return outlook_check(c, ctx) or evidence_check(c, ctx) or defer_check(c, ctx, "02")
 
 
 # ---------- 10/16 晚 持有期改造: 新字段校验(全部可选; 有就校验格式, 没有不拦) ----------
@@ -1185,6 +1185,10 @@ def v06(c, ctx):
                 return f"{a.get('name')} {k} 非正数: {a.get(k)}"
         if a.get("stop_below") is not None and a.get("op") != "卖":
             return f"{a.get('name')} stop_below 只许卖单带(止损哨兵)"
+        if a.get("chase_cap") is not None:   # 10/20 晚 ②: 追价上限价(可选, 只许买单; ≥ 挂价且 ≤ 涨停价)
+            cc = a["chase_cap"]
+            if a.get("op") != "买" or not isinstance(cc, (int, float)) or cc < a["_px"]:
+                return f"{a.get('name')} chase_cap 只许买单带, 且是不低于挂价的数值(你写的 {cc}, 挂价 {a['_px']})"
         if MIMIC_REVIEW and a.get("op") == "买" and isinstance(a.get("cancel_below"), (int, float)) and a["cancel_below"] > a["_px"]:   # 10/16 晚: 原盲审⑥语义矛盾价归机械层
             return f"{a.get('name')} 买单 cancel_below {a['cancel_below']} 高于挂单价 {a['_px']}(跌到挂单价之前先触发撤单=永远成交不了), 撤单线要低于挂单价"
         cap = (ctx.get("pc") or {}).get("cap") or sk["cap_ratio"] * ctx["nav"]  # 单票上限: 10/13 起=pos_constraints 按导师习惯算的动态值(无 pc=旧固定口径)
@@ -1193,6 +1197,9 @@ def v06(c, ctx):
             return f"{a.get('name')} 金额 {a['_px'] * a['qty']:.0f} 超 05 给该票定的上限 {tight:.0f}(05 风控意见是硬约束; 要凑总仓请加别的批准票)"
         if a.get("op") == "买" and a["_px"] * a["qty"] > cap:
             return f"{a.get('name')} 金额 {a['_px'] * a['qty']:.0f} 超单票上限 {cap:.0f}"
+        e_fr = floor_rule_check(a, ctx, held_codes if FIX_FLOOR_EXIT else _held_codes(ctx))   # 10/20 下限收窄: 新开仓须引买规则
+        if e_fr:
+            return e_fr
         if SIZE_RULES and a.get("op") == "买" and SKILL_NAME in TZZB_LEDGERS:
             pcx = ctx.get("pc") or {}
             sm = pcx.get("single_med")
@@ -1272,6 +1279,11 @@ def v06(c, ctx):
 def v07(c, ctx):
     if not c.get("预案对照"):
         return "预案对照 空"
+    if ATTRIBUTION and SKILL_NAME != "control":   # 10/20 晚 ④: 根因必答(软闸, 回炉一次)
+        rc = c.get("root_causes")
+        if not isinstance(rc, list) and not _soft_once(ctx, "root07"):
+            return ("contract 缺 root_causes: 每个亏损来源落到一层 [{\"layer\":\"数据|驱动器|规则|判断|撮合\",\"item\":\"哪一项\",\"fix\":\"改哪里\",\"affects\":\"波及哪些链\","
+                    "\"replay\":\"用今天数据回放改了是否更好\"}](当天确实没亏损来源写 [] 并在正文说明)")
     return lessons_check(c, ctx)
 
 
@@ -1589,6 +1601,8 @@ def soft_floor(pc=None):
     if not DYNAMIC_POS:   # selftest 关 DYNAMIC_POS=按硬下限夹具测; 10/16 审计#10: 对照组也用软下限(原硬下限=和导师链口径不一致, 无法归因)
         return False
     if pc and pc.get("ledger_soft_floor"):   # 10/17: 低频导师今天"导师不动闸"关着(不许开新仓)→ 硬下限只能靠加仓已有持仓凑, 退回软约束(见 ledger_prepare)
+        return True
+    if pc and (pc.get("floor_relax") or {}).get("relaxed"):   # 10/20 用户批: 硬下限导师连续空仓未超真人最长空仓段 → 软约束 + 新开仓须引买规则(v06)
         return True
     if LEDGER and SKILL_NAME in TZZB_LEDGERS:   # 10/16 晚用户: 满仓型导师"每天都有票做" → 收盘总仓中位 ≥80% 的导师在账本约束模式下改硬下限
         try:                                     # (软下限时链只有三到五成仓; 候选池保证凑仓用的是本导师风格的票, 不再拿银行/宽基凑)
@@ -1924,6 +1938,7 @@ def ledger_prepare(ctx, run_dir, slot, sub, dry=False):
         if ll.gate_state(lim, base, _chain_tp(pc)) == "拦" and pc.get("floor"):   # 10/18: 追仓豁免时闸开着, 下限照旧硬
             pc["ledger_soft_floor"] = True
             lines.append("- 今天导师不动闸关着(不许开新仓) → 总仓下限按软约束执行: 不许为凑仓位加仓本导师不碰的已有持仓, 凑不满写一句原因即可")
+        floor_relax_prepare(pc, ctx, lines, ll)
         pc["ledger_lines"] = lines
         ctx["ledger"] = {"lim": lim, "base": base, "view": view, "slot": slot}
         _write_lf(run_dir / "ledger.json", json.dumps({"slot": slot, "lim": lim, "base": base,
@@ -1934,6 +1949,61 @@ def ledger_prepare(ctx, run_dir, slot, sub, dry=False):
     except Exception as e:  # noqa: BLE001
         print(f"WARN: 账本约束准备失败, 本链不启用(fail-open): {e}")
         ctx["ledger"] = None
+
+
+FLOOR_RELAX = _flag("CHAIN_FLOOR_RELAX")   # 10/20 用户批: 硬下限收窄(见 floor_relax_prepare / floor_rule_check)
+_NOT_MET = re.compile(r"不满足|不成立|未满足|没满足|不引用|不作为.{0,4}依据")
+
+
+def floor_relax_prepare(pc, ctx, lines, ll):
+    """10/20 用户批(A658 正强案: 06 自认"R10/R7 不满足, 只靠 R5 恒满仓 + 下限"满仓买进 -1608):
+    硬下限导师(软约束之外)链连续空仓天数 < 真人近 120 记录日最长空仓段 → 今天下限按软约束, 且新开仓买单必须引一条方向=买、情境成立的规则;
+    连续空仓 ≥ 真人最长段 → 恢复硬下限(不加规则闸)。结果写 pc["floor_relax"] 供 soft_floor / v06 读"""
+    if not FLOOR_RELAX or SKILL_NAME not in TZZB_LEDGERS or not pc.get("floor") or soft_floor(pc):
+        return
+    try:
+        mx = ll.real_empty_spell_max(SKILL_NAME, ctx["date_dash"])
+        n = ll.chain_empty_days(ctx.get("book") or {}, ctx["date_dash"])
+    except Exception as e:  # noqa: BLE001
+        print(f"WARN: 下限收窄取数失败, 按原硬下限(fail-closed 到旧行为): {e}")
+        return
+    if mx is None:
+        return
+    relaxed = n < mx
+    pc["floor_relax"] = {"relaxed": relaxed, "chain_empty": n, "real_max": mx}
+    if relaxed:
+        lines.append(f"- 总仓下限今天按软约束(10/20 收窄): 本链已连续空仓 {n} 天 < 真人近 120 个记录日最长空仓 {mx} 天。新开仓买单必须在 rules 里引**至少一条方向=买、"
+                     f"且今天情境成立**的入场规则(仓位类规则如\"恒满仓\"只能定大小, 不能单独当买入理由); 没有合格买点就不买, 写一句原因(no_trade 或 holds)")
+    else:
+        lines.append(f"- 总仓下限今天按硬约束: 本链已连续空仓 {n} 天, 达到真人近 120 个记录日最长空仓 {mx} 天, 不能再空着(按本导师习惯挑票补仓)")
+    print(f"下限收窄: 链连续空仓 {n} 天 / 真人最长 {mx} 天 → {'软约束+买规则闸' if relaxed else '恢复硬下限'}")
+
+
+def floor_rule_check(a, ctx, held_codes):
+    """v06 用: floor_relax 生效时, 新开仓买单须引方向=买(rule_tags)且 ctx 未自认情境不满足的规则; 不合格=回炉文案, 合格/不适用=None"""
+    fr = (ctx.get("pc") or {}).get("floor_relax") or {}
+    if not fr.get("relaxed") or a.get("op") != "买" or str(a.get("code")) in held_codes:
+        return None
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "dfcf" / "paper"))
+        import rule_tags as _RT
+        tags = (_RT.load(SKILL_NAME) or {}).get("rules") or {}
+    except Exception as e:  # noqa: BLE001
+        print(f"WARN: rule_tags 读取失败, 买规则闸不生效(fail-open): {e}")
+        return None
+    if not tags:
+        return None
+    cited = [r if isinstance(r, dict) else {"id": str(r)} for r in (a.get("rules") or [])]
+    ok = [r["id"] for r in cited if (tags.get(str(r.get("id"))) or {}).get("dir") == "买" and not _NOT_MET.search(str(r.get("ctx") or ""))]
+    if ok:
+        return None
+    if ctx.get("final_attempt"):   # 同其他软闸: 末次放行记日志(不因此中止链/丢全部单)
+        print(f"WARN: 买规则闸末次放行: {a.get('name')} 仍未引方向=买且情境成立的规则(引了 {[r.get('id') for r in cited]})")
+        return None
+    buy_ids = [k for k, v in tags.items() if v.get("dir") == "买" and not v.get("struck")]
+    got = "、".join(f"{r.get('id')}={(tags.get(str(r.get('id'))) or {}).get('dir') or '未标'}" for r in cited) or "无"
+    return (f"{a.get('name')} 新开仓没有引用方向=买且情境成立的入场规则(引了: {got}); 本链连续空仓 {fr['chain_empty']} 天 < 真人最长空仓 {fr['real_max']} 天, "
+            f"今天不必凑下限——要么引一条今天情境成立的买规则({'、'.join(buy_ids[:12])}), 要么删掉这张买单(没别的动作就写 no_trade=true + no_trade_reason)")
 
 
 def _chain_tp(pc):
@@ -2386,6 +2456,18 @@ def gate_decide(run_dir, date_dash, slot, book, open_orders=None, positions=None
     metrics["telegraph"] = {"n": len(tg), "hits": hits[:5]}
     if hits:
         reasons.append(f"d 电报命中 {len(hits)} 条: {hits[0][1][:3]} ← {hits[0][0]}")
+    # f 开盘实况市况结论变了(10/20 晚用户批: open_live.py 09:31~10:30 机械判定; 上一已跑 slot 时刻的结论 vs 现在)
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "market"))
+        import open_live as _OL
+        t0 = datetime.fromisoformat(last[1]).strftime("%H%M")
+        now_hm = until.strftime("%H%M") if hasattr(until, "strftime") else (slot if ASOF else datetime.now().strftime("%H%M"))
+        a0, a1 = _OL.label_at(date_dash, t0), _OL.label_at(date_dash, str(now_hm))
+        metrics["open_live"] = {"last": a0, "now": a1}
+        if a1 and (a0 or {}).get("label") != a1["label"] and not (a0 is None and a1["label"] == "震荡"):
+            reasons.append(f"f 开盘实况市况 {(a0 or {}).get('label') or '无'} → {a1['label']}({a1['t'][:2]}:{a1['t'][2:]} 判定, 打分 {a1['score']:+d})")
+    except Exception as e:  # noqa: BLE001  取数失败不触发(f 是加触发条件, 不是 fail-open 照跑)
+        metrics["open_live"] = f"取数失败: {e}"
     return bool(reasons), reasons, metrics, gj
 
 
@@ -2689,6 +2771,16 @@ def snap_candidates(run_dir, c04):
         except (json.JSONDecodeError, KeyError):
             print("WARN: cand_snap.json 解析败, 验价降级")
     print(f"cand_snap: {len(snaps)}/{len(codes)} 票有价格锚 → {md.name}")
+    if not ASOF and md.exists():   # 10/20 晚 想法 B(用户批: 只给信息不设闸): 每只候选附一句 3 秒盘口分时(as-of 回放不加, 防看到未来)
+        try:
+            sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+            import ctx_index as _CI
+            dd = datetime.now().strftime("%Y-%m-%d")
+            lines = [f"- {c}: {_CI.tape_l0(c, dd)[1]}" for c in codes]
+            with md.open("a", encoding="utf-8") as fh:
+                fh.write("\n\n## 分时一句话(3 秒盘口, 截至此刻; 不在采集名单的票写\"无\")\n" + "\n".join(lines) + "\n")
+        except Exception as e:  # noqa: BLE001
+            print(f"WARN: cand_snap 分时一句话失败(不影响链): {e}")
     return snaps
 
 def emit_plans(date_dash, slot, source, contract, book, blind_note=""):
@@ -2735,6 +2827,8 @@ def emit_plans(date_dash, slot, source, contract, book, blind_note=""):
             conds.append("t0_open_exit=1")
         if a.get("_nb"):            # 10/16 新字段: 此刻前不撮合
             conds.append(f"not_before={a['_nb'].replace(':', '')}")
+        if a.get("op") == "买" and isinstance(a.get("chase_cap"), (int, float)) and a["chase_cap"] >= px:   # 10/20 晚 ②: 追价上限(matcher 按它判作废、改单不越过)
+            conds.append(f"chase_cap={float(a['chase_cap']):g}")
         if any(QF.values()):        # 10/17 ② 2b: 规则低吸单的改单生命周期(matcher cond reprice=N); 全关=不加
             conds += _qh().plan_conds(a, QF)
         note = blind_note + (f"链终裁: 开盘卖(市价, 挂价列=锚{px:g}仅参考)" if a.get("op") == "开盘卖"
@@ -3176,6 +3270,14 @@ def _dm():
         sys.path.insert(0, d)
     import decision_memory
     return decision_memory
+
+
+def _jl_names():
+    """paper/names.json 代码 → 名称(07 反思按票挂接用); 读不到 = {}"""
+    try:
+        return json.loads((Path(__file__).resolve().parents[1] / "dfcf" / "paper" / "names.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
 
 
 def reflect_on():
@@ -3636,6 +3738,58 @@ STEP_PACK_EXTRA = {"02": ["@ps"]}   # 10/18 查因: 0915 的 cand_snap 要到 03
 TOPOLOGY = _flag("CHAIN_TOPOLOGY")
 
 
+# ---------- 10/20 晚 市况改造 R1(用户批): 02 必填因子表 evidence[], 结论与因子多数方向相反 → 回炉一次 ----------
+REGIME_EVIDENCE = _flag("CHAIN_REGIME_EVIDENCE")
+ATTRIBUTION = _flag("CHAIN_ATTRIBUTION")   # 10/20 晚 ④ 归因推导链注入 07 + root_causes 必答
+EVIDENCE_FACTORS = ("外围过程", "亚洲盘实时", "多指数对比", "T-1结构", "开盘情景", "相似市况")
+EVIDENCE_LEANS = ("偏强", "中性", "偏弱")
+
+
+def regime_block(step, ctx):
+    if step == "06" and SKILL_NAME != "buchitudou0":   # 10/20 晚 ② 追价上限 + 想法 B(用户批: 只给信息, 不设闸)
+        return ("\n\n# 驱动器补充: 追价单(10/20)\n"
+                "- 追价买单可以带 \"chase_cap\": 你愿意追到的最高价(数值, ≥ 挂价)。撮合时现价超过它才作废; 没超过就不按 3% 锚偏离作废, 改单也不会越过它。不写 = 照旧 3% 锚偏离\n"
+                "- 追价单的正文要写清右侧条件(cand_snap.md 末尾有每只候选的分时一句话): ①分时冲高回踩有没有守住均价线 ②市况 ③板块 / 同题材有没有共振 "
+                "④今天能不能继续走强甚至封板 ⑤明天能不能冲高; 以及没封住时的 T+1 处理(第二天冲高在哪个价 / 时段卖、走弱在哪认错)")
+    if not REGIME_EVIDENCE or step != "02" or SKILL_NAME == "buchitudou0":
+        return ""
+    return ("\n\n# 驱动器补充: 市况因子表(10/20 市况改造 R1, 驱动器校验)\n"
+            "contract 必须带 \"evidence\": [{\"factor\": 因子, \"fact\": \"事实包里的具体数字/原话(写清来自哪节、几点的数)\", \"lean\": \"偏强|中性|偏弱\"}, ...], 6 个因子逐个给(相似市况事实包没有就写 中性 + fact 写\"无\"):\n"
+            "- 外围过程: 隔夜美股 / 中概 / 港股, 看过程不只看收盘(尾盘拉升还是跳水)\n"
+            "- 亚洲盘实时: 多指数面板里 日经 / KOSPI / A50 连续 / 小纳指 现在的涨跌和近 15 分钟方向(面板是每分钟的, 写清是几点的数); 注意国内股指期货没有夜盘\n"
+            "- 多指数对比: 多指数箱体位置表(在哪) + 面板(上证 / 中证2000 / 创业板谁强谁弱)\n"
+            "- T-1结构: 昨日涨跌家数、成交额、涨停 / 跌停、连板梯队、主线\n"
+            "- 开盘情景: 你给今天开盘三种情景的概率(高开 / 平开 / 低开, 合计 100%), lean 按概率最大的那个\n"
+            "- 相似市况: 相似日检索的结果(没有就中性)\n"
+            "stance(多/中立/空)要和因子表的多数方向一致: 偏强多于偏弱却判空、或偏弱多于偏强却判多 = 驱动器回炉一次; 坚持就在正文写清哪个因子分量最重、为什么压过多数")
+
+
+def evidence_check(c, ctx):
+    if not REGIME_EVIDENCE or SKILL_NAME == "buchitudou0":
+        return None
+    ev = c.get("evidence")
+    if not isinstance(ev, list) or not ev:
+        return None if ctx.get("final_attempt") else "contract 缺 evidence 因子表(6 个因子: " + "、".join(EVIDENCE_FACTORS) + "; 每个 {factor, fact, lean})"
+    got = {}
+    for x in ev:
+        if not isinstance(x, dict):
+            return "evidence 每项须为对象 {factor, fact, lean}"
+        f = next((k for k in EVIDENCE_FACTORS if k.replace("-", "") in str(x.get("factor") or "").replace("-", "").replace(" ", "")), None)
+        ln = norm_enum(x.get("lean"), EVIDENCE_LEANS)
+        if not f or not ln:
+            return f"evidence 项不认识: {json.dumps(x, ensure_ascii=False)[:80]}(factor 只许 {'/'.join(EVIDENCE_FACTORS)}, lean 只许 偏强/中性/偏弱)"
+        x["factor"], x["lean"] = f, ln
+        got[f] = ln
+    miss = [k for k in EVIDENCE_FACTORS if k not in got]
+    if len(miss) > 1 and not ctx.get("final_attempt"):
+        return f"evidence 缺因子: {'、'.join(miss)}(6 个都要给, 事实包没有的写 中性 + fact 写\"无\")"
+    up, dn = sum(v == "偏强" for v in got.values()), sum(v == "偏弱" for v in got.values())
+    st = c.get("stance")
+    if ((up > dn and st == "空") or (dn > up and st == "多")) and not _soft_once(ctx, "evidence02"):
+        return f"stance={st} 和因子表多数方向相反(偏强 {up} / 偏弱 {dn}): 改 stance, 或在正文写清哪个因子分量最重、为什么压过多数(回炉只这一次)"
+    return None
+
+
 def topology_block(step, ctx):
     if not TOPOLOGY or step not in ("04", "06") or ctx.get("sub"):
         return ""
@@ -4065,6 +4219,7 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
         p_ += quality_block(step, ctx)      # 10/17 ② 决策质量参考(相似市况/时段/T 法/挂价规则): 全关=空串
         p_ += tudou_t0_block(step, ctx)     # 10/18 土豆竞价T 机械选债(非土豆=空串)
         p_ += topology_block(step, ctx)     # 10/19 晚 市场拓扑(CHAIN_TOPOLOGY; 关=空串)
+        p_ += regime_block(step, ctx)       # 10/20 晚 市况改造 R1(CHAIN_REGIME_EVIDENCE; 关=空串)
         p_ += late_news_block(step, run_dir, date_dash, slot)   # 10/16: 0915 链开跑后才入库的发哥推演, 作增量注入后续步
         if SKILL_NAME not in ("taoge", "control", "buchitudou0") and step in ((("03b", "03s", "03j") if mimic_on() else ("blind", "03b", "03s", "03j"))):   # 10/16 审计#8: 盲审/辩论模板残留桃哥口径
             p_ += ("\n\n# 驱动器补充(10/16 方案 A): 本链按本导师自己的框架决策。盲审/辩论只按本导师的能力圈与规则审, "
@@ -4080,6 +4235,20 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
                 p_ += _CT.block_07(SKILL_NAME, ctx.get("book") or {}, date_dash)
             except Exception as e:   # noqa: BLE001
                 print(f"WARN: 链 T 成绩注入失败(不影响 07): {e}")
+        if step == "07" and ATTRIBUTION:   # 10/20 晚 ④ 归因推导链(用户批): 机械算好的逐票盈亏 / 检测项 / 反事实 / 跨链汇总 + 必答 root_causes
+            try:
+                sys.path.insert(0, str(ROOT / "scripts" / "dfcf" / "paper"))
+                import attribution as _AT   # noqa: PLC0415
+                p_ += _AT.block_07(SKILL_NAME, date_dash)
+            except Exception as e:   # noqa: BLE001
+                print(f"WARN: 归因推导链注入失败(不影响 07): {e}")
+        if step == "07" and _flag("CHAIN_PACK07"):   # 10/21 凌晨用户批: 07 素材包(当日行情 / 导师腿 / 规则 + 相似规则 / cases 错题 / lessons / 多日结算 / 知识库目录, 包头覆盖表)
+            try:
+                sys.path.insert(0, str(ROOT / "scripts" / "dfcf" / "paper"))
+                import pack07 as _P7   # noqa: PLC0415
+                p_ += _P7.block_07(SKILL_NAME, date_dash)
+            except Exception as e:   # noqa: BLE001
+                print(f"WARN: 07 素材包注入失败(不影响 07): {e}")
         return p_
 
     def _asof_note():
@@ -4118,7 +4287,7 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
         if step not in a6["tail"]:   # 每步算一次(neg_warn 随机抽卡, 回炉沿用同一份, 与原路径一致)
             a6["tail"][step] = (((neg_warn() + reject_rules()) if step == "05" else "") + profile_block(step, ctx)
                                 + (constraint_text(ctx["pc"], step) if step in ("04", "05", "06") else "")
-                                + reflection_block(step, ctx) + fix_block(step, ctx) + ledger_block(step, ctx) + quality_block(step, ctx) + horizon_block(step, ctx) + tudou_t0_block(step, ctx) + topology_block(step, ctx))
+                                + reflection_block(step, ctx) + fix_block(step, ctx) + ledger_block(step, ctx) + quality_block(step, ctx) + horizon_block(step, ctx) + tudou_t0_block(step, ctx) + topology_block(step, ctx) + regime_block(step, ctx))
         tpl = templates[tpl_key(step, templates)].replace("{date_dash}", date_dash).replace("{date}", date).replace("{run_dir}", rd)
         main = a6["main"] and step in A6_MAIN_STEPS and not a6["main_broken"]
         if main and a6["msid"]:
@@ -4163,6 +4332,12 @@ def run_chain(date, date_dash, slot, steps, source, dry=False):
     def _accept(step, c):
         """单步 contract 通过后的机械后处理(与原逐步路径相同)"""
         ctx["contracts"][step] = c
+        if step == "07" and not dry:   # 10/21 用户批: 07 的 root_causes / lessons 按票挂到当天决策 = 反思记忆(代替原 15:50 LLM 反思), 以后 04/06 经 reflection_block 读
+            try:
+                n7 = _dm().reflects_from_07(PAPER_DATA / "decisions", SKILL_NAME, date_dash, c, _jl_names())
+                print(f"07 → 反思记忆: {n7} 条")
+            except Exception as e:  # noqa: BLE001
+                print(f"WARN: 07 写反思记忆失败(不影响 07): {e}")
         if step == "02":   # 10/14 §3-A 第 8 条: 02 定了态度, 立刻按态度调总仓下限(04/05/06 的约束块与校验都用调后的)
             apply_stance(ctx)
             _write_lf(run_dir / "pos_constraints.json", json.dumps(ctx["pc"], ensure_ascii=False, indent=1))

@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "zjwzlclf",
  "name": "zjwzlclf",
- "generated_at": "2026-10-19T19:46:50",
+ "generated_at": "2026-10-20T19:25:46",
  "since": "2026-10-08",
- "until": "2026-10-19",
+ "until": "2026-10-20",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "延续",
@@ -91,6 +91,14 @@
    "nav": 100000.0,
    "filled": 0,
    "orders": 0
+  },
+  {
+   "date": "2026-10-20",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
   }
  ],
  "daily": [
@@ -130,7 +138,7 @@
    "state_day": "2026-10-08",
    "p_trade": 0.695,
    "p_dir_given_trade": [
-    0.245,
+    0.246,
     0.54,
     0.215
    ],
@@ -244,11 +252,11 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-14",
-   "p_trade": 0.217,
+   "p_trade": 0.216,
    "p_dir_given_trade": [
     0.029,
-    0.039,
-    0.931
+    0.036,
+    0.934
    ],
    "decision": {
     "trade": false,
@@ -273,11 +281,11 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-15",
-   "p_trade": 0.18,
+   "p_trade": 0.179,
    "p_dir_given_trade": [
-    0.043,
-    0.354,
-    0.602
+    0.044,
+    0.35,
+    0.606
    ],
    "decision": {
     "trade": false,
@@ -302,11 +310,40 @@
    "orders": [],
    "stale": 1,
    "state_day": "2026-10-15",
-   "p_trade": 0.161,
+   "p_trade": 0.159,
    "p_dir_given_trade": [
-    0.027,
-    0.389,
-    0.584
+    0.028,
+    0.383,
+    0.59
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.0274,
+    "tp_target_cap": 0.0274,
+    "tp_final": 0.0274,
+    "tp_final_cap": 0.0274,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.1435151004306456,
+    "red_step": 0.18141187331733677,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-20",
+   "orders": [],
+   "stale": 2,
+   "state_day": "2026-10-15",
+   "p_trade": 0.199,
+   "p_dir_given_trade": [
+    0.021,
+    0.406,
+    0.573
    ],
    "decision": {
     "trade": false,

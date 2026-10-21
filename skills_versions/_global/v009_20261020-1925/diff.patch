@@ -1,0 +1,7 @@
+--- v008_20261020-0041/scripts/claude_profile/chain_flags.txt
++++ v009_20261020-1925/scripts/claude_profile/chain_flags.txt
+@@ -83,2 +83,4 @@
+ # 10/19 晚 TODO 二-13 市场拓扑: 04/06 注入持仓+候选的关联票(行业/前3邻居昨日涨跌/期货)+一句同向背离思考提示; 只参考不改规则; 子链不注入
+ CHAIN_TOPOLOGY=1   # 用户 10/19 定"今晚做然后上线"
++# 10/20 用户定"多指数面板今天肯定要做": collect_panel.py 07:30~15:05 每分钟采 日经/KOSPI/A50连续/小纳指连续/上证/中证2000/国证2000/创业板/恒生科技(盘后实测通过); 关=--ensure 不拉起
++PANEL_COLLECT=1

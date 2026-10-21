@@ -1,0 +1,1185 @@
+{
+ "date": "2026-10-20",
+ "assets": [
+  {
+   "name": "adjustment_factor.jsonl",
+   "where": "downloads/market/<日>/adjustment_factor.jsonl",
+   "writers": [],
+   "readers": [
+    "inv-stock/src/main/java/cn/sichu/market/service/IMarketImportService.java",
+    "inv-stock/src/main/java/cn/sichu/market/service/impl/MarketImportServiceImpl.java",
+    "scripts/market/refresh_factors.py"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "auction_live_close.json",
+   "where": "downloads/market/<日>/auction_live_close.json",
+   "writers": [],
+   "readers": [],
+   "decision_readers": [],
+   "level": "无人读"
+  },
+  {
+   "name": "auction_live_open.json",
+   "where": "downloads/market/<日>/auction_live_open.json",
+   "writers": [
+    "scripts/lib/auction.mjs"
+   ],
+   "readers": [
+    "scripts/dfcf/live_watch.mjs",
+    "scripts/dfcf/paper/facts.mjs",
+    "scripts/dfcf/paper/pack07.py",
+    "scripts/dfcf/paper/t_decide.py",
+    "scripts/dfcf/snapshots/order-skill/playbook.py",
+    "scripts/dfcf/snapshots/order-skill/playbook_wait.py",
+    "scripts/market/collect_auction.py",
+    "scripts/market/open_live.py",
+    "scripts/tzzb/case_log.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/facts.mjs",
+    "scripts/dfcf/paper/t_decide.py",
+    "scripts/market/open_live.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "baseline",
+   "where": "scripts/dfcf/paper/baseline/",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/ledger_limits.py",
+    "scripts/dfcf/paper/mimicry_score.py",
+    "scripts/dfcf/paper/override_stats.py",
+    "scripts/lhb/render_seat_md.py",
+    "scripts/lhb/seat_profile.py",
+    "scripts/lhb/seat_style_llm.py",
+    "scripts/md/check_md_daily.py",
+    "scripts/skills_ver/persona_versions.py",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/mentor_model.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/ledger_limits.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "baselines.json",
+   "where": "scripts/dfcf/paper/baselines.json",
+   "writers": [
+    "scripts/dfcf/paper/baselines.mjs"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/report.mjs"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/mix_plans.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "baselines_0915_backfill.json",
+   "where": "scripts/dfcf/paper/baselines_0915_backfill.json",
+   "writers": [
+    "scripts/dfcf/paper/baselines.mjs"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/report.mjs"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "book_snap.jsonl",
+   "where": "downloads/market/<日>/book_snap.jsonl",
+   "writers": [
+    "scripts/market/collect_book.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/pack07.py",
+    "scripts/dfcf/paper/shadow_exec.py",
+    "scripts/dfcf/paper/t_event.py",
+    "scripts/dfcf/snapshots/order-skill/order_ctx.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/market/open_live.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/t_event.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/market/open_live.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "books",
+   "where": "scripts/dfcf/paper/books/",
+   "writers": [
+    "scripts/market/collect_book.py",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/dfcf/paper/rerun_day.py",
+    "scripts/dfcf/paper/t_bot.py",
+    "scripts/dfcf/paper/t_decide.py",
+    "scripts/dfcf/paper/t_swing.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/baselines.mjs",
+    "scripts/dfcf/paper/chain_t_stats.py",
+    "scripts/dfcf/paper/daily_digest.mjs",
+    "scripts/dfcf/paper/facts.mjs",
+    "scripts/dfcf/paper/ledger_limits.py",
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/mimicry_score.py",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/override_stats.py",
+    "scripts/dfcf/paper/pack07.py",
+    "scripts/dfcf/paper/paper_idle_check.py",
+    "scripts/dfcf/paper/paper_trades_review.py",
+    "scripts/dfcf/paper/paper_vs_real.py",
+    "scripts/dfcf/paper/rand_baseline.py",
+    "scripts/dfcf/paper/real_vs_chain.mjs",
+    "scripts/dfcf/paper/rebuild_days.mjs",
+    "scripts/dfcf/paper/replay_daily.mjs",
+    "scripts/dfcf/paper/report.mjs",
+    "scripts/dfcf/paper/report_skills.mjs",
+    "scripts/dfcf/paper/reset_books.mjs",
+    "scripts/dfcf/paper/restate_fills.py",
+    "scripts/dfcf/paper/settle_decisions.py",
+    "scripts/dfcf/paper/shadow_exec.py",
+    "scripts/dfcf/paper/similarity.mjs",
+    "scripts/dfcf/paper/skill_weights.py",
+    "scripts/dfcf/paper/t_event.py",
+    "scripts/dfcf/paper/t_private_report.py",
+    "scripts/dfcf/paper/t_review.py",
+    "scripts/dfcf/snapshots/order-skill/eval_day.py",
+    "scripts/dfcf/snapshots/order-skill/real_log.py",
+    "scripts/market/collect_auction.py",
+    "scripts/market/collect_minute.py",
+    "scripts/skills_ver/persona_versions.py",
+    "scripts/taoge-chain/pre_market.py",
+    "scripts/tzzb/mentor_fingerprint.py",
+    "scripts/tzzb/mentor_model.py",
+    "scripts/tzzb/onboard_mentor.py",
+    "scripts/tzzb/regime_trades.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/facts.mjs",
+    "scripts/dfcf/paper/ledger_limits.py",
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/t_event.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "call_auction_close.jsonl",
+   "where": "downloads/market/<日>/call_auction_close.jsonl",
+   "writers": [],
+   "readers": [
+    "inv-stock(Java importAuction 入行情库)"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "call_auction_close_raw.jsonl",
+   "where": "downloads/market/<日>/call_auction_close_raw.jsonl",
+   "writers": [],
+   "readers": [],
+   "decision_readers": [],
+   "level": "无人读"
+  },
+  {
+   "name": "call_auction_open.jsonl",
+   "where": "downloads/market/<日>/call_auction_open.jsonl",
+   "writers": [],
+   "readers": [
+    "inv-stock(Java importAuction 入行情库 call_auction 表)"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "call_auction_open_raw.jsonl",
+   "where": "downloads/market/<日>/call_auction_open_raw.jsonl",
+   "writers": [],
+   "readers": [],
+   "decision_readers": [],
+   "level": "无人读"
+  },
+  {
+   "name": "cb_facts.jsonl",
+   "where": "downloads/market/<日>/cb_facts.jsonl",
+   "writers": [
+    "scripts/market/collect_cb_facts.py"
+   ],
+   "readers": [],
+   "decision_readers": [],
+   "level": "无人读"
+  },
+  {
+   "name": "cb_facts.md",
+   "where": "downloads/market/<日>/cb_facts.md",
+   "writers": [
+    "scripts/market/collect_cb_facts.py"
+   ],
+   "readers": [
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "consistency",
+   "where": "scripts/dfcf/paper/consistency/",
+   "writers": [],
+   "readers": [
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "decisions",
+   "where": "scripts/dfcf/paper/decisions/",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/decision_memory.py",
+    "scripts/dfcf/paper/pack07.py",
+    "scripts/dfcf/paper/settle_decisions.py",
+    "scripts/dfcf/paper/t_event.py",
+    "scripts/dfcf/paper/t_review.py",
+    "scripts/md/check_md_daily.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/t_event.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "edge_map",
+   "where": "scripts/dfcf/paper/edge_map/",
+   "writers": [
+    "scripts/dfcf/paper/edge_map.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/mix_plans.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/mix_plans.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "facts",
+   "where": "scripts/dfcf/paper/facts/",
+   "writers": [
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/dfcf/paper/facts.mjs"
+   ],
+   "readers": [
+    "scripts/dfcf/holdings_ask.py",
+    "scripts/dfcf/live_watch.mjs",
+    "scripts/dfcf/paper/paper_vs_real.py",
+    "scripts/dfcf/paper/rerun_day.py",
+    "scripts/dfcf/paper/t_decide.py",
+    "scripts/dfcf/related_yao.mjs",
+    "scripts/lib/auction.mjs",
+    "scripts/lib/ctx_index.py",
+    "scripts/md/check_md_daily.py",
+    "scripts/taoge-chain/pre_market.py",
+    "scripts/tzzb/onboard_mentor.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/t_decide.py",
+    "scripts/lib/ctx_index.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "global_kline.jsonl",
+   "where": "downloads/market/<日>/global_kline.jsonl",
+   "writers": [
+    "scripts/market/collect_global.py"
+   ],
+   "readers": [
+    "inv-stock/src/main/java/cn/sichu/market/service/IMarketImportService.java",
+    "inv-stock/src/main/java/cn/sichu/market/service/impl/MarketImportServiceImpl.java",
+    "scripts/dfcf/paper/facts.mjs"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/facts.mjs"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "global_security.jsonl",
+   "where": "downloads/market/<日>/global_security.jsonl",
+   "writers": [
+    "scripts/market/collect_global.py"
+   ],
+   "readers": [
+    "inv-stock/src/main/java/cn/sichu/market/service/IMarketImportService.java",
+    "inv-stock/src/main/java/cn/sichu/market/service/impl/MarketImportServiceImpl.java",
+    "scripts/dfcf/paper/facts.mjs"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/facts.mjs"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "indicators.jsonl",
+   "where": "downloads/market/<日>/indicators.jsonl",
+   "writers": [
+    "scripts/quotes/indicators_db.py"
+   ],
+   "readers": [
+    "scripts/dfcf/live_watch.mjs",
+    "scripts/dfcf/paper/facts.mjs",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/dfcf/paper/t_skill.py",
+    "scripts/dfcf/paper/t_swing.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/market/open_live.py",
+    "scripts/md/check_md_daily.py",
+    "scripts/tzzb/regime_trades.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/facts.mjs",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/market/open_live.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "kline_day.jsonl",
+   "where": "downloads/market/<日>/kline_day.jsonl",
+   "writers": [
+    "scripts/dfcf/paper/settle_decisions.py"
+   ],
+   "readers": [
+    "inv-stock/src/main/java/cn/sichu/market/service/impl/MarketImportServiceImpl.java",
+    "scripts/dfcf/live_settle.py",
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/baselines.mjs",
+    "scripts/dfcf/paper/facts.mjs",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/pack07.py",
+    "scripts/dfcf/paper/report.mjs",
+    "scripts/dfcf/paper/restate_fills.py",
+    "scripts/dfcf/paper/shadow_exec.py",
+    "scripts/dfcf/paper/t_swing.py",
+    "scripts/dfcf/snapshots/order-skill/order_ctx.py",
+    "scripts/dfcf/snapshots/order-skill/quick_t.py",
+    "scripts/dfcf/snapshots/order-skill/real_log.py",
+    "scripts/lhb/fetch_lhb.mjs",
+    "scripts/lib/ctx_index.py",
+    "scripts/market/backfill_history.py",
+    "scripts/market/collect_auction.py",
+    "scripts/market/collect_cb_facts.py",
+    "scripts/market/collect_daily.mjs",
+    "scripts/market/collect_minute.py",
+    "scripts/market/collect_open15.py",
+    "scripts/market/minute_supplement.py",
+    "scripts/market/refresh_factors.py",
+    "scripts/market/topology.py",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/order_inference.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/facts.mjs",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "kline_minute.jsonl",
+   "where": "downloads/market/<日>/kline_minute.jsonl",
+   "writers": [
+    "scripts/market/collect_minute.py"
+   ],
+   "readers": [
+    "inv-stock/src/main/java/cn/sichu/market/service/IMarketImportService.java",
+    "inv-stock/src/main/java/cn/sichu/market/service/impl/MarketImportServiceImpl.java",
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/pack07.py",
+    "scripts/dfcf/paper/signal_lab.py",
+    "scripts/dfcf/paper/t_review.py",
+    "scripts/dfcf/snapshots/order-skill/order_ctx.py",
+    "scripts/market/collect_open15.py",
+    "scripts/market/minute_supplement.py",
+    "scripts/quotes/fetch_quotes.mjs",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/backfill_fill_gaps.py",
+    "scripts/tzzb/backfill_fill_minutes.py",
+    "scripts/tzzb/order_inference.py",
+    "scripts/tzzb/reverse_lianghua_v2.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "ledger",
+   "where": "scripts/dfcf/paper/ledger/",
+   "writers": [
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/tzzb_guard.py"
+   ],
+   "readers": [
+    "inv-stock/src/main/java/cn/sichu/tzzb/entity/TzzbRecord.java",
+    "inv-stock/src/main/java/cn/sichu/tzzb/handler/TzzbFetchHandler.java",
+    "scripts/dfcf/paper/edge_map.py",
+    "scripts/dfcf/paper/mimicry_score.py",
+    "scripts/dfcf/paper/paper_vs_real.py",
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/dfcf/paper/reflect_trigger.py",
+    "scripts/dfcf/paper/slot_profile.py",
+    "scripts/dfcf/paper/slot_weekly.py",
+    "scripts/dfcf/paper/t_profile.py",
+    "scripts/lhb/mentor_overlap.py",
+    "scripts/lib/mentors.py",
+    "scripts/md/build_distill_pack.py",
+    "scripts/md/check_md_daily.py",
+    "scripts/tzzb/distill_history.py",
+    "scripts/tzzb/gen_tzzb_md.mjs",
+    "scripts/tzzb/gen_tzzb_negstats.py",
+    "scripts/tzzb/gen_tzzb_profile.py",
+    "scripts/tzzb/gen_tzzb_review.py",
+    "scripts/tzzb/llm_batch_tzzb.py",
+    "scripts/tzzb/mentor_fingerprint.py",
+    "scripts/tzzb/mentor_model.py",
+    "scripts/tzzb/mentor_scope.py",
+    "scripts/tzzb/onboard_mentor.py",
+    "scripts/tzzb/order_inference.py",
+    "scripts/tzzb/rank_screen.py",
+    "scripts/tzzb/reverse_lianghua.py",
+    "scripts/tzzb/reverse_lianghua_v2.py",
+    "scripts/tzzb/screen_candidates.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/quality_hooks.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "mimicry",
+   "where": "scripts/dfcf/paper/mimicry/",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/mimicry_score.py",
+    "scripts/dfcf/paper/skill_weights.py",
+    "scripts/skills_ver/persona_versions.py"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "mix_state.json",
+   "where": "scripts/dfcf/paper/mix_state.json",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/rerun_day.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/mix_plans.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "names.json",
+   "where": "scripts/dfcf/paper/names.json",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/mimicry_score.py",
+    "scripts/dfcf/paper/pack07.py",
+    "scripts/dfcf/paper/paper_trades_review.py",
+    "scripts/dfcf/paper/real_vs_chain.mjs",
+    "scripts/dfcf/paper/reflect_trigger.py",
+    "scripts/dfcf/paper/report.mjs",
+    "scripts/dfcf/paper/settle_decisions.py",
+    "scripts/dfcf/paper/top_chains_report.py",
+    "scripts/dfcf/snapshots/order-skill/holdings.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/mentor_model.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "nav",
+   "where": "scripts/dfcf/paper/nav/",
+   "writers": [
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/dfcf/paper/override_stats.py",
+    "scripts/dfcf/paper/settle_decisions.py"
+   ],
+   "readers": [
+    "scripts/bilibili/fetch_bilibili.mjs",
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/ledger_limits.py",
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/mimicry_score.py",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/paper_trades_review.py",
+    "scripts/dfcf/paper/paper_vs_real.py",
+    "scripts/dfcf/paper/quality_daily.py",
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/dfcf/paper/rand_baseline.py",
+    "scripts/dfcf/paper/rerun_day.py",
+    "scripts/dfcf/paper/reset_books.mjs",
+    "scripts/dfcf/paper/rule_tags.py",
+    "scripts/dfcf/paper/scorecard.mjs",
+    "scripts/dfcf/paper/similar_days.py",
+    "scripts/dfcf/paper/skill_weights.py",
+    "scripts/dfcf/paper/t_review.py",
+    "scripts/dfcf/paper/top_chains_report.py",
+    "scripts/skills_ver/persona_versions.py",
+    "scripts/tzzb/mentor_model.py",
+    "scripts/tzzb/onboard_mentor.py",
+    "scripts/tzzb/rank_screen.py",
+    "scripts/tzzb/reverse_lianghua.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/ledger_limits.py",
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/quality_hooks.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "noise_band.json",
+   "where": "scripts/dfcf/paper/noise_band.json",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/skill_weights.py"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "open15_minute.jsonl",
+   "where": "downloads/market/<日>/open15_minute.jsonl",
+   "writers": [
+    "scripts/market/collect_open15.py"
+   ],
+   "readers": [],
+   "decision_readers": [],
+   "level": "无人读"
+  },
+  {
+   "name": "open_live.json",
+   "where": "downloads/market/<日>/open_live.json",
+   "writers": [
+    "scripts/market/open_live.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/shadow_exec.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/lib/ctx_index.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "overrides",
+   "where": "scripts/dfcf/paper/overrides/",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/override_stats.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "panel_minute.jsonl",
+   "where": "downloads/market/<日>/panel_minute.jsonl",
+   "writers": [
+    "scripts/market/collect_panel.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/t_event.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/market/open_live.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/t_event.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/market/open_live.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "paper_vs_real.json",
+   "where": "scripts/dfcf/paper/paper_vs_real.json",
+   "writers": [
+    "scripts/dfcf/paper/paper_vs_real.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/facts.mjs"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/facts.mjs"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "params.yaml",
+   "where": "scripts/dfcf/paper/params.yaml",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/edge_map.py",
+    "scripts/dfcf/paper/mimicry_score.py",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/reflect_trigger.py",
+    "scripts/dfcf/paper/skill_weights.py",
+    "scripts/skills_ver/persona_versions.py",
+    "scripts/taoge-chain/pre_market.py",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/distill_daily.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "plans",
+   "where": "scripts/dfcf/paper/plans/",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/holdings_ask.py",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/replay_daily.mjs",
+    "scripts/dfcf/paper/rerun_day.py",
+    "scripts/dfcf/paper/settle_decisions.py",
+    "scripts/dfcf/paper/t_bot.py",
+    "scripts/market/collect_book.py",
+    "scripts/market/collect_minute.py",
+    "scripts/taoge-chain/pre_market.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "price_rules",
+   "where": "scripts/dfcf/paper/price_rules/",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/quality_daily.py",
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "quality_log",
+   "where": "scripts/dfcf/paper/quality_log/",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/paper_idle_check.py",
+    "scripts/dfcf/paper/quality_hooks.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/quality_hooks.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "rand_baseline.json",
+   "where": "scripts/dfcf/paper/rand_baseline.json",
+   "writers": [
+    "scripts/dfcf/paper/rand_baseline.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/report_skills.mjs"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "real_vs_chain",
+   "where": "scripts/dfcf/paper/real_vs_chain/",
+   "writers": [
+    "scripts/dfcf/paper/real_vs_chain.mjs"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/daily_digest.mjs",
+    "scripts/md/check_md_daily.py"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "reflection",
+   "where": "scripts/dfcf/paper/reflection/",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/reflect_trigger.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "regime_0915_backfill.json",
+   "where": "scripts/dfcf/paper/regime_0915_backfill.json",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/report.mjs"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "report.html",
+   "where": "scripts/dfcf/paper/report.html",
+   "writers": [
+    "scripts/dfcf/paper/report.mjs"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/daily_digest.mjs",
+    "scripts/dfcf/paper/rand_baseline.py",
+    "scripts/dfcf/paper/replay_daily.mjs",
+    "scripts/dfcf/paper/report_skills.mjs",
+    "scripts/dfcf/paper/rerun_day.py",
+    "scripts/md/check_md_daily.py"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "reports",
+   "where": "scripts/dfcf/paper/reports/",
+   "writers": [
+    "scripts/dfcf/snapshots/order-skill/state.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/rand_baseline.py",
+    "scripts/dfcf/paper/signal_lab.py",
+    "scripts/dfcf/paper/slot_weekly.py",
+    "scripts/dfcf/paper/top_chains_report.py",
+    "scripts/dfcf/snapshots/order-skill/eval_day.py",
+    "scripts/dfcf/snapshots/order-skill/order_push.py",
+    "scripts/dfcf/snapshots/order-skill/playbook.py",
+    "scripts/dfcf/snapshots/order-skill/quick_t.py",
+    "scripts/dfcf/snapshots/order-skill/real_log.py",
+    "scripts/health/daily_health.py",
+    "scripts/lhb/mentor_overlap.py",
+    "scripts/lhb/render_seat_md.py",
+    "scripts/lib/claude_usage_report.py",
+    "scripts/md/check_md_daily.py",
+    "scripts/quotes/indicators_db.py",
+    "scripts/taoge-chain/collect_lessons.py",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/backfill_fill_minutes.py",
+    "scripts/tzzb/hold_mining.py",
+    "scripts/tzzb/mentor_fingerprint.py",
+    "scripts/tzzb/mentor_model.py",
+    "scripts/tzzb/mentor_scope.py",
+    "scripts/tzzb/onboard_mentor.py",
+    "scripts/tzzb/order_inference.py",
+    "scripts/tzzb/rank_screen.py",
+    "scripts/tzzb/regime_trades.py",
+    "scripts/tzzb/reverse_lianghua.py",
+    "scripts/tzzb/reverse_lianghua_v2.py",
+    "scripts/tzzb/screen_candidates.py",
+    "scripts/tzzb/thicken.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "retry_log.jsonl",
+   "where": "scripts/dfcf/paper/retry_log.jsonl",
+   "writers": [],
+   "readers": [
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "rule_tags",
+   "where": "scripts/dfcf/paper/rule_tags/",
+   "writers": [
+    "scripts/dfcf/paper/rule_tags.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/quality_daily.py",
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/attribution.py",
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "scorecard.json",
+   "where": "scripts/dfcf/paper/scorecard.json",
+   "writers": [
+    "scripts/dfcf/paper/scorecard.mjs"
+   ],
+   "readers": [],
+   "decision_readers": [],
+   "level": "无人读"
+  },
+  {
+   "name": "scorecard.md",
+   "where": "scripts/dfcf/paper/scorecard.md",
+   "writers": [
+    "scripts/dfcf/paper/scorecard.mjs"
+   ],
+   "readers": [],
+   "decision_readers": [],
+   "level": "无人读"
+  },
+  {
+   "name": "security_master.jsonl",
+   "where": "downloads/market/<日>/security_master.jsonl",
+   "writers": [],
+   "readers": [
+    "inv-stock/src/main/java/cn/sichu/market/service/impl/MarketImportServiceImpl.java",
+    "scripts/bilibili/build_pack.py",
+    "scripts/dfcf/snapshots/order-skill/holdings.py",
+    "scripts/market/backfill_history.py",
+    "scripts/market/collect_auction.py",
+    "scripts/market/collect_cb_facts.py",
+    "scripts/market/collect_daily.mjs",
+    "scripts/market/collect_minute.py",
+    "scripts/market/collect_open15.py",
+    "scripts/market/minute_supplement.py",
+    "scripts/market/refresh_factors.py",
+    "scripts/market/topology.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "signal_lab.json",
+   "where": "scripts/dfcf/paper/signal_lab.json",
+   "writers": [
+    "scripts/dfcf/paper/signal_lab.py"
+   ],
+   "readers": [],
+   "decision_readers": [],
+   "level": "无人读"
+  },
+  {
+   "name": "similar_days",
+   "where": "scripts/dfcf/paper/similar_days/",
+   "writers": [
+    "scripts/dfcf/paper/similar_days.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/pack07.py",
+    "scripts/dfcf/paper/quality_daily.py",
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "similarity.json",
+   "where": "scripts/dfcf/paper/similarity.json",
+   "writers": [
+    "scripts/dfcf/paper/similarity.mjs"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/daily_digest.mjs",
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/report.mjs",
+    "scripts/dfcf/paper/report_skills.mjs"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/matcher.mjs",
+    "scripts/dfcf/paper/mix_plans.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "slot_activity.json",
+   "where": "scripts/dfcf/paper/slot_activity.json",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/slot_profile.py",
+    "scripts/dfcf/paper/slot_weekly.py",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/onboard_mentor.py"
+   ],
+   "decision_readers": [
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "slot_profile",
+   "where": "scripts/dfcf/paper/slot_profile/",
+   "writers": [
+    "scripts/dfcf/paper/slot_profile.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/quality_daily.py",
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/onboard_mentor.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "state_digest.md",
+   "where": "scripts/dfcf/paper/state_digest.md",
+   "writers": [
+    "scripts/dfcf/paper/matcher.mjs"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/facts.mjs",
+    "scripts/dfcf/paper/ledger_limits.py",
+    "scripts/dfcf/paper/rerun_day.py",
+    "scripts/taoge-chain/pre_market.py",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/onboard_mentor.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/facts.mjs",
+    "scripts/dfcf/paper/ledger_limits.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "t_bot_state.json",
+   "where": "scripts/dfcf/paper/t_bot_state.json",
+   "writers": [
+    "scripts/dfcf/paper/t_bot.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/t_decide.py",
+    "scripts/dfcf/paper/t_private_report.py",
+    "scripts/dfcf/paper/t_review.py",
+    "scripts/dfcf/paper/t_swing.py",
+    "scripts/dfcf/snapshots/order-skill/real_log.py",
+    "scripts/market/collect_book.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/t_decide.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "t_decide_state.json",
+   "where": "scripts/dfcf/paper/t_decide_state.json",
+   "writers": [
+    "scripts/dfcf/paper/t_decide.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/report_skills.mjs",
+    "scripts/dfcf/paper/t_private_report.py",
+    "scripts/dfcf/paper/t_review.py",
+    "scripts/dfcf/paper/t_swing.py"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "t_knowledge.md",
+   "where": "scripts/dfcf/paper/t_knowledge.md",
+   "writers": [
+    "scripts/dfcf/paper/t_knowledge.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/t_decide.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/t_decide.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "t_log",
+   "where": "scripts/dfcf/paper/t_log/",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/report_skills.mjs",
+    "scripts/dfcf/paper/t_decide.py",
+    "scripts/dfcf/paper/t_private_report.py",
+    "scripts/dfcf/paper/t_review.py",
+    "scripts/dfcf/snapshots/order-skill/eval_day.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/t_decide.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "t_profile",
+   "where": "scripts/dfcf/paper/t_profile/",
+   "writers": [
+    "scripts/dfcf/paper/t_profile.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/chain_t_stats.py",
+    "scripts/dfcf/paper/quality_daily.py",
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/dfcf/paper/report_skills.mjs",
+    "scripts/dfcf/paper/t_knowledge.py",
+    "scripts/taoge-chain/run_chain.py",
+    "scripts/tzzb/onboard_mentor.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/quality_hooks.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "t_swing_state.json",
+   "where": "scripts/dfcf/paper/t_swing_state.json",
+   "writers": [
+    "scripts/dfcf/paper/t_swing.py"
+   ],
+   "readers": [],
+   "decision_readers": [],
+   "level": "无人读"
+  },
+  {
+   "name": "tick_flow.jsonl",
+   "where": "downloads/market/<日>/tick_flow.jsonl",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/signal_lab.py",
+    "scripts/market/collect_minute.py"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "topology.jsonl",
+   "where": "downloads/market/<日>/topology.jsonl",
+   "writers": [
+    "scripts/market/topology.py"
+   ],
+   "readers": [
+    "scripts/dfcf/paper/pack07.py",
+    "scripts/dfcf/paper/paper_vs_real.py",
+    "scripts/lib/ctx_index.py",
+    "scripts/market/collect_book.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "decision_readers": [
+    "scripts/lib/ctx_index.py",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "level": "进决策"
+  },
+  {
+   "name": "watchlist_info.jsonl",
+   "where": "downloads/market/<日>/watchlist_info.jsonl",
+   "writers": [],
+   "readers": [
+    "inv-stock/src/main/java/cn/sichu/market/service/IMarketImportService.java",
+    "inv-stock/src/main/java/cn/sichu/market/service/impl/MarketImportServiceImpl.java",
+    "scripts/market/collect_auction.py",
+    "scripts/market/collect_minute.py"
+   ],
+   "decision_readers": [],
+   "level": "只给报表/采集"
+  },
+  {
+   "name": "weights",
+   "where": "scripts/dfcf/paper/weights/",
+   "writers": [],
+   "readers": [
+    "scripts/dfcf/paper/daily_digest.mjs",
+    "scripts/dfcf/paper/edge_map.py",
+    "scripts/dfcf/paper/mix_plans.py",
+    "scripts/dfcf/paper/skill_weights.py",
+    "scripts/md/check_md_daily.py",
+    "scripts/tzzb/reverse_lianghua_v2.py"
+   ],
+   "decision_readers": [
+    "scripts/dfcf/paper/mix_plans.py"
+   ],
+   "level": "进决策"
+  }
+ ]
+}

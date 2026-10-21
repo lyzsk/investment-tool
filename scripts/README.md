@@ -186,6 +186,7 @@ scripts/venv/Scripts/python.exe scripts/backfill_bilibili/backfill_bilibili.py -
 em.ps1(东财自动截图) 10/2 已删——手动贴文本流保真度远高于 OCR, 自动化性价比不成立; DirectUI 实测结论存 Claude 记忆, 重建账户感知层先读。
 
 **paper/ 做 T 账本(10/18 建)**: 中行 601988 / 纳指ETF 159941 各三本——`t_decide.py`(决策T A-dbank/A-dndq, 花 token, 0915/0933/1033/1303/1433 + 14:45 收口) / `t_bot.py`(机械T A-tbank/A-tndq + 不T A-hbank/A-hndq, 零 token); 都由 check md `--only mix` 每 5 分钟 `--tick`。
+**波段T 四本(10/20 建)**: `t_swing.py` —— 跨日先卖后接; 机械 A-sbank/A-sndq(三态表: 下跌趋势卖 1/2、箱体上沿卖 1/3, 按 ATR / 箱体下沿分档接回, 零 token) / 决策 A-wbank/A-wndq(09:35、14:35 各调一次模型); 14:45 机械收口(三态转上涨 / 现价 ≥ 卖出均价+1ATR / 满 20 交易日); 对照=不T A-hbank/A-hndq; 状态 t_swing_state.json; 同样由 check md 每 5 分钟 `--tick`。
 收盘后 `t_review.py`(事后最优 T → t_log/ + 品种 skill 日卡) / `t_skill.py`(skills/bank-skill、nasdaq-skill 的 AUTO 数据画像) / `t_knowledge.py`(全体导师做 T 正反面 → t_knowledge.md), 每晚 check md 跑。
 `report_skills.mjs`(10/18 晚): report.html 的「skill 多维对比」(paper 表现 / 对比真人·对照组·拟人度 / 真人近 60 日 / 行为 / 真人做 T / skill 厚度 / 成本, 可排序、按维度开关列) + 「做 T 品种 skill」三本对照卡。
 `rand_baseline.py`(10/18 晚 P0): RAND 抛硬币基准——各链买卖日期 / 金额照抄, 只把"买哪只"随机换成当天候选池里的票, 几百次随机里链排第几分位。`signal_lab.py`(P2): 分钟级信号实验室(MOM / REV / VWAP / TFI / RAND, 横截面 IC + 多空价差 + 滚动命中)。牧原私有: `t_private_report.py` → snapshots/report_private.html。

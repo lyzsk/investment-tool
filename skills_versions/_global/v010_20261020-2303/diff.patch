@@ -1,0 +1,107 @@
+--- v009_20261020-1925/scripts/claude_profile/chain_flags.txt
++++ v010_20261020-2303/scripts/claude_profile/chain_flags.txt
+@@ -85,2 +85,4 @@
+ # 10/20 用户定"多指数面板今天肯定要做": collect_panel.py 07:30~15:05 每分钟采 日经/KOSPI/A50连续/小纳指连续/上证/中证2000/国证2000/创业板/恒生科技(盘后实测通过); 关=--ensure 不拉起
+ PANEL_COLLECT=1
++
++CHAIN_FLOOR_RELAX=1   # 10/20 晚用户批: 硬下限导师连续空仓 < 真人最长空仓段 → 软下限 + 新开仓须引方向=买且情境成立的规则; 超了恢复硬下限
+--- v009_20261020-1925/scripts/taoge-chain/run_chain.py
++++ v010_20261020-2303/scripts/taoge-chain/run_chain.py
+@@ -1194,4 +1194,7 @@
+         if a.get("op") == "买" and a["_px"] * a["qty"] > cap:
+             return f"{a.get('name')} 金额 {a['_px'] * a['qty']:.0f} 超单票上限 {cap:.0f}"
++        e_fr = floor_rule_check(a, ctx, held_codes if FIX_FLOOR_EXIT else _held_codes(ctx))   # 10/20 下限收窄: 新开仓须引买规则
++        if e_fr:
++            return e_fr
+         if SIZE_RULES and a.get("op") == "买" and SKILL_NAME in TZZB_LEDGERS:
+             pcx = ctx.get("pc") or {}
+@@ -1591,4 +1594,6 @@
+     if pc and pc.get("ledger_soft_floor"):   # 10/17: 低频导师今天"导师不动闸"关着(不许开新仓)→ 硬下限只能靠加仓已有持仓凑, 退回软约束(见 ledger_prepare)
+         return True
++    if pc and (pc.get("floor_relax") or {}).get("relaxed"):   # 10/20 用户批: 硬下限导师连续空仓未超真人最长空仓段 → 软约束 + 新开仓须引买规则(v06)
++        return True
+     if LEDGER and SKILL_NAME in TZZB_LEDGERS:   # 10/16 晚用户: 满仓型导师"每天都有票做" → 收盘总仓中位 ≥80% 的导师在账本约束模式下改硬下限
+         try:                                     # (软下限时链只有三到五成仓; 候选池保证凑仓用的是本导师风格的票, 不再拿银行/宽基凑)
+@@ -1925,4 +1930,5 @@
+             pc["ledger_soft_floor"] = True
+             lines.append("- 今天导师不动闸关着(不许开新仓) → 总仓下限按软约束执行: 不许为凑仓位加仓本导师不碰的已有持仓, 凑不满写一句原因即可")
++        floor_relax_prepare(pc, ctx, lines, ll)
+         pc["ledger_lines"] = lines
+         ctx["ledger"] = {"lim": lim, "base": base, "view": view, "slot": slot}
+@@ -1935,4 +1941,59 @@
+         print(f"WARN: 账本约束准备失败, 本链不启用(fail-open): {e}")
+         ctx["ledger"] = None
++
++
++FLOOR_RELAX = _flag("CHAIN_FLOOR_RELAX")   # 10/20 用户批: 硬下限收窄(见 floor_relax_prepare / floor_rule_check)
++_NOT_MET = re.compile(r"不满足|不成立|未满足|没满足|不引用|不作为.{0,4}依据")
++
++
++def floor_relax_prepare(pc, ctx, lines, ll):
++    """10/20 用户批(A658 正强案: 06 自认"R10/R7 不满足, 只靠 R5 恒满仓 + 下限"满仓买进 -1608):
++    硬下限导师(软约束之外)链连续空仓天数 < 真人近 120 记录日最长空仓段 → 今天下限按软约束, 且新开仓买单必须引一条方向=买、情境成立的规则;
++    连续空仓 ≥ 真人最长段 → 恢复硬下限(不加规则闸)。结果写 pc["floor_relax"] 供 soft_floor / v06 读"""
++    if not FLOOR_RELAX or SKILL_NAME not in TZZB_LEDGERS or not pc.get("floor") or soft_floor(pc):
++        return
++    try:
++        mx = ll.real_empty_spell_max(SKILL_NAME, ctx["date_dash"])
++        n = ll.chain_empty_days(ctx.get("book") or {}, ctx["date_dash"])
++    except Exception as e:  # noqa: BLE001
++        print(f"WARN: 下限收窄取数失败, 按原硬下限(fail-closed 到旧行为): {e}")
++        return
++    if mx is None:
++        return
++    relaxed = n < mx
++    pc["floor_relax"] = {"relaxed": relaxed, "chain_empty": n, "real_max": mx}
++    if relaxed:
++        lines.append(f"- 总仓下限今天按软约束(10/20 收窄): 本链已连续空仓 {n} 天 < 真人近 120 个记录日最长空仓 {mx} 天。新开仓买单必须在 rules 里引**至少一条方向=买、"
++                     f"且今天情境成立**的入场规则(仓位类规则如\"恒满仓\"只能定大小, 不能单独当买入理由); 没有合格买点就不买, 写一句原因(no_trade 或 holds)")
++    else:
++        lines.append(f"- 总仓下限今天按硬约束: 本链已连续空仓 {n} 天, 达到真人近 120 个记录日最长空仓 {mx} 天, 不能再空着(按本导师习惯挑票补仓)")
++    print(f"下限收窄: 链连续空仓 {n} 天 / 真人最长 {mx} 天 → {'软约束+买规则闸' if relaxed else '恢复硬下限'}")
++
++
++def floor_rule_check(a, ctx, held_codes):
++    """v06 用: floor_relax 生效时, 新开仓买单须引方向=买(rule_tags)且 ctx 未自认情境不满足的规则; 不合格=回炉文案, 合格/不适用=None"""
++    fr = (ctx.get("pc") or {}).get("floor_relax") or {}
++    if not fr.get("relaxed") or a.get("op") != "买" or str(a.get("code")) in held_codes:
++        return None
++    try:
++        sys.path.insert(0, str(ROOT / "scripts" / "dfcf" / "paper"))
++        import rule_tags as _RT
++        tags = (_RT.load(SKILL_NAME) or {}).get("rules") or {}
++    except Exception as e:  # noqa: BLE001
++        print(f"WARN: rule_tags 读取失败, 买规则闸不生效(fail-open): {e}")
++        return None
++    if not tags:
++        return None
++    cited = [r if isinstance(r, dict) else {"id": str(r)} for r in (a.get("rules") or [])]
++    ok = [r["id"] for r in cited if (tags.get(str(r.get("id"))) or {}).get("dir") == "买" and not _NOT_MET.search(str(r.get("ctx") or ""))]
++    if ok:
++        return None
++    if ctx.get("final_attempt"):   # 同其他软闸: 末次放行记日志(不因此中止链/丢全部单)
++        print(f"WARN: 买规则闸末次放行: {a.get('name')} 仍未引方向=买且情境成立的规则(引了 {[r.get('id') for r in cited]})")
++        return None
++    buy_ids = [k for k, v in tags.items() if v.get("dir") == "买" and not v.get("struck")]
++    got = "、".join(f"{r.get('id')}={(tags.get(str(r.get('id'))) or {}).get('dir') or '未标'}" for r in cited) or "无"
++    return (f"{a.get('name')} 新开仓没有引用方向=买且情境成立的入场规则(引了: {got}); 本链连续空仓 {fr['chain_empty']} 天 < 真人最长空仓 {fr['real_max']} 天, "
++            f"今天不必凑下限——要么引一条今天情境成立的买规则({'、'.join(buy_ids[:12])}), 要么删掉这张买单(没别的动作就写 no_trade=true + no_trade_reason)")
+ 
+ 
+@@ -2387,4 +2448,16 @@
+     if hits:
+         reasons.append(f"d 电报命中 {len(hits)} 条: {hits[0][1][:3]} ← {hits[0][0]}")
++    # f 开盘实况市况结论变了(10/20 晚用户批: open_live.py 09:31~10:30 机械判定; 上一已跑 slot 时刻的结论 vs 现在)
++    try:
++        sys.path.insert(0, str(ROOT / "scripts" / "market"))
++        import open_live as _OL
++        t0 = datetime.fromisoformat(last[1]).strftime("%H%M")
++        now_hm = until.strftime("%H%M") if hasattr(until, "strftime") else (slot if ASOF else datetime.now().strftime("%H%M"))
++        a0, a1 = _OL.label_at(date_dash, t0), _OL.label_at(date_dash, str(now_hm))
++        metrics["open_live"] = {"last": a0, "now": a1}
++        if a1 and (a0 or {}).get("label") != a1["label"] and not (a0 is None and a1["label"] == "震荡"):
++            reasons.append(f"f 开盘实况市况 {(a0 or {}).get('label') or '无'} → {a1['label']}({a1['t'][:2]}:{a1['t'][2:]} 判定, 打分 {a1['score']:+d})")
++    except Exception as e:  # noqa: BLE001  取数失败不触发(f 是加触发条件, 不是 fail-open 照跑)
++        metrics["open_live"] = f"取数失败: {e}"
+     return bool(reasons), reasons, metrics, gj
+ 

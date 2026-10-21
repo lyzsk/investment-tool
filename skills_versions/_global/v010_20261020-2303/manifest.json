@@ -1,0 +1,66 @@
+{
+ "skill": "_global",
+ "unit": "global",
+ "version": {
+  "v": 10,
+  "id": "v010_20261020-2303",
+  "ts": "2026-10-20T23:03:50",
+  "effective_from": "2026-10-20T22:19:33",
+  "unit": "global",
+  "version_hash": "8731606756e8390a9e4ceba6921555d551faa2ad60aad4558ebbdee7531f9032",
+  "cat_hash": {
+   "全局": "8731606756e8390a9e4ceba6921555d551faa2ad60aad4558ebbdee7531f9032"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v009_20261020-1925",
+  "changed": {
+   "added": [],
+   "modified": [
+    "scripts/claude_profile/chain_flags.txt",
+    "scripts/taoge-chain/run_chain.py"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "全局": [
+    "scripts/claude_profile/chain_flags.txt",
+    "scripts/taoge-chain/run_chain.py"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 75,
+   "removed": 0
+  },
+  "bytes_weight": 426227,
+  "why": "check-md 2026-10-20 23:03",
+  "code": null
+ },
+ "files": {
+  "scripts/dfcf/paper/params.yaml": {
+   "sha256": "4c981cf5972930f4e5cbe8c296fad04756f6301bb35c375104fc11ba77d8014e",
+   "bytes": 11083,
+   "lines": 156,
+   "mtime": "2026-10-18T00:15:17",
+   "cls": "全局",
+   "bulk": false
+  },
+  "scripts/claude_profile/chain_flags.txt": {
+   "sha256": "9b3081cd5428628e0086284b9b05375ce8742025ca2b9dd260669045d8c4fc5a",
+   "bytes": 9961,
+   "lines": 88,
+   "mtime": "2026-10-20T22:04:38",
+   "cls": "全局",
+   "bulk": false
+  },
+  "scripts/taoge-chain/run_chain.py": {
+   "sha256": "1b6c85d2240d39d06dc0c22ea5ca87c35c60d3ba03bc8ced1c4f2422dcf42a90",
+   "bytes": 405183,
+   "lines": 5953,
+   "mtime": "2026-10-20T22:19:33",
+   "cls": "全局",
+   "bulk": false
+  }
+ },
+ "code": null
+}

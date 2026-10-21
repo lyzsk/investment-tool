@@ -234,6 +234,80 @@
     "chain": "0722fb8c9cfa",
     "distill": "ad4916a92306"
    }
+  },
+  {
+   "v": 7,
+   "id": "v007_20261020-2002",
+   "ts": "2026-10-20T20:02:56",
+   "effective_from": "2026-10-20T19:26:03",
+   "unit": "skill",
+   "version_hash": "666dbfc604c05f5a86ea8c585dc116e16f632c56b00d34a7da4f7ebd197c4f72",
+   "cat_hash": {
+    "提示词": "2a99e95fa0f9ece3d7c550f8a6af8ab04b09a34fc7b208345a1953caf38079cd",
+    "画像": "8958eaeab84b9b0bf834aeb52af5131157e48c09fb358925952f710f7bf19031"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v006_20261020-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 6,
+    "removed": 0
+   },
+   "bytes_weight": 9193,
+   "why": "check-md 2026-10-20 20:02",
+   "code": {
+    "chain": "0722fb8c9cfa",
+    "distill": "2a6f68558efc"
+   }
+  },
+  {
+   "v": 8,
+   "id": "v008_20261021-0800",
+   "ts": "2026-10-21T08:00:00",
+   "effective_from": "2026-10-21T00:31:21",
+   "unit": "skill",
+   "version_hash": "3d852d4ad14758d9b64a23d5bcd0ca479ec3508a47dea2c3abe2bfaa0a6d53af",
+   "cat_hash": {
+    "提示词": "2a99e95fa0f9ece3d7c550f8a6af8ab04b09a34fc7b208345a1953caf38079cd",
+    "画像": "06d35e2c7a001382c4b2967f204ae2ed3bc3197b7c201288fd7469b44afd8170"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v007_20261020-2002",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/profile.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/profile.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 13,
+    "removed": 13
+   },
+   "bytes_weight": 9178,
+   "why": "check-md 2026-10-20 08:00",
+   "code": {
+    "chain": "5940774c01e3",
+    "distill": "b0ada3de5de2"
+   }
   }
  ],
  "events": [],

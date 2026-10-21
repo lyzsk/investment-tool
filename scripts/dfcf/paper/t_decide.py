@@ -33,12 +33,20 @@ import t_bot as TB          # noqa: E402  共用: kline/params/snap/write_import
 import a_rules as AR        # noqa: E402
 
 BOTS = {"A-dbank": {"code": "601988", "name": "中国银行", "t0": False, "skill": "bank"},      # 10/18 用户定: 沉淀成独立品种 skill(skills/bank-skill / nasdaq-skill)
-        "A-dndq": {"code": "159941", "name": "纳指ETF(广发)", "t0": True, "skill": "nasdaq"},
+        "A-dndq": {"code": "159941", "name": "纳指ETF(广发)", "t0": True, "skill": "nasdaq", "event": True, "close_at": "1450"},   # 10/20 晚用户批: 事件驱动(t_event.py) + 收口 14:50
         # 10/18 晚用户定: 实盘持仓牧原(私有 skill 放 snapshots/, 底仓=用户真实持股数; 用户清仓后自动停)
         "A-dmuyuan": {"code": "002714", "name": "牧原股份", "t0": False, "skill": "muyuan", "real": True,
                       "skill_dir": ROOT / "scripts" / "dfcf" / "snapshots" / "muyuan-skill"}}
 SLOTS = ["0915", "0933", "1033", "1303", "1433"]   # 10/18 用户定: 0915 定基调 / 0933 开盘后 / 10:33 / 13:03 / 14:33, 14:45 机械收口
 CLOSE_AT = "1445"
+EVENT_ON = None   # 10/20 晚: 开关 T_EVENT(chain_flags.txt / 环境变量); 开 = 带 "event" 的账本只跑 0915 固定时段, 盘中决策交给 t_event.py 按事件 --force-slot 调
+
+
+def _event(cfg):
+    global EVENT_ON
+    if EVENT_ON is None:
+        EVENT_ON = _flag("T_EVENT", "0") == "1"
+    return EVENT_ON and cfg.get("event")
 DATA = TB.DATA
 STATE = DATA / "t_decide_state.json"
 TLOG = DATA / "t_log"
@@ -273,14 +281,19 @@ def decide(src, cfg, D, slot, dry):
     return rec
 
 
-def tick(D, dry, force_slot=None):
+def tick(D, dry, force_slot=None, only=None):
     now = dt.datetime.now().strftime("%H%M")
     state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
     sd = state.setdefault(D, {})
-    out = []
+    out, touched = [], set()
     for src, cfg in BOTS.items():
+        if only and src not in only:
+            continue
         code, s = cfg["code"], sd.setdefault(src, {})
-        if cfg.get("real") and not TB.real_position(code):   # 用户已清仓 → 不再调模型
+        touched.add(src)
+        close_at = cfg.get("close_at", CLOSE_AT)
+        slots = ["0915"] if _event(cfg) else SLOTS
+        if cfg.get("real") and TB.real_follow(src, cfg, D, now, s, dry):   # 10/20: 先跟随用户实盘(清仓/加减仓), 跟随日 / 不持仓日不调模型
             continue
         b = TB.book(src)
         base = int(b.get("_t_base") or 0)
@@ -290,42 +303,46 @@ def tick(D, dry, force_slot=None):
                 q0 = TB.snap(code) or {}
                 last = float(q0.get("last") or 0) if not q0.get("stale") else 0
                 if last:
-                    q = TB.base_qty(cfg, last)
+                    q = TB.base_qty(cfg, last, D)
                     line = f"- {now[:2]}:{now[2:]} | {src} | BUY | {code} | {TB.tick_px(code, last * 1.005):g} | {q} | day | {last:g} | - | 决策T 建底仓 50%"
                     if not dry:
                         s["base_order"] = {"at": now, "imp": TB.write_import(D, src, [line])}
                     out.append(f"{src} 建底仓: {line}")
                 elif "0930" <= now <= "1500":
                     TB.FAILS.append(f"{src} 建底仓取不到 {code} 现价")   # 10/19: 不再静默(见 t_bot.snap 解析 bug)
-            if s.get("base_order") and not s.get("base_set") and now >= CLOSE_AT and pos:
+            if s.get("base_order") and not s.get("base_set") and now >= close_at and pos:
                 b["_t_base"] = pos
                 if not dry:
                     (DATA / "books" / f"{src}.json").write_text(json.dumps(b, ensure_ascii=False, indent=1), encoding="utf-8")
                 s["base_set"] = pos
                 out.append(f"{src} 底仓记 {pos}")
             continue
-        due = [x for x in SLOTS if x <= now and x not in s] if not force_slot else [force_slot]
-        if due and (now < CLOSE_AT or force_slot):
+        due = [x for x in slots if x <= now and x not in s] if not force_slot else [force_slot]
+        if due and (now < close_at or force_slot):
             sl = due[-1]   # 只做最近一个到点的时段(错过的不补)
             for x in due:
                 s.setdefault(x, {"skip": "过时"} if x != sl else None)
             rec = decide(src, cfg, D, sl, dry)
             s[sl] = rec
             out.append(f"{src} {sl}: {json.dumps(rec.get('decision') or rec, ensure_ascii=False)[:300]}")
-        if now >= CLOSE_AT and not s.get("close") and not force_slot:   # 机械收口(同 t_bot)
+        if now >= close_at and not s.get("close") and not force_slot:   # 机械收口(同 t_bot)
             q = TB.snap(code) or {}
             last = float(q.get("last") or 0) or TB.params(code, D)["prev"]
             lines = []
             if pos < base:
-                lines.append(f"- 14:45 | {src} | BUY | {code} | {TB.tick_px(code, last * 1.01):g} | {base - pos} | day | {last:g} | - | 决策T 收口买回")
+                lines.append(f"- {close_at[:2]}:{close_at[2:]} | {src} | BUY | {code} | {TB.tick_px(code, last * 1.01):g} | {base - pos} | day | {last:g} | - | 决策T 收口买回")
             elif pos > base and cfg["t0"]:
-                lines.append(f"- 14:45 | {src} | SELL | {code} | {TB.tick_px(code, last * 0.99):g} | {pos - base} | day | {last:g} | - | 决策T 收口卖出多余(T+0)")
+                lines.append(f"- {close_at[:2]}:{close_at[2:]} | {src} | SELL | {code} | {TB.tick_px(code, last * 0.99):g} | {pos - base} | day | {last:g} | - | 决策T 收口卖出多余(T+0)")
             s["close"] = {"at": now, "lines": lines}
             if lines and not dry:
                 s["close"]["imp"] = TB.write_import(D, src, lines)
             out.append(f"{src} 收口: {lines or '无需'}")
-    if not dry:
-        STATE.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
+    if not dry:   # 10/20 晚: t_event.py 事件触发(--only)和 check md 每 5 分钟的 tick 可能同时跑 → 写前重读, 只合并本次处理过的账本
+        fresh = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
+        fresh.setdefault(D, {}).update({k: sd[k] for k in touched})
+        tmp = STATE.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(fresh, ensure_ascii=False, indent=1), encoding="utf-8")
+        os.replace(tmp, STATE)
     print("\n".join(out) or f"{now} 无到点动作")
     if TB.FAILS and "0930" <= now <= "1500":
         print("ERROR: " + " | ".join(TB.FAILS))
@@ -338,9 +355,10 @@ def main():
     ap.add_argument("--date", default=dt.date.today().isoformat())
     ap.add_argument("--dry", action="store_true")
     ap.add_argument("--force-slot")
+    ap.add_argument("--only", help="逗号分隔账本, 如 A-dndq(t_event.py 事件触发时只跑这一本)")
     a = ap.parse_args()
     if a.tick:
-        tick(a.date, a.dry, a.force_slot)
+        tick(a.date, a.dry, a.force_slot, set(a.only.split(",")) if a.only else None)
 
 
 if __name__ == "__main__":

@@ -392,6 +392,20 @@ def pack(code, D=None, before=None, l1=False):
     if l1:
         parts.append("① L1 5分钟K:\n" + tape_l1(code, D))
     parts += [prefetch(code, D, before), structure(code, D)[1], futures(code, D, before)[1], md_hits(code, D), facts_index(D, before)[1]]
+    try:   # 10/20 用户定: 多指数面板(过程), 实盘挂单复核 / 决策T / 开盘剧本 都要看
+        import collect_panel as PANEL
+        pt = PANEL.text(D, before)
+        if pt:
+            parts.insert(-1, "⑦ " + pt)
+    except Exception:   # noqa: BLE001
+        pass
+    try:   # 10/20 晚用户批: 开盘实况(open_live 机械市况判定, 09:31~10:30), 决策T / 实盘复核同一份
+        import open_live as OL
+        ot = OL.text(D, before)
+        if ot:
+            parts.insert(-1, "⑧ " + ot)
+    except Exception:   # noqa: BLE001
+        pass
     if TOPO:
         parts.insert(-1, topo_block(code, D))
     return "\n".join(p for p in parts if p)

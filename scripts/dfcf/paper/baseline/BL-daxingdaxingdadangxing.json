@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "daxingdaxingdadangxing",
  "name": "大兴大兴大A当兴",
- "generated_at": "2026-10-19T19:46:50",
+ "generated_at": "2026-10-20T19:25:46",
  "since": "2026-10-08",
- "until": "2026-10-19",
+ "until": "2026-10-20",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "模型",
@@ -86,6 +86,14 @@
   },
   {
    "date": "2026-10-19",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-20",
    "cash": 100000.0,
    "mv": 0.0,
    "nav": 100000.0,
@@ -193,7 +201,7 @@
    "p_dir_given_trade": [
     0.361,
     0.522,
-    0.118
+    0.117
    ],
    "decision": {
     "trade": true,
@@ -279,7 +287,7 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-15",
-   "p_trade": 0.898,
+   "p_trade": 0.897,
    "p_dir_given_trade": [
     0.542,
     0.393,
@@ -309,7 +317,7 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-16",
-   "p_trade": 0.902,
+   "p_trade": 0.901,
    "p_dir_given_trade": [
     0.431,
     0.488,
@@ -321,6 +329,36 @@
     "tp_hat": 0.9934000000000001,
     "tp_target_cap": 0.98,
     "tp_final": 0.9934000000000001,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "模型",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.32070199442516767,
+    "red_step": 0.2693923362588938,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "note": "指纹池不可用(样本不足, 不出池), 不买"
+  },
+  {
+   "date": "2026-10-20",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-19",
+   "p_trade": 0.909,
+   "p_dir_given_trade": [
+    0.38,
+    0.539,
+    0.081
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.9926999999999999,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9926999999999999,
     "tp_final_cap": 0.98,
     "src": {
      "L1": "模型",

@@ -84,7 +84,44 @@
     "chain": "1b52a5579995",
     "distill": "ee908261bd19"
    }
+  },
+  {
+   "v": 4,
+   "id": "v004_20261021-0031",
+   "ts": "2026-10-21T00:31:10",
+   "effective_from": "2026-10-21T00:16:15",
+   "unit": "skill",
+   "version_hash": "c279ce0b47d897a53d939fc819865e912c5cd7cdbf356d6595047abd083b8911",
+   "cat_hash": {
+    "画像": "c279ce0b47d897a53d939fc819865e912c5cd7cdbf356d6595047abd083b8911"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v003_20261018-1713",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 10,
+    "removed": 3
+   },
+   "bytes_weight": 5102,
+   "why": "check-md 2026-10-20 00:31",
+   "code": {
+    "chain": "966b92284565",
+    "distill": "f93111cf0439"
+   }
   }
  ],
- "events": []
+ "events": [],
+ "group": "active"
 }

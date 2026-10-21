@@ -27,6 +27,7 @@ def db():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--top", type=int, default=30)
+    ap.add_argument("--live", action="store_true", help="盘中: 现价用新浪批量实时价(scan.mjs 盘中兜底用)")
     a = ap.parse_args()
     cur = db().cursor()
     cur.execute("select max(trade_date) from kline_day where is_deleted=0")
@@ -55,7 +56,33 @@ def main():
         rows.append({"code": c, "name": n, "list_date": ld.isoformat(), "pct60": round((last[1] / ref - 1) * 100, 2),
                      "pct_today": round((last[1] / last[2] - 1) * 100, 2) if last[2] > 0 else None})
     rows.sort(key=lambda r: r["pct60"])
-    print(json.dumps({"asof": asof.isoformat(), "n": len(rows), "rows": rows[:a.top]}, ensure_ascii=False))
+    if a.live and rows:   # 10/20 晚: 盘中实时 —— 名单 / 60 日前参考价取本地库, 现价用新浪一次批量请求(约 90 只 = 1 次), 失败 = 退回收盘口径并标注
+        try:
+            import urllib.request
+            sym_of = {sec[s][0]: s for s in sec}
+            ref_of = {}
+            for s, ks in bars.items():
+                if ks and ks[-1][1] > 0:
+                    ref_of[sec[s][0]] = (ks[-61][1] if len(ks) > 60 else ks[0][1], ks[-1][1])
+            codes = [r["code"] for r in rows]
+            req = urllib.request.Request("https://hq.sinajs.cn/list=" + ",".join(sym_of[c] for c in codes), headers={"Referer": "https://finance.sina.com.cn", "User-Agent": "Mozilla/5.0"})
+            txt = urllib.request.urlopen(req, timeout=8).read().decode("gbk", errors="replace")
+            live = {}
+            for l in txt.split("\n"):
+                m = re.match(r'var hq_str_(\w+)="([^"]*)"', l)
+                if m and m.group(2):
+                    f = m.group(2).split(",")
+                    if len(f) > 3 and float(f[3] or 0) > 0:
+                        live[m.group(1)[2:]] = float(f[3])
+            for r in rows:
+                p, (ref, prev) = live.get(r["code"]), ref_of.get(r["code"], (0, 0))
+                if p and ref > 0:
+                    r["pct60"], r["pct_today"] = round((p / ref - 1) * 100, 2), round((p / prev - 1) * 100, 2) if prev > 0 else None
+            rows.sort(key=lambda r: r["pct60"])
+            asof = f"{dt.datetime.now():%Y-%m-%d %H:%M} 实时(新浪 {len(live)}/{len(rows)} 只)"
+        except Exception as e:   # noqa: BLE001
+            asof = f"{asof} 收盘(实时取价失败: {str(e)[:40]})"
+    print(json.dumps({"asof": asof if isinstance(asof, str) else asof.isoformat(), "n": len(rows), "rows": rows[:a.top]}, ensure_ascii=False))
     return 0
 
 

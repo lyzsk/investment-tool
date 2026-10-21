@@ -525,6 +525,94 @@
     "chain": "6d709532cbd5",
     "distill": "7182d83f13e4"
    }
+  },
+  {
+   "v": 14,
+   "id": "v014_20261020-1925",
+   "ts": "2026-10-20T19:25:52",
+   "effective_from": "2026-10-20T18:49:07",
+   "unit": "skill",
+   "version_hash": "57e25f08a5d7c7eeaa37ae4e5f61548bbf3ca730375216597154609b9d4206ee",
+   "cat_hash": {
+    "提示词": "f06f3c96eab6143c00cf9b33212861f0240c36adcaf6d70eaa134d3597094410",
+    "数据": "a49865ffdf48d2a340e3f4560cf577595874f3d57616cd73f3168e61ab5e6534",
+    "画像": "fda51ef02b2445c40987f40d395dad0e7e7911d72e4ab2ae7e3f8980d6f80ba1"
+   },
+   "data_hash": "0c0ae6d70091aea4ee5fdf6aa1d0c6dcf99aca39227a46b9b65ecbf2c6d876f4",
+   "parent": "v013_20261020-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/language.md",
+     "persona/profile.md",
+     "persona/profile_index.md",
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md",
+     "persona/language.md",
+     "persona/profile.md",
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/profile_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 343,
+    "removed": 223
+   },
+   "bytes_weight": 4051218,
+   "why": "check-md 2026-10-20 19:25",
+   "code": {
+    "chain": "6d709532cbd5",
+    "distill": "7ed2ec1f55e9"
+   }
+  },
+  {
+   "v": 15,
+   "id": "v015_20261020-2002",
+   "ts": "2026-10-20T20:02:56",
+   "effective_from": "2026-10-20T20:01:53",
+   "unit": "skill",
+   "version_hash": "862ec389675a480730a086acf1d5da2c93108ce47f5f26b316e6f73e4ff1468f",
+   "cat_hash": {
+    "提示词": "f06f3c96eab6143c00cf9b33212861f0240c36adcaf6d70eaa134d3597094410",
+    "数据": "f9c428700a5765369c69d6647a12e3640e91ccadd926f59642257be7875a284d",
+    "画像": "fda51ef02b2445c40987f40d395dad0e7e7911d72e4ab2ae7e3f8980d6f80ba1"
+   },
+   "data_hash": "0c0ae6d70091aea4ee5fdf6aa1d0c6dcf99aca39227a46b9b65ecbf2c6d876f4",
+   "parent": "v014_20261020-1925",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/profile_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/profile_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 2
+   },
+   "bytes_weight": 4051245,
+   "why": "check-md 2026-10-20 20:02",
+   "code": {
+    "chain": "6d709532cbd5",
+    "distill": "7ed2ec1f55e9"
+   }
   }
  ],
  "events": [],

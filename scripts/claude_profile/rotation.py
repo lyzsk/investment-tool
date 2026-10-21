@@ -57,6 +57,28 @@ FOLLOW_SETTINGS = ROT_FILE.exists() and any(l.strip() == "follow-settings" for l
 # 10/17 晚用户定: rotation.txt 写一行 manual-switch = 不自动换模型——永远用你本机当前设置那套; 撞额度窗口时推微信提醒你手动切,
 #   调用方原地等(每分钟看一次设置变没变, 你一切就继续; 最多等 45 分钟再按原逻辑顺延)
 MANUAL_SWITCH = ROT_FILE.exists() and any(l.strip() == "manual-switch" for l in ROT_FILE.read_text(encoding="utf-8").splitlines())
+# 10/20 用户定: rotation.txt 写一行 balance = 每个 claude -p 进程开跑时按比例选 key(不靠定时切):
+#   10/20 18:30 起改用 dev/dev-notes/others/key-switcher 的 `node scripts/auto-switcher.mjs pick [--exclude a,b]`
+#   (比例在 auto-switcher-config.json, 带用量缓存 + 在途预占 + 锁; 原 dev/key-balance 已按用户令删除);
+#   **一个进程只选一次**(一条链一次运行 02→04→06 共用会话 / cache, 中途换 key = cache 失效、resume 可能失败); 撞额度窗口才换下一把;
+#   pick 失败(node / 工具不在) → 返回 None = 退回 manual-switch / follow-settings(跟 settings.json, auto-switcher 定时任务在管它)
+#   优先级: CLAUDE_PROFILE_PIN > balance > manual-switch > follow-settings
+BALANCE = ROT_FILE.exists() and any(l.strip() == "balance" for l in ROT_FILE.read_text(encoding="utf-8").splitlines())
+KS = HERE.parents[2] / "dev-notes" / "others" / "key-switcher" / "scripts" / "auto-switcher.mjs"
+_bal = {"p": None}
+
+
+def _balance_pick(ps, exclude=()):
+    if not KS.exists():
+        return None
+    try:
+        r = subprocess.run(["node", str(KS), "pick"] + (["--exclude", ",".join(exclude)] if exclude else []),
+                           capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60, creationflags=NOWIN)
+        p = (r.stdout or "").strip().splitlines()[-1].strip() if (r.stdout or "").strip() else None
+    except Exception:  # noqa: BLE001
+        return None
+    return p if p in ps else None
+
 
 def profiles():
     if not ROT_FILE.exists():
@@ -110,6 +132,11 @@ def current_profile():
     pin = os.environ.get("CLAUDE_PROFILE_PIN")
     if pin and pin in ps:
         return pin
+    if BALANCE:   # 10/20: 本进程第一次调用时按欠额选一把, 之后一直用它(撞窗口时 on_window_limit 换)
+        if not _bal["p"]:
+            _bal["p"] = _balance_pick(ps)
+        if _bal["p"]:
+            return _bal["p"]
     if MANUAL_SWITCH:   # 手动切模式: 只认本机当前设置, 不看"耗尽"标记、不按名单往后切
         fp = _settings_profile()
         return fp if fp in ps else (_state().get("current") or ps[0])
@@ -159,6 +186,15 @@ def on_window_limit():
     if not ps:
         return False
     s = _state()
+    if BALANCE and _bal["p"] and not os.environ.get("CLAUDE_PROFILE_PIN"):   # 10/20 balance: 标耗尽, 按欠额换下一把可用的
+        used = _bal["p"]
+        s["exhausted"][used] = time.time()
+        _save(s)
+        alive = [p for p in ps if p != used and _alive(_state(), p)]
+        nxt = _balance_pick(alive, exclude=(used,)) if alive else None
+        print(f"⚠ 额度窗口: {used} 撞窗口(5h 内不再用), " + (f"按欠额换到 {nxt} 立即重试" if nxt else "没有可用的 key"))
+        _bal["p"] = nxt
+        return bool(nxt)
     if MANUAL_SWITCH and not os.environ.get("CLAUDE_PROFILE_PIN"):
         used = _last_used["p"] or current_profile()
         s["exhausted"][used] = time.time()

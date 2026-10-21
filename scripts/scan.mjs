@@ -218,8 +218,10 @@ async function board次新(top) {
     //   口径=行情库最新交易日收盘(盘前/盘中跑=T-1), 60 日涨跌对 60 个交易日前收盘(上市不足 60 日=对首日收盘), 与东财 f24 近似不等同
     const { spawnSync } = await import('node:child_process');
     const PY = path.join(path.dirname(fileURLToPath(import.meta.url)), 'venv', 'Scripts', 'python.exe');
-    const r = spawnSync(PY, ['-X', 'utf8', path.join(path.dirname(fileURLToPath(import.meta.url)), 'quotes', 'cixin_local.py'), '--top', String(top)],
-      { encoding: 'utf8', windowsHide: true, timeout: 30000 });
+    const _hm = new Date().getHours() * 100 + new Date().getMinutes(), _wd = new Date().getDay();
+    const live = _wd >= 1 && _wd <= 5 && _hm >= 930 && _hm < 1505 && !process.argv.includes('--asof');   // 10/20 晚: 盘中用新浪实时价(原盘中=T-1 收盘口径, 且 4/12 个时段无输出)
+    const r = spawnSync(PY, ['-X', 'utf8', path.join(path.dirname(fileURLToPath(import.meta.url)), 'quotes', 'cixin_local.py'), '--top', String(top), ...(live ? ['--live'] : [])],
+      { encoding: 'utf8', windowsHide: true, timeout: 60000 });
     let j = null;
     try { j = JSON.parse((r.stdout || '').trim().split('\n').pop()); } catch { /* 下面统一报错 */ }
     if (!j || j.error || !j.rows?.length) {
@@ -230,8 +232,8 @@ async function board次新(top) {
       } catch { /* 下面统一报错 */ }
       throw new Error(`东财: ${e.message}; 本地备源: ${j?.error || r.error?.message || (r.stderr || '').slice(0, 120) || '无输出'}`);
     }
-    const md = [`(东财失败, 本地行情库兜底: 近一年上市 ${j.n} 只, 数据日 ${j.asof} 收盘, 按60日涨跌幅升序; 60日=对60个交易日前收盘, 上市不足60日对首日收盘, 与东财口径近似)`]
-      .concat(j.rows.map((x, i) => `${i + 1}. ${x.name}(${x.code}) 上市${x.list_date} 60日${fmtPct(x.pct60)} ${j.asof.slice(5)}日${fmtPct(x.pct_today)}`));
+    const md = [`(东财失败, 本地行情库兜底: 近一年上市 ${j.n} 只, 价格口径 ${j.asof}${/实时|收盘/.test(j.asof) ? '' : ' 收盘'}, 按60日涨跌幅升序; 60日=对60个交易日前收盘, 上市不足60日对首日收盘, 与东财口径近似)`]
+      .concat(j.rows.map((x, i) => `${i + 1}. ${x.name}(${x.code}) 上市${x.list_date} 60日${fmtPct(x.pct60)} 今日${fmtPct(x.pct_today)}`));
     return { src: 'local-db(东财失败兜底)', warn: String(e.message || e).slice(0, 80), md: md.join('\n'), raw: j.rows };
   }
 }
