@@ -48,6 +48,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry", action="store_true")
     a = ap.parse_args()
+    try:   # 10/21 晚: 旧 paper 决策链按用户令整体停用, 新 paper(策略执行器 se_fleet)按在跑名单全体拉起, 不再看 sys_job 暂停状态 → 复活提醒只会误报"要不要恢复旧链", 跳过
+        sys.path.insert(0, str(ROOT / "scripts" / "dfcf" / "paper"))
+        from se_exec import flag
+        if flag("SE_FLEET", "0") == "1":
+            print("旧 paper 链 10/21 起整体停用, 新 paper 执行器按在跑名单全体运行; 复活检查跳过(不推微信)")
+            print(json.dumps({"skipped": "SE_FLEET=1"}, ensure_ascii=False))
+            return
+    except Exception:   # noqa: BLE001
+        pass
     import mentors as M
     import manual_backfill as mb
     cur = mb.db().cursor()

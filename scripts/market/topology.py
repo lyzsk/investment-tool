@@ -31,6 +31,10 @@ IND_SW = MKT / "index_pit" / "stock_industry.jsonl"
 IDX_CON = MKT / "index_pit" / "index_constituent.jsonl"
 F10 = ROOT / "downloads" / "f10"
 N_WIN, N_SHORT, TOP, NEG = 60, 20, 10, 2
+# 10/21 用户教学: 多来源加权(近期涨停分析最高; rules.md 是桃哥 1~2 年前的地图, 不一定还有效; 统计类反映近 60/20 日真实联动)
+# 配比 涨停近期 : rules.md : 统计类 : 其他(更早涨停) —— 用户给了 4:4:2:0.5 / 4:2.5:2.5:0.5 两档并让我自己设计; 默认取后者, 且按"本票有没有这类证据"重新归一:
+#   本票近 120 日没上过涨停表 → 涨停两项不参与(不然冷门票永远没邻居); 本票不在 rules.md → rules 不参与
+TOPO_W = {k: float(v) for k, v in zip(("lu", "rules", "stat", "old"), __import__("os").environ.get("TOPO_W", "4,2.5,2.5,0.5").split(","))}
 # 行业关键词 → 期货(名字与 downloads/futures/<日>.md / facts 外围行一致); 子串匹配东财行业 + 申万三级名
 FUT_MAP = [(r"生猪|养殖", ["生猪", "玉米", "豆粕"]), (r"饲料", ["豆粕", "玉米"]), (r"禽|鸡", ["鸡蛋", "玉米", "豆粕"]),
            (r"种植|农产品", ["玉米", "豆粕"]), (r"油气|石油|炼化|油服|油田", ["原油", "布伦特原油"]),
@@ -158,11 +162,24 @@ def concepts():
     return out
 
 
+def _lu_s(x):
+    return 1 - np.exp(-x / 1.0)
+
+
 def build(D):
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import topo_sources as TS
+    LU, lu_seen = TS.lu_pairs(D)
+    RC, MAN = TS.rules_clusters(), TS.manual()
+    by_rules = {}
+    for c0, ks in RC.items():
+        for k in ks:
+            by_rules.setdefault(k[1], set()).add(c0)
     uni = stock_universe(D)
     syms, dates, R = returns(closes(D, list(uni)))
     C60, C20 = corr(R, 45), corr(R[:, -N_SHORT:], 15)
     codes = [s[2:] for s in syms]
+    idx = {c: k for k, c in enumerate(codes)}
     em, sw = industries(D)
     imem, con = index_members(D), concepts()
     by_em = {}
@@ -177,6 +194,18 @@ def build(D):
         cand = set(np.argpartition(-r60, 40)[:40]) | set(np.argpartition(-r20, 20)[:20])
         same = [j for j in by_em.get(em.get(c), []) if j != i]
         cand |= set(sorted(same, key=lambda j: -r60[j])[:15])
+        lu = LU.get(c, {})
+        cand |= {idx[x] for x, _ in sorted(lu.items(), key=lambda kv: -(kv[1][0] + 0.25 * kv[1][1]))[:30] if x in idx}
+        mine = RC.get(c, [])
+        for k in mine:
+            cand |= {idx[x] for x in by_rules.get(k[1], ()) if x in idx and x != c}
+        cand.discard(i)
+        w = dict(TOPO_W)
+        if c not in lu_seen:
+            w["lu"] = w["old"] = 0.0
+        if not mine:
+            w["rules"] = 0.0
+        wsum = sum(w.values()) or 1.0
         nb = []
         for j in cand:
             src, a, b = [], float(C60[i, j]), float(C20[i, j])
@@ -191,18 +220,53 @@ def build(D):
             sc = con.get(c, set()) & con.get(codes[j], set())
             if sc:
                 src.append("同概念:" + "/".join(sorted(sc)[:2]))
+            s_stat = max(0.0, min(1.0, max(x for x in (a, b, 0.0) if x == x)))
+            if any(t in src for t in ("同行业", "同申万")) or any(t.startswith("同概念") for t in src):
+                s_stat = max(s_stat, 0.35)
+            e = lu.get(codes[j])
+            s_lu, s_old, lab_lu = (_lu_s(e[0]), 1 - np.exp(-e[1] / 2.0), max(e[2], key=e[2].get)) if e else (0.0, 0.0, None)
+            if e and e[0] > 0:
+                src.append(f"涨停共振:{lab_lu}")
+            elif e:
+                src.append(f"早期涨停共振:{lab_lu}")
+            theirs = RC.get(codes[j], [])
+            s_r, lab_r = 0.0, None
+            for k in mine:
+                for k2 in theirs:
+                    v = 1.0 if k == k2 else 0.7 if k[1] == k2[1] else 0.35 if k[0] == k2[0] else 0.0
+                    if v > s_r:   # 10/21 13:2x 用户: 簇名到最细一级(大类 > 子赛道 > 组); 只同大类时记邻居自己的子赛道, 不再停在"AI 硬件"
+                        g = k2[2].split(":", 1)[1] if ":" in k2[2] else ""
+                        s_r, lab_r = v, (f"{k2[0]}>{k2[1]}" + (f">{g}" if v == 1.0 and g else ""))
+            if s_r:
+                src.append(f"rules:{lab_r.split('>', 1)[1] if '>' in lab_r else lab_r}")
             if not src:
                 continue
-            st = max(x for x in (a, b, 0.2) if x == x)
+            sc = (w["lu"] * s_lu + w["rules"] * s_r + w["stat"] * s_stat + w["old"] * s_old) / wsum
             nb.append({"c": codes[j], "n": uni[syms[j]], "r60": round(a, 2) if a == a else None, "r20": round(b, 2) if b == b else None,
-                       "src": src, "conf": round(st * len(src), 2)})
+                       "src": src, "conf": round(sc, 3), "s": {"lu": round(s_lu, 2), "rules": round(s_r, 2), "stat": round(s_stat, 2), "old": round(s_old, 2)},
+                       "_lab": {"lu": lab_lu if e and e[0] > 0 else None, "rules": lab_r, "stat": em.get(c) if s_stat >= 0.35 and em.get(codes[j]) == em.get(c) else None, "old": lab_lu if e else None}})
         nb.sort(key=lambda x: -x["conf"])
+        lab = {}
+        for x in nb[:30]:   # 主簇 / 次簇 = 邻居按来源贡献给各自的簇名加分, 取前两名
+            for k, nmk in x.pop("_lab").items():
+                if nmk:
+                    lab[nmk] = lab.get(nmk, 0.0) + w[k] * x["s"][k] / wsum
+        for x in nb[30:]:
+            x.pop("_lab", None)
+        clus = sorted(lab.items(), key=lambda kv: -kv[1])
+        own = [f"{k[0]}>{k[1]}" + (f">{k[2].split(':', 1)[1]}" if ":" in k[2] else "") for k in mine]
+        if own:   # 本票在 rules.md 里有归属: 主簇 = 自己最细的那级; 次簇 = 邻居加分最高、且不同子赛道的簇
+            sec0 = own[0].split(">")[1]
+            clus = [(own[0], 9.0)] + [(k, v) for k, v in clus if (k.split(">")[1] if ">" in k else k) != sec0]
+        man = {k: v for k, v in (MAN.get(c) or {}).items()}
         neg = [{"c": codes[j], "n": uni[syms[j]], "r60": round(float(C60[i, j]), 2)} for j in np.argsort(r60 + (r60 == -9) * 99)[:NEG]
                if C60[i, j] <= -0.6 and C20[i, j] <= -0.45]   # 5000 只两两比 + 扣大盘后大小盘风格天然反向, −0.45 还有八成票命中(10/19 实测) → 只留极端的
         names = f"{em.get(c) or ''} {sw.get(c) or ''}"
         fut = [f for pat, fs in FUT_MAP if re.search(pat, names) for f in fs]
         fut = list(dict.fromkeys(fut + imem.get(c, [])))
-        out.append({"c": c, "n": uni[syms[i]], "ind": em.get(c), "sw": sw.get(c), "fut": fut, "nb": nb[:TOP], "neg": neg})
+        out.append({"c": c, "n": uni[syms[i]], "ind": em.get(c), "sw": sw.get(c), "fut": fut, "nb": nb[:TOP], "neg": neg,
+                    "main": clus[0][0] if clus else None, "sub": clus[1][0] if len(clus) > 1 and clus[1][1] >= 0.1 else None,   # 次簇证据太弱(<0.1)不写, 宁缺 "clus": [[k, round(v, 3)] for k, v in clus[1:6]], "w": {k: round(v / wsum, 3) for k, v in w.items()},
+                    **({"manual": man} if man else {})})
     return out, dates
 
 
@@ -231,8 +295,10 @@ def line(code, D=None, k=5, strict=False):
     r = load(code, D, strict)
     if not r:
         return ""
-    nb = " ".join(f"{x['n']}({'+'.join(s[:3] if s.startswith('同概念') else s for s in x['src'])})" for x in r["nb"][:k])
-    return f"拓扑(参考, 不是买卖信号): 行业 {r.get('ind') or '-'} / {r.get('sw') or '-'} | 邻居 {nb or '-'} | 期货 {'/'.join(r['fut']) or '-'}"
+    nb = " ".join(f"{x['n']}({'+'.join(s[:3] if s.startswith('同概念') else s for s in x['src'][-3:])})" for x in r["nb"][:k])
+    man = "; ".join(f"{k}: {'/'.join(v)}" for k, v in (r.get("manual") or {}).items())
+    return (f"拓扑(参考, 不是买卖信号): 主簇 {r.get('main') or '-'} / 次簇 {r.get('sub') or '-'} | 行业 {r.get('ind') or '-'} / {r.get('sw') or '-'} | 邻居 {nb or '-'} | 期货 {'/'.join(r['fut']) or '-'}"
+            + (f" | 人工标注 {man}" if man else ""))
 
 
 def brief(codes, D, k=3):

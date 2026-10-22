@@ -55,7 +55,7 @@ public class PaperChainHandler implements JobHandler {
         String date = today.format(DateTimeFormatter.BASIC_ISO_DATE);
 
         Path driver =
-            Paths.get(projectConfig.getRootDir(), "scripts", "taoge-chain", "run_chain.py");
+            Paths.get(projectConfig.getRootDir(), "scripts", "chain", "run_chain.py");
         ProcessBuilder pb = "review".equals(slot) ?
             new ProcessBuilder(python(), driver.toString(), "--skill", skill, "--review", "--date",
                 date) :

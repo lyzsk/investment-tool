@@ -752,8 +752,8 @@
      "base": 0.132
     }
    },
-   "next_avg": -0.0033,
-   "next_n": 20,
+   "next_avg": -0.0025,
+   "next_n": 21,
    "examples": [
     {
      "date": "2026-10-20",
@@ -765,7 +765,7 @@
      "rate": 0.0037,
      "hold": 3,
      "sell_t": null,
-     "next": null
+     "next": 0.0141
     },
     {
      "date": "2026-10-14",

@@ -47,7 +47,7 @@ public class PaperReviewHandler implements JobHandler {
         List<String> cmd = new ArrayList<>();
         cmd.add(python().toString());
         cmd.add(
-            Paths.get(projectConfig.getRootDir(), "scripts", "taoge-chain", "run_chain.py")
+            Paths.get(projectConfig.getRootDir(), "scripts", "chain", "run_chain.py")
                 .toString());
         cmd.add("--review");
         cmd.add("--date");

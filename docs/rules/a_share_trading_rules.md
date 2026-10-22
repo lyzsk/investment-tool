@@ -160,10 +160,10 @@
 | dfcf/paper/matcher.mjs:432(日线回放)、551(实盘) | 只有 ±2% 笼子, 排除了 11/12 开头 | 漏了"10 个价位"(低价股误废单); ETF 被套笼子; 北交所应 5%; 回放把盘前单(集合竞价)也套了笼子 | `AR.priceCage` | 🩹 live |
 | dfcf/paper/matcher.mjs:395,414,513 | `limitOf(o.code)` 不带日期/名称 | 回放日按今天的规则算 | `limitOf(code,{date,name})` | 🩹 live |
 | dfcf/paper/matcher.mjs:91 `boardLimit` | 拒落账闸 10cm→11%/20cm→21%/30cm→31%/转债 32% | 只是闸, 不是规则; 20% 档 ETF 会被 11% 误拦(少见) | 可以不改 | 📝 |
-| taoge-chain/run_chain.py:908 `limit_of` | 同 snapshot | 同上 | `_AR.limit_pct` | 🩹 live |
-| taoge-chain/run_chain.py:1093(v06 区间闸) | 前收×(1±(9.7%+0.5pt)) | 转债挂单超出 ±10.2% 会被当成"编造"打回; 新股也被限制 | `_AR.limit_prices` 精确涨跌停价 | 🩹 live |
-| taoge-chain/run_chain.py:725 | `lim//px//100*100` | 科创/北交所/转债的手数不对(只是提示文字) | `_AR.round_qty` | 🩹 live |
-| taoge-chain/run_chain.py v06 qty 校验 | 只校验正整数 | 不校验申报单位(科创 200 起/转债 10 张) | `_AR.valid_qty`(新增闸, `--no-lot-gate` 可不加) | 🩹 live |
+| chain/run_chain.py:908 `limit_of` | 同 snapshot | 同上 | `_AR.limit_pct` | 🩹 live |
+| chain/run_chain.py:1093(v06 区间闸) | 前收×(1±(9.7%+0.5pt)) | 转债挂单超出 ±10.2% 会被当成"编造"打回; 新股也被限制 | `_AR.limit_prices` 精确涨跌停价 | 🩹 live |
+| chain/run_chain.py:725 | `lim//px//100*100` | 科创/北交所/转债的手数不对(只是提示文字) | `_AR.round_qty` | 🩹 live |
+| chain/run_chain.py v06 qty 校验 | 只校验正整数 | 不校验申报单位(科创 200 起/转债 10 张) | `_AR.valid_qty`(新增闸, `--no-lot-gate` 可不加) | 🩹 live |
 | dfcf/live_watch.mjs:182 | `vwap=amt/(vol×100)`, `pace=vol/prevVol` | 腾讯 qt 科创板量是股 → 均价小 100 倍; 转债 1 手=10 张 → 小 10 倍; pace 单位混用 | `AR.volumeUnit("tencent_qt")` | 🩹 live |
 | dfcf/live_watch.mjs:234 | `≥前收×1.095` 判"近涨停" | 20cm/30cm/ST 都按 10% 判 | `AR.limitPrices` | 🩹 live |
 | quotes/kline.mjs:52 / 80 / 142 | 行情库源一律 ÷100; 腾讯源不换算; 新浪不复权源不换算 | 转债量小 10 倍; 腾讯科创板=股, 与东财的"手"混在同一个档 | `AR.volumeUnit` | 🩹 live |

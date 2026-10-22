@@ -51,7 +51,7 @@
    "cls": "全局",
    "bulk": false
   },
-  "scripts/taoge-chain/run_chain.py": {
+  "scripts/chain/run_chain.py": {
    "sha256": "730e297e80ae7976479cc49b4de40caffe7242e4449f62383f8ca3cc7803b0f9",
    "bytes": 389848,
    "lines": 5823,

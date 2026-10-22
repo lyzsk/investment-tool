@@ -56,7 +56,7 @@
 
 4. **单测体系**（TA `tests/`）
    - 怎么做：v01~vblind、`resolve_px`、`limit_of`、matcher 五哨兵逐个做成 pytest/node:test。每个历史事故写一条回归用例，文件头注明出处（大亚 14.00、襄阳 A4、9/29 死链），这是照 TA "docstring 写 issue 号"的做法。再仿 `test_graph_end_to_end.py` 用假 claude（返回固定产物）跑 01→06，把连线钉住。另可借鉴 `test_layering.py`，用 AST 检查分层（例如只有 snapshot 层能访问行情源）。
-   - 落点：新建 `scripts/taoge-chain/tests/`。
+   - 落点：新建 `scripts/chain/tests/`。
    - 改动量：约 300 行测试，不动业务代码。
    - 风险：低。
 

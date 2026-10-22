@@ -225,7 +225,7 @@
   "chain": "d309b9079721",
   "distill": "abfec1d97ca0",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "47ea1eecdeb7",
+   "scripts/chain/run_chain.py": "47ea1eecdeb7",
    "skills/qushitiange-skill/workflows/chain.md": "34f7a120fc42",
    "skills/qushitiange-skill/SKILL.md": "ef95b460a6c2",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

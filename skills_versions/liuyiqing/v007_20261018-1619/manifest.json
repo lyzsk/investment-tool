@@ -96,7 +96,7 @@
   "chain": "3f6d7be38c1e",
   "distill": "51a731f747e6",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "b574945f1cb8",
+   "scripts/chain/run_chain.py": "b574945f1cb8",
    "skills/liuyiqing-skill/workflows/chain.md": "6db921c8f66d",
    "skills/liuyiqing-skill/SKILL.md": "f51077d758e4",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

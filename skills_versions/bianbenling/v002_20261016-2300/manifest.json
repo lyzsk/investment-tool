@@ -100,7 +100,7 @@
   "chain": "bdf58b74f4f9",
   "distill": "fee8d0ad5062",
   "chain_files": {
-   "scripts/taoge-chain/run_taoge_chain.py": "3c945631c843",
+   "scripts/chain/run_taoge_chain.py": "3c945631c843",
    "skills/bianbenling-skill/workflows/chain.md": "6a9fcf38cea8",
    "skills/bianbenling-skill/SKILL.md": "d681977443f5",
    "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"

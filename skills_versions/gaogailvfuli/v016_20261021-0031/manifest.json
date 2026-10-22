@@ -200,7 +200,7 @@
   "chain": "32125e7ce663",
   "distill": "db575f9154eb",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "cf43a5fd991a",
+   "scripts/chain/run_chain.py": "cf43a5fd991a",
    "skills/gaogailvfuli-skill/workflows/chain.md": "358134e965c1",
    "skills/gaogailvfuli-skill/SKILL.md": "a1529bdc3717",
    "scripts/dfcf/paper/params.yaml": "8aa4869152ad"

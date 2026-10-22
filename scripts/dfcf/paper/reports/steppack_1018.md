@@ -114,7 +114,7 @@ sub3 每会话的“额外动作”（base+new 共 161 个会话的平均值）�
 2. 内联附上 cand_snap.md、paper_state.json、gate.json（都很小，模型每会话本来就要读/cat 约 1 次）；**01_facts.md 先不附**（24KB，每会话只读 0.72 次，附上去每个会话都要多付一次缓存写，算下来不一定划算——想附就先做 A/B）；facts.txt 不附；
 3. 工作方式约定，比 0915 版多两条：
    - “你本会话刚 Write 过的 02/04/05 产物就在上文，**不要再 Read/cat 回来核对**”；
-   - “**不要读 scripts/taoge-chain/*.py、matcher.mjs、quality_hooks.py、price_rules.py** 去猜校验规则；校验不过驱动器会把原因发回”；
+   - “**不要读 scripts/chain/*.py、matcher.mjs、quality_hooks.py、price_rules.py** 去猜校验规则；校验不过驱动器会把原因发回”；
    - 保留“不自写 python 校验”“rules 按行号 Read”。
 4. 预期：每会话少 4~6 轮 → 80 会话 × $0.2~0.4 ≈ **每天 $15~30**（全天 6~12%）。先只在沙盒开（建议另起开关 `CHAIN_SUB_PACK`，跟 0915 的分开，好做消融），跑一天对比 sub3 每会话轮次和花费。
 

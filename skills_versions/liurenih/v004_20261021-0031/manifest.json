@@ -51,7 +51,7 @@
   "chain": "966b92284565",
   "distill": "f93111cf0439",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "cf43a5fd991a",
+   "scripts/chain/run_chain.py": "cf43a5fd991a",
    "skills/liurenih-skill/workflows/chain.md": null,
    "skills/liurenih-skill/SKILL.md": null,
    "scripts/dfcf/paper/params.yaml": "8aa4869152ad"

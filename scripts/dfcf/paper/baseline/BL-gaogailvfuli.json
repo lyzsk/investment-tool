@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "gaogailvfuli",
  "name": "高概率复利",
- "generated_at": "2026-10-20T19:25:46",
+ "generated_at": "2026-10-21T23:55:44",
  "since": "2026-10-08",
- "until": "2026-10-20",
+ "until": "2026-10-21",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "常数",
@@ -281,6 +281,15 @@
    "why": "加仓: 目标总仓 98% | 打法 弱势震荡(按打法) 池分 5.338",
    "status": "reject",
    "note": "资金不足一手"
+  },
+  {
+   "date": "2026-10-21",
+   "side": "BUY",
+   "code": "605123",
+   "amount": 1383.85,
+   "why": "加仓: 目标总仓 98% | 打法 弱势震荡(按打法) 池分 5.449",
+   "status": "reject",
+   "note": "资金不足一手"
   }
  ],
  "trades": [
@@ -517,6 +526,14 @@
    "cash": 3319.46,
    "mv": 93461.2,
    "nav": 96780.66,
+   "filled": 0,
+   "orders": 1
+  },
+  {
+   "date": "2026-10-21",
+   "cash": 3319.46,
+   "mv": 92407.8,
+   "nav": 95727.26,
    "filled": 0,
    "orders": 1
   }
@@ -1003,7 +1020,7 @@
    "p_trade": 0.932,
    "p_dir_given_trade": [
     0.108,
-    0.014,
+    0.015,
     0.878
    ],
    "decision": {
@@ -1019,6 +1036,50 @@
      "L4": "延续"
     },
     "add_step": 0.4174534327573281,
+    "red_step": 0.3091893759643052,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.966,
+   "sizing": {
+    "single_size": 0.097,
+    "k": 1,
+    "top_play": "转债"
+   }
+  },
+  {
+   "date": "2026-10-21",
+   "orders": [
+    {
+     "side": "BUY",
+     "code": "605123",
+     "name": "派克新材",
+     "play": "弱势震荡",
+     "how": "按打法",
+     "filled": false,
+     "note": "资金不足一手"
+    }
+   ],
+   "stale": 0,
+   "state_day": "2026-10-20",
+   "p_trade": 0.924,
+   "p_dir_given_trade": [
+    0.251,
+    0.116,
+    0.633
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 1,
+    "tp_hat": 0.2738,
+    "tp_target_cap": 0.2738,
+    "tp_final": 0.682043051359154,
+    "tp_final_cap": 0.682043051359154,
+    "src": {
+     "L1": "常数",
+     "L2": "模型",
+     "L4": "延续"
+    },
+    "add_step": 0.40824305135915406,
     "red_step": 0.3091893759643052,
     "n_new": 2
    },

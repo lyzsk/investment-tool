@@ -193,7 +193,7 @@ def run(day, here, budget, dry, with_mix=False):
                      CHAIN_PERSONA_ASOF_REQUIRED="1")   # 10/17: 没锁上画像的链驱动器直接拒跑
             if TAG:
                 e["CHAIN_RUN_TAG"] = TAG   # 10/17: A/B 臂产物分目录 asof-<日>-<tag>
-            cmd = [PY, "-X", "utf8", "scripts/taoge-chain/run_chain.py", "--skill", sk, "--slot", slot, "--date", d8, "--asof", str(here / "sb")] + (["--dry"] if dry else [])
+            cmd = [PY, "-X", "utf8", "scripts/chain/run_chain.py", "--skill", sk, "--slot", slot, "--date", d8, "--asof", str(here / "sb")] + (["--dry"] if dry else [])
             lf = open(here / "logs" / f"{sk}_{slot}.log", "w", encoding="utf-8")
             procs.append((sk, subprocess.Popen(cmd, cwd=ROOT, env=e, stdout=lf, stderr=subprocess.STDOUT, creationflags=NOWIN), lf))
             time.sleep(3)

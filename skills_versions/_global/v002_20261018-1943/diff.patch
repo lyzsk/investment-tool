@@ -31,8 +31,8 @@
  # 10/18 用户批(省 token): 每步素材包/工作方式约定; 沙盒跑完后改 1
 -CHAIN_STEP_PACK=0   # 10/18 沙盒 new 组: token 与基线持平(1.87 亿 vs 1.86 亿), 没测出省 → 先不开, 查清工具调用次数再定
 +CHAIN_STEP_PACK=1   # 10/18 晚查因后开: 0915 输入 -16%、工具调用 -24%(超出噪声带), 每天约省 $5~7; 盘中子链没覆盖(占全天 64%), 子链版另起开关再测
---- v001_20261018-1713/scripts/taoge-chain/run_chain.py
-+++ v002_20261018-1943/scripts/taoge-chain/run_chain.py
+--- v001_20261018-1713/scripts/chain/run_chain.py
++++ v002_20261018-1943/scripts/chain/run_chain.py
 @@ -127,4 +127,19 @@
              f"{real}/ 是之后蒸馏过的新版本, 含回放日之后的信息, 禁止读取。\n\n")
      return note + prompt.replace(real, PERSONA_REL)

@@ -98,7 +98,7 @@
   "chain": "d3e11af3d5f8",
   "distill": "5a05b9348b92",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "c7d108373e80",
+   "scripts/chain/run_chain.py": "c7d108373e80",
    "skills/anlizhuohuo-skill/workflows/chain.md": "d7e6870f5000",
    "skills/anlizhuohuo-skill/SKILL.md": "a653d0dab463",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

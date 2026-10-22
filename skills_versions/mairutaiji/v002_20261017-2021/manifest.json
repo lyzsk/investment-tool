@@ -40,7 +40,7 @@
   "chain": "3fa2e04a8b19",
   "distill": "13a61e8c93d3",
   "chain_files": {
-   "scripts/taoge-chain/run_taoge_chain.py": "96a3641fcc8e",
+   "scripts/chain/run_taoge_chain.py": "96a3641fcc8e",
    "skills/mairutaiji-skill/workflows/chain.md": null,
    "skills/mairutaiji-skill/SKILL.md": null,
    "scripts/dfcf/paper/params.yaml": "852374ea7f2b"

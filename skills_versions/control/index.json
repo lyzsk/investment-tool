@@ -234,8 +234,46 @@
     "chain": "54cad383f6d6",
     "distill": "fec7c5d24f9d"
    }
+  },
+  {
+   "v": 8,
+   "id": "v008_20261021-2036",
+   "ts": "2026-10-21T20:36:55",
+   "effective_from": "2026-10-21T20:13:04",
+   "unit": "skill",
+   "version_hash": "4a7be565cb2ff486b55c2ab0016e1cc0d9fa2d74100169f2c8662caf87fd17db",
+   "cat_hash": {
+    "提示词": "8a96774466d206155b3c5ab7ec6eaea36475b5d8435b685d8be03a740f0fbeba",
+    "数据": "80e9a5842d8440476a1d8157912ca01aed800a01038a776b420e6282b1ed0669",
+    "画像": "0bb173596a75a3345946fb9b56f26d8496cddb2d1eac6dddf6248afc51cf6503"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v007_20261019-1946",
+   "changed": {
+    "added": [],
+    "modified": [
+     "workflows/chain.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "workflows/chain.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 1
+   },
+   "bytes_weight": 52785,
+   "why": "check-md 2026-10-21 20:36",
+   "code": {
+    "chain": "93b90cde2d0e",
+    "distill": "bb0eee685146"
+   }
   }
  ],
  "events": [],
- "group": "active"
+ "group": "excluded"
 }

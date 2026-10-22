@@ -100,7 +100,7 @@
   "chain": "c03a09feebe0",
   "distill": "f7118e871730",
   "chain_files": {
-   "scripts/taoge-chain/run_taoge_chain.py": "3c945631c843",
+   "scripts/chain/run_taoge_chain.py": "3c945631c843",
    "skills/stzhilang-skill/workflows/chain.md": "40756f2c9de2",
    "skills/stzhilang-skill/SKILL.md": "6a6ea2e88525",
    "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"

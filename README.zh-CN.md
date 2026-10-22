@@ -93,7 +93,7 @@
 
 ```
 Quartz(sys_job) ──► JobHandler(inv-stock) ──► ProcessUtils.run(node|python 脚本) ──► 文件 ──► Java 写库
-  paperChainHandler ─► scripts/taoge-chain/run_chain.py --skill <id> --slot <HHMM>
+  paperChainHandler ─► scripts/chain/run_chain.py --skill <id> --slot <HHMM>
                            ├─ scripts/dfcf/paper/facts.mjs(scan.mjs 六榜 + snapshot.mjs 行情 + md + rules_index)
                            ├─ claude -p × 01..06 步 + 盲审(提示词 = skills/<id>-skill/workflows/chain.md)
                            └─ 计划单 → scripts/dfcf/paper/plans/<日期>/
@@ -151,7 +151,7 @@ investment-tool
 │   ├── quotes/        # kline.mjs 多源日线 / indicators.mjs / fetch_quotes.mjs(转债与分时归档)
 │   ├── dfcf/paper/    # paper 模拟盘: facts / matcher / report / similarity / scorecard(状态目录不进 git)
 │   ├── dfcf/snapshots/# 实盘与 hermes 对话存档(隐私区, 不进 git)
-│   ├── taoge-chain/   # 决策链驱动 run_chain.py(+ pre_market.py)
+│   ├── chain/   # 决策链驱动 run_chain.py(+ pre_market.py)
 │   ├── bilibili/      # fetch_bilibili.mjs + process_video.py
 │   ├── backfill_bilibili/ # B 站历史追溯引擎(只在本机跑, 不进 git)
 │   ├── tzzb/          # 账本抓取 / md / 复盘 / 画像 / 蒸馏工具

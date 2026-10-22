@@ -58,12 +58,12 @@
     "scripts/lhb/seat_style_llm.py",
     "scripts/md/check_md_daily.py",
     "scripts/skills_ver/persona_versions.py",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/mentor_model.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/ledger_limits.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -126,7 +126,7 @@
    "where": "scripts/dfcf/paper/books/",
    "writers": [
     "scripts/market/collect_book.py",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/dfcf/paper/rerun_day.py",
     "scripts/dfcf/paper/t_bot.py",
     "scripts/dfcf/paper/t_decide.py",
@@ -167,7 +167,7 @@
     "scripts/market/collect_auction.py",
     "scripts/market/collect_minute.py",
     "scripts/skills_ver/persona_versions.py",
-    "scripts/taoge-chain/pre_market.py",
+    "scripts/chain/pre_market.py",
     "scripts/tzzb/mentor_fingerprint.py",
     "scripts/tzzb/mentor_model.py",
     "scripts/tzzb/onboard_mentor.py",
@@ -236,10 +236,10 @@
     "scripts/market/collect_cb_facts.py"
    ],
    "readers": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -248,10 +248,10 @@
    "where": "scripts/dfcf/paper/consistency/",
    "writers": [],
    "readers": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -266,11 +266,11 @@
     "scripts/dfcf/paper/t_event.py",
     "scripts/dfcf/paper/t_review.py",
     "scripts/md/check_md_daily.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/t_event.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -292,7 +292,7 @@
    "name": "facts",
    "where": "scripts/dfcf/paper/facts/",
    "writers": [
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/dfcf/paper/facts.mjs"
    ],
    "readers": [
@@ -305,7 +305,7 @@
     "scripts/lib/auction.mjs",
     "scripts/lib/ctx_index.py",
     "scripts/md/check_md_daily.py",
-    "scripts/taoge-chain/pre_market.py",
+    "scripts/chain/pre_market.py",
     "scripts/tzzb/onboard_mentor.py"
    ],
    "decision_readers": [
@@ -405,7 +405,7 @@
     "scripts/market/minute_supplement.py",
     "scripts/market/refresh_factors.py",
     "scripts/market/topology.py",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/order_inference.py"
    ],
    "decision_readers": [
@@ -413,7 +413,7 @@
     "scripts/dfcf/paper/facts.mjs",
     "scripts/dfcf/paper/mix_plans.py",
     "scripts/lib/ctx_index.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -435,7 +435,7 @@
     "scripts/market/collect_open15.py",
     "scripts/market/minute_supplement.py",
     "scripts/quotes/fetch_quotes.mjs",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/backfill_fill_gaps.py",
     "scripts/tzzb/backfill_fill_minutes.py",
     "scripts/tzzb/order_inference.py",
@@ -444,7 +444,7 @@
    "decision_readers": [
     "scripts/dfcf/paper/attribution.py",
     "scripts/dfcf/paper/matcher.mjs",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -452,7 +452,7 @@
    "name": "ledger",
    "where": "scripts/dfcf/paper/ledger/",
    "writers": [
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/tzzb_guard.py"
    ],
    "readers": [
@@ -532,13 +532,13 @@
     "scripts/dfcf/paper/top_chains_report.py",
     "scripts/dfcf/snapshots/order-skill/holdings.py",
     "scripts/lib/ctx_index.py",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/mentor_model.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/attribution.py",
     "scripts/lib/ctx_index.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -546,7 +546,7 @@
    "name": "nav",
    "where": "scripts/dfcf/paper/nav/",
    "writers": [
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/dfcf/paper/override_stats.py",
     "scripts/dfcf/paper/settle_decisions.py"
    ],
@@ -614,11 +614,11 @@
    "readers": [
     "scripts/dfcf/paper/shadow_exec.py",
     "scripts/lib/ctx_index.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
     "scripts/lib/ctx_index.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -628,10 +628,10 @@
    "writers": [],
    "readers": [
     "scripts/dfcf/paper/override_stats.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -678,13 +678,13 @@
     "scripts/dfcf/paper/reflect_trigger.py",
     "scripts/dfcf/paper/skill_weights.py",
     "scripts/skills_ver/persona_versions.py",
-    "scripts/taoge-chain/pre_market.py",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/pre_market.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/distill_daily.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/mix_plans.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -701,12 +701,12 @@
     "scripts/dfcf/paper/t_bot.py",
     "scripts/market/collect_book.py",
     "scripts/market/collect_minute.py",
-    "scripts/taoge-chain/pre_market.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/pre_market.py",
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/mix_plans.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -717,11 +717,11 @@
    "readers": [
     "scripts/dfcf/paper/quality_daily.py",
     "scripts/dfcf/paper/quality_hooks.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/quality_hooks.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -769,10 +769,10 @@
    "writers": [],
    "readers": [
     "scripts/dfcf/paper/reflect_trigger.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -826,8 +826,8 @@
     "scripts/lib/claude_usage_report.py",
     "scripts/md/check_md_daily.py",
     "scripts/quotes/indicators_db.py",
-    "scripts/taoge-chain/collect_lessons.py",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/collect_lessons.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/backfill_fill_minutes.py",
     "scripts/tzzb/hold_mining.py",
     "scripts/tzzb/mentor_fingerprint.py",
@@ -844,7 +844,7 @@
    ],
    "decision_readers": [
     "scripts/dfcf/paper/mix_plans.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -853,10 +853,10 @@
    "where": "scripts/dfcf/paper/retry_log.jsonl",
    "writers": [],
    "readers": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -870,12 +870,12 @@
     "scripts/dfcf/paper/attribution.py",
     "scripts/dfcf/paper/quality_daily.py",
     "scripts/dfcf/paper/quality_hooks.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/attribution.py",
     "scripts/dfcf/paper/quality_hooks.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -916,10 +916,10 @@
     "scripts/market/minute_supplement.py",
     "scripts/market/refresh_factors.py",
     "scripts/market/topology.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -944,12 +944,12 @@
     "scripts/dfcf/paper/quality_daily.py",
     "scripts/dfcf/paper/quality_hooks.py",
     "scripts/lib/ctx_index.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/quality_hooks.py",
     "scripts/lib/ctx_index.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -979,11 +979,11 @@
    "readers": [
     "scripts/dfcf/paper/slot_profile.py",
     "scripts/dfcf/paper/slot_weekly.py",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/onboard_mentor.py"
    ],
    "decision_readers": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -996,12 +996,12 @@
    "readers": [
     "scripts/dfcf/paper/quality_daily.py",
     "scripts/dfcf/paper/quality_hooks.py",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/onboard_mentor.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/quality_hooks.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -1015,14 +1015,14 @@
     "scripts/dfcf/paper/facts.mjs",
     "scripts/dfcf/paper/ledger_limits.py",
     "scripts/dfcf/paper/rerun_day.py",
-    "scripts/taoge-chain/pre_market.py",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/pre_market.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/onboard_mentor.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/facts.mjs",
     "scripts/dfcf/paper/ledger_limits.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -1102,12 +1102,12 @@
     "scripts/dfcf/paper/quality_hooks.py",
     "scripts/dfcf/paper/report_skills.mjs",
     "scripts/dfcf/paper/t_knowledge.py",
-    "scripts/taoge-chain/run_chain.py",
+    "scripts/chain/run_chain.py",
     "scripts/tzzb/onboard_mentor.py"
    ],
    "decision_readers": [
     "scripts/dfcf/paper/quality_hooks.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },
@@ -1143,11 +1143,11 @@
     "scripts/dfcf/paper/paper_vs_real.py",
     "scripts/lib/ctx_index.py",
     "scripts/market/collect_book.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "decision_readers": [
     "scripts/lib/ctx_index.py",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "level": "进决策"
   },

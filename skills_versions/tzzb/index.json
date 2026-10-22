@@ -120,6 +120,78 @@
     "chain": "ab4a249cacfc",
     "distill": "16de918b75d5"
    }
+  },
+  {
+   "v": 4,
+   "id": "v004_20261021-2036",
+   "ts": "2026-10-21T20:36:55",
+   "effective_from": "2026-10-21T19:07:00",
+   "unit": "skill",
+   "version_hash": "387b408f791bd905497eca49a0b6de5e3d1671cb16c580b8183b83aad5c4ab5b",
+   "cat_hash": {
+    "提示词": "387b408f791bd905497eca49a0b6de5e3d1671cb16c580b8183b83aad5c4ab5b"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v003_20261020-1925",
+   "changed": {
+    "added": [],
+    "modified": [
+     "PROCESS.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "PROCESS.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 0
+   },
+   "bytes_weight": 50297,
+   "why": "check-md 2026-10-21 20:36",
+   "code": {
+    "chain": "bc16f25a3b52",
+    "distill": "5a41876f66e7"
+   }
+  },
+  {
+   "v": 5,
+   "id": "v005_20261022-0800",
+   "ts": "2026-10-22T08:00:00",
+   "effective_from": "2026-10-22T00:36:41",
+   "unit": "skill",
+   "version_hash": "b2fd216d5f1fdfc7571477b5eed230daa9bda1c553867b448456d813c015966e",
+   "cat_hash": {
+    "提示词": "b2fd216d5f1fdfc7571477b5eed230daa9bda1c553867b448456d813c015966e"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v004_20261021-2036",
+   "changed": {
+    "added": [],
+    "modified": [
+     "PROCESS.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "PROCESS.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 0
+   },
+   "bytes_weight": 52847,
+   "why": "check-md 2026-10-21 08:00",
+   "code": {
+    "chain": "bc16f25a3b52",
+    "distill": "7543839eeb84"
+   }
   }
  ],
  "events": [],

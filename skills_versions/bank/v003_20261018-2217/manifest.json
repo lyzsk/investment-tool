@@ -86,7 +86,7 @@
   "chain": "7c5d931e8719",
   "distill": "639da8712cdf",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "62b0c54b3cb9",
+   "scripts/chain/run_chain.py": "62b0c54b3cb9",
    "skills/bank-skill/workflows/chain.md": null,
    "skills/bank-skill/SKILL.md": "7f402daf4980",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

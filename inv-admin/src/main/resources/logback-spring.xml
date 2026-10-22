@@ -10,7 +10,7 @@
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
     <springProperty scope="context" name="ROOT_DIR" source="project.root-dir" defaultValue="."/>
-    <property name="LOG_DIR" value="${ROOT_DIR}/logs"/>
+    <property name="LOG_DIR" value="${ROOT_DIR}/logs/inv-admin"/>   <!-- 2026-10-21 起 Java 日志单独放 logs/inv-admin/, 脚本日志放 logs/inv-stock/<业务>/ -->
     <property name="FILE_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{40} - %msg%n"/>
     <property name="SQL_LEVEL" value="INFO"/>

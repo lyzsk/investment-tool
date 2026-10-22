@@ -99,7 +99,7 @@
   "chain": "63dd29ab84b3",
   "distill": "8db53bdfbb04",
   "chain_files": {
-   "scripts/taoge-chain/run_taoge_chain.py": "afb26c9962db",
+   "scripts/chain/run_taoge_chain.py": "afb26c9962db",
    "skills/xingjianye-skill/workflows/chain.md": "820b69465e93",
    "skills/xingjianye-skill/SKILL.md": "d22e38d03295",
    "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"

@@ -532,9 +532,21 @@
    "mech": null,
    "mech_text": null,
    "level": "话术级"
+  },
+  "R45": {
+   "id": "R45",
+   "title": "9 月起\"有新钱才动\": 入金日当天必有成交(全窗口 44/44), 无资金流日 16/19 零腿",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": null,
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
   }
  },
- "n": 44,
+ "n": 45,
  "n_mech": 1,
  "n_dir": 34,
  "n_distilled": 0

@@ -24,8 +24,8 @@
 +  T-1结构: 1.0
 +  开盘情景: 1.0
 +  相似市况: 0.5
---- v010_20261020-2303/scripts/taoge-chain/run_chain.py
-+++ v011_20261021-0031/scripts/taoge-chain/run_chain.py
+--- v010_20261020-2303/scripts/chain/run_chain.py
++++ v011_20261021-0031/scripts/chain/run_chain.py
 @@ -348,5 +348,5 @@
          print(f"WARN: 02 stance 写法不认识({c.get('stance')}), 按'多'处理")
      c["stance"] = st or "多"

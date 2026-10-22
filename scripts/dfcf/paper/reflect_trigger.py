@@ -40,7 +40,7 @@ ROOT = HERE.parents[2]
 OUT = HERE / "reflection"
 RESULTS = ROOT / "results"
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(ROOT / "scripts" / "taoge-chain"))
+sys.path.insert(0, str(ROOT / "scripts" / "chain"))
 import mimicry_score as ms  # noqa: E402  Real/Chain/Prices/derive/overlap 同口径
 from collect_lessons import contract_of  # noqa: E402  07 contract 解析同口径
 

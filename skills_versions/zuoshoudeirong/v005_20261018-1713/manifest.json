@@ -222,7 +222,7 @@
   "chain": "a624037e5741",
   "distill": "04a6f827d7c3",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "fc223ed4aca3",
+   "scripts/chain/run_chain.py": "fc223ed4aca3",
    "skills/zuoshoudeirong-skill/workflows/chain.md": "cfcd9cf23878",
    "skills/zuoshoudeirong-skill/SKILL.md": "cbacbc478838",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

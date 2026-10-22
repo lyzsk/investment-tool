@@ -284,7 +284,7 @@
   "chain": "3ff580803020",
   "distill": "126092002013",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "62b0c54b3cb9",
+   "scripts/chain/run_chain.py": "62b0c54b3cb9",
    "skills/meiyuelu-skill/workflows/chain.md": "68a696ad9acb",
    "skills/meiyuelu-skill/SKILL.md": "4120b5b8ee30",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

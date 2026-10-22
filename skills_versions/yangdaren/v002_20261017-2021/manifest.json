@@ -40,7 +40,7 @@
   "chain": "cbf82b652a62",
   "distill": "08b1c2e3a0fa",
   "chain_files": {
-   "scripts/taoge-chain/run_taoge_chain.py": "96a3641fcc8e",
+   "scripts/chain/run_taoge_chain.py": "96a3641fcc8e",
    "skills/yangdaren-skill/workflows/chain.md": null,
    "skills/yangdaren-skill/SKILL.md": null,
    "scripts/dfcf/paper/params.yaml": "852374ea7f2b"

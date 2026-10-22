@@ -658,6 +658,16 @@ def step_fage(c):
     sec = section(t, "#### 红旗大街发哥")
     if sec is not None and "【核销 当日】" in sec:
         return "已完成"
+    meta = spec.parent / "meta.json"
+    if not spec.exists() and meta.exists() and (spec.parent / "text.md").exists() and not c.dry and c.can_llm():
+        # 10/22 凌晨: 10/19 起 hermes 只做了抓取挂载(meta / text), 没写 spec.md(SKILL 说的"hermes 半截") → 这里先补蒸馏再核销, 原来只报"未就绪"
+        body = (f"按 skills/fage-skill/SKILL.md 的「入口①」第 2~4 步, 给 {c.d.isoformat()} 发哥文章补盘前蒸馏: 读 {(spec.parent / 'text.md').relative_to(ROOT).as_posix()}, "
+                f"按「蒸馏口径」(五维度、每条必须有可证伪锚点、只压缩原文、原文没有就不写)写 {spec.relative_to(ROOT).as_posix()}(纯文本, 每行一条【推演要点】...), "
+                f"然后跑 node scripts/wechat/fetch_wechat.mjs --remount --account fage --date {c.d.isoformat()} --write 重挂载。任务优先, 禁反问, 不改其他文件。")
+        ok, _ = claude(body + "最终回复最后一行只写: FAGE_SPEC_DONE", "checkmd-fage-spec", "FAGE_SPEC_DONE", timeout=1200)
+        if not ok or not spec.exists():
+            return "补蒸馏失败(hermes 只挂了原文没写 spec.md)"
+        t = c.md_text()
     if not spec.exists():
         return "未就绪(当日发哥盘前推演未挂载: 没贴链接或没做盘前蒸馏)"
     if not filled(section(t, "## 收评")):
@@ -882,14 +892,25 @@ def main():
                 st_bl["baseline_books"] = {"at": dt.datetime.now().isoformat(timespec="seconds"), "ok": rc_b == 0}
                 save_state(state)
                 summary["baseline_books"] = "完成" if rc_b == 0 else "失败"
-                if rc_b == 0:   # 10/20: 拟人度第三条基线"导师行为统计先验"读 BL-*.json, 基线账户更新后重算一次(上面 weights 段那次读的是昨天的 BL)
-                    run([PY, "-X", "utf8", "scripts/dfcf/paper/mimicry_score.py", "--since", "2026-10-08", "--quiet"], "拟人度累计重算(含模型基线)", 1800)
+            if not (st_bl.get("baseline_timing") or {}).get("ok"):   # 10/21 晚: 时机版(按导师典型日内买 / 卖位置成交, BLT-<导师>), 和开盘版并排
+                rc_t, _ = run([PY, "-X", "utf8", "scripts/tzzb/mentor_model.py", "--baseline-books", "--timing", "--since", "2026-10-08", "--until", d.isoformat()], "统计基线影子账户(时机版)", 1800)
+                st_bl["baseline_timing"] = {"at": dt.datetime.now().isoformat(timespec="seconds"), "ok": rc_t == 0}
+                save_state(state)
+                summary["baseline_timing"] = "完成" if rc_t == 0 else "失败"
+            # 10/22 凌晨(用户看 report.html): 新 paper 影子账 + 两版统计基线导出成账本格式 → 重出 report.html, 和导师链 / 导师真人同图比
+            rc_x, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/books_ext.py"], "新 paper / 统计基线 导出到报告", 120)
+            if rc_x == 0:
+                # 10/20: 拟人度第三条基线"导师行为统计先验"读 BL-*.json; 10/22: 也算新 paper / 时机版基线(books_ext) → 基线和导出更新后重算, 再出报告
+                run([PY, "-X", "utf8", "scripts/dfcf/paper/mimicry_score.py", "--since", "2026-10-08", "--quiet"], "拟人度累计重算(含模型基线 / 新 paper)", 1800)
+                run(["node", "scripts/dfcf/paper/report.mjs"], "重出 report.html(含新 paper / 统计基线)", 300)
         # 10/16 晚 一-9: 混合账本(mix_plans.py)盘中跟单 + 收盘学习; 只在显式 --only mix / mix_learn 时跑(sys_job 每 5 分钟 + 15:25 各一条)
         if only and "mix" in only and not a.dry:
             # 10/18 晚 P3: 盘口五档快照采集器(新浪, 不占腾讯额度)没在跑就后台拉起(无窗口); 挂了下一轮自动重拉
             run([PY, "-X", "utf8", "scripts/market/collect_book.py", "--ensure"], "盘口快照采集", 60)
+            run([PY, "-X", "utf8", "scripts/dfcf/paper/se_fleet.py", "--ensure"], "新 paper 策略执行器全体拉起(10/22 起 15 位导师)", 60)   # 10/21 晚用户令
+            run([PY, "-X", "utf8", "scripts/market/minute_live.py", "--ensure"], "盘中实时 1/5 分钟线(由 3 秒盘口合成, 零请求)", 60)   # 10/21 用户令
             run([PY, "-X", "utf8", "scripts/market/collect_panel.py", "--ensure"], "多指数面板采集(日经/KOSPI/A50/小纳指/上证/中证2000/创业板/恒生科技)", 60)   # 10/20 用户定
-            run([PY, "-X", "utf8", "scripts/market/open_live.py", "--ensure"], "开盘实况(09:20~10:30 机械市况判定)", 60)   # 10/20 晚用户批
+            run([PY, "-X", "utf8", "scripts/market/open_live.py", "--ensure"], "开盘实况(09:14~14:57 机械市况判定, 午休不判)", 60)   # 10/20 晚用户批; 10/21 晚全天化(时间闸在 open_live --ensure 里)
             run([PY, "-X", "utf8", "scripts/dfcf/paper/shadow_exec.py", "--ensure"], "零成本影子(全天连续模拟盘的重定策略次数, 不下单)", 60)   # 10/21 凌晨用户批 D1
             run([PY, "-X", "utf8", "scripts/dfcf/paper/t_event.py", "--ensure"], "决策T 事件驱动(纳指; 开关 T_EVENT)", 60)   # 10/20 晚用户批 TODO 一-2
             st_mix = state.setdefault(d.isoformat(), {}).setdefault("mix", {})
@@ -963,6 +984,10 @@ def main():
         if (not only or "persona_snap" in only) and not a.dry:
             rc_ps, _ = run([PY, "-X", "utf8", "scripts/skills_ver/persona_versions.py", "snapshot", "--all", "--why", f"check-md {d.isoformat()} {dt.datetime.now():%H:%M}"], "画像快照", 600)
             summary["persona_snap"] = "完成" if rc_ps == 0 else "失败"
+            # 10/21 晚(★12): 新 paper 09:00 首版前先备好当天第一份事实包(交易日 08:00 这轮), 免得 6 条链 09:00 同时等现做
+            if only and "persona_snap" in only and dt.date.today().weekday() < 5:
+                rc_fx, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/se_facts.py", "--skill", "zhiyingjuexin", "--build", "--wait", "300"], "新 paper 盘前事实包", 360)
+                summary["se_facts_premarket"] = "完成" if rc_fx == 0 else "失败"
         # 10/18: 导师名片按最新账本数据给下一交易日重算(原只在次日 0915 facts 首次用到时懒生成, 已存在就不再刷新 → 当晚补进的账本数据进不去)
         if (not only or "case_log" in only) and not a.dry:   # 10/18 用户定: 停用 32B 推测层, 改由全量操作日志卡(机械, 零 token, 幂等; 全量重算约 3 秒)
             rc_cl, _ = run([PY, "-X", "utf8", "scripts/tzzb/case_log.py"], "导师操作日志卡", 300)

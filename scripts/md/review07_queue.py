@@ -73,7 +73,7 @@ def main():
                 rd, _ = done_file(j)
                 rd.mkdir(parents=True, exist_ok=True)
                 lf = open(rd / "review07.log", "a", encoding="utf-8")
-                cmd = [PY, "-X", "utf8", "scripts/taoge-chain/run_chain.py", "--skill", j["skill"], "--review", "--date", j["date"]] + (["--asof", j["asof"]] if j.get("asof") else [])
+                cmd = [PY, "-X", "utf8", "scripts/chain/run_chain.py", "--skill", j["skill"], "--review", "--date", j["date"]] + (["--asof", j["asof"]] if j.get("asof") else [])
                 p = subprocess.Popen(cmd, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=lf, stderr=subprocess.STDOUT, creationflags=NOWIN)
                 running[(j["skill"], j["date"])] = (p, lf, time.time(), j)
                 started.add((j["skill"], j["date"]))

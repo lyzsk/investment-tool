@@ -360,7 +360,7 @@ facts.txt            # harness 确定性代码写（build_facts；市场扫描�
 ## 持有期改造字段（10/16 晚加；驱动器开关 CHAIN_HORIZON（scripts/claude_profile/chain_flags.txt），开关关=不注入、新字段只在出现时校验格式）
 
 - 优先级：先当下（0915 或子链所在 slot 的当时判断），再多日（未来 N 个交易日）；多日判断只作加减分。
-- N/上限：scripts/taoge-chain/horizon_days.json（gen_horizon.py 生成，可手改）：tzzb 导师=真人持仓天数中位/P75（mentor_scope.json 的 hold_days_med/hold_days_p75）；B站 UP/对照组=无统计，按画像（缺省参考 2 天/上限 5 天，不做超上限校验）。
+- N/上限：scripts/chain/horizon_days.json（gen_horizon.py 生成，可手改）：tzzb 导师=真人持仓天数中位/P75（mentor_scope.json 的 hold_days_med/hold_days_p75）；B站 UP/对照组=无统计，按画像（缺省参考 2 天/上限 5 天，不做超上限校验）。
 - 02 `outlook`；03 辩题不变、加"outlook 是否支持"；04 `hold_days`/`exit_plan`/`thesis_check`+`thesis_note`（+超上限 `over_cap_why`）；07 `多日核对`/`lessons`（tzzb 导师链另有 `拟人对照`，lessons 多 case卡）。
 - 07 口径：tzzb 导师链=拟人偏差主轴（交不交易/方向/标的/仓位/时段 逐项对真人，问因=事实包缺信息/理解错导师框架/其他，教训写 case 卡，规则不因单样本改）；B站 UP/对照组=预案对照+know-how 四问。
 - 驱动器注入：02/03/04/07 末尾「本导师持有期参考」；04「持仓论点回看」（账本成交→买入日/slot→当天 slots/<slot>/04·06 contract）；07「多日核对」（上次 07 之后到期的 outlook/持有计划）+ tzzb 链「本链 vs 真人 当日对照」/UP 链「导师真人当日操作」提示。

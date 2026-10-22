@@ -221,7 +221,7 @@
   "chain": "821dfa75ffe1",
   "distill": "7e4668707a9a",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "730e297e80ae",
+   "scripts/chain/run_chain.py": "730e297e80ae",
    "skills/chong5000w-skill/workflows/chain.md": "04c7f6db7906",
    "skills/chong5000w-skill/SKILL.md": "6ed2de629c4f",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

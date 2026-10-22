@@ -77,7 +77,7 @@ scripts/backfill_bilibili/**
 ### temp文件
 **/temp/**
 scripts/hermes/state/**
-scripts/taoge-chain/.claude_slots/**
+scripts/chain/.claude_slots/**
 scripts/claude_profile/rotation.txt
 scripts/claude_profile/.rotation_state.json
 scripts/claude_profile/.rotation_state.*.tmp
@@ -98,3 +98,6 @@ scripts/lhb/seat_profile.json
 .git.bak
 .git.bak/**
 .git.bak-*/**
+
+# 10/21 晚: scripts/taoge-chain 改名 scripts/chain; 旧名是指向新目录的目录联接(junction), 只为应用重启前 Java 旧路径不断, 重启后删除, 不进 git
+scripts/taoge-chain

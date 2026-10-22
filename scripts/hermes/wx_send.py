@@ -188,11 +188,35 @@ def send_one(msg, src="", kind="", wait=600, verbose=True):
     return st
 
 
+CONF_EXEMPT = re.compile(r"^(aohong_alert|se_|event_|step_|session_rollover|open_live|todo_sync|schedule|plan1021)")   # 告警 / 状态 / 回执; 出单和分析不豁免
+PRED = re.compile(r"概率|胜率|期望|次日|明天|明早|预计|大概率|会冲|冲高|套利|值得|倾向|判断|建议.*(买|卖|做|接)")
+
+
+def conf_lint(text, src=""):
+    """判断 / 预测类消息必须带置信度标注 + 不自信点; 返回缺什么(空=合格)。告警 / 状态 / 回执类 src 豁免"""
+    if CONF_EXEMPT.search(src or "") or len(PRED.findall(text)) < 2:
+        return ""
+    miss = []
+    if not re.search(r"置信\s*[:：]?\s*\d{1,3}\s*%", text):   # 10/21 用户立法: 置信度用百分比(odds.confidence), 档位可附在后面
+        miss.append("没有 置信 N%")
+    if not re.search(r"\d{1,3}(\.\d)?\s*%", re.sub(r"置信\s*[:：]?\s*\d{1,3}\s*%", "", text)):
+        miss.append("没有 概率百分比")
+    if not re.search(r"不自信|没把握|不确定", text):
+        miss.append("没有 不自信点")
+    if not re.search(r"失效|证伪|作废", text):
+        miss.append("没有 失效条件")
+    return "、".join(miss)
+
+
 def send(text, src="", raw=False, kind=None, wait=600, mx=1800, dry=False, force=False, verbose=True):
     # 10/20 用户令: 测试推送一律 --dry, 不许真发到微信 —— src / 正文里带 test / selftest / 自测 / 测试推送 的自动转 dry(防忘加 --dry)
     if not dry and re.search(r"(?i)\b(self)?test\b|自测|测试推送", f"{src} {text[:80]}"):
         print(f"[自动 dry] src={src!r} 像测试推送, 不真发(10/20 用户令); 真要发请换 src", file=sys.stderr)
         dry = True
+    miss = conf_lint(text, src)
+    if miss and not force:   # 10/21 用户批评"分析缺乏置信度": 判断类推送缺置信度标注 → 不发, 退回补齐(--force 强发)
+        print(f"[置信度闸] 不发: 这条像判断 / 预测, 但{miss}。每条结论要带 [置信 高/中/低 · 样本 n · 失效条件], 末尾列不自信点; 确认不需要请加 --force", file=sys.stderr)
+        return "noconf"
     k, msg = render(text, raw, kind)
     t0, used = quota()
     parts = split(msg, mx)

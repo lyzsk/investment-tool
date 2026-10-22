@@ -54,7 +54,7 @@ async function indexBars(lastDate) {
 }
 
 // ---- 读账本 ----
-const load = (src) => { try { return JSON.parse(fs.readFileSync(path.join(BOOKS, src + ".json"), "utf8")); } catch { return null; } };
+const load = (src) => { for (const d of [BOOKS, path.join(DIR, "books_ext")]) { try { return JSON.parse(fs.readFileSync(path.join(d, src + ".json"), "utf8")); } catch { /* 下一个目录 */ } } return null; };   // 10/22: books_ext = 新 paper / 统计基线
 const accounts = ACCOUNTS.map(([src, name, kind], slot) => ({ src, name, kind, slot, b: load(src) })).filter((a) => a.b);
 const all = accounts;   // 10/19: B 线(表格行 extras)已删
 
@@ -74,7 +74,7 @@ const SANDBOX = path.join(SCRIPT_DIR, "sandbox", "asof-0928");
 // 10/16: 晚上线账户的 as-of 前置补跑(实盘段之前的日子), 键=账户, 值=沙盒数据根
 const PREFILL = { "A-control": path.resolve(SCRIPT_DIR, "../../temp/control_asof/sb") };
 async function chartData(dir, asof) {
-    const ld = (src) => { try { return JSON.parse(fs.readFileSync(path.join(dir, "books", src + ".json"), "utf8")); } catch { return null; } };
+    const ld = (src) => { for (const d of ["books", "books_ext"]) { try { return JSON.parse(fs.readFileSync(path.join(dir, d, src + ".json"), "utf8")); } catch { /* 下一个 */ } } return null; };
     const accs = ACCOUNTS.map(([src, name, kind], slot) => ({ src, name, kind, slot, b: ld(src) })).filter((a) => a.b);
     // x 轴=nav 日期并集 ∩ 交易日; 实盘自首跑日起(之前=建账占位 10 万平值, 画进来会被误读成"0 收益")
     const ds = [...new Set(accs.flatMap((a) => a.b.nav.map((n) => n.date)))].filter((d) => tradingDays.has(d) && (asof || d >= LIVE_START)).sort();
@@ -348,6 +348,24 @@ async function main() {
                 + `<td class="num ${x.delta > 0 ? "up" : x.delta < 0 ? "dn" : ""}">${x.delta == null ? "—" : (x.delta >= 0 ? "+" : "−") + Math.abs(x.delta * 100).toFixed(1)}</td><td class="num">${x.days}</td></tr>`;
         }).join("") || simRows;
     } catch { /* 未生成 */ }
+    // 10/22 凌晨: 分层拟人度(mimicry_score.py 累计产物, 含 A 线 / 新 paper S- / 时机版基线 BLT-; 和"照导师昨天"的延续基线比)
+    let mimRows = `<tr><td colspan="8" class="muted">尚无分层拟人度(mimicry_score.py --since 生成)</td></tr>`, mimUpd = "";
+    try {
+        const md = path.join(DIR, "mimicry");
+        const f = fs.readdirSync(md).filter((x) => /^cum_.*\.json$/.test(x)).sort().at(-1);
+        const J = JSON.parse(fs.readFileSync(path.join(md, f), "utf8"));
+        mimUpd = `${f.replace(/^cum_|\.json$/g, "")}; 生成 ${J.generated_at.slice(5, 16)}`;
+        const pc = (x) => (x == null ? "—" : (x * 100).toFixed(0) + "%");
+        const m = (p, k) => (p.metrics || {})[k] || {};
+        mimRows = Object.entries(J.pairs).map(([b, p]) => {
+            const nm = (accounts.find((a) => a.src === b) || {}).name || NAME[b] || b;
+            const L3 = m(p, "L3_持仓Jaccard"), L1 = m(p, "L1_交易"), L2 = m(p, "L2_方向"), L4 = m(p, "L4_总仓误差");
+            const grp = b.startsWith("S-") ? "新paper" : b.startsWith("BLT-") ? "统计基线" : "旧paper";
+            return `<tr><td>${esc(nm)}<span class="muted"> ${b}</span></td><td>${grp}</td><td class="num">${p.n_days ?? "—"}</td><td class="num">${pc(L1.chain)}<span class="muted"> / ${pc((L1.persist || {}).base)}</span></td>`
+                + `<td class="num">${pc(L2.chain)}<span class="muted"> / ${pc((L2.persist || {}).base)}</span></td><td class="num"><b>${pc(L3.chain)}</b><span class="muted"> / ${pc((L3.persist || {}).base)}</span></td>`
+                + `<td class="num">${L4.chain == null ? "—" : L4.chain.toFixed(2)}<span class="muted"> / ${(L4.persist || {}).base == null ? "—" : L4.persist.base.toFixed(2)}</span></td><td class="muted small">${esc(((p.diagnosis || {})["标签"] || []).join("、"))}</td></tr>`;
+        }).join("") || mimRows;
+    } catch { /* 未生成 */ }
 
     const rows = all.map((a) => {  // 累计/回撤按合并时间轴(回放+实盘连乘), 与走势图一致; 当日/持仓/成交等=实盘账本现状
         const s = stats(a), m = merged.series.find((x) => x.src === a.src);
@@ -465,7 +483,7 @@ async function main() {
     const dataJson = JSON.stringify(DATA).replace(/</g, "\\u003c");
     const fill = { TITLE: ASOF ? "paper 模拟盘 · as-of 回放(沙盒)" : "paper 模拟盘 · 收益率走势", GEN: DATA.generated,
         NACC: String(DATA.live.series.length), NDAY: String(DATA.live.dates.length), SUM: sumRows, POS: posRows, OPEN: openRows,
-        HOLD: holdRows || `<tr><td colspan="6" class="muted">无数据</td></tr>`, TRADES: tradeRows, NTRADE: String(trades.length), DATA: dataJson, SIM: simRows, SIMUPD: simUpd, REGIME, ATTR, SKM, TSK, SKILLJS: SKILL_JS };
+        HOLD: holdRows || `<tr><td colspan="6" class="muted">无数据</td></tr>`, TRADES: tradeRows, NTRADE: String(trades.length), DATA: dataJson, SIM: simRows, SIMUPD: simUpd, MIM: mimRows, MIMUPD: mimUpd, REGIME, ATTR, SKM, TSK, SKILLJS: SKILL_JS };
     const html = TEMPLATE.replace(/%%(\w+)%%/g, (m, k) => (k in fill ? fill[k] : m));  // 函数式替换: 数据里的 $ 不被当替换模式
     fs.writeFileSync(OUT, html);
     console.log(`report.html 已生成: ${merged.series.length} 条收益线, ${merged.dates.length} 个交易日(含回放 ${merged.dates.filter((d) => merged.quality[d] === "as-of回放").length} 日), ${OUT}`);
@@ -524,6 +542,7 @@ details summary{cursor:pointer;color:var(--text-secondary);font-size:13px;margin
 </div>
 
 <div class="card"><h2>拟人度 <span class="muted small">(模拟操作 vs 导师真人当日持仓/操作; 对照组=裸模型同口径; 差值=skill 真实贡献; %%SIMUPD%%)</span></h2><div class="scroll"><table class="t"><tr><th>导师</th><th class="num">拟人度</th><th class="num">对照组</th><th class="num">skill−对照(百分点)</th><th class="num">有效天数</th></tr>%%SIM%%</table></div></div>
+<div class="card"><h2>分层拟人度 <span class="muted small">(每格 = 本账户 / "照导师昨天原样"延续基线; L1 交不交易一致率 · L2 方向一致率 · L3 持仓重合(Jaccard) · L4 总仓误差(越小越像); 含旧 paper / 新 paper / 统计基线; %%MIMUPD%%)</span></h2><div class="scroll"><table class="t"><tr><th>账户</th><th>组</th><th class="num">天</th><th class="num">L1 交易</th><th class="num">L2 方向</th><th class="num">L3 持仓重合</th><th class="num">L4 仓位误差</th><th>诊断</th></tr>%%MIM%%</table></div></div>
 
 %%SKM%%
 

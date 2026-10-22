@@ -45,7 +45,7 @@
   "chain": "3692462e468e",
   "distill": "106175d0116a",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "fc223ed4aca3",
+   "scripts/chain/run_chain.py": "fc223ed4aca3",
    "skills/yangdaren-skill/workflows/chain.md": null,
    "skills/yangdaren-skill/SKILL.md": null,
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

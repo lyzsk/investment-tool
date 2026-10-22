@@ -399,7 +399,7 @@ def pack(code, D=None, before=None, l1=False):
             parts.insert(-1, "⑦ " + pt)
     except Exception:   # noqa: BLE001
         pass
-    try:   # 10/20 晚用户批: 开盘实况(open_live 机械市况判定, 09:31~10:30), 决策T / 实盘复核同一份
+    try:   # 10/20 晚用户批: 开盘实况(open_live 机械市况判定; 10/21 晚起全天 09:31~11:30 / 13:00~14:57), 决策T / 实盘复核同一份
         import open_live as OL
         ot = OL.text(D, before)
         if ot:

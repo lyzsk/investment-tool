@@ -14,7 +14,7 @@
      版本哈希 = 全部"非整份重算(bulk)"文件; bulk = *.jsonl / cases_auto / fills_rt / case_log/(每晚整份重算): 只随版本存档,
      单独变化不升版本, 回滚默认不动(--include-data 才动)。
   ② 全局: skills_versions/_global/(同一套内容寻址方案, 全文快照不只哈希): scripts/dfcf/paper/params.yaml、
-     scripts/claude_profile/chain_flags.txt、scripts/taoge-chain/run_chain.py; snapshot --all 时有变化就一起存。
+     scripts/claude_profile/chain_flags.txt、scripts/chain/run_chain.py; snapshot --all 时有变化就一起存。
   兼容: 10/18 之前的旧版本 manifest 只有 persona/ 文件(键=persona 内相对路径, cls=weight/data), 读取时统一规范成
        "persona/<名>" + 新类别(files_of); 旧版→新版第一次快照, SKILL.md/workflows 记为 changed.newly_tracked(新纳入, 不算改动)。
 子命令:
@@ -78,13 +78,13 @@ GEN_NAMES = {"orders_inferred.json", "fingerprint.md", "ic.json", "pools.json"} 
 CAT_P, CAT_T, CAT_D, CAT_G = "画像", "提示词", "数据", "全局"
 PERSONA_PREFIX = "persona/"
 GLOBAL = "_global"
-GLOBAL_FILES = ["scripts/dfcf/paper/params.yaml", "scripts/claude_profile/chain_flags.txt", "scripts/taoge-chain/run_chain.py"]
+GLOBAL_FILES = ["scripts/dfcf/paper/params.yaml", "scripts/claude_profile/chain_flags.txt", "scripts/chain/run_chain.py"]
 SKIP_RE = re.compile(r"(\.bak|\.tmp|\.lock|~$|\.pyc$|__pycache__)", re.I)
 RUN_META_FILES = ("rules.md", "profile.md", "cases.md", "language.md")   # run_chain.record_rules_version 记的四个
 DIFF_MAX_BYTES, DIFF_MAX_LINES = 1_600_000, 3000
 # 同 mimicry_score.py MAIN / METRICS(每层一个主指标; err 类 lift=基线误差−链误差)
 MAIN = [("L1_交易", "acc"), ("L2_方向", "acc"), ("L3_持仓Jaccard", "sim"), ("L4_总仓误差", "err")]
-CHAIN_CODE = ["scripts/taoge-chain/run_chain.py", "skills/{s}-skill/workflows/chain.md", "skills/{s}-skill/SKILL.md",
+CHAIN_CODE = ["scripts/chain/run_chain.py", "skills/{s}-skill/workflows/chain.md", "skills/{s}-skill/SKILL.md",
               "scripts/dfcf/paper/params.yaml"]
 DISTILL_CODE = ["skills/{s}-skill/workflows/distill.md", "scripts/tzzb/distill_daily.py", "scripts/tzzb/llm_batch_tzzb.py",
                 "scripts/tzzb/mentor_fingerprint.py", "scripts/backfill_bilibili/backfill_bilibili.py",

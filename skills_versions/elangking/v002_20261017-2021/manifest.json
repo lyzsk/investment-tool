@@ -40,7 +40,7 @@
   "chain": "6da8f3909bdf",
   "distill": "918d9be56be0",
   "chain_files": {
-   "scripts/taoge-chain/run_taoge_chain.py": "96a3641fcc8e",
+   "scripts/chain/run_taoge_chain.py": "96a3641fcc8e",
    "skills/elangking-skill/workflows/chain.md": null,
    "skills/elangking-skill/SKILL.md": null,
    "scripts/dfcf/paper/params.yaml": "852374ea7f2b"

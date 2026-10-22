@@ -126,6 +126,45 @@ def real_qty(code, D):
     return qty, f"md 当前持仓有 {code}, 导出算出 {qty} 股({base_d} 持仓表+之后成交)"
 
 
+def set_base(src, val, wait=180):
+    """10/21 账本漏洞最小修法: 只改 _t_base 一个字段, 拿 matcher 同一把锁 books/.matcher.lock(O_EXCL 建文件写 pid, 持锁进程死了回收, 最多等 180 秒),
+    锁内重读最新账本再改再原子写回 —— 原来是把早先读进内存的整本账写回, 会覆盖这期间 matcher 撮合进来的成交"""
+    import time
+    lock, f = DATA / "books" / ".matcher.lock", DATA / "books" / f"{src}.json"
+    t0 = time.time()
+    while True:
+        try:
+            fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(fd, str(os.getpid()).encode())
+            os.close(fd)
+            break
+        except FileExistsError:
+            try:
+                holder = int(lock.read_text() or 0)
+            except (OSError, ValueError):
+                holder = 0
+            alive = bool(holder) and str(holder) in subprocess.run(["tasklist", "/FI", f"PID eq {holder}", "/NH"], capture_output=True, text=True,
+                                                                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout
+            if holder and not alive:
+                lock.unlink(missing_ok=True)
+                continue
+            if time.time() - t0 > wait:
+                raise RuntimeError(f"账本锁被 pid {holder} 占用超 {wait}s, {src} 底仓没记上")
+            time.sleep(1)
+    try:
+        b = json.loads(f.read_text(encoding="utf-8"))
+        b["_t_base"] = val
+        tmp = f.with_suffix(".json.tbot.tmp")
+        tmp.write_text(json.dumps(b, ensure_ascii=False, indent=1), encoding="utf-8")
+        os.replace(tmp, f)
+    finally:
+        try:
+            if lock.read_text() == str(os.getpid()):
+                lock.unlink()
+        except OSError:
+            pass
+
+
 def real_follow(src, cfg, D, now, s, dry):
     """real 账本(牧原)先跟随用户实盘, 再做 T(10/20 用户定): 返回 True = 今天本账本不做 T。
     用户没持仓 → 账本有货就开盘市价清掉、底仓归 0、不挂单; 持仓股数变了(加/减仓) → 按现价补齐到用户股数、底仓改成用户股数、当天不 T;
@@ -151,7 +190,7 @@ def real_follow(src, cfg, D, now, s, dry):
     if tgt == pos:   # 只差底仓记账(如账本早已空、底仓还记着旧数)
         b["_t_base"] = tgt
         if not dry:
-            (DATA / "books" / f"{src}.json").write_text(json.dumps(b, ensure_ascii=False, indent=1), encoding="utf-8")
+            set_base(src, b["_t_base"])
         s["follow"] = {"sig": sig, "skip": True, "why": why + f"; 底仓改记 {tgt}"}
         return True
     if now < "0930":   # 跟随单等开盘后按现价下
@@ -169,7 +208,7 @@ def real_follow(src, cfg, D, now, s, dry):
     b["_t_base"] = tgt
     imp = None
     if not dry:
-        (DATA / "books" / f"{src}.json").write_text(json.dumps(b, ensure_ascii=False, indent=1), encoding="utf-8")
+        set_base(src, b["_t_base"])
         imp = write_import(D, src, [line])
     s["follow"] = {"sig": sig, "skip": True, "why": why, "line": line, "imp": imp}
     print(f"{src} 跟随实盘: {line}")
@@ -294,7 +333,7 @@ def tick(D, dry):
             if not base:
                 b["_t_base"] = pos   # 第 1 天收盘把实际成交的底仓数量记下来
                 if not dry:
-                    (DATA / "books" / f"{src}.json").write_text(json.dumps(b, ensure_ascii=False, indent=1), encoding="utf-8")
+                    set_base(src, b["_t_base"])
                 s["close"] = {"at": now, "base": pos}
                 out.append(f"{src} 收口: 底仓记 {pos}")
                 continue

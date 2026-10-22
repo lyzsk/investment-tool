@@ -8,8 +8,8 @@
 +CHAIN_REGIME_FACTS=0   # facts 加「关注票状态」节(三态 / 箱体 / EMA / 止损候选; facts.mjs)
 +CHAIN_RISK_SIZE=0      # 06 买单按 1% 风险倒推建议股数 + ¼凯利上限, 只记账不拦单(quality_hooks._post_risk)
 +MIX_REGIME=0           # A-mix-sw 按该票三态 × 导师在该状态的历史期望加权(mix_plans.regime_mult)
---- v002_20261018-1943/scripts/taoge-chain/run_chain.py
-+++ v003_20261019-0026/scripts/taoge-chain/run_chain.py
+--- v002_20261018-1943/scripts/chain/run_chain.py
++++ v003_20261019-0026/scripts/chain/run_chain.py
 @@ -98,5 +98,5 @@
  NO_AUTOMEMORY = _flag("CLAUDE_NO_AUTOMEMORY")
  # 10/17 ② 决策质量新功能(TODO 三-2b/2c/2e/2f + override 锁层 + 三-3 第二期; 机械层 scripts/dfcf/paper/quality_hooks.py; 全部默认 0, 关=不 import、逐字节旧行为)

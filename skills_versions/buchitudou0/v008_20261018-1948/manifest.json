@@ -252,7 +252,7 @@
   "chain": "8de1fbbd8f7a",
   "distill": "39a8439ca45c",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "62b0c54b3cb9",
+   "scripts/chain/run_chain.py": "62b0c54b3cb9",
    "skills/buchitudou0-skill/workflows/chain.md": "927b5a0c5897",
    "skills/buchitudou0-skill/SKILL.md": "c2fb79eddbff",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

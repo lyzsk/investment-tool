@@ -8,8 +8,8 @@
 +CHAIN_DECISION_LOG=1   # 10/19 晚: 全链 06 每单落决策日志, 收盘后 T+1/T+3 机械结算(零 token); 反思回注仍看 CHAIN_REFLECTION
 +# 10/19 晚 TODO 二-13 市场拓扑: 04/06 注入持仓+候选的关联票(行业/前3邻居昨日涨跌/期货)+一句同向背离思考提示; 只参考不改规则; 子链不注入
 +CHAIN_TOPOLOGY=1   # 用户 10/19 定"今晚做然后上线"
---- v007_20261019-2303/scripts/taoge-chain/run_chain.py
-+++ v008_20261020-0041/scripts/taoge-chain/run_chain.py
+--- v007_20261019-2303/scripts/chain/run_chain.py
++++ v008_20261020-0041/scripts/chain/run_chain.py
 @@ -2485,4 +2485,5 @@
  # 结算/反思由 scripts/dfcf/paper/settle_decisions.py 收盘后跑; 读写逻辑在 scripts/dfcf/paper/decision_memory.py(仅开启时懒加载)
  REFLECT = _flag("CHAIN_REFLECTION")

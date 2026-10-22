@@ -1,5 +1,5 @@
---- v005_20261019-2023/scripts/taoge-chain/run_chain.py
-+++ v006_20261019-2201/scripts/taoge-chain/run_chain.py
+--- v005_20261019-2023/scripts/chain/run_chain.py
++++ v006_20261019-2201/scripts/chain/run_chain.py
 @@ -3567,4 +3567,11 @@
          if not top:
              return ""

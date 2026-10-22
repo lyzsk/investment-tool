@@ -297,7 +297,7 @@
   "chain": "980d2d67464b",
   "distill": "31ea027c8a99",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "fc223ed4aca3",
+   "scripts/chain/run_chain.py": "fc223ed4aca3",
    "skills/zhiyingjuexin-skill/workflows/chain.md": "b2cd6fa7b4dc",
    "skills/zhiyingjuexin-skill/SKILL.md": "97990d4fafeb",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

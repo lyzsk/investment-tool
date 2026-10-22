@@ -5,8 +5,8 @@
  PANEL_COLLECT=1
 +
 +CHAIN_FLOOR_RELAX=1   # 10/20 晚用户批: 硬下限导师连续空仓 < 真人最长空仓段 → 软下限 + 新开仓须引方向=买且情境成立的规则; 超了恢复硬下限
---- v009_20261020-1925/scripts/taoge-chain/run_chain.py
-+++ v010_20261020-2303/scripts/taoge-chain/run_chain.py
+--- v009_20261020-1925/scripts/chain/run_chain.py
++++ v010_20261020-2303/scripts/chain/run_chain.py
 @@ -1194,4 +1194,7 @@
          if a.get("op") == "买" and a["_px"] * a["qty"] > cap:
              return f"{a.get('name')} 金额 {a['_px'] * a['qty']:.0f} 超单票上限 {cap:.0f}"

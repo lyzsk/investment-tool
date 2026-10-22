@@ -83,7 +83,7 @@
   "chain": "a47c9ca61419",
   "distill": "07bb59fcb263",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "c7d108373e80",
+   "scripts/chain/run_chain.py": "c7d108373e80",
    "skills/lubenyuan-skill/workflows/chain.md": "22093471e332",
    "skills/lubenyuan-skill/SKILL.md": "43a4e9b748e9",
    "scripts/dfcf/paper/params.yaml": "9752ff817f9a"

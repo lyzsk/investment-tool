@@ -192,7 +192,7 @@ def tick(D, dry, force_slot=None):
             if sd.get("base_order") and not sd.get("base_set") and now >= CLOSE_AT and pos:
                 b["_t_base"] = pos
                 if not dry:
-                    (DATA / "books" / f"{src}.json").write_text(json.dumps(b, ensure_ascii=False, indent=1), encoding="utf-8")
+                    TB.set_base(src, b["_t_base"])
                 sd["base_set"] = pos
                 out.append(f"{src} 底仓记 {pos}")
             continue

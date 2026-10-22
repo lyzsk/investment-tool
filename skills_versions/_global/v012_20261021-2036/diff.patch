@@ -1,0 +1,40 @@
+--- v011_20261021-0031/scripts/chain/run_chain.py
++++ v012_20261021-2036/scripts/chain/run_chain.py
+@@ -9,8 +9,8 @@
+ 
+ 用法:
+-  python scripts/taoge-chain/run_chain.py --slot 0915 [--date 20261002] [--source A-taoge]
+-  python scripts/taoge-chain/run_chain.py --review --date 20261002
+-  python scripts/taoge-chain/run_chain.py --selftest     # 不烧 token 的机械自测
+-  python scripts/taoge-chain/run_chain.py --skill liuyiqing --slot 0915 --date 20260928 --asof <沙盒>  # as-of 回放(10/10)
++  python scripts/chain/run_chain.py --slot 0915 [--date 20261002] [--source A-taoge]
++  python scripts/chain/run_chain.py --review --date 20261002
++  python scripts/chain/run_chain.py --selftest     # 不烧 token 的机械自测
++  python scripts/chain/run_chain.py --skill liuyiqing --slot 0915 --date 20260928 --asof <沙盒>  # as-of 回放(10/10)
+ 出口: 0=链完成 1=链中止(回炉耗尽/校验败) 2=用法/环境错 3=ESCALATE_FULL_CHAIN(市况变, 子链升级)
+ """
+@@ -3366,5 +3366,5 @@
+ 
+ # ---------- 10/16 晚 持有期改造: 持有期参考 / 持仓论点回看 / 多日核对 / 导师真人当日操作(零 token; 仅 CHAIN_HORIZON=1, 关闭=空串, 失败=空串+WARN) ----------
+-HORIZON_FILE = Path(os.environ.get("CHAIN_HORIZON_FILE") or (ROOT / "scripts/taoge-chain/horizon_days.json"))
++HORIZON_FILE = Path(os.environ.get("CHAIN_HORIZON_FILE") or (ROOT / "scripts/chain/horizon_days.json"))
+ HORIZON_DEFAULT = {"med": 2, "cap": 5, "src": "无统计，按画像(缺省参考 2 天/上限 5 天)", "stat": False}
+ HORIZON_STEPS = ("02", "03b", "03s", "03j", "04", "07")
+--- v011_20261021-0031/scripts/claude_profile/chain_flags.txt
++++ v012_20261021-2036/scripts/claude_profile/chain_flags.txt
+@@ -93,2 +93,15 @@
+ CHAIN_ATTRIBUTION=1   # 10/20 晚用户批 ④: 07 注入归因推导链(attribution.py 现算) + contract root_causes 必答(软闸回炉一次)
+ CHAIN_PACK07=1   # 10/21 凌晨用户批: 07 素材包(pack07.py): 当日行情 / 导师腿 / 引用规则 + 相似规则 / cases 错题 / lessons / 多日结算 / 知识库目录, 包头覆盖表; 公用部分落盘 results/_pack07/<日>/ 增量
++EVENT_CHAIN_SKILLS=   # 10/21 08:15 用户澄清: 旧 paper 全停(土豆例外), 事件触发子链不上线(空=全关); 机制留着备用, 开=填链名
++MIX_OFF=A-mix,A-mix-lhb,A-mix-sw   # 10/21 12:2x 用户令停: 三本从建账起从未出过单(准入要 ≥2 链共识且含高权重链, 高权重链恰是很少交易的链), 只留 A-mix-eq; 零 token, 账本保留
++SE_FLEET=1   # 10/21 晚用户令: 10/22 起 15 位导师全部用新 paper(策略执行器), check md 每 5 分钟 se_fleet.py --ensure 拉起; 0 = 全停
++SE_FLEET_SKILLS=   # 空 = mentors.active_ids() 全体(已去掉 paper_excluded 和对照组); 要只跑几条就写逗号分隔
++SE_GENESIS=2026-10-22   # 10/21 晚用户令: 这天起执行器 10 万现金从 0 开始, 之后每天接前一交易日影子账收盘状态; 旧 paper 账目归档在 scripts/dfcf/paper/_archive/20261021_oldpaper/
++# 10/21 晚: 策略执行器只有这些链推微信(逗号分隔, * = 全推; 其余只落盘 results/_live/<日>/se_<链>/)
++SE_PUSH_SKILLS=
++# 10/21 晚用户定: 执行器心跳 = max(导师真人日内决策间隔 P75, 时段下限 5/10/15/30/10/5 分钟), 无上限; 0 = 全体固定 60
++SE_HB_DYNAMIC=1
++# 纯心跳触发占不占每日重定上限(0 = 不占)
++SE_HB_COUNTED=0
++# 10/21 晚: 1 = 执行器每次触发跑 01→06 串行链(se_chain.py, 直连 API, 3 分钟内); 0 = 旧的单次 claude -p(默认, 明天开不开等用户定)
++SE_CHAIN=0

@@ -261,7 +261,7 @@
   "chain": "5a69ce550f53",
   "distill": "2956ecf0b1d5",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "bc375cea79e4",
+   "scripts/chain/run_chain.py": "bc375cea79e4",
    "skills/anlizhuohuo-skill/workflows/chain.md": "d7e6870f5000",
    "skills/anlizhuohuo-skill/SKILL.md": "a653d0dab463",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

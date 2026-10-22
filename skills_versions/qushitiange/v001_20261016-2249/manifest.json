@@ -80,7 +80,7 @@
   "chain": "4269dccbef83",
   "distill": "d638de082da5",
   "chain_files": {
-   "scripts/taoge-chain/run_taoge_chain.py": "09e7d486384c",
+   "scripts/chain/run_taoge_chain.py": "09e7d486384c",
    "skills/qushitiange-skill/workflows/chain.md": "34f7a120fc42",
    "skills/qushitiange-skill/SKILL.md": "5a14358a8f44",
    "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"

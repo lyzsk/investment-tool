@@ -1257,22 +1257,57 @@ def bar_of(M, code, i):
             "lu": float(lu) if np.isfinite(lu) else None, "ld": float(ld) if np.isfinite(ld) else None}
 
 
-def fill_buy(bar):
-    """开盘市价买(保守): 全天封涨停(最低≥涨停价) → 买不到; 开盘即涨停但盘中开过板 → 涨停价成交; 其余 → 开盘价。返回 (价, 原因)"""
+TIMING = {}   # 10/21 晚(用户: BL 账户只按开盘撮合、没有盘中时机 → 补): ledger → {"buy": 买点日内位置中位, "sell": 卖点日内位置中位}; 空 = 开盘撮合(原口径)
+
+
+def timing_of(ledger):
+    """导师真人买 / 卖在当日区间里的典型位置(fills_rt.jsonl 的 pos_so_far 中位, 0 = 日内最低 1 = 最高); 样本 < 15 = None(退回开盘价)"""
+    import statistics as st_
+    f = ROOT / "skills" / f"{ledger}-skill" / "persona" / "fills_rt.jsonl"
+    b, s_ = [], []
+    try:
+        for line in f.read_text(encoding="utf-8").splitlines():
+            x = json.loads(line)
+            v = (x.get("rt") or {}).get("pos_so_far")
+            if v is None:
+                continue
+            (b if x.get("side") == "买" else s_).append(float(v))
+    except (OSError, ValueError):
+        return None
+    return {"buy": st_.median(b) if len(b) >= 15 else None, "sell": st_.median(s_) if len(s_) >= 15 else None, "nb": len(b), "ns": len(s_)}
+
+
+def fill_at_pos(bar, pos, side):
+    """按导师典型日内位置成交: 价 = 最低 + 位置 × (最高 − 最低); 撞涨停(买) / 跌停(卖)就按板价; 近似(用了当日高低, 只代表"导师一般在什么位置出手")"""
+    px = bar["l"] + max(0.0, min(1.0, pos)) * (bar["h"] - bar["l"])
+    if side == "BUY" and bar["lu"] is not None and px >= bar["lu"] - 0.001:
+        return bar["lu"], f"导师典型买点位置 {pos:.2f} 撞涨停, 按涨停价"
+    if side == "SELL" and bar["ld"] is not None and px <= bar["ld"] + 0.001:
+        return bar["ld"], f"导师典型卖点位置 {pos:.2f} 撞跌停, 按跌停价"
+    return round(px, 3), f"导师典型{'买' if side == 'BUY' else '卖'}点日内位置 {pos:.2f}"
+
+
+def fill_buy(bar, pos=None):
+    """开盘市价买(保守): 全天封涨停(最低≥涨停价) → 买不到; 开盘即涨停但盘中开过板 → 涨停价成交; 其余 → 开盘价。返回 (价, 原因)
+    pos 给了(时机版 BLT): 不封死时按导师典型买点日内位置成交"""
     if bar is None or not (bar["o"] > 0):
         return None, "无行情/停牌"
     if bar["lu"] is not None and bar["l"] >= bar["lu"] - 0.001:
         return None, f"全天封涨停 {bar['lu']} 买不到"
+    if pos is not None:
+        return fill_at_pos(bar, pos, "BUY")
     if bar["lu"] is not None and bar["o"] >= bar["lu"] - 0.001:
         return bar["lu"], "开盘涨停、盘中开板, 按涨停价"
     return bar["o"], "开盘价"
 
 
-def fill_sell(bar):
+def fill_sell(bar, pos=None):
     if bar is None or not (bar["o"] > 0):
         return None, "无行情/停牌"
     if bar["ld"] is not None and bar["h"] <= bar["ld"] + 0.001:
         return None, f"全天封跌停 {bar['ld']} 卖不出"
+    if pos is not None:
+        return fill_at_pos(bar, pos, "SELL")
     if bar["ld"] is not None and bar["o"] <= bar["ld"] + 0.001:
         return bar["ld"], "开盘跌停、盘中开板, 按跌停价"
     return bar["o"], "开盘价"
@@ -1299,7 +1334,7 @@ class Account:
         return f"{D}-{self.src}-{self.seq:03d}"
 
     def buy(self, D, code, amount, bar, why):
-        px, how = fill_buy(bar)
+        px, how = fill_buy(bar, (TIMING.get(self.src.split("-", 1)[1]) or {}).get("buy") if self.src.startswith("BLT-") else None)
         o = {"date": D, "side": "BUY", "code": code, "amount": round(amount, 2), "why": why}
         if px is None:
             o.update(status="reject", note=how)
@@ -1327,7 +1362,7 @@ class Account:
         return t
 
     def sell(self, D, code, qty, bar, why):
-        px, how = fill_sell(bar)
+        px, how = fill_sell(bar, (TIMING.get(self.src.split("-", 1)[1]) or {}).get("sell") if self.src.startswith("BLT-") else None)
         o = {"date": D, "side": "SELL", "code": code, "qty": qty, "why": why}
         p = self.pos.get(code)
         if p is None or p["since"] >= D:       # T+1: 当日买入不可卖(本账户买卖都在开盘, 这里只是兜底)
@@ -1389,7 +1424,7 @@ def pick_stocks(M, pool, play_dist, k, exclude, p):
     return picks[:k]
 
 
-def run_baseline_books(since, until=None, refresh=False):
+def run_baseline_books(since, until=None, refresh=False, timing=False):
     M, MF, reals, rows = load_world()
     until = until or M.dates[-1]
     days = [d for d in M.dates if since <= d <= until]
@@ -1397,7 +1432,9 @@ def run_baseline_books(since, until=None, refresh=False):
     ev = load_or_eval(M, rows, events, since, refresh)
     ch = layer_choices(ev, before=since)
     lam1, lam2 = tuple(ev["layers"]["L1"]["lam"]), tuple(ev["layers"]["L2"]["lam"])
-    accts = {l: Account("BL-" + l) for l in LEDGERS if l not in NO_ACCOUNT}
+    if timing:   # 时机版: 同一套决策, 成交价换成导师典型日内位置(BLT-<导师>), 和开盘版 BL 并排比
+        TIMING.update({l: timing_of(l) or {} for l in LEDGERS})
+    accts = {l: Account(("BLT-" if timing else "BL-") + l) for l in LEDGERS if l not in NO_ACCOUNT}
     rowmap = {(r["ledger"], r["date"]): r for r in rows}
     bases = all_bases(rows)
     for D in days:
@@ -1558,7 +1595,7 @@ def compare_books(M, reals, accts, days, since, until):
     for m, xs in pooled.items():
         ci = ms.boot_ci(xs)
         res["pooled"][m] = {"n": len(xs), "lift": ms.mean(xs), "ci": ci, "verdict": ms.verdict(ms.mean(xs) or 0, ci, len(xs))}
-    stem = BASE_DIR / f"compare_{since}_{until}"
+    stem = BASE_DIR / f"compare_{"timing_" if any(str(getattr(a, "src", "")).startswith("BLT-") for a in accts.values()) else ""}{since}_{until}"   # 时机版另存, 不覆盖开盘版对比
     Path(str(stem) + ".json").write_text(json.dumps(res, ensure_ascii=False, indent=1, default=lambda o: sorted(o) if isinstance(o, set) else str(o)), encoding="utf-8")
     Path(str(stem) + ".md").write_text(compare_markdown(res), encoding="utf-8")
     log(f"[compare] → {stem}.md/.json")
@@ -1717,6 +1754,7 @@ def main():
     ap.add_argument("--predict", action="store_true")
     ap.add_argument("--date")
     ap.add_argument("--baseline-books", action="store_true")
+    ap.add_argument("--timing", action="store_true", help="基线账户按导师典型日内买 / 卖位置成交(BLT-<导师>), 不按开盘价")
     ap.add_argument("--since", default="2026-10-08")
     ap.add_argument("--until")
     ap.add_argument("--refresh", action="store_true", help="不复用 model_out/eval_*.json 缓存, 重跑评估")
@@ -1728,7 +1766,7 @@ def main():
         run_predict(a.date or dt.date.today().isoformat(), a.refresh)
         return
     if a.baseline_books:
-        run_baseline_books(a.since, a.until, a.refresh)
+        run_baseline_books(a.since, a.until, a.refresh, timing=a.timing)
         return
     if a.asof:
         M, MF, reals, rows = load_world(asof=a.asof)

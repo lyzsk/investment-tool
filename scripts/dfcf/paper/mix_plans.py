@@ -804,6 +804,20 @@ def sw_dd_mult(mix, d):
 # ---------------- 10/18 晚(用户定"周三接, 先备好"): 扬长避短按"三态"再加权, 开关 MIX_REGIME(chain_flags.txt; 环境变量优先), 关 = 逐字节旧行为 ----
 # 该票前一交易日的三态(indicators.jsonl) → 这条链对应导师在该状态下的历史期望(regime_trades.json, ≥10 笔才用):
 #   期望 ≤ 0 → ×0(这条链的看好不算); 否则 × clip(该状态期望 / 全部期望, 0.5, 1.5)
+def mix_off():
+    """chain_flags.txt MIX_OFF=逗号分隔账本名(环境变量优先): 这些混合账本不再出新单"""
+    v = os.environ.get("MIX_OFF")
+    if v is None:
+        try:
+            for line in (ROOT / "scripts" / "claude_profile" / "chain_flags.txt").read_text(encoding="utf-8").splitlines():
+                k, _, val = line.split("#")[0].partition("=")
+                if k.strip() == "MIX_OFF":
+                    v = val
+        except OSError:
+            pass
+    return {x.strip() for x in (v or "").split(",") if x.strip()}
+
+
 def _mix_flag(name):
     v = os.environ.get(name)
     if v in ("0", "1"):
@@ -1023,7 +1037,11 @@ def run_slot(d, slot, dry):
     lhb, _ = lhb_flags(d)
     cb = {s: books[s] for s in chains if s in books}
     rc = 0
+    off = mix_off()
     for src, mode in MIX.items():
+        if src in off:   # 10/21 用户令停: 不出新单(账本 / 学习记录保留, nav 照 EOD 记)
+            print(f"[{src}] 已停(chain_flags MIX_OFF), 不出单")
+            continue
         mix = books.get(src) or {"source": src, "cash": INIT, "positions": {}, "orders": [], "trades": [], "nav": []}
         lines, diag = plan_slot(d, slot, cb, mix, mode, W, lhb, lambda c: ref_close(c, d))
         print(f"[{src}] {d} {hm(slot)} 出 {len(lines)} 单; 未准入/不足 {sum(1 for x in diag if x['act'] != '出单')}")

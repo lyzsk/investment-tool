@@ -105,7 +105,7 @@
   "chain": "a1fa2b320994",
   "distill": "c90d0be4a86f",
   "chain_files": {
-   "scripts/taoge-chain/run_taoge_chain.py": "96a3641fcc8e",
+   "scripts/chain/run_taoge_chain.py": "96a3641fcc8e",
    "skills/wudaokongfang-skill/workflows/chain.md": "9e0b57b88122",
    "skills/wudaokongfang-skill/SKILL.md": "167185ccf46d",
    "scripts/dfcf/paper/params.yaml": "852374ea7f2b"

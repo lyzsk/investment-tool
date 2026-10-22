@@ -32,6 +32,7 @@ LOG = ROOT / "scripts" / "temp" / "collect_book.log"
 START, END, STEP, MAXN = "0914", "1501", 3.0, 60
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0) | getattr(subprocess, "DETACHED_PROCESS", 0)
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+import ipv4_first   # noqa: E402,F401  10/21: 本机 IPv6 不通, 先走 IPv4
 
 
 def log(*a):
@@ -70,7 +71,29 @@ def watch(D):
                     real.add(t[1])
     except Exception:   # noqa: BLE001
         pass
-    core = sorted(codes & ({"601988", "159941", "002714"} | real))
+    try:   # 10/21 用户: 转债要连正股一起录(澳弘转债在名单、澳弘电子不在, 复盘没有正股盘口) + 手动加录名单 scripts/temp/collect_book_extra.txt
+        metas = sorted(glob.glob(str(ROOT / "downloads" / "quotes" / "cb" / "meta" / "RPT_BOND_CB_LIST_all_*.json")))
+        if metas and any(c[:2] in ("11", "12") for c in codes):
+            m = json.loads(Path(metas[-1]).read_text(encoding="utf-8"))
+            rows = m if isinstance(m, list) else ((m.get("result") or {}).get("data") or m.get("data") or [])
+            stk = {str(r.get("SECURITY_CODE")): str(r.get("CONVERT_STOCK_CODE") or "") for r in rows}
+            codes |= {stk[c] for c in list(codes) if stk.get(c, "").isdigit()}
+        ex = ROOT / "scripts" / "temp" / "collect_book_extra.txt"
+        if ex.exists():
+            codes |= set(re.findall(r"(?<!\d)\d{6}(?!\d)", ex.read_text(encoding="utf-8")))
+    except Exception:   # noqa: BLE001
+        pass
+    se = set()   # 10/21 晚: 新 paper 策略执行器(15 条)的持仓 + 当前策略里的票, 优先录(成交要靠 3 秒盘口)
+    for d in (ROOT / "results" / "_live" / D).glob("se_*"):
+        try:
+            se |= set((json.loads((d / "state.json").read_text(encoding="utf-8")).get("positions") or {}).keys())
+            sp = sorted((d / "strategies").glob("*.json"))
+            if sp:
+                se |= {str(x.get("code")) for x in (json.loads(sp[-1].read_text(encoding="utf-8")).get("strategy") or {}).get("codes") or []}
+        except (OSError, ValueError, AttributeError):
+            continue
+    codes |= se
+    core = sorted(codes & ({"601988", "159941", "002714"} | real | se))
     nbr = []
     try:   # 10/19 晚: 实盘 / 做T 标的的拓扑前 3 邻居也录盘口 → ctx_index 能给模型看"邻居此刻涨跌", 不另开请求源
         sys.path.insert(0, str(ROOT / "scripts" / "market"))
@@ -82,6 +105,11 @@ def watch(D):
     order = list(dict.fromkeys(core + nbr + sorted(codes)))
     out = [s for s in (sym(c) for c in order if re.fullmatch(r"\d{6}", c) and not c.startswith(("204", "1318"))) if s and not s.startswith("bj")]
     return out[:MAXN]
+
+
+# 10/21 晚用户定: 6 个 A 股指数跟个股同一个请求 3 秒一采(零额外请求), 单独写 index_snap.jsonl
+# (指数代码去前缀会和个股重名: sh000001 → 000001 = 平安银行, 绝不能混进 book_snap)
+INDEX = {"sh000001": "上证指数", "sz399001": "深证成指", "sz399006": "创业板指", "sh000688": "科创50", "sh000300": "沪深300", "sz399303": "国证2000"}
 
 
 def fetch(syms):
@@ -96,6 +124,10 @@ def fetch(syms):
         if len(f) < 32:
             continue
         num = lambda x: float(x) if x not in ("", None) else 0.0   # noqa: E731
+        if m.group(1) in INDEX:
+            out.append({"s": m.group(1), "n": INDEX[m.group(1)], "t": f[31], "p": num(f[3]), "pc": num(f[2]), "o": num(f[1]), "h": num(f[4]), "l": num(f[5]),
+                        "v": int(num(f[8])), "a": round(num(f[9]), 2), "d": f[30], "idx": True})
+            continue
         out.append({"s": m.group(1), "t": f[31], "p": num(f[3]), "v": int(num(f[8])), "a": round(num(f[9]), 2),
                     "b": [[num(f[11 + 2 * i]), int(num(f[10 + 2 * i]))] for i in range(5)],
                     "k": [[num(f[21 + 2 * i]), int(num(f[20 + 2 * i]))] for i in range(5)], "d": f[30]})
@@ -110,7 +142,7 @@ def run(D):
     last_t, syms, refreshed, fails, back, n = {}, [], 0.0, 0, STEP, 0
     log(f"开始 {D} pid={os.getpid()}")
     try:
-        with fp.open("a", encoding="utf-8") as fh:
+        with fp.open("a", encoding="utf-8") as fh, (day_dir / "index_snap.jsonl").open("a", encoding="utf-8") as fi:
             while True:
                 now = dt.datetime.now()
                 hm = now.strftime("%H%M")
@@ -119,20 +151,24 @@ def run(D):
                 if hm < START:
                     time.sleep(10)
                     continue
-                if time.time() - refreshed > 600:
+                if time.time() - refreshed > 60:   # 10/21 晚: 10 分钟 → 1 分钟(执行器新仓 / 新策略票要尽快进 3 秒盘口; 只读本地文件, 不多打行情源)
                     syms, refreshed = watch(D), time.time()
                     log(f"名单 {len(syms)} 只")
                 t0 = time.time()
                 try:
-                    rows = fetch(syms) if syms else []
+                    rows = fetch(syms + [x for x in INDEX if x not in syms])
                     fails, back = 0, STEP
                     for r in rows:
                         if r.pop("d") != D or last_t.get(r["s"]) == r["t"]:
                             continue   # 不是今天的(停牌 / 盘前残留) 或 快照没刷新 → 不写
                         last_t[r["s"]] = r["t"]
+                        if r.pop("idx", False):
+                            fi.write(json.dumps(r, separators=(",", ":"), ensure_ascii=False) + "\n")
+                            continue
                         fh.write(json.dumps(r, separators=(",", ":"), ensure_ascii=False) + "\n")
                         n += 1
                     fh.flush()
+                    fi.flush()
                 except Exception as e:   # noqa: BLE001
                     fails += 1
                     back = min(60.0, back * 2)

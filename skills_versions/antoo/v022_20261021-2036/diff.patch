@@ -1,0 +1,20 @@
+--- v021_20261021-0800/persona/profile_index.md
++++ v022_20261021-2036/persona/profile_index.md
+@@ -1,6 +1,6 @@
+-# profile_index.md — antoo 导师画像目录(链改造 F; 生成于 2026-10-21 00:30)
++# profile_index.md — antoo 导师画像目录(链改造 F; 生成于 2026-10-21 20:04)
+ > 源: skills/antoo-skill/persona/profile.md sha12=cbfc74c340b2 · 142 行 · 17.7KB · 16 节(超长节按行切片≤6KB)
+ > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
+-> 标注来源: claude -p 标注 1/16 节($0.22, 73s); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill antoo`(未变节复用标注)
++> 标注来源: 复用旧标注, 原标注=claude -p 标注 1/16 节($0.22, 73s); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill antoo`(未变节复用标注)
+ > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 1.8KB / 03 4.5KB / 04 12.3KB / 05 10.7KB / 06 10.6KB
+ 
+--- v021_20261021-0800/workflows/chain.md
++++ v022_20261021-2036/workflows/chain.md
+@@ -365,5 +365,5 @@
+ 
+ - 优先级：先当下（0915 或子链所在 slot 的当时判断），再多日（未来 N 个交易日）；多日判断只作加减分。
+-- N/上限：scripts/taoge-chain/horizon_days.json（gen_horizon.py 生成，可手改）：tzzb 导师=真人持仓天数中位/P75（mentor_scope.json 的 hold_days_med/hold_days_p75）；B站 UP/对照组=无统计，按画像（缺省参考 2 天/上限 5 天，不做超上限校验）。
++- N/上限：scripts/chain/horizon_days.json（gen_horizon.py 生成，可手改）：tzzb 导师=真人持仓天数中位/P75（mentor_scope.json 的 hold_days_med/hold_days_p75）；B站 UP/对照组=无统计，按画像（缺省参考 2 天/上限 5 天，不做超上限校验）。
+ - 02 `outlook`；03 辩题不变、加"outlook 是否支持"；04 `hold_days`/`exit_plan`/`thesis_check`+`thesis_note`（+超上限 `over_cap_why`）；07 `多日核对`/`lessons`（tzzb 导师链另有 `拟人对照`，lessons 多 case卡）。
+ - 07 口径：tzzb 导师链=拟人偏差主轴（交不交易/方向/标的/仓位/时段 逐项对真人，问因=事实包缺信息/理解错导师框架/其他，教训写 case 卡，规则不因单样本改）；B站 UP/对照组=预案对照+know-how 四问。

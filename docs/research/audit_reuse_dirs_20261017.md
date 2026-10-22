@@ -37,7 +37,7 @@
 |---|---|---|---|---|---|
 | `tzzb/` | 37（23） | 13.9k | 同花顺投资账本：抓取、md 硬数据层、画像 / 指纹 / 统计模型、挂单推断、深度蒸馏、候选筛选、小节排序 | `downloads/tzzb/`、`skills/<导师>-skill/persona/` | Java 抓取任务、check md、决策链 |
 | `dfcf/`（含 `paper/`） | 42（33） | 11.9k | paper 模拟盘全套：撮合、账本、facts、混合账本、权重、拟人度、反思、质量开关、报告；另有实盘盯盘和结算（隐私区 snapshots） | 账本和产物都在 `scripts/dfcf/paper/` 下（见结论 5） | Java paper 任务、决策链、check md |
-| `taoge-chain/` | 11（3） | 6.4k | 决策链驱动器 `run_taoge_chain.py`（主体，约 5600 行）+ 持有期、教训汇总；其余是 10/7~10/8 的一次性重跑脚本 | `results/<链>_chain/` | Java paper 任务、07 排队器 |
+| `chain/` | 11（3） | 6.4k | 决策链驱动器 `run_taoge_chain.py`（主体，约 5600 行）+ 持有期、教训汇总；其余是 10/7~10/8 的一次性重跑脚本 | `results/<链>_chain/` | Java paper 任务、07 排队器 |
 | `market/` | 10（10） | 3.1k | 行情库采集：日线、分钟、竞价、外围、复权因子、开盘 15 分钟、历史回补、指数成分时点表、调样调度 | `downloads/market/`、行情库 | Java 行情任务、check md |
 | `md/` | 14（9） | 2.5k | 每日 check md 编排、07 排队、素材包、画像 / 规则索引；另有 5 个一次性修补脚本 | `md/`、`skills/*/persona/*_index.md` | Java check md 任务 |
 | `lib/` | 8（8） | 2.1k | 公共模块：交易规则 `a_rules`、请求层 `req_guard`、模型调用 `claude_call`、导师登记表 `mentors`、用量日报 | — | 全项目 |
@@ -80,11 +80,11 @@
 | 4 | jsonl 读写、原子写（`write_jsonl` / `read_jsonl` / `wjson` / `_jl`） | market 5 处、paper 6 处 | `scripts/lib/io.py` | 中：今天审计查出的"非原子写"一类问题一次解决 | 低 |
 | 5 | `slot_profile.py` 与 `t_profile.py` 的"长期 × 近期收缩混合"（6 段相同） | dfcf/paper | 抽成 `paper/profile_mix.py` | 低～中 | 低 |
 | 6 | HTTP 取数 `fetchJson` / `fetchBuf` | quotes/client.mjs、scan.mjs、rotation.mjs | `quotes/client.mjs` | 低 | 低 |
-| 7 | 模型调用两套：`claude_call.py`（公共）和驱动器自己的 `call_claude` | lib、taoge-chain | 保留两套（驱动器要会话复用 / 分叉 / 并发槽），**只把重试、计费、错误分类抽成共用** | 中：今天自更新重试就得改两处 | 中：驱动器是周一实盘主路径，必须等稳定后再动 |
+| 7 | 模型调用两套：`claude_call.py`（公共）和驱动器自己的 `call_claude` | lib、chain | 保留两套（驱动器要会话复用 / 分叉 / 并发槽），**只把重试、计费、错误分类抽成共用** | 中：今天自更新重试就得改两处 | 中：驱动器是周一实盘主路径，必须等稳定后再动 |
 
 ## 四、可以归档的脚本（一次性 / 探针 / 已被替代，任务已完成）
 
-- `taoge-chain/`：`rerun_tzzb_batch1/2/3.sh`、`rerun_tzzb_b1v2/b3v2.sh`、`resume_1007_night.sh`（10/7~10/8 一次性重跑）；`apply_plan_a.py`（方案 A 已合入）
+- `chain/`：`rerun_tzzb_batch1/2/3.sh`、`rerun_tzzb_b1v2/b3v2.sh`、`resume_1007_night.sh`（10/7~10/8 一次性重跑）；`apply_plan_a.py`（方案 A 已合入）
 - `tzzb/`：`browser/probe1~6.mjs`（10/14 反爬探针，结论已进 api.md）、`expand8_follower.sh`、`final_gate.sh`（10/7 一次性调度）
 - `md/`：`dedup_review_sections.mjs`、`strip_neg_ledger_sections.mjs`、`fix_spacing.py`、`sync_review_sections.mjs`（10/7 一次性修补）；`lhb/add_fupan_old_md.mjs`
 - `backfill_bilibili/`：`coldstart_chain.sh`、`cruise_loop.py`（巡航已取消）、`reset_for_new_skill.py`

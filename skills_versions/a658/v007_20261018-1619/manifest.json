@@ -97,7 +97,7 @@
   "chain": "e1fd6d3fa393",
   "distill": "4dd2bbc0b2f9",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "b574945f1cb8",
+   "scripts/chain/run_chain.py": "b574945f1cb8",
    "skills/a658-skill/workflows/chain.md": "603c6d761f77",
    "skills/a658-skill/SKILL.md": "1c384a208275",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

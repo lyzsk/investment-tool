@@ -84,7 +84,7 @@
   "chain": "a0e5412f55bb",
   "distill": "8abb0f6f59fb",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "730e297e80ae",
+   "scripts/chain/run_chain.py": "730e297e80ae",
    "skills/nasdaq-skill/workflows/chain.md": null,
    "skills/nasdaq-skill/SKILL.md": "bb4daa6a890c",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

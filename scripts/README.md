@@ -15,7 +15,7 @@
 | `models/local_llm.py` / `.mjs` | **本地 ollama 统一客户端**(10/7 第一梯队本地化) | 分工: qwen3:14b=ASR 谐音纠错 / qwen3:32b=推测层初稿(错峰, 与 VLM-7B 互斥) / bge-m3=rules_index 检索层; 模型实体在 `%USERPROFILE%\.ollama\models`; 冒烟 `python scripts/models/local_llm.py --smoke` |
 | `models/`（本地模型台账） | **全模型分工与显存预算见文件头注释** | whisper small=faster-whisper **CPU int8 零显存**(ollama 无 ASR 生态, 不迁); RapidOCR=onnx CPU(不迁); Qwen2.5-VL-7B **bf16 15.4G transformers**(行为真值层禁量化, 不迁 ollama; 除非未来要 VLM 与 32B 真并行才评估 Q4 省 9G) |
 | `dfcf/` | 实盘语料存档(snapshots/ 已 gitignore=隐私唯一落点) | 见文末「dfcf 线」 |
-| `taoge-chain/` | 决策链驱动器(按 skills/taoge-skill/workflows/chain.md 契约) | `scripts/venv/Scripts/python.exe scripts/taoge-chain/run_chain.py --slot 0915 [--date yyyymmdd] [--dry]` / `--review` / `--selftest`(不烧 token); 出口 0=完成 1=中止 3=ESCALATE_FULL_CHAIN |
+| `chain/` | 决策链驱动器(按 skills/taoge-skill/workflows/chain.md 契约) | `scripts/venv/Scripts/python.exe scripts/chain/run_chain.py --slot 0915 [--date yyyymmdd] [--dry]` / `--review` / `--selftest`(不烧 token); 出口 0=完成 1=中止 3=ESCALATE_FULL_CHAIN |
 
 ---
 
@@ -111,7 +111,7 @@ scripts/venv/Scripts/python.exe -X utf8 scripts/tzzb/onboard_mentor.py --ledger 
 ```
    步骤顺序: preflight → db_sync(应用接口 sync + 只读核对行数) → skill_skel(SKILL.md/sum/distill/rules/cases 骨架) → md(order_tzzb_sections 补 `#### <name>` + gen_tzzb_md 全历史硬数据层; **不用改 Java 模板**) → kline(补日线归档) → mech(gen_tzzb_profile→profile.md v1 / mentor_fingerprint / mentor_scope / gen_horizon / gen_tzzb_cases / backfill_fill_minutes / order_inference / case_log / hold_mining / fee_profile) → paper(matcher --init 建 10 万账本 + 时段按真人决策事件分布算 → slot_activity.json; `--apply-jobs` 才经 `/api/quartz/add` 加 sys_job `<id>:HHMM`) → daily(链日 D 的 pools 合并 / mentor_model --predict / mentor_cards / quality_daily) → chain_md(由模板导师 chain.md 改名 + 能力圈/推导链/取数按机械统计重写) → focus(给了 --focus 才做: 专题逐笔明细) → **[token]** distill(distill_history 并入 rules.md) → thicken1 → thicken2(并入) → profile_deep(profile.md 深度六节 + 专题节) → finalize(规则索引 / 画像索引 / rule_tags / persona_versions snapshot / sync_skills) → verify(mentors 自测 / run_chain --selftest / 驱动器模板载入 / matcher --once --dry / 共享文件核对)。
    共享文件(mentor_scope / horizon_days / fee_profile / model_out / pools / slot_activity)一律合并写, 不丢别人的条目; 核对: `onboard_mentor.py --check-shared a,b [--date D]`。实测单人花费约 $12(上限 --budget 默认 25)。
-- 10/18 规矩: 脚本生成的报告一律写本域 `reports/`(tzzb → `scripts/tzzb/model_out/reports/`, paper → `scripts/dfcf/paper/reports/`, 决策链 → `scripts/taoge-chain/reports/`, 龙虎榜 → `scripts/lhb/reports/`, 健康 → `scripts/health/reports/`); `docs/research/` 只放人写的调研, 看完即删。
+- 10/18 规矩: 脚本生成的报告一律写本域 `reports/`(tzzb → `scripts/tzzb/model_out/reports/`, paper → `scripts/dfcf/paper/reports/`, 决策链 → `scripts/chain/reports/`, 龙虎榜 → `scripts/lhb/reports/`, 健康 → `scripts/health/reports/`); `docs/research/` 只放人写的调研, 看完即删。
 
 ## lib/ — 公共模块
 

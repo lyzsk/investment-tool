@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ledger_limits.py — paper 决策链"账本统计硬约束 + 本导师候选池 + 统计基线建议"的机械层(10/16 晚 TODO 三-2 + A2①③, 零 token, 只读)
 
-消费方: scripts/taoge-chain/run_chain.py(开关 chain_flags.txt CHAIN_LEDGER_CONSTRAINTS; 关=驱动器不 import 本模块)。
+消费方: scripts/chain/run_chain.py(开关 chain_flags.txt CHAIN_LEDGER_CONSTRAINTS; 关=驱动器不 import 本模块)。
 本模块只读文件、不写业务库、不调 LLM; 唯一的写=ensure_artifact() 现场补产 pools/<日>.json·model_out/<日>.json(调导师脚本子进程, CREATE_NO_WINDOW)
 和 log_jsonl()(overrides/ledger 日志)。
 

@@ -148,7 +148,7 @@ def guard_keys(path, sub=None):
 
 
 SHARED = [("scripts/dfcf/paper/slot_activity.json", None), ("scripts/tzzb/mentor_scope.json", None),
-          ("scripts/taoge-chain/horizon_days.json", None), ("scripts/tzzb/fee_profile.json", None)]
+          ("scripts/chain/horizon_days.json", None), ("scripts/tzzb/fee_profile.json", None)]
 
 
 def check_shared(ids, D):
@@ -356,7 +356,7 @@ def s_mech(c):
         log("  建 profile.md v1(机械画像)")
     c.py("scripts/tzzb/mentor_fingerprint.py", "--ledger", i, step="mech", timeout=1800)
     for p, script in (("scripts/tzzb/mentor_scope.json", "scripts/tzzb/mentor_scope.py"),
-                      ("scripts/taoge-chain/horizon_days.json", "scripts/taoge-chain/gen_horizon.py"),
+                      ("scripts/chain/horizon_days.json", "scripts/chain/gen_horizon.py"),
                       ("scripts/tzzb/fee_profile.json", "scripts/tzzb/fee_profile.py")):
         restore = guard_keys(p)
         c.py(script, step="mech", timeout=1800)
@@ -761,12 +761,12 @@ def s_verify(c):
     i = c.id
     _, o = c.py("scripts/lib/mentors.py", "--selftest", step="verify")
     log("  " + o.strip().splitlines()[-1])
-    _, o = c.py("scripts/taoge-chain/run_chain.py", "--selftest", step="verify", timeout=1800)
+    _, o = c.py("scripts/chain/run_chain.py", "--selftest", step="verify", timeout=1800)
     if "SELFTEST PASS" not in o:
         raise RuntimeError("run_chain --selftest 未 PASS")
     log("  run_chain --selftest PASS")
     code = TPL_CHECK.format(tpl=TEMPLATE, id=i, tname=M.get(TEMPLATE)["name"], name=c.name)
-    r = subprocess.run([PY, "-X", "utf8", "-c", code], cwd=ROOT / "scripts" / "taoge-chain", capture_output=True, text=True,
+    r = subprocess.run([PY, "-X", "utf8", "-c", code], cwd=ROOT / "scripts" / "chain", capture_output=True, text=True,
                        encoding="utf-8", errors="replace", creationflags=NOWIN)
     log("  驱动器模板: " + ((r.stdout or "").strip().splitlines() or [r.stderr[-200:]])[-1])
     if r.returncode:

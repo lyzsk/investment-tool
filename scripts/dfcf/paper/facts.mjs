@@ -504,12 +504,13 @@ const md = [`# facts ${date} ${SLOT}（机械构建零 token; 版本=${date}/${S
             { stdio: "pipe", timeout: 20000, windowsHide: true }).toString("utf8").trim();
         return t && !t.startsWith("(") ? ["## 多指数面板(日经/KOSPI/A50连续/小纳指连续/上证/中证2000/创业板/恒生科技; 判市况必须逐个看过程, 不只看收盘)", t, ""] : [];
     } catch { return []; } })()),
-    // 10/20 晚用户批: 开盘实况(open_live.py 09:31~10:30 每分钟机械判定市况, 触发才判)进 0927~1030 时段全链; --before=本时段, as-of 回放读当日存档无后见
-    ...(SLOT >= "0927" && SLOT <= "1030" ? (() => { try {
+    // 10/20 晚用户批: 开盘实况(open_live.py 每分钟机械判定市况, 触发才判)进 0927 起时段全链; --before=本时段, as-of 回放读当日存档无后见
+    // 10/21 晚用户令全天化: open_live 窗口 09:31~11:30 + 13:00~14:57 → 本节从 0927~1030 放到 0927~1500(review 字典序 > "1500" 自动排除)
+    ...(SLOT >= "0927" && SLOT <= "1500" ? (() => { try {
         if (!ASOF) { try { execFileSync(path.join("scripts", "venv", "Scripts", "python.exe"), ["-X", "utf8", "scripts/market/open_live.py", "--ensure"], { stdio: "pipe", timeout: 20000, windowsHide: true }); } catch { /* 拉不起不挡事实包 */ } }
         const t = execFileSync(path.join("scripts", "venv", "Scripts", "python.exe"), ["-X", "utf8", "scripts/market/open_live.py", "--show", "--date", ASOF || date, "--before", SLOT],
             { stdio: "pipe", timeout: 20000, windowsHide: true }).toString("utf8").trim();
-        return t && !t.startsWith("(") ? ["## 开盘实况(09:25 竞价 → 09:31~10:30 逐分钟; 市况结论会变, 以最新一次判定为准, 和 02 不一致要在正文写理由)", t, ""] : [];
+        return t && !t.startsWith("(") ? ["## 开盘实况(09:25 竞价 → 09:31~11:30 / 13:00~14:57 逐分钟; 市况结论会变, 以最新一次判定为准, 和 02 不一致要在正文写理由)", t, ""] : [];
     } catch { return []; } })() : []),
     "## 期货(国内主力+外围期货, 现场拉取; 注意: 国内股指期货没有夜盘, 盘前看到的涨跌=上一交易日日盘, 不是隔夜信号)", ASOF ? "(as-of 回放: 无期货历史快照, 不可得)" : await futuresMd(), "",
     "## 今日盘前资讯(当日早报+发哥推演, 盘前蒸馏要点原文)", premarket(), "",

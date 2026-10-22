@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """quality_hooks.py — 决策质量新功能的驱动器接入层(10/17 ② agent; 零 token)
 
-驱动器 scripts/taoge-chain/run_chain.py 只做三件事(补丁 scripts/temp/b_patch/apply_quality.py 打进去):
+驱动器 scripts/chain/run_chain.py 只做三件事(补丁 scripts/temp/b_patch/apply_quality.py 打进去):
   ① prompt 末尾追加 block(step, ctx, qf)          ② VALIDATORS["06"] 外包一层: pre06 → 原校验 → post06
   ③ emit_plans 把 a["_reprice"] 写成 cond reprice=N、把 a["_style"] 写进 note
 开关(chain_flags.txt, 全部默认 0; 关=本模块不被调用, 驱动器逐字节旧行为):

@@ -1,5 +1,5 @@
---- v006_20261019-2201/scripts/taoge-chain/run_chain.py
-+++ v007_20261019-2303/scripts/taoge-chain/run_chain.py
+--- v006_20261019-2201/scripts/chain/run_chain.py
++++ v007_20261019-2303/scripts/chain/run_chain.py
 @@ -3578,5 +3578,6 @@
                  f"- {prev} 转债成交额前三: " + " | ".join(top) + "\n"
                  "- 用法: 首选第 1 名下 op=\"竞价T\"(竞价买、开盘即卖), 金额按他的固定名义本金习惯; 正股竞价高开 ≥2% 时他胜率 91%(0915 看不到当天竞价, 这只是参考); "

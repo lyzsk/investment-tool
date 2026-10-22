@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "anlizhuohuo",
  "name": "暗里着火",
- "generated_at": "2026-10-20T19:25:46",
+ "generated_at": "2026-10-21T23:55:44",
  "since": "2026-10-08",
- "until": "2026-10-20",
+ "until": "2026-10-21",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "延续",
@@ -94,6 +94,14 @@
   },
   {
    "date": "2026-10-20",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-21",
    "cash": 100000.0,
    "mv": 0.0,
    "nav": 100000.0,
@@ -319,9 +327,9 @@
    "state_day": "2026-10-16",
    "p_trade": 0.016,
    "p_dir_given_trade": [
-    0.763,
+    0.764,
     0.0,
-    0.237
+    0.236
    ],
    "decision": {
     "trade": false,
@@ -345,13 +353,13 @@
   {
    "date": "2026-10-20",
    "orders": [],
-   "stale": 1,
-   "state_day": "2026-10-16",
-   "p_trade": 0.021,
+   "stale": 0,
+   "state_day": "2026-10-19",
+   "p_trade": 0.015,
    "p_dir_given_trade": [
-    0.779,
+    0.644,
     0.0,
-    0.221
+    0.356
    ],
    "decision": {
     "trade": false,
@@ -359,6 +367,36 @@
     "tp_hat": 0.9975,
     "tp_target_cap": 0.98,
     "tp_final": 0.9975,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.1608,
+    "red_step": 0.0811353806079913,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0,
+   "note": "指纹池不可用(样本不足, 不出池), 不买"
+  },
+  {
+   "date": "2026-10-21",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-20",
+   "p_trade": 0.014,
+   "p_dir_given_trade": [
+    0.619,
+    0.0,
+    0.381
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9974,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9974,
     "tp_final_cap": 0.98,
     "src": {
      "L1": "延续",

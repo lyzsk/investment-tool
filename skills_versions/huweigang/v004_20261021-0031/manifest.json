@@ -51,7 +51,7 @@
   "chain": "a3177a04cd78",
   "distill": "1a96d909e127",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "cf43a5fd991a",
+   "scripts/chain/run_chain.py": "cf43a5fd991a",
    "skills/huweigang-skill/workflows/chain.md": null,
    "skills/huweigang-skill/SKILL.md": null,
    "scripts/dfcf/paper/params.yaml": "8aa4869152ad"

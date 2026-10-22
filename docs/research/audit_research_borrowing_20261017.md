@@ -41,7 +41,7 @@
 
 | # | 观点 / 方法 | 研究出处（证据级别） | 我们用在哪 | 状态 | 结论 |
 |---|---|---|---|---|---|
-| R1 | 公司制多角色流水线：事实→分析→辩论→计划→风控→终裁→复盘 | TradingAgents（C，未做消融）、FinCon（C） | `scripts/taoge-chain/run_taoge_chain.py` 全链；各 skill 的 `chain.md` | 上线 | **调整** |
+| R1 | 公司制多角色流水线：事实→分析→辩论→计划→风控→终裁→复盘 | TradingAgents（C，未做消融）、FinCon（C） | `scripts/chain/run_taoge_chain.py` 全链；各 skill 的 `chain.md` | 上线 | **调整** |
 | R2 | 03 "保留分歧"：不在聚合时抹掉分歧，改用软聚合 | arXiv 2609.29701 JSD 干预（弱~中，未核实）、Debate or Vote 2508.17536（未核实）、Krogh & Vedelsby 1994（理论，强） | 驱动器 `run_taoge_chain.py:425~800`（DEBATE_V2）；chain.md 的 03 三段 | 上线（追价闸关） | **调整** |
 | R3 | "LLM 偏空"→给空方打折的系数 k | 用户先验，加上 FINSABER、2609.29701 的"多轮讨论趋于保守"（证据不一致） | `run_taoge_chain.py:436~437`（`DEBATE_K_APPLY=False`，只记录不进决策，区间 [0.5,2]，先验 1.0） | 只测量 | **调整** |
 | R4 | 分歧→追价单打折（离散成几档的下注规模） | López de Prado 2018 第 10 章（中，不是 LLM 场景） | `CHAIN_DEBATE_GATE`、`_debate_gate` | 关 | **撤**（维持关） |

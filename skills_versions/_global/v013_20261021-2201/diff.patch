@@ -1,0 +1,9 @@
+--- v012_20261021-2036/scripts/claude_profile/chain_flags.txt
++++ v013_20261021-2201/scripts/claude_profile/chain_flags.txt
+@@ -106,2 +106,6 @@
+ # 10/21 晚: 1 = 执行器每次触发跑 01→06 串行链(se_chain.py, 直连 API, 3 分钟内); 0 = 旧的单次 claude -p(默认, 明天开不开等用户定)
+ SE_CHAIN=0
++# 10/21 晚(★1-D): 这个时刻(HH:MM)之后不再发起新的重定
++SE_LAST_CHAIN=14:54
++# 10/21 晚(★1-G): 每条链当天模型花费到这个美元数推一条告警(照跑不停); 0 = 不告警
++SE_COST_ALERT=30

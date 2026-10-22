@@ -1,0 +1,11 @@
+--- v016_20261021-2036/persona/profile_index.md
++++ v017_20261021-2101/persona/profile_index.md
+@@ -1,6 +1,6 @@
+-# profile_index.md — lubenyuan 导师画像目录(链改造 F; 生成于 2026-10-21 20:04)
++# profile_index.md — lubenyuan 导师画像目录(链改造 F; 生成于 2026-10-21 21:00)
+ > 源: skills/lubenyuan-skill/persona/profile.md sha12=165cfae371e6 · 197 行 · 282.1KB · 30 节(超长节按行切片≤6KB)
+ > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
+-> 标注来源: claude -p 标注 7/30 节($0.42, 112s); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill lubenyuan`(未变节复用标注)
++> 标注来源: 复用旧标注, 原标注=claude -p 标注 7/30 节($0.42, 112s); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill lubenyuan`(未变节复用标注)
+ > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 34.0KB / 03 23.0KB / 04 23.0KB / 05 22.5KB / 06 29.8KB
+ 

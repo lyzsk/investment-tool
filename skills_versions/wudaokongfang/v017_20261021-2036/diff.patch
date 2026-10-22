@@ -1,0 +1,9 @@
+--- v016_20261021-0800/workflows/chain.md
++++ v017_20261021-2036/workflows/chain.md
+@@ -365,5 +365,5 @@
+ 
+ - 优先级：先当下（0915 或子链所在 slot 的当时判断），再多日（未来 N 个交易日）；多日判断只作加减分。
+-- N/上限：scripts/taoge-chain/horizon_days.json（gen_horizon.py 生成，可手改）：tzzb 导师=真人持仓天数中位/P75（mentor_scope.json 的 hold_days_med/hold_days_p75）；B站 UP/对照组=无统计，按画像（缺省参考 2 天/上限 5 天，不做超上限校验）。
++- N/上限：scripts/chain/horizon_days.json（gen_horizon.py 生成，可手改）：tzzb 导师=真人持仓天数中位/P75（mentor_scope.json 的 hold_days_med/hold_days_p75）；B站 UP/对照组=无统计，按画像（缺省参考 2 天/上限 5 天，不做超上限校验）。
+ - 02 `outlook`；03 辩题不变、加"outlook 是否支持"；04 `hold_days`/`exit_plan`/`thesis_check`+`thesis_note`（+超上限 `over_cap_why`）；07 `多日核对`/`lessons`（tzzb 导师链另有 `拟人对照`，lessons 多 case卡）。
+ - 07 口径：tzzb 导师链=拟人偏差主轴（交不交易/方向/标的/仓位/时段 逐项对真人，问因=事实包缺信息/理解错导师框架/其他，教训写 case 卡，规则不因单样本改）；B站 UP/对照组=预案对照+know-how 四问。

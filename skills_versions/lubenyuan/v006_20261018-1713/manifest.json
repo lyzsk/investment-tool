@@ -133,7 +133,7 @@
   "chain": "faf773f11047",
   "distill": "a1680626066f",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "fc223ed4aca3",
+   "scripts/chain/run_chain.py": "fc223ed4aca3",
    "skills/lubenyuan-skill/workflows/chain.md": "22093471e332",
    "skills/lubenyuan-skill/SKILL.md": "8c40673cc8a0",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

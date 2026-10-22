@@ -93,7 +93,7 @@ A personal A-share research & paper-trading system: Spring Boot + Quartz drives 
 
 ```
 Quartz (sys_job) ──► JobHandler (inv-stock) ──► ProcessUtils.run(node|python script) ──► files ──► Java writes DB
-  paperChainHandler ─► scripts/taoge-chain/run_chain.py --skill <id> --slot <HHMM>
+  paperChainHandler ─► scripts/chain/run_chain.py --skill <id> --slot <HHMM>
                            ├─ scripts/dfcf/paper/facts.mjs (scan.mjs six boards + snapshot.mjs quotes + md + rules_index)
                            ├─ claude -p × steps 01..06 + blind  (prompts = skills/<id>-skill/workflows/chain.md)
                            └─ plans → scripts/dfcf/paper/plans/<date>/
@@ -151,7 +151,7 @@ investment-tool
 │   ├── quotes/        # kline.mjs multi-source daily K / indicators.mjs / fetch_quotes.mjs (cb & minute archives)
 │   ├── dfcf/paper/    # paper trading: facts / matcher / report / similarity / scorecard (state dirs gitignored)
 │   ├── dfcf/snapshots/# real-account & hermes transcripts (privacy zone, gitignored)
-│   ├── taoge-chain/   # decision-chain harness run_chain.py (+ pre_market.py)
+│   ├── chain/   # decision-chain harness run_chain.py (+ pre_market.py)
 │   ├── bilibili/      # fetch_bilibili.mjs + process_video.py
 │   ├── backfill_bilibili/ # historical video backfill engine (local only, gitignored)
 │   ├── tzzb/          # ledger fetch / md / review / profile / distill tools

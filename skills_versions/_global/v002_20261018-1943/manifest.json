@@ -17,14 +17,14 @@
    "added": [],
    "modified": [
     "scripts/claude_profile/chain_flags.txt",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "removed": []
   },
   "changed_by_cat": {
    "全局": [
     "scripts/claude_profile/chain_flags.txt",
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ]
   },
   "data_changed": [],
@@ -53,7 +53,7 @@
    "cls": "全局",
    "bulk": false
   },
-  "scripts/taoge-chain/run_chain.py": {
+  "scripts/chain/run_chain.py": {
    "sha256": "62b0c54b3cb9aec2ef48eb5110950d2f1d1c9eae10784dfe7226b0b066605f7d",
    "bytes": 389793,
    "lines": 5823,

@@ -1,7 +1,7 @@
-# profile_index.md — zhiyingjuexin 导师画像目录(链改造 F; 生成于 2026-10-20 00:34)
-> 源: skills/zhiyingjuexin-skill/persona/profile.md sha12=79b5719b62f6 · 140 行 · 16.1KB · 18 节(超长节按行切片≤6KB)
+# profile_index.md — zhiyingjuexin 导师画像目录(链改造 F; 生成于 2026-10-22 00:36)
+> 源: skills/zhiyingjuexin-skill/persona/profile.md sha12=c47af681362a · 147 行 · 16.8KB · 19 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: 复用旧标注, 原标注=--no-llm: 3 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill zhiyingjuexin`(未变节复用标注)
+> 标注来源: --no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill zhiyingjuexin`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 3.3KB / 03 2.7KB / 04 7.2KB / 05 3.8KB / 06 11.0KB
 
 ## 核心摘要
@@ -62,3 +62,4 @@
 | S16 | 10-15 当日行为(硬数据锚点) | 10-15 低开等反抽分批清仓，转逆回购空仓 | L117-123 | 0.9 | 06 | 2 | 6f49a901 |
 | S17 | 10-16 当日行为(硬数据锚点) | 10-16 吉大正元涨停价单票满仓，炸板回封，当前持仓状态 | L125-131 | 1.1 | 02,06 | 1 | e5815d96 |
 | S18 | 10-19 当日行为(硬数据锚点) | 10-19 吉大正元一字板 0 腿满仓持有，隔日交替节律首次打断 | L133-139 | 0.9 | 02,06 | 1 | 227dca0d |
+| S19 | 10-21 当日行为(硬数据锚点) | (未标注: --no-llm) | L141-146 | 0.7 | — | 3 | 1fa8df69 |

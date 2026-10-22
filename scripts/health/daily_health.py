@@ -14,6 +14,8 @@ import argparse, datetime as dt, glob, json, re, subprocess, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+# 10/21 用户定 Java 日志改写 logs/inv-admin/(重启应用后生效); 新目录有主日志就读新的, 否则读老的 logs/ 根目录 —— 重启前后都不用再改
+LOGD = ROOT / "logs" / "inv-admin" if (ROOT / "logs" / "inv-admin" / "inv-admin.log").exists() else ROOT / "logs"
 sys.path.insert(0, str(ROOT / "scripts" / "backfill_bilibili"))
 OUT = Path(__file__).resolve().parent / "reports"
 
@@ -82,7 +84,7 @@ def main():
             cur.execute("select count(*) from sys_job where status=0 and job_handler_name='paperChainHandler' and job_handler_param like '%0915%'")
             want = cur.fetchone()[0]
             # 10/15: 以当日应用日志里 0915 实际启动数为准(白天新启用的任务当天 0915 没轮到, 按"启用数"比会误报); 日志缺=退回启用数
-            for lf in (ROOT / "logs" / "inv-admin.log", ROOT / "logs" / f"inv-admin.{today.isoformat()}.0.log"):
+            for lf in (LOGD / "inv-admin.log", LOGD / f"inv-admin.{today.isoformat()}.0.log"):
                 if lf.exists():
                     st = {m for m in re.findall(rf"^{today.isoformat()} .*\[paper-trace\] (\S+):0915 start", lf.read_text(encoding="utf-8", errors="replace"), re.M)}
                     if st:
@@ -92,7 +94,7 @@ def main():
                         "and date(create_time)=%s", (today.isoformat(),))
             got = cur.fetchone()[0]
             if got < want:
-                add("红", "0915 链调度日志缺记录", f"启用 {want} 条, 今日只记 {got} 条(A5 复发? 看 logs/inv-admin.log 的 [paper-trace] 与 jstack)")
+                add("红", "0915 链调度日志缺记录", f"启用 {want} 条, 今日只记 {got} 条(A5 复发? 看 {LOGD.relative_to(ROOT)}/inv-admin.log 的 [paper-trace] 与 jstack)")
             else:
                 rows.append(("绿", "0915 链调度日志", f"{got}/{want} 条"))
     except Exception as e:  # noqa: BLE001
@@ -217,7 +219,7 @@ def main():
     except Exception as e:  # noqa: BLE001
         add("黄", "claude -p 用量", f"统计失败: {e}")
     # ④ 应用日志
-    ef = ROOT / "logs" / "inv-admin-error.log"
+    ef = LOGD / "inv-admin-error.log"
     if ef.exists():
         lines = [l for l in ef.read_text(encoding="utf-8", errors="replace").splitlines() if re.match(r"\d{4}-\d\d-\d\d", l)]
         recent = [l for l in lines if l[:19] >= (now - dt.timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")]
@@ -228,7 +230,7 @@ def main():
         elif recent:
             add("黄", "应用 WARN 日志", f"24h {len(recent)} 条; 首条: {recent[0][:160]}")
     else:
-        add("黄", "应用日志文件", "logs/inv-admin-error.log 不存在(应用没按 logback-spring.xml 重启?)")
+        add("黄", "应用日志文件", f"{ef.relative_to(ROOT)} 不存在(应用没按 logback-spring.xml 重启?)")
 
     OUT.mkdir(exist_ok=True)
     order = {"红": 0, "黄": 1, "绿": 2}

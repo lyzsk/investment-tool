@@ -206,7 +206,7 @@
   "chain": "da53e34f542c",
   "distill": "76cdc243c51d",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "730e297e80ae",
+   "scripts/chain/run_chain.py": "730e297e80ae",
    "skills/lubenyuan-skill/workflows/chain.md": "22093471e332",
    "skills/lubenyuan-skill/SKILL.md": "8c40673cc8a0",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

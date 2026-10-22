@@ -1,7 +1,7 @@
 # cb 决策链 · workflows/chain.md（2026-10-04 建，盲区修复⑦：cb-skill 从"有眼睛"补"手脚"）
 
 > 对象 = A-cb 账本（10 万虚拟金）。人格 = 不吃土豆0 纯行为克隆（persona/rules.md R1-R7，全部过五闸门）。
-> 图纸与施工队分离：本文件是唯一契约源；驱动器 = scripts/taoge-chain/run_chain.py --skill buchitudou0（10/7 键正名，原 cb；同一份驱动器，skill 参数化）。
+> 图纸与施工队分离：本文件是唯一契约源；驱动器 = scripts/chain/run_chain.py --skill buchitudou0（10/7 键正名，原 cb；同一份驱动器，skill 参数化）。
 > 与 taoge 链的差集：无 03 多空辩论（v1 砍，TODO 待补拆环）；R1 立法=88% 出手在 09:25-09:35 → 子链时刻集中在早盘；转债标的 code 必须是 11/12 开头。
 > 时间纪律（10/2 用户立法，R6）：决策原因只许用 T-1 及更早信息，当日盘前 facts 仅作状态确认，禁未来函数。
 

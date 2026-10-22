@@ -613,6 +613,100 @@
     "chain": "6d709532cbd5",
     "distill": "7ed2ec1f55e9"
    }
+  },
+  {
+   "v": 16,
+   "id": "v016_20261021-2036",
+   "ts": "2026-10-21T20:36:55",
+   "effective_from": "2026-10-21T20:36:54",
+   "unit": "skill",
+   "version_hash": "a0779501997cd7cc995f4b0a1ab28f63bc019c68075c1ace9feba3ce06eccb7b",
+   "cat_hash": {
+    "提示词": "7156ae52a1a867177759f40252435091f0e1d4f2b07a9def3bcdbf908bdf0bdb",
+    "数据": "2d64832bcc8233b574073e87a65a33b71dc0eb66bf752741651261a74506c7dc",
+    "画像": "c916da31e97b4fb9bc3e0d27ba2650e1190b834f9615a3ceb6ad62318ff1854d"
+   },
+   "data_hash": "0c0ae6d70091aea4ee5fdf6aa1d0c6dcf99aca39227a46b9b65ecbf2c6d876f4",
+   "parent": "v015_20261020-2002",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/language.md",
+     "persona/rules.md",
+     "persona/rules_index.md",
+     "workflows/chain.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md",
+     "persona/language.md",
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/rules_index.md"
+    ],
+    "提示词": [
+     "workflows/chain.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 194,
+    "removed": 157
+   },
+   "bytes_weight": 4064543,
+   "why": "check-md 2026-10-21 20:36",
+   "code": {
+    "chain": "a7ba8465f724",
+    "distill": "b549c9acdd18"
+   }
+  },
+  {
+   "v": 17,
+   "id": "v017_20261022-0800",
+   "ts": "2026-10-22T08:00:00",
+   "effective_from": "2026-10-22T05:26:29",
+   "unit": "skill",
+   "version_hash": "e8e8effcda2d08e668f67fb6ec392b3a4b67ca2525eab14cdac8286f1d319b7e",
+   "cat_hash": {
+    "提示词": "7156ae52a1a867177759f40252435091f0e1d4f2b07a9def3bcdbf908bdf0bdb",
+    "数据": "2d64832bcc8233b574073e87a65a33b71dc0eb66bf752741651261a74506c7dc",
+    "画像": "461440e82f7309700873a075067626db48a5c8fd5b9c99264a05f4dd6b5e71b8"
+   },
+   "data_hash": "0c0ae6d70091aea4ee5fdf6aa1d0c6dcf99aca39227a46b9b65ecbf2c6d876f4",
+   "parent": "v016_20261021-2036",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/language.md",
+     "persona/profile.md",
+     "persona/rules.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md",
+     "persona/language.md",
+     "persona/profile.md",
+     "persona/rules.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 92,
+    "removed": 2
+   },
+   "bytes_weight": 4110011,
+   "why": "check-md 2026-10-21 08:00",
+   "code": {
+    "chain": "a7ba8465f724",
+    "distill": "3acb34b43865"
+   }
   }
  ],
  "events": [],

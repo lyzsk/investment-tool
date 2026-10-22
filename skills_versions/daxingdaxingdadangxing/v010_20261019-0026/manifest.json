@@ -179,7 +179,7 @@
   "chain": "1f203b726794",
   "distill": "8b014ba7e560",
   "chain_files": {
-   "scripts/taoge-chain/run_chain.py": "730e297e80ae",
+   "scripts/chain/run_chain.py": "730e297e80ae",
    "skills/daxingdaxingdadangxing-skill/workflows/chain.md": "aeefff550512",
    "skills/daxingdaxingdadangxing-skill/SKILL.md": "6081925b8098",
    "scripts/dfcf/paper/params.yaml": "4c981cf59729"

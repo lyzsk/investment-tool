@@ -89,3 +89,14 @@ date,book,导师,real_n,sim_n,jac,op,comp,ctrl,delta
 20261019,A-xingjianye,xingjianye,1,1,0,0.5,0.2,0.2,0
 20261019,A-zhiyingjuexin,zhiyingjuexin,1,1,0,0.5,0.2,0.2,0
 20261019,A-zuoshoudeirong,zuoshoudeirong,1,0,0,0,0,0,0
+20261020,A-antoo,antoo,4,2,0.5,0.3333,0.4333,0,0.4333
+20261020,A-cb,buchitudou0,0,0,1,1,1,0,1
+20261020,A-gaogailvfuli,gaogailvfuli,1,2,0.5,0,0.3,0,0.3
+20261020,A-hanxiao,hanxiao,0,0,,,,0.2,
+20261020,A-lianghuaxiaohao,lianghuaxiaohao,3,2,0,0,0,0,0
+20261020,A-liuyiqing,liuyiqing,0,1,0,0,0,0,0
+20261020,A-stzhilang,stzhilang,0,1,0,0.5,0.2,0.2,0
+20261020,A-wudaokongfang,wudaokongfang,5,0,0,0,0,0,0
+20261020,A-xingjianye,xingjianye,1,1,0,1,0.4,0.2,0.2
+20261020,A-zhiyingjuexin,zhiyingjuexin,1,0,0,0,0,0,0
+20261020,A-zuoshoudeirong,zuoshoudeirong,1,0,0,0,0,0,0

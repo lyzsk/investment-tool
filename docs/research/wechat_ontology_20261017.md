@@ -74,7 +74,7 @@
 
 | 文章原则 | 我们现状（文件） | 判断 |
 |---|---|---|
-| **M4 资源复用**：同一份底层资产不要复制多份 | 决策链提示词全部从各导师的 `skills/<id>-skill/workflows/chain.md` 抽取（`scripts/taoge-chain/run_taoge_chain.py` 第 5 行"唯一契约源"、`_up_cfg` 第 142 行起）。这些文件是 **taoge 模板"盖章"复制出来的，共 17 份、每份约 50KB**；把导师名和 id 替换掉以后，刘忆青和星见野只差 12 行（就是能力圈 / 推导链 / 取数那几段）。文件头自己写着"改 taoge 模板后须重盖章或手动同步"；10/15 方案 A 要靠 `scripts/taoge-chain/apply_plan_a.py` 批量改 15 份。没找到任何校验模板漂移的脚本 | **痛点，而且已经出了 bug（见下一行）**。和前两篇的"导师名单写死约 18 处"（二B-4）是同一个病 |
+| **M4 资源复用**：同一份底层资产不要复制多份 | 决策链提示词全部从各导师的 `skills/<id>-skill/workflows/chain.md` 抽取（`scripts/chain/run_taoge_chain.py` 第 5 行"唯一契约源"、`_up_cfg` 第 142 行起）。这些文件是 **taoge 模板"盖章"复制出来的，共 17 份、每份约 50KB**；把导师名和 id 替换掉以后，刘忆青和星见野只差 12 行（就是能力圈 / 推导链 / 取数那几段）。文件头自己写着"改 taoge 模板后须重盖章或手动同步"；10/15 方案 A 要靠 `scripts/chain/apply_plan_a.py` 批量改 15 份。没找到任何校验模板漂移的脚本 | **痛点，而且已经出了 bug（见下一行）**。和前两篇的"导师名单写死约 18 处"（二B-4）是同一个病 |
 | 同一个概念只定义一次（导师显示名） | **实测 bug**：`skills/zhiyingjuexin-skill/workflows/chain.md` 第 231、239 行的拟人审写的是"像不像**知盈觉新**本人会下的单"，但 `scripts/tzzb/tzzb_ledgers.json` 里这位叫"**芷影攫心**"。10/17 新入库的 `zjwzlclf` / `ynw01` / `wudaokongfang` 三份 chain.md 是从这份复制的（zjwzlclf 文件头写着"复制改名"），**拟人审里也都是"知盈觉新"**，名字没换成各自的 | 要修。影响有限：驱动器注入的统计和 profile 路径都是对的导师，错的只是提示词里的名字，但会误导拟人审，而且周一 10/19 新导师首日就会用到 |
 | M3 规则结构化：触发条件 / 临界数值 / 处置动作 | `skills/<id>-skill/persona/rules.md` 是自由文本（有"触发→入场→失效→出场"写法、`[可跟]/[画像]/[教训]` 分级、`rules_index.md` 的 ✅⏳❌ 验证标记）；`scripts/dfcf/paper/rule_tags.py`（言行一致性第二期，TODO 三-2）在补"方向 / 机械触发"。看产物 `scripts/dfcf/paper/rule_tags/*.json`（13 位 tzzb 导师共 142 条）：**驱动器能机械判的只有 6 条**，21 条要盘中分时数据、驱动器不判，**107 条是话术级**，8 条已证伪 | 半做。方向对，但能机械校验的比例很低（约 4%） |
 | M3 制度溯源 + 阈值唯一 | A 股交易规则：`scripts/lib/a_rules.py/.mjs` 统一模块，出处和生效日期在 `docs/rules/a_share_trading_rules.md`，每条标"已核实 / 待核实" | 已做，几乎就是文章 M3 的标准写法 |

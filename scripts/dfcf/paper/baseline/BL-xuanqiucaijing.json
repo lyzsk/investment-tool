@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "xuanqiucaijing",
  "name": "宣秋财经",
- "generated_at": "2026-10-20T19:25:46",
+ "generated_at": "2026-10-21T23:55:44",
  "since": "2026-10-08",
- "until": "2026-10-20",
+ "until": "2026-10-21",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "延续",
@@ -259,6 +259,14 @@
    "cash": 18266.06,
    "mv": 65020.0,
    "nav": 83286.06,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-21",
+   "cash": 18266.06,
+   "mv": 64832.0,
+   "nav": 83098.06,
    "filled": 0,
    "orders": 0
   }
@@ -602,7 +610,7 @@
    "p_trade": 0.238,
    "p_dir_given_trade": [
     0.639,
-    0.285,
+    0.284,
     0.076
    ],
    "decision": {
@@ -622,6 +630,35 @@
     "n_new": 2
    },
    "tp_acct_prev": 0.778
+  },
+  {
+   "date": "2026-10-21",
+   "orders": [],
+   "stale": 5,
+   "state_day": "2026-10-13",
+   "p_trade": 0.227,
+   "p_dir_given_trade": [
+    0.826,
+    0.068,
+    0.106
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 2.20525,
+    "tp_target_cap": 0.98,
+    "tp_final": 2.1856,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.1398970158413741,
+    "red_step": 0.0629985673748078,
+    "n_new": 2
+   },
+   "tp_acct_prev": 0.781
   }
  ]
 }

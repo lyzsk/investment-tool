@@ -1,27 +1,27 @@
 {
- "updated": "20261019",
+ "updated": "20261020",
  "window": 20,
  "summary": [
   {
    "book": "A-cb",
    "name": "不吃土豆0",
-   "days": 7,
-   "comp": 0.4,
-   "ctrl": 0.3,
-   "delta": 0.09999999999999999
+   "days": 8,
+   "comp": 0.47500000000000003,
+   "ctrl": 0.2571428571428571,
+   "delta": 0.2285714285714286
   },
   {
    "book": "A-liuyiqing",
    "name": "刘忆青",
-   "days": 9,
-   "comp": 0.060188888888888896,
+   "days": 10,
+   "comp": 0.05417000000000001,
    "ctrl": 0,
-   "delta": 0.060188888888888896
+   "delta": 0.05417000000000001
   },
   {
    "book": "A-lianghuaxiaohao",
    "name": "量化短线小号实验",
-   "days": 9,
+   "days": 10,
    "comp": 0,
    "ctrl": 0,
    "delta": 0
@@ -45,10 +45,10 @@
   {
    "book": "A-xingjianye",
    "name": "星见野",
-   "days": 8,
-   "comp": 0.17500000000000002,
-   "ctrl": 0.15,
-   "delta": 0.025
+   "days": 9,
+   "comp": 0.20000000000000004,
+   "ctrl": 0.15555555555555556,
+   "delta": 0.044444444444444446
   },
   {
    "book": "A-daxingdaxingdadangxing",
@@ -61,10 +61,10 @@
   {
    "book": "A-gaogailvfuli",
    "name": "高概率复利",
-   "days": 7,
-   "comp": 0.13999999999999999,
-   "ctrl": 0.05714285714285715,
-   "delta": 0.08285714285714287
+   "days": 8,
+   "comp": 0.16,
+   "ctrl": 0.05,
+   "delta": 0.11000000000000001
   },
   {
    "book": "A-xuanqiucaijing",
@@ -77,10 +77,10 @@
   {
    "book": "A-stzhilang",
    "name": "ST之狼",
-   "days": 6,
-   "comp": 0.16666666666666666,
-   "ctrl": 0.16666666666666666,
-   "delta": -1.850371707708594e-17
+   "days": 7,
+   "comp": 0.17142857142857143,
+   "ctrl": 0.17142857142857143,
+   "delta": -1.586032892321652e-17
   },
   {
    "book": "A-chong5000w",
@@ -93,17 +93,17 @@
   {
    "book": "A-antoo",
    "name": "antoo",
-   "days": 2,
-   "comp": 0.2333,
+   "days": 3,
+   "comp": 0.29996666666666666,
    "ctrl": 0,
-   "delta": 0.2333
+   "delta": 0.29996666666666666
   },
   {
    "book": "A-zhiyingjuexin",
    "name": "芷影攫心",
-   "days": 3,
-   "comp": 0.06666666666666667,
-   "ctrl": 0.06666666666666667,
+   "days": 4,
+   "comp": 0.05,
+   "ctrl": 0.05,
    "delta": 0
   },
   {
@@ -125,7 +125,7 @@
   {
    "book": "A-wudaokongfang",
    "name": "悟到空方为悟道",
-   "days": 3,
+   "days": 4,
    "comp": 0,
    "ctrl": 0,
    "delta": 0
@@ -141,7 +141,7 @@
   {
    "book": "A-zuoshoudeirong",
    "name": "做手德融",
-   "days": 2,
+   "days": 3,
    "comp": 0,
    "ctrl": 0,
    "delta": 0

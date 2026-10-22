@@ -536,8 +536,17 @@ CFG = load_cfg()
 def run(days, mode_label):
     names = load(HERE / "names.json") or {}
     pairs = [(b, l) for b, l in PAIRS if (BOOKS / f"{b}.json").exists() and (TZ / l / "day_positions.json").exists()]
+    # 10/22 凌晨: 新 paper 影子账 S-<导师>[@变体] / 时机版基线 BLT-<导师>(books_ext.py 导出)也按同口径算拟人度, 和 A 线并排
+    ext = HERE / "books_ext"
+    ext_pairs = []
+    for f in sorted(ext.glob("S-*.json")) + sorted(ext.glob("BLT-*.json")):
+        led = f.stem.split("-", 1)[1].split("@")[0]
+        if (TZ / led / "day_positions.json").exists():
+            ext_pairs.append((f.stem, led, f))
+    pairs += [(b, l) for b, l, _ in ext_pairs]
     reals = {l: Real(l) for _, l in pairs}
-    chains = {b: Chain(b, names) for b, _ in pairs}
+    chains = {b: Chain(b, names) for b, _ in pairs if not any(b == e[0] for e in ext_pairs)}
+    chains.update({b: Chain(b, names, path=f) for b, _, f in ext_pairs})
     ctrl = Chain(CONTROL, names) if (BOOKS / f"{CONTROL}.json").exists() else None
     models = {l: Chain(f"BL-{l}", names, path=BASEDIR / f"BL-{l}.json") for _, l in pairs if (BASEDIR / f"BL-{l}.json").exists()}
     # 行情: 窗口前 20 天起, 覆盖真人持仓/动作票 + 链成交票

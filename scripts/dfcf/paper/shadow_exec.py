@@ -19,6 +19,7 @@ import argparse
 import datetime as dt
 import gzip
 import json
+import math
 import os
 import re
 import statistics as st
@@ -42,10 +43,12 @@ sys.path.insert(0, str(HERE))
 import event_chain   # noqa: E402
 
 K_BAND = float(os.environ.get("SHADOW_K", "1.0"))   # 策略区间倍数(回放做敏感性: 0.5 ≈ 波动放大一倍)
-NO_SLOTS = os.environ.get("SHADOW_NO_SLOTS") == "1"   # 10/21 用户: 固定时段不再必判, 全交给事件; 改用心跳兜底
-HEARTBEAT = int(os.environ.get("SHADOW_HEARTBEAT", "0"))   # 分钟; >0 = 距上次重定满 N 分钟且有关注票就判一次
+NO_SLOTS = os.environ.get("SHADOW_NO_SLOTS", "1") == "1"   # 10/21 用户 D1①: 固定时段不再必判, 全交给事件 + 60 分钟心跳兜底(10/22 起默认; =0 回旧口径对比)
+HEARTBEAT = int(os.environ.get("SHADOW_HEARTBEAT", "60"))   # 分钟; >0 = 距上次重定满 N 分钟且有关注票就判一次
 COOL_OPEN, COOL, CAP_MAX, CAP_DEFAULT = 3, 5, 12, 8
 LIVE_HEARTBEAT = 60   # 10/21 用户: 真跑的链(EVENT_CHAIN_SKILLS)固定时段不必判, 心跳 60 分钟兜底
+HB_DYNAMIC = os.environ.get("SHADOW_HB_DYNAMIC", "1") == "1"   # 10/21 晚: 心跳按导师动态 + 时段下限(heartbeat_min); 0 = 固定 60
+HB_COUNTED = os.environ.get("SHADOW_HB_COUNTED", "0") == "1"   # 10/21 晚: 纯心跳不占重定上限(同执行器 SE_HB_COUNTED)
 FIRE = False   # run() 实时模式置 True: 真跑链触发时拉起 event_chain; 回放不拉
 COST_LITE, COST_SUB = 0.5, 1.1   # 估算单价(美元): 精简一步重定 / 现在的子链 sub3; 精简一步的真实单价待带模型影子测
 
@@ -90,21 +93,107 @@ def chain_slots():
         return _jl(cache, {}) or {}
 
 
+CAP_K1 = float(os.environ.get("SHADOW_CAP_K1", "2"))   # 10/21 12:04 用户定: tzzb 导师(真人账本逐笔) k1 = 2
+CAP_K2 = float(os.environ.get("SHADOW_CAP_K2", str(2 * CAP_K1)))   # B站 UP(抽帧核销, 不准) k2 = 2 × k1 = 4; 上限 = 全天自由触发次数(成交后 / 首版 / 固定时段必判不占)
+CAP_K3 = float(os.environ.get("SHADOW_CAP_K3", str(CAP_K1)))   # 10/21 12:18 用户定: 没有真人数据的链(趋势天哥 / 对照组) 用 k3 × 全体有数据链日均的平均数; 暂定 k3 = 2(= k1, 但独立可调)
+_AVG = {}
+
+
 def real_cap(skill, D):
+    """(全天自由触发上限, 真人日均出手) = 向上取整(k × 日均); k: tzzb 导师 / 对照组 = k1, B站 UP = k2。
+    10/21 用户定: 桃哥 / 卢本圆 用抽帧核销的全期日均(up_ops_stats); 没数据的(趋势天哥 / 对照组) 用全体有数据链日均的平均数, 再乘各自的 k"""
+    k = CAP_K2 if skill in mentors.ids("UP") else CAP_K1
+    avg = real_avg(skill, D)
+    if avg is None:   # 没数据: 不分 UP / tzzb, 一律 k3 × 全体有数据链日均的平均数(10/21 用户定暂用混合平均)
+        xs = [a for a in (real_avg(s, D) for s in mentors.active_ids()) if a is not None]
+        if not xs:
+            return CAP_DEFAULT, None
+        return max(1, math.ceil(CAP_K3 * st.mean(xs))), None
+    return max(1, math.ceil(k * avg)), avg
+
+
+def real_avg(skill, D):
+    if (skill, D) in _AVG:
+        return _AVG[(skill, D)]
+    _AVG[(skill, D)] = v = _real_avg(skill, D)
+    return v
+
+
+def _real_avg(skill, D):
+    if skill in mentors.ids("UP"):
+        try:
+            sys.path.insert(0, str(ROOT / "scripts" / "bilibili"))
+            import up_ops_stats as U
+            prev = (dt.date.fromisoformat(D) - dt.timedelta(days=1)).isoformat()
+            v = U.build(days=99999, asof=prev).get(skill) or {}
+            return round(v["ops"] / v["days"], 2) if v.get("days") and v.get("active_days", 0) >= 5 else None   # 天哥全期只核销出 1 天操作 = 当没数据
+        except Exception:   # noqa: BLE001
+            return None
     try:
         from gen_tzzb_profile import load_legs
         legs = load_legs(skill)
     except Exception:   # noqa: BLE001
-        return CAP_DEFAULT, None
+        return None
     days = sorted({str(x.get("trans_date", ""))[:10] for x in legs if str(x.get("trans_date", ""))[:10] < D})
     dp = _jl(ROOT / "downloads" / "tzzb" / skill / "day_positions.json", {}) or {}
     rec = sorted(k for k in dp if k < D.replace("-", ""))[-60:]
     if not rec:
-        return CAP_DEFAULT, None
+        return None
     rs = {f"{d[:4]}-{d[4:6]}-{d[6:]}" for d in rec}
     acts = {(str(x.get("trans_date", ""))[:10], str(x.get("stock_code")), x.get("op")) for x in legs if str(x.get("trans_date", ""))[:10] in rs}
-    avg = len(acts) / len(rs)
-    return min(CAP_MAX, int(round(4 + 2 * avg))), round(avg, 2)
+    return round(len(acts) / len(rs), 2)
+
+
+# ---------------- 心跳(10/21 晚用户定: 按导师动态, 无上限, 下限按时段) ----------------
+HB_FLOOR = [("09:30", 5), ("10:00", 10), ("10:30", 15), ("13:00", 30), ("14:30", 10), ("14:50", 5)]   # 用户定的分时段下限(分钟)
+HB_DEFAULT, HB_MIN_N, HB_MERGE = 60, 15, 5   # 没数据 / 间隔样本 < 15 → 60; 5 分钟内的连续成交并成一次决策
+_HB = {}
+
+
+def real_hb(skill, D):
+    """(真人日内相邻两次决策间隔 P75 分钟, 间隔样本数); 口径同 real_avg: tzzb 近 60 个记录日, 09:25~15:00 成交, 午休 90 分钟扣掉。B站 UP 没有分钟级成交 → (None, 0)"""
+    if (skill, D) in _HB:
+        return _HB[(skill, D)]
+    p75, n = None, 0
+    try:
+        if skill not in mentors.ids("UP"):
+            from gen_tzzb_profile import load_legs
+            legs = load_legs(skill)
+            dp = _jl(ROOT / "downloads" / "tzzb" / skill / "day_positions.json", {}) or {}
+            rs = {f"{d[:4]}-{d[4:6]}-{d[6:]}" for d in sorted(k for k in dp if k < D.replace("-", ""))[-60:]}
+            by = {}
+            for x in legs:
+                t = str(x.get("trans_date", ""))
+                if t[:10] in rs and len(t) >= 16 and "09:25" <= t[11:16] <= "15:00":
+                    v = mm(t[11:16])
+                    by.setdefault(t[:10], set()).add(v - 90 if v >= 780 else v)
+            gaps = []
+            for ts in by.values():
+                dec = []
+                for v in sorted(ts):
+                    if not dec or v - dec[-1] > HB_MERGE:
+                        dec.append(v)
+                gaps += [b - a for a, b in zip(dec, dec[1:])]
+            n = len(gaps)
+            if gaps:
+                p75 = sorted(gaps)[n * 3 // 4]
+    except Exception:   # noqa: BLE001
+        pass
+    _HB[(skill, D)] = (p75, n)
+    return p75, n
+
+
+def heartbeat_min(skill, D, hm, dynamic=True):
+    """当前时刻的心跳分钟 = max(本导师真人决策间隔 P75, 该时段下限); 样本不足用 60; dynamic=False = 旧口径固定 60"""
+    if not dynamic:
+        return HB_DEFAULT
+    p75, n = real_hb(skill, D)
+    base = p75 if p75 is not None and n >= HB_MIN_N else HB_DEFAULT
+    floor = HB_FLOOR[0][1]
+    for t, f in HB_FLOOR:
+        if hm >= t:
+            floor = f
+    return max(base, floor)
 
 
 # ---------------- 取数 ----------------
@@ -224,8 +313,10 @@ class Chain:
         why, must = [], False
         if hm in self.slots and not NO_SLOTS:
             why.append(f"原固定时段 {hm}"); must = True
-        if self.hb and codes and mm(hm) - mm(self.last or "09:25") - (90 if (self.last or "09:25") <= "11:30" < hm else 0) >= self.hb:
-            why.append(f"心跳 {self.hb} 分钟")
+        hb = heartbeat_min(self.skill, self.D, hm, dynamic=HB_DYNAMIC) if self.hb else 0
+        hb_hit = bool(hb and codes and mm(hm) - mm(self.last or "09:25") - (90 if (self.last or "09:25") <= "11:30" < hm else 0) >= hb)
+        if hb_hit:
+            why.append(f"心跳 {hb} 分钟")
         if hm in fills_at(book, self.D):
             why.append("本链成交"); must = True
         if hm in flip_map and codes:
@@ -252,7 +343,7 @@ class Chain:
         reason = None
         if not must and self.last and mm(hm) - mm(self.last) < cool:
             reason = "冷却"
-        elif not must and self.n >= self.cap:
+        elif not must and self.n >= self.cap and not (hb_hit and len(why) == 1 and not HB_COUNTED):
             reason = "到上限"
         rec = {"t": hm, "skill": self.skill, "why": why, "must": must, "blocked": reason, "watch": len(codes), **({"live": True} if self.live else {})}
         if reason == "到上限":   # 到上限后每分钟都会命中, 只按小时记一次, 防日志灌水
@@ -264,7 +355,7 @@ class Chain:
         if reason:
             self.blocked.append(rec)
             return
-        self.n += 1
+        self.n += 0 if must or (hb_hit and len(why) == 1 and not HB_COUNTED) else 1   # 必判(成交 / 原固定时段)和纯心跳(10/21 晚)不占上限
         self.last = hm
         if self.live and FIRE:
             try:
@@ -320,7 +411,7 @@ def summary(D, chains=None):
     ev = [json.loads(l) for l in (od / "events.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
     slots = orig_slots(D)
     L = [f"# 零成本影子 {D}: 若改成\"模型定策略 + 机械盯盘\", 各链要重定策略几次", "",
-         f"口径: 原固定时段 / 开盘实况翻转 / 本链成交 / 关注票越出策略区间(±{K_BAND}×日振幅中位) / 封板炸板; 冷却开盘 3 分钟、其后 5 分钟; 上限 4+2×真人日均出手(封顶 12)",
+         f"口径: 原固定时段 / 开盘实况翻转 / 本链成交 / 关注票越出策略区间(±{K_BAND}×日振幅中位) / 封板炸板; 冷却开盘 3 分钟、其后 5 分钟; 上限 向上取整(k×真人日均出手), tzzb k1={CAP_K1:g}、UP k2={CAP_K2:g}、没数据 k3={CAP_K3:g}×全体日均平均数( 成交 / 固定时段必判不占上限)",
          f"估算单价: 精简一步 ${COST_LITE} / 现子链 ${COST_SUB}(精简一步真实单价待带模型影子测)", "",
          "| 链 | 原子链次数 | 影子重定次数 | 其中新增 | 冷却拦 | 到上限(按小时) | 上限 | 估算多花(精简 / 子链价) |", "|---|---|---|---|---|---|---|---|"]
     tot_old = tot_new = 0

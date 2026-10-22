@@ -1,0 +1,64 @@
+{
+ "skill": "_global",
+ "unit": "global",
+ "version": {
+  "v": 13,
+  "id": "v013_20261021-2201",
+  "ts": "2026-10-21T22:01:12",
+  "effective_from": "2026-10-21T21:56:21",
+  "unit": "global",
+  "version_hash": "511d36180a89d99cf0b94b2cbda3e1cc520958a401475a9bcaebcc38a56dec2d",
+  "cat_hash": {
+   "全局": "511d36180a89d99cf0b94b2cbda3e1cc520958a401475a9bcaebcc38a56dec2d"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v012_20261021-2036",
+  "changed": {
+   "added": [],
+   "modified": [
+    "scripts/claude_profile/chain_flags.txt"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "全局": [
+    "scripts/claude_profile/chain_flags.txt"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 4,
+   "removed": 0
+  },
+  "bytes_weight": 437989,
+  "why": "check-md 2026-10-21 22:01",
+  "code": null
+ },
+ "files": {
+  "scripts/dfcf/paper/params.yaml": {
+   "sha256": "8aa4869152ad179c30491f758a3d4d064f654341c5f32c67849480059173f1b0",
+   "bytes": 11680,
+   "lines": 166,
+   "mtime": "2026-10-20T23:10:29",
+   "cls": "全局",
+   "bulk": false
+  },
+  "scripts/claude_profile/chain_flags.txt": {
+   "sha256": "16dee1b7fa82a89a65df03f2ceac475b08a205834e2629c7031d86dcc41b64c4",
+   "bytes": 12736,
+   "lines": 111,
+   "mtime": "2026-10-21T21:56:21",
+   "cls": "全局",
+   "bulk": false
+  },
+  "scripts/chain/run_chain.py": {
+   "sha256": "9234e5ace8767df9790ce00b5dbb106b79d202988a677a1a8dc1eddc9e923be1",
+   "bytes": 413573,
+   "lines": 6055,
+   "mtime": "2026-10-21T20:13:04",
+   "cls": "全局",
+   "bulk": false
+  }
+ },
+ "code": null
+}

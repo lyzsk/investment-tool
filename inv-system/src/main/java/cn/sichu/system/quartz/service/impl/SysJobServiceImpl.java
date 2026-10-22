@@ -187,8 +187,8 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
                 } catch (SchedulerException e) {
                     log.warn("删除调度任务时出错（可能已不存在）: {}", job.getJobHandlerName(), e);
                 }
-                job.setIsDeleted(TableLogic.DELETED.getCode());
-                this.updateById(job);
+                // 2026-10-21: 原来 setIsDeleted + updateById —— is_deleted 是全局逻辑删除字段, MyBatis-Plus 的 updateById 会忽略它, 库里没删、重启会复活; 改用 removeById(逻辑删除)
+                this.removeById(id);
             }
         }
     }

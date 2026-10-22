@@ -1,7 +1,7 @@
-# profile_index.md — wudaokongfang 导师画像目录(链改造 F; 生成于 2026-10-20 00:32)
-> 源: skills/wudaokongfang-skill/persona/profile.md sha12=ed54b8240f8e · 110 行 · 17.2KB · 14 节(超长节按行切片≤6KB)
+# profile_index.md — wudaokongfang 导师画像目录(链改造 F; 生成于 2026-10-22 00:33)
+> 源: skills/wudaokongfang-skill/persona/profile.md sha12=bef945435666 · 116 行 · 18.0KB · 15 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: 复用旧标注, 原标注=--no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill wudaokongfang`(未变节复用标注)
+> 标注来源: --no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill wudaokongfang`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 2.1KB / 03 6.3KB / 04 10.5KB / 05 6.2KB / 06 10.1KB
 
 ## 核心摘要
@@ -70,3 +70,4 @@
 | S12 | 【卖点】（10/17 深度蒸馏） | 卖点:止损/止盈分类、时刻、跳空应对、卖飞与持有期结果 | L77-87 | 3.4 | 05,06 | 1 | d2463d71 |
 | S13 | 【市况应对】（10/17 深度蒸馏） | 市况应对:不择时、轻度逆向、弱市新开仓吃亏、核心票不看大盘 | L89-97 | 2.1 | 02,03,05 | 1 | 466a6290 |
 | S14 | 【盘中节奏】（10/17 深度蒸馏） | 盘中节奏:底仓T、首笔分量、试错、同日多票、加仓与换股 | L99-108 | 2.6 | 04,06 | 1 | 26e25388 |
+| S15 | 10-21 当日行为(硬数据锚点) | (未标注: --no-llm) | L110-115 | 0.8 | — | 3 | d08afb82 |

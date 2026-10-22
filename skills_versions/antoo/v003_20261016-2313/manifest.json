@@ -100,7 +100,7 @@
   "chain": "d040979b181b",
   "distill": "55aa05ef0137",
   "chain_files": {
-   "scripts/taoge-chain/run_taoge_chain.py": "3c945631c843",
+   "scripts/chain/run_taoge_chain.py": "3c945631c843",
    "skills/antoo-skill/workflows/chain.md": "fe1767a6b1a7",
    "skills/antoo-skill/SKILL.md": "a3b4e1d938c3",
    "scripts/dfcf/paper/params.yaml": "93ad2d2eb181"

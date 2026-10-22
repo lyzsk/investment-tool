@@ -1,6 +1,6 @@
 # paper 模拟盘结构性问题审计（2026-10-16 晚，只读）
 
-> 范围：驱动器 `scripts/taoge-chain/run_taoge_chain.py`、16 份 `skills/*/workflows/chain.md`、`scripts/dfcf/paper/{facts,matcher,snapshot}.mjs`、`params.yaml`、`chain_flags.txt`、books `A-*.json`（10/08~10/16 共 788 张单）、`results/*_chain/live-2026101x/`、行情库 `investment_market.kline_day`（只读）、`downloads/tzzb/<导师>/`。
+> 范围：驱动器 `scripts/chain/run_taoge_chain.py`、16 份 `skills/*/workflows/chain.md`、`scripts/dfcf/paper/{facts,matcher,snapshot}.mjs`、`params.yaml`、`chain_flags.txt`、books `A-*.json`（10/08~10/16 共 788 张单）、`results/*_chain/live-2026101x/`、行情库 `investment_market.kline_day`（只读）、`downloads/tzzb/<导师>/`。
 > 全程零 token、无外网请求、没改任何代码/配置/账本。今晚已改的两项（名单闸、子链补 05）以及软下限/排板/一字三项不重复列。
 > 注：审计期间 matcher.mjs 行数从 565 变成 627（可能有人在并行编辑），下文 matcher 行号按 21:xx 时的当前版本。
 

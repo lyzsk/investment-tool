@@ -71,7 +71,7 @@ def _c02(rd):
 def _run(skill, date, slot, steps, dry):
     LOGD.mkdir(parents=True, exist_ok=True)
     env = {**os.environ, "CHAIN_SUBCHAIN_GATE": "0"}
-    cmd = [str(PY), "-X", "utf8", "scripts/taoge-chain/run_chain.py", "--skill", skill, "--slot", slot, "--steps", steps, "--date", date] + (["--dry"] if dry else [])
+    cmd = [str(PY), "-X", "utf8", "scripts/chain/run_chain.py", "--skill", skill, "--slot", slot, "--steps", steps, "--date", date] + (["--dry"] if dry else [])
     t0 = time.time()
     with (LOGD / f"{skill}_{date}_{slot}.log").open("a", encoding="utf-8") as lf:
         lf.write(f"[{dt.datetime.now():%H:%M:%S}] {' '.join(cmd)}\n")

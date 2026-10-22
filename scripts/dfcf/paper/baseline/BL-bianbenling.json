@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "bianbenling",
  "name": "边学本领边实践",
- "generated_at": "2026-10-20T19:25:46",
+ "generated_at": "2026-10-21T23:55:44",
  "since": "2026-10-08",
- "until": "2026-10-20",
+ "until": "2026-10-21",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "延续",
@@ -124,6 +124,14 @@
    "cash": 4111.03,
    "mv": 69345.0,
    "nav": 73456.03,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-21",
+   "cash": 4111.03,
+   "mv": 70395.0,
+   "nav": 74506.03,
    "filled": 0,
    "orders": 0
   }
@@ -355,8 +363,8 @@
    "state_day": "2026-10-16",
    "p_trade": 0.055,
    "p_dir_given_trade": [
-    0.469,
-    0.412,
+    0.471,
+    0.409,
     0.12
    ],
    "decision": {
@@ -382,11 +390,11 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-19",
-   "p_trade": 0.072,
+   "p_trade": 0.071,
    "p_dir_given_trade": [
-    0.341,
-    0.543,
-    0.116
+    0.344,
+    0.539,
+    0.117
    ],
    "decision": {
     "trade": false,
@@ -405,6 +413,35 @@
     "n_new": 1
    },
    "tp_acct_prev": 0.943
+  },
+  {
+   "date": "2026-10-21",
+   "orders": [],
+   "stale": 1,
+   "state_day": "2026-10-19",
+   "p_trade": 0.067,
+   "p_dir_given_trade": [
+    0.498,
+    0.364,
+    0.138
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9855,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9508,
+    "tp_final_cap": 0.9508,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "常数"
+    },
+    "add_step": 0.9387577013609175,
+    "red_step": 0.6962965669550853,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.944
   }
  ]
 }

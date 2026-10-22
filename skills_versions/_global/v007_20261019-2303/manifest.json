@@ -16,13 +16,13 @@
   "changed": {
    "added": [],
    "modified": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ],
    "removed": []
   },
   "changed_by_cat": {
    "全局": [
-    "scripts/taoge-chain/run_chain.py"
+    "scripts/chain/run_chain.py"
    ]
   },
   "data_changed": [],
@@ -51,7 +51,7 @@
    "cls": "全局",
    "bulk": false
   },
-  "scripts/taoge-chain/run_chain.py": {
+  "scripts/chain/run_chain.py": {
    "sha256": "e37961d122b67427d6b88888c4a404a3580a5bbc65f48723259159d5ae5fc817",
    "bytes": 390476,
    "lines": 5831,
