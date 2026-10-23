@@ -30,6 +30,7 @@ PAPER = ROOT / "scripts" / "dfcf" / "paper"
 LOCK = ROOT / "scripts" / "temp" / "collect_book.pid"
 LOG = ROOT / "scripts" / "temp" / "collect_book.log"
 START, END, STEP, MAXN = "0914", "1501", 3.0, 60
+FILL_TO, POOL_TOP = 50, 5   # 10/23 用户令: 恒定录 50 只, 分 6 档(T0 执行要用的 / T1 转债正股 / T2 导师昨日持仓与成交 / T3 v3 候选池前 5 / T4 昨日连板梯队 / T5 拓扑邻居与其余), 连续失败每 3 次从最低档砍一档
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0) | getattr(subprocess, "DETACHED_PROCESS", 0)
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 import ipv4_first   # noqa: E402,F401  10/21: 本机 IPv6 不通, 先走 IPv4
@@ -49,9 +50,11 @@ def sym(code):
 
 
 def watch(D):
-    codes = {"601988", "159941", "002714"}   # 做 T 账本标的
+    codes = {"601988", "159941"}   # 做 T 账本标的(10/23 去掉牧原 002714: 用户 10/20 已清仓, 牧原三本账跟随实盘不再做 T; 实盘持仓由下面 snapshots 导出自动加)
     real = set()   # 用户实盘成交里出现过的票
     for f in (PAPER / "books").glob("*.json"):
+        if f.name.startswith("_"):   # 10/23: _void_* = 作废归档的旧账本(如 10/03 作废的桃哥账里还有牧原 1200 股), 不进名单
+            continue
         try:
             b = json.loads(f.read_text(encoding="utf-8"))
         except (OSError, ValueError):
@@ -73,10 +76,10 @@ def watch(D):
         pass
     try:   # 10/21 用户: 转债要连正股一起录(澳弘转债在名单、澳弘电子不在, 复盘没有正股盘口) + 手动加录名单 scripts/temp/collect_book_extra.txt
         metas = sorted(glob.glob(str(ROOT / "downloads" / "quotes" / "cb" / "meta" / "RPT_BOND_CB_LIST_all_*.json")))
-        if metas and any(c[:2] in ("11", "12") for c in codes):
+        if metas:   # 10/23: 不再要求 codes 里已有转债(v3 的转债只在执行器策略里, 下面 se 段才加进来)
             m = json.loads(Path(metas[-1]).read_text(encoding="utf-8"))
             rows = m if isinstance(m, list) else ((m.get("result") or {}).get("data") or m.get("data") or [])
-            stk = {str(r.get("SECURITY_CODE")): str(r.get("CONVERT_STOCK_CODE") or "") for r in rows}
+            stk = {str(r.get("SECURITY_CODE")): str(r.get("CONVERT_STOCK_CODE") or "") for r in rows}   # 下面 se 段也用
             codes |= {stk[c] for c in list(codes) if stk.get(c, "").isdigit()}
         ex = ROOT / "scripts" / "temp" / "collect_book_extra.txt"
         if ex.exists():
@@ -84,7 +87,8 @@ def watch(D):
     except Exception:   # noqa: BLE001
         pass
     se = set()   # 10/21 晚: 新 paper 策略执行器(15 条)的持仓 + 当前策略里的票, 优先录(成交要靠 3 秒盘口)
-    for d in (ROOT / "results" / "_live" / D).glob("se_*"):
+    live = ROOT / "results" / "_live" / D
+    for d in [*live.glob("se_*"), *live.glob("v3_*")]:   # 10/23 凌晨彩排查出: 原来只读 v2 的 se_*, v3 账本(v3_*)的持仓 / 挂单票进不了 3 秒盘口 → 只能靠新浪 10 秒补价, 没有五档深度和成交量
         try:
             se |= set((json.loads((d / "state.json").read_text(encoding="utf-8")).get("positions") or {}).keys())
             sp = sorted((d / "strategies").glob("*.json"))
@@ -92,19 +96,104 @@ def watch(D):
                 se |= {str(x.get("code")) for x in (json.loads(sp[-1].read_text(encoding="utf-8")).get("strategy") or {}).get("codes") or []}
         except (OSError, ValueError, AttributeError):
             continue
-    codes |= se
-    core = sorted(codes & ({"601988", "159941", "002714"} | real | se))
+    # 10/23 03:1x 用户令: 恒定录 FILL_TO(50) 只, 不同来源分档定优先级; 请求连续失败时从最低档往上一档一档砍, 永远先保住 T0 持仓
+    T0 = set(codes) & ({"601988", "159941"} | real | se)   # T0 执行要用的: 做 T 标的 / 你的实盘持仓 / paper 执行器持仓 + 当前策略里的票
+    try:
+        T1 = {stk[c] for c in T0 if stk.get(c, "").isdigit()} - T0   # T1 这些转债的正股
+    except NameError:
+        T1 = set()
+    T2 = mentor_hold_codes(D)   # T2 导师真人昨天收盘持仓 + 昨天成交过的
+    T3 = v3_pool_codes(D)   # T3 v3 各本账 01 候选池前几名(模型可能临时买)
+    T4 = ladder_codes(D)   # T4 昨天连板梯队
     nbr = []
-    try:   # 10/19 晚: 实盘 / 做T 标的的拓扑前 3 邻居也录盘口 → ctx_index 能给模型看"邻居此刻涨跌", 不另开请求源
+    try:   # T5 拓扑邻居(10/19 晚: 实盘 / 做T / 执行器票的前 3 邻居, ctx_index 给模型看"邻居此刻涨跌") + 其余(旧账本 / 计划单 / 手动加录)
         sys.path.insert(0, str(ROOT / "scripts" / "market"))
         import topology as TOPO
-        for c in core:
+        for c in sorted(T0):
             nbr += [x["c"] for x in ((TOPO.load(c, D, strict=True) or {}).get("nb") or [])[:3]]
     except Exception:   # noqa: BLE001
         pass
-    order = list(dict.fromkeys(core + nbr + sorted(codes)))
-    out = [s for s in (sym(c) for c in order if re.fullmatch(r"\d{6}", c) and not c.startswith(("204", "1318"))) if s and not s.startswith("bj")]
+    ok = lambda c: bool(re.fullmatch(r"\d{6}", c)) and not c.startswith(("204", "1318"))   # noqa: E731
+    order = []
+    TIER.clear()
+    for lv, grp in enumerate([sorted(T0), sorted(T1), T2, T3, T4, nbr + sorted(set(codes) - T0)]):
+        for c in grp:
+            if ok(c) and c not in TIER:
+                TIER[c] = lv
+                order.append(c)
+    keep = FILL_TO if len(order) >= FILL_TO else len(order)
+    keep = max(keep, sum(1 for c in order if TIER[c] <= 3))   # 10/23 用户令: 盘中新增的 T0~T3(执行票 / 正股 / 导师昨日票 / 候选池)可以把名单撑到 MAXN(60); 到 60 后按档替换 —— 名单按档排序, 低档(T4 梯队 / T5 邻居)先被挤出
+    out = [sym(c) for c in order[:keep]]
+    out = [x for x in out if x and not x.startswith("bj")]
+    CORE_N["n"] = sum(1 for c in order[:keep] if TIER[c] == 0)
     return out[:MAXN]
+
+
+def cut(syms, level):
+    """降级: level = 砍掉的档数(1 = 砍 T5, 2 = 再砍 T4 … 5 = 只剩 T0)"""
+    return [x for x in syms if TIER.get(x[2:], 5) <= 5 - level]
+
+
+_LADDER, CORE_N, _MHOLD, TIER = {}, {}, {}, {}
+
+
+def mentor_hold_codes(D):
+    """v3 拟人线导师(lines.json kind=mimic)真人 T−1 收盘持仓 + T−1 成交过的票(10/23 用户: 漏了昨日导师持仓票 —— 导师今天最可能卖 / 加的就是它们); 每天读一次"""
+    if D not in _MHOLD:
+        out = []
+        try:
+            sys.path[:0] = [str(ROOT / "scripts" / "paper_v3"), str(ROOT / "scripts" / "paper_v3" / "tools")]
+            import pack
+            sks = list(dict.fromkeys(x["skill"] for x in pack.lines().values() if x.get("kind") == "mimic"))
+            for sk in sks:
+                t = pack.mentor_t1(sk, D)
+                i = t.find("收盘持仓")
+                out += re.findall(r"\((\d{6})\)", t[i:] if i >= 0 else "")   # 持仓先
+                out += re.findall(r"\((\d{6})\)", t[:i] if i >= 0 else t)   # 再是昨天成交过的
+        except Exception:   # noqa: BLE001  取不到不影响采集
+            pass
+        _MHOLD[D] = list(dict.fromkeys(out))
+    return _MHOLD[D]
+
+
+def ladder_codes(D):
+    """T−1 收盘的连板梯队(二板及以上, 封死的; 高度高的先)—— strong_next 库(每晚重建)里状态日 = D 前一交易日的记录; 每天读一次"""
+    if D not in _LADDER:
+        out = []
+        try:
+            f = MKT / "similar" / "stock_strong.jsonl"
+            rows, last = [], ""
+            with f.open(encoding="utf-8") as fh:
+                for l in fh:
+                    if '"state": "二板"' not in l and '"state": "三板+"' not in l:
+                        continue
+                    r = json.loads(l)
+                    if r["d"] < D and r.get("sealed"):
+                        rows.append(r)
+                        last = max(last, r["d"])
+            rows = [r for r in rows if r["d"] == last]
+            rows.sort(key=lambda r: (r["state"] != "三板+", -float(r.get("pct") or 0)))
+            out = [r["code"] for r in rows]
+        except (OSError, ValueError, KeyError):
+            pass
+        _LADDER[D] = out
+    return _LADDER[D]
+
+
+def v3_pool_codes(D):
+    """v3 各本账最新一版 01 候选池前 POOL_TOP 名(轮流取, 每本先取第 1 名再取第 2 名 …)"""
+    per = []
+    for d in sorted((ROOT / "results" / "_live" / D).glob("v3_*")):
+        vs = sorted((d / "versions").glob("*/01_facts.md"))
+        if vs:
+            try:
+                per.append(re.findall(r"(?m)^\| \d+ \| (\d{6}) \|", vs[-1].read_text(encoding="utf-8", errors="replace"))[:POOL_TOP])
+            except OSError:
+                continue
+    out = []
+    for i in range(POOL_TOP):
+        out += [p[i] for p in per if len(p) > i]
+    return list(dict.fromkeys(out))
 
 
 # 10/21 晚用户定: 6 个 A 股指数跟个股同一个请求 3 秒一采(零额外请求), 单独写 index_snap.jsonl
@@ -139,7 +228,7 @@ def run(D):
     day_dir = MKT / D
     day_dir.mkdir(parents=True, exist_ok=True)
     fp = day_dir / "book_snap.jsonl"
-    last_t, syms, refreshed, fails, back, n = {}, [], 0.0, 0, STEP, 0
+    last_t, syms, refreshed, fails, back, n, level = {}, [], 0.0, 0, STEP, 0, 0
     log(f"开始 {D} pid={os.getpid()}")
     try:
         with fp.open("a", encoding="utf-8") as fh, (day_dir / "index_snap.jsonl").open("a", encoding="utf-8") as fi:
@@ -153,7 +242,9 @@ def run(D):
                     continue
                 if time.time() - refreshed > 60:   # 10/21 晚: 10 分钟 → 1 分钟(执行器新仓 / 新策略票要尽快进 3 秒盘口; 只读本地文件, 不多打行情源)
                     syms, refreshed = watch(D), time.time()
-                    log(f"名单 {len(syms)} 只")
+                    if level:   # 10/23 保险: 请求出过事 → 当天按档降级(先砍低档), 保住持仓票的 3 秒盘口
+                        syms = cut(syms, level)
+                    log(f"名单 {len(syms)} 只" + (f" (已降级 {level} 档)" if level else ""))
                 t0 = time.time()
                 try:
                     rows = fetch(syms + [x for x in INDEX if x not in syms])
@@ -172,6 +263,9 @@ def run(D):
                 except Exception as e:   # noqa: BLE001
                     fails += 1
                     back = min(60.0, back * 2)
+                    if fails % 3 == 0 and level < 5:   # 连续失败每 3 次砍一档(T5 → T4 → … 最后只剩 T0), 当天不恢复
+                        level, refreshed = level + 1, 0.0
+                        log(f"连续失败 {fails} 次 → 降级到砍掉 {level} 档(只录 T0~T{5 - level})")
                     if fails in (1, 5) or fails % 20 == 0:
                         log(f"请求失败 {fails} 次, 退避 {back:.0f}s: {e}")
                 time.sleep(max(0.2, (back if fails else STEP) - (time.time() - t0)))

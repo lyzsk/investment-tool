@@ -1,27 +1,27 @@
 {
- "updated": "20261020",
+ "updated": "20261021",
  "window": 20,
  "summary": [
   {
    "book": "A-cb",
    "name": "不吃土豆0",
-   "days": 8,
-   "comp": 0.47500000000000003,
-   "ctrl": 0.2571428571428571,
-   "delta": 0.2285714285714286
+   "days": 9,
+   "comp": 0.5333333333333334,
+   "ctrl": 0.22499999999999998,
+   "delta": 0.325
   },
   {
    "book": "A-liuyiqing",
    "name": "刘忆青",
-   "days": 10,
-   "comp": 0.05417000000000001,
+   "days": 11,
+   "comp": 0.04924545454545455,
    "ctrl": 0,
-   "delta": 0.05417000000000001
+   "delta": 0.04924545454545455
   },
   {
    "book": "A-lianghuaxiaohao",
    "name": "量化短线小号实验",
-   "days": 10,
+   "days": 11,
    "comp": 0,
    "ctrl": 0,
    "delta": 0
@@ -29,10 +29,10 @@
   {
    "book": "A-a658",
    "name": "A658 正好蓝天",
-   "days": 6,
-   "comp": 0.26666666666666666,
-   "ctrl": 0.3,
-   "delta": -0.03333333333333333
+   "days": 7,
+   "comp": 0.2857142857142857,
+   "ctrl": 0.31428571428571433,
+   "delta": -0.028571428571428574
   },
   {
    "book": "A-bianbenling",
@@ -45,18 +45,18 @@
   {
    "book": "A-xingjianye",
    "name": "星见野",
-   "days": 9,
-   "comp": 0.20000000000000004,
-   "ctrl": 0.15555555555555556,
-   "delta": 0.044444444444444446
+   "days": 10,
+   "comp": 0.22000000000000003,
+   "ctrl": 0.18,
+   "delta": 0.04
   },
   {
    "book": "A-daxingdaxingdadangxing",
    "name": "大兴大兴大A当兴",
-   "days": 9,
-   "comp": 0.08333333333333333,
-   "ctrl": 0.044444444444444446,
-   "delta": 0.03888888888888889
+   "days": 10,
+   "comp": 0.11499999999999999,
+   "ctrl": 0.08,
+   "delta": 0.034999999999999996
   },
   {
    "book": "A-gaogailvfuli",
@@ -77,10 +77,10 @@
   {
    "book": "A-stzhilang",
    "name": "ST之狼",
-   "days": 7,
-   "comp": 0.17142857142857143,
-   "ctrl": 0.17142857142857143,
-   "delta": -1.586032892321652e-17
+   "days": 8,
+   "comp": 0.15,
+   "ctrl": 0.15,
+   "delta": -1.3877787807814457e-17
   },
   {
    "book": "A-chong5000w",
@@ -93,39 +93,39 @@
   {
    "book": "A-antoo",
    "name": "antoo",
-   "days": 3,
-   "comp": 0.29996666666666666,
+   "days": 4,
+   "comp": 0.299975,
    "ctrl": 0,
-   "delta": 0.29996666666666666
+   "delta": 0.299975
   },
   {
    "book": "A-zhiyingjuexin",
    "name": "芷影攫心",
-   "days": 4,
-   "comp": 0.05,
-   "ctrl": 0.05,
-   "delta": 0
+   "days": 5,
+   "comp": 0.16,
+   "ctrl": 0.04,
+   "delta": 0.12
   },
   {
    "book": "A-zjwzlclf",
    "name": "zjwzlclf",
-   "days": 1,
-   "comp": 0.4,
-   "ctrl": 0.2,
-   "delta": 0.2
+   "days": 2,
+   "comp": 0.5,
+   "ctrl": 0.1,
+   "delta": 0.4
   },
   {
    "book": "A-ynw01",
    "name": "ynw01",
-   "days": 0,
-   "comp": null,
-   "ctrl": null,
-   "delta": null
+   "days": 1,
+   "comp": 0,
+   "ctrl": 0,
+   "delta": 0
   },
   {
    "book": "A-wudaokongfang",
    "name": "悟到空方为悟道",
-   "days": 4,
+   "days": 5,
    "comp": 0,
    "ctrl": 0,
    "delta": 0
@@ -133,15 +133,15 @@
   {
    "book": "A-anlizhuohuo",
    "name": "暗里着火",
-   "days": 1,
-   "comp": 0.4,
-   "ctrl": 0.2,
-   "delta": 0.2
+   "days": 2,
+   "comp": 0.55,
+   "ctrl": 0.30000000000000004,
+   "delta": 0.24999999999999997
   },
   {
    "book": "A-zuoshoudeirong",
    "name": "做手德融",
-   "days": 3,
+   "days": 4,
    "comp": 0,
    "ctrl": 0,
    "delta": 0
@@ -157,10 +157,10 @@
   {
    "book": "A-meiyuelu",
    "name": "梅月路111号",
-   "days": 2,
-   "comp": 0,
-   "ctrl": 0,
-   "delta": 0
+   "days": 3,
+   "comp": 0.26666666666666666,
+   "ctrl": 0.13333333333333333,
+   "delta": 0.13333333333333333
   }
  ]
 }

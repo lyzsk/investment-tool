@@ -18,6 +18,7 @@
 import argparse
 import datetime as dt
 import json
+import os
 import subprocess
 import sys
 import time
@@ -106,7 +107,7 @@ def main():
     busy = {k: v for k, v in busy.items() if v}
     handoff = None
     if busy:   # 10/20 用户定: 旧会话还有任务在跑 → 不推迟, 写交接(scripts/temp/), 只关 claude 和窗口、不杀它的子进程(后台任务继续跑完), 新会话开场提示读交接
-        handoff = write_handoff(rows, busy)
+        handoff = write_handoff(rows, busy) if not a.dry else Path("(空跑不写交接)")
         log(f"旧会话正忙 {busy} → 交接写到 {handoff}")
     for s in old:
         tree = [] if busy else ["/T"]   # 忙: 只关 claude 本身和它的窗口(cmd), 子进程留着跑完; 不忙: 连同子进程一起关
@@ -124,7 +125,8 @@ def main():
     if a.dry:
         log("[dry] 不实际关 / 开; 当前交互会话:", old)
         return 0
-    newp = subprocess.Popen(["cmd.exe", "/k", *args], cwd=str(HOME), creationflags=NEWCON)
+    env = {**os.environ, "DISABLE_AUTOUPDATER": "1"}   # 10/23 用户批: 交互会话不自动更新(彩排实测 00:58 自更新替换 claude.exe 3.5 分钟+, 盘中会让后台 claude -p 全起不来); 想升级手动 claude update
+    newp = subprocess.Popen(["cmd.exe", "/k", *args], cwd=str(HOME), creationflags=NEWCON, env=env)
     time.sleep(45)
     now = sessions(procs())
     ok = len(now) == 1 and now[0]["parent"] == newp.pid

@@ -1,0 +1,34 @@
+--- v015_20261022-0800/scripts/claude_profile/chain_flags.txt
++++ v016_20261022-1947/scripts/claude_profile/chain_flags.txt
+@@ -95,5 +95,5 @@
+ EVENT_CHAIN_SKILLS=   # 10/21 08:15 用户澄清: 旧 paper 全停(土豆例外), 事件触发子链不上线(空=全关); 机制留着备用, 开=填链名
+ MIX_OFF=A-mix,A-mix-lhb,A-mix-sw   # 10/21 12:2x 用户令停: 三本从建账起从未出过单(准入要 ≥2 链共识且含高权重链, 高权重链恰是很少交易的链), 只留 A-mix-eq; 零 token, 账本保留
+-SE_FLEET=1   # 10/21 晚用户令: 10/22 起 15 位导师全部用新 paper(策略执行器), check md 每 5 分钟 se_fleet.py --ensure 拉起; 0 = 全停
++SE_FLEET=0   # 10/21 晚用户令: 10/22 起 15 位导师全部用新 paper(策略执行器), check md 每 5 分钟 se_fleet.py --ensure 拉起; 0 = 全停
+ SE_FLEET_SKILLS=zhiyingjuexin,xingjianye,liuyiqing,buchitudou0   # 10/21 23:5x 用户改: 只跑前 3(芷影 / 星见野 / 刘忆青) + 土豆竞价测试; 10/21 晚用户加: 土豆只做竞价测试(SE_AUC_TEST_SKILLS); 10/21 晚用户定: 只开近 60 日日均收益率前 5; 原注释: 空 = mentors.active_ids() 全体(已去掉 paper_excluded 和对照组); 要只跑几条就写逗号分隔
+ SE_GENESIS=2026-10-22   # 10/21 晚用户令: 这天起执行器 10 万现金从 0 开始, 之后每天接前一交易日影子账收盘状态; 旧 paper 账目归档在 scripts/dfcf/paper/_archive/20261021_oldpaper/
+@@ -114,8 +114,8 @@
+ SE_FIRST_EFFORT=high
+ SE_AUC_AT=09:21:00
+-SE_AUC_EFFORT=low
++SE_AUC_EFFORT=high   # 10/22 09:4x 用户令: 只跑 high(原 low)
+ SE_EFFORT=high
+ # 每次触发用同一份 01 再跑一条影子链(只落盘不执行, 实验 1: low vs high); 空 = 不跑
+-SE_SHADOW_EFFORT=low
++SE_SHADOW_EFFORT=   # 10/22 09:4x 用户令: 不做 low 对比, low 影子停
+ # 指数事件(θ 0.35)/ 剪刀差(国证2000 − 上证)只记日志不叫链(实验 5)
+ SE_LOG_EVENTS=1
+@@ -123,9 +123,12 @@
+ SE_AUC_TEST_SKILLS=buchitudou0
+ SE_AUC_TEST_AT=09:24:01
++SE_AUC_TEST_END=10:00   # 10/22 08:1x 用户令: 土豆进程跑到 10:00 后才算结束(竞价测完接连续竞价, 10:00 等在跑那轮落地再收盘, 不强平); 空 = 竞价测完就收盘
+ # 10/21 晚: 尾盘竞价版固定这个时刻必跑一版(effort 按 SE_EFFORT), 规则进 14:57~15:00 尾盘竞价, 15:00:03 一次撮合
+ SE_TAIL_AT=14:51:00
+ # 10/21 晚用户令: 芷影再加一个对照 —— effort 全 high、每步不限时长(自然结束)、跑到 11:30 收盘(独立影子账 10 万, 目录 se_zhiyingjuexin@nolimit)
+-SE_FLEET_VARIANTS=zhiyingjuexin@nolimit,zhiyingjuexin@keepband,zhiyingjuexin@toolcall,zhiyingjuexin@repeat,zhiyingjuexin@low,zhiyingjuexin@sonnet_low,zhiyingjuexin@sonnet_high   # repeat = 同配置再跑一份(噪声); low = 全天 low 真成交; sonnet_low / sonnet_high = 换 Sonnet 5.5; toolcall = 对照 C: 模型可调 lookup 查料; keepband = 对照: 停触发期间"出区间"照样叫链(其余同芷影正式版, 不跑影子链)
++SE_FLEET_VARIANTS=   # 10/22 09:4x 用户令: 只做 high, 7 个芷影变体全停(原值见 scripts/temp/chain_flags_before_highonly_*.txt)   # repeat = 同配置再跑一份(噪声); low = 全天 low 真成交; sonnet_low / sonnet_high = 换 Sonnet 5.5; toolcall = 对照 C: 模型可调 lookup 查料; keepband = 对照: 停触发期间"出区间"照样叫链(其余同芷影正式版, 不跑影子链)
+ SE_NOLIMIT_END=11:30
+ # 10/21 晚用户令: 满仓 / 现金买不起 1 手 → 停这条 paper 的事件触发(固定时刻的版本照跑); 0 = 关
+ SE_FULL_PAUSE=1
++SE_POOL_EXTRA=603669,113610   # 10/22 08:4x 用户令: 今天候选池加 灵康药业 + 灵康转债(113610; 用户写的 113589 核 cb 列表不对); 空 = 不加
++API_MAX_INFLIGHT=8   # 10/22 09:4x 用户令: 全进程直连 API 在途请求上限(claude_api.py 跨进程文件锁; 0 = 不限)

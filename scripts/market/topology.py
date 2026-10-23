@@ -12,7 +12,9 @@
   ctx_index 预取关键词 / md 命中 / 期货行(替代手写 KW 表, 手写表仍优先); paper_vs_real 同板块算半重合; 盯盘关联票 / facts 关注票(后续)
 产物: downloads/market/<日>/topology.jsonl(每行一只: c 代码 / n 名 / ind 东财行业 / sw 申万 / fut 期货 / nb 邻居 / neg 跷跷板)
 用法: python topology.py [--date D] [--show 002714]      (check md 每晚行情库采集后跑; 只用 D 及以前的日线)
-API:  from topology import load; load("002714", D) → 该票一行(取 D 及以前最近一份), 没有 = None
+回算: python topology.py --backfill [--since 2026-01-15] [--until 2026-10-21] [--strict] [--days D1,D2]   (10/22 晚; 倒序逐日, 已有跳过;
+      产物 downloads/market/topology_hist/<日>.jsonl, --strict 不用 F10 概念 / rules.md / 人工(现版本 = 偷看) → topology_hist_strict/(只抽样做对比, 不全量); 每行同字段, nb 只存前 5)
+API:  from topology import load; load("002714", D) → 该票一行(取 D 及以前最近一份; 非 strict 时日常目录没有 D 当天就回退 topology_hist), 没有 = None
 """
 import argparse
 import datetime as dt
@@ -30,7 +32,9 @@ IND_EM = ROOT / "downloads" / "lhb" / "_industry" / "industry_em.json"
 IND_SW = MKT / "index_pit" / "stock_industry.jsonl"
 IDX_CON = MKT / "index_pit" / "index_constituent.jsonl"
 F10 = ROOT / "downloads" / "f10"
+TOPO_HIST, TOPO_HIST_STRICT = MKT / "topology_hist", MKT / "topology_hist_strict"   # 回算产物(不进日期目录, 别的程序按日期目录找数据)
 N_WIN, N_SHORT, TOP, NEG = 60, 20, 10, 2
+HIST_TOP = 5   # 回算只存前 5 邻居(省磁盘)
 # 10/21 用户教学: 多来源加权(近期涨停分析最高; rules.md 是桃哥 1~2 年前的地图, 不一定还有效; 统计类反映近 60/20 日真实联动)
 # 配比 涨停近期 : rules.md : 统计类 : 其他(更早涨停) —— 用户给了 4:4:2:0.5 / 4:2.5:2.5:0.5 两档并让我自己设计; 默认取后者, 且按"本票有没有这类证据"重新归一:
 #   本票近 120 日没上过涨停表 → 涨停两项不参与(不然冷门票永远没邻居); 本票不在 rules.md → rules 不参与
@@ -166,22 +170,112 @@ def _lu_s(x):
     return 1 - np.exp(-x / 1.0)
 
 
-def build(D):
+class HistSource:
+    """回算取数(10/22 晚 用户令: 拓扑逐日回算): 日线一次读进内存, 按日期 D 截 ≤ D 的窗口; 算法仍走 build()
+    日线 = history/kline_day/<symbol>.jsonl(SINCE 以来) + 每日 downloads/market/<日>/kline_day.jsonl 覆盖(同 closes())
+    股票池(D) = sh60/sh68/sz00/sz30 且 D 当天或之前 5 个交易日内有日线; 名字取最新 security_master, 退市票用 history/security_basic, 都没有留空"""
+    STOCK = re.compile(r"(sh60|sh68|sz00|sz30)\d{4}")
+
+    def __init__(self, since="2025-10-01"):
+        data = {}
+        for f in HIST.glob("*.jsonl"):
+            s = f.stem
+            if self.STOCK.fullmatch(s):
+                v = {r["tradeDate"]: (r["close"], r.get("preClose")) for r in self._rows_since(f, since) if r.get("close")}
+                if v:
+                    data[s] = v
+        for p in sorted(MKT.glob("2026-*/kline_day.jsonl")):
+            d = p.parent.name
+            for l in p.open(encoding="utf-8"):
+                r = json.loads(l)
+                s = r["symbol"]
+                if self.STOCK.fullmatch(s) and r.get("close") and r.get("volume"):
+                    data.setdefault(s, {})[d] = (r["close"], r.get("preClose"))
+        self.syms = sorted(data)
+        self.dates = sorted({d for v in data.values() for d in v})
+        col = {d: j for j, d in enumerate(self.dates)}
+        self.P = np.zeros((len(self.syms), len(self.dates)), dtype=bool)
+        self.R = np.full((len(self.syms), len(self.dates)), np.nan, dtype=np.float32)
+        for i, s in enumerate(self.syms):          # 与 returns() 同口径: preClose 缺 → 用本票上一条收盘; |r| ≥ 0.31 不进
+            v = data[s]
+            prev = None
+            for d in sorted(v):
+                c, pc = v[d]
+                pc = pc or prev
+                self.P[i, col[d]] = True
+                if pc:
+                    r = c / pc - 1
+                    if abs(r) < 0.31:
+                        self.R[i, col[d]] = r
+                prev = c
+        nper = self.P.sum(axis=0)
+        self.cal = [d for d, n in zip(self.dates, nper) if n >= 1000]     # 交易日历(单票错日期不算)
+        names = {}
+        bf = MKT / "history" / "security_basic.jsonl"
+        if bf.exists():
+            for l in bf.open(encoding="utf-8"):
+                r = json.loads(l)
+                names[r["symbol"]] = r.get("name") or ""
+        ms = sorted(MKT.glob("2026-*/security_master.jsonl"))
+        if ms:
+            for l in ms[-1].open(encoding="utf-8"):
+                r = json.loads(l)
+                names[r["symbol"]] = r.get("name") or ""
+        self.names = names
+
+    @staticmethod
+    def _rows_since(f, since):
+        size, n = f.stat().st_size, 300 * 260
+        while True:
+            st = max(0, size - n)
+            with f.open("rb") as fh:
+                fh.seek(st)
+                lines = fh.read().decode("utf-8", "ignore").splitlines()
+            rows = []
+            for l in lines[1:] if st else lines:
+                try:
+                    rows.append(json.loads(l))
+                except ValueError:
+                    pass
+            if st == 0 or (rows and rows[0]["tradeDate"] < since):
+                return [r for r in rows if r.get("tradeDate", "") >= since]
+            n *= 2
+
+    def window(self, D):
+        """→ (uni, syms, dates, R) 与 build() 日常路径同形; 只含 ≤ D 的数据"""
+        import bisect
+        j = bisect.bisect_right(self.dates, D)
+        k = bisect.bisect_right(self.cal, D)
+        last5 = [bisect.bisect_left(self.dates, d) for d in self.cal[max(0, k - 5):k]]
+        rows = np.nonzero(self.P[:, last5].any(axis=1))[0] if last5 else np.array([], dtype=int)
+        cols = np.nonzero(self.P[np.ix_(rows, np.arange(j))].any(axis=0))[0][-N_WIN:]
+        syms = [self.syms[i] for i in rows]
+        dates = [self.dates[c] for c in cols]
+        assert not dates or dates[-1] <= D, f"取数偷看: {dates[-1]} > {D}"
+        return {s: self.names.get(s, "") for s in syms}, syms, dates, self.R[np.ix_(rows, cols)]
+
+
+def build(D, src=None, strict=False):
+    """src=None: 日常取数(security_master + 历史库尾部 + 每日 kline_day; check md 每晚这条, 不变)
+    src=HistSource: 回算取数(内存日线按 D 截); strict=True: 不用现版本才有的来源(F10 概念 / rules.md / 人工标注), 回算严格版用"""
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import topo_sources as TS
     LU, lu_seen = TS.lu_pairs(D)
-    RC, MAN = TS.rules_clusters(), TS.manual()
+    RC, MAN = ({}, {}) if strict else (TS.rules_clusters(), TS.manual())
     by_rules = {}
     for c0, ks in RC.items():
         for k in ks:
             by_rules.setdefault(k[1], set()).add(c0)
-    uni = stock_universe(D)
-    syms, dates, R = returns(closes(D, list(uni)))
+    if src is None:
+        uni = stock_universe(D)
+        syms, dates, R = returns(closes(D, list(uni)))
+    else:
+        uni, syms, dates, R = src.window(D)
     C60, C20 = corr(R, 45), corr(R[:, -N_SHORT:], 15)
     codes = [s[2:] for s in syms]
     idx = {c: k for k, c in enumerate(codes)}
     em, sw = industries(D)
-    imem, con = index_members(D), concepts()
+    imem, con = index_members(D), ({} if strict else concepts())
     by_em = {}
     for i, c in enumerate(codes):
         if em.get(c):
@@ -271,15 +365,23 @@ def build(D):
 
 
 _CACHE = {}
+_HIST_LS = []
 
 
 def load(code, D=None, strict=False):
-    """strict=True 只取 D 之前的(盘中 / 回放用: D 当晚的拓扑含 D 收盘, 不偷看)"""
+    """strict=True 只取 D 之前的(盘中 / 回放用: D 当晚的拓扑含 D 收盘, 不偷看)
+    strict=False 且 downloads/market/D/topology.jsonl 不存在时, 回退读回算产物 topology_hist/ 里 ≤ D 最近一份(比日常目录里的更新才用; 同日日常优先)"""
     D = D or dt.date.today().isoformat()
     fs = sorted(p for p in MKT.glob("2026-*/topology.jsonl") if (p.parent.name < D if strict else p.parent.name <= D))
-    if not fs:
+    f = fs[-1] if fs else None
+    if not strict and (f is None or f.parent.name != D):
+        if not _HIST_LS:
+            _HIST_LS.append(sorted(TOPO_HIST.glob("20*.jsonl")))
+        hs = [p for p in _HIST_LS[0] if p.stem <= D]
+        if hs and (f is None or hs[-1].stem > f.parent.name):
+            f = hs[-1]
+    if f is None:
         return None
-    f = fs[-1]
     if f not in _CACHE:
         _CACHE.clear()
         _CACHE[f] = {}
@@ -325,13 +427,47 @@ def brief(codes, D, k=3):
             + (f" | 期货 {'/'.join(r['fut'][:3])}" if r["fut"] else "") for c, r in rows.items()]
 
 
+def backfill(since, until, strict=False, only=None):
+    """逐日回算 [since, until] 的交易日, 倒序(新 → 旧); 已有文件跳过(幂等). 产物 topology_hist(_strict)/<日>.jsonl
+    only = 只算这些日期(严格版抽样实验用, 10/22 22:0x 用户改: 严格版不全量)"""
+    import time
+    out_dir = TOPO_HIST_STRICT if strict else TOPO_HIST
+    out_dir.mkdir(exist_ok=True)
+    t0 = time.time()
+    src = HistSource()
+    days = [d for d in src.cal if since <= d <= until and (not only or d in only)][::-1]
+    print(f"backfill{' strict' if strict else ''}: 日线入内存 {len(src.syms)} 只 {src.dates[0]}~{src.dates[-1]} ({time.time() - t0:.0f}s), 待算 {len(days)} 个交易日 {days[0] if days else '-'}→{days[-1] if days else '-'}", flush=True)
+    done = 0
+    for D in days:
+        f = out_dir / f"{D}.jsonl"
+        if f.exists():
+            continue
+        t = time.time()
+        rows, dates = build(D, src, strict)
+        assert dates and dates[-1] == D and len(dates) == N_WIN, f"{D}: 窗口异常 {dates[:1]}~{dates[-1:]} {len(dates)} 日"
+        tmp = out_dir / f"{D}.jsonl.tmp"
+        tmp.write_text("\n".join(json.dumps({**r, "nb": r["nb"][:HIST_TOP], "neg": r["neg"][:NEG]}, ensure_ascii=False, separators=(",", ":")) for r in rows) + "\n", encoding="utf-8")
+        tmp.replace(f)
+        done += 1
+        print(f"  {D}: {len(rows)} 只 窗口 {dates[0]}~{dates[-1]} {time.time() - t:.1f}s", flush=True)
+    print(f"backfill{' strict' if strict else ''} 完成: 新算 {done} 天, 总耗时 {time.time() - t0:.0f}s → {out_dir.relative_to(ROOT)}", flush=True)
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", default=dt.date.today().isoformat())
     ap.add_argument("--show")
+    ap.add_argument("--backfill", action="store_true", help="逐日回算历史 → downloads/market/topology_hist/<日>.jsonl")
+    ap.add_argument("--since", default="2026-01-15")
+    ap.add_argument("--until", default=(dt.date.today() - dt.timedelta(days=1)).isoformat())
+    ap.add_argument("--strict", action="store_true", help="回算严格版: 不用 F10 概念 / rules.md / 人工 → topology_hist_strict/")
+    ap.add_argument("--days", help="回算只算这些日期(逗号分隔; 严格版抽样用)")
     a = ap.parse_args()
+    if a.backfill:
+        backfill(a.since, a.until, a.strict, set(a.days.split(",")) if a.days else None)
+        return
     if a.show:
         print(json.dumps(load(a.show, a.date), ensure_ascii=False, indent=1))
         print(line(a.show, a.date))

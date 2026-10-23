@@ -331,6 +331,21 @@ def step_ztpool(c, state):
     return f"失败(exit {rc}: {j.get('md') or str(out[-1:])[:120]})"
 
 
+def step_cb_auction(c, state):
+    """10/22 用户令: 转债集合竞价过程特征每天自动攒(scripts/market/cb_auction_features.py, 零网络零 token, 读当天新浪竞价快照)"""
+    D = c.d.isoformat()
+    raw = ROOT / "downloads" / "market" / D / "call_auction_open_raw.jsonl"
+    out = ROOT / "downloads" / "market" / D / "cb_auction_features.jsonl"
+    if out.exists() and out.stat().st_mtime > raw.stat().st_mtime if raw.exists() else out.exists():
+        return "已完成"
+    if not raw.exists():
+        return "跳过(当天没有竞价快照)"
+    if c.dry:
+        return "dry: 将跑 cb_auction_features"
+    rc, o = run([str(PY), "-X", "utf8", "scripts/market/cb_auction_features.py", "--date", D], "转债竞价特征", 300)
+    return f"完成({sum(1 for _ in out.open(encoding='utf-8'))} 只转债)" if rc == 0 and out.exists() else f"失败(exit {rc})"
+
+
 # ---------- ②③ 三 UP sum + distill(复用 backfill_bilibili --llm-batch, 自带幂等与 distill 锁) ----------
 def step_up(c, b):
     lo = (c.d - dt.timedelta(days=UP_WINDOW_DAYS)).isoformat()
@@ -806,7 +821,7 @@ def main():
                 continue
             # 10/17 A14①: fage 提到 tzzb_distill 之前(两者无依赖), 让 cls/tzzb 推测层/fage 在 postclose 合成; tzzb_distill 仍在推测层之后
             steps = [("cls", lambda: step_cls(c, state)), ("lhb", lambda: step_lhb(c, state)),
-                     ("ztpool", lambda: step_ztpool(c, state)), ("up", lambda: step_up(c, b)),
+                     ("ztpool", lambda: step_ztpool(c, state)), ("cb_auction", lambda: step_cb_auction(c, state)), ("up", lambda: step_up(c, b)),
                      ("tzzb_sum", lambda: step_tzzb_sum(c)), ("fage", lambda: step_fage(c)),
                      ("postclose", lambda: step_postclose(c)),
                      ("tzzb_distill", lambda: step_tzzb_distill(c, state, morning)),
@@ -908,6 +923,7 @@ def main():
             # 10/18 晚 P3: 盘口五档快照采集器(新浪, 不占腾讯额度)没在跑就后台拉起(无窗口); 挂了下一轮自动重拉
             run([PY, "-X", "utf8", "scripts/market/collect_book.py", "--ensure"], "盘口快照采集", 60)
             run([PY, "-X", "utf8", "scripts/dfcf/paper/se_fleet.py", "--ensure"], "新 paper 策略执行器全体拉起(10/22 起 15 位导师)", 60)   # 10/21 晚用户令
+            run([PY, "-X", "utf8", "scripts/paper_v3/fleet.py", "--ensure"], "paper v3 执行器全体拉起 / 崩溃重拉(开关 V3_FLEET)", 60)   # 10/22 晚: v3 上线, 8 本账
             run([PY, "-X", "utf8", "scripts/market/minute_live.py", "--ensure"], "盘中实时 1/5 分钟线(由 3 秒盘口合成, 零请求)", 60)   # 10/21 用户令
             run([PY, "-X", "utf8", "scripts/market/collect_panel.py", "--ensure"], "多指数面板采集(日经/KOSPI/A50/小纳指/上证/中证2000/创业板/恒生科技)", 60)   # 10/20 用户定
             run([PY, "-X", "utf8", "scripts/market/open_live.py", "--ensure"], "开盘实况(09:14~14:57 机械市况判定, 午休不判)", 60)   # 10/20 晚用户批; 10/21 晚全天化(时间闸在 open_live --ensure 里)
@@ -979,7 +995,24 @@ def main():
                     r_ = {}
                 if r_.get("新增") or r_.get("刷新"):
                     run(["node", "scripts/md/gen_rules_index.mjs", "--skill", mm.group(1)], f"规则索引 {mm.group(1)}", 120)
+            # 10/22 晚用户令: 不论 rules.md 多大(bank / nasdaq 只有几 KB)都要有索引, 将来量级会很大; rules.md 比索引新 / 没索引 → 重建
+            for sk_dir in sorted((ROOT / "skills").glob("*-skill")):
+                rp, ip = sk_dir / "persona" / "rules.md", sk_dir / "persona" / "rules_index.md"
+                if rp.exists() and (not ip.exists() or rp.stat().st_mtime > ip.stat().st_mtime):
+                    run(["node", "scripts/md/gen_rules_index.mjs", "--skill", sk_dir.name[:-6]], f"规则索引(补) {sk_dir.name[:-6]}", 120)
+                cp, cip = sk_dir / "persona" / "cases.md", sk_dir / "persona" / "cases_index.md"
+                if cp.exists() and (not cip.exists() or cp.stat().st_mtime > cip.stat().st_mtime):
+                    run([PY, "-X", "utf8", "scripts/md/gen_cases_index.py", "--skill", sk_dir.name[:-6]], f"案例目录 {sk_dir.name[:-6]}", 60)
             summary["rule_time"] = "完成" if rc_ts == 0 else "失败"
+            # 10/22 晚用户批: 强势股次日溢价库(paper v3 必查用)跟着行情库日线走, 日线更新了才重建(约 40 秒, 只读行情库)
+            rc_sn, _ = run([PY, "-X", "utf8", "scripts/paper_v3/tools/strong_next.py", "--build-if-stale"], "强势股次日溢价库", 600)
+            summary["strong_next"] = "完成" if rc_sn == 0 else "失败"
+            # 10/22 23:5x 用户令: 恢复加红电报每日累计(零 token) — 当天每轮重算(电报 / 分钟线晚上才齐), 漏的天补齐, 再重出"电报次日"累计表
+            run([PY, "-X", "utf8", "scripts/test/telegraph_validate.py", "--date", d.isoformat()], "加红电报验证(当天)", 600)
+            run([PY, "-X", "utf8", "scripts/test/telegraph_validate.py"], "加红电报验证(补漏)", 900)
+            rc_tn, _ = run([PY, "-X", "utf8", "scripts/test/telegraph_nextday.py"], "电报次日累计表", 300)
+            run([PY, "-X", "utf8", "scripts/test/telegraph_skill.py"], "电报 skill 规则重算(10/23 用户批)", 300)
+            summary["telegraph"] = "完成" if rc_tn == 0 else "失败"
         # 10/16 晚 B11: 每轮末尾给画像打快照(本轮蒸馏改了才升版本, 没改=秒退); --only persona_snap = 08:00 盘前兜底
         if (not only or "persona_snap" in only) and not a.dry:
             rc_ps, _ = run([PY, "-X", "utf8", "scripts/skills_ver/persona_versions.py", "snapshot", "--all", "--why", f"check-md {d.isoformat()} {dt.datetime.now():%H:%M}"], "画像快照", 600)
@@ -1002,7 +1035,7 @@ def main():
             run([PY, "-X", "utf8", "scripts/dfcf/paper/t_review.py", "--date", d.isoformat()], "做T 复盘(事后最优 T 标签)", 300)   # 10/18 晚
             run([PY, "-X", "utf8", "scripts/dfcf/paper/t_knowledge.py"], "做T 知识包", 120)   # 10/18 晚: 全体 skill 做T 技巧(正反面)给决策T
             run([PY, "-X", "utf8", "scripts/dfcf/paper/t_skill.py"], "品种 skill 数据画像(银行股/纳指)", 120)   # 10/18 晚
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/t_private_report.py"], "牧原私有报告(snapshots/report_private.html)", 120)   # 10/18 晚: 不进 git
+            # run([PY, "-X", "utf8", "scripts/dfcf/paper/t_private_report.py"], "牧原私有报告(snapshots/report_private.html)", 120)   # 10/22 晚用户令: report_private.html 删掉、代码暂留 → 每晚不再生成
             if (ROOT / "scripts" / "dfcf" / "snapshots" / "order-skill" / "eval_day.py").exists():   # 10/19: 盘中挂单建议逐档对账(私有, 不进 git)
                 run([PY, "-X", "utf8", "scripts/dfcf/snapshots/order-skill/eval_day.py", "--date", d.isoformat()], "盘中挂单建议对账(私有 order-skill)", 120)
                 run([PY, "-X", "utf8", "scripts/dfcf/snapshots/order-skill/real_log.py", "--date", d.isoformat()], "实盘决策日志+T+1/T+3 结算(私有, 照建议 vs 自主)", 120)   # 10/19 晚

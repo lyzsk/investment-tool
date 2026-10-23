@@ -1,0 +1,9 @@
+--- v017_20261022-2101/scripts/claude_profile/chain_flags.txt
++++ v018_20261022-2310/scripts/claude_profile/chain_flags.txt
+@@ -142,2 +142,6 @@
+ V3_BAND_HOLD_S=60   # 出 band 持续满 N 秒才算触发(去开盘尖刺; 10/22 芷影出区间 6 次用光上限)
+ V3_CAP_FROM=10:30   # 10/22 晚用户令: 自由触发(出区间 / 翻转)10:30 前不计上限, 10:30 起才计(上限 12)
++V3_CAP_K=5   # 10/22 23:3x 用户令上限改回动态: ceil(K × 导师近 20 个交易日日均出手) 夹在 [MIN, MAX]; 决策 T 线固定 V3_CAP_DT
++V3_CAP_MIN=6
++V3_CAP_MAX=20
++V3_CAP_DT=8

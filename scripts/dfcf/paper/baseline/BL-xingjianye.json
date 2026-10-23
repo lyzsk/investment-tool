@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "xingjianye",
  "name": "星见野",
- "generated_at": "2026-10-21T23:55:44",
+ "generated_at": "2026-10-22T19:46:32",
  "since": "2026-10-08",
- "until": "2026-10-21",
+ "until": "2026-10-22",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "延续",
@@ -206,6 +206,14 @@
    "cash": 965.95,
    "mv": 88272.0,
    "nav": 89237.95,
+   "filled": 0,
+   "orders": 0
+  },
+  {
+   "date": "2026-10-22",
+   "cash": 965.95,
+   "mv": 79416.0,
+   "nav": 80381.95,
    "filled": 0,
    "orders": 0
   }
@@ -564,6 +572,35 @@
     "n_new": 1
    },
    "tp_acct_prev": 0.99
+  },
+  {
+   "date": "2026-10-22",
+   "orders": [],
+   "stale": 0,
+   "state_day": "2026-10-21",
+   "p_trade": 0.215,
+   "p_dir_given_trade": [
+    0.405,
+    0.532,
+    0.063
+   ],
+   "decision": {
+    "trade": false,
+    "dir": 0,
+    "tp_hat": 0.9998,
+    "tp_target_cap": 0.98,
+    "tp_final": 0.9998,
+    "tp_final_cap": 0.98,
+    "src": {
+     "L1": "延续",
+     "L2": "常数",
+     "L4": "延续"
+    },
+    "add_step": 0.9972,
+    "red_step": 0.9948627525837457,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.989
   }
  ]
 }

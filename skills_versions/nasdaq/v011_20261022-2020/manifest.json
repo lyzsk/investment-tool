@@ -1,0 +1,139 @@
+{
+ "skill": "nasdaq",
+ "unit": "skill",
+ "version": {
+  "v": 11,
+  "id": "v011_20261022-2020",
+  "ts": "2026-10-22T20:20:09",
+  "effective_from": "2026-10-22T20:18:50",
+  "unit": "skill",
+  "version_hash": "c7334b5ba86f664b527e601c97e9d650ee3cd0741d42e998454c20db8235a0d2",
+  "cat_hash": {
+   "提示词": "2a99e95fa0f9ece3d7c550f8a6af8ab04b09a34fc7b208345a1953caf38079cd",
+   "数据": "956727f8ecc62ed6b448c603d5f7ac09c20916d1903a0883684bf2b239b3448d",
+   "画像": "701cba3284d9802db704efdb61ae37b23050b8098285b8844aa67fdf25ff71c0"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v010_20261022-1947",
+  "changed": {
+   "added": [
+    "persona/cases_index.md",
+    "persona/rules_index.md"
+   ],
+   "modified": [
+    "persona/cases.md",
+    "persona/profile.md",
+    "persona/profile_index.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "数据": [
+    "persona/cases_index.md",
+    "persona/rules_index.md",
+    "persona/profile_index.md"
+   ],
+   "画像": [
+    "persona/cases.md",
+    "persona/profile.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 52,
+   "removed": 13
+  },
+  "bytes_weight": 21141,
+  "why": "check-md 2026-10-22 20:20",
+  "code": {
+   "chain": "6c3166539160",
+   "distill": "6033d6c458bb"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "e07d88a2bdd2cd9570d2f7ba963dead5a8051517bda4778c4e48efdd1e3e0035",
+   "bytes": 8960,
+   "lines": 57,
+   "mtime": "2026-10-22T19:47:55",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/cases_index.md": {
+   "sha256": "1236d8c6838486dabc527559a25458eeb0ffcfd91ed709e1ce27ce1c3c3f5d39",
+   "bytes": 615,
+   "lines": 7,
+   "mtime": "2026-10-22T19:55:20",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "b09e69a6edb12620c4df2a2651ca94f6235b668c7d162558d9d56bcb99ec4dd6",
+   "bytes": 3486,
+   "lines": 51,
+   "mtime": "2026-10-22T19:47:56",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile_index.md": {
+   "sha256": "e589871c25caeed3d41c3030066bd2b6c94cf4363ec457463bcb3621caef6265",
+   "bytes": 1343,
+   "lines": 14,
+   "mtime": "2026-10-22T20:18:50",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "e3a60de557eb260f5a606655e417c8dde3a2e503fb41ca491a77ba7cf24b8dc3",
+   "bytes": 2580,
+   "lines": 34,
+   "mtime": "2026-10-19T02:15:43",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules_index.md": {
+   "sha256": "5a46eae08bdd512bc6f50079f545b1642b090d402c4707776b709abc33a37497",
+   "bytes": 2042,
+   "lines": 11,
+   "mtime": "2026-10-22T19:54:21",
+   "cls": "数据",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "bb4daa6a890cafda6978ed97d5b79ec2ba1c2704c4622b7119927f4c0d35b3c8",
+   "bytes": 1309,
+   "lines": 14,
+   "mtime": "2026-10-18T21:54:15",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/distill.md": {
+   "sha256": "4fc529343efe5a5cb1ea3eb031ab866a55bcdf569070014f0e8d22adc69052bf",
+   "bytes": 806,
+   "lines": 10,
+   "mtime": "2026-10-18T21:54:54",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "6c3166539160",
+  "distill": "6033d6c458bb",
+  "chain_files": {
+   "scripts/chain/run_chain.py": "9234e5ace876",
+   "skills/nasdaq-skill/workflows/chain.md": null,
+   "skills/nasdaq-skill/SKILL.md": "bb4daa6a890c",
+   "scripts/dfcf/paper/params.yaml": "8aa4869152ad"
+  },
+  "distill_files": {
+   "skills/nasdaq-skill/workflows/distill.md": "4fc529343efe",
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "4cd7fadb2640",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "32805a6a292e"
+  }
+ }
+}

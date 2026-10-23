@@ -1,0 +1,92 @@
+{
+ "_说明": "paper v3: 五条主线(盯盘模式) + 三本计划模式对照 + 芷影噪声基线(10/22 晚用户定: 土豆 / 刘忆青 / 芷影 / 纳指 / 中行 各 10 万空仓起; 计划模式三位导师都开; 噪声基线 = 芷影同配置复制一本; 03 消融 = 芷影加一本 debate=true(多方 / 空方从主会话分叉并行独立跑, 竞价复核不跑 03; 用户 23:5x 定明天就开))。kind: mimic=拟人线 / dt=决策T线; mode: watch=盯盘模式(盘中成交 / 出区间 / 市况翻转 / 心跳都叫醒) / plan=计划模式(盘前出计划 + 条件单, 盘中只在计划失效 = 出区间 / wake 命中时叫醒; 10/22 晚用户定名, 原叫'作战卡 card'); universe: 决策T线只许交易这几只; cash: 起始现金(缺省 10 万; 决策T 两本 1 万, 用户 10/22 深夜定); wake_on_fill: 计划模式里成交也叫醒(对照'成交叫醒有没有用', 用户 10/23 凌晨定, 芷影)",
+ "lines": [
+  {
+   "id": "tudou",
+   "skill": "buchitudou0",
+   "kind": "mimic",
+   "mode": "watch",
+   "name": "不吃土豆0(转债)"
+  },
+  {
+   "id": "liuyiqing",
+   "skill": "liuyiqing",
+   "kind": "mimic",
+   "mode": "watch",
+   "name": "刘忆青"
+  },
+  {
+   "id": "zhiying",
+   "skill": "zhiyingjuexin",
+   "kind": "mimic",
+   "mode": "watch",
+   "name": "芷影攫心"
+  },
+  {
+   "id": "nasdaq",
+   "skill": "nasdaq",
+   "kind": "dt",
+   "mode": "watch",
+   "name": "纳指ETF 决策T",
+   "universe": [
+    "159941"
+   ],
+   "cash": 10000
+  },
+  {
+   "id": "bank",
+   "skill": "bank",
+   "kind": "dt",
+   "mode": "watch",
+   "name": "中国银行 决策T",
+   "universe": [
+    "601988"
+   ],
+   "cash": 10000
+  },
+  {
+   "id": "tudou_plan",
+   "skill": "buchitudou0",
+   "kind": "mimic",
+   "mode": "plan",
+   "name": "不吃土豆0 计划模式"
+  },
+  {
+   "id": "liuyiqing_plan",
+   "skill": "liuyiqing",
+   "kind": "mimic",
+   "mode": "plan",
+   "name": "刘忆青 计划模式"
+  },
+  {
+   "id": "zhiying_plan",
+   "skill": "zhiyingjuexin",
+   "kind": "mimic",
+   "mode": "plan",
+   "name": "芷影攫心 计划模式"
+  },
+  {
+   "id": "zhiying_plan_fill",
+   "skill": "zhiyingjuexin",
+   "kind": "mimic",
+   "mode": "plan",
+   "wake_on_fill": true,
+   "name": "芷影攫心 计划模式+成交叫醒(对照)"
+  },
+  {
+   "id": "zhiying_noise",
+   "skill": "zhiyingjuexin",
+   "kind": "mimic",
+   "mode": "watch",
+   "name": "芷影攫心 噪声基线(同配置复制)"
+  },
+  {
+   "id": "zhiying_03",
+   "skill": "zhiyingjuexin",
+   "kind": "mimic",
+   "mode": "watch",
+   "debate": true,
+   "name": "芷影攫心 带03多空辩论(消融)"
+  }
+ ]
+}

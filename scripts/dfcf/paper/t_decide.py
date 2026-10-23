@@ -52,11 +52,21 @@ STATE = DATA / "t_decide_state.json"
 TLOG = DATA / "t_log"
 
 DISCIPLINE = """做 T 硬纪律(规则与费用口径, 必须遵守):
-- 参数按该品种近 30 日振幅分布定, 禁止固定模板; 规模三档: 1/3 底仓、1/2 底仓、全部底仓(把握越大档越高, 不确定就 1/3 或不做)
+- 参数按该品种振幅分布定(见下方五个窗口; 回测: "今天能走多宽"看近 5~15 日振幅更准, "高抛 / 低吸挂在昨收上下多远"看近 30~120 日的最高 / 最低更准, 同 bank-skill R7; 但只换窗口不改方向, 对称挂单扣费后照样亏, 关键是挑方向和挑日子), 禁止固定模板; 规模三档: 1/3 底仓、1/2 底仓、全部底仓(把握越大档越高, 不确定就 1/3 或不做)
 - 按走势情景分配挂单(例: 高开冲高情景挂高抛、回落情景挂低吸), 单子要能放一段时间(用户隔段看盘), 不要贴着现价追
 - 收盘股数可以浮动: 多出来的 = 隔夜正 T(次日处理); 少了的 14:45 会被机械买回
 - 正T = 先买后卖(看日内反弹), 反T = 先卖后买(看日内回落); 银行 T+1: 当天买进的不能当天卖, 正T 的卖出要用底仓; 纳指 ETF 是 T+0
 - 费用(用户券商实收): 每笔最低 5 元(不免五), 银行卖出另有印花税 0.05%; ETF 无印花税。本账本只用 1 万(底仓约 5000 元), 1/3 档一笔约 1500 元 → 单边约 0.33%、来回约 0.7%; 全档一笔约 5000 元 → 来回约 0.25%。预期价差 < 来回费用的 2 倍就别做, 小档位尤其要算"""
+
+
+def amp_multi(code, D):
+    """五个窗口振幅(复用 paper v3 的必查口径: scripts/paper_v3/pack.amp_stats); 失败不拦决策"""
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "paper_v3"))
+        import pack as V3P
+        return V3P.amp_stats(code, D)
+    except Exception as e:   # noqa: BLE001
+        return f"(五窗口振幅取不到: {e!r})"[:120]
 
 
 def consensus(D):
@@ -76,8 +86,25 @@ def consensus(D):
         for x in c.get("directions") or []:
             k = re.split(r"[(（/·]", str(x))[0].strip()
             dirs[k] = dirs.get(k, 0) + 1
+    # 10/23 凌晨用户令: v1 导师链已停 → 也读 paper v3 各本账 09:00 启动时的 02(results/_live/<日>/v3_<线>/versions/*/02.json: state / attitude / directions), 每本账一票并标来源
+    who = []
+    for d in sorted((ROOT / "results" / "_live" / D).glob("v3_*")):
+        fs = sorted(d.glob("versions/*/02.json"))
+        if not fs:
+            continue
+        try:
+            c = json.loads(fs[0].read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        states[c.get("state")] = states.get(c.get("state"), 0) + 1
+        stances[c.get("attitude")] = stances.get(c.get("attitude"), 0) + 1
+        for x in c.get("directions") or []:
+            k = re.split(r"[(（/·]", str(x))[0].strip()
+            dirs[k] = dirs.get(k, 0) + 1
+        who.append(f"{d.name[3:]}:{c.get('attitude')}")
     top = lambda d: "; ".join(f"{k}×{v}" for k, v in sorted(d.items(), key=lambda x: -x[1])[:6]) or "(今天各链 02 还没出)"
-    return f"市况: {top(states)}\n立场: {top(stances)}\n方向: {top(dirs)}"
+    src = f"\n来源(paper v3 各本账 09:00 的 02, 同一导师的几本是各自独立的会话): {', '.join(who)}" if who else ""
+    return f"市况: {top(states)}\n立场: {top(stances)}\n方向: {top(dirs)}" + src
 
 
 def auction(D, code):
@@ -183,7 +210,7 @@ def book_state(src, code, D):
 PROMPT = """你是做 T 交易员, 管理一个 paper 账本 {src}: 标的 {name}({code}), 底仓 {base} 股, 现在持仓 {pos}, 可用于做 T 的现金 {cash:.0f} 元。{scale}现在是 {D} {hm}(本次决策时段 {slot})。
 目标: 通过日内高抛低吸让持仓成本下降 / 收益跑赢"底仓只拿着"; 不确定就不做(观望也是决策)。
 
-## 品种近 30 日振幅(相对昨收): 最高涨幅中位 {up:.2%}, 最大跌幅中位 {dn:.2%}; 昨收 {prev}
+## 品种振幅(相对昨收; 近 30 日 最高涨幅中位 {up:.2%}, 最大跌幅中位 {dn:.2%}; 昨收 {prev}) —— 五个窗口(振幅宽度看 5~15 日, 挂价离昨收多远看 30~120 日):{amp}
 ## 当前行情: {quote}
 ## 今日集合竞价过程(9:15~9:20 可撤 / 9:20~9:25 不可撤 / 9:25 撮合): {auc}
 ## 今天各导师 paper 链 02 的市况共识:
@@ -249,7 +276,7 @@ def decide(src, cfg, D, slot, dry):
     idx, can_read = ctx_pack(code, D, slot), _flag("T_DECIDE_READ", "1") == "1"
     read_hint = ("要细节可以用 Read 工具按上面目录的行号读原文(facts.md 某节 / 3 秒盘口 5 分钟K 用不了 Read, 不要读 book_snap); 最多 Read 3 次、每次 ≤80 行, 够用就别读。\n" if can_read else "")
     prompt = PROMPT.format(idx=idx, read_hint=read_hint, src=src, name=cfg["name"], code=code, base=base, pos=pos, cash=TB.t_cash(b, cfg), D=D, hm=dt.datetime.now().strftime("%H:%M"),
-                           slot=slot, up=P["up"], dn=P["dn"], prev=P["prev"], quote=quote, auc=auction(D, code), cons=consensus(D), ext=facts_sections(D),
+                           slot=slot, up=P["up"], dn=P["dn"], prev=P["prev"], amp=amp_multi(code, D), quote=quote, auc=auction(D, code), cons=consensus(D), ext=facts_sections(D),
                            today=[(t["side"], t["price"], t["qty"]) for t in today] or "无", opens=[(o["id"], o["side"], o["price"], o["qty"]) for o in opens] or "无",
                            discipline=DISCIPLINE, scale=("本账本按用户实盘真实规模跑(底仓 = 用户真实持股数), 费用每笔最低 5 元在这个规模下影响较小; T 的规模按本品种 skill 规则的三档定(10/19 用户定: 决策T 学 skill 里的正负样本, 不模仿用户本人; 日卡里「你的实盘」那一行只是一条带盈亏的样本)。" if cfg.get("real") else "本账本只动 1 万(底仓约 5000 元), 小档位费用占比高。"), skill=skill_notes(cfg["skill"], skill_dir=cfg.get("skill_dir")), notes=mentor_notes(), reviews=recent_reviews(src, D))
     if dry:

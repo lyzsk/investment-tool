@@ -184,7 +184,7 @@ def window_ok(now=None):
     if t < SIDE_NOT_BEFORE:
         return False, f"{SIDE_NOT_BEFORE:%m-%d %H:%M} 前副线不发同花顺请求(10/16 夜疑被封)"
     hm = t.hour * 100 + t.minute
-    if 900 <= hm < 1510:
+    if 900 <= hm < 1510 and os.environ.get("TZZB_ALLOW_INTRADAY") != t.strftime("%Y-%m-%d"):   # 10/22 13:28 用户特许当天盘中可请求: 环境变量 = 当天日期才放行, 只对本进程有效
         return False, "09:00~15:10 不发同花顺请求(盘中/用户令 15:10 后)"
     if 15 <= t.hour <= 23 and 5 <= t.minute < 30:
         return False, f"避让正式轮次(:{t.minute:02d} 在 :05~:30 窗口)"

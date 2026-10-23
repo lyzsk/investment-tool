@@ -1,0 +1,59 @@
+{
+ "skill": "telegraph",
+ "versions": [
+  {
+   "v": 1,
+   "id": "v001_20261023-0800",
+   "ts": "2026-10-23T08:00:10",
+   "effective_from": "2026-10-23T08:00:10",
+   "unit": "skill",
+   "version_hash": "6374cc41b41407699c9df392e5c52448810a2c09f61089bf78b8ff32c61554b3",
+   "cat_hash": {
+    "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+    "数据": "41afdf2d7860f304e5e6a96eed2d39c73a9f677b362ce4defb22126501fac75e",
+    "画像": "99a07442950555131ab86714cb0c14b94bd0ef83959aceae1fc400215eeefc78"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": null,
+   "changed": {
+    "added": [
+     "SKILL.md",
+     "persona/cases.md",
+     "persona/cases_index.md",
+     "persona/profile.md",
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "SKILL.md"
+    ],
+    "画像": [
+     "persona/cases.md",
+     "persona/profile.md",
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 115,
+    "removed": 0
+   },
+   "bytes_weight": 9501,
+   "why": "check-md 2026-10-22 08:00",
+   "code": {
+    "chain": "2c2f34ea95bc",
+    "distill": "ae56499edb86"
+   }
+  }
+ ],
+ "events": [],
+ "group": "active"
+}

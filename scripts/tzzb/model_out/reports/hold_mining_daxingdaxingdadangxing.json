@@ -1,0 +1,53 @@
+{
+ "skill": "daxingdaxingdadangxing",
+ "n": 33,
+ "days": [
+  "20260917",
+  "20261022"
+ ],
+ "base": {
+  "清仓": 14,
+  "减仓": 1,
+  "加仓": 3,
+  "持有": 15
+ },
+ "wf_cfg": {
+  "win": 40,
+  "hold": 10,
+  "min_test": 3,
+  "recent": 3,
+  "n_win": 0,
+  "span": null,
+  "first_test": null
+ },
+ "patterns": [],
+ "pair_min_n": 10,
+ "pair_patterns": [],
+ "seq_patterns": [],
+ "day_base": {
+  "n": 19,
+  "新开仓": 0.579,
+  "有卖出": 0.579,
+  "总仓位升>10pp": 0.263,
+  "总仓位降>10pp": 0.105,
+  "无成交": 0.158
+ },
+ "entry": {
+  "n_open": 15,
+  "size_all": {
+   "n": 15,
+   "median": 0.325,
+   "q1": 0.17,
+   "q3": 0.357,
+   "试仓<15%": 0.133,
+   "重仓≥50%": 0.2,
+   "recent_n": 0,
+   "recent_median": null
+  },
+  "by_play": [],
+  "by_play_label": "买点类型",
+  "by_tb": [],
+  "by_tb_label": "首笔买入时段",
+  "n_add": 3
+ }
+}

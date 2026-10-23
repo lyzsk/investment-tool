@@ -1,0 +1,83 @@
+{
+ "skill": "huweigang",
+ "unit": "skill",
+ "version": {
+  "v": 6,
+  "id": "v006_20261023-0038",
+  "ts": "2026-10-23T00:38:48",
+  "effective_from": "2026-10-23T00:38:41",
+  "unit": "skill",
+  "version_hash": "9955e33be21fd12f27e97f33c15d61222330041d501bbc90c305e81cfdf0f956",
+  "cat_hash": {
+   "数据": "4ed3be123ceaced3fd69ba3192ff7466d9327d31d7b2c7ebd5b1453fd4014404",
+   "画像": "8cfca404fc0f51fc86fdb2f628f5a66dd91f1ba46d0e3222c0e24b59c370706a"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v005_20261022-2020",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/cases.md",
+    "persona/cases_index.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "画像": [
+    "persona/cases.md"
+   ],
+   "数据": [
+    "persona/cases_index.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 9,
+   "removed": 6
+  },
+  "bytes_weight": 15815,
+  "why": "check-md 2026-10-22 00:38",
+  "code": {
+   "chain": "b45ef748d5ed",
+   "distill": "77132023b4d5"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "456db3ad195480e5278c6de1f4a16f71443422d5904cff9ee63fbeb05a4261aa",
+   "bytes": 14943,
+   "lines": 164,
+   "mtime": "2026-10-23T00:16:06",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/cases_index.md": {
+   "sha256": "0a0484ab98baea1fe7201cb8c53f692f15798198b0e812ed4db77498b09bc1cf",
+   "bytes": 872,
+   "lines": 6,
+   "mtime": "2026-10-23T00:38:41",
+   "cls": "数据",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "b45ef748d5ed",
+  "distill": "77132023b4d5",
+  "chain_files": {
+   "scripts/chain/run_chain.py": "9234e5ace876",
+   "skills/huweigang-skill/workflows/chain.md": null,
+   "skills/huweigang-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "8aa4869152ad"
+  },
+  "distill_files": {
+   "skills/huweigang-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "4cd7fadb2640",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "6fe01614c951"
+  }
+ }
+}

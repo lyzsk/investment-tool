@@ -1,0 +1,126 @@
+{
+ "skill": "market",
+ "unit": "skill",
+ "version": {
+  "v": 1,
+  "id": "v001_20261023-0800",
+  "ts": "2026-10-23T08:00:10",
+  "effective_from": "2026-10-23T08:00:00",
+  "unit": "skill",
+  "version_hash": "8a68ce4702f27a05a9add0869aac418caf1e162c4659de520adaa85661e24ef5",
+  "cat_hash": {
+   "提示词": "7b29b2f88ed10665439168f268f4a9ce229c440ecd07f2109514cccd798b4769",
+   "数据": "091eedd5ae687b2a18983b51fd191e12c7858c9ff5516e91c36e277aa94d33e4",
+   "画像": "cd5a3f8894cbf5789b3146008fb32a5c6335195d6b71318032f8f1197c748591"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": null,
+  "changed": {
+   "added": [
+    "SKILL.md",
+    "persona/cases.md",
+    "persona/cases_index.md",
+    "persona/profile.md",
+    "persona/rules.md",
+    "persona/rules_index.md"
+   ],
+   "modified": [],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "提示词": [
+    "SKILL.md"
+   ],
+   "画像": [
+    "persona/cases.md",
+    "persona/profile.md",
+    "persona/rules.md"
+   ],
+   "数据": [
+    "persona/cases_index.md",
+    "persona/rules_index.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 73,
+   "removed": 0
+  },
+  "bytes_weight": 8680,
+  "why": "check-md 2026-10-22 08:00",
+  "code": {
+   "chain": "558c59ea38f7",
+   "distill": "c5b0d4bb422e"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "d9ef11b4c3e1252c41ec694b0bf127fe55e82b45a38e7450ed4dfe0f4fd228a8",
+   "bytes": 598,
+   "lines": 9,
+   "mtime": "2026-10-23T02:25:10",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/cases_index.md": {
+   "sha256": "d6ee1da9051b63c2fabcd670e8933a07dcd46a2c62b75fbb052d3f82030ee1e7",
+   "bytes": 335,
+   "lines": 4,
+   "mtime": "2026-10-23T02:25:10",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "0ebad7c839c77c97ce6e9be789fda47e032b30aa6d6e149b9b9bc9212268c513",
+   "bytes": 892,
+   "lines": 7,
+   "mtime": "2026-10-23T02:25:10",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "f1bdd7d0ef941ffd097ee1de64dca8459fd4fb95d3a04e956c9aef56fb09a1c6",
+   "bytes": 3252,
+   "lines": 31,
+   "mtime": "2026-10-23T08:00:00",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules_index.md": {
+   "sha256": "4689f70031bb00b30676fa00fd6fb9c71f4aa3524f2933a7d0023bbb4a198b07",
+   "bytes": 2084,
+   "lines": 10,
+   "mtime": "2026-10-23T08:00:00",
+   "cls": "数据",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "a2bb332b1b8d5b1bc371f9ab1bca88956f2ef5282ccf13d11207cc0985b0b714",
+   "bytes": 1519,
+   "lines": 12,
+   "mtime": "2026-10-23T02:25:10",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "558c59ea38f7",
+  "distill": "c5b0d4bb422e",
+  "chain_files": {
+   "scripts/chain/run_chain.py": "9234e5ace876",
+   "skills/market-skill/workflows/chain.md": null,
+   "skills/market-skill/SKILL.md": "a2bb332b1b8d",
+   "scripts/dfcf/paper/params.yaml": "8aa4869152ad"
+  },
+  "distill_files": {
+   "skills/market-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "4cd7fadb2640",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "8b7e97373780"
+  }
+ }
+}

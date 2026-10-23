@@ -120,6 +120,84 @@
     "chain": "6de461b56cbd",
     "distill": "5cdfcb5b2318"
    }
+  },
+  {
+   "v": 5,
+   "id": "v005_20261022-2020",
+   "ts": "2026-10-22T20:20:09",
+   "effective_from": "2026-10-22T19:55:20",
+   "unit": "skill",
+   "version_hash": "e724c46ff4a833ef92d37ac31f348590ed740e715ee1e77794ed6bccb174da37",
+   "cat_hash": {
+    "数据": "4784694881249448885beb5416642f44b53e584891824e3b3424d6ba6df23e33",
+    "画像": "d9086406cfdb9925350e04d273a971bbf4c38c97e0f6979202dd3036bf96515b"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v004_20261021-0031",
+   "changed": {
+    "added": [
+     "persona/cases_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 6,
+    "removed": 0
+   },
+   "bytes_weight": 5721,
+   "why": "check-md 2026-10-22 20:20",
+   "code": {
+    "chain": "afe3846094d7",
+    "distill": "207e2304b3d5"
+   }
+  },
+  {
+   "v": 6,
+   "id": "v006_20261023-0038",
+   "ts": "2026-10-23T00:38:48",
+   "effective_from": "2026-10-23T00:38:41",
+   "unit": "skill",
+   "version_hash": "e85fe7f879db73310553c5495ce018f835aebe0b3a9187763d1544105dada4b5",
+   "cat_hash": {
+    "数据": "33e02e1e2b9493daf0258bde80e44ec47328dddb99fda06570f57287b4ae7b09",
+    "画像": "611c3cc9d0b628c4209cdea50ef8a292e62585068272e4a52124b620cfe5ce12"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v005_20261022-2020",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/cases_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md"
+    ],
+    "数据": [
+     "persona/cases_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 6,
+    "removed": 4
+   },
+   "bytes_weight": 5929,
+   "why": "check-md 2026-10-22 00:38",
+   "code": {
+    "chain": "afe3846094d7",
+    "distill": "5480511fc583"
+   }
   }
  ],
  "events": [],

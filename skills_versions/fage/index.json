@@ -63,7 +63,45 @@
     "chain": "cd5202824f72",
     "distill": "78c86eb57b51"
    }
+  },
+  {
+   "v": 3,
+   "id": "v003_20261022-1947",
+   "ts": "2026-10-22T19:47:44",
+   "effective_from": "2026-10-22T08:23:23",
+   "unit": "skill",
+   "version_hash": "be305cc7a3da3657fd4ce86e3efe68853b3d93d289d33b0a108e65d6704ddc34",
+   "cat_hash": {
+    "提示词": "552572d4e4432f395b921d0bbf8aa47fb40ef8be977ec2808e30ba3a9be94115",
+    "画像": "d5293786018d58f0c8c6c8b505ac2795310aff5bd8eb201a4f76ea660d9bb038"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v002_20261018-1713",
+   "changed": {
+    "added": [],
+    "modified": [
+     "PROCESS.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "PROCESS.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 0
+   },
+   "bytes_weight": 20794,
+   "why": "check-md 2026-10-22 19:47",
+   "code": {
+    "chain": "8346c9c00735",
+    "distill": "904201a6ed72"
+   }
   }
  ],
- "events": []
+ "events": [],
+ "group": "active"
 }

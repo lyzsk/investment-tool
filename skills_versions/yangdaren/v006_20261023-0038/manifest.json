@@ -1,0 +1,83 @@
+{
+ "skill": "yangdaren",
+ "unit": "skill",
+ "version": {
+  "v": 6,
+  "id": "v006_20261023-0038",
+  "ts": "2026-10-23T00:38:48",
+  "effective_from": "2026-10-23T00:38:42",
+  "unit": "skill",
+  "version_hash": "eaa6ba198dda1903245d987ba4fde850b8a1470095aaa41d59a145940f77e206",
+  "cat_hash": {
+   "数据": "9f2d914e22d5428a502e7599697eaf815c72775c5263eb7a9cafca69b656fa31",
+   "画像": "94f701c9f8285f3198cf985442c388ba7101c3d8ed315c6d9d73760ba921df26"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v005_20261022-2020",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/cases.md",
+    "persona/cases_index.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "画像": [
+    "persona/cases.md"
+   ],
+   "数据": [
+    "persona/cases_index.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 6,
+   "removed": 5
+  },
+  "bytes_weight": 5833,
+  "why": "check-md 2026-10-22 00:38",
+  "code": {
+   "chain": "33f7db3726ad",
+   "distill": "1869c7293142"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "12eb94193b895b24c8fc7d49eff9ae82380651354ba8f559c5b5e5294dc9be94",
+   "bytes": 4964,
+   "lines": 61,
+   "mtime": "2026-10-23T00:16:06",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/cases_index.md": {
+   "sha256": "ae77ff461a711fa513daa429745d600ab8f7be26d69cee8b04fd8e002e929bc1",
+   "bytes": 869,
+   "lines": 6,
+   "mtime": "2026-10-23T00:38:42",
+   "cls": "数据",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "33f7db3726ad",
+  "distill": "1869c7293142",
+  "chain_files": {
+   "scripts/chain/run_chain.py": "9234e5ace876",
+   "skills/yangdaren-skill/workflows/chain.md": null,
+   "skills/yangdaren-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "8aa4869152ad"
+  },
+  "distill_files": {
+   "skills/yangdaren-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "4cd7fadb2640",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "6fe01614c951"
+  }
+ }
+}

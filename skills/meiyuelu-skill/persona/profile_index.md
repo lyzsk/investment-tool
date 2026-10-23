@@ -1,7 +1,7 @@
-# profile_index.md — meiyuelu 导师画像目录(链改造 F; 生成于 2026-10-22 00:30)
-> 源: skills/meiyuelu-skill/persona/profile.md sha12=d343251306d1 · 165 行 · 30.5KB · 19 节(超长节按行切片≤6KB)
+# profile_index.md — meiyuelu 导师画像目录(链改造 F; 生成于 2026-10-22 19:13)
+> 源: skills/meiyuelu-skill/persona/profile.md sha12=06370c951f53 · 166 行 · 30.8KB · 19 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: --no-llm: 2 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill meiyuelu`(未变节复用标注)
+> 标注来源: 复用旧标注, 原标注=--no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill meiyuelu`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 0.0KB / 03 7.7KB / 04 15.1KB / 05 6.7KB / 06 20.6KB
 
 ## 核心摘要
@@ -39,4 +39,4 @@ T法(S16): 「空仓当天来回」33次, 全部在基金/转债上, 个股0次;
 | S16 | 【T法】（10/18 深度蒸馏） | T法: 仅基金空仓来回成立且薄, 白银底仓T限1~2月, 个股不做T | L118-127 | 3.4 | 03,06 | 2 | f2fedaa2 |
 | S17 | 【专题: 银行股与ETF(尤其纳指ETF)】（10/18 深度蒸馏） (1/2) | 专题上: 银行股大跌日防守买入、纳指ETF买卖时点与仓位 | L129-150 | 5.3 | 04,06 | 2 | 350688a7 |
 | S18 | 【专题: 银行股与ETF(尤其纳指ETF)】（10/18 深度蒸馏） (2/2) | 专题下: 黄金/跨境/宽基表现与可照做清单(纳指/银行/当天来回) | L151-157 | 3.4 | 04,05,06 | 2 | 19517e82 |
-| S19 | 10-21 当日行为(硬数据锚点) | (未标注: --no-llm) | L159-164 | 0.7 | — | 3 | 20a82e33 |
+| S19 | 10-21 当日行为(硬数据锚点) | (未标注: --no-llm) | L159-165 | 1.0 | — | 3 | d97b94bd |

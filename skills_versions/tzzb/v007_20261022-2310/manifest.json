@@ -1,0 +1,118 @@
+{
+ "skill": "tzzb",
+ "unit": "skill",
+ "version": {
+  "v": 7,
+  "id": "v007_20261022-2310",
+  "ts": "2026-10-22T23:10:28",
+  "effective_from": "2026-10-22T23:03:41",
+  "unit": "skill",
+  "version_hash": "9d768d22685f5e826e5397e894ef530143633e2d6dff02f7a9b8201c7a3f18ec",
+  "cat_hash": {
+   "提示词": "9d768d22685f5e826e5397e894ef530143633e2d6dff02f7a9b8201c7a3f18ec"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v006_20261022-1947",
+  "changed": {
+   "added": [],
+   "modified": [
+    "PROCESS.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "提示词": [
+    "PROCESS.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 1,
+   "removed": 0
+  },
+  "bytes_weight": 54834,
+  "why": "check-md 2026-10-22 23:10",
+  "code": {
+   "chain": "bc16f25a3b52",
+   "distill": "7c56801027f8"
+  }
+ },
+ "files": {
+  "PROCESS.md": {
+   "sha256": "034b1e524bc573564a1852c78d53437be4ae338b95f9454ec5e6903efe22cb1a",
+   "bytes": 28456,
+   "lines": 51,
+   "mtime": "2026-10-22T23:03:41",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/ledgers.md": {
+   "sha256": "1c2aa831c9118ba48b5a0e58ba63af6e2c257db936a945ea5a250bc4804739cd",
+   "bytes": 4817,
+   "lines": 50,
+   "mtime": "2026-10-15T03:11:54",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/negstats.md": {
+   "sha256": "0c8ab2f704db67265f6e432e0139a1ef597c921b073ebd2410d8044debad22a4",
+   "bytes": 1503,
+   "lines": 24,
+   "mtime": "2026-10-08T23:23:32",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/reject_rules.md": {
+   "sha256": "1504af9a6d164389e0b5bb43dab6dc679efbab2153fa41c4cefb70156ccc176c",
+   "bytes": 1670,
+   "lines": 19,
+   "mtime": "2026-10-09T22:19:24",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "62f7bb5c041be617730d0beb3424d04599c76e90a58896a90b6bc7f9fc9d0177",
+   "bytes": 2186,
+   "lines": 26,
+   "mtime": "2026-10-11T19:55:26",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/distill.md": {
+   "sha256": "53244c4654dc51b3fbb80c973fe873f05ec37a4d5d2df120a973bc2fb9941e54",
+   "bytes": 8726,
+   "lines": 74,
+   "mtime": "2026-10-18T16:19:49",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "workflows/sum.md": {
+   "sha256": "3ed18a5bddca7d5d00f52ff5214d6d3e68bf1c40f7ff1c77f5f77a14c324fc7b",
+   "bytes": 7476,
+   "lines": 109,
+   "mtime": "2026-10-17T22:41:18",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "bc16f25a3b52",
+  "distill": "7c56801027f8",
+  "chain_files": {
+   "scripts/chain/run_chain.py": "9234e5ace876",
+   "skills/tzzb-skill/workflows/chain.md": null,
+   "skills/tzzb-skill/SKILL.md": "62f7bb5c041b",
+   "scripts/dfcf/paper/params.yaml": "8aa4869152ad"
+  },
+  "distill_files": {
+   "skills/tzzb-skill/workflows/distill.md": "53244c4654dc",
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "4cd7fadb2640",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "0e27482a60d6"
+  }
+ }
+}

@@ -55,7 +55,7 @@ MUST = ("0931", "0945", "1000", "1030", "1100", "1130", "1303", "1330", "1400", 
 COOL_MIN = 3
 ASOF_S = 8      # 每分钟 :08 秒算 → 只看 ≤ HH:MM:07 的数据(_cut; 回放 / 续跑同口径, 无后见)
 STALE_MIN = 3   # 关注票最近 3 个交易分钟没有快照 = 已出名单(10/21 实测在名单的票最大间隔 1 分钟)
-IDX = {"SH": ("上证", "sh000001", 0.012), "CYB": ("创业板", "sz399006", 0.025), "CSI2000": ("中证2000", "sz399303", 0.025)}   # (名, ATR 取数代码(中证2000 用国证2000 近似), 缺省 ATR)
+IDX = {"SH": ("上证", "sh000001", 0.012), "CYB": ("创业板", "sz399006", 0.025), "GZ2000": ("国证2000", "sz399303", 0.025)}   # (名, ATR 取数代码, 缺省 ATR); 10/22 晚用户令小盘用国证2000(中证2000 只有东财有, 东财被封)
 EXT = {"A50": "A50连续", "NQ": "小纳指"}
 ATR_K, EXT_TH, WATCH_N, LABEL_TH, EXIT_TH = 0.3, 0.5, 3, 4, 1   # 滞回: ≥+4 进偏强, 回到 ≤+1 才退(偏弱对称), 防在阈值附近来回翻、反复触发子链
 
@@ -185,18 +185,58 @@ def book_rows(D, before):
     return out
 
 
+_I3 = {"D": None, "pos": 0, "rows": {}}
+I3_SYM = {"SH": "sh000001", "CYB": "sz399006", "GZ2000": "sz399303"}
+
+
+def idx3_rows(D):
+    """3 秒指数(collect_book → index_snap.jsonl, 和个股盘口同一个新浪请求, 零额外请求)增量尾读 → {sym: [(HH:MM:SS, p, pc)]}"""
+    f = MKT / D / "index_snap.jsonl"
+    if _I3["D"] != D:
+        _I3.update(D=D, pos=0, rows={})
+    if f.exists():
+        with f.open("rb") as fh:
+            fh.seek(_I3["pos"])
+            for l in fh:
+                if not l.endswith(b"\n"):
+                    break
+                _I3["pos"] += len(l)
+                try:
+                    r = json.loads(l)
+                except ValueError:
+                    continue
+                if r.get("p") and r.get("pc") and str(r.get("t", "")) >= "09:30:00":
+                    _I3["rows"].setdefault(r["s"], []).append((r["t"], float(r["p"]), float(r["pc"])))
+    return _I3["rows"]
+
+
 def idx_series(D, before):
-    """面板分钟价 → {key: [(hhmm, p, pc)]}, 只取当日 09:30 起、≤ before 的 HH:MM:07; A 股指数扣午休冻结行(11:31~12:59)和 15:00 后
+    """A 股三指数(上证 / 创业板 / 国证2000): 优先 3 秒指数(10/22 晚用户令: 面板约 85 秒一采, 3 秒快 1~2 分钟; 开关 OPEN_LIVE_IDX3, 默认开), 每个交易分钟取 ≤ HH:MM:07 的最后一笔;
+    3 秒数据缺(采集没起 / 回放旧日) → 退回面板分钟价(同一个指数, 都是新浪)。A50 / 小纳指 只有面板。
+    小盘指数 10/22 晚起用国证2000(用户令"贫民版"): 中证2000 只有东财有, 东财 push2 被封; 原来两者混用时 10/22 回放判定 20→52 次
+    → {key: [(hhmm, p, pc)]}, 只取当日 09:30 起、≤ before 的 HH:MM:07; A 股指数扣午休冻结行(11:31~12:59)和 15:00 后
     (A50 / 小纳指 含 09:30 前的点作起点, 午休照常交易不扣)"""
     by = PANEL.rows_of(D, before)
     cut = f"{D} {_cut(before)}"
     out = {}
+    i3 = idx3_rows(D) if os.environ.get("OPEN_LIVE_IDX3", "1") != "0" else {}
     for k in list(IDX) + list(EXT):
         rs = [r for r in by.get(k) or [] if r.get("ts", "").startswith(D) and r["ts"] <= cut]
         if k in EXT:
             out[k] = [(_hm(r["t"]), r["p"], r.get("pc")) for r in rs]
-        else:
-            out[k] = [(h, r["p"], r.get("pc")) for r in rs if (h := _hm(r["t"])) >= "0930" and h <= "1500" and not (AM_END < h < PM_START)]
+            continue
+        panel = [(h, r["p"], r.get("pc")) for r in rs if (h := _hm(r["t"])) >= "0930" and h <= "1500" and not (AM_END < h < PM_START)]
+        x3 = [x for x in i3.get(I3_SYM[k]) or [] if x[0] <= cut[-8:]]
+        if x3:
+            last = {}
+            for t, p, pc in x3:   # 每分钟最后一笔(≤ HH:MM:07 的那一分钟按截止算)
+                h = _hm(t)
+                if "0930" <= h <= "1500" and not (AM_END < h < PM_START):
+                    last[h] = (h, p, pc)
+            out[k] = [last[h] for h in sorted(last)]
+            if out[k]:
+                continue
+        out[k] = panel
     return out
 
 
@@ -205,7 +245,7 @@ def auction_part(D):
     s = a.get("symbols") or {}
     out = {}
     for k, (n, sym, _) in IDX.items():
-        x = s.get({"CSI2000": "sz399303"}.get(k, sym)) or s.get(sym)
+        x = s.get(sym)
         if x and x.get("fin"):
             out[n] = x["fin"].get("pct")
     return {"state": a.get("state"), "idx": out}

@@ -101,3 +101,14 @@ scripts/lhb/seat_profile.json
 
 # 10/21 晚: scripts/taoge-chain 改名 scripts/chain; 旧名是指向新目录的目录联接(junction), 只为应用重启前 Java 旧路径不断, 重启后删除, 不进 git
 scripts/taoge-chain
+
+# paper v3 资料目录的自动统计(每晚生成)
+scripts/paper_v3/catalog/catalog_stats.json
+
+### 10/23 凌晨隐私审计(用户令: 彩排后确认隐私都在 gitignore 里)
+# 归档快照: 含 paper 运行态账本, 其中 A-dmuyuan / A-tmuyuan / A-hmuyuan 跟随用户实盘(真实股数), 不进 git
+_archive/**
+# 实盘盯价 / 竞价提示脚本: 里面写的是用户实盘的止损价 / 分笔卖价(实盘只进 snapshots + 记忆)
+scripts/dfcf/*_alert*.py
+# 自测 / 回放用的假日期产物
+scripts/tzzb/mentor_cards/2099-*.json

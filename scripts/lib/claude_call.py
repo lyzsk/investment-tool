@@ -192,6 +192,7 @@ def call(prompt, *, tag, cwd=ROOT, timeout=1800, permission="acceptEdits", allow
     """跑一次 claude -p, 返回 Result(ok=信封成功 且 哨兵/JSON/文件核验都过). 不抛异常, 失败原因在 errors"""
     rot = _rotation() if use_rotation else None
     env = {k: v for k, v in os.environ.items() if k not in (drop_env or ())}   # 子进程继承宿主 ANTHROPIC_MODEL 会 400(10/11 实证)
+    env.setdefault("DISABLE_AUTOUPDATER", "1")   # 10/23 凌晨彩排实测: 交互会话 00:58 自动更新替换 claude.exe 约 3.5 分钟, 期间 claude -p 起不来 → 链失败; 后台 claude -p 一律不自更新
     env.update(_automemory_env())   # 10/18 自动记忆开关 CLAUDE_NO_AUTOMEMORY(默认 0=现状): 开=子进程注入 CLAUDE_CODE_DISABLE_AUTO_MEMORY=1
     base = claude_exe() + ["-p", "--output-format", "json"] + PERMISSIONS[permission]
     if allowed_tools:
@@ -214,7 +215,7 @@ def call(prompt, *, tag, cwd=ROOT, timeout=1800, permission="acceptEdits", allow
             except Exception:   # noqa: BLE001
                 pass
         t0 = time.time()
-        for _try in range(6):   # 10/17: claude 程序自更新那几秒 exe 不在/不完整 → 等几秒重试
+        for _try in range(9):   # 10/17: claude 程序自更新那几秒 exe 不在/不完整 → 等几秒重试; 10/23: 实测更新期 exe 缺 >3.5 分钟, 放宽到约 7 分钟
             try:
                 # 按字节传 UTF-8: text 模式在 Windows 会把 LF 写成 CRLF 且受本地编码影响
                 p = subprocess.run(args, input=prompt.encode("utf-8"), cwd=str(cwd), capture_output=True, timeout=timeout,
@@ -226,7 +227,7 @@ def call(prompt, *, tag, cwd=ROOT, timeout=1800, permission="acceptEdits", allow
                 break
             except OSError as e:   # exe 不存在/无法启动(多为自更新中): 重试, 6 次都失败才记进 errors
                 rc, out, err = -2, "", f"claude 启动失败 {args[0]}: {e}"
-                time.sleep(10 * (_try + 1))
+                time.sleep(min(60, 10 * (_try + 1)))
         res.duration_s = time.time() - t0
         res.returncode, res.stdout_tail, res.stderr_tail = rc, (out or "")[-2000:], (err or "")[-2000:]
         env_ok = True

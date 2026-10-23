@@ -1,0 +1,79 @@
+{
+ "skill": "mairutaiji",
+ "unit": "skill",
+ "version": {
+  "v": 5,
+  "id": "v005_20261022-2020",
+  "ts": "2026-10-22T20:20:09",
+  "effective_from": "2026-10-22T19:55:20",
+  "unit": "skill",
+  "version_hash": "b3cc85f62cbc07f8046266feca7d3ed12583ffe6d834cb7a5d4e62288f500399",
+  "cat_hash": {
+   "数据": "90ac1c075e2ad023630ab212510688f2be2c0fd61200cb8d21d2a0b423f5d542",
+   "画像": "261b35b87cf8dfba59e048029e26d7d4b4c31bcd260f2e5720fabae23fb83c83"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v004_20261021-0031",
+  "changed": {
+   "added": [
+    "persona/cases_index.md"
+   ],
+   "modified": [],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "数据": [
+    "persona/cases_index.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 6,
+   "removed": 0
+  },
+  "bytes_weight": 4768,
+  "why": "check-md 2026-10-22 20:20",
+  "code": {
+   "chain": "d6f53f38bdd7",
+   "distill": "233b0969cc7f"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "f510b22f241b23d02ee4d969863936d5dd950143162c28b3eb251b501077f377",
+   "bytes": 3960,
+   "lines": 51,
+   "mtime": "2026-10-21T00:16:15",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/cases_index.md": {
+   "sha256": "5828a582050cc0ee989564690d6c55c507782d43c3749bb8d9cf91174a6517af",
+   "bytes": 808,
+   "lines": 6,
+   "mtime": "2026-10-22T19:55:20",
+   "cls": "数据",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "d6f53f38bdd7",
+  "distill": "233b0969cc7f",
+  "chain_files": {
+   "scripts/chain/run_chain.py": "9234e5ace876",
+   "skills/mairutaiji-skill/workflows/chain.md": null,
+   "skills/mairutaiji-skill/SKILL.md": null,
+   "scripts/dfcf/paper/params.yaml": "8aa4869152ad"
+  },
+  "distill_files": {
+   "skills/mairutaiji-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "6cfba2dc7f3b",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "4cd7fadb2640",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "32805a6a292e"
+  }
+ }
+}

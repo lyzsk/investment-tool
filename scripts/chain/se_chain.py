@@ -34,8 +34,9 @@ import shadow_exec as SX   # noqa: E402
 
 MKT = ROOT / "downloads" / "market"
 CHAIN_BUDGET = 170
-STEP = {"02": (6000, 60),   # 10/21 晚: 02 篇幅不限后 11 次里 5 次撞 3000 上限没 JSON → 6000 / 60 秒
-         "03": (3000, 35), "04": (4500, 45), "05": (2000, 25), "06": (4500, 60)}   # (max_tokens 含思考, 秒上限); 10/21 首测 03 空方 1400 / 05 1000 撞上限
+STEP = {"02": (6000, 80),   # 10/21 晚: 02 篇幅不限后 11 次里 5 次撞 3000 上限没 JSON → 6000 / 60 秒
+         "03": (3000, 35), "04": (4500, 80), "05": (2000, 25), "06": (4500, 60)}   # 10/22 09:1x: high 04 在 112.5 秒(45×2.5)被截断 5 链首版作废、02 撞 150 秒 → 04 80 秒、02 80 秒; (max_tokens 含思考, 秒上限); 10/21 首测 03 空方 1400 / 05 1000 撞上限
+FIRST_BYTE = {"02": 75, "03": 50, "04": 60, "05": 30, "06": 70}   # 10/22 09:5x 首字看门狗(秒): 超过 = 卡死, claude_api 断开重发一次; 中转不回传思考, 实测首个内容事件 = 首字, 阈值取 10/21~22 成功调用首字 P95(02 72 / 03 42 / 04 53 / 05 28 / 06 67)略放宽
 POOL_MAX = 30
 RULES_INLINE_MAX = 150 * 1024   # rules.md 超过这个大小(桃哥 1.2MB)只给索引
 
@@ -153,6 +154,25 @@ def auction_snap(D, until):
                     out[c] = {"t": t, "px": b[0][0], "matched": b[0][1], "unmatched_buy": (b[1][1] if len(b) > 1 else 0), "unmatched_sell": (k[1][1] if len(k) > 1 else 0)}
     except OSError:
         pass
+    try:   # 10/22 用户追问发现: 澳弘 09:36 前不在 3 秒名单 → 土豆 09:24 那版 01 看不到它的竞价; 名单外的票补读新浪全市场竞价快照(collect_auction, 约 15 秒一张)
+        raw = MKT / D / "call_auction_open_raw.jsonl"
+        if raw.exists():
+            lim = D + "T" + min(until, "09:25:59")
+            for l in raw.read_text(encoding="utf-8", errors="replace").splitlines():
+                try:
+                    r = json.loads(l)
+                except ValueError:
+                    continue
+                if not ("T09:15:00" <= r.get("at", "")[10:] and r.get("at", "") <= lim):
+                    continue
+                c, f = str(r.get("symbol", ""))[2:], r.get("fields") or []
+                if c in out and out[c].get("src") != "sina" or len(f) < 32:
+                    continue
+                px = float(f[11] or 0)   # 竞价段: 买一价 = 虚拟撮合价, 买一量 = 匹配量, 买二量 = 未匹配买, 卖二量 = 未匹配卖(同 book_snap 口径)
+                if px:
+                    out[c] = {"t": f[31], "px": px, "matched": int(float(f[10] or 0)), "unmatched_buy": int(float(f[12] or 0)), "unmatched_sell": int(float(f[22] or 0)), "src": "sina"}
+    except OSError:
+        pass
     return out
 
 
@@ -242,6 +262,14 @@ def pool(skill, D, state, strategy, facts):
         src.setdefault(c, "持仓")
     for x in (strategy or {}).get("codes") or []:
         src.setdefault(str(x.get("code")), "上一版策略")
+    try:   # 10/22 用户令: 手动加进候选池(chain_flags.txt SE_POOL_EXTRA=代码逗号分隔, 每次触发现读; 排在导师本人 / 事实包前, 不被 30 只上限截掉)
+        for line in (ROOT / "scripts" / "claude_profile" / "chain_flags.txt").read_text(encoding="utf-8").splitlines():
+            k, _, val = line.split("#")[0].partition("=")
+            if k.strip() == "SE_POOL_EXTRA":
+                for c in re.findall(r"(?<!\d)\d{6}(?!\d)", val):
+                    src.setdefault(c, "用户加")
+    except OSError:
+        pass
     pat = r"(?<!\d)([036]\d{5}|11\d{4}|12\d{4}|15\d{4}|5[16]\d{4})(?!\d)"
     head = mentors.head(skill)
     i = facts.find(head) if head else -1
@@ -418,7 +446,7 @@ def build_01(skill, D, at, why, state, strategy, fired, quotes, facts, open_text
 
 # ---------------- 02~06 ----------------
 PERSONA_PROFILE_CAP = 20000   # 画像按步适用节原文合计上限(字节)
-PERSONA_RULES_CAP = 30000     # 按编号捞的规则全文合计上限
+PERSONA_RULES_CAP = 64000     # 规则全文合计上限(10/22 用户令去路径依赖: 30KB→64KB, 不再只给上一版引用过的)
 PERSONA_CASES_CAP = 12000     # 按候选池票名捞的案例全文合计上限
 RID_RE = re.compile(r"(?<![A-Za-z0-9])([A-Z]{1,3}\d{1,3}[a-z]?)(?![A-Za-z0-9])")
 
@@ -441,7 +469,7 @@ def cited_ids(skill, strategy, prev_texts):
     return seen
 
 
-def persona(skill, cited, pool_names):
+def persona(skill, cited, pool_names, pool_codes=()):
     """10/21 晚用户令(B3 推广到全部有索引的文件): 常驻 = 画像核心摘要 + 画像目录 + 规则索引 + 指纹; 原文只按需捞:
     画像 = profile_index 里"适用步骤"含 02~06 的节(按优先级装到上限); 规则 = 上一版引用过的编号; 案例 = 标题里出现候选池 / 持仓票名的卡。
     返回 (常驻块, 按需块, 说明 dict)"""
@@ -482,23 +510,43 @@ def persona(skill, cited, pool_names):
         m = RID_RE.match(t[4:].strip())
         if m:
             rs.setdefault(m.group(1), body)
-    got, used = [], 0
-    for c in cited:
-        b = rs.get(c)
-        if b and used + len(b.encode()) <= PERSONA_RULES_CAP:
-            got.append(b)
-            used += len(b.encode())
+    # 10/22 用户令(去路径依赖): 原来只给"上一版引用过的"规则全文 → 第一版没引用到的规则(如卖点)永远只剩一句话索引。
+    # 改为按优先级装满上限: ① 上一版引用过的 ② 正文提到当前候选 / 持仓票名或代码的 ③ 其余按规则文件原顺序; 装不下的仍有索引一句话
+    keys = [k for k in [*pool_names, *pool_codes] if k]
+    order = list(dict.fromkeys([*[c for c in cited if c in rs], *[k for k, b in rs.items() if any(x in b for x in keys)], *rs.keys()]))
+    got, used, n_cited = [], 0, 0
+    for c in order:
+        b = rs[c]
+        if used + len(b.encode()) > PERSONA_RULES_CAP:
+            continue
+        got.append(b)
+        used += len(b.encode())
+        n_cited += c in cited
     if got:
-        var.append(f"# 规则全文(上一版引用过的 {len(got)} 条)\n" + "\n\n".join(got))
-    info["rules"] = f"{len(got)}/{len(cited)} 条 {used / 1024:.1f}KB"
-    cs, used = [], 0
-    for t, _, body in _sections(rd(d / "cases.md"), re.compile(r"^### ")):
-        if any(n and n in t for n in pool_names) and used + len(body.encode()) <= PERSONA_CASES_CAP:
-            cs.append(body)
-            used += len(body.encode())
+        var.append(f"# 规则全文({len(got)}/{len(rs)} 条; 先上一版引用过的, 再提到当前票的, 再按原顺序装到 {PERSONA_RULES_CAP // 1024}KB)\n" + "\n\n".join(got))
+    info["rules"] = f"{len(got)}/{len(rs)} 条(含上一版引用 {n_cited}/{len(cited)}) {used / 1024:.1f}KB"
+    # 10/22 用户令: 原来只认"### 标题含票名"的卡 → 土豆的案例是按"逃顶 / 卖飞"分节的大表, 票名都在表格行里, 一张也匹配不上。
+    # 改为两级: 标题含票名 → 整节; 否则逐行扫(表格行 / 列表行), 含票名或代码的行连同所在节标题 + 表头一起给
+    cs, used, n_rows = [], 0, 0
+    for t, _, body in _sections(rd(d / "cases.md"), re.compile(r"^#{2,3} ")):
+        if any(k in t for k in keys):
+            if used + len(body.encode()) <= PERSONA_CASES_CAP:
+                cs.append(body)
+                used += len(body.encode())
+            continue
+        lines = body.split("\n")
+        hdr = next((i for i, l in enumerate(lines) if l.startswith("|") and i + 1 < len(lines) and set(lines[i + 1].replace("|", "").strip()) <= set("-: ")), None)
+        hit = [l for l in lines[1:] if l.startswith(("|", "- ", "* ")) and any(k in l for k in keys)]
+        if not hit:
+            continue
+        blk = "\n".join([lines[0], *([lines[hdr], lines[hdr + 1]] if hdr is not None else []), *hit])
+        if used + len(blk.encode()) <= PERSONA_CASES_CAP:
+            cs.append(blk)
+            used += len(blk.encode())
+            n_rows += len(hit)
     if cs:
-        var.append(f"# 案例原文(标题含当前候选 / 持仓票名的 {len(cs)} 张)\n" + "\n\n".join(cs))
-    info["cases"] = f"{len(cs)} 张 {used / 1024:.1f}KB"
+        var.append(f"# 案例原文(含当前候选 / 持仓票名或代码的 {len(cs)} 处, 其中表格 / 列表行 {n_rows} 条)\n" + "\n\n".join(cs))
+    info["cases"] = f"{len(cs)} 处 / 行 {n_rows} {used / 1024:.1f}KB"
     return "\n\n".join(stable), "\n\n".join(var), info
 
 
@@ -550,7 +598,7 @@ def run(skill, D, at, why, state, strategy, fired, quotes, facts, open_text, pre
     nm = names(D)
     pool_names = [nm.get(c) for c in P if nm.get(c)]
     cited = cited_ids(skill, strategy, [prev02])
-    stable, var, pinfo = persona(skill, cited, pool_names)
+    stable, var, pinfo = persona(skill, cited, pool_names, list(P))
     # 10/21 晚用户定: skills / 07 复盘 / md 原文 / 今日更早版本推理 / 拓扑 —— 脚本按本次涉及的票和规则编号检索, 摘相关段落附上(零 token)
     try:
         import se_lookup as LK
@@ -583,10 +631,12 @@ def run(skill, D, at, why, state, strategy, fired, quotes, facts, open_text, pre
         tools_ = {"defs": [LK2.TOOL], "max_calls": 2,
                   "run": lambda name, args: LK2.lookup(skill, D, _ld, (args or {}).get("query"), (args or {}).get("source") or "all")}
 
-    def call(step, user, mt, lim, own=False):
+    def call(step, user, mt, lim, own=False, floor=0, eff=None):
         """own=True: 本步用自己的时限, 不和整条预算抢(10/21 晚: 05)"""
-        r = API.stream(system=sysb, user=user, tools=tools_, model=model, tag=f"se-chain-{tag_skill or skill}-{'shadow-' if str(why).startswith('(影子)') else ''}{effort}-{step}", max_tokens=mt, effort=effort, deadline_s=lim if own else min(lim, max(5, left() - 5)))
-        T["steps"][step] = {"secs": r.secs, "ttft": r.ttft, "ok": r.ok, "out": (r.usage or {}).get("output_tokens"), "cache_read": (r.usage or {}).get("cache_read_input_tokens"),
+        dl = lim if own else max(floor, min(lim, max(5, left() - 5)))   # floor: 本步保底秒数(10/22: 06 保底 60 秒, 关键节点不被前面卡死饿死)
+        r = API.stream(system=sysb, user=user, tools=tools_, model=model, tag=f"se-chain-{tag_skill or skill}-{'shadow-' if str(why).startswith('(影子)') else ''}{eff or effort}-{step}", max_tokens=mt, effort=eff or effort, deadline_s=dl,
+                       first_byte_s=FIRST_BYTE.get(step[:2]))
+        T["steps"][step] = {"secs": r.secs, "ttft": r.ttft, "first_ev": r.first_ev, "gate_wait": r.gate_wait, "stuck_retry": r.stuck_retry, "ok": r.ok, "out": (r.usage or {}).get("output_tokens"), "cache_read": (r.usage or {}).get("cache_read_input_tokens"),
                             "cache_write": (r.usage or {}).get("cache_creation_input_tokens"), "usd": r.cost_usd, "err": r.error[:120]}
         (out / f"{step}.md").write_text(r.text or f"(失败: {r.error})", encoding="utf-8")
         return r
@@ -608,6 +658,9 @@ def run(skill, D, at, why, state, strategy, fired, quotes, facts, open_text, pre
     # 04
     r4 = call("04_pick", f"## 02 市况\n{m02}\n\n{d03}\n\n" + ASK["04"], *sc("04"))
     cost += r4.cost_usd
+    if not r4.ok and len(r4.text or "") >= 400 and not r4.error.startswith("卡死"):   # 10/22 用户令: 写了大半被时限掐断 / 没写 json 块 ≠ 系统错, 用已写的部分接着走(04 正文就是给 06 读的)
+        r4.ok = True
+        T["steps"]["04_pick"]["salvaged"] = f"部分输出 {len(r4.text)} 字照用({r4.error[:40]})"
     if not r4.ok:
         T["result"] = "04 失败, 本次作废沿用上一版"
         T["total"] = round(time.time() - t0, 1)
@@ -628,8 +681,23 @@ def run(skill, D, at, why, state, strategy, fired, quotes, facts, open_text, pre
     pre = at < "09:25:00"
     a06 = ASK["06"].format(auction="现在是集合竞价阶段: 想在 09:25 竞价成交的规则加 \"auction\": true(按 09:25 撮合价一次成交: 买价 ≥ 撮合价 / 卖价 ≤ 撮合价), 没加的规则 09:30 起才生效。" if pre else "",
                            auc_field='"auction": true|false, ' if pre else "")
-    r6 = call("06_final", f"## 02 市况\n{m02}\n\n## 04 选票\n{r4.text}\n\n## 05 风控\n{d05}\n\n" + a06, *sc("06"))
+    u6 = f"## 02 市况\n{m02}\n\n## 04 选票\n{r4.text}\n\n## 05 风控\n{d05}\n\n" + a06
+    r6 = call("06_final", u6, *sc("06"), floor=60)
     cost += r6.cost_usd
+    # 10/22 用户令(06 失败分原因): ①写了但没写完(时限掐断 / 没出 json 块) → 不作废: 已写部分里有完整 json 就照用, 没有就让它按草稿立刻收尾出 json ②卡死 / API 报错(一个字没有) → 才作废重试
+    if not r6.ok and r6.text:
+        j6 = API.last_json(r6.text)
+        if isinstance(j6, dict) and j6.get("codes") is not None:
+            r6.json, r6.ok = j6, True
+            T["steps"]["06_final"]["salvaged"] = "截断前已写出完整 json, 照用"
+        elif len(r6.text) >= 200:
+            n6 = len(r6.text)
+            rf = call("06_finish", u6 + f"\n\n## 你上一轮已写的草稿(时限到被截断, 没写完)\n{r6.text[-6000:]}\n\n**现在只做一件事: 按草稿已有的结论, 立刻输出最终 ```json 块(字段同上面要求), 不要再分析, json 之外最多 3 句话。**",
+                      *sc("06"), own=True, eff="low")   # 收尾只是照草稿誊 json, 用 low 求快(不是 low 实验)
+            cost += rf.cost_usd
+            if rf.ok and isinstance(rf.json, dict) and rf.json.get("codes") is not None:
+                r6 = rf
+                T["steps"]["06_final"]["salvaged"] = f"草稿 {n6} 字 → 06_finish 收尾出 json"
     T["total"] = round(time.time() - t0, 1)
     T["usd"] = round(cost, 4)
     s = None
@@ -638,7 +706,7 @@ def run(skill, D, at, why, state, strategy, fired, quotes, facts, open_text, pre
         s["chain"] = {"02": r2.json, "03": {"bull": sb, "bear": sr, "div": div}, "04": r4.json, "05": (r5.json if r5 is not None else None)}
         T["result"] = "ok"
     else:
-        T["result"] = f"06 失败({r6.error}), 本次作废沿用上一版"
+        T["result"] = f"06 失败({r6.error}), 本次作废沿用上一版" + ("(卡死 / API 错, 无草稿可收尾)" if not r6.text else "(收尾也没出 json)")
     for k, r in (("02_market", r2), ("03_bull", rb), ("03_bear", rr), ("04_pick", r4), ("05_risk", r5), ("06_final", r6)):
         if r is not None and r.json is not None:
             (out / f"{k}.json").write_text(json.dumps(r.json, ensure_ascii=False, indent=1), encoding="utf-8")

@@ -94,7 +94,7 @@ CHAIN_ATTRIBUTION=1   # 10/20 晚用户批 ④: 07 注入归因推导链(attribu
 CHAIN_PACK07=1   # 10/21 凌晨用户批: 07 素材包(pack07.py): 当日行情 / 导师腿 / 引用规则 + 相似规则 / cases 错题 / lessons / 多日结算 / 知识库目录, 包头覆盖表; 公用部分落盘 results/_pack07/<日>/ 增量
 EVENT_CHAIN_SKILLS=   # 10/21 08:15 用户澄清: 旧 paper 全停(土豆例外), 事件触发子链不上线(空=全关); 机制留着备用, 开=填链名
 MIX_OFF=A-mix,A-mix-lhb,A-mix-sw   # 10/21 12:2x 用户令停: 三本从建账起从未出过单(准入要 ≥2 链共识且含高权重链, 高权重链恰是很少交易的链), 只留 A-mix-eq; 零 token, 账本保留
-SE_FLEET=1   # 10/21 晚用户令: 10/22 起 15 位导师全部用新 paper(策略执行器), check md 每 5 分钟 se_fleet.py --ensure 拉起; 0 = 全停
+SE_FLEET=0   # 10/21 晚用户令: 10/22 起 15 位导师全部用新 paper(策略执行器), check md 每 5 分钟 se_fleet.py --ensure 拉起; 0 = 全停
 SE_FLEET_SKILLS=zhiyingjuexin,xingjianye,liuyiqing,buchitudou0   # 10/21 23:5x 用户改: 只跑前 3(芷影 / 星见野 / 刘忆青) + 土豆竞价测试; 10/21 晚用户加: 土豆只做竞价测试(SE_AUC_TEST_SKILLS); 10/21 晚用户定: 只开近 60 日日均收益率前 5; 原注释: 空 = mentors.active_ids() 全体(已去掉 paper_excluded 和对照组); 要只跑几条就写逗号分隔
 SE_GENESIS=2026-10-22   # 10/21 晚用户令: 这天起执行器 10 万现金从 0 开始, 之后每天接前一交易日影子账收盘状态; 旧 paper 账目归档在 scripts/dfcf/paper/_archive/20261021_oldpaper/
 # 10/21 晚: 策略执行器只有这些链推微信(逗号分隔, * = 全推; 其余只落盘 results/_live/<日>/se_<链>/)
@@ -113,10 +113,10 @@ SE_COST_ALERT=0   # 10/21 晚用户令: 花费提醒去掉(0 = 不告警)
 SE_FIRST=09:00:00
 SE_FIRST_EFFORT=high
 SE_AUC_AT=09:21:00
-SE_AUC_EFFORT=low
+SE_AUC_EFFORT=high   # 10/22 09:4x 用户令: 只跑 high(原 low)
 SE_EFFORT=high
 # 每次触发用同一份 01 再跑一条影子链(只落盘不执行, 实验 1: low vs high); 空 = 不跑
-SE_SHADOW_EFFORT=low
+SE_SHADOW_EFFORT=   # 10/22 09:4x 用户令: 不做 low 对比, low 影子停
 # 指数事件(θ 0.35)/ 剪刀差(国证2000 − 上证)只记日志不叫链(实验 5)
 SE_LOG_EVENTS=1
 # 10/21 晚用户令: 这些链只做竞价测试 —— SE_AUC_TEST_AT 用同一份 01 同时跑 low(正式) + high(影子), 两条落地就收盘, 不进连续竞价
@@ -126,7 +126,33 @@ SE_AUC_TEST_END=10:00   # 10/22 08:1x 用户令: 土豆进程跑到 10:00 后才
 # 10/21 晚: 尾盘竞价版固定这个时刻必跑一版(effort 按 SE_EFFORT), 规则进 14:57~15:00 尾盘竞价, 15:00:03 一次撮合
 SE_TAIL_AT=14:51:00
 # 10/21 晚用户令: 芷影再加一个对照 —— effort 全 high、每步不限时长(自然结束)、跑到 11:30 收盘(独立影子账 10 万, 目录 se_zhiyingjuexin@nolimit)
-SE_FLEET_VARIANTS=zhiyingjuexin@nolimit,zhiyingjuexin@keepband,zhiyingjuexin@toolcall,zhiyingjuexin@repeat,zhiyingjuexin@low,zhiyingjuexin@sonnet_low,zhiyingjuexin@sonnet_high   # repeat = 同配置再跑一份(噪声); low = 全天 low 真成交; sonnet_low / sonnet_high = 换 Sonnet 5.5; toolcall = 对照 C: 模型可调 lookup 查料; keepband = 对照: 停触发期间"出区间"照样叫链(其余同芷影正式版, 不跑影子链)
+SE_FLEET_VARIANTS=   # 10/22 09:4x 用户令: 只做 high, 7 个芷影变体全停(原值见 scripts/temp/chain_flags_before_highonly_*.txt)   # repeat = 同配置再跑一份(噪声); low = 全天 low 真成交; sonnet_low / sonnet_high = 换 Sonnet 5.5; toolcall = 对照 C: 模型可调 lookup 查料; keepband = 对照: 停触发期间"出区间"照样叫链(其余同芷影正式版, 不跑影子链)
 SE_NOLIMIT_END=11:30
 # 10/21 晚用户令: 满仓 / 现金买不起 1 手 → 停这条 paper 的事件触发(固定时刻的版本照跑); 0 = 关
 SE_FULL_PAUSE=1
+SE_POOL_EXTRA=   # 10/22 08:4x 用户令只加当天(灵康药业 603669 + 灵康转债 113610), 10/22 晚清空; 空 = 不加
+API_MAX_INFLIGHT=8   # 10/22 09:4x 用户令: 全进程直连 API 在途请求上限(claude_api.py 跨进程文件锁; 0 = 不限)
+# ---- paper v3(10/22 晚建, 10/23 起; scripts/paper_v3/, 8 本账见 lines.json) ----
+V3_FLEET=1   # 1 = 08:52 计划任务 PaperV3Fleet + check md 每 5 分钟拉起 / 崩溃重拉; 0 = 整体关
+V3_LINES=   # 空 = lines.json 全部账本(10/23 起 11 本); 填线号逗号分隔 = 只跑这几本
+V3_EFFORT=high
+V3_FIRST=09:00:00   # 启动会话时刻, 第 i 本 + 20 秒错峰
+V3_AUC_AT=09:20:00   # 竞价复核(04→06, 跳过 05), 10/22 按 v2 high 耗时倒推最慢 09:24:24 落地
+V3_TAIL_AT=14:51:00   # 尾盘版, 第 i 本 + 8 秒错峰
+V3_BAND_HOLD_S=60   # 出 band 持续满 N 秒才算触发(去开盘尖刺; 10/22 芷影出区间 6 次用光上限)
+V3_CAP_FROM=10:30   # 10/22 晚用户令: 自由触发(出区间 / 翻转)10:30 前不计上限, 10:30 起才计(上限 12)
+V3_CAP_K=5   # 10/22 23:3x 用户令上限改回动态: ceil(K × 导师近 20 个交易日日均出手) 夹在 [MIN, MAX]; 决策 T 线固定 V3_CAP_DT
+V3_CAP_MIN=6
+V3_CAP_MAX=20
+V3_CAP_DT=8
+V3_MAX_INFLIGHT=auto   # 10/23 用户令: 理论最大并发 13(11 本各 1 条链 + 芷影 03 两个分叉), 上限取高一点防特殊 bug = 全部同花顺导师 skill + 3 位 B 站 UP skill 的个数(现 25 + 3 = 28, 随导师增加自动变); 填数字 = 固定值
+V3_SIGMA_DYNAMIC=1   # 10/23 01:2x 用户令: 防超频去抖按票的噪声单位 σ = max(近 5 日日内振幅中位, 近 30 分钟 5 分钟振幅中位) 动态定; 0 = 退回固定 V3_BAND_HOLD_S 秒
+V3_BAND_M=0.1   # 出区间: 越过边沿 ≥ 0.1σ 才开始计时(零 token 验证 results/inv-stock/test/cooldown_validate.md: 噪声 −55%, 漏掉有意义 +1~2)
+V3_BAND_BASE=15   # 出区间: 持续 clamp(15 × σ% / 3%, 30, 180) 秒才算
+V3_WAKE_R=0.15   # 叫醒条件重新待命: 价格退到价位另一侧 ≥ 0.15σ 并待满 30 秒(10/23 用户在 0.1~0.15 间让我定: 噪声 −70%, 抓到"二次突破" 47%; 0.1→0.15 每少 1 个行情少 17 次噪声、再往上收益递减; 五套口径一致)
+V3_TMO_MIN=600   # 每轮超时 = clamp(K × 本线今天这一步最长耗时, MIN, MAX) 秒, 启动轮 = MAX; 只防真挂死, 关键时段不缩短(竞价有草稿兜底)
+V3_TMO_K=3
+V3_TMO_MAX=1800
+V3_PUSH_LINES=tudou,liuyiqing,zhiying,zhiying_03,bank   # 10/23 用户令: 土豆 / 刘忆青 / 芷影三本主线 + 芷影带 03 + 中行决策T 出现挂单推微信(挂单变了才推, 盘前版 / 竞价版必推, 成交照推); 空 = 都不推(告警除外)
+V3_CACHE_TTL=1h   # 10/23 00:5x 实测中转站支持 1 小时提示缓存(5 分钟档: 叫醒间隔 >5 分钟就整段重写 33 万 token ≈ $1.7/次; 彩排 9 分钟 $51); 空 = 默认 5 分钟
+V3_KEEPALIVE_MIN=50   # 双保险(用户令): 一本账空闲满 50 分钟(09:30~14:50)发一句短话续缓存, 约 $0.1~0.2/次(午休 90 分钟中间续一次); 0 = 不保温

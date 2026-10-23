@@ -11,7 +11,7 @@
   改过的节自动跳过+告警(不会注入过期行号的内容), 所以 distill 改了 profile.md 后不重跑本脚本也不会注入错位原文。
 用法:
   scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill taoge [--refresh] [--no-llm]
-  scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --all          # 14 条股票链 skill(不含转债链 buchitudou0)
+  scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --all          # 全体导师 + 品种 skill(10/22 起含土豆、银行、纳指)
 出口: 0=ok 1=某 skill 失败(模型标注失败时不写文件, 旧索引保留)
 """
 import argparse, hashlib, json, re, sys
@@ -24,7 +24,7 @@ SMALL = 8000          # 画像总大小 ≤ 此值 = 不调模型, 全注入
 STEPS = ("02", "03", "04", "05", "06")
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 import mentors  # noqa: E402  10/17 二B-4: 导师登记表
-STOCK_SKILLS = [m for m in mentors.ids() if m != "buchitudou0"]   # 股票链 = 全体链去掉转债链
+STOCK_SKILLS = [*mentors.ids(), *[s for s in ("bank", "nasdaq") if s not in mentors.ids()]]   # 10/22 用户令: 土豆原被排除 → 画像被硬截 20KB; 改为全体导师 + 品种 skill(银行 / 纳指)都建索引
 HEAD_RE = re.compile(r"^(#{1,4})\s+(.+?)\s*$")
 
 

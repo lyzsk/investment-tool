@@ -101,7 +101,7 @@ class Feed:
                         continue
                     if r.get("p"):
                         self.q[str(r["s"])[2:]] = {"p": float(r["p"]), "t": r.get("t"), "b1": (r.get("b") or [[0]])[0][0], "a1": (r.get("k") or [[0]])[0][0],
-                                                   "b": r.get("b"), "k": r.get("k")}
+                                                   "b": r.get("b"), "k": r.get("k"), "v": r.get("v")}   # v = 全天累计成交量(v3 排队成交判断用)
         miss = [c for c in codes if c not in self.q or self._stale(c)]
         if miss and time.time() - self.extra_t >= 10:
             self.extra_t = time.time()
@@ -470,7 +470,7 @@ px 在涨跌停之间; qty 为 100 的整数倍(卖出可等于全部可卖); �
                         self.ev(kind="重定失败", errors=r.errors[:3], n_fail=k)
                         if k < 3:   # 失败不丢: 90 秒后带原因自动再叫(不占上限), 连续 3 次都失败才放弃
                             self.retry = (time.time() + 90, why)
-                        self.wx(f"【{self.skill} 策略执行器】重定失败({k}/3), 沿用上一版{', 90 秒后自动重试' if k < 3 else ', 不再重试'}: {'; '.join(r.errors[:2])[:160]}")
+                        self.wx(f"【{self.skill} 策略执行器】重定失败({k}/3), 沿用上一版{', 90 秒后自动重试' if k < 3 else ', 不再重试'}: {'; '.join(r.errors[:2])[:160]}", alert=k >= 2)   # 10/22 09:1x 补: TODO 1.6 写的"失败第 2 次起推告警"原来只覆盖代码异常, 链失败没告警
                         return
                     self.fail_n, self.retry = 0, None   # 成功了就撤掉挂着的重试
                 s, dropped = self.check(s)
@@ -737,10 +737,16 @@ px 在涨跌停之间; qty 为 100 的整数倍(卖出可等于全部可卖); �
                 p = q["p"]
                 for r in x.get("rules") or []:
                     key = f"{self.ver}:{c}:{r['id']}"
+                    if r.get("type") == "board_dip":   # 10/22 晚(v3): 炸板接单由 paper_v3/executor 单独撮合(要看"今天封过板 + 现在开板 + 落在区间"), 这里跳过; v2 规则没有 type
+                        continue
+                    if r.get("after") and not any(str(t.get("rule", "")) == f"{self.ver}:{c}:{r['after']}" for t in self.state.get("trades") or []):
+                        continue   # 10/22 深夜(v3): 前置条件 —— after 指的那张单成交之前, 这张不生效(先卖后买 / 先买后卖的顺序); v2 规则没有 after
                     if key in self.fired or (auction is True and not (r.get("auction") and s.get("auc_submitted"))) or (auction != True and r.get("carried")):   # noqa: E712   # ★12: 只撮合已挂出的竞价单(草稿不撮合); 冻结沿用的竞价单 09:30 后不当限价单
                         continue
                     if auction:
                         hit = r["px"] >= p if r["side"] == "BUY" else r["px"] <= p
+                    elif r.get("rest"):   # 10/23 凌晨用户定"穿价 + 成交量"双保险: 排队单 = 价格穿过挂单价才成交; 正好碰到挂单价时, 要累计成交量超过挂单时排在前面的量(_queued_ok, 由 v3 executor 维护)
+                        hit = (p < r["px"] if r["side"] == "BUY" else p > r["px"]) or (p == r["px"] and bool(r.get("_queued_ok")))
                     else:
                         hit = p <= r["px"] if r["side"] == "BUY" else p >= r["px"]
                     if not hit:
@@ -761,11 +767,17 @@ px 在涨跌停之间; qty 为 100 的整数倍(卖出可等于全部可卖); �
                         px = p
                         n = min(r["qty"], AR.round_qty(c, (self.state["cash"] - max(5.0, self.state["cash"] * 0.0003)) / px)) if r["side"] == "BUY" else min(r["qty"], pos["sellable"])
                     elif r["side"] == "BUY":
-                        px = min(r["px"], q.get("a1") or p) or p
+                        # 10/22 晚(v3): 挂单时就在排队的单(rest = 当时买价 < 现价) 被价格穿过时按挂单价成交, 不享受"价格改善";
+                        # 例 星光 10/22 09:40 开板砸到 2.58, 2.70 排板单实际在 2.70 成交, 原逻辑按 2.58 买 → 账面虚高 4.4%。v2 规则没有 rest 字段, 行为不变
+                        px = r["px"] if r.get("rest") else (min(r["px"], q.get("a1") or p) or p)
                         n = min(r["qty"], AR.round_qty(c, (self.state["cash"] - max(5.0, self.state["cash"] * 0.0003)) / px))
+                        if not r.get("rest") and r.get("depth"):   # 10/22 晚(v3): 立刻成交的单按盘口深度吃档(卖一量不够吃到卖二、卖三), 加权价; 限价内深度不够只成交够的部分
+                            px, n = depth_fill(q.get("k"), r["px"], n, "BUY", c) or (px, n)
                     else:
-                        px = max(r["px"], q.get("b1") or p)
+                        px = r["px"] if r.get("rest") else max(r["px"], q.get("b1") or p)
                         n = min(r["qty"], pos["sellable"])
+                        if not r.get("rest") and r.get("depth"):
+                            px, n = depth_fill(q.get("b"), r["px"], n, "SELL", c) or (px, n)
                     self.fired.add(key)
                     if n <= 0:
                         self.ev(kind="规则命中但没钱/没可卖", rule=key, p=p)
@@ -1124,6 +1136,12 @@ px 在涨跌停之间; qty 为 100 的整数倍(卖出可等于全部可卖); �
             if now().strftime("%H:%M:%S") >= t_end + ":00":   # 10/21 晚回放: 原 hm > "14:57" 要到 14:58 才停
                 break
             tail_at = flag("SE_TAIL_AT", "")   # 10/21 晚(尾盘竞价): 固定时刻必跑一版(high), 15:00 前出结果进尾盘竞价
+            if tail_at and not self.variant:   # 10/22 09:4x 用户令错峰: 按 SE_FLEET_SKILLS 顺序每条晚 8 秒(14:51:00 / :08 / :16), 不同一秒挤 API
+                try:
+                    _i = [x.strip() for x in flag("SE_FLEET_SKILLS", "").split(",") if x.strip()].index(self.skill)
+                    tail_at = (dt.datetime.strptime(tail_at, "%H:%M:%S") + dt.timedelta(seconds=8 * _i)).strftime("%H:%M:%S")
+                except ValueError:
+                    pass
             if tail_at and now().strftime("%H:%M:%S") >= tail_at and not getattr(self, "_tail_run", False):
                 self._tail_run = True
                 if not any(e.get("tag") == "tail" for e in self._events()):
@@ -1182,6 +1200,22 @@ px 在涨跌停之间; qty 为 100 的整数倍(卖出可等于全部可卖); �
             self.ev(kind="收盘时链还没跑完", note="15:00 后落地的版本不再撮合")
         self.close()
         self.heartbeat("已收盘")
+
+
+def depth_fill(levels, limit, n, side, code):
+    """按五档吃单: levels = [[价, 量], ...](买单传卖盘 k, 卖单传买盘 b); 只吃限价以内的档 → (加权价, 成交量) 或 None(没有深度数据)"""
+    lv = [(float(a), int(b)) for a, b in (levels or []) if a and b and (float(a) <= limit if side == "BUY" else float(a) >= limit)]
+    if not lv:
+        return None
+    got, amt = 0, 0.0
+    for a, b in lv:
+        take = min(b, n - got)
+        got += take
+        amt += take * a
+        if got >= n:
+            break
+    got = AR.round_qty(code, got) if got < n else n
+    return (round(amt / max(got, 1), 3), got) if got > 0 else None
 
 
 def take_lock(skill, d=None):
@@ -1256,7 +1290,12 @@ def selftest(skill):
                 return
             time.sleep(0.2)
         raise AssertionError("重定 60 秒没落地")
-    c = next(iter(se.state["positions"]))
+    if not any(prev_close(x, D) for x in se.state["positions"]):   # 10/22: 空仓起步, 或现有持仓都没有本地日线(自测账户读到旧账本 002368 之类)时; 起 SE_GENESIS = 10 万空仓起步: 自测只在临时目录里塞一只底仓(沪深300ETF), 不碰真目录
+        _pc = prev_close("510300", D)
+        se.state["positions"]["510300"] = {"qty": 1000, "cost": _pc, "sellable": 1000}
+        se.state["cash"] -= 1000 * _pc
+        se.state["start"].setdefault("positions", {})["510300"] = dict(se.state["positions"]["510300"])   # 起点也要有(断言"成交不改起点"用)
+    c = next(x for x in se.state["positions"] if prev_close(x, D))
     pc = prev_close(c, D)
     q0 = se.state["positions"][c]["sellable"]
     se.restrategize("自测首版", counted=False)

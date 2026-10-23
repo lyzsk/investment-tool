@@ -1,7 +1,7 @@
-# profile_index.md — anlizhuohuo 导师画像目录(链改造 F; 生成于 2026-10-22 00:21)
-> 源: skills/anlizhuohuo-skill/persona/profile.md sha12=919abaf8679f · 126 行 · 17.7KB · 16 节(超长节按行切片≤6KB)
+# profile_index.md — anlizhuohuo 导师画像目录(链改造 F; 生成于 2026-10-22 19:13)
+> 源: skills/anlizhuohuo-skill/persona/profile.md sha12=472291dc58aa · 127 行 · 18.0KB · 16 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: --no-llm: 2 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill anlizhuohuo`(未变节复用标注)
+> 标注来源: 复用旧标注, 原标注=--no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill anlizhuohuo`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 2.4KB / 03 3.5KB / 04 9.0KB / 05 5.5KB / 06 8.7KB
 
 ## 核心摘要
@@ -70,4 +70,4 @@
 | S13 | 【市况应对】（10/17 深度蒸馏） | 市况应对:满仓不随市况变、出手按时间扎堆、反弹日认亏换仓 | L89-97 | 2.4 | 02,05 | 1 | 28015061 |
 | S14 | 【盘中节奏】（10/17 深度蒸馏） | 盘中节奏:一天一只、不做T、换股为主且资金汇入油运核心 | L99-108 | 2.5 | 04,06 | 2 | 0aa4e3b3 |
 | S15 | 10-20 当日行为(硬数据锚点) | (未标注: --no-llm) | L110-116 | 0.8 | — | 3 | 9e2521e2 |
-| S16 | 10-21 当日行为(硬数据锚点) | (未标注: --no-llm) | L118-125 | 0.9 | — | 3 | fe73c3fd |
+| S16 | 10-21 当日行为(硬数据锚点) | (未标注: --no-llm) | L118-126 | 1.2 | — | 3 | d4b42741 |

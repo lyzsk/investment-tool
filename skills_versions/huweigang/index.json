@@ -120,6 +120,84 @@
     "chain": "a3177a04cd78",
     "distill": "1a96d909e127"
    }
+  },
+  {
+   "v": 5,
+   "id": "v005_20261022-2020",
+   "ts": "2026-10-22T20:20:09",
+   "effective_from": "2026-10-22T19:55:20",
+   "unit": "skill",
+   "version_hash": "6a2481853e1b8b6045ec310da2b44d34c394a17c56b503149a941dceb33d79ec",
+   "cat_hash": {
+    "数据": "f318ed63443632eb2e5cd8ed5dd51b433556c8fc86a620ce99c0dcbdbe0c0c00",
+    "画像": "c31b3556f7e4cb47e101f3359cba47d49dc874e11b4fbe1d99086e609e9e3d69"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v004_20261021-0031",
+   "changed": {
+    "added": [
+     "persona/cases_index.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 6,
+    "removed": 0
+   },
+   "bytes_weight": 15522,
+   "why": "check-md 2026-10-22 20:20",
+   "code": {
+    "chain": "b45ef748d5ed",
+    "distill": "e89fea1741a9"
+   }
+  },
+  {
+   "v": 6,
+   "id": "v006_20261023-0038",
+   "ts": "2026-10-23T00:38:48",
+   "effective_from": "2026-10-23T00:38:41",
+   "unit": "skill",
+   "version_hash": "9955e33be21fd12f27e97f33c15d61222330041d501bbc90c305e81cfdf0f956",
+   "cat_hash": {
+    "数据": "4ed3be123ceaced3fd69ba3192ff7466d9327d31d7b2c7ebd5b1453fd4014404",
+    "画像": "8cfca404fc0f51fc86fdb2f628f5a66dd91f1ba46d0e3222c0e24b59c370706a"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v005_20261022-2020",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/cases_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md"
+    ],
+    "数据": [
+     "persona/cases_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 9,
+    "removed": 6
+   },
+   "bytes_weight": 15815,
+   "why": "check-md 2026-10-22 00:38",
+   "code": {
+    "chain": "b45ef748d5ed",
+    "distill": "77132023b4d5"
+   }
   }
  ],
  "events": [],
