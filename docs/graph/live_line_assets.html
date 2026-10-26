@@ -1,0 +1,244 @@
+<!doctype html><meta charset='utf-8'><title>实盘线素材消费盘点</title>
+<style>body{font:14px -apple-system,'Microsoft YaHei',sans-serif;margin:24px;max-width:1200px;background:#15171c;color:#d7dae0}h1,h2,h3{color:#e8eaee}table{border-collapse:collapse;margin:8px 0 24px}td,th{border:1px solid #3a3f4b;padding:4px 8px;vertical-align:top}th{background:#232731}code{font-size:12px;color:#9fb4d8}a{color:#7fb0ff}</style>
+<h1>实盘线素材消费盘点</h1><p>依据: 回放 <code>results/_replay/2026-10-23/2026-10-23</code> 的盘前首跑 / 触发消息 + 实盘线代码(scripts/paper_line + scripts/live 的传递闭包, 268 个文件)。静态搜文件名 / 表名 / 标题, 动态拼路径的可能漏判。生成脚本 <code>docs/graph/live_assets.py</code>。</p>
+<h2>总览</h2><table><tr><th>类</th><th style='background:#1f3a26'>进首跑材料</th><th style='background:#1d3140'>进触发消息</th><th style='background:#3a3420'>代码在用</th><th style='background:#2f2640'>./q 可查</th><th style='background:#4a2226'>没消费</th></tr>
+<tr><td>A 行情日产物</td><td>7</td><td>1</td><td>16</td><td></td><td>3</td></tr>
+<tr><td>B 其他下载</td><td>4</td><td></td><td>17</td><td></td><td>2</td></tr>
+<tr><td>C md 日记各节</td><td>15</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>D skill 文件</td><td>81</td><td></td><td>13</td><td></td><td>1</td></tr>
+<tr><td>E 业务库表</td><td>8</td><td></td><td>7</td><td></td><td>8</td></tr>
+<tr><td>F 工具</td><td>2</td><td></td><td>18</td><td></td><td></td></tr>
+</table>
+<h2>未消费清单(没进消息、实盘线代码不用、./q 也查不到)</h2><table><tr><th>类</th><th>素材</th></tr>
+<tr><td>A 行情日产物</td><td>downloads/market/&lt;日&gt;/auction_live_close.json</td></tr>
+<tr><td>A 行情日产物</td><td>downloads/market/&lt;日&gt;/call_auction_close.jsonl</td></tr>
+<tr><td>A 行情日产物</td><td>downloads/market/&lt;日&gt;/call_auction_close_raw.jsonl</td></tr>
+<tr><td>B 其他下载</td><td>downloads/distill_pack/</td></tr>
+<tr><td>B 其他下载</td><td>downloads/user_images/</td></tr>
+<tr><td>D skill 文件</td><td>taoge-skill/persona/rules_index.vec.json</td></tr>
+<tr><td>E 业务库表</td><td>investment_market.kline_day_bak_kcb_20261016(约 729374 行)</td></tr>
+<tr><td>E 业务库表</td><td>investment_tool.bilibili_video(约 424 行)</td></tr>
+<tr><td>E 业务库表</td><td>investment_tool.chain_decision(约 1412 行)</td></tr>
+<tr><td>E 业务库表</td><td>investment_tool.chain_decision_rule(约 1757 行)</td></tr>
+<tr><td>E 业务库表</td><td>investment_tool.file_upload(约 244 行)</td></tr>
+<tr><td>E 业务库表</td><td>investment_tool.ocr_image(约 244 行)</td></tr>
+<tr><td>E 业务库表</td><td>investment_tool.ocr_result(约 274 行)</td></tr>
+<tr><td>E 业务库表</td><td>investment_tool.reconcile_result(约 1681 行)</td></tr>
+</table><h2>模型实际查了什么(回放会话里的 ./q / Read / Grep 调用)</h2><table><tr><th>线</th><th>调用</th><th>次数</th></tr>
+<tr><td colspan=3>回放会话里没有一次 ./q / Read / Grep 调用</td></tr>
+</table><h2>全部素材</h2>
+<h3>A 行情日产物</h3><table><tr><th>素材</th><th>状态</th><th>证据</th></tr>
+<tr><td>downloads/market/&lt;日&gt;/adjustment_factor.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/refresh_factors.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/auction_live_close.json</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/auction_live_open.json</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/dfcf/paper/pack07.py, scripts/dfcf/paper/t_decide.py, scripts/dfcf/snapshots/order-skill/playbook.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/book_snap.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/dfcf/paper/attribution.py, scripts/dfcf/paper/exec_base.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/call_auction_close.jsonl</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/call_auction_close_raw.jsonl</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/call_auction_open.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/live/plan_review.py, scripts/paper_line/tools/cb_path.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/call_auction_open_raw.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/market/cb_auction_features.py, scripts/md/check_md_daily.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/cb_auction_features.jsonl</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cb_auction_features</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/cb_facts.jsonl</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cb_facts</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/cb_facts.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cb_facts</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/global_kline.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/dfcf/paper/facts.mjs, scripts/market/collect_global.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/global_security.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/dfcf/paper/facts.mjs, scripts/market/collect_global.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/index_snap.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/dfcf/paper/exec_base.py, scripts/market/collect_book.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/indicators.jsonl</td><td style='background:#1f3a26'>进首跑材料</td><td><code>indicators</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/kline_5m_live.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/minute_live.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/kline_day.jsonl</td><td style='background:#1f3a26'>进首跑材料</td><td><code>kline_day</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/kline_minute.jsonl</td><td style='background:#1f3a26'>进首跑材料</td><td><code>kline_minute.jsonl</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/kline_minute_live.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/market/minute_live.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/open15_minute.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/collect_open15.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/open_live.json</td><td style='background:#1d3140'>进触发消息</td><td><code>open_live</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/panel_minute.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/dfcf/paper/t_event.py, scripts/market/collect_panel.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/security_master.jsonl</td><td style='background:#1f3a26'>进首跑材料</td><td><code>security_master</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/signal_params.json</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/live/signal_params.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/tick_flow.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/collect_minute.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/topology.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/topology.py</code></td></tr>
+<tr><td>downloads/market/&lt;日&gt;/watchlist_info.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/collect_auction.py, scripts/market/collect_minute.py</code></td></tr>
+</table>
+<h3>B 其他下载</h3><table><tr><th>素材</th><th>状态</th><th>证据</th></tr>
+<tr><td>downloads/_gpu/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/lib/gpu_lock.py</code></td></tr>
+<tr><td>downloads/_guard/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/health/daily_health.py, scripts/lib/req_guard.mjs, scripts/lib/req_guard.py</code></td></tr>
+<tr><td>downloads/_snapshots/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/tzzb/fetch_tzzb.mjs</code></td></tr>
+<tr><td>downloads/bilibili/</td><td style='background:#1f3a26'>进首跑材料</td><td><code>downloads/bilibili</code></td></tr>
+<tr><td>downloads/cls/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/cls/fetch_cls_pool.mjs, scripts/paper_line/tools/theme_life.py</code></td></tr>
+<tr><td>downloads/cls_pool/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/cls/fetch_cls_pool.mjs, scripts/paper_line/tools/theme_life.py</code></td></tr>
+<tr><td>downloads/cls_zaobao/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/dfcf/paper/facts.mjs, scripts/health/daily_health.py</code></td></tr>
+<tr><td>downloads/distill_pack/</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>downloads/f10/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/dfcf/paper/mimicry_score.py, scripts/market/topology.py, scripts/tzzb/mentor_scope.py</code></td></tr>
+<tr><td>downloads/futures/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/topology.py, scripts/quotes/futures.mjs</code></td></tr>
+<tr><td>downloads/holders/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/dfcf/paper/mix_plans.py</code></td></tr>
+<tr><td>downloads/kline/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/kline_study/intake.py, scripts/kline_study/kline_inbox.py</code></td></tr>
+<tr><td>downloads/kline_cases/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/kline_study/intake.py</code></td></tr>
+<tr><td>downloads/lhb/</td><td style='background:#1f3a26'>进首跑材料</td><td><code>downloads/lhb</code></td></tr>
+<tr><td>downloads/ontology/ontology.db</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/md/check_md_daily.py, scripts/ontology/build.py, scripts/ontology/query.py</code></td></tr>
+<tr><td>downloads/ontology/rule_health.json</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/ontology/rule_health.py</code></td></tr>
+<tr><td>downloads/ontology/samples.jsonl</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/ontology/sample_lib.py</code></td></tr>
+<tr><td>downloads/ontology/telegraph_kind_stats.json</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/paper_line/tools/telegraph_now.py, scripts/test/telegraph_kind.py</code></td></tr>
+<tr><td>downloads/quotes/</td><td style='background:#1f3a26'>进首跑材料</td><td><code>downloads/quotes</code></td></tr>
+<tr><td>downloads/tzzb/</td><td style='background:#1f3a26'>进首跑材料</td><td><code>downloads/tzzb</code></td></tr>
+<tr><td>downloads/tzzb_cand/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/tzzb/fetch_tzzb.mjs</code></td></tr>
+<tr><td>downloads/user_images/</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>downloads/wechat/</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/wechat/fetch_wechat.mjs</code></td></tr>
+</table>
+<h3>C md 日记各节</h3><table><tr><th>素材</th><th>状态</th><th>证据</th></tr>
+<tr><td>## 盘前</td><td style='background:#1f3a26'>进首跑材料</td><td><code>## 盘前</code></td></tr>
+<tr><td>### 当前持仓</td><td style='background:#1f3a26'>进首跑材料</td><td><code>### 当前持仓</code></td></tr>
+<tr><td>### 财联社早报</td><td style='background:#1f3a26'>进首跑材料</td><td><code>### 财联社早报</code></td></tr>
+<tr><td>### 微信公众号</td><td style='background:#1f3a26'>进首跑材料</td><td><code>### 微信公众号</code></td></tr>
+<tr><td>## 午评</td><td style='background:#1f3a26'>进首跑材料</td><td><code>## 午评</code></td></tr>
+<tr><td>## 午间涨停分析</td><td style='background:#1f3a26'>进首跑材料</td><td><code>## 午间涨停分析</code></td></tr>
+<tr><td>## 收评</td><td style='background:#1f3a26'>进首跑材料</td><td><code>## 收评</code></td></tr>
+<tr><td>## 涨停分析</td><td style='background:#1f3a26'>进首跑材料</td><td><code>## 涨停分析</code></td></tr>
+<tr><td>## 涨停梯队</td><td style='background:#1f3a26'>进首跑材料</td><td><code>## 涨停梯队</code></td></tr>
+<tr><td>## 复盘</td><td style='background:#1f3a26'>进首跑材料</td><td><code>## 复盘</code></td></tr>
+<tr><td>### 复盘持仓</td><td style='background:#1f3a26'>进首跑材料</td><td><code>### 复盘持仓</code></td></tr>
+<tr><td>### 龙虎榜</td><td style='background:#1f3a26'>进首跑材料</td><td><code>### 龙虎榜</code></td></tr>
+<tr><td>### bilibili</td><td style='background:#1f3a26'>进首跑材料</td><td><code>### bilibili</code></td></tr>
+<tr><td>### 同花顺投资账本</td><td style='background:#1f3a26'>进首跑材料</td><td><code>### 同花顺投资账本</code></td></tr>
+<tr><td>## 加红电报</td><td style='background:#1f3a26'>进首跑材料</td><td><code>## 加红电报</code></td></tr>
+</table>
+<h3>D skill 文件</h3><table><tr><th>素材</th><th>状态</th><th>证据</th></tr>
+<tr><td>zhiyingjuexin-skill/persona/cases.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py</code></td></tr>
+<tr><td>zhiyingjuexin-skill/persona/cases_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cases_index.md</code></td></tr>
+<tr><td>zhiyingjuexin-skill/persona/fingerprint.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>fingerprint.md</code></td></tr>
+<tr><td>zhiyingjuexin-skill/persona/orders_inferred.json</td><td style='background:#1f3a26'>进首跑材料</td><td><code>orders_inferred.json</code></td></tr>
+<tr><td>zhiyingjuexin-skill/persona/profile.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>zhiyingjuexin-skill/persona/profile.md</code></td></tr>
+<tr><td>zhiyingjuexin-skill/persona/profile_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>profile_index.md</code></td></tr>
+<tr><td>zhiyingjuexin-skill/persona/rules.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>zhiyingjuexin-skill/persona/rules.md</code></td></tr>
+<tr><td>zhiyingjuexin-skill/persona/rules_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>rules_index.md</code></td></tr>
+<tr><td>zhiyingjuexin-skill/SKILL.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>skill · SKILL.md</code></td></tr>
+<tr><td>zhiyingjuexin-skill/workflows/chain.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>chain.md</code></td></tr>
+<tr><td>zhiyingjuexin-skill/workflows/distill.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>distill.md</code></td></tr>
+<tr><td>zhiyingjuexin-skill/workflows/sum.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>sum.md</code></td></tr>
+<tr><td>liuyiqing-skill/persona/cases.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py</code></td></tr>
+<tr><td>liuyiqing-skill/persona/cases_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cases_index.md</code></td></tr>
+<tr><td>liuyiqing-skill/persona/fingerprint.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>fingerprint.md</code></td></tr>
+<tr><td>liuyiqing-skill/persona/orders_inferred.json</td><td style='background:#1f3a26'>进首跑材料</td><td><code>orders_inferred.json</code></td></tr>
+<tr><td>liuyiqing-skill/persona/profile.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>liuyiqing-skill/persona/profile.md</code></td></tr>
+<tr><td>liuyiqing-skill/persona/profile_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>profile_index.md</code></td></tr>
+<tr><td>liuyiqing-skill/persona/rules.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>liuyiqing-skill/persona/rules.md</code></td></tr>
+<tr><td>liuyiqing-skill/persona/rules_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>rules_index.md</code></td></tr>
+<tr><td>liuyiqing-skill/SKILL.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>skill · SKILL.md</code></td></tr>
+<tr><td>liuyiqing-skill/workflows/chain.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>chain.md</code></td></tr>
+<tr><td>liuyiqing-skill/workflows/distill.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>distill.md</code></td></tr>
+<tr><td>liuyiqing-skill/workflows/sum.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>sum.md</code></td></tr>
+<tr><td>buchitudou0-skill/persona/cases.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py</code></td></tr>
+<tr><td>buchitudou0-skill/persona/cases_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cases_index.md</code></td></tr>
+<tr><td>buchitudou0-skill/persona/fingerprint.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>fingerprint.md</code></td></tr>
+<tr><td>buchitudou0-skill/persona/orders_inferred.json</td><td style='background:#1f3a26'>进首跑材料</td><td><code>orders_inferred.json</code></td></tr>
+<tr><td>buchitudou0-skill/persona/profile.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>buchitudou0-skill/persona/profile.md</code></td></tr>
+<tr><td>buchitudou0-skill/persona/profile_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>profile_index.md</code></td></tr>
+<tr><td>buchitudou0-skill/persona/rules.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>buchitudou0-skill/persona/rules.md</code></td></tr>
+<tr><td>buchitudou0-skill/persona/rules_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>rules_index.md</code></td></tr>
+<tr><td>buchitudou0-skill/references/api.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>api.md</code></td></tr>
+<tr><td>buchitudou0-skill/SKILL.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>skill · SKILL.md</code></td></tr>
+<tr><td>buchitudou0-skill/workflows/chain.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>chain.md</code></td></tr>
+<tr><td>buchitudou0-skill/workflows/distill.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>distill.md</code></td></tr>
+<tr><td>buchitudou0-skill/workflows/sum.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>sum.md</code></td></tr>
+<tr><td>zuoshoudeirong-skill/persona/cases.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py</code></td></tr>
+<tr><td>zuoshoudeirong-skill/persona/cases_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cases_index.md</code></td></tr>
+<tr><td>zuoshoudeirong-skill/persona/fingerprint.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>fingerprint.md</code></td></tr>
+<tr><td>zuoshoudeirong-skill/persona/orders_inferred.json</td><td style='background:#1f3a26'>进首跑材料</td><td><code>orders_inferred.json</code></td></tr>
+<tr><td>zuoshoudeirong-skill/persona/profile.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>zuoshoudeirong-skill/persona/profile.md</code></td></tr>
+<tr><td>zuoshoudeirong-skill/persona/profile_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>profile_index.md</code></td></tr>
+<tr><td>zuoshoudeirong-skill/persona/rules.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>zuoshoudeirong-skill/persona/rules.md</code></td></tr>
+<tr><td>zuoshoudeirong-skill/persona/rules_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>rules_index.md</code></td></tr>
+<tr><td>zuoshoudeirong-skill/SKILL.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>skill · SKILL.md</code></td></tr>
+<tr><td>zuoshoudeirong-skill/workflows/chain.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>chain.md</code></td></tr>
+<tr><td>zuoshoudeirong-skill/workflows/distill.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>distill.md</code></td></tr>
+<tr><td>zuoshoudeirong-skill/workflows/sum.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>sum.md</code></td></tr>
+<tr><td>taoge-skill/CHANGELOG.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>CHANGELOG.md</code></td></tr>
+<tr><td>taoge-skill/persona/cases.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py</code></td></tr>
+<tr><td>taoge-skill/persona/cases_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cases_index.md</code></td></tr>
+<tr><td>taoge-skill/persona/fingerprint.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>fingerprint.md</code></td></tr>
+<tr><td>taoge-skill/persona/ic.json</td><td style='background:#1f3a26'>进首跑材料</td><td><code>ic.json</code></td></tr>
+<tr><td>taoge-skill/persona/language.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>language.md</code></td></tr>
+<tr><td>taoge-skill/persona/pools.json</td><td style='background:#1f3a26'>进首跑材料</td><td><code>pools.json</code></td></tr>
+<tr><td>taoge-skill/persona/profile.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>taoge-skill/persona/profile.md</code></td></tr>
+<tr><td>taoge-skill/persona/profile_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>profile_index.md</code></td></tr>
+<tr><td>taoge-skill/persona/rules.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>taoge-skill/persona/rules.md</code></td></tr>
+<tr><td>taoge-skill/persona/rules_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>rules_index.md</code></td></tr>
+<tr><td>taoge-skill/persona/rules_index.vec.json</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>taoge-skill/PROCESS.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>PROCESS.md</code></td></tr>
+<tr><td>taoge-skill/references/corpus-index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>corpus-index.md</code></td></tr>
+<tr><td>taoge-skill/references/rules_spec.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>rules_spec.md</code></td></tr>
+<tr><td>taoge-skill/SKILL.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>skill · SKILL.md</code></td></tr>
+<tr><td>taoge-skill/workflows/chain.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>chain.md</code></td></tr>
+<tr><td>taoge-skill/workflows/distill.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>distill.md</code></td></tr>
+<tr><td>taoge-skill/workflows/sum.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>sum.md</code></td></tr>
+<tr><td>lubenyuan-skill/persona/cases.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py</code></td></tr>
+<tr><td>lubenyuan-skill/persona/cases_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cases_index.md</code></td></tr>
+<tr><td>lubenyuan-skill/persona/fingerprint.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>fingerprint.md</code></td></tr>
+<tr><td>lubenyuan-skill/persona/language.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>language.md</code></td></tr>
+<tr><td>lubenyuan-skill/persona/profile.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>lubenyuan-skill/persona/profile.md</code></td></tr>
+<tr><td>lubenyuan-skill/persona/profile_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>profile_index.md</code></td></tr>
+<tr><td>lubenyuan-skill/persona/rules.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>lubenyuan-skill/persona/rules.md</code></td></tr>
+<tr><td>lubenyuan-skill/persona/rules_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>rules_index.md</code></td></tr>
+<tr><td>lubenyuan-skill/SKILL.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>skill · SKILL.md</code></td></tr>
+<tr><td>lubenyuan-skill/workflows/chain.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>chain.md</code></td></tr>
+<tr><td>lubenyuan-skill/workflows/distill.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>distill.md</code></td></tr>
+<tr><td>lubenyuan-skill/workflows/sum.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>sum.md</code></td></tr>
+<tr><td>market-skill/persona/cases.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py</code></td></tr>
+<tr><td>market-skill/persona/cases_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cases_index.md</code></td></tr>
+<tr><td>market-skill/persona/kline_cases.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/kline_study/intake.py, scripts/kline_study/kline_inbox.py, scripts/md/check_md_daily.py</code></td></tr>
+<tr><td>market-skill/persona/kline_rules.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/paper_line/pack.py</code></td></tr>
+<tr><td>market-skill/persona/profile.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/chain/run_chain.py, scripts/dfcf/paper/report_skills.mjs</code></td></tr>
+<tr><td>market-skill/persona/rules.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>market-skill/persona/rules.md</code></td></tr>
+<tr><td>market-skill/persona/rules_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>rules_index.md</code></td></tr>
+<tr><td>market-skill/persona/user_found.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/user_found_check.py, scripts/paper_line/pack.py</code></td></tr>
+<tr><td>market-skill/SKILL.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>skill · SKILL.md</code></td></tr>
+<tr><td>telegraph-skill/persona/cases.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py</code></td></tr>
+<tr><td>telegraph-skill/persona/cases_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>cases_index.md</code></td></tr>
+<tr><td>telegraph-skill/persona/profile.md</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/chain/run_chain.py, scripts/dfcf/paper/report_skills.mjs</code></td></tr>
+<tr><td>telegraph-skill/persona/rules.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>telegraph-skill/persona/rules.md</code></td></tr>
+<tr><td>telegraph-skill/persona/rules_index.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>rules_index.md</code></td></tr>
+<tr><td>telegraph-skill/SKILL.md</td><td style='background:#1f3a26'>进首跑材料</td><td><code>skill · SKILL.md</code></td></tr>
+</table>
+<h3>E 业务库表</h3><table><tr><th>素材</th><th>状态</th><th>证据</th></tr>
+<tr><td>investment_market.adjustment_factor(约 36980 行)</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/backfill_history.py, scripts/market/refresh_factors.py, scripts/quotes/kline.mjs</code></td></tr>
+<tr><td>investment_market.call_auction(约 444346 行)</td><td style='background:#1f3a26'>进首跑材料</td><td><code>call_auction</code></td></tr>
+<tr><td>investment_market.index_constituent(约 6268 行)</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/index_constituents.py, scripts/market/index_rebalance.py, scripts/market/topology.py</code></td></tr>
+<tr><td>investment_market.index_constituent_coverage(约 10 行)</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/index_constituents.py, scripts/market/index_rebalance.py</code></td></tr>
+<tr><td>investment_market.kline_day(约 11671593 行)</td><td style='background:#1f3a26'>进首跑材料</td><td><code>kline_day</code></td></tr>
+<tr><td>investment_market.kline_day_bak_kcb_20261016(约 729374 行)</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>investment_market.kline_minute(约 1952633 行)</td><td style='background:#1f3a26'>进首跑材料</td><td><code>kline_minute</code></td></tr>
+<tr><td>investment_market.lhb_seat(约 357529 行)</td><td style='background:#1f3a26'>进首跑材料</td><td><code>lhb_seat</code></td></tr>
+<tr><td>investment_market.lhb_stock(约 34643 行)</td><td style='background:#1f3a26'>进首跑材料</td><td><code>lhb_stock</code></td></tr>
+<tr><td>investment_market.security_master(约 8248 行)</td><td style='background:#1f3a26'>进首跑材料</td><td><code>security_master</code></td></tr>
+<tr><td>investment_market.stock_industry(约 19100 行)</td><td style='background:#1f3a26'>进首跑材料</td><td><code>stock_industry</code></td></tr>
+<tr><td>investment_market.watchlist_info(约 8390 行)</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/collect_auction.py, scripts/market/collect_minute.py</code></td></tr>
+<tr><td>investment_tool.bilibili_video(约 424 行)</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>investment_tool.chain_decision(约 1412 行)</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>investment_tool.chain_decision_rule(约 1757 行)</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>investment_tool.chain_run(约 638 行)</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/paper_line/executor.py</code></td></tr>
+<tr><td>investment_tool.chain_step(约 3192 行)</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/dfcf/paper/baselines.mjs, scripts/dfcf/paper/exec_base.py</code></td></tr>
+<tr><td>investment_tool.cls_telegraph(约 11169 行)</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/index_rebalance.py, scripts/paper_line/tools/telegraph_now.py, scripts/test/telegraph_kind.py</code></td></tr>
+<tr><td>investment_tool.file_upload(约 244 行)</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>investment_tool.ocr_image(约 244 行)</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>investment_tool.ocr_result(约 274 行)</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>investment_tool.reconcile_result(约 1681 行)</td><td style='background:#4a2226'>没消费</td><td><code></code></td></tr>
+<tr><td>investment_tool.tzzb_record(约 77855 行)</td><td style='background:#1f3a26'>进首跑材料</td><td><code>tzzb_record</code></td></tr>
+</table>
+<h3>F 工具</h3><table><tr><th>素材</th><th>状态</th><th>证据</th></tr>
+<tr><td>paper_line/tools/auction_path.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/live/signals.py, scripts/paper_line/executor.py</code></td></tr>
+<tr><td>paper_line/tools/case_label.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/ontology/build.py, scripts/paper_line/pack.py, scripts/paper_line/tools/case_label.py</code></td></tr>
+<tr><td>paper_line/tools/cb_path.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/paper_line/pack.py, scripts/paper_line/tools/cb_path.py</code></td></tr>
+<tr><td>paper_line/tools/fill_prob.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/paper_line/executor.py, scripts/paper_line/pack.py, scripts/paper_line/selftest.py</code></td></tr>
+<tr><td>paper_line/tools/key_levels.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/paper_line/pack.py, scripts/paper_line/tools/key_levels.py</code></td></tr>
+<tr><td>paper_line/tools/kline_struct.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/ontology/sample_lib.py, scripts/paper_line/pack.py, scripts/paper_line/tools/kline_struct.py</code></td></tr>
+<tr><td>paper_line/tools/market02_extra.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/paper_line/market02.py, scripts/paper_line/selftest.py, scripts/paper_line/tools/market02_extra.py</code></td></tr>
+<tr><td>paper_line/tools/market_path.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/paper_line/market02.py, scripts/paper_line/selftest.py</code></td></tr>
+<tr><td>paper_line/tools/mentor_recent.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/market/collect_book.py, scripts/md/nightly_recalc.py</code></td></tr>
+<tr><td>paper_line/tools/mentor_select.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/health/daily_health.py, scripts/health/revival_check.py, scripts/kline_study/intake.py</code></td></tr>
+<tr><td>paper_line/tools/mentor_sells.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/paper_line/pack.py, scripts/paper_line/tools/mentor_sells.py</code></td></tr>
+<tr><td>paper_line/tools/must_extra.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/paper_line/harness.py, scripts/paper_line/pack.py, scripts/paper_line/tools/must_extra.py</code></td></tr>
+<tr><td>paper_line/tools/pattern_scan.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/md/check_md_daily.py, scripts/md/nightly_recalc.py, scripts/paper_line/pack.py</code></td></tr>
+<tr><td>paper_line/tools/peers.py</td><td style='background:#1f3a26'>进首跑材料</td><td><code>peers</code></td></tr>
+<tr><td>paper_line/tools/samples.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/run_chain.py, scripts/dfcf/paper/edge_map.py, scripts/kline_study/scen_next.py</code></td></tr>
+<tr><td>paper_line/tools/strong_next.py</td><td style='background:#1f3a26'>进首跑材料</td><td><code>strong_next</code></td></tr>
+<tr><td>paper_line/tools/strong_themes.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/paper_line/tools/strong_themes.py</code></td></tr>
+<tr><td>paper_line/tools/telegraph_now.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/chain/chain_steps.py, scripts/market/collect_book.py, scripts/ontology/rule_health.py</code></td></tr>
+<tr><td>paper_line/tools/theme_life.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/market/collect_book.py, scripts/ontology/build.py, scripts/ontology/sample_lib.py</code></td></tr>
+<tr><td>paper_line/tools/watch_set.py</td><td style='background:#3a3420'>代码在用</td><td><code>scripts/kline_study/intake.py, scripts/md/check_md_daily.py, scripts/paper_line/executor.py</code></td></tr>
+</table>

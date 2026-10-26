@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""cache_probe.py — 中转(gravitex)上 prompt 缓存到底命不命中(10/22 用户令; 今天 se_chain 全天命中率 3.6%)
+"""cache_probe.py — 中转(gravitex)上 prompt 缓存到底命不命中(10/22 用户令; 今天 chain_steps 全天命中率 3.6%)
 做法: 一份固定材料(土豆 rules.md, 约 2 万 token)放 system 并打缓存断点, 只回一个字, effort=low, 花费约 $0.3
   串行 5 次(间隔 3 秒) → 第 1 次应写缓存, 2~5 次应读缓存; 再并发 4 次 → 看并发会不会被分到不同上游
   分别测 TTL 5m 和 1h 两档; 每次记 cache_read / cache_create / input, 结果写 results/inv-stock/test/cache_probe_<时刻>.json

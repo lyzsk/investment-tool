@@ -490,10 +490,22 @@
    "mech": null,
    "mech_text": null,
    "level": "话术级"
+  },
+  "R41": {
+   "id": "R41",
+   "title": "新仓次日没给解套价→不砍反补: 成本下方早盘+尾盘两次补, 单票拉到半仓· 反 R1/R28/R29",
+   "level_tag": "画像",
+   "struck": false,
+   "dir": "双向",
+   "dir_raw": null,
+   "src": "机械补标",
+   "mech": null,
+   "mech_text": null,
+   "level": "话术级"
   }
  },
- "n": 40,
+ "n": 41,
  "n_mech": 3,
- "n_dir": 30,
+ "n_dir": 31,
  "n_distilled": 0
 }

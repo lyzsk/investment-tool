@@ -789,6 +789,124 @@
     "chain": "74f90620e2b2",
     "distill": "3c5204e0f3e5"
    }
+  },
+  {
+   "v": 22,
+   "id": "v022_20261025-0009",
+   "ts": "2026-10-25T00:09:44",
+   "effective_from": "2026-10-24T09:52:53",
+   "unit": "skill",
+   "version_hash": "762cd65a8e2de3d8ffe5f1413989b58534ff81a41a42dc5762c150d9f5433a0c",
+   "cat_hash": {
+    "提示词": "a1bc2f7783894d77633ebef0e25e2288f01f0966c28f4a4be3a65ea84bb6943d",
+    "数据": "14828020658b30be38ac1ccf27c2360eae18e948debbb35590168c79adf0b6fe",
+    "画像": "5d8e37c42566c411184017c0ba0bf18526460c455df6c621eb5ef0bbed726f16"
+   },
+   "data_hash": "09c39a0ddc0de238dcf6fbfe68118e4ec6cf76c616e6c57bc698c98efcde9f9f",
+   "parent": "v021_20261023-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md"
+    ]
+   },
+   "data_changed": [
+    "persona/cases_auto.jsonl"
+   ],
+   "lines": {
+    "added": 10,
+    "removed": 18
+   },
+   "bytes_weight": 183585,
+   "why": "check-md 2026-10-23 00:09",
+   "code": {
+    "chain": "74f90620e2b2",
+    "distill": "bb358fb8a0b4"
+   }
+  },
+  {
+   "v": 23,
+   "id": "v023_20261026-0001",
+   "ts": "2026-10-26T00:01:03",
+   "effective_from": "2026-10-25T15:36:16",
+   "unit": "skill",
+   "version_hash": "886ea334d0c803706d59d919a96885e48a6c3a6272b897da561b2b66140c1a11",
+   "cat_hash": {
+    "提示词": "a1bc2f7783894d77633ebef0e25e2288f01f0966c28f4a4be3a65ea84bb6943d",
+    "数据": "5f791842cbd0915287d2e5c312805e85e8b2e448c24c12b474bcffcdebfa93d9",
+    "画像": "5d8e37c42566c411184017c0ba0bf18526460c455df6c621eb5ef0bbed726f16"
+   },
+   "data_hash": "52c5b1f1fcb9f7f534ddbab89a74167d6be113a5a6a73dcb0a9d240007bde8a5",
+   "parent": "v022_20261025-0009",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md"
+    ]
+   },
+   "data_changed": [
+    "persona/case_log/2026-09.md"
+   ],
+   "lines": {
+    "added": 17,
+    "removed": 1
+   },
+   "bytes_weight": 185270,
+   "why": "check-md 2026-10-23 00:01",
+   "code": {
+    "chain": "74f90620e2b2",
+    "distill": "9a65afad8c1f"
+   }
+  },
+  {
+   "v": 24,
+   "id": "v024_20261026-0800",
+   "ts": "2026-10-26T08:00:38",
+   "effective_from": "2026-10-26T00:08:15",
+   "unit": "skill",
+   "version_hash": "bb3e89971e62b633327dc0a7dbe436e0111a956c7467267cdfb89d7b9c75a4cc",
+   "cat_hash": {
+    "提示词": "a1bc2f7783894d77633ebef0e25e2288f01f0966c28f4a4be3a65ea84bb6943d",
+    "数据": "b301bbdaad0a4ee7f641b78d52bf5891573d83117ac8d39bceb9183c0346277a",
+    "画像": "5d8e37c42566c411184017c0ba0bf18526460c455df6c621eb5ef0bbed726f16"
+   },
+   "data_hash": "52c5b1f1fcb9f7f534ddbab89a74167d6be113a5a6a73dcb0a9d240007bde8a5",
+   "parent": "v023_20261026-0001",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/fingerprint.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/fingerprint.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 8,
+    "removed": 0
+   },
+   "bytes_weight": 186250,
+   "why": "check-md 2026-10-23 08:00",
+   "code": {
+    "chain": "74f90620e2b2",
+    "distill": "d6d945d8ca3b"
+   }
   }
  ],
  "events": [],

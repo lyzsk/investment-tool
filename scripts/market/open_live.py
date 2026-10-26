@@ -19,7 +19,7 @@
 续跑: 盘中进程挂了由 --ensure 重拉 → 读回当日 open_live.json 的判定 / 盘前标记接着跑(不丢上午的判定和翻转)
 数据源: 面板 downloads/market/<日>/panel_minute.jsonl(collect_panel, 每分钟) · 3 秒盘口 book_snap.jsonl(collect_book) · 竞价 auction_live_open.json(collect_auction)
 产物: downloads/market/<日>/open_live.json(原子重写): {state running|final, auction, idx, watch, judgments[{t, why, label, score, factors}], current, flips}
-消费: facts.mjs「开盘实况」节(0927 起全天时段) · run_chain 子链闸条件 f(市况结论变了) · se_exec / shadow_exec(翻转 = 重定触发) · ctx_index(决策T / 实盘复核)
+消费: facts.mjs「开盘实况」节(0927 起全天时段) · run_chain 子链闸条件 f(市况结论变了) · exec_base / trigger_stats(翻转 = 重定触发) · ctx_index(决策T / 实盘复核)
 API: from open_live import load, label_at, text; label_at(D, "0945") → 该时刻及以前最近一次判定的结论(没有 = None)
 用法: python open_live.py --ensure | --run [--date D] | --replay --date D [--out 文件](用当日已落盘数据逐分钟重放, 默认写 results/inv-stock/market/open_live_replay/<日>.json, 不碰实盘产物) | --show [--date D] [--before HHMM]
 启动: check md --only mix 每 5 分钟调 --ensure(09:14~14:57 之间没在跑就后台拉起, 无窗口, pid 锁防双开)

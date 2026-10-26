@@ -31,14 +31,6 @@
   "n_sell": 81,
   "note": ""
  },
- "daxingdaxingdadangxing": {
-  "buy_rate": 0.000235,
-  "min_fee": 0.0,
-  "sell_rate_incl_stamp": 0.000735,
-  "n_buy": 13,
-  "n_sell": 9,
-  "note": ""
- },
  "elangking": {
   "buy_rate": 9.5e-05,
   "min_fee": 0.0,

@@ -678,6 +678,138 @@
    "bytes_weight": 443467,
    "why": "check-md 2026-10-22 08:00",
    "code": null
+  },
+  {
+   "v": 21,
+   "id": "v021_20261023-1950",
+   "ts": "2026-10-23T19:50:19",
+   "effective_from": "2026-10-23T08:20:47",
+   "unit": "global",
+   "version_hash": "541eb37694b40abed828ff9df3769c15bb068e6627a33f09b98f8890d4b6c14a",
+   "cat_hash": {
+    "全局": "541eb37694b40abed828ff9df3769c15bb068e6627a33f09b98f8890d4b6c14a"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v020_20261023-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "scripts/claude_profile/chain_flags.txt"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "全局": [
+     "scripts/claude_profile/chain_flags.txt"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 1
+   },
+   "bytes_weight": 443485,
+   "why": "check-md 2026-10-23 19:50",
+   "code": null
+  },
+  {
+   "v": 22,
+   "id": "v022_20261025-0009",
+   "ts": "2026-10-25T00:09:44",
+   "effective_from": "2026-10-24T20:49:23",
+   "unit": "global",
+   "version_hash": "cc616f01bf166105586b92d2dd35f579a88a69033b28fb95859e053b8b0b7d72",
+   "cat_hash": {
+    "全局": "cc616f01bf166105586b92d2dd35f579a88a69033b28fb95859e053b8b0b7d72"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v021_20261023-1950",
+   "changed": {
+    "added": [],
+    "modified": [
+     "scripts/claude_profile/chain_flags.txt"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "全局": [
+     "scripts/claude_profile/chain_flags.txt"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 14,
+    "removed": 0
+   },
+   "bytes_weight": 445606,
+   "why": "check-md 2026-10-23 00:09",
+   "code": null
+  },
+  {
+   "v": 23,
+   "id": "v023_20261026-0001",
+   "ts": "2026-10-26T00:01:04",
+   "effective_from": "2026-10-25T23:59:55",
+   "unit": "global",
+   "version_hash": "c58f846ec2c9497759fec1ea6fffcf2f3e4bd2eb4c8375525824eab94736eb04",
+   "cat_hash": {
+    "全局": "c58f846ec2c9497759fec1ea6fffcf2f3e4bd2eb4c8375525824eab94736eb04"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v022_20261025-0009",
+   "changed": {
+    "added": [],
+    "modified": [
+     "scripts/claude_profile/chain_flags.txt"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "全局": [
+     "scripts/claude_profile/chain_flags.txt"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 79,
+    "removed": 61
+   },
+   "bytes_weight": 450255,
+   "why": "check-md 2026-10-23 00:01",
+   "code": null
+  },
+  {
+   "v": 24,
+   "id": "v024_20261026-0800",
+   "ts": "2026-10-26T08:00:38",
+   "effective_from": "2026-10-26T01:08:42",
+   "unit": "global",
+   "version_hash": "e9e786f951a39406f6fa9e3ea102ab360cf45512d0dcfb670547184da069e285",
+   "cat_hash": {
+    "全局": "e9e786f951a39406f6fa9e3ea102ab360cf45512d0dcfb670547184da069e285"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v023_20261026-0001",
+   "changed": {
+    "added": [],
+    "modified": [
+     "scripts/claude_profile/chain_flags.txt"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "全局": [
+     "scripts/claude_profile/chain_flags.txt"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 0
+   },
+   "bytes_weight": 450474,
+   "why": "check-md 2026-10-23 08:00",
+   "code": null
   }
  ],
  "events": [],

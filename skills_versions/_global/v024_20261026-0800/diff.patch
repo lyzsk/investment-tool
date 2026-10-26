@@ -1,0 +1,7 @@
+--- v023_20261026-0001/scripts/claude_profile/chain_flags.txt
++++ v024_20261026-0800/scripts/claude_profile/chain_flags.txt
+@@ -189,2 +189,4 @@
+ LIVE_GUARD_WAKE=0   # 守卫改单后是否叫醒模型重判(1 = 叫, 多花一次链; 用户 10/25 定 0 token)
+ PAPER_DEFAULT_REQ=1   # 10/25 晚用户批 B: 04 每只持仓 / 建加的票写 default(格 / 默认动作 / 偏离 / 依据), 偏离要引更窄的规则; 只记录不打回
++PAPER_STYLE=1   # 10/26 01:xx 用户令: 06 选挂法(style + ratio, 规则出价格和数量; 人工价要标 "人工价": true); 0 = 关
++PAPER_ASK=1   # 10/25 晚: 04 必答 ask(代码代查 Q1..), 只记录不打回

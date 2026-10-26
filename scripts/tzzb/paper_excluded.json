@@ -1,7 +1,6 @@
 {
  "_note": "10/18 用户定: 这些导师不进 paper(定时任务已经应用接口暂停); skill 是否继续维护另定。revival_check 对它们不发复活提醒。恢复=从这里删掉 + 应用接口 changeStatus 0",
  "excluded": {
-  "daxingdaxingdadangxing": "样本太短(16 日), 与连板组趋同",
   "xuanqiucaijing": "样本短(45 日), 与 antoo 趋同",
   "zuoshoudeirong": "与连板组(刘忆青/芷影)趋同",
   "bianbenling": "与星见野趋同, 近 30 日 -32%",

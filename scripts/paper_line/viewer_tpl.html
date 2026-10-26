@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>paper v3 回看</title>
+<style>
+:root { --bg:#15171c; --fg:#d7dae0; --mute:#8b93a1; --line:#30343d; --card:#1c1f26; --acc:#2563eb; --buy:#dc2626; --sell:#16a34a; --mentor:#d97706; --user:#7c3aed; }
+* { box-sizing: border-box; }
+body { margin:0; font:13px/1.5 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif; color:var(--fg); background:var(--bg); }
+header { padding:10px 16px; border-bottom:1px solid var(--line); background:var(--card); position:sticky; top:0; z-index:5; display:flex; gap:24px; align-items:baseline; flex-wrap:wrap; }
+header h1 { font-size:16px; margin:0; }
+.kpi b { font-size:15px; }
+.wrap { display:flex; min-height:calc(100vh - 50px); }
+nav { width:290px; border-right:1px solid var(--line); background:var(--card); overflow:auto; }
+nav .it { padding:8px 12px; border-bottom:1px solid var(--line); cursor:pointer; }
+nav .it:hover { background:#262a33; } nav .it.on { background:#1e2a44; border-left:3px solid var(--acc); }
+nav .it .n { font-weight:600; } nav .it .s { color:var(--mute); font-size:12px; }
+main { flex:1; padding:14px 18px; overflow:auto; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:14px; }
+.card h2 { font-size:14px; margin:0 0 8px; }
+table { border-collapse:collapse; width:100%; }
+th, td { text-align:left; padding:5px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+th { color:var(--mute); font-weight:500; font-size:12px; background:#20242c; position:sticky; top:0; }
+td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+tr.v { cursor:pointer; } tr.v:hover { background:#20242c; } tr.v.on { background:#1e2a44; }
+.pos { color:var(--buy); } .neg { color:var(--sell); }
+.mute { color:var(--mute); }
+.bar { display:flex; height:12px; width:220px; background:#262a33; border-radius:3px; overflow:hidden; }
+.bar span { display:block; height:100%; }
+.tag { display:inline-block; padding:0 6px; border-radius:10px; font-size:11px; background:#262a33; color:#c9ced6; margin-right:4px; }
+.tag.est { background:#3a3220; color:#f0c674; }
+.btn { display:inline-block; padding:3px 8px; border:1px solid var(--line); border-radius:5px; margin:2px 4px 2px 0; cursor:pointer; background:var(--card); font-size:12px; }
+.btn.on { background:var(--acc); color:#fff; border-color:var(--acc); }
+pre { white-space:pre-wrap; word-break:break-word; background:#20242c; border:1px solid var(--line); border-radius:6px; padding:10px; max-height:520px; overflow:auto; font:12px/1.5 Consolas,"Microsoft YaHei",monospace; }
+.legend span { margin-right:14px; font-size:12px; }
+.tabs { margin-bottom:12px; } .tabs .btn { font-size:13px; padding:5px 12px; }
+svg text { font-size:10px; fill:#8b93a1; }
+.small { font-size:12px; }
+.card.alert { border:2px solid #dc2626; background:#2a1a1c; } .card.alert h2 { color:#b91c1c; }
+tr.bad td { background:#3a1f22; } td.warn { color:#b45309; font-weight:600; }
+.fate { display:inline-block; padding:0 6px; border-radius:10px; font-size:11px; white-space:nowrap; }
+.fate.ok { background:#1c2c48; color:#8ab4ff; } .fate.miss { background:#262a33; color:#c9ced6; } .fate.warn { background:#3a3220; color:#f0c674; } .fate.bad { background:#3a1f22; color:#ff9b9b; } .fate.mute { background:#262a33; color:#8b93a1; }
+.calc label { display:inline-block; margin:4px 14px 4px 0; font-size:12px; } .calc input { width:100px; margin-left:4px; }
+select { font-size:12px; padding:2px 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>paper v3 回看 · <span id="d"></span></h1>
+  <div class="kpi" id="kpi"></div>
+  <div class="small mute">实际 $ = 当天中转站 Claude 价；K3 ¥ = 按 K3 API 价重算（输入 ¥20 / 输出 ¥100 / 缓存命中 ¥2 / 缓存写入 ¥20 每百万 token）；<span class="tag est">估</span> = 该步没有 token 明细，按当天比例估</div>
+</header>
+<div class="wrap">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+<script id="data" type="application/json">/*__DATA__*/</script>
+<script>
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const STEP_COLOR = {"01":"#94a3b8","02":"#60a5fa","03_bull":"#f87171","03_bear":"#34d399","04":"#a78bfa","05":"#fbbf24","06":"#f472b6"};
+const fmt = (x, d=2) => x==null ? '-' : Number(x).toFixed(d);
+const tok = x => x==null ? '-' : (x>=1e6 ? (x/1e6).toFixed(2)+'M' : x>=1e3 ? (x/1e3).toFixed(0)+'K' : String(x));
+const esc = s => String(s??'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function unz(b64){ const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0)); const s = new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip')); return await new Response(s).text(); }
+const sum = (a, f) => a.reduce((s, x) => s + (f(x) || 0), 0);
+function bookCost(b){ const usd = sum(b.versions, v=>v.usd) + sum(b.keep, k=>k.usd); const k3 = sum(b.versions, v=>v.k3) + sum(b.keep, k=>k.k3); return {usd, k3}; }
+const qtl = (xs, p) => { if (!xs.length) return 0; const s = [...xs].sort((a,b)=>a-b); return s[Math.min(s.length-1, Math.floor(s.length*p))]; };
+const pct = x => x==null ? '-' : `<span class="${x>0?'pos':x<0?'neg':''}">${x>0?'+':''}${x.toFixed(2)}%</span>`;
+const FATE_CLS = {'成交':'ok','草稿没挂':'mute','价格没到':'miss','炸板接没触发':'miss','前置单没成交':'miss','排队没轮到':'warn','封死买不进':'warn','被替换(之后到价)':'warn','数据缺口':'warn','没数据':'warn','执行器剔除':'bad','到过价没成交(细查)':'bad','生效前已到价(链慢了)':'warn'};
+const fateTag = f => f ? `<span class="fate ${FATE_CLS[f.cat]||'miss'}">${esc(f.cat)}</span>` : '<span class="fate bad">无结局</span>';
+function whyCat(w){ w = w||''; if(/开盘前首版/.test(w)) return '首版'; if(/竞价段/.test(w)) return '竞价复核'; if(/尾盘/.test(w)) return '尾盘版'; if(/成交/.test(w)) return '成交'; if(/心跳/.test(w)) return '心跳'; if(/出区间/.test(w)) return '出区间'; if(/失效条件/.test(w)) return '叫醒条件'; if(/开盘实况|翻转/.test(w)) return '市况翻转'; if(/空仓/.test(w)) return '空仓提醒'; return '其他'; }
+
+document.getElementById('d').textContent = DATA.date;
+(function kpi(){
+  const B = DATA.books, nv = sum(B, b=>b.versions.length), c = B.map(bookCost);
+  const secs = B.flatMap(b=>b.versions.map(v=>v.total||0));
+  document.getElementById('kpi').innerHTML = `${B.length} 本 · <b>${nv}</b> 次触发 · 实际 <b>$${fmt(sum(c,x=>x.usd),0)}</b> · K3 预估 <b>¥${fmt(sum(c,x=>x.k3),0)}</b> · 每次触发平均 <b>${fmt(sum(secs,x=>x)/Math.max(1,secs.length),0)}</b> 秒`;
+})();
+
+let CUR = null, SHOW_USER = DATA.user.length > 0, SHOW_MENTOR = true;
+function renderNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = `<div class="it ${CUR===null?'on':''}" data-i="-1"><div class="n">汇总 · 全部账本</div><div class="s">每步耗时花费 · 保温 · 排队 · 每分钟 token · 挂单结局 · 计算器</div></div>` +
+    DATA.books.map((b,i)=>{ const c = bookCost(b); const r = b.ret==null?'-':(b.ret>0?'+':'')+b.ret.toFixed(2)+'%';
+      return `<div class="it ${CUR===i?'on':''}" data-i="${i}"><div class="n">${esc(b.name)}</div><div class="s"><span class="${b.ret>0?'pos':b.ret<0?'neg':''}">${r}</span> · ${b.versions.length} 次 · $${fmt(c.usd,1)} · ¥${fmt(c.k3,0)}</div></div>`; }).join('');
+  nav.querySelectorAll('.it').forEach(el => el.onclick = () => { const i = +el.dataset.i; CUR = i<0?null:i; renderNav(); i<0?renderSummary():renderBook(DATA.books[i]); });
+}
+
+function renderSummary(){
+  const B = DATA.books, steps = {};
+  B.forEach(b => b.versions.forEach(v => v.steps.forEach(s => { const o = steps[s.name] ||= {n:0,secs:0,usd:0,k3:0,ctx:0,nctx:0,out:0}; o.n++; o.secs+=s.secs||0; o.usd+=s.usd||0; o.k3+=s.k3||0; if(s.cr!=null){o.ctx+=(s.cr||0)+(s.cw||0)+(s.in||0); o.nctx++; o.out+=s.out||0;} })));
+  const cats = {}; B.forEach(b => b.versions.forEach(v => { const k = whyCat(v.why); const o = cats[k] ||= {n:0,secs:0,usd:0,k3:0}; o.n++; o.secs+=v.total||0; o.usd+=v.usd; o.k3+=v.k3; }));
+  const keepN = sum(B,b=>b.keep.length), keepUsd = sum(B,b=>sum(b.keep,k=>k.usd)), keepK3 = sum(B,b=>sum(b.keep,k=>k.k3));
+  document.getElementById('main').innerHTML = `
+  <div class="card"><h2>各账本</h2><table><tr><th>账本</th><th>模式</th><th class="num">收益</th><th class="num">触发</th><th class="num">成交</th><th class="num">平均耗时 s</th><th class="num">实际 $</th><th class="num">K3 ¥</th><th class="num">每次 ¥</th></tr>
+  ${B.map(b=>{const c=bookCost(b), n=b.versions.length; return `<tr><td>${esc(b.name)}</td><td>${b.mode==='plan'?'计划':'盯盘'}${b.kind==='dt'?' · 决策T':''}</td><td class="num ${b.ret>0?'pos':b.ret<0?'neg':''}">${b.ret==null?'-':b.ret.toFixed(2)+'%'}</td><td class="num">${n}</td><td class="num">${b.trades.length}</td><td class="num">${fmt(sum(b.versions,v=>v.total)/Math.max(1,n),0)}</td><td class="num">${fmt(c.usd,1)}</td><td class="num">${fmt(c.k3,0)}</td><td class="num">${fmt(c.k3/Math.max(1,n),1)}</td></tr>`}).join('')}</table></div>
+  ${keepCard()}${waitCard()}${tpmCard()}
+  <div class="card"><h2>每一步（全部账本平均）—— 设计实盘线时看哪一步最贵、最慢</h2><table><tr><th>步骤</th><th class="num">次数</th><th class="num">平均耗时 s</th><th class="num">平均上下文 token</th><th class="num">平均输出 token</th><th class="num">平均实际 $</th><th class="num">平均 K3 ¥</th><th class="num">合计 K3 ¥</th></tr>
+  ${Object.entries(steps).sort().map(([k,o])=>`<tr><td><span class="tag" style="background:${STEP_COLOR[k]||'#555'}">${k}</span></td><td class="num">${o.n}</td><td class="num">${fmt(o.secs/o.n,1)}</td><td class="num">${o.nctx?tok(o.ctx/o.nctx):'-'}</td><td class="num">${o.nctx?tok(o.out/o.nctx):'-'}</td><td class="num">${fmt(o.usd/o.n,3)}</td><td class="num">${fmt(o.k3/o.n,2)}</td><td class="num">${fmt(o.k3,0)}</td></tr>`).join('')}
+  <tr><td>缓存保温</td><td class="num">${keepN}</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">${fmt(keepUsd/Math.max(1,keepN),3)}</td><td class="num">${fmt(keepK3/Math.max(1,keepN),2)}</td><td class="num">${fmt(keepK3,0)}</td></tr></table>
+  <div class="small mute">01 = 带 03 那本把事实先交给主会话；02 市况；03 多空分叉；04 选票；05 风控；06 终裁（写挂单）。上下文 token = 缓存读 + 缓存写 + 未缓存输入。</div></div>
+  <div class="card"><h2>触发原因 —— 哪类触发最多、最花钱</h2><table><tr><th>原因</th><th class="num">次数</th><th class="num">平均耗时 s</th><th class="num">合计实际 $</th><th class="num">合计 K3 ¥</th></tr>
+  ${Object.entries(cats).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`<tr><td>${k}</td><td class="num">${o.n}</td><td class="num">${fmt(o.secs/o.n,0)}</td><td class="num">${fmt(o.usd,1)}</td><td class="num">${fmt(o.k3,0)}</td></tr>`).join('')}</table></div>
+  ${fateCard(B)}${calcCard()}${probsCard()}`;
+  bindTPM(); bindCalc();
+}
+
+// ---------- 10/24 B 版: 缓存保温体检 ----------
+function keepCard(){
+  const K = DATA.books.flatMap(b=>b.keep.map(k=>({b,k}))).sort((x,y)=>x.k.start<y.k.start?-1:1);
+  if (!K.length) return '';
+  const bad = K.filter(x=>x.k.bad), usd = sum(K,x=>x.k.usd), k3 = sum(K,x=>x.k.k3), all = sum(DATA.books,b=>bookCost(b).usd);
+  const lunch = bad.filter(x=>x.k.idle!=null && x.k.idle>=60), early = bad.filter(x=>x.k.idle!=null && x.k.idle<60), fine50 = K.filter(x=>!x.k.bad && x.k.idle!=null && x.k.idle<60 && (x.k.cr||0)>100000);
+  const mx = K.reduce((m,x)=>(x.k.cw||0)>(m.k.cw||0)?x:m, K[0]);
+  return `<div class="card alert"><h2>【注意】缓存保温花费远超设计</h2>
+   <div>全天保温 <b>${K.length}</b> 次，实际 <b>$${fmt(usd,1)}</b>（占全天 ${fmt(usd/Math.max(1e-9,all)*100,1)}%），K3 预估 ¥${fmt(k3,0)}；设计每次 $0.1~0.2，<b class="neg">超标 ${bad.length} 次、合计 $${fmt(sum(bad,x=>x.k.usd),1)}</b>（超标 = 缓存写 ≥ 10 万 token 或单次 > $${fmt(DATA.keep_design*2,1)}）。最大一次：${esc(mx.b.name)} ${mx.k.start} 缓存写 ${tok(mx.k.cw)}、$${fmt(mx.k.usd,2)}。</div>
+   <ul class="small">
+    <li>距上次调用 ≥ 60 分钟（多是午休 11:30→13:00 = 90 分钟 > 1 小时缓存）：${lunch.length} 次 $${fmt(sum(lunch,x=>x.k.usd),1)} —— 缓存必然已过期，这时保温 = 整段重写，而 13:00 后马上就有叫醒，保温白花钱。</li>
+    <li>距上次调用只有约 50 分钟缓存却已经没了：${early.length} 次 $${fmt(sum(early,x=>x.k.usd),1)}（同样约 50 分钟、缓存还在的正常续期：${fine50.length} 次）—— 说明 1 小时缓存不是每次都生效。</li>
+    <li>"缓存读写都很小却花了钱"的几次：executor 保温只记了缓存读 / 写、没记未缓存输入，K3 ¥ 按当天比例估（标"估"）。</li></ul>
+   <table><tr><th>账本</th><th>开始</th><th class="num">距上次调用 分</th><th class="num">耗时 s</th><th class="num">缓存读</th><th class="num">缓存写</th><th class="num">实际 $</th><th class="num">K3 ¥</th><th>判断</th></tr>
+   ${K.map(({b,k})=>`<tr class="${k.bad?'bad':''}"><td>${esc(b.name)}</td><td>${k.start}</td><td class="num">${fmt(k.idle,1)}</td><td class="num">${fmt(k.secs,1)}</td><td class="num">${tok(k.cr)}</td><td class="num">${tok(k.cw)}</td><td class="num">${fmt(k.usd,3)}</td><td class="num">${fmt(k.k3,2)}${k.est?' <span class="tag est">估</span>':''}</td><td class="small">${esc(k.note)}</td></tr>`).join('')}</table></div>`;
+}
+
+// ---------- 排队等待 vs 链计算 ----------
+function waitCard(){
+  const V = DATA.books.flatMap(b=>b.versions.filter(v=>v.q).map(v=>({b,v})));
+  const row = (lab, xs) => `<tr><td>${lab}</td><td class="num">${fmt(qtl(xs,.5),0)}</td><td class="num">${fmt(qtl(xs,.9),0)}</td><td class="num">${fmt(Math.max(0,...xs),0)}</td><td class="num">${fmt(sum(xs,x=>x)/Math.max(1,xs.length),1)}</td></tr>`;
+  const top = V.filter(x=>x.v.q.wait>0).sort((x,y)=>y.v.q.wait-x.v.q.wait).slice(0,10);
+  return `<div class="card"><h2>排队等待 vs 链计算 —— 事件发生到挂单出来，时间花在哪（全天 ${V.length} 次触发，单位秒）</h2>
+   <table><tr><th>环节</th><th class="num">P50</th><th class="num">P90</th><th class="num">最大</th><th class="num">平均</th></tr>
+   ${row('排队合计（事件发生 → 链开始）', V.map(x=>x.v.q.wait))}${row('　其中：本账上一轮还在算（重定排队 → 排队补叫）', V.map(x=>x.v.q.hold))}${row('　其中：等全局名额（排队叫醒 → 链开始）', V.map(x=>x.v.q.gate))}
+   ${row('链计算（timing.total）', V.map(x=>x.v.total||0))}${row('事件 → 挂单出来 合计', V.map(x=>x.v.q.wait+(x.v.total||0)))}</table>
+   <div class="small mute">事件发生 = events 里「重定」的时刻；链在算时来的事件 = 「重定排队」时刻（算完以「(排队补叫)」开新版）；排队叫醒 = 进全局名额队列；链开始 = timing.start。午休延后到 13:00 的不算排队。</div>
+   ${top.length?`<table style="margin-top:8px"><tr><th>账本</th><th>版</th><th>事件</th><th>进队</th><th>开始</th><th class="num">排队 s</th><th class="num">链 s</th><th>原因</th></tr>${top.map(({b,v})=>`<tr><td>${esc(b.name)}</td><td>${v.dir}</td><td>${v.q.ev}</td><td>${v.q.qt}</td><td>${v.start}</td><td class="num warn">${v.q.wait}</td><td class="num">${fmt(v.total,0)}</td><td class="small">${esc((v.why||'').slice(0,70))}</td></tr>`).join('')}</table>`:''}</div>`;
+}
+
+// ---------- 每分钟 token vs K3 限速 ----------
+let TPM_KEY = 'all', TPM_MODE = 'spread';
+function tpmCard(){
+  const T = DATA.tpm, L = DATA.limits;
+  return `<div class="card"><h2>每分钟 token 用量 vs K3 限速（决定实盘线会不会被限速）</h2>
+   <div><select id="tk"><option value="all">全部 ${DATA.books.length} 本合计</option>${DATA.books.map(b=>`<option value="${b.id}">只算：${esc(b.name)}（${b.mode==='plan'?'计划':'盯盘'}）</option>`).join('')}</select>
+    <label><input type="radio" name="tm" value="spread" checked> 按耗时摊到分钟</label> <label><input type="radio" name="tm" value="start"> 整次调用算在发出那一分钟</label></div>
+   <div id="tpmsvg"></div><div id="tpmover" class="small"></div>
+   <div class="small">全部账本：每分钟请求峰值 <b>${T.rpm.max}</b> 次 @${T.rpm.at}（Tier2 ${L.t2.rpm} / Tier4 ${L.t4.rpm}）；同时在跑的调用峰值 <b>${T.conc.max}</b> 个 @${T.conc.at}（Tier2 ${L.t2.conc} / Tier4 ${L.t4.conc}）。</div>
+   <div class="small mute">口径：每次模型调用 = 上下文（缓存读 + 缓存写 + 未缓存输入）+ 输出；03 多空分叉没有 token 明细 → 按同版 04 的上下文估（浅色）；保温也算。开始时刻 = timing.start + 前面各步耗时累加（不含组 01 / 06 现取盘口的间隙，可能偏早几秒）。
+   <b>不确定：</b>K3 的 TPM 是否把缓存命中的 token 也计入——这里按计入算（偏保守）；若只算未缓存输入 + 输出，峰值会低很多。</div></div>`;
+}
+function bindTPM(){
+  const tk = document.getElementById('tk'); if (!tk) return;
+  tk.value = TPM_KEY; document.querySelectorAll('input[name=tm]').forEach(r => { r.checked = r.value===TPM_MODE; r.onchange = () => { TPM_MODE = r.value; drawTPM(); }; });
+  tk.onchange = () => { TPM_KEY = tk.value; drawTPM(); }; drawTPM();
+}
+function drawTPM(){
+  const T = DATA.tpm, M = T[TPM_MODE], A = M[TPM_KEY], ax = T.axis, L = DATA.limits, t2 = L.t2.tpm, t4 = L.t4.tpm;
+  const tot = A.tok.map((x,i)=>x+A.est[i]), n = ax.length;
+  const W = 900, H = 230, Lm = 46, R = 8, Tm = 10, Bm = 20, bw = (W-Lm-R)/n, mx = Math.max(...tot, t4)*1.08;
+  const Y = v => Tm + (1 - v/mx)*(H-Tm-Bm);
+  const who = i => TPM_KEY!=='all' ? '' : DATA.books.map(b=>[b.name, M[b.id].tok[i]+M[b.id].est[i]]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,4).map(x=>`${x[0]} ${tok(x[1])}`).join('、');
+  const bars = tot.map((v,i) => { if (!v) return ''; const x = Lm + i*bw, c = v>t4 ? '#dc2626' : v>t2 ? '#f59e0b' : '#2563eb';
+    return `<g><rect x="${x.toFixed(1)}" y="${Y(A.tok[i]).toFixed(1)}" width="${Math.max(1,bw-0.6).toFixed(1)}" height="${(H-Bm-Y(A.tok[i])).toFixed(1)}" fill="${c}"/>${A.est[i]?`<rect x="${x.toFixed(1)}" y="${Y(v).toFixed(1)}" width="${Math.max(1,bw-0.6).toFixed(1)}" height="${(Y(A.tok[i])-Y(v)).toFixed(1)}" fill="${c}" opacity="0.35"/>`:''}<title>${ax[i]} ${tok(v)}（其中 03 估 ${tok(A.est[i])}）${who(i)?'\n'+who(i):''}</title></g>`; }).join('');
+  const hl = (v, lab, c) => `<line x1="${Lm}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${c}" stroke-dasharray="5,3"/><text x="${W-R-4}" y="${Y(v)-3}" text-anchor="end" style="fill:${c}">${lab}</text>`;
+  const ticks = ['09:00','09:30','10:30','11:29','13:00','14:00','14:59'].map(t=>{ const i = ax.indexOf(t); return i<0?'':`<text x="${Lm+i*bw}" y="${H-5}" text-anchor="middle">${t}</text>`; }).join('');
+  const lunch = ax.indexOf('13:00'), yt = [0, mx/2, mx].map(v=>`<text x="2" y="${Y(v)+3}">${tok(v)}</text>`).join('');
+  document.getElementById('tpmsvg').innerHTML = `<svg width="${W}" height="${H}">${yt}<line x1="${Lm+lunch*bw}" x2="${Lm+lunch*bw}" y1="${Tm}" y2="${H-Bm}" stroke="#d1d5db"/>${bars}${hl(t2,'Tier2 300 万/分','#f59e0b')}${hl(t4,'Tier4 400 万/分','#dc2626')}${ticks}</svg>`;
+  const over = tot.map((v,i)=>[i,v]).filter(x=>x[1]>t2), pk = tot.indexOf(Math.max(...tot));
+  document.getElementById('tpmover').innerHTML = `峰值 <b>${tok(tot[pk])}</b> @${ax[pk]}；合计 ${tok(sum(tot,x=>x))}${TPM_KEY==='all'&&T.spill[TPM_MODE]?`（另有 ${tok(T.spill[TPM_MODE])} 落在午休 / 15:00 后，不在轴上）`:''}；
+   超 Tier2（300 万）<b class="${over.length?'neg':''}">${over.length}</b> 分钟，超 Tier4（400 万）<b class="${over.filter(x=>x[1]>t4).length?'neg':''}">${over.filter(x=>x[1]>t4).length}</b> 分钟。
+   ${over.length?`<table style="margin-top:6px"><tr><th>分钟</th><th class="num">token</th><th>超哪条线</th>${TPM_KEY==='all'?'<th>主要来自</th>':''}</tr>${over.map(([i,v])=>`<tr><td>${ax[i]}</td><td class="num">${tok(v)}</td><td>${v>t4?'<span class="neg">Tier4</span>':'Tier2'}</td>${TPM_KEY==='all'?`<td class="small">${esc(who(i))}</td>`:''}</tr>`).join('')}</table>`:''}`;
+}
+
+// ---------- 挂单结局汇总 ----------
+function fateCard(BS){
+  const cnt = {}; BS.forEach(b=>b.versions.forEach(v=>v.orders.forEach(o=>{ const k = o.fate?o.fate.cat:'无结局'; cnt[k]=(cnt[k]||0)+1; })));
+  const n = sum(Object.values(cnt), x=>x);
+  return `<div class="card"><h2>挂单结局（${BS.length>1?'全部账本':'本账'} ${n} 张）</h2><div>${Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([k,c])=>`${fateTag({cat:k})} ${c}`).join('　')}</div>
+   <div class="small mute">口径 = replay_report.order_audit（对照这一版有效期内的 3 秒盘口）；"被替换(之后到价)" = 这一版有效期里没到价、被下一版换掉后价格到过（不撤就成）；"生效前已到价(链慢了)" = 有效期按分钟算时到过价，但按精确生效时刻（开始 + 链耗时）看，到价发生在链出结果之前；"执行器剔除" = 06 写了但执行器检查没收（如 after 前置单的卖单按"超过持仓"被剔）；之后走势 = 挂单生效后 30 个交易分钟 / 收盘的价相对挂单价。</div></div>`;
+}
+
+// ---------- 实盘线瘦身计算器(K3 价) ----------
+const CALC_F = [['R','常驻上下文 token',1000],['Q','每次检索 token',1000],['O','每次输出 token',100],['N','每天触发次数',1],['S','每次触发几步调用',0.1],['H','缓存命中率(常驻部分, 0~1)',0.05]];
+function calcCard(){
+  const c = DATA.calc;
+  return `<div class="card"><h2>实盘线估算计算器（K3 价；一条线）</h2>
+   <div><span class="btn" id="p_now">现写法（10/23 实测：常驻 ${tok(c.now.R)}、${c.now.S} 步、命中 ${c.now.H}）</span><span class="btn" id="p_slim">瘦身后（4 万常驻 + 1 万检索、1 步）</span></div>
+   <div class="calc">${CALC_F.map(([k,lab,st])=>`<label>${lab}<input id="c_${k}" type="number" step="${st}" min="0" value="${c.now[k]}"></label>`).join('')}</div>
+   <div id="cout"></div>
+   <div class="small mute">每次调用 ¥ = 常驻×命中率×¥2 + (常驻×(1−命中率) + 检索)×¥20 + 输出×¥100（每百万 token；K3 缓存写入价 = 输入价 ¥20，所以没命中的部分不管是写缓存还是不缓存都按 ¥20）。检索内容每次不同，不算命中。
+   单次触发 token = 步数 × (常驻 + 检索 + 输出)；"最坏一分钟" = 假设这次触发的几步都落在同一分钟（10/23 实测一条链 3 步多在 1~2 分钟内跑完）。现写法默认值：常驻 = 04/05/06 每步上下文的中位数，输出 = 平均，步数 = 平均每次触发的调用次数（03 多空算 2 次），触发次数 = 盯盘账平均。</div></div>`;
+}
+function bindCalc(){
+  if (!document.getElementById('cout')) return;
+  const set = p => { CALC_F.forEach(([k])=>document.getElementById('c_'+k).value = DATA.calc[p][k]); calcRun(); };
+  document.getElementById('p_now').onclick = () => set('now'); document.getElementById('p_slim').onclick = () => set('slim');
+  CALC_F.forEach(([k])=>document.getElementById('c_'+k).oninput = calcRun); calcRun();
+}
+function calcRun(){
+  const g = k => Math.max(0, +document.getElementById('c_'+k).value || 0), K = DATA.k3;
+  const R = g('R'), Q = g('Q'), O = g('O'), N = g('N'), S = g('S'), H = Math.min(1, g('H'));
+  const call = (R*H*K.cache_read + (R*(1-H)+Q)*K.in + O*K.out)/1e6, trig = call*S, day = trig*N, mon = day*21;
+  const tk1 = S*(R+Q+O), L = DATA.limits;
+  const watch = DATA.books.filter(b=>b.mode==='watch'), real = sum(watch,b=>bookCost(b).k3)/Math.max(1,watch.length);
+  document.getElementById('cout').innerHTML = `<table style="width:auto"><tr><th>每次调用</th><th>每次触发</th><th>每天</th><th>每月（21 个交易日）</th><th>单次触发 token（最坏一分钟 TPM）</th><th>占 Tier2 / Tier4</th><th>同一分钟最多几次触发</th></tr>
+   <tr><td class="num">¥${fmt(call,2)}</td><td class="num">¥${fmt(trig,2)}</td><td class="num"><b>¥${fmt(day,0)}</b></td><td class="num"><b>¥${fmt(mon,0)}</b></td><td class="num">${tok(tk1)}</td><td class="num">${fmt(tk1/L.t2.tpm*100,0)}% / ${fmt(tk1/L.t4.tpm*100,0)}%</td><td class="num">${tk1?Math.floor(L.t2.tpm/tk1):'-'} / ${tk1?Math.floor(L.t4.tpm/tk1):'-'}</td></tr></table>
+   <div class="small mute">对照：10/23 盯盘账实测平均每本每天 K3 ¥${fmt(real,0)}（含保温）。</div>`;
+}
+
+// ---------- 数据问题 ----------
+function probsCard(){
+  return `<div class="card"><h2>数据问题（生成时自动检出 ${DATA.probs.length} 条）</h2><pre>${esc(DATA.probs.join('\n')||'无')}</pre></div>`;
+}
+
+function mentorCard(b){
+  const m = b.mentor_day; if (!m) return '';
+  const mt = DATA.mentor[b.skill]||[], same = new Set(m.same||[]);
+  return `<div class="card"><h2>导师真人当天怎么做（对照）</h2><div><b>拟人度：</b>${esc(m.verdict)}</div>
+   <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px">
+    <div style="flex:1;min-width:340px"><b class="small">导师真人逐笔（${mt.length} 笔）</b><table><tr><th>时间</th><th>方向</th><th>票</th><th class="num">数量</th><th class="num">价</th></tr>${mt.map(x=>`<tr class="${same.has(x[1])?'on':''}"><td>${x[0]}</td><td class="${x[3]==='BUY'?'pos':'neg'}">${x[3]==='BUY'?'买':'卖'}</td><td>${esc(x[2]+' '+x[1])}${same.has(x[1])?' <span class="tag">同票</span>':''}</td><td class="num">${x[5]}</td><td class="num">${x[4]}</td></tr>`).join('')||'<tr><td colspan="5" class="mute">当天没有成交</td></tr>'}</table>
+     <div class="small"><b>收盘仓位：</b>${esc(m.close)}</div></div>
+    <div style="flex:1;min-width:340px"><b class="small">本账成交（${b.trades.length} 笔）</b><table><tr><th>时间</th><th>方向</th><th>票</th><th class="num">数量</th><th class="num">价</th></tr>${b.trades.map(t=>`<tr><td>${t.t}</td><td class="${t.side==='BUY'?'pos':'neg'}">${t.side==='BUY'?'买':'卖'}</td><td>${esc((t.name||'')+' '+t.code)}${same.has(t.code)?' <span class="tag">同票</span>':''}</td><td class="num">${t.qty}</td><td class="num">${t.px}</td></tr>`).join('')||'<tr><td colspan="5" class="mute">无</td></tr>'}</table>
+     <div class="small"><b>收盘持仓：</b>${Object.entries(b.positions).map(([k,p])=>`${esc(p.name||'')}(${k}) ${p.qty}`).join('、')||'空仓'}</div></div></div></div>`;
+}
+
+function keepBookCard(b){
+  if (!b.keep.length) return '';
+  const bad = b.keep.filter(k=>k.bad).length;
+  return `<div class="card ${bad?'alert':''}"><h2>缓存保温（${b.keep.length} 次${bad?`，超标 ${bad} 次`:''}）</h2><table><tr><th>开始</th><th class="num">距上次调用 分</th><th class="num">耗时 s</th><th class="num">缓存读</th><th class="num">缓存写</th><th class="num">实际 $</th><th class="num">K3 ¥</th><th>判断</th></tr>
+   ${b.keep.map(k=>`<tr class="${k.bad?'bad':''}"><td>${k.start}</td><td class="num">${fmt(k.idle,1)}</td><td class="num">${fmt(k.secs,1)}</td><td class="num">${tok(k.cr)}</td><td class="num">${tok(k.cw)}</td><td class="num">${fmt(k.usd,3)}</td><td class="num">${fmt(k.k3,2)}${k.est?' <span class="tag est">估</span>':''}</td><td class="small">${esc(k.note)}</td></tr>`).join('')}</table></div>`;
+}
+
+function chartSVG(code, b){
+  const bars = DATA.charts[code]; if(!bars || !bars.length) return '';
+  const W = 760, H = 170, L = 44, R = 8, T = 10, Bm = 18;
+  const tIdx = t => { const [h,m] = t.split(':').map(Number); let x = h*60+m - (9*60+30); if (h>=13) x -= 90; return Math.max(0, Math.min(240, x)); };
+  const ys = bars.flatMap(x=>[x[2],x[3]]); let lo = Math.min(...ys), hi = Math.max(...ys);
+  const marks = [];
+  b.trades.filter(t=>t.code===code).forEach(t => marks.push({t:t.t, px:t.px, side:t.side, who:'paper', tip:`本账 ${t.side==='BUY'?'买':'卖'} ${t.qty}@${t.px} ${t.t}`}));
+  if (SHOW_MENTOR) (DATA.mentor[b.skill]||[]).filter(x=>x[1]===code).forEach(x => marks.push({t:x[0], px:x[4], side:x[3], who:'mentor', tip:`导师真人 ${x[3]==='BUY'?'买':'卖'} ${x[5]}@${x[4]} ${x[0]}`}));
+  if (SHOW_USER) DATA.user.filter(x=>x[1]===code).forEach(x => marks.push({t:x[0], px:x[4], side:x[3], who:'user', tip:`你 ${x[3]==='BUY'?'买':'卖'} ${x[5]}@${x[4]} ${x[0]}`}));
+  marks.forEach(m => { lo = Math.min(lo, m.px); hi = Math.max(hi, m.px); });
+  const pad = (hi-lo)*0.06 || 0.01; lo -= pad; hi += pad;
+  const X = i => L + i/240*(W-L-R), Y = p => T + (hi-p)/(hi-lo)*(H-T-Bm);
+  const path = bars.map((x,i)=>`${i?'L':'M'}${X(tIdx(x[0])).toFixed(1)},${Y(x[1]).toFixed(1)}`).join('');
+  const vlines = b.versions.map(v => { const x = X(tIdx(v.trig.slice(0,5))); return `<line x1="${x}" x2="${x}" y1="${T}" y2="${H-Bm}" stroke="#3b4a7a" stroke-dasharray="2,3"><title>${esc(v.trig+' '+(v.why||''))}</title></line>`; }).join('');
+  const col = {paper:'#5b9bff', mentor:'#f0a03c', user:'#b48cff'};
+  const mk = marks.map(m => { const x = X(tIdx(m.t.slice(0,5))), y = Y(m.px), c = col[m.who];
+    // 10/25 用户: 买卖点用 B / S 文字(不用三角 / 圆圈), 颜色区分 本账 / 导师真人 / 你; 买在价格点上方、卖在下方, 小圆点标准确位置
+    const up = m.side==='BUY', ty = up ? y-6 : y+15;
+    const shape = `<circle cx="${x}" cy="${y}" r="2" fill="${c}"/><text x="${x}" y="${ty}" text-anchor="middle" style="font-size:12px;font-weight:700;fill:${c};paint-order:stroke;stroke:#15171c;stroke-width:3px">${up?'B':'S'}</text>`;
+    return `<g>${shape}<title>${esc(m.tip)}</title></g>`; }).join('');
+  const ticks = [['09:30',0],['10:30',60],['11:30',120],['14:00',210],['15:00',240]].map(([t,i])=>`<text x="${X(i)}" y="${H-4}" text-anchor="middle">${t}</text>`).join('');
+  const name = (b.trades.find(t=>t.code===code)||{}).name || (DATA.user.find(x=>x[1]===code)||[])[2] || ((DATA.mentor[b.skill]||[]).find(x=>x[1]===code)||[])[2] || '';
+  return `<div class="small"><b>${code} ${esc(name)}</b></div><svg width="${W}" height="${H}"><text x="2" y="${T+8}">${hi.toFixed(2)}</text><text x="2" y="${H-Bm}">${lo.toFixed(2)}</text>${vlines}<path d="${path}" fill="none" stroke="#e6e8ec" stroke-width="1.2"/>${mk}${ticks}</svg>`;
+}
+
+function renderBook(b){
+  const c = bookCost(b);
+  const codes = [...new Set([...b.trades.map(t=>t.code), ...Object.keys(b.positions), ...(SHOW_MENTOR?(DATA.mentor[b.skill]||[]).map(x=>x[1]):[]), ...b.versions.flatMap(v=>v.orders.map(o=>o.code))])].filter(x=>x && DATA.charts[x]).slice(0, 8);
+  const maxT = Math.max(...b.versions.map(v=>v.total||0), 1);
+  const rows = b.versions.map((v,i) => {
+    const nf = v.orders.filter(o=>o.fate&&o.fate.cat==='成交').length;
+    const segs = v.steps.map(s => `<span title="${s.name} ${fmt(s.secs,1)}s" style="width:${(s.secs||0)/maxT*100}%;background:${STEP_COLOR[s.name]||'#555'}"></span>`).join('');
+    return `<tr class="v" data-i="${i}"><td>${v.trig}</td><td><span class="tag">${whyCat(v.why)}</span>${esc((v.why||'').slice(0,60))}</td><td class="num ${v.q&&v.q.wait>60?'warn':''}">${v.q?v.q.wait:'-'}</td><td class="num">${fmt(v.total,0)}</td><td><div class="bar">${segs}</div></td><td class="num">${fmt(v.usd,2)}</td><td class="num">${fmt(v.k3,1)}</td><td class="num">${v.orders.length}${nf?` <span class="fate ok">成${nf}</span>`:''}</td><td>${v.result==='ok'?'':'<span class="neg">'+esc(v.result||'')+'</span>'}${v.stop?'<span class="tag">判停</span>':''}</td></tr><tr class="det" id="det${i}" style="display:none"><td colspan="9"></td></tr>`; }).join('');
+  document.getElementById('main').innerHTML = `
+  <div class="card"><h2>${esc(b.name)} <span class="mute small">${b.mode==='plan'?'计划模式':'盯盘模式'}${b.kind==='dt'?' · 决策T':''} · skill ${esc(b.skill)}</span></h2>
+   <div>收益 <b class="${b.ret>0?'pos':b.ret<0?'neg':''}">${b.ret==null?'-':b.ret.toFixed(2)+'%'}</b>（${b.nav0??'-'} → ${b.nav1??'-'}） · 触发 ${b.versions.length} 次 · 成交 ${b.trades.length} 笔 · 实际 $${fmt(c.usd,2)} · K3 预估 ¥${fmt(c.k3,1)} · 保温 ${b.keep.length} 次（¥${fmt(sum(b.keep,k=>k.k3),1)}）</div>
+   <div class="small mute">收盘持仓：${Object.entries(b.positions).map(([k,p])=>`${p.name||k} ${p.qty}`).join('、')||'空仓'}</div></div>
+  <div class="card"><h2>分时 + 买卖点</h2><div class="legend"><span style="color:#5b9bff"><b>B S</b> 本账(skill)</span><span style="color:#f0a03c"><b>B S</b> 导师真人</span><span style="color:#b48cff"><b>B S</b> 你</span><span class="mute">虚线 = 每次触发（悬停看原因）</span>
+   <label><input type="checkbox" id="cm" ${SHOW_MENTOR?'checked':''}> 导师</label> <label><input type="checkbox" id="cu" ${SHOW_USER?'checked':''} ${DATA.user.length?'':'disabled'}> 你的实盘</label></div>
+   ${codes.map(x=>chartSVG(x,b)).join('') || '<div class="mute">没有相关分时</div>'}</div>
+  <div class="card"><h2>每次触发（点一行看每一步的输入输出）</h2><div class="legend">${Object.entries(STEP_COLOR).map(([k,v])=>`<span><span class="tag" style="background:${v}">${k}</span></span>`).join('')}</div>
+   <table><tr><th>触发</th><th>原因</th><th class="num">排队 s</th><th class="num">链耗时 s</th><th>各步耗时</th><th class="num">实际 $</th><th class="num">K3 ¥</th><th class="num">挂单</th><th></th></tr>${rows}</table></div>
+  ${fateCard([b])}${mentorCard(b)}${keepBookCard(b)}
+  <div class="card"><h2>成交</h2><table><tr><th>时间</th><th>方向</th><th>票</th><th class="num">数量</th><th class="num">价</th><th>理由</th></tr>${b.trades.map(t=>`<tr><td>${t.t}</td><td class="${t.side==='BUY'?'pos':'neg'}">${t.side==='BUY'?'买':'卖'}</td><td>${esc((t.name||'')+' '+t.code)}</td><td class="num">${t.qty}</td><td class="num">${t.px}</td><td class="small">${esc((t.why||'').slice(0,160))}</td></tr>`).join('')||'<tr><td colspan="6" class="mute">无</td></tr>'}</table></div>
+  <div class="card"><h2>事件（已去掉只记录类的噪声）</h2><pre>${b.events.map(e=>esc(JSON.stringify(e))).join('\n')}</pre></div>`;
+  document.getElementById('cm').onchange = e => { SHOW_MENTOR = e.target.checked; renderBook(b); };
+  const cu = document.getElementById('cu'); if (cu) cu.onchange = e => { SHOW_USER = e.target.checked; renderBook(b); };
+  document.querySelectorAll('tr.v').forEach(tr => tr.onclick = () => toggleDetail(b, +tr.dataset.i, tr));
+}
+
+function toggleDetail(b, i, tr){
+  const det = document.getElementById('det'+i), v = b.versions[i];
+  if (det.style.display !== 'none') { det.style.display = 'none'; tr.classList.remove('on'); return; }
+  tr.classList.add('on'); det.style.display = '';
+  const steps = v.steps.map(s => `<tr><td><span class="tag" style="background:${STEP_COLOR[s.name]||'#555'}">${s.name}</span></td><td class="num">${fmt(s.secs,1)}</td><td class="num">${tok(s.cr)}</td><td class="num">${tok(s.cw)}</td><td class="num">${tok(s.in)}</td><td class="num">${tok(s.out)}</td><td class="num">${fmt(s.usd,3)}</td><td class="num">${fmt(s.k3,2)}${s.est?' <span class="tag est">估</span>':''}</td><td class="small neg">${esc(s.err||'')}</td></tr>`).join('');
+  const files = Object.keys(v.files).map(f => `<span class="btn" data-f="${f}">${f} <span class="mute">${(v.sizes[f]/1024).toFixed(0)}KB</span></span>`).join('');
+  const orders = v.orders.map(o => { const f = o.fate||{}; return `<tr><td>${esc((o.name||'')+' '+o.code)} <span class="mute">${esc(o.id||'')}</span></td><td class="${o.side==='BUY'?'pos':'neg'}">${o.side==='BUY'?'买':'卖'} ${o.op||''}${o.px}</td><td class="num">${o.qty}</td><td>${o.auction?'竞价 ':''}${o.type||''}${o.after?' 等'+o.after:''}</td>
+    <td>${fateTag(o.fate)}<div class="small">${esc(f.why||'')}</div><div class="small mute">${f.win?'有效 '+f.win:''}${f.repl?' · '+esc(f.repl):''}</div></td><td class="num">${f.t30?f.t30+' ':''}${pct(f.d30)}</td><td class="num">${pct(f.dc)}</td><td class="small">${esc((o.why||'').slice(0,220))}</td></tr>`; }).join('');
+  det.firstElementChild.innerHTML = `
+   <div class="small mute">触发 ${v.trig} · 开始 ${v.start||'-'} · 链耗时 ${fmt(v.total,1)} 秒 · ${v.boot?'启动轮（第一次建会话）':'续会话'}</div>
+   ${v.q?`<div class="small"><b>排队：</b>事件 ${v.q.ev}（${esc(v.q.src)}）→ 进名额队列 ${v.q.qt}（本账上一轮占着 ${v.q.hold} 秒）→ 链开始 ${v.start}（等名额 ${v.q.gate} 秒）；事件 → 挂单出来共 ${v.q.wait + Math.round(v.total||0)} 秒</div>`:''}
+   <div class="small"><b>原因：</b>${esc(v.why)}</div><div class="small"><b>看法：</b>${esc(v.view)}</div>
+   <table style="margin:8px 0"><tr><th>步骤</th><th class="num">耗时 s</th><th class="num">缓存读</th><th class="num">缓存写</th><th class="num">未缓存输入</th><th class="num">输出</th><th class="num">实际 $</th><th class="num">K3 ¥</th><th></th></tr>${steps}</table>
+   <div><b class="small">这一版的输入 / 输出原文：</b>${files}</div><pre class="ftxt" style="display:none"></pre>
+   <div style="margin-top:8px"><b class="small">06 挂单</b><table><tr><th>票</th><th>方向 / 价</th><th class="num">数量</th><th>类型</th><th>结局</th><th class="num">30 分钟后</th><th class="num">收盘</th><th>为什么</th></tr>${orders||'<tr><td colspan="8" class="mute">不挂单</td></tr>'}</table><div class="small mute">30 分钟后 / 收盘 = 那时的价相对挂单价（+ = 涨）。</div></div>`;
+  const pre = det.querySelector('.ftxt');
+  det.querySelectorAll('.btn').forEach(bt => bt.onclick = async ev => { ev.stopPropagation(); det.querySelectorAll('.btn').forEach(x=>x.classList.remove('on')); bt.classList.add('on'); pre.style.display=''; pre.textContent = '解压中…'; pre.textContent = await unz(v.files[bt.dataset.f]); });
+}
+
+renderNav(); renderSummary();
+</script>
+</body>
+</html>

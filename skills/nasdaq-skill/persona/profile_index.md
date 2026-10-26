@@ -1,5 +1,5 @@
-# profile_index.md — nasdaq 导师画像目录(链改造 F; 生成于 2026-10-22 20:18)
-> 源: skills/nasdaq-skill/persona/profile.md sha12=b09e69a6edb1 · 52 行 · 3.4KB · 2 节(超长节按行切片≤6KB)
+# profile_index.md — nasdaq 导师画像目录(链改造 F; 生成于 2026-10-25 00:07)
+> 源: skills/nasdaq-skill/persona/profile.md sha12=671955cdd591 · 52 行 · 3.4KB · 2 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
 > 标注来源: 机械(画像 ≤8KB, 全节全步注入, 未调模型); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill nasdaq`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 3.3KB / 03 3.3KB / 04 3.3KB / 05 3.3KB / 06 3.3KB
@@ -11,4 +11,4 @@
 | 编号 | 节 | 讲什么 | 行 | KB | 适用步骤 | 优先 | sha8 |
 |---|---|---|---|---|---|---|---|
 | S01 | 定位与逻辑(手写, 10/18) | - **标的选择**: 纳指 ETF 有多只(513100 国泰 / 15994 | L3-9 | 1.1 | 02,03,04,05,06 | 1 | 97c41e0e |
-| S02 | 数据画像(机械) | <!-- AUTO:数据画像 --> _(t_skill.py 机械生成, 数据 | L11-51 | 2.2 | 02,03,04,05,06 | 1 | 864971b2 |
+| S02 | 数据画像(机械) | <!-- AUTO:数据画像 --> _(t_skill.py 机械生成, 数据 | L11-51 | 2.2 | 02,03,04,05,06 | 1 | 6a67fb04 |

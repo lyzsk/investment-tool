@@ -1,0 +1,1224 @@
+{
+ "replay": "results/_replay/2026-10-23/2026-10-23",
+ "assets": [
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/adjustment_factor.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/market/refresh_factors.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/auction_live_close.json",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/auction_live_open.json",
+   "status": "代码在用",
+   "evidence": "scripts/dfcf/paper/pack07.py, scripts/dfcf/paper/t_decide.py, scripts/dfcf/snapshots/order-skill/playbook.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/book_snap.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/dfcf/paper/attribution.py, scripts/dfcf/paper/exec_base.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/call_auction_close.jsonl",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/call_auction_close_raw.jsonl",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/call_auction_open.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/live/plan_review.py, scripts/paper_line/tools/cb_path.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/call_auction_open_raw.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/market/cb_auction_features.py, scripts/md/check_md_daily.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/cb_auction_features.jsonl",
+   "status": "进首跑材料",
+   "evidence": "cb_auction_features"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/cb_facts.jsonl",
+   "status": "进首跑材料",
+   "evidence": "cb_facts"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/cb_facts.md",
+   "status": "进首跑材料",
+   "evidence": "cb_facts"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/global_kline.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/dfcf/paper/facts.mjs, scripts/market/collect_global.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/global_security.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/dfcf/paper/facts.mjs, scripts/market/collect_global.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/index_snap.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/dfcf/paper/exec_base.py, scripts/market/collect_book.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/indicators.jsonl",
+   "status": "进首跑材料",
+   "evidence": "indicators"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/kline_5m_live.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/market/minute_live.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/kline_day.jsonl",
+   "status": "进首跑材料",
+   "evidence": "kline_day"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/kline_minute.jsonl",
+   "status": "进首跑材料",
+   "evidence": "kline_minute.jsonl"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/kline_minute_live.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/market/minute_live.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/open15_minute.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/market/collect_open15.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/open_live.json",
+   "status": "进触发消息",
+   "evidence": "open_live"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/panel_minute.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/dfcf/paper/t_event.py, scripts/market/collect_panel.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/security_master.jsonl",
+   "status": "进首跑材料",
+   "evidence": "security_master"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/signal_params.json",
+   "status": "代码在用",
+   "evidence": "scripts/live/signal_params.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/tick_flow.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/market/collect_minute.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/topology.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/market/topology.py"
+  },
+  {
+   "kind": "A 行情日产物",
+   "name": "downloads/market/<日>/watchlist_info.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/market/collect_auction.py, scripts/market/collect_minute.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/_gpu/",
+   "status": "代码在用",
+   "evidence": "scripts/lib/gpu_lock.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/_guard/",
+   "status": "代码在用",
+   "evidence": "scripts/health/daily_health.py, scripts/lib/req_guard.mjs, scripts/lib/req_guard.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/_snapshots/",
+   "status": "代码在用",
+   "evidence": "scripts/tzzb/fetch_tzzb.mjs"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/bilibili/",
+   "status": "进首跑材料",
+   "evidence": "downloads/bilibili"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/cls/",
+   "status": "代码在用",
+   "evidence": "scripts/cls/fetch_cls_pool.mjs, scripts/paper_line/tools/theme_life.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/cls_pool/",
+   "status": "代码在用",
+   "evidence": "scripts/cls/fetch_cls_pool.mjs, scripts/paper_line/tools/theme_life.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/cls_zaobao/",
+   "status": "代码在用",
+   "evidence": "scripts/dfcf/paper/facts.mjs, scripts/health/daily_health.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/distill_pack/",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/f10/",
+   "status": "代码在用",
+   "evidence": "scripts/dfcf/paper/mimicry_score.py, scripts/market/topology.py, scripts/tzzb/mentor_scope.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/futures/",
+   "status": "代码在用",
+   "evidence": "scripts/market/topology.py, scripts/quotes/futures.mjs"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/holders/",
+   "status": "代码在用",
+   "evidence": "scripts/dfcf/paper/mix_plans.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/kline/",
+   "status": "代码在用",
+   "evidence": "scripts/kline_study/intake.py, scripts/kline_study/kline_inbox.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/kline_cases/",
+   "status": "代码在用",
+   "evidence": "scripts/kline_study/intake.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/lhb/",
+   "status": "进首跑材料",
+   "evidence": "downloads/lhb"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/ontology/ontology.db",
+   "status": "代码在用",
+   "evidence": "scripts/md/check_md_daily.py, scripts/ontology/build.py, scripts/ontology/query.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/ontology/rule_health.json",
+   "status": "代码在用",
+   "evidence": "scripts/ontology/rule_health.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/ontology/samples.jsonl",
+   "status": "代码在用",
+   "evidence": "scripts/ontology/sample_lib.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/ontology/telegraph_kind_stats.json",
+   "status": "代码在用",
+   "evidence": "scripts/paper_line/tools/telegraph_now.py, scripts/test/telegraph_kind.py"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/quotes/",
+   "status": "进首跑材料",
+   "evidence": "downloads/quotes"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/tzzb/",
+   "status": "进首跑材料",
+   "evidence": "downloads/tzzb"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/tzzb_cand/",
+   "status": "代码在用",
+   "evidence": "scripts/tzzb/fetch_tzzb.mjs"
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/user_images/",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "B 其他下载",
+   "name": "downloads/wechat/",
+   "status": "代码在用",
+   "evidence": "scripts/wechat/fetch_wechat.mjs"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "## 盘前",
+   "status": "进首跑材料",
+   "evidence": "## 盘前"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "### 当前持仓",
+   "status": "进首跑材料",
+   "evidence": "### 当前持仓"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "### 财联社早报",
+   "status": "进首跑材料",
+   "evidence": "### 财联社早报"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "### 微信公众号",
+   "status": "进首跑材料",
+   "evidence": "### 微信公众号"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "## 午评",
+   "status": "进首跑材料",
+   "evidence": "## 午评"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "## 午间涨停分析",
+   "status": "进首跑材料",
+   "evidence": "## 午间涨停分析"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "## 收评",
+   "status": "进首跑材料",
+   "evidence": "## 收评"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "## 涨停分析",
+   "status": "进首跑材料",
+   "evidence": "## 涨停分析"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "## 涨停梯队",
+   "status": "进首跑材料",
+   "evidence": "## 涨停梯队"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "## 复盘",
+   "status": "进首跑材料",
+   "evidence": "## 复盘"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "### 复盘持仓",
+   "status": "进首跑材料",
+   "evidence": "### 复盘持仓"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "### 龙虎榜",
+   "status": "进首跑材料",
+   "evidence": "### 龙虎榜"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "### bilibili",
+   "status": "进首跑材料",
+   "evidence": "### bilibili"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "### 同花顺投资账本",
+   "status": "进首跑材料",
+   "evidence": "### 同花顺投资账本"
+  },
+  {
+   "kind": "C md 日记各节",
+   "name": "## 加红电报",
+   "status": "进首跑材料",
+   "evidence": "## 加红电报"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/persona/cases.md",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/persona/cases_index.md",
+   "status": "进首跑材料",
+   "evidence": "cases_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/persona/fingerprint.md",
+   "status": "进首跑材料",
+   "evidence": "fingerprint.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/persona/orders_inferred.json",
+   "status": "进首跑材料",
+   "evidence": "orders_inferred.json"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/persona/profile.md",
+   "status": "进首跑材料",
+   "evidence": "zhiyingjuexin-skill/persona/profile.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/persona/profile_index.md",
+   "status": "进首跑材料",
+   "evidence": "profile_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/persona/rules.md",
+   "status": "进首跑材料",
+   "evidence": "zhiyingjuexin-skill/persona/rules.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/persona/rules_index.md",
+   "status": "进首跑材料",
+   "evidence": "rules_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/SKILL.md",
+   "status": "进首跑材料",
+   "evidence": "skill · SKILL.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/workflows/chain.md",
+   "status": "进首跑材料",
+   "evidence": "chain.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/workflows/distill.md",
+   "status": "进首跑材料",
+   "evidence": "distill.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zhiyingjuexin-skill/workflows/sum.md",
+   "status": "进首跑材料",
+   "evidence": "sum.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/persona/cases.md",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/persona/cases_index.md",
+   "status": "进首跑材料",
+   "evidence": "cases_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/persona/fingerprint.md",
+   "status": "进首跑材料",
+   "evidence": "fingerprint.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/persona/orders_inferred.json",
+   "status": "进首跑材料",
+   "evidence": "orders_inferred.json"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/persona/profile.md",
+   "status": "进首跑材料",
+   "evidence": "liuyiqing-skill/persona/profile.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/persona/profile_index.md",
+   "status": "进首跑材料",
+   "evidence": "profile_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/persona/rules.md",
+   "status": "进首跑材料",
+   "evidence": "liuyiqing-skill/persona/rules.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/persona/rules_index.md",
+   "status": "进首跑材料",
+   "evidence": "rules_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/SKILL.md",
+   "status": "进首跑材料",
+   "evidence": "skill · SKILL.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/workflows/chain.md",
+   "status": "进首跑材料",
+   "evidence": "chain.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/workflows/distill.md",
+   "status": "进首跑材料",
+   "evidence": "distill.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "liuyiqing-skill/workflows/sum.md",
+   "status": "进首跑材料",
+   "evidence": "sum.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/persona/cases.md",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/persona/cases_index.md",
+   "status": "进首跑材料",
+   "evidence": "cases_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/persona/fingerprint.md",
+   "status": "进首跑材料",
+   "evidence": "fingerprint.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/persona/orders_inferred.json",
+   "status": "进首跑材料",
+   "evidence": "orders_inferred.json"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/persona/profile.md",
+   "status": "进首跑材料",
+   "evidence": "buchitudou0-skill/persona/profile.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/persona/profile_index.md",
+   "status": "进首跑材料",
+   "evidence": "profile_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/persona/rules.md",
+   "status": "进首跑材料",
+   "evidence": "buchitudou0-skill/persona/rules.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/persona/rules_index.md",
+   "status": "进首跑材料",
+   "evidence": "rules_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/references/api.md",
+   "status": "进首跑材料",
+   "evidence": "api.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/SKILL.md",
+   "status": "进首跑材料",
+   "evidence": "skill · SKILL.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/workflows/chain.md",
+   "status": "进首跑材料",
+   "evidence": "chain.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/workflows/distill.md",
+   "status": "进首跑材料",
+   "evidence": "distill.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "buchitudou0-skill/workflows/sum.md",
+   "status": "进首跑材料",
+   "evidence": "sum.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/persona/cases.md",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/persona/cases_index.md",
+   "status": "进首跑材料",
+   "evidence": "cases_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/persona/fingerprint.md",
+   "status": "进首跑材料",
+   "evidence": "fingerprint.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/persona/orders_inferred.json",
+   "status": "进首跑材料",
+   "evidence": "orders_inferred.json"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/persona/profile.md",
+   "status": "进首跑材料",
+   "evidence": "zuoshoudeirong-skill/persona/profile.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/persona/profile_index.md",
+   "status": "进首跑材料",
+   "evidence": "profile_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/persona/rules.md",
+   "status": "进首跑材料",
+   "evidence": "zuoshoudeirong-skill/persona/rules.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/persona/rules_index.md",
+   "status": "进首跑材料",
+   "evidence": "rules_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/SKILL.md",
+   "status": "进首跑材料",
+   "evidence": "skill · SKILL.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/workflows/chain.md",
+   "status": "进首跑材料",
+   "evidence": "chain.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/workflows/distill.md",
+   "status": "进首跑材料",
+   "evidence": "distill.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "zuoshoudeirong-skill/workflows/sum.md",
+   "status": "进首跑材料",
+   "evidence": "sum.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/CHANGELOG.md",
+   "status": "进首跑材料",
+   "evidence": "CHANGELOG.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/cases.md",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/cases_index.md",
+   "status": "进首跑材料",
+   "evidence": "cases_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/fingerprint.md",
+   "status": "进首跑材料",
+   "evidence": "fingerprint.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/ic.json",
+   "status": "进首跑材料",
+   "evidence": "ic.json"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/language.md",
+   "status": "进首跑材料",
+   "evidence": "language.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/pools.json",
+   "status": "进首跑材料",
+   "evidence": "pools.json"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/profile.md",
+   "status": "进首跑材料",
+   "evidence": "taoge-skill/persona/profile.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/profile_index.md",
+   "status": "进首跑材料",
+   "evidence": "profile_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/rules.md",
+   "status": "进首跑材料",
+   "evidence": "taoge-skill/persona/rules.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/rules_index.md",
+   "status": "进首跑材料",
+   "evidence": "rules_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/persona/rules_index.vec.json",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/PROCESS.md",
+   "status": "进首跑材料",
+   "evidence": "PROCESS.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/references/corpus-index.md",
+   "status": "进首跑材料",
+   "evidence": "corpus-index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/references/rules_spec.md",
+   "status": "进首跑材料",
+   "evidence": "rules_spec.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/SKILL.md",
+   "status": "进首跑材料",
+   "evidence": "skill · SKILL.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/workflows/chain.md",
+   "status": "进首跑材料",
+   "evidence": "chain.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/workflows/distill.md",
+   "status": "进首跑材料",
+   "evidence": "distill.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "taoge-skill/workflows/sum.md",
+   "status": "进首跑材料",
+   "evidence": "sum.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/persona/cases.md",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/persona/cases_index.md",
+   "status": "进首跑材料",
+   "evidence": "cases_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/persona/fingerprint.md",
+   "status": "进首跑材料",
+   "evidence": "fingerprint.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/persona/language.md",
+   "status": "进首跑材料",
+   "evidence": "language.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/persona/profile.md",
+   "status": "进首跑材料",
+   "evidence": "lubenyuan-skill/persona/profile.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/persona/profile_index.md",
+   "status": "进首跑材料",
+   "evidence": "profile_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/persona/rules.md",
+   "status": "进首跑材料",
+   "evidence": "lubenyuan-skill/persona/rules.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/persona/rules_index.md",
+   "status": "进首跑材料",
+   "evidence": "rules_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/SKILL.md",
+   "status": "进首跑材料",
+   "evidence": "skill · SKILL.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/workflows/chain.md",
+   "status": "进首跑材料",
+   "evidence": "chain.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/workflows/distill.md",
+   "status": "进首跑材料",
+   "evidence": "distill.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "lubenyuan-skill/workflows/sum.md",
+   "status": "进首跑材料",
+   "evidence": "sum.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "market-skill/persona/cases.md",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "market-skill/persona/cases_index.md",
+   "status": "进首跑材料",
+   "evidence": "cases_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "market-skill/persona/kline_cases.md",
+   "status": "代码在用",
+   "evidence": "scripts/kline_study/intake.py, scripts/kline_study/kline_inbox.py, scripts/md/check_md_daily.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "market-skill/persona/kline_rules.md",
+   "status": "代码在用",
+   "evidence": "scripts/paper_line/pack.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "market-skill/persona/profile.md",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/chain/run_chain.py, scripts/dfcf/paper/report_skills.mjs"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "market-skill/persona/rules.md",
+   "status": "进首跑材料",
+   "evidence": "market-skill/persona/rules.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "market-skill/persona/rules_index.md",
+   "status": "进首跑材料",
+   "evidence": "rules_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "market-skill/persona/user_found.md",
+   "status": "代码在用",
+   "evidence": "scripts/market/user_found_check.py, scripts/paper_line/pack.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "market-skill/SKILL.md",
+   "status": "进首跑材料",
+   "evidence": "skill · SKILL.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "telegraph-skill/persona/cases.md",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_lookup.py, scripts/chain/chain_steps.py, scripts/chain/run_chain.py"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "telegraph-skill/persona/cases_index.md",
+   "status": "进首跑材料",
+   "evidence": "cases_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "telegraph-skill/persona/profile.md",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/chain/run_chain.py, scripts/dfcf/paper/report_skills.mjs"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "telegraph-skill/persona/rules.md",
+   "status": "进首跑材料",
+   "evidence": "telegraph-skill/persona/rules.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "telegraph-skill/persona/rules_index.md",
+   "status": "进首跑材料",
+   "evidence": "rules_index.md"
+  },
+  {
+   "kind": "D skill 文件",
+   "name": "telegraph-skill/SKILL.md",
+   "status": "进首跑材料",
+   "evidence": "skill · SKILL.md"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/auction_path.py",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/live/signals.py, scripts/paper_line/executor.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/case_label.py",
+   "status": "代码在用",
+   "evidence": "scripts/ontology/build.py, scripts/paper_line/pack.py, scripts/paper_line/tools/case_label.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/cb_path.py",
+   "status": "代码在用",
+   "evidence": "scripts/paper_line/pack.py, scripts/paper_line/tools/cb_path.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/fill_prob.py",
+   "status": "代码在用",
+   "evidence": "scripts/paper_line/executor.py, scripts/paper_line/pack.py, scripts/paper_line/selftest.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/key_levels.py",
+   "status": "代码在用",
+   "evidence": "scripts/paper_line/pack.py, scripts/paper_line/tools/key_levels.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/kline_struct.py",
+   "status": "代码在用",
+   "evidence": "scripts/ontology/sample_lib.py, scripts/paper_line/pack.py, scripts/paper_line/tools/kline_struct.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/market02_extra.py",
+   "status": "代码在用",
+   "evidence": "scripts/paper_line/market02.py, scripts/paper_line/selftest.py, scripts/paper_line/tools/market02_extra.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/market_path.py",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/paper_line/market02.py, scripts/paper_line/selftest.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/mentor_recent.py",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/market/collect_book.py, scripts/md/nightly_recalc.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/mentor_select.py",
+   "status": "代码在用",
+   "evidence": "scripts/health/daily_health.py, scripts/health/revival_check.py, scripts/kline_study/intake.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/mentor_sells.py",
+   "status": "代码在用",
+   "evidence": "scripts/paper_line/pack.py, scripts/paper_line/tools/mentor_sells.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/must_extra.py",
+   "status": "代码在用",
+   "evidence": "scripts/paper_line/harness.py, scripts/paper_line/pack.py, scripts/paper_line/tools/must_extra.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/pattern_scan.py",
+   "status": "代码在用",
+   "evidence": "scripts/md/check_md_daily.py, scripts/md/nightly_recalc.py, scripts/paper_line/pack.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/peers.py",
+   "status": "进首跑材料",
+   "evidence": "peers"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/samples.py",
+   "status": "代码在用",
+   "evidence": "scripts/chain/run_chain.py, scripts/dfcf/paper/edge_map.py, scripts/kline_study/scen_next.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/strong_next.py",
+   "status": "进首跑材料",
+   "evidence": "strong_next"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/strong_themes.py",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/paper_line/tools/strong_themes.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/telegraph_now.py",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/market/collect_book.py, scripts/ontology/rule_health.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/theme_life.py",
+   "status": "代码在用",
+   "evidence": "scripts/market/collect_book.py, scripts/ontology/build.py, scripts/ontology/sample_lib.py"
+  },
+  {
+   "kind": "F 工具",
+   "name": "paper_line/tools/watch_set.py",
+   "status": "代码在用",
+   "evidence": "scripts/kline_study/intake.py, scripts/md/check_md_daily.py, scripts/paper_line/executor.py"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.adjustment_factor(约 36980 行)",
+   "status": "代码在用",
+   "evidence": "scripts/market/backfill_history.py, scripts/market/refresh_factors.py, scripts/quotes/kline.mjs"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.call_auction(约 444346 行)",
+   "status": "进首跑材料",
+   "evidence": "call_auction"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.index_constituent(约 6268 行)",
+   "status": "代码在用",
+   "evidence": "scripts/market/index_constituents.py, scripts/market/index_rebalance.py, scripts/market/topology.py"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.index_constituent_coverage(约 10 行)",
+   "status": "代码在用",
+   "evidence": "scripts/market/index_constituents.py, scripts/market/index_rebalance.py"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.kline_day(约 11671593 行)",
+   "status": "进首跑材料",
+   "evidence": "kline_day"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.kline_day_bak_kcb_20261016(约 729374 行)",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.kline_minute(约 1952633 行)",
+   "status": "进首跑材料",
+   "evidence": "kline_minute"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.lhb_seat(约 357529 行)",
+   "status": "进首跑材料",
+   "evidence": "lhb_seat"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.lhb_stock(约 34643 行)",
+   "status": "进首跑材料",
+   "evidence": "lhb_stock"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.security_master(约 8248 行)",
+   "status": "进首跑材料",
+   "evidence": "security_master"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.stock_industry(约 19100 行)",
+   "status": "进首跑材料",
+   "evidence": "stock_industry"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_market.watchlist_info(约 8390 行)",
+   "status": "代码在用",
+   "evidence": "scripts/market/collect_auction.py, scripts/market/collect_minute.py"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.bilibili_video(约 424 行)",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.chain_decision(约 1412 行)",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.chain_decision_rule(约 1757 行)",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.chain_run(约 638 行)",
+   "status": "代码在用",
+   "evidence": "scripts/paper_line/executor.py"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.chain_step(约 3192 行)",
+   "status": "代码在用",
+   "evidence": "scripts/chain/chain_steps.py, scripts/dfcf/paper/baselines.mjs, scripts/dfcf/paper/exec_base.py"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.cls_telegraph(约 11169 行)",
+   "status": "代码在用",
+   "evidence": "scripts/market/index_rebalance.py, scripts/paper_line/tools/telegraph_now.py, scripts/test/telegraph_kind.py"
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.file_upload(约 244 行)",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.ocr_image(约 244 行)",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.ocr_result(约 274 行)",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.reconcile_result(约 1681 行)",
+   "status": "没消费",
+   "evidence": ""
+  },
+  {
+   "kind": "E 业务库表",
+   "name": "investment_tool.tzzb_record(约 77855 行)",
+   "status": "进首跑材料",
+   "evidence": "tzzb_record"
+  }
+ ],
+ "q_calls": []
+}

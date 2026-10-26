@@ -58,7 +58,7 @@ def main():
         cur.execute("use investment_market")
         days = sorted(p.stem for p in (ROOT / "md").glob("*/*.md") if a.since <= p.stem <= a.until and len(p.stem) == 10)
         T = minutes()
-        api, n_req, n_ok = CM.connect(), 0, 0
+        api, n_req, n_ok, fail_run = CM.connect(), 0, 0, 0
         for D in days:
             if a.stop and dt.datetime.now().strftime("%H:%M") >= a.stop:
                 print("到点停", a.stop)
@@ -71,10 +71,30 @@ def main():
             syms = {"sh000001"}
             for _, txt in tg:
                 syms |= set(TV.mentions(txt, by_name, by_code))
+            def day_k(s):
+                cur.execute("select low, high, close from kline_day where symbol=%s and trade_date=%s and is_deleted=0", (s, D))
+                k = cur.fetchone()
+                return tuple(map(float, k)) if k and k[2] else None
+
+            def sane(s, r):
+                """10/23 17:4x 修: 01-23~03-17 有服务器返回价格错乱的分时(钧达 2.99 vs 日线 98.57, 上证 371 vs 4103), 和日线对不上就当没取到;
+                口径 = 最后一分钟价 ≈ 日线收盘(±0.6%) 且每分钟价都在日线高低之间(±0.5%); 日线缺就不校验"""
+                k = day_k(s)
+                if not r or len(r) < 200:
+                    return False
+                if not k:
+                    return True
+                lo, hi, cl = k
+                ps = [float(x["price"]) for x in r[:240]]
+                return abs(ps[-1] / cl - 1) < 0.006 and all(lo * 0.995 <= p <= hi * 1.005 for p in ps)
             todo = []
             for s in sorted(syms):
                 if s in have:
-                    continue
+                    k = day_k(s)   # 已缓存的也校验一遍, 错乱的删掉重取
+                    p = [x[1] for x in have[s]]
+                    if not k or not p or (abs(p[-1] / k[2] - 1) < 0.006 and all(k[0] * 0.995 <= v <= k[1] * 1.005 for v in p)):
+                        continue
+                    del have[s]
                 cur.execute("select 1 from kline_minute where trade_date=%s and symbol=%s limit 1", (D, s))
                 if not cur.fetchone():
                     todo.append(s)
@@ -83,13 +103,26 @@ def main():
                 for _try in range(3):
                     try:
                         r = api.get_history_minute_time_data(CM.tdx_market(s), s[2:], int(D.replace("-", "")))
-                        break
                     except Exception:   # noqa: BLE001
-                        api = CM.connect(skip=())
+                        r = None
+                    if sane(s, r):
+                        break
+                    r = None
+                    # 10/23 17:2x 修: TdxHq_API(raise_exception=False) 断线后不抛异常、只返回 None → 原代码不换连接, 03-18 起 3250 次请求全空;
+                    # 现在空 / 不足 200 点 / 和日线对不上就换一台服务器重试(新连接实测 03-18 / 04-15 / 09-15 都有 240 点)
+                    try:
+                        api = CM.connect(skip=(getattr(api, "_ip", ""),))
+                    except Exception:   # noqa: BLE001
+                        api = CM.connect()
                 n_req += 1
-                if r and len(r) >= 200:
+                if r:
                     have[s] = [[T[i], float(x["price"]), int(x.get("vol") or 0)] for i, x in enumerate(r[:240])]
                     n_ok += 1
+                    fail_run = 0
+                else:
+                    fail_run += 1
+                    if fail_run >= 15:   # 连续 15 只换了服务器还是空 = 真出事, 大声失败, 不再空转
+                        raise SystemExit(f"连续 {fail_run} 只取不到分时(已换服务器), 停在 {D} {s}")
                 time.sleep(0.15)
             if todo:
                 f.write_text(json.dumps(have, ensure_ascii=False), encoding="utf-8")

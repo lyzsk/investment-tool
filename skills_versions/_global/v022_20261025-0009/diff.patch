@@ -1,0 +1,19 @@
+--- v021_20261023-1950/scripts/claude_profile/chain_flags.txt
++++ v022_20261025-0009/scripts/claude_profile/chain_flags.txt
+@@ -157,2 +157,16 @@
+ V3_CACHE_TTL=1h   # 10/23 00:5x 实测中转站支持 1 小时提示缓存(5 分钟档: 叫醒间隔 >5 分钟就整段重写 33 万 token ≈ $1.7/次; 彩排 9 分钟 $51); 空 = 默认 5 分钟
+ V3_KEEPALIVE_MIN=50   # 双保险(用户令): 一本账空闲满 50 分钟(09:30~14:50)发一句短话续缓存, 约 $0.1~0.2/次(午休 90 分钟中间续一次); 0 = 不保温
++V3_03_MODE=one   # 10/24 用户批: 03 多空一次调用写两面(主会话里, 缓存共用); fork = 10/22 版两个独立分叉(10/23 带 03 那本 $157 vs 不带 $32)
++V3_05=mech   # 10/24 用户批: 05 = 机械风控(导师近 5/10/20 日动态新开上限 + 当日亏损暂停 + 单票上限, 执行器强制剔单; 阈值在 scripts/live/harness.yaml risk05); model = 旧的模型 05
++V3_GATE04=1   # 10/24 用户批: 04 内容闸(必填 depth 深度 / 广度字段 + market_risk、E 编号真实、负样本不当依据、确定性用词带出处), 不过打回一次; 0 = 关
++# ---- 实盘线(10/24 用户定, 10/26 起替代 paper v3; 逻辑 scripts/paper_v3/live.py, 留下名单 scripts/paper_v3/keep.py) ----
++LIVE_LINE=1   # 10/24 晚打开(你定周一跑实盘线);  1 = 总控按 results/_live/<日>/selected_mentors.json 动态生成线(入选导师 + 3 UP, 线号 live_<skill>), 不读 lines.json / V3_LINES
++LIVE_FIRST=08:35:00   # 盘前第 1 本盘前首跑时刻(计划任务 PaperV3Fleet 08:28 拉起总控, 先出名单 + 事实包 + 02 共用)
++LIVE_BOOT_GROUP=3   # 第 1 本第一轮回来(共享开头缓存写热)后, 每组放行几本; 前一组第一轮都回来再放下一组
++LIVE_BOOT_WAIT=240   # 每组最多等几秒(超时照放)
++LIVE_DIGEST_AT=09:12:00   # 盘前各版没全落地也在这时推盘前汇总(一条微信)
++LIVE_KEEP_AT=09:19:00   # 这时起只有留下的线叫模型(竞价复核起); 其余休眠: 不叫模型 / 不保温, 已挂的单照样撮合; keep.py 随时加回 / 收束
++LIVE_DEFAULT_KEEP=3   # 用户到 LIVE_KEEP_AT 还没挑 = 留下入选导师前 N 位(all = 全留)
++LIVE_PUSH=1   # 留下的线出新挂单 / 成交推微信(0 = 只推盘前汇总和告警)
++BOOT_MAX_KB=auto   # 盘前首跑材料上限 KB; auto = 上下文 × 0.95 − 近 5 天会话一天增长 P90, 按实测 token/KB 换算(pack.boot_budget_kb); 数字 = 固定; 0 = 不限(桃哥全量 2.7MB 会超上下文); 超了逐级省: skill 常驻版 → skill 大节只给路径 → 必查全量 60/30/10 只
++CONTEXT_TOKENS=1000000   # 会话上下文上限(算盘前首跑预算用)

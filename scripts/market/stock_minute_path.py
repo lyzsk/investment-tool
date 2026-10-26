@@ -11,6 +11,7 @@
 防双开: pid 锁 scripts/temp/stock_minute_path.pid(10/22 晚转债回补双开写重了 3563 行的教训)
 落地: downloads/quotes/stock/minute_path/<日>.jsonl, 一行一只 {code, d, prev, p: [240], v: [240]}; 当天文件里已有的代码跳过
 用法: python stock_minute_path.py --codes-file scripts/temp/stock_minute_phase1.json --days 30 [--stop 07:00]
+      python stock_minute_path.py --zt-touch --days 100   (10/25 用户: 电报点名后开板研究要 100 个交易日 → 每天只补当天碰过涨停的票, 主板 + 创业板非 ST)
 """
 import argparse
 import datetime as dt
@@ -50,17 +51,32 @@ def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser()
-    ap.add_argument("--codes-file", required=True)
+    ap.add_argument("--codes-file", default="")
+    ap.add_argument("--zt-touch", action="store_true")
     ap.add_argument("--days", type=int, default=30)
     ap.add_argument("--stop", default="")
     a = ap.parse_args()
     lock()
-    codes = [c for c in json.loads(Path(a.codes_file).read_text(encoding="utf-8")) if c[:1] in "036"]   # 北交所跳过
     cur = mb.db().cursor()
     cur.execute("use investment_market")
     cur.execute("select distinct trade_date from kline_day where symbol='sh000001' order by trade_date desc limit %s", (a.days + 1,))
     alld = sorted(str(x[0]) for x in cur.fetchall())
     days = alld[1:][::-1]   # 最近一天在前; alld[0] 只用来取第一天的昨收
+    ZT = {}
+    if a.zt_touch:
+        cur.execute("select symbol, name from security_master where sec_type='STOCK'")
+        st_ = {s_[2:] for s_, n in cur.fetchall() if "ST" in (n or "") or "退" in (n or "")}
+        cur.execute("select symbol, trade_date, high, pre_close from kline_day where is_deleted=0 and trade_date >= %s and (symbol like 'sh6%%' or symbol like 'sz0%%' or symbol like 'sz3%%')", (alld[1],))
+        for s_, d, h, pc in cur.fetchall():
+            c_ = s_[2:]
+            if not (h and pc) or c_ in st_ or c_.startswith(("688", "689")):
+                continue
+            lim = 0.2 if c_.startswith(("300", "301")) else 0.1
+            if float(h) >= round(float(pc) * (1 + lim) + 1e-9, 2) - 0.005:
+                ZT.setdefault(str(d), []).append(c_)
+        codes = sorted({c_ for v in ZT.values() for c_ in v})
+    else:
+        codes = [c for c in json.loads(Path(a.codes_file).read_text(encoding="utf-8")) if c[:1] in "036"]   # 北交所跳过
     syms = [sym(c) for c in codes]
     C = {}
     for i in range(0, len(syms), 500):
@@ -78,7 +94,7 @@ def main():
             done = {json.loads(l)["code"] for l in f.read_text(encoding="utf-8").splitlines() if l.strip()} if f.exists() else set()
             prevd = alld[alld.index(d) - 1]
             with f.open("a", encoding="utf-8") as fo:
-                for c in codes:
+                for c in (sorted(ZT.get(d, [])) if a.zt_touch else codes):
                     if a.stop and dt.datetime.now().strftime("%H:%M") >= a.stop and dt.datetime.now().hour < 12:
                         print(f"到 {a.stop} 停", stat, flush=True)
                         return

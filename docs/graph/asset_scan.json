@@ -106,7 +106,7 @@
     "scripts/dfcf/paper/attribution.py",
     "scripts/dfcf/paper/matcher.mjs",
     "scripts/dfcf/paper/pack07.py",
-    "scripts/dfcf/paper/shadow_exec.py",
+    "scripts/dfcf/paper/trigger_stats.py",
     "scripts/dfcf/paper/t_event.py",
     "scripts/dfcf/snapshots/order-skill/order_ctx.py",
     "scripts/lib/ctx_index.py",
@@ -156,7 +156,7 @@
     "scripts/dfcf/paper/reset_books.mjs",
     "scripts/dfcf/paper/restate_fills.py",
     "scripts/dfcf/paper/settle_decisions.py",
-    "scripts/dfcf/paper/shadow_exec.py",
+    "scripts/dfcf/paper/trigger_stats.py",
     "scripts/dfcf/paper/similarity.mjs",
     "scripts/dfcf/paper/skill_weights.py",
     "scripts/dfcf/paper/t_event.py",
@@ -389,7 +389,7 @@
     "scripts/dfcf/paper/pack07.py",
     "scripts/dfcf/paper/report.mjs",
     "scripts/dfcf/paper/restate_fills.py",
-    "scripts/dfcf/paper/shadow_exec.py",
+    "scripts/dfcf/paper/trigger_stats.py",
     "scripts/dfcf/paper/t_swing.py",
     "scripts/dfcf/snapshots/order-skill/order_ctx.py",
     "scripts/dfcf/snapshots/order-skill/quick_t.py",
@@ -612,7 +612,7 @@
     "scripts/market/open_live.py"
    ],
    "readers": [
-    "scripts/dfcf/paper/shadow_exec.py",
+    "scripts/dfcf/paper/trigger_stats.py",
     "scripts/lib/ctx_index.py",
     "scripts/chain/run_chain.py"
    ],

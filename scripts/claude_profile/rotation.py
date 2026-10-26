@@ -15,15 +15,16 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 def _find_cs():
-    """切换工具位置: 环境变量 CLAUDE_SWITCH_DIR > <dev>/dev-notes/others/mini-cc-switch(10/13 两工具合并) > 旧位置(兼容未 pull 的机器)"""
+    """切换工具位置: 环境变量 CLAUDE_SWITCH_DIR > <dev>/dev-notes/others/key-switcher(10/25 用户: mini-cc-switch 改名) > 旧位置(兼容未 pull 的机器)"""
     dev = HERE.parents[2]
     cands = ([Path(os.environ["CLAUDE_SWITCH_DIR"])] if os.environ.get("CLAUDE_SWITCH_DIR") else []) + \
-        [dev / "dev-notes" / "others" / "mini-cc-switch", dev / "switch-claude-settings",
+        [dev / "dev-notes" / "others" / "key-switcher", dev / "dev-notes" / "others" / "mini-cc-switch", dev / "switch-claude-settings",
          dev / "dev-notes" / "others" / "switch-claude-settings"]
     for c in cands:
-        if (c / "cs.mjs").exists():
-            return c / "cs.mjs"
-    return cands[0] / "cs.mjs"
+        for f in (c / "cs.mjs", c / "scripts" / "cs.mjs"):   # 10/25: key-switcher 把 cs.mjs 放在 scripts/ 下
+            if f.exists():
+                return f
+    return cands[0] / "scripts" / "cs.mjs"
 
 
 CS = _find_cs()
@@ -106,7 +107,7 @@ def _alive(s, p):
 
 def _settings_profile():
     """10/15 用户令: 自动化 claude -p 跟随本机默认(~/.claude/settings.json 现用哪套, 用户用 cs 切换的那套)。
-    只读: 调 mini-cc-switch 的 `cs current`(按 key 识别), 不读写 settings 本体; 识别不出=None(退回名单顺序)"""
+    只读: 调 key-switcher 的 `cs current`(按 key 识别), 不读写 settings 本体; 识别不出=None(退回名单顺序)"""
     if _settings_cache.get("t", 0) > time.time() - 60:
         return _settings_cache.get("p")
     p = None

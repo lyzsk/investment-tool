@@ -36,6 +36,40 @@ if hasattr(sys.stdout, "reconfigure"):
 
 ROOT = Path(__file__).resolve().parents[2]
 PY = str(ROOT / "scripts" / "venv" / "Scripts" / "python.exe")
+
+
+def _flag(name, default=""):
+    """chain_flags.txt 同名行(环境变量优先)"""
+    import os
+    v = os.environ.get(name)
+    if v is not None:
+        return v
+    try:
+        for l in (ROOT / "scripts" / "claude_profile" / "chain_flags.txt").read_text(encoding="utf-8").splitlines():
+            k, _, val = l.split("#")[0].partition("=")
+            if k.strip() == name:
+                return val.strip()
+    except OSError:
+        pass
+    return default
+
+
+def OLD_PAPER_ON():
+    """10/25 用户令: 旧 paper v1 / v2(导师链报告 / 拟人度 / 权重 / 混合账本 / 决策结算 / 真人对照 / 统计基线 / 做T 复盘 …)不再跑, 脚本归档到 C:/Users/admin/dev/_archive/;
+    chain_flags.txt OLD_PAPER=1 才跑(默认 0; 归档后打开会报"文件不存在")"""
+    return _flag("OLD_PAPER", "0") == "1"
+
+
+def T_BOOKS_ON():
+    """10/25 用户令: 中行 / 纳指的机械T、决策T、波段T、拿着不T的对照全部停 —— chain_flags.txt T_BOOKS=1 才跑(默认 0)"""
+    import os
+    v = os.environ.get("T_BOOKS")
+    if v is None:
+        for l in (ROOT / "scripts" / "claude_profile" / "chain_flags.txt").read_text(encoding="utf-8").splitlines():
+            k, _, val = l.split("#")[0].partition("=")
+            if k.strip() == "T_BOOKS":
+                v = val.strip()
+    return v == "1"
 LOG_DIR = ROOT / "scripts" / "md" / "logs"          # logs/ 已在 .gitignore
 STATE_F = LOG_DIR / "check_md_state.json"
 LOCK_F = LOG_DIR / "check_md.lock"
@@ -398,7 +432,7 @@ def step_tzzb_sum(c):
             has_data.append(L)
         elif rc != 0:
             gen_fail.append(L["ledger"])   # 10/17 健壮性 M15: 生成失败原先被当"无数据"吞掉
-    _ex = _MENTORS.excluded()   # 10/18: 退出 paper 的导师只做零 token 维护(硬数据层照写), 不蒸馏、不补【推测】
+    _ex = set()   # 10/24 用户: 样例导师照常(有当天账本才做, 停更的自然不做); 原 10/18 "退出 paper 的导师不蒸馏、不补【推测】" 取消
     c.tzzb_has_data = sorted(L["ledger"] for L in has_data if L.get("kind") == "pos" and L["ledger"] not in _ex)
     run([PY, "-X", "utf8", "scripts/tzzb/order_tzzb_sections.py", "--date", c.d.isoformat(), "--write"], "同花顺小节补齐/排序(后: 刷新占位)", 120)
     t = c.md_text()
@@ -584,7 +618,7 @@ def step_review07(c, state):
             rec[sk] = {"at": now.isoformat(timespec="seconds"), "n": r.get("n", 0) + 1, "why": why}
             started.append(f"{sk}@{day:%m-%d}({why})")
     if jobs:   # 交给排队执行器: 同时最多 REVIEW07_MAX(默认 4)条, 跑完一条补一条(scripts/md/review07_queue.py; 耗时记 logs/review07_runs.jsonl)
-        if not c.dry:   # 10/21 用户批迁移: 原 15:50 决策结算定时任务删除 → 每轮 07 发起前先跑一次机械结算(幂等), 07 素材包读它的结果
+        if not c.dry and OLD_PAPER_ON():   # OLD_PAPER 10/21 用户批迁移: 原 15:50 决策结算定时任务删除 → 每轮 07 发起前先跑一次机械结算(幂等), 07 素材包读它的结果
             run([PY, "-X", "utf8", "scripts/dfcf/paper/settle_decisions.py", "--date", c.d.isoformat()], "决策结算(机械, 原 15:50 任务迁到 07 前)", 600)
         sys.path.insert(0, str(ROOT / "scripts" / "md"))
         import review07_queue
@@ -612,7 +646,7 @@ def tzzb_has_data(c):
             continue
         if r.returncode == 0 and r.stdout.strip():
             got.append(L["ledger"])
-    c.tzzb_has_data = sorted(x for x in got if x not in _MENTORS.excluded())   # 10/18: 退出 paper 的不蒸馏
+    c.tzzb_has_data = sorted(got)   # 10/24 用户: 蒸馏本来就只给当天有账本记录的导师做(停更的自然不做), 样例导师照常蒸馏(他们的新交易也是正负样例); 去掉 10/18 "退出 paper 的不蒸馏"
     return c.tzzb_has_data
 
 
@@ -719,7 +753,9 @@ def step_lhb_backfill(d, dry):
 
 def step_slot_weekly(date_arg, dry):
     """A9 时段周检: 链 sys_job 时段 vs 真人出手时段, 产物 scripts/dfcf/paper/reports/slot_weekly_<yyyyMMdd>.md; 出口 4=有错配(提醒, 不算失败)"""
-    if dt.date.today().weekday() < 5:
+    if not OLD_PAPER_ON():   # OLD_PAPER 旧导师链时段周检(paperChainHandler 已停)
+        msg = "跳过(旧导师链已停, OLD_PAPER=0)"
+    elif dt.date.today().weekday() < 5:
         msg = "跳过(只在周六/周日跑)"
     else:
         cmd = [PY, "-X", "utf8", "scripts/dfcf/paper/slot_weekly.py"] + (["--date", date_arg] if date_arg else []) + (["--dry"] if dry else [])
@@ -742,6 +778,37 @@ def step_index_pit(date_arg, dry):
            + ("; 部分源失败/部分指数冻结未更新(如国证), 其余已更新, 看日志" if j.get("rc") == 4 else "; 变动超 20% 请看日志" if rc == 4 else "")) if rc in (0, 4) else f"失败(exit {rc})"
     log(f"[index_pit] → {msg}")
     return msg
+
+
+def push_summary(d, summary, rv, hj):
+    """check md 总结微信(10/24 用户): 每天只推 1 条 —— 当天最后一轮(23:00 后)跑完时; 复活写在这里; 导师写 "<中文名>skill: …" """
+    if dt.datetime.now().hour < 23 or d != dt.date.today():
+        return
+    sf = ROOT / "scripts" / "md" / "logs" / "check_md_state.json"
+    try:
+        st = json.loads(sf.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        st = {}
+    if (st.get("summary_pushed") or "") == d.isoformat():
+        return
+    NAME = {"cls": "财联社", "up": "三位 UP sum / distill", "tzzb_sum": "投资账本 sum", "tzzb_distill": "投资账本蒸馏", "fage": "发哥核销", "lhb": "龙虎榜",
+            "cases_auto": "导师逐笔事件库", "ontology": "事件本体", "pattern_bt": "近期规律回测", "telegraph": "电报次日", "strong_next": "强势股次日库"}
+    L = [f"check md 总结 {d.isoformat()}"]
+    for k, nm in NAME.items():
+        if k in summary:
+            L.append(f"- {nm}: {str(summary[k])[:60]}")
+    if summary.get("tail_failed"):
+        L.append(f"- 失败的步骤: {', '.join(summary['tail_failed'])}")
+    L.append(f"- 采集健康: 红 {hj.get('red', '?')} / 黄 {hj.get('yellow', '?')}")
+    for x in rv.get("revived") or []:
+        L.append(f"- 复活 {x['name']}: 账本恢复更新(最新净值 {x['nav'][5:]}, 停更时停在 {x['was'][4:6]}-{x['was'][6:]}); 明天盘前选人按近 20 日收益重新判")
+    if rv.get("stale_all"):
+        L.append(f"- 停更中: {'、'.join(rv['stale_all'])}")
+    sys.path.insert(0, str(ROOT / "scripts" / "hermes"))
+    import wx_send
+    wx_send.send("\n".join(L), src="check_md_summary", wait=300, verbose=False)
+    st["summary_pushed"] = d.isoformat()
+    sf.write_text(json.dumps(st, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
 def main():
@@ -856,7 +923,7 @@ def main():
             log(f"[lhb_backfill] → {summary['lhb_backfill']}")
         # 10/16 用户发现: report.html 15:05 由 matcher EOD 生成时 tzzb 当天净值还没抓(15:10~23:10 陆续到), "相对导师真人"口径缺当天
         #  → 每轮 check md 末尾重生成一次(零 token, 读本地账本+tzzb)
-        if (not only or "report" in only) and not a.dry:
+        if (not only or "report" in only) and not a.dry and OLD_PAPER_ON():   # OLD_PAPER
             rc_p, _ = run(["node", "scripts/dfcf/paper/report.mjs"], "paper 报告重生成(带当天导师真人净值)", 300)
             summary["report"] = "完成" if rc_p == 0 else "失败"
         # 10/16 用户令: 全市场期货每日收盘后存档(零 token, 1 次请求; 盘中由 facts/live_watch 现场拉)
@@ -865,21 +932,22 @@ def main():
             summary["futures"] = "完成" if rc_f == 0 else "失败"
         # 10/16 晚用户令 B8: paper skill 权重初版直接上线(零 token; 先重算拟人度累计, 再算权重; 日报读最新一份)
         if (not only or "weights" in only) and not a.dry:
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/mimicry_score.py", "--since", "2026-10-08", "--quiet"], "拟人度累计重算", 1800)
-            rc_w, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/skill_weights.py", "--date", d.isoformat()], "skill 权重(初版)", 1800)
-            summary["weights"] = "完成" if rc_w == 0 else "失败"
-            # 10/16 晚 B6: 反思回注触发判定(连续偏离/回撤; 驱动器次日读 reflection/<日>.json, 开关 CHAIN_REFLECT_TRIGGER)
-            rc_rt, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/reflect_trigger.py", "--date", d.isoformat()], "反思回注触发判定", 900)
-            summary["reflect_trigger"] = "完成" if rc_rt == 0 else "失败"
-            # 10/17 ② 决策质量产物(时段预算/T 法/相似市况/规则标注/override 锁层; 零 token ~17s): 给下一交易日用; 各功能开关在 chain_flags.txt
-            try:
-                hol, nx = b.load_holidays(), d + dt.timedelta(days=1)
-                while b.is_off_day(nx, hol):
-                    nx += dt.timedelta(days=1)
-                rc_q, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/quality_daily.py", "--date", nx.isoformat()], f"决策质量产物({nx})", 600)
-                summary["quality_daily"] = "完成" if rc_q == 0 else "失败"
-            except Exception as e:   # noqa: BLE001
-                summary["quality_daily"] = f"失败({e})"
+            if OLD_PAPER_ON():   # OLD_PAPER
+                run([PY, "-X", "utf8", "scripts/dfcf/paper/mimicry_score.py", "--since", "2026-10-08", "--quiet"], "拟人度累计重算", 1800)
+                rc_w, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/skill_weights.py", "--date", d.isoformat()], "skill 权重(初版)", 1800)
+                summary["weights"] = "完成" if rc_w == 0 else "失败"
+                # 10/16 晚 B6: 反思回注触发判定(连续偏离/回撤; 驱动器次日读 reflection/<日>.json, 开关 CHAIN_REFLECT_TRIGGER)
+                rc_rt, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/reflect_trigger.py", "--date", d.isoformat()], "反思回注触发判定", 900)
+                summary["reflect_trigger"] = "完成" if rc_rt == 0 else "失败"
+                # 10/17 ② 决策质量产物(时段预算/T 法/相似市况/规则标注/override 锁层; 零 token ~17s): 给下一交易日用; 各功能开关在 chain_flags.txt
+                try:
+                    hol, nx = b.load_holidays(), d + dt.timedelta(days=1)
+                    while b.is_off_day(nx, hol):
+                        nx += dt.timedelta(days=1)
+                    rc_q, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/quality_daily.py", "--date", nx.isoformat()], f"决策质量产物({nx})", 600)
+                    summary["quality_daily"] = "完成" if rc_q == 0 else "失败"
+                except Exception as e:   # noqa: BLE001
+                    summary["quality_daily"] = f"失败({e})"
             # 10/16 晚 B11: 画像版本评估(只告警, 绝不回滚)
             run([PY, "-X", "utf8", "scripts/skills_ver/persona_versions.py", "check", "--until", d.isoformat()], "画像版本评估", 600)
         # 10/16 晚用户批: 全市场开盘前 15 分钟分时(研究导师选股的竞价/开盘特征, 往后每天攒; 幂等, 当日已做=秒退; 约 10~15 分钟, 通达信)
@@ -894,25 +962,25 @@ def main():
             summary["related"] = "完成" if rc_y == 0 else "失败"
             log(f"[related] → {summary['related']}")
         # 10/15 用户令: B 线(导师真人) vs A 线(链) 对照全表; 15:05 微信日报时 tzzb 当天多半还没抓, 这里晚间重算一版(零 token)
-        if (not only or "realvs" in only) and not a.dry:
+        if (not only or "realvs" in only) and not a.dry and OLD_PAPER_ON():   # OLD_PAPER
             rc_r, _ = run(["node", "scripts/dfcf/paper/real_vs_chain.mjs", "--date", d.isoformat()], "真人对照表", 120)
             summary["realvs"] = f"scripts/dfcf/paper/real_vs_chain/{d.isoformat()}.md" if rc_r == 0 else "失败"
             log(f"[realvs] → {summary['realvs']}")
-        # 10/18 审计④ R10(用户批): 统计基线影子账户每天跑一次(零 token, 纯统计"笨办法跟单"), 攒"LLM 链比基线强多少"的对比数据;
+        # 10/18 审计④ R10(用户批): 统计基线模拟账户每天跑一次(零 token, 纯统计"笨办法跟单"), 攒"LLM 链比基线强多少"的对比数据;
         #   10/16 只跑过一次就没再跑。注意口径: 链能看到基线建议, 所以对比的是"LLM+基线提示 比 基线多出来多少"
-        if (not only or "baseline" in only) and not a.dry and dt.datetime.now().hour >= 16:
+        if (not only or "baseline" in only) and not a.dry and dt.datetime.now().hour >= 16 and OLD_PAPER_ON():   # OLD_PAPER
             st_bl = state.setdefault(d.isoformat(), {})
             if not (st_bl.get("baseline_books") or {}).get("ok"):
-                rc_b, out_b = run([PY, "-X", "utf8", "scripts/tzzb/mentor_model.py", "--baseline-books", "--since", "2026-10-08", "--until", d.isoformat()], "统计基线影子账户", 1800)
+                rc_b, out_b = run([PY, "-X", "utf8", "scripts/tzzb/mentor_model.py", "--baseline-books", "--since", "2026-10-08", "--until", d.isoformat()], "统计基线模拟账户", 1800)
                 st_bl["baseline_books"] = {"at": dt.datetime.now().isoformat(timespec="seconds"), "ok": rc_b == 0}
                 save_state(state)
                 summary["baseline_books"] = "完成" if rc_b == 0 else "失败"
             if not (st_bl.get("baseline_timing") or {}).get("ok"):   # 10/21 晚: 时机版(按导师典型日内买 / 卖位置成交, BLT-<导师>), 和开盘版并排
-                rc_t, _ = run([PY, "-X", "utf8", "scripts/tzzb/mentor_model.py", "--baseline-books", "--timing", "--since", "2026-10-08", "--until", d.isoformat()], "统计基线影子账户(时机版)", 1800)
+                rc_t, _ = run([PY, "-X", "utf8", "scripts/tzzb/mentor_model.py", "--baseline-books", "--timing", "--since", "2026-10-08", "--until", d.isoformat()], "统计基线模拟账户(时机版)", 1800)
                 st_bl["baseline_timing"] = {"at": dt.datetime.now().isoformat(timespec="seconds"), "ok": rc_t == 0}
                 save_state(state)
                 summary["baseline_timing"] = "完成" if rc_t == 0 else "失败"
-            # 10/22 凌晨(用户看 report.html): 新 paper 影子账 + 两版统计基线导出成账本格式 → 重出 report.html, 和导师链 / 导师真人同图比
+            # 10/22 凌晨(用户看 report.html): 新 paper 模拟账 + 两版统计基线导出成账本格式 → 重出 report.html, 和导师链 / 导师真人同图比
             rc_x, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/books_ext.py"], "新 paper / 统计基线 导出到报告", 120)
             if rc_x == 0:
                 # 10/20: 拟人度第三条基线"导师行为统计先验"读 BL-*.json; 10/22: 也算新 paper / 时机版基线(books_ext) → 基线和导出更新后重算, 再出报告
@@ -922,27 +990,29 @@ def main():
         if only and "mix" in only and not a.dry:
             # 10/18 晚 P3: 盘口五档快照采集器(新浪, 不占腾讯额度)没在跑就后台拉起(无窗口); 挂了下一轮自动重拉
             run([PY, "-X", "utf8", "scripts/market/collect_book.py", "--ensure"], "盘口快照采集", 60)
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/se_fleet.py", "--ensure"], "新 paper 策略执行器全体拉起(10/22 起 15 位导师)", 60)   # 10/21 晚用户令
-            run([PY, "-X", "utf8", "scripts/paper_v3/fleet.py", "--ensure"], "paper v3 执行器全体拉起 / 崩溃重拉(开关 V3_FLEET)", 60)   # 10/22 晚: v3 上线, 8 本账
+            # 10/25 用户令删 paper v1 / v2: v2 策略执行器全体拉起(EXEC_FLEET=0 早已关)和 v1 "零成本影子"(trigger_stats --ensure, 没有开关, 每天 09:20 起照跑)都不再拉
+            # run([PY, "-X", "utf8", "scripts/dfcf/paper/exec_fleet_v2.py", "--ensure"], "新 paper 策略执行器全体拉起(10/22 起 15 位导师)", 60)   # 10/21 晚用户令
+            run([PY, "-X", "utf8", "scripts/paper_line/fleet.py", "--ensure"], "live line 总控拉起 / 崩溃重拉(开关 PAPER_FLEET)", 60)   # 10/22 晚: v3 上线, 8 本账
             run([PY, "-X", "utf8", "scripts/market/minute_live.py", "--ensure"], "盘中实时 1/5 分钟线(由 3 秒盘口合成, 零请求)", 60)   # 10/21 用户令
             run([PY, "-X", "utf8", "scripts/market/collect_panel.py", "--ensure"], "多指数面板采集(日经/KOSPI/A50/小纳指/上证/中证2000/创业板/恒生科技)", 60)   # 10/20 用户定
             run([PY, "-X", "utf8", "scripts/market/open_live.py", "--ensure"], "开盘实况(09:14~14:57 机械市况判定, 午休不判)", 60)   # 10/20 晚用户批; 10/21 晚全天化(时间闸在 open_live --ensure 里)
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/shadow_exec.py", "--ensure"], "零成本影子(全天连续模拟盘的重定策略次数, 不下单)", 60)   # 10/21 凌晨用户批 D1
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/t_event.py", "--ensure"], "决策T 事件驱动(纳指; 开关 T_EVENT)", 60)   # 10/20 晚用户批 TODO 一-2
+            # run([PY, "-X", "utf8", "scripts/dfcf/paper/trigger_stats.py", "--ensure"], "零成本影子(全天连续模拟盘的重定策略次数, 不下单)", 60)   # 10/21 凌晨用户批 D1
+            if T_BOOKS_ON():   # 10/25 用户令: 中行 / 纳指 机械T、决策T、拿着不T对照全部停(开关 T_BOOKS=0)
+                run([PY, "-X", "utf8", "scripts/dfcf/paper/t_event.py", "--ensure"], "决策T 事件驱动(纳指; 开关 T_EVENT)", 60)   # 10/20 晚用户批 TODO 一-2
             st_mix = state.setdefault(d.isoformat(), {}).setdefault("mix", {})
             # 10/19 用户定: 午间 12:00~13:00 体检一次 paper(空转 / 做T 底仓没建 / 单全被拒), 有问题推微信
             # 10/19 晚用户: 快速单要 LLM+机械 → 09:25 竞价定格后让 LLM 写开盘情景剧本(私有 order-skill/playbook.py), 后台起、不挡本轮
             _pb = ROOT / "scripts" / "dfcf" / "snapshots" / "order-skill" / "playbook.py"
-            if _pb.exists() and "0924" <= dt.datetime.now().strftime("%H%M") < "0932" and not st_mix.get("playbook"):
+            if OLD_PAPER_ON() and _pb.exists() and "0924" <= dt.datetime.now().strftime("%H%M") < "0932" and not st_mix.get("playbook"):
                 subprocess.Popen([PY, "-X", "utf8", str(ROOT / "scripts" / "dfcf" / "snapshots" / "order-skill" / "playbook_wait.py"), "--date", d.isoformat()],
                                  cwd=ROOT, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) | getattr(subprocess, "DETACHED_PROCESS", 0))
                 st_mix["playbook"] = {"at": dt.datetime.now().isoformat(timespec="seconds")}
-            if "1200" <= dt.datetime.now().strftime("%H%M") < "1300" and not st_mix.get("idle_check"):
+            if OLD_PAPER_ON() and "1200" <= dt.datetime.now().strftime("%H%M") < "1300" and not st_mix.get("idle_check"):   # OLD_PAPER
                 rc_i, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/paper_idle_check.py", "--date", d.isoformat(), "--push"], "paper 午间体检", 420)
                 st_mix["idle_check"] = {"at": dt.datetime.now().isoformat(timespec="seconds"), "rc": rc_i}
             import manual_backfill as _mb   # noqa: PLC0415  (UP 步已把 backfill_bilibili 加进 path)
             cur = _mb.db().cursor()
-            cur.execute("select job_handler_param, cron_expression from sys_job where job_handler_name='paperChainHandler' and status=0 and is_deleted=0")
+            cur.execute("select job_handler_param, cron_expression from sys_job where job_handler_name='paperChainHandler' and status=0 and is_deleted=0" + ("" if OLD_PAPER_ON() else " and 1=0"))   # OLD_PAPER 混合账本(旧导师链)
             fire = {}   # 时段 → 实际触发 HHMM(取 cron 的时:分, 多条取最早)
             for p, cr in cur.fetchall():
                 s = (p or "").split(":")[-1]
@@ -972,15 +1042,16 @@ def main():
             save_state(state)
             summary["mix"] = ", ".join(res) or "无到点时段"
             # 10/18 晚: 做T 两本(A-tbank 中行 / A-tndq 纳指ETF 159941)搭混合账本的 5 分钟车; 幂等(早盘挂单一次 / 14:45 收口一次)
-            rc_t, out_t = run([PY, "-X", "utf8", "scripts/dfcf/paper/t_bot.py", "--tick", "--date", d.isoformat()], "做T 账本", 180)
-            summary["t_bot"] = "ok" if rc_t == 0 else "失败"
-            # 10/18 晚: 决策 T 两本(A-dbank / A-dndq, 花 token; 时段 0915/0933/1033/1303/1433 + 14:45 机械收口; 幂等, 到点才调模型)
-            rc_d, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/t_decide.py", "--tick", "--date", d.isoformat()], "决策T 账本", 900)
-            summary["t_decide"] = "ok" if rc_d == 0 else "失败"
-            # 10/20 用户定"今天先让 paper 有数据": 波段T 四本(A-sbank/A-sndq 机械零 token; A-wbank/A-wndq 决策 0935/1435 各一次; 14:45 收口; 幂等)
-            rc_s, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/t_swing.py", "--tick", "--date", d.isoformat()], "波段T 账本", 600)
-            summary["t_swing"] = "ok" if rc_s == 0 else "失败"
-        if only and "mix_learn" in only and not a.dry:
+            if T_BOOKS_ON():   # 10/25 用户令: 中行 / 纳指 做T(机械 / 决策 / 波段 / 对照)全停, 开关 T_BOOKS
+                rc_t, out_t = run([PY, "-X", "utf8", "scripts/dfcf/paper/t_bot.py", "--tick", "--date", d.isoformat()], "做T 账本", 180)
+                summary["t_bot"] = "ok" if rc_t == 0 else "失败"
+                # 10/18 晚: 决策 T 两本(A-dbank / A-dndq, 花 token; 时段 0915/0933/1033/1303/1433 + 14:45 机械收口; 幂等, 到点才调模型)
+                rc_d, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/t_decide.py", "--tick", "--date", d.isoformat()], "决策T 账本", 900)
+                summary["t_decide"] = "ok" if rc_d == 0 else "失败"
+                # 10/20 用户定"今天先让 paper 有数据": 波段T 四本(A-sbank/A-sndq 机械零 token; A-wbank/A-wndq 决策 0935/1435 各一次; 14:45 收口; 幂等)
+                rc_s, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/t_swing.py", "--tick", "--date", d.isoformat()], "波段T 账本", 600)
+                summary["t_swing"] = "ok" if rc_s == 0 else "失败"
+        if only and "mix_learn" in only and not a.dry and OLD_PAPER_ON():   # OLD_PAPER
             rc_l, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/mix_plans.py", "--learn", "--date", d.isoformat()], "混合账本收盘学习", 600)
             summary["mix_learn"] = "完成" if rc_l == 0 else "失败"
         # 10/17 晚用户批: 规则时间状态(建立 / 最后验证 / 活跃·待复核·已否定) 机械补齐 + 刷新, 再重建规则索引(零 token, 秒级)
@@ -1004,9 +1075,49 @@ def main():
                 if cp.exists() and (not cip.exists() or cp.stat().st_mtime > cip.stat().st_mtime):
                     run([PY, "-X", "utf8", "scripts/md/gen_cases_index.py", "--skill", sk_dir.name[:-6]], f"案例目录 {sk_dir.name[:-6]}", 60)
             summary["rule_time"] = "完成" if rc_ts == 0 else "失败"
-            # 10/22 晚用户批: 强势股次日溢价库(paper v3 必查用)跟着行情库日线走, 日线更新了才重建(约 40 秒, 只读行情库)
-            rc_sn, _ = run([PY, "-X", "utf8", "scripts/paper_v3/tools/strong_next.py", "--build-if-stale"], "强势股次日溢价库", 600)
-            summary["strong_next"] = "完成" if rc_sn == 0 else "失败"
+            # 10/25 用户批: 强势股次日 / 事件本体 / 规律回测 / 计划核销 / 样例库 / 规则体检 / 来源检查 / U 节核销 挪到夜间重算(Quartz 04:00 nightlyRecalcHandler → scripts/md/nightly_recalc.py,
+            #   tzzb 23:10 全部出齐、数据不会再变之后算; 兜底 05/06/07 点只重跑失败步骤); NIGHTLY_RECALC=0 回到晚间轮次里算(旧逻辑在下面 else 分支)
+            nightly = (_flag("NIGHTLY_RECALC", "1") or "1") == "1"
+            if dt.datetime.now().hour >= 22:   # 导师逐笔事件库 + 指纹: 00:00 的 tzzb 蒸馏要读 fingerprint.md 的"paper 偏离"块 → 晚间保留一次(夜间重算再按完整数据覆盖)
+                rc_fp, _ = run([PY, "-X", "utf8", "scripts/tzzb/mentor_fingerprint.py", "--all"], "导师逐笔事件库(cases_auto)", 900)
+                summary["cases_auto"] = "完成" if rc_fp == 0 else "失败"
+                rc_kl, _ = run([r"C:/Users/admin/anaconda3/python.exe", "-X", "utf8", "scripts/kline_study/kline_inbox.py", "--all"], "K 线截图收件箱", 1800)
+                summary["kline_resolve"] = "完成" if rc_kl == 0 else "失败"
+            if not nightly:
+                # 10/22 晚用户批: 强势股次日溢价库(paper v3 必查用)跟着行情库日线走, 日线更新了才重建(约 40 秒, 只读行情库)
+                rc_sn, _ = run([PY, "-X", "utf8", "scripts/paper_line/tools/strong_next.py", "--build-if-stale"], "强势股次日溢价库", 600)
+                summary["strong_next"] = "完成" if rc_sn == 0 else "失败"
+                # 10/24 用户令(补材料沉淀): 导师逐笔事件库 cases_auto.jsonl + fingerprint.md 每晚重算(原来 10/17 后没人跑, 停在 10/16; 约 1 分钟, 零 token)
+                # 必须在 tzzb 当天逐笔落库之后才有意义: 22 点后的轮次跑(23:10 最后一轮抓取后由 23:40 兜底轮再跑一次即覆盖)
+                if dt.datetime.now().hour >= 22:
+                    rc_on, _ = run([PY, "-X", "utf8", "scripts/ontology/build.py"], "事件本体重建(ontology.db)", 900)   # 10/24: 依赖 cases_auto / 强势股库 / 电报 / 分钟路径, 放在它们之后
+                    summary["ontology"] = "完成" if rc_on == 0 else "失败"
+                    # 10/24 用户令: 近期规律扫描的回测(第二天出现率 / 有没有预测力)每晚随分钟路径滚动重算; 约 1~2 分钟, 零 token
+                    rc_ps = [run([PY, "-X", "utf8", "scripts/paper_line/tools/pattern_scan.py", "--backtest", k], f"近期规律回测({k})", 900)[0] for k in ("cb", "stock")]
+                    summary["pattern_bt"] = "完成" if not any(rc_ps) else "失败"
+                    # 10/24 模块 9: 计划核销 + 你的决策日志(零 token; 导师逐笔入库之后跑); 前一交易日再补一次(当晚还没有"下一交易日"数据)
+                    rc_pr, _ = run([PY, "-X", "utf8", "scripts/live/plan_review.py", "--date", d.isoformat()], "计划核销(当天)", 600)
+                    summary["plan_review"] = "完成" if rc_pr == 0 else "失败"
+                    rc_ss, _ = run([PY, "-X", "utf8", "scripts/live/skill_score.py", "--date", d.isoformat()], "skill 成绩(C 方案)", 900)   # 10/25: results/_live/<日>/review/skill_score.md
+                    summary["skill_score"] = "完成" if rc_ss == 0 else "失败"
+                    rc_re, _ = run([PY, "-X", "utf8", "scripts/skills_ver/rule_exam.py", "--skill", "zhiyingjuexin,liuyiqing,zuoshoudeirong,buchitudou0", "--days", "20"], "规则样本外拟人体检", 300)   # 10/26: docs/review/rule_exam_<日>.md
+                    summary["rule_exam"] = "完成" if rc_re == 0 else "失败"
+                    rc_sg, _ = run([PY, "-X", "utf8", "scripts/live/session_growth.py", "--date", d.isoformat(), "--todo"], "会话体检(午后是否变贵变慢 → TODO)", 120)   # 10/25 用户: 周一结束 TODO 里要写清
+                    summary["session_growth"] = "完成" if rc_sg == 0 else "失败"
+                    try:
+                        import sys as _s
+                        _s.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+                        import watch_set as _WS
+                        run([PY, "-X", "utf8", "scripts/live/plan_review.py", "--date", _WS.prev_day(d.isoformat())], "计划核销(前一交易日补下一天)", 600)
+                    except Exception as e:   # noqa: BLE001
+                        log(f"[plan_review] 前一交易日补跑失败 {e!r}")
+                    #   收件(OCR 约 5 秒一张, 限 2 线程; 盘中不跑)→ 续画未来 3 日 → 导师核销(账本有新逐笔就重拉, tzzb 蒸馏之后这一轮必然覆盖)→ 到期对答案写进 market-skill kline_cases.md(零 token; anaconda 环境)
+                    # 10/25 用户批: 样例库(一次买入 = 一个样例; 正 / 负 / 平 / 待核 n, 每晚重算 = 待核天数 −1)+ 07 规则体检(按"依据"引用的规则编号归账, 可疑规则进 docs/review/rule_suspects.md 等你核销); 零 token
+                    rc_sp, _ = run([PY, "-X", "utf8", "scripts/ontology/sample_lib.py", "build"], "样例库重算", 1800)
+                    rc_rh, _ = run([PY, "-X", "utf8", "scripts/ontology/rule_health.py"], "规则体检", 600)
+                    summary["samples"] = "完成" if rc_sp == 0 and rc_rh == 0 else "失败"
+                    run([PY, "-X", "utf8", "scripts/md/rules_lint.py"], "rules.md 来源检查(沉淀分层 v2 代码闸)", 120)
+                    run([PY, "-X", "utf8", "scripts/market/user_found_check.py"], "market-skill 用户发现 U 节核销", 900)
             # 10/22 23:5x 用户令: 恢复加红电报每日累计(零 token) — 当天每轮重算(电报 / 分钟线晚上才齐), 漏的天补齐, 再重出"电报次日"累计表
             run([PY, "-X", "utf8", "scripts/test/telegraph_validate.py", "--date", d.isoformat()], "加红电报验证(当天)", 600)
             run([PY, "-X", "utf8", "scripts/test/telegraph_validate.py"], "加红电报验证(补漏)", 900)
@@ -1019,8 +1130,8 @@ def main():
             summary["persona_snap"] = "完成" if rc_ps == 0 else "失败"
             # 10/21 晚(★12): 新 paper 09:00 首版前先备好当天第一份事实包(交易日 08:00 这轮), 免得 6 条链 09:00 同时等现做
             if only and "persona_snap" in only and dt.date.today().weekday() < 5:
-                rc_fx, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/se_facts.py", "--skill", "zhiyingjuexin", "--build", "--wait", "300"], "新 paper 盘前事实包", 360)
-                summary["se_facts_premarket"] = "完成" if rc_fx == 0 else "失败"
+                rc_fx, _ = run([PY, "-X", "utf8", "scripts/dfcf/paper/facts_pack.py", "--skill", "zhiyingjuexin", "--build", "--wait", "300"], "新 paper 盘前事实包", 360)
+                summary["facts_pack_premarket"] = "完成" if rc_fx == 0 else "失败"
         # 10/18: 导师名片按最新账本数据给下一交易日重算(原只在次日 0915 facts 首次用到时懒生成, 已存在就不再刷新 → 当晚补进的账本数据进不去)
         if (not only or "case_log" in only) and not a.dry:   # 10/18 用户定: 停用 32B 推测层, 改由全量操作日志卡(机械, 零 token, 幂等; 全量重算约 3 秒)
             rc_cl, _ = run([PY, "-X", "utf8", "scripts/tzzb/case_log.py"], "导师操作日志卡", 300)
@@ -1032,22 +1143,22 @@ def main():
             run([PY, "-X", "utf8", "scripts/tzzb/case_log.py"], "导师操作日志卡(并入新解读)", 300)
             run([PY, "-X", "utf8", "scripts/tzzb/hold_mining.py"], "持仓手法挖掘(滚动验证)", 300)
             summary["case_log"] = "完成" if rc_cl == 0 else "失败"
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/t_review.py", "--date", d.isoformat()], "做T 复盘(事后最优 T 标签)", 300)   # 10/18 晚
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/t_knowledge.py"], "做T 知识包", 120)   # 10/18 晚: 全体 skill 做T 技巧(正反面)给决策T
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/t_skill.py"], "品种 skill 数据画像(银行股/纳指)", 120)   # 10/18 晚
+            OLD_PAPER_ON() and run([PY, "-X", "utf8", "scripts/dfcf/paper/t_review.py", "--date", d.isoformat()], "做T 复盘(事后最优 T 标签)", 300)   # 10/18 晚
+            OLD_PAPER_ON() and run([PY, "-X", "utf8", "scripts/dfcf/paper/t_knowledge.py"], "做T 知识包", 120)   # 10/18 晚: 全体 skill 做T 技巧(正反面)给决策T
+            OLD_PAPER_ON() and run([PY, "-X", "utf8", "scripts/dfcf/paper/t_skill.py"], "品种 skill 数据画像(银行股/纳指)", 120)   # 10/18 晚
             # run([PY, "-X", "utf8", "scripts/dfcf/paper/t_private_report.py"], "牧原私有报告(snapshots/report_private.html)", 120)   # 10/22 晚用户令: report_private.html 删掉、代码暂留 → 每晚不再生成
             if (ROOT / "scripts" / "dfcf" / "snapshots" / "order-skill" / "eval_day.py").exists():   # 10/19: 盘中挂单建议逐档对账(私有, 不进 git)
                 run([PY, "-X", "utf8", "scripts/dfcf/snapshots/order-skill/eval_day.py", "--date", d.isoformat()], "盘中挂单建议对账(私有 order-skill)", 120)
                 run([PY, "-X", "utf8", "scripts/dfcf/snapshots/order-skill/real_log.py", "--date", d.isoformat()], "实盘决策日志+T+1/T+3 结算(私有, 照建议 vs 自主)", 120)   # 10/19 晚
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/rand_baseline.py"], "RAND 抛硬币基准", 600)   # 10/18 晚 P0: 各链 vs 随机选股
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/signal_lab.py"], "分钟级信号实验室", 1200)   # 10/18 晚 P2: MOM/REV/VWAP/TFI/RAND 滚动验证
+            OLD_PAPER_ON() and run([PY, "-X", "utf8", "scripts/dfcf/paper/rand_baseline.py"], "RAND 抛硬币基准", 600)   # 10/18 晚 P0: 各链 vs 随机选股
+            OLD_PAPER_ON() and run([PY, "-X", "utf8", "scripts/dfcf/paper/signal_lab.py"], "分钟级信号实验室", 1200)   # 10/18 晚 P2: MOM/REV/VWAP/TFI/RAND 滚动验证
             run(["node", "scripts/quotes/refresh_daily_cache.mjs"], "日线缓存整体补到最新(读本地行情库, 零网络; report / daily_digest / 撮合前收兜底 / 振幅中位都读它)", 900)   # 10/20 晚: 原只按需补, 1570 只里 1554 只过期
             run([PY, "-X", "utf8", "scripts/quotes/indicators_db.py", "--date", d.isoformat()], "均线/三态/风险仓位 全市场快照", 900)   # 10/18 晚 A+C: downloads/market/<日>/indicators.jsonl
             run([PY, "-X", "utf8", "scripts/market/collect_cb_facts.py", "--date", d.isoformat()], "可转债事实表(溢价率/强赎/正股涨停/热点妖债; 土豆链次日注入)", 300)   # 10/19 用户口述转债逻辑
             run([PY, "-X", "utf8", "scripts/market/topology.py", "--date", d.isoformat()], "市场拓扑(每只票的邻居: 扣大盘相关60/20 + 东财行业 + 申万 + F10 概念 + 期货; 只做预取参考)", 300)   # 10/19 晚 TODO 二-13
             run([PY, "-X", "utf8", "scripts/tzzb/regime_trades.py"], "导师×三态 胜率/盈亏比/期望", 1200)
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/settle_decisions.py", "--date", d.isoformat(), "--backfill", f"{d.isoformat()}:{d.isoformat()}", "--summary", "scripts/dfcf/paper/decisions/summary.md"], "决策日志延迟结算(T+1/T+3, 零 token; 反思按 CHAIN_REFLECTION 白名单)", 900)   # 10/19 晚
-            run([PY, "-X", "utf8", "scripts/dfcf/paper/paper_vs_real.py", "--date", d.isoformat()], "paper vs 导师真人 偏离归因(写进各 skill fingerprint, 蒸馏消费)", 300)   # 10/19   # 10/18 晚 B: 写各导师 fingerprint.md AUTO:三态 块
+            OLD_PAPER_ON() and run([PY, "-X", "utf8", "scripts/dfcf/paper/settle_decisions.py", "--date", d.isoformat(), "--backfill", f"{d.isoformat()}:{d.isoformat()}", "--summary", "scripts/dfcf/paper/decisions/summary.md"], "决策日志延迟结算(T+1/T+3, 零 token; 反思按 CHAIN_REFLECTION 白名单)", 900)   # 10/19 晚
+            OLD_PAPER_ON() and run([PY, "-X", "utf8", "scripts/dfcf/paper/paper_vs_real.py", "--date", d.isoformat()], "paper vs 导师真人 偏离归因(写进各 skill fingerprint, 蒸馏消费)", 300)   # 10/19   # 10/18 晚 B: 写各导师 fingerprint.md AUTO:三态 块
             run([PY, "-X", "utf8", "scripts/bilibili/up_case_log.py"], "B站 UP 日卡", 600)   # 10/18 晚: 画面 BS / 持仓 / 原话 + 行情
         if (not only or "mentor_cards" in only) and not a.dry:
             nd = _next_td(d, _bb().load_holidays()).isoformat()
@@ -1059,9 +1170,14 @@ def main():
             hj = _json_tail(out_h)
             summary["health"] = f"红 {hj.get('red', '?')} / 黄 {hj.get('yellow', '?')}(详见 {hj.get('report', 'scripts/health/reports/')})"
             log(f"[health] → {summary['health']}")
-            # 10/18 用户定: 暂停中的导师(如冲5000w)真人账本恢复更新 → 推微信提醒(只提醒不自动开; 同一次复活只提醒一次)
-            rc_rv, out_rv = run([PY, "-X", "utf8", "scripts/health/revival_check.py"], "导师复活检查", 120)
-            summary["revival"] = f"提醒 {_json_tail(out_rv).get('alerts', '?')} 条" if rc_rv == 0 else "失败"
+            # 10/24 用户重定: 停更(连续 ≥20 个交易日没更新)由 revival_check 单独推; 复活写进下面的 check md 总结微信
+            rc_rv, out_rv = run([PY, "-X", "utf8", "scripts/health/revival_check.py"], "导师停更 / 复活检查", 120)
+            rv = _json_tail(out_rv) if rc_rv == 0 else {}
+            summary["revival"] = (f"新停更 {len(rv.get('stale_new') or [])} / 复活 {len(rv.get('revived') or [])}" if rc_rv == 0 else "失败")
+            try:   # 10/24 用户: check md 总结微信(每天最后一轮 23 点后推 1 条; 复活写在这里)
+                push_summary(d, summary, rv, hj)
+            except Exception as e:   # noqa: BLE001
+                log(f"[summary] 推送失败 {e!r}")
         # 10/17 健壮性 M14: 收尾步骤失败原先只写进 summary, 退出码仍 0 → sys_job_log 记成功, daily_health 红线看不到
         tail_failed = [k for k, v in summary.items() if isinstance(v, str) and v.startswith("失败")]
         if tail_failed:

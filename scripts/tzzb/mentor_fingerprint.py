@@ -1936,6 +1936,11 @@ def write_fingerprint(R, M, out_md):
     else:
         L.append(v.get("note") or "—")
     L.append("")
+    try:   # 10/25 用户: 板型买点(一字 / T字 / 厂字 / 烂板回封 / 炸板 / 深V / 反包)—— 给机械层更多打法选项; scripts/tzzb/board_entry.py
+        import board_entry as BE
+        L += BE.section(R["ledger"])
+    except Exception as e:   # noqa: BLE001
+        L += ["## 十、板型买点", "", f"(这次没算出来: {e!r})"[:200], ""]
     out_md.write_text("\n".join(L) + "\n", encoding="utf-8")
 
 

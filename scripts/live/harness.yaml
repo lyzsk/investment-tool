@@ -1,0 +1,276 @@
+# harness.yaml — 实盘线约束配置(10/24 样式稿, Claude 先建, 你来补充 / 改)
+# 说明见 docs/live/harness_tutorial_20261024.md(章节号和下面一一对应)
+# 标记: 👤 = 需要你定 / 补的项; ⚙️ = 先用的默认值, 跑一周再调; 🚧 = 依赖还没建好的东西(接线时先建)
+# 10/24 起部分在读: risk05 / content_gate.banned_words / steps(标 [读] 的项); 其余仍是样式稿
+
+version: 1
+updated: 2026-10-24
+owner: 用户
+
+# ─────────────────────────── 3.1 时间表 ───────────────────────────
+schedule:
+  plan_at: "08:40"            # ⚙️ 盘前计划开跑(要读到发哥 07:0x 蒸馏 + 财联社早报 07:15)
+  plan_deadline: "09:10"      # ⚙️ 超时 → 推告警 + 用昨晚预案
+  auction_check: "09:20:30"   # ⚙️ 竞价对照计划(先零 token 判分支, 偏离才叫模型)
+  auction_final: "09:25:05"   # ⚙️ 竞价定格后再判一次
+  tail_check: "14:45"         # ⚙️ 尾盘检查(澳弘尾盘拉升观察窗 14:25~14:45, 见 TODO)
+  no_new_after: "14:57"       # ⚙️ 之后不出新单
+  evening_review: "19:30"     # ⚙️ 模拟账核销 + 概率校准(你实盘导出一般 19:3x)
+
+# ─────────────────────────── 3.2 材料清单(输入闸) ───────────────────────────
+inputs:
+  slim: false                 # [读] 10/24 用户: 全量给数据包(数据是优势, 不在源头砍)。true = 瘦身版(规则简表 / 不带案例全文 / 前一天 md 摘要), 只留作对照
+  must_check_full_n: 99        # [读] 必查全量的候选只数(10/24 用户: 全量; 持仓永远全量)
+  resident:                   # 常驻、进缓存; 合计目标 ≤ 40000 token
+    budget_tokens: 40000      # ⚙️
+    items:
+      - account               # 你的持仓 / 成本 / 可用(当天第一次从你报的数或 live_account 读)
+      - market_panel          # 盘面情绪(10/24 已建: scripts/market/collect_mood.py, 挂在面板采集里每 5 分钟; 01 的「盘面情绪」节)
+      - theme_strength        # 🚧 盘中题材强度
+      - mentor_digest         # 🚧 全部导师 + 发哥 + 三 UP 每人一行的机械汇总
+      - yesterday_md_digest   # 🚧 昨天 md 结构化摘要(不放全文)
+      - fage_spec             # 发哥当天推演要点(已有: downloads/wechat/fage/<日>/spec.md)
+  retrieved_per_candidate:    # 每只候选按需检索
+    budget_tokens: 3000       # ⚙️ 每只上限
+    items:
+      - rules_hit             # 被这只票命中的导师规则原文
+      - cases_hit             # 🚧 同形态案例, 必须带 正/负/平 标签
+      - stats                 # 代码算好的概率(见 3.3), 每条带 Q 编号
+      - key_levels            # 关键价位(./q levels)
+      - peers                 # 🚧 同炒作逻辑邻居(./q peers)
+  index_only:
+    - ./q 资料目录             # 模型想深挖时自己查
+  max_tool_calls: 3           # ⚙️ 一次触发最多让模型自己查几次
+  on_missing: fail_loud       # fail_loud = 写明缺什么、该项禁止给概率 | skip = 静默跳过(不推荐)
+  max_candidates: 8           # ⚙️
+  skills_mode: digest         # digest = 全部机械汇总 + 只读命中最多的 3~5 位原文 | all = 全文都喂
+  skills_full_text_top: 4     # ⚙️ digest 模式下读原文的人数
+  skills:                     # 👤 你定哪些 skill 进来(默认全进汇总表)
+    mentors: all              # 或列出: [buchitudou0, liuyiqing, zhiyingjuexin, ...]
+    up: [taoge, qushitiange, lubenyuan]
+    fage: true
+    knowledge: [market-skill, telegraph-skill]
+    exclude: []               # 👤 想排除的(比如近期回撤大的)
+
+# ─────────────────────────── 3.3 概率来源 ───────────────────────────
+probability:
+  source: code_only           # 只有代码能产生概率; 模型只能引用 Q 编号
+  min_n: 15                   # ⚙️ 样本少于此数: 按 odds.prob() 向参照组收缩, 标"低置信"
+  shrink_strength: 10         # ⚙️ odds.prob 的 a
+  report: [n, mean, median, p10, p25, p75, p90, worst, best]   # 你 10/23 定: 不能只报中位
+  confidence: odds.confidence # 置信度算法(已有: scripts/lib/odds.py)
+  queries:                    # Q 编号 → 查询(已有的直接用)
+    Q-same:   {what: 本票同形态日,       tool: "hypo_test.py / order_ctx ④"}
+    Q-sim:    {what: 转债相似日,         tool: "./q similar"}
+    Q-window: {what: 日线走势相似,       tool: "./q window"}
+    Q-minute: {what: 分时路径相似(转债), tool: "./q wminute"}
+    Q-strong: {what: 强势股次日,         tool: strong_next}
+    Q-board:  {what: 开板 / 回封,        tool: board_knowledge}
+    Q-touch:  {what: 挂单触及概率,       tool: fill_prob}
+    Q-tg:     {what: 电报点名次日,       tool: telegraph-skill}
+    Q-ctype:  {what: 同债近 10 日路径,   tool: "🚧 待建"}
+    Q-peer:   {what: 同逻辑邻居次日,     tool: "🚧 ./q peers"}
+  model_adjust: allowed_with_reason   # 模型可以说"下调 / 不适用", 必须写理由, 不能给新数字
+
+# ─────────────────────────── 3.4 输出格式(结构闸) ───────────────────────────
+# 下面是盘前计划的字段定义; 程序按它校验模型输出的 JSON
+output:
+  plan:
+    market:
+      mainline: {type: string, required: true}                       # 主线题材
+      state: {enum: [冰点, 退潮, 修复, 分歧, 主升], required: true}
+      big_cap: {type: ref, note: "10/24 改: 不用枚举, 引用 01 的大盘路径段编号 M大n(见 3.4b steps.01.market_path)"}
+      small_cap: {type: ref, note: "同上, 小盘 M小n"}
+      evidence: {type: list_of_ref, min: 2}                          # 引用 E / Q 编号
+    skills_view:              # 每个 skill 一行(机械汇总带出来, 模型只写取舍)
+      - skill: {type: string}
+        stance: {enum: [看多, 看空, 观望, 无观点]}
+        rules: {type: list_of_rule_id}
+        pos_cases: {type: int}
+        neg_cases: {type: int}
+    picks:
+      max: 8
+      item:
+        code: {type: string, required: true}
+        name: {type: string}
+        scenarios:            # 竞价 / 开盘情景: 代码先划档, 模型填动作
+          min: 2
+          max: 4
+          item:
+            when: {type: machine_condition, required: true}          # 必须能被代码判定, 如 "竞价涨幅 >= 5 且 未匹配买 > 未匹配卖"
+            prob: {type: q_ref, required: true}                      # {"q": "Q-same#3", "value": 0.42}
+            action: {enum: [开盘买, 等回落买, 等信号买, 不动, 减仓, 清仓], required: true}
+            buy_signal: {type: signal_id}                            # 只能从 3.5 信号库选
+            buy_zone: {type: price_range}
+            exit_plan:
+              if_close: {type: string}                               # 今天收盘怎样
+              next_day: {type: string}                               # 明天怎么卖(如"第二波冲高卖")
+              q: {type: q_ref}
+            p_next_sell_above_buy: {type: q_ref, required: true}     # 明天卖价高于今天买价的概率
+            invalid_if: {type: machine_condition, required: true}    # 失效条件
+            fear: {type: string, required: true}                     # 最怕什么(负样本只能放这里)
+        not_reliable: {type: string}                                 # 样本不适用时写原因, 此时不许给 value
+    not_doing:                # 看到了但不做(你 10/23 要求)
+      - theme: {type: string}
+        why: {enum: [不在能力圈, 已见顶, 样本不足, 和导师规则冲突, 其他]}
+        note: {type: string}
+  intraday:                   # 盘中触发的输出 = 对照计划的偏离
+    deviates_from_plan: {type: bool, required: true}
+    which_scenario_now: {type: string}
+    changes: {type: list}     # 改了计划里的哪一条、为什么
+  example_file: docs/live/plan_example.json   # 🚧 接线时我用 10/23 北新路桥写一个完整例子放这里
+
+# ─────────────────────────── 3.4b 各步输出边界(10/24 已接线, 程序在读 —— 标 [读] 的项改了就生效) ───────────────────────────
+# 你 10/24 定: 01 机械 / 02 03 04 06 模型 / 05 机械; harness 约束每一步输出什么, 已有材料不许忽略省略
+# 代码: scripts/paper_line/harness.py(gate02 / gate03 / gate_checked / enforce06); 开关跟 chain_flags 的 PAPER_GATE04=1(只管拟人线)
+steps:
+  "01":                               # 机械: 事实包, 每条带编号; 模型只能引用编号, 不能自己造数
+    market_path:                      # 大盘 / 小盘各一组(10/24 你定: 喂路径和变化日志, 枚举只给代码用) —— tools/market_path.py
+      groups: {大: sh000300, 小: sz399303}
+      zigzag_pct: {大: 0.5, 小: 0.8}  # ⚙️ 回撤阈值; 10/24 实测 0.3 / 0.5 太碎(10/22 沪深300 切 17 段)
+      break_ratio: 0.33               # ⚙️ 突破前高 / 跌破前低要超出 阈值 × 这个比例才改状态(滞回, 防来回跳)
+    pattern_scan:                     # 近期规律(10/24 你: 我看澳弘能发现规律, 模型为什么不能) —— tools/pattern_scan.py
+      recent_days: 10
+      hit_rate: 0.7                   # 近 N 天出现率 ≥ 这个 = 候选规律
+      lift_min: 1.5                   # 回测"第二天出现率 ÷ 全样本出现率" ≥ 这个才报(常见事件回测无预测力, 不报)
+      backtest_min_n: 30
+      report: 回测第二天出现率        # 给模型的数 = 回测第二天出现率, 不是近期出现率(近期 8/10 ≠ 明天 80%)
+    must_check: auto                  # 持仓 + 候选前 15 只, 每只按类型自动查(股票: 价位 / 规律 / 导师 / 题材 / 龙虎榜 / 电报 / 强势股次日; 转债: 价位 / 规律 / 导师 / 相似日 / 同债路径)
+  "02":                               # 模型: 判断今天什么样、对打法意味着什么
+    shared: true                      # [读] 10/24 📋1: 全体共用一个市况会话(scripts/paper_line/market02.py; 08:5x 盘前首跑前写一版); false = 各本自己写
+    refresh:                          # [读] 10/24 你定: 触发式刷新(不按固定时刻); 每 15 秒机械检查, 命中任一条就刷新 —— ①上一版 02 的 flip_if 成立 ②大小盘结构变化 ⑤竞价定格 恒开, 下面是阈值
+      idx_move: {sh000001: 0.6, sz399303: 1.0}   # ⚙️ ③ 上证 / 国证2000 相对上一版 02 又走了几个点
+      zt_ratio: 0.3                   # ⚙️ ④ 涨停家数变化 ≥ 30%
+      zt_min: 15                      #       且 ≥ 15 家
+      zbr_pts: 15                     # ⚙️ ④ 炸板率变化 ≥ 15 个点
+      dt_n: 20                        # ⚙️ ④ 跌停家数变化 ≥ 20 家
+      cool_min: 10                    # ⚙️ 两次刷新至少隔几分钟(竞价定格不受限)
+      max_n: 12                       # ⚙️ 每天最多刷新几次
+    fields: [attitude(偏多|中性|偏空), why(1~3 条, 只写编号 E / M大n·M小n), directions(≤3), vs_mech, flip_if(1~3 条, 代码能判的指数条件), state, horizon_days, note]
+    note_max_chars: 300               # [读]
+    forbid: [复述材料数字, 写和具体导师有关的内容]
+  "03":                               # 模型: 摆正反证据, 不做决定
+    args_per_side: 3
+    arg_fields: [claim(≤40 字), cite(编号), type(数据|规则|样本|资金|题材|市况)]
+    forbid: [打分, 负样本当多方论据, 只举最好的一个例子]
+    bear_must_cite_negative: true     # 材料里有 ⚠负样本 / 最差 / P10 时空方必须引一条
+  "04":                               # 模型: 唯一做决定的地方
+    checked_scope: [持仓(不论动作), 建, 加, 减, 清]   # 这些票要按"类别"逐项回应必查(价位 / 近期规律 / 导师 / 同形态 / 题材 / 龙虎榜 / 电报 / 停牌 / 其他)
+    min_support: {建: 0, 加: 0, 减: 0, 清: 0}         # [读] 证据门槛(10/24 你定先归零: 短线很难 ≥2, 等买卖腿 / 证据之间的拓扑和关联关系做好了再开)
+    against_needs_reply: true         # 影响 = 反对 时必须写"回应"(为什么还做 / 怎么防)
+    pattern_not_irrelevant: true      # 必查列出了近期规律时不许写"无关"(写清顺着还是逆着)
+    numbers_from_material: true       # 结论里的百分比必须是这只票必查里的原数(容差 0.06 个点)
+    rebut_when_03: true               # 带 03 时 建 / 加 必须写 rebut(空方最有力的那条怎么回应)
+    depth_fields: [same_form, peers, lhb, telegraph, after_buy]   # 10/24 上午已上线(只管 建 / 加)
+  "05": {mode: mech}                  # 见 risk05
+  "06":                               # 模型: 翻译员, 把 04 落成挂单
+    only_04_picks: drop               # [读] 10/24 你定"必须要": 越界的单执行器机械剔掉 | warn = 只记录
+  on_fail: guide                      # [读] guide = 要求写在提示里(带示例)事先告诉模型, 检查结果只记录不打回(默认, 10/24 你定) | retry = 不过打回一次
+
+# ─────────────────────────── 3.5 分时信号库 ───────────────────────────
+# 买卖点只能从这里选编号; 每个信号必须能被代码在 3 秒盘口上检测到; 触发 → 零 token 推微信
+signals:
+  S1: {name: 急跌后拉起,     rule: "5 分钟内跌幅 >= 2σ, 之后 1 分钟内收回一半跌幅且站上均价线"}
+  S2: {name: 回踩均价线不破, rule: "价格回到均价线 ±0.3% 内, 3 分钟不破并回升"}
+  S3: {name: 二次冲高,       rule: "开盘冲高回落后再次接近前高(差 <= 1%)且 5 分钟量 >= 第一波 70%"}
+  S4a: {name: 炸板,          rule: "封住后开板, 且开板持续 >= N 秒(N = 近 3 日全市场开板时长 P25, 每天重算, 排除秒开秒封)"}   # 10/25 用户批: S4 拆两条, 动作发生时就提醒
+  S4b: {name: 回封动作,      rule: "开板期间卖一挂在涨停价、卖一量从这次开板的最大值降掉 >= DROP(近 3 日真回封前的降幅中位)", params: {N: 10}}   # N = 开板超过 N 分钟不再等
+  S5: {name: 尾盘拉升,       rule: "14:25~14:45 最低点后 10 分钟内涨 >= 1.5%"}
+  S6: {name: 竞价抢筹,       rule: "09:20 后撮合价比 09:20 抬高 >= 3% 且未匹配买 > 未匹配卖"}
+  S7: {name: 开盘冲高到位,   rule: "开盘后 30 分钟内到 开盘价 × (1 + x%); x = 本票近 30 日开盘 30 分钟最高的 P80(10/25 起动态, 下面的 6 只是算不出来时的兜底)", params: {x: 6}}   # 你的澳弘观点, 未核销
+  # 👤 你来加; 写不成机械规则的不能进(模型会拿来搪塞)
+
+# ─────────────────────────── 3.6 内容闸 ───────────────────────────
+content_gate:
+  banned_words: [大概率, 稳了, 必然, 肯定, 一定会, 无脑]   # 👤 你补; 模型输出里出现且同一句没有百分比 → 打回
+  banned_words_push: [别买, 不做]   # 只管推给你的消息(10/21 只给数据不否决); 模型内部推理里"不做接力"这类正常用语不拦
+  banned_unless:
+    观察: 必须同时写叫醒条件
+    等待: 必须同时写等到什么价 / 什么信号
+    谨慎: 必须同时写仓位上限
+  required:
+    - every_prob_has_q                # 每个概率有 Q 编号
+    - prob_matches_q: 0.01            # 模型写的数和 Q 查到的数差 <= 1 个点
+    - every_scenario_has_invalid
+    - negative_case_not_in_evidence   # 负样本只能出现在 fear
+    - scenario_probs_sum: [0.95, 1.05]
+    - not_doing_present_if_strong_theme_outside_circle
+  required_04_depth:                  # 10/24 你定: 04 每只新开 / 加仓的票必须逐项写(带 E 编号, 没数据写"无数据")
+    - same_form                       # 本票同形态分布
+    - peers                           # 同逻辑邻居(股票) / 同债近期路径(转债)
+    - lhb                             # 龙虎榜席位 + 风格(没上榜写"未上榜")
+    - telegraph                       # 电报信号(没点名写"无点名")
+    - after_buy                       # 买入后情景树: >= 2 种今天收盘情况 × 次日走势 × 卖点
+    - market_risk                     # 本轮市况风险(只能收紧 05 的上限)
+  on_fail: retry_once_then_drop_item  # 重写一次; 还不行删掉不合格那条, 其余照发
+
+# ─────────────────────────── 3.6c 05 机械风控(10/24 你定: 05 交给机械, 有用的定性判断并进 04) ───────────────────────────
+risk05:
+  mode: mech                          # mech = 代码判(推荐) | model = 旧的模型 05
+  windows: [5, 10, 20]                # 导师近 N 个交易日(空仓日算 0), 取最大的那个窗口做上限
+  new_open_mult: 1.5                  # ⚙️ 今天新开票数上限 = ceil(导师近期日均新开 × 这个系数), 至少 1
+  daily_loss_pause_pct: -3.0          # ⚙️ 当日亏到这里 → 暂停新买(卖出不受限)
+  single_max_pct: auto                # auto = 导师近 20 日单票最大仓位中位(至少 30%); 或填数字
+  model_can_only_tighten: true        # 04 的"本轮市况风险"栏只能把上面的数调小, 不能调大
+  on_exceed: drop_extra_new_buys      # 06 写的新开买单超了 → 执行器按顺序剔掉多出来的, 记日志
+
+# ─────────────────────────── 3.6b 硬规则闸(直接复用) ───────────────────────────
+hard_rules:
+  use: scripts/dfcf/snapshots/order-skill/rule_gate.py   # G1 T+1 / G2 数量 / G3 价位 / G4 涨跌停 / G5 价格笼子 / G6 保本线 / G7 资金
+  on_fail: block_order_and_explain
+
+# ─────────────────────────── 3.7 行为闸 ───────────────────────────
+behavior:
+  max_model_calls_per_day: 40         # ⚙️
+  cooldown_sec: 180                   # ⚙️ 同一只票两次叫模型最小间隔
+  manual_trigger: true                # 你在微信发"重算 北新"
+  daily_budget_cny: false             # 10/25 你定: 先关(false = 不按花费停自动触发); 填数字 = 当天花到这里停自动触发、只响应手动。⚠ 3.7 这一节代码还没读(样式稿), 现在是 false 和代码现状一致
+  # 信号(scripts/live/signals.py, 读 3 秒盘口, 零 token; 命中只推微信提醒, 不叫模型; 口径在 signals.py 文件头 P):
+  #   S1 急跌后拉起: 5 分钟内跌幅 ≥ 3σ(σ = 本票近 20 日 5 分钟振幅), 之后 1 分钟内收回一半跌幅且站上均价线
+  #   S2 回踩均价线不破: 先离开均价线 ≥0.6%, 回到均价线 ±0.3% 内 3 分钟没破并回升
+  #   S3 二次冲高: 开盘第一波涨 ≥2% 回落 ≥2% 后, 10:30 前再次接近前高(差 ≤1%)且 5 分钟量 ≥ 第一波 70%
+  #   S4a 炸板: 开板持续 ≥ N 秒(动态); S4b 回封动作: 涨停价上的卖单被吃掉 ≥ DROP(动态)
+  #   10/25 起 S2 / S3 / S5 的幅度 = k × 本票 σ5(k 让中位数那只票 = 原固定值), S6 = 本票竞价变动 P90 + 最小金额, S7 = 本票 P80; 详见 scripts/live/signal_params.py
+  #   S5 尾盘拉升: 14:25~14:45 出现低点后 10 分钟内拉升 ≥1.5%
+  #   S6 竞价抢筹: 09:20:30 后撮合价比 09:20 基准抬高 ≥3% 且未匹配买 > 未匹配卖
+  #   S7 开盘冲高到位: 开盘后 30 分钟内涨到 开盘价 × (1 + 6%)
+  #   到价 / 破位: 计划里写的价位 / 失效价被碰到
+  wake_without_model: [S1, S2, S3, S4, S5, S6, S7, 到价, 破位]   # 只推提醒, 不叫模型
+  token_gate:                         # 每分钟 token 预算闸(10/25 你定: 预留, 先不启用 —— 周一还是 Claude Opus 5.5; 10/25 白天你切 kimi 压测后再定)
+    enabled: false                    # true = 滚动 60 秒 token 超 tpm × ratio 就排队到下一分钟(代码还没接, 打开前我先接好再自测)
+    tpm: 4000000                      # 模型的每分钟 token 上限(K3 Tier4 = 400 万)
+    ratio: 0.8
+  model:
+    name: kimi-k3                     # 👤 10/24 晚你定: 周一不换模型(仍是现在的 Claude), 这里是将来切 K3 的样式, 代码没读
+    tier: 4                           # 你定按 Tier4 算: TPM 400 万 / RPM 200 / 并发 60
+    on_429: wait_next_minute
+    keys:                             # 👤 盘中实盘线和交互会话分开用
+      live_line: kimi-code
+      interactive: kimi-xhj
+
+# ─────────────────────────── 3.7b 推送闸 ───────────────────────────
+push:
+  channel: wx_send.py
+  src: live_                          # 👤 需要时加进 wx_send 置信度闸豁免名单(像 v3_ 那样)
+  kinds: [盘前计划, 竞价对照, 偏离计划, 信号触发, 成交, 告警]
+  blocked_must_log: true              # 被拦也写 wx_sent.jsonl(10/23 已修)
+
+# ─────────────────────────── 3.8 失败策略 ───────────────────────────
+on_failure:
+  data_missing: block_item            # 缺数据 → 该项不给概率, 写明缺什么
+  bad_format: retry_once_then_previous_plan
+  content_gate: retry_once_then_drop_item
+  hard_rule: block_order
+  push: allow_and_log
+  model_timeout: use_plan_fallback    # 盘中模型超时 → 按计划里的预案
+  rate_limited: wait_next_minute
+
+# ─────────────────────────── 3.10 事后核验 ───────────────────────────
+review:
+  shadow_book: true                   # 零 token 按计划机械执行记账
+  decision_log: true                  # 你每笔: 照 / 偏 + 一句理由(微信回 "照" 或 "偏 理由")
+  calibration_buckets: [0.3, 0.5, 0.7, 0.9]
+  weekly_report: "周六 10:17"
+  case_feedback: true                 # 核销结果回写案例正负标签
+
+# 3.9(Claude Code 自己的 settings / hooks)不放这里, 你在 ~/.claude/settings.json 里自己配

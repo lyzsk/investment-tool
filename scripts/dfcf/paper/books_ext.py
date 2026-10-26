@@ -2,7 +2,7 @@
 """books_ext.py — 把"不在 matcher 账本里"的账户导出成 report.html 能读的账本格式(10/22 凌晨; 用户: 我是通过 report.html 看的, BL / 导师真人 / 新 paper 要在一处比)
 
 导出到 scripts/dfcf/paper/books_ext/<src>.json(**不进 books/**, matcher 不会碰; report.mjs 读 books/ 找不到时退到这里):
-  S-<导师>[@变体]  新 paper 策略执行器影子账: results/_live/<日>/se_<key>/ 的 state.json(成交 / 持仓)+ nav.csv(收盘净值), 按日拼起来
+  S-<导师>[@变体]  新 paper 策略执行器模拟账: results/_live/<日>/se_<key>/ 的 state.json(成交 / 持仓)+ nav.csv(收盘净值), 按日拼起来
   BL-<导师>        统计基线账户(开盘撮合)    scripts/dfcf/paper/baseline/BL-<导师>.json 原样转(本来就是同一格式)
   BLT-<导师>       统计基线账户(时机版)      scripts/dfcf/paper/baseline/BLT-<导师>.json
 同时写 books_ext/accounts.json(src, 显示名, 分组)给 accounts.mjs 读。零 token、只读源数据。
@@ -76,8 +76,8 @@ def se_book(key, pre="se", src_pre="S"):
                 nav.append({"date": D, "cash": round(st["cash"], 2), "mv": round(mv, 2), "nav": round(st["cash"] + mv, 2), "frozen": True})
         last = st
     pos = {c: {"qty": int(p["qty"]), "cost": p.get("cost")} for c, p in ((last or {}).get("positions") or {}).items() if int(p.get("qty") or 0) > 0}
-    return {"source": f"{src_pre}-{key}", "kind": "se_executor" if pre == "se" else "paper_v3", "cash": (last or {}).get("cash"), "positions": pos, "orders": [], "trades": trades, "nav": nav,
-            "note": "新 paper 策略执行器影子账(10/22 起 10 万), 由 books_ext.py 从 results/_live 导出; 不进 matcher"}
+    return {"source": f"{src_pre}-{key}", "kind": "se_executor" if pre == "se" else "paper_line", "cash": (last or {}).get("cash"), "positions": pos, "orders": [], "trades": trades, "nav": nav,
+            "note": "新 paper 策略执行器模拟账(10/22 起 10 万), 由 books_ext.py 从 results/_live 导出; 不进 matcher"}
 
 
 def main():
@@ -93,10 +93,10 @@ def main():
             acc.append([f"S-{k}", f"v2·{disp(sk)}" + (f"@{var}" if var else "") + ("(09:43 停, 收盘价估值)" if frozen else ""), "paper v2(10/22)"])
     # 10/23 凌晨: paper v3 账本(results/_live/<日>/v3_<线>/), 11 本; 决策T 两本本钱 1 万
     try:
-        lines = {x["id"]: x for x in json.loads((ROOT / "scripts" / "paper_v3" / "lines.json").read_text(encoding="utf-8"))["lines"]}
+        lines = {x["id"]: x for x in json.loads((ROOT / "scripts" / "paper_line" / "lines.json").read_text(encoding="utf-8"))["lines"]}
     except (OSError, ValueError, KeyError):
         lines = {}
-    for k in sorted({p.name[3:] for p in LIVE.glob("20*/v3_*") if p.is_dir() and p.parent.name >= "2026-10-23"}):
+    for k in sorted({(p.name[6:] if p.name.startswith("paper_") else p.name) for p in [*LIVE.glob("20*/live_*"), *LIVE.glob("20*/paper_*")] if p.is_dir() and p.parent.name >= "2026-10-23"}):
         b = se_book(k, "v3", "V3")
         if b:
             (OUT / f"V3-{k}.json").write_text(json.dumps(b, ensure_ascii=False, indent=1), encoding="utf-8")

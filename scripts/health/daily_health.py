@@ -118,8 +118,16 @@ def main():
             nav = dt.datetime.strptime(s["lastNavDate"], "%Y%m%d").date() if s.get("lastNavDate") else None
         except Exception:  # noqa: BLE001
             nav = None
-        if nav and exp and (exp - nav).days > 30:   # 10/15: 长期停更(冲5000w 07/06 起)=已知, 每天不该一红; 复活检查在 19:43 自愈例程
-            add("黄", f"tzzb {led}", f"长期停更(最新 {nav}), 已知; 恢复更新会自动变绿")
+        stale_td = None
+        if nav and exp:
+            try:   # 10/24 用户: 停更 = 账本连续 ≥20 个交易日没更新(原 30 个自然日; 和盘前选人 mentor_select 同口径)
+                sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+                import a_rules as AR
+                stale_td = AR.count_trade_days(nav.isoformat(), exp.isoformat()) - 1
+            except Exception:   # noqa: BLE001
+                stale_td = (exp - nav).days * 5 // 7
+        if stale_td is not None and stale_td >= 20:   # 10/15: 长期停更=已知, 每天不该一红; 恢复更新会自动变绿
+            add("黄", f"tzzb {led}", f"停更(连续 {stale_td} 个交易日没更新, 最新 {nav}), 已知; 恢复更新会自动变绿")
             continue
         # 10/16 晚自愈: 今天抓取成功但同花顺 upload_time(导师本人最后一次上传)停在 lastNavDate 当天=本人没上传, 不是采集故障 → 黄
         try:

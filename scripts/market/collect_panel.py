@@ -193,6 +193,11 @@ def run(D):
             print(f"[{dt.datetime.now():%H:%M:%S}] 面板采集失败 {fails}: {e}", flush=True)
             if fails >= 10:
                 break
+        try:   # 10/24 用户批(❓12): 盘面情绪面板(全市场 13 档 + 涨停 / 炸板 / 跌停 / 封板率 / 梯队), 自己控制每 5 分钟拉一次, 失败不影响面板
+            import collect_mood
+            collect_mood.step(D)
+        except Exception as e:   # noqa: BLE001
+            print(f"[{dt.datetime.now():%H:%M:%S}] 情绪面板异常 {e!r}", flush=True)
         time.sleep(STEP)
     return 0
 

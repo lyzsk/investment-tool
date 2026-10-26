@@ -1,0 +1,9 @@
+--- v020_20261023-0800/scripts/claude_profile/chain_flags.txt
++++ v021_20261023-1950/scripts/claude_profile/chain_flags.txt
+@@ -135,5 +135,5 @@
+ # ---- paper v3(10/22 晚建, 10/23 起; scripts/paper_v3/, 8 本账见 lines.json) ----
+ V3_FLEET=1   # 1 = 08:52 计划任务 PaperV3Fleet + check md 每 5 分钟拉起 / 崩溃重拉; 0 = 整体关
+-V3_LINES=   # 空 = lines.json 全部 8 本; 填线号逗号分隔 = 只跑这几本
++V3_LINES=   # 空 = lines.json 全部账本(10/23 起 11 本); 填线号逗号分隔 = 只跑这几本
+ V3_EFFORT=high
+ V3_FIRST=09:00:00   # 启动会话时刻, 第 i 本 + 20 秒错峰

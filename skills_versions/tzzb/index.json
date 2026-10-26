@@ -300,6 +300,114 @@
     "chain": "bc16f25a3b52",
     "distill": "0963b144aca2"
    }
+  },
+  {
+   "v": 9,
+   "id": "v009_20261023-1950",
+   "ts": "2026-10-23T19:50:19",
+   "effective_from": "2026-10-23T19:07:32",
+   "unit": "skill",
+   "version_hash": "9d7c22bd02c9717235dc3ef906cd22bfdac742a88f4c30cccabfaa7a8e9bc057",
+   "cat_hash": {
+    "提示词": "9d7c22bd02c9717235dc3ef906cd22bfdac742a88f4c30cccabfaa7a8e9bc057"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v008_20261023-0038",
+   "changed": {
+    "added": [],
+    "modified": [
+     "PROCESS.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "PROCESS.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 0
+   },
+   "bytes_weight": 58943,
+   "why": "check-md 2026-10-23 19:50",
+   "code": {
+    "chain": "bc16f25a3b52",
+    "distill": "ea12f16d580d"
+   }
+  },
+  {
+   "v": 10,
+   "id": "v010_20261024-0042",
+   "ts": "2026-10-24T00:42:58",
+   "effective_from": "2026-10-24T00:31:23",
+   "unit": "skill",
+   "version_hash": "d3e637b757e2b160132a0676c3e4d3503b5f5ade392983b9c008ff2984fafc8b",
+   "cat_hash": {
+    "提示词": "d3e637b757e2b160132a0676c3e4d3503b5f5ade392983b9c008ff2984fafc8b"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v009_20261023-1950",
+   "changed": {
+    "added": [],
+    "modified": [
+     "PROCESS.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "PROCESS.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 0
+   },
+   "bytes_weight": 61064,
+   "why": "check-md 2026-10-23 00:42",
+   "code": {
+    "chain": "bc16f25a3b52",
+    "distill": "ea12f16d580d"
+   }
+  },
+  {
+   "v": 11,
+   "id": "v011_20261026-0800",
+   "ts": "2026-10-26T08:00:38",
+   "effective_from": "2026-10-26T00:19:50",
+   "unit": "skill",
+   "version_hash": "e4078f942a37a403473972054c17e8de9cce54b4198e5c235a9ba24c1b63b37f",
+   "cat_hash": {
+    "提示词": "e4078f942a37a403473972054c17e8de9cce54b4198e5c235a9ba24c1b63b37f"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v010_20261024-0042",
+   "changed": {
+    "added": [],
+    "modified": [
+     "workflows/distill.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "提示词": [
+     "workflows/distill.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 8,
+    "removed": 1
+   },
+   "bytes_weight": 63527,
+   "why": "check-md 2026-10-23 08:00",
+   "code": {
+    "chain": "bc16f25a3b52",
+    "distill": "4295fbf23029"
+   }
   }
  ],
  "events": [],

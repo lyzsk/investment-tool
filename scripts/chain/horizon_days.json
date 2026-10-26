@@ -37,12 +37,6 @@
   "stat": true,
   "src": "tzzb 真人收盘持仓 20260427~20261016 共 41 段: 中位 1 天/P75 2 天"
  },
- "daxingdaxingdadangxing": {
-  "med": 2,
-  "cap": 2,
-  "stat": true,
-  "src": "tzzb 真人收盘持仓 20260917~20261016 共 11 段: 中位 2 天/P75 2 天"
- },
  "gaogailvfuli": {
   "med": 1,
   "cap": 2,

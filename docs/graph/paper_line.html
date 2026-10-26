@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh">
+<meta charset="utf-8">
+<title>paper v3 · 架构 / 明天怎么跑 / 消融实验（10/22 晚）</title>
+<style>
+body{margin:0;font:13px/1.5 "Microsoft YaHei",sans-serif;background:#0b1120;color:#e2e8f0}
+#bar{position:sticky;top:0;z-index:5;background:#111827;border-bottom:1px solid #1f2937;padding:8px 12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.tab{padding:4px 12px;border-radius:6px;background:#1f2937;cursor:pointer;user-select:none}.tab.on{background:#2563eb;color:#fff}
+.k{color:#94a3b8} label{cursor:pointer;user-select:none}
+#wrap{display:flex} #canvas{flex:1;overflow:auto;height:calc(100vh - 46px)}
+#side{width:440px;border-left:1px solid #1f2937;background:#111827;padding:14px;overflow:auto;height:calc(100vh - 74px)}
+.node rect.box{stroke-width:1.6;cursor:pointer} .node text{pointer-events:none}
+.t1{font-size:12.5px;font-weight:bold;fill:#f1f5f9} .t2{font-size:11px;fill:#94a3b8}
+.edge{fill:none;stroke:#64748b;stroke-width:1.4;opacity:.6} .edge.todo{stroke-dasharray:5 4} .edge.child{stroke:#fbbf24;opacity:.5}
+.dim{opacity:.08!important} .hi{opacity:1!important;stroke-width:2.6!important;stroke:#e2e8f0!important}
+.lane{fill:#1e293b;fill-opacity:.35} .lanetxt{font-weight:bold;font-size:13px;fill:#cbd5e1} .grid{stroke:#1f2937;stroke-width:1}
+h3{margin:4px 0 6px;color:#f8fafc} h4{margin:12px 0 4px;color:#cbd5e1;font-size:13px} ul{margin:2px 0;padding-left:18px} li{margin:2px 0}
+.tag{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;margin-right:6px;color:#0b1120;font-weight:bold}
+.q{background:#3b2b12;border-left:3px solid #f59e0b;padding:6px 8px;margin:6px 0;border-radius:4px}
+.case{background:#1f2937;border-left:3px solid #60a5fa;padding:6px 8px;margin:6px 0;border-radius:4px} code{color:#a5b4fc}
+</style>
+<div id="bar">
+  <b>paper v3</b>
+  <span class="tab on" data-v="arch">① 架构 + 待做拆解</span>
+  <span class="tab" data-v="day">② 明天（10/23）实际怎么跑</span>
+  <span class="tab" data-v="exp">③ 消融 / 对照实验</span>
+  <span class="tab" data-v="todo">④ 还没做的 / 等你定</span>
+  <span id="legend"></span>
+  <label><input type="checkbox" id="onlyopen"> 只看待定 / 待做 / 在跑</label>
+  <span class="k">点节点看详情并高亮上下游；点空白取消</span>
+</div>
+<div id="wrap"><div id="canvas"><svg id="svg"></svg></div><div id="side"></div></div>
+<script>
+const ST={have:["已有","#34d399"],today:["今天做好","#60a5fa"],run:["在跑","#22d3ee"],todo:["待做","#fbbf24"],open:["待定","#f87171"],off:["本轮不上","#64748b"]};
+const ARCH={lanes:["数据","研究产物 / 材料","会话（A2）","会话内轮次（chain 01→06）","输出","总控：执行 / 结算","反馈"],
+nodes:[
+{id:"src",c:0,r:0,t:"实时 + 历史数据源",s:"新浪 / 通达信 / 财联社 / 同花顺",st:"have",d:{作用:"见 TODO 第二节数据来源全表",影响因素:["东财 push2 系列 10/22 起被封（本机 IPv4/IPv6 连上即断）；面板已去掉东财的中证2000，小盘统一用国证2000"],文件:"scripts/market/ · scripts/cls/ · scripts/tzzb/"}},
+{id:"db",c:0,r:1,t:"行情库 + 原始文件",s:"日线全 / 分钟浅 / 竞价 / 3 秒",st:"have",d:{作用:"日线 1992 起；分钟 10/09 起关注集；竞价 10/12 起；3 秒盘口 10/19 起、3 秒指数 10/21 起",文件:"investment_market · downloads/market/"}},
+{id:"mpath",c:0,r:2,t:"分钟路径过夜回补",s:"股票 30 天 → 转债 → 股票 60 天",st:"run",d:{作用:"通达信历史分时，串行一个连接；日志 scripts/temp/minute_overnight_1022.log",完成:"①股票第一期 937 只 × 30 天（刘忆青 / 芷影历史票优先 + UP 近 30 日提到 + 近 30 日涨停过），约 23:45 ②转债续跑到 120 天 ③股票第二期 1354 只 × 60 天（TOP10 导师 + UP 近 60 日），07:00 到点停",文件:"scripts/market/stock_minute_path.py · cb_minute_universe.py"}},
+{id:"aucf",c:0,r:3,t:"竞价过程特征",s:"每晚自动攒",st:"have",d:{作用:"09:15 / 09:20 / 09:23 / 撮合价、最后 2 分钟拉动、正股同步",影响因素:["全市场转债只有 10/20 起"],文件:"scripts/market/cb_auction_features.py"}},
+{id:"skills",c:0,r:4,t:"导师 skill",s:"画像 / 规则 / 案例都有索引",st:"have",d:{作用:"10/22 补：bank / 纳指规则索引；全体 30 个 skill 案例目录（gen_cases_index.py），check md 发现源文件更新自动重建",文件:"skills/<导师>-skill/"}},
+{id:"openlive",c:0,r:5,t:"开盘实况 open_live",s:"3 秒指数 · 国证2000",st:"today",d:{作用:"市况翻转打分；盯盘模式的翻转触发和 01 的开盘实况都读它",完成:"上证 / 创业板改读 3 秒（快约 3 分钟）；小盘固定国证2000（你定：贫民版）；10/21 回放翻转与原来一致，10/22 多出 14:07 偏强（指数口径差异）",文件:"scripts/market/open_live.py"}},
+{id:"sim",c:1,r:0,t:"转债相似日库 v2",s:"竞价 + 13 档 + 大盘",st:"have",d:{作用:"竞价开盘 + 正股 / 转债前日 13 档 + K 线 + 暴涨状态 + 价位 + 大盘；不足 15 逐级放宽",文件:"scripts/market/similar_days.py"}},
+{id:"sim_t1",c:1,r:1,t:"└ 分钟窗口列",s:"转债补完自动重建",st:"run",d:{作用:"开盘后 5 / 10 / 15 / 30 / 60 分钟最高",完成:"后台守候：过夜日志出现「转债结束」就自动 --build；只有 4/24 起样本有分钟列"}},
+{id:"strong",c:1,r:2,t:"强势股次日溢价库",s:"strong_next · 23.5 万行",st:"today",d:{作用:"股票版相似日：T 日状态（首板 / 连板 / 炸板 / 大涨 / 回调）× 市况 → 次日开盘 / 冲高 / 收盘 / T+2",完成:"agent 深挖：现实可成交口径下溢价基本没有（10cm 首板 −0.5%）；芷影 / 刘忆青赚在盘中挑板和低吸时机；她们卖在次日冲高 P17 / P26",问题:["06 卖价参考 P15~P20（芷影）/ P25~P30（刘忆青）并接进必查？","回调第 3 天后不做 / 炸板次日不接 / 涨停 ≥100 且指数平不接力 写进两位 skill？"],文件:"scripts/paper_line/tools/strong_next.py · docs/research/strong_next_20261022.md"}},
+{id:"win",c:1,r:3,t:"滑动窗口相似",s:"日级 ✅ / 分钟级等数据",st:"have",d:{作用:"日级：最近 5/10/20 天走势找最像 30 段；分钟级：开盘到此刻路径找最像的历史日",文件:"scripts/market/window_similar.py"}},
+{id:"topo",c:1,r:4,t:"└ 拓扑逐日滚动",s:"agent 在做 · 倒序到 01-15",st:"run",d:{作用:"每个交易日只用当天及以前数据算邻居表：题材迁移信号、簇生命周期、回测不偷看",影响因素:["现有代码只读每只票历史文件最后约 65 行，只能算最近几天 → 要先改成一次读进内存逐日滑窗（约 1 小时）","md 涨停分析 1/15 起才有 → 2025 年缺权重最高的涨停共振腿，不建议补","概念 / rules.md / 股票池用现在的版本，轻微偷看","一天 8.9 MB，185 天约 1.6 GB → 历史天只存前 5 邻居"],问题:["周末做？（不影响明天 v3）"]}},
+{id:"tools",c:1,r:5,t:"命名查询工具",s:"q.py 12 个命令",st:"have",d:{完成:"similar / window / wminute / sells / sellsT / levels / theme / themeof / themetop / same / md / sql(只读)；新：mentor_sells / key_levels / theme_life",作用:"见 TODO 第十节",影响因素:["strong 还没接进 q.py（等你定）"],文件:"scripts/paper_line/q.py · tools/"}},
+{id:"catalog",c:1,r:6,t:"资料目录",s:"data_catalog.md v1",st:"have",d:{作用:"按「要回答什么问题」分类：在哪 / 字段 / 时间范围 / 用哪个工具 / 已知坑",文件:"scripts/paper_line/catalog/"}},
+{id:"pack",c:1,r:7,t:"材料包（01 脚本）",s:"索引在前 + 全文 · 190~450 KB",st:"have",d:{完成:"启动：skill 全文 + 记忆 + T−1 逐笔 + md + 01 快层 + 必查 E 编号 + 资料目录；触发：01 + 焦点票必查",文件:"scripts/paper_line/pack.py"}},
+{id:"prompt",c:2,r:0,t:"paper 专用指令",s:"common.md · 每线记忆明天起攒",st:"have",d:{完成:"cwd 放仓库外（不加载项目记忆，少 4 万 token）；全局 CLAUDE.md 去不掉（3~5 千 token），指令里写明忽略",文件:"scripts/paper_line/prompt/common.md"}},
+{id:"sess",c:2,r:1,t:"会话管理（A2）",s:"--session-id / --resume",st:"have",d:{完成:"三道当天会话校验：日期 / 会话记录第一条 BOOT 暗号 / 返回会话号一致",文件:"scripts/paper_line/session.py"}},
+{id:"timeout",c:2,r:2,t:"└ 每轮超时",s:"按当日实际 · 10~30 分钟",st:"have",d:{完成:"✅ 10/23 定：超时 = 3 × 本线今天这一步最长耗时，夹在 600~1800 秒；启动轮 1800 秒；竞价 / 尾盘不再单独缩短（没赶上 09:24:57 有草稿兜底挂单，迟到的正式版照样用于连续竞价）",作用:"只防真挂死占着叫醒名额；超时被杀 = 这一轮作废、下次叫醒重来"}},
+{id:"gate",c:2,r:3,t:"└ 统一叫醒队列",s:"上限 = 导师 + UP skill 数(现 28; 理论最大 13)",st:"have",d:{完成:"✅ 10/23 定：理论最大 13（11 本各 1 条链 + 芷影 03 两个分叉）；你令上限取高一点防特殊 bug = 全部同花顺导师 skill + 3 位 UP skill 的个数（现 25 + 3 = 28，随导师增加自动变）；按优先级排队（启动 / 竞价复核 → 成交 / 失效 / 空仓提醒 → 出区间 / 翻转 → 心跳）",作用:"压测：4 / 6 / 13 个同时跑全部 0 卡死，13 并发首字最慢 59.5 秒"}},
+{id:"r02",c:3,r:0,t:"02 市况",s:"沿用 v2 · 待彩排真调",st:"today",d:{完成:"沿用 v2 的 02，多「今天开盘情景预案」",作用:"只在 09:00 启动时跑"}},
+{id:"r03",c:3,r:1,t:"03 多空辩论",s:"主线拿掉 · 芷影+03 一本",st:"today",d:{作用:"主线 02→04→05→06 不跑 03；另开「芷影 + 03」一本做消融",完成:"多方 / 空方用 --fork-session 从主会话分出两个分支并行独立跑，结论交 04 裁判；竞价复核不跑 03；队列一次占 3 个名额"}},
+{id:"r04",c:3,r:2,t:"04 选票",s:"沿用 v2 · 待彩排真调",st:"today",d:{完成:"分启动版 / 盘中触发版；引用必查 E 编号"}},
+{id:"r05",c:3,r:3,t:"05 风控",s:"竞价段跳过",st:"today",d:{完成:"只管过度交易 / 当日亏损"}},
+{id:"r06",c:3,r:4,t:"06 终裁",s:"+ 此刻数据 + 依据 + wake",st:"today",d:{完成:"沿用 v2 的 06；发出前脚本现取此刻竞价 / 3 秒盘口拼在最前（只用于校准价格、撤不撤）；每条规则写「依据：」；结构化失效条件 wake"}},
+{id:"orders",c:4,r:0,t:"条件单 + wake",s:"竞价 / 开盘卖 / 止损 / 时间止损",st:"have",d:{完成:"wake = 价格 / 时间止损 / 指数，执行器每 3 秒判，命中就叫醒"}},
+{id:"modes",c:4,r:2,t:"两种模式",s:"盯盘 watch / 计划 plan",st:"have",d:{完成:"盯盘：成交 / 出区间 / wake / 翻转 / 心跳都叫醒；计划：只在出区间或 wake 命中时叫醒（原作战卡）；两种拿到的材料完全一样"}},
+{id:"push",c:4,r:4,t:"推你微信",s:"土豆 / 刘忆青 / 芷影 主线挂单",st:"have",d:{完成:"✅ 10/23 你定：三本主线（盯盘）出现挂单就推（挂单变了才推，成交照推）；计划模式 / 噪声 / 03 几本不推；告警都推",作用:"开关 PAPER_PUSH_LINES；微信配额约 10 条 / 你每发 1 条消息，超了进待发箱、你回个字就补发"}},
+{id:"exec",c:5,r:0,t:"总控（一个进程管 11 本账）",s:"orchestrator.py",st:"have",d:{完成:"每本账一个线程：替模型下单、成交、记账（沿用 v2 撮合），判断何时叫醒；统一叫醒队列；线程异常 30 秒自动重建；桩测试 33 / 33 + 9 本冒烟通过",文件:"scripts/paper_line/orchestrator.py · executor.py"}},
+{id:"exec_t1",c:5,r:1,t:"└ 触发规则",s:"10:30 起才计上限",st:"have",d:{完成:"成交 / 失效条件 / 空仓提醒不占上限；出区间按票的噪声单位 σ 动态去抖（越过 ≥0.1σ、持续 30~180 秒）；叫醒条件响过后退开 ≥0.15σ 待 30 秒才重新待命、时间止损只能写将来时刻；满仓 / 06 判停都不停触发；10:30 / 13:30 空仓提醒"}},
+{id:"launch",c:5,r:2,t:"拉起 + 守护",s:"08:52 计划任务",st:"have",d:{完成:"PaperLineFleet（wscript //B）+ check md 每 5 分钟 fleet.py --ensure 拉起总控；明早 08:17 / 09:04 检查定时；每天 09:17 盘前例行已改 v3 口径"}},
+{id:"rehearsal",c:5,r:3,t:"放量彩排",s:"11 本 · 重放 10/22",st:"run",d:{作用:"09:00~11:30 + 14:51 尾盘 + 15:00 收盘；报告 results/_replay/2026-10-22/report.html"}},
+{id:"settle",c:5,r:4,t:"收盘结算 → report.html",s:"11 本账",st:"todo",d:{作用:"books_ext 接 v3 账本；T 增值 = 账本收益 − 同底仓只拿着"}},
+{id:"eval",c:5,r:5,t:"评估",s:"拟人度 / 召回 / T 增值",st:"todo",d:{作用:"23:10 真人账本后打分；拟人度要打赢「照导师昨天原样」"}},
+{id:"recall",c:5,r:6,t:"└ 候选池召回率",s:"第一个要量的数",st:"todo",d:{作用:"导师 T 日实际买的票有几成在我们盘前池子里；10/08 起历史"}},
+{id:"review",c:6,r:0,t:"复盘 → 每线记忆 / skill",s:"学习闭环",st:"todo",d:{作用:"偏差 → 根因 → 改法 → 回放验证 → 进记忆 / skill"}},
+{id:"web",c:6,r:2,t:"盘后检查网页",s:"逐步看 + 选项 + 评论",st:"open",d:{作用:"本页是第一步",问题:["先做盘后检查版吗"]}},
+],
+edges:[["src","db"],["src","mpath"],["src","aucf"],["db","openlive"],["db","sim"],["aucf","sim"],["mpath","sim_t1"],["sim","sim_t1",1],["db","strong"],["mpath","win"],["db","win"],["win","topo",1],["db","tools"],["sim","tools"],["strong","tools"],["win","tools"],
+["skills","pack"],["sim","pack"],["catalog","pack"],["tools","catalog"],["openlive","pack"],["pack","sess"],["prompt","sess"],["sess","timeout",1],["sess","gate",1],
+["sess","r02"],["r02","r03"],["r03","r04"],["r02","r04"],["r04","r05"],["r05","r06"],["r06","orders"],["orders","modes"],["orders","push"],
+["orders","exec"],["gate","exec"],["exec","exec_t1",1],["exec","launch",1],["exec","rehearsal",1],["exec","settle"],["settle","eval"],["eval","recall",1],["eval","review"],["review","prompt"],["settle","web"],["web","review"]]};
+const DAY={lanes:["08:52","09:00","09:20","09:25","09:30","盘中","10:30 / 13:30","14:51","15:00","收盘后","23:10"],rowsLabel:["拟人线 ×3（盯盘）","计划模式 ×3","芷影噪声基线 + 芷影带 03","决策T ×2（各 1 万）","总控 / 全局"],nodes:[
+{id:"g_up",c:0,r:4,t:"计划任务拉起总控",s:"一个进程 11 本账",st:"have",d:{作用:"PaperLineFleet 08:52；崩了 check md 每 5 分钟重拉；数据层（3 秒 / 面板 / 竞价 / open_live）照常"}},
+{id:"m_boot",c:1,r:0,t:"启动会话",s:"灌料 → 02→04→05→06",st:"today",d:{作用:"09:00 起每本错开 20 秒；10 万空仓；竞价单 + 开盘卖单 + wake 同版写好（草稿，竞价单先不挂）"}},
+{id:"p_boot",c:1,r:1,t:"启动会话",s:"同样材料 · 同样 06",st:"today",d:{}},
+{id:"n_boot",c:1,r:2,t:"启动会话 ×2",s:"噪声本 / 带 03 本",st:"today",d:{作用:"噪声本 = 芷影同配置复制（两本的差 = 噪声带）；带 03 本 = 启动时 02 后多跑一轮并行多空"}},
+{id:"d_boot",c:1,r:3,t:"启动会话",s:"1 万本钱 · 不贪降成本",st:"today",d:{作用:"只许交易 159941 / 601988；本钱 1 万（和旧决策T 同口径）；费用门槛表；振幅 5 / 15 / 30 / 60 / 120 日；做 T 知识包 + 旧决策T 5 天复盘；允许隔日 T（本线记忆记未完成的 T）"}},
+{id:"m_auc",c:2,r:0,t:"竞价复核 04→06",s:"排队 · 土豆先",st:"today",d:{作用:"跳过 05；06 前现取此刻竞价；09:24:57 前没落地 → 按 09:00 草稿挂"}},
+{id:"p_auc",c:2,r:1,t:"竞价复核 04→06",s:"同左",st:"today",d:{}},
+{id:"n_auc",c:2,r:2,t:"竞价复核 04→06",s:"同左",st:"today",d:{}},
+{id:"d_auc",c:2,r:3,t:"不做竞价复核",s:"让出队列",st:"have",d:{}},
+{id:"g_gate",c:2,r:4,t:"统一叫醒队列",s:"上限 = 导师 + UP skill 数(现 28; 理论最大 13)",st:"have",d:{作用:"9 本竞价复核同时跑（决策T 两本不做）；没赶上 09:24:57 按 09:00 草稿挂"}},
+{id:"g_fill",c:3,r:4,t:"09:25 竞价撮合",s:"机械",st:"have",d:{}},
+{id:"m_mid",c:5,r:0,t:"按事件叫醒",s:"成交 / 出区间 / wake / 翻转 / 心跳",st:"today",d:{作用:"每次 01 + 04→05→06；06 前现取此刻盘口"}},
+{id:"p_mid",c:5,r:1,t:"只在失效时叫醒",s:"出区间 / wake",st:"today",d:{}},
+{id:"n_mid",c:5,r:2,t:"按事件叫醒",s:"带 03 本：01→多空→04",st:"today",d:{作用:"带 03 本盘中触发：先把 01 交给主会话，再分叉多空，04 当裁判"}},
+{id:"d_mid",c:5,r:3,t:"做 T 触发",s:"心跳固定 60 分钟",st:"today",d:{}},
+{id:"g_nudge",c:6,r:0,t:"空仓提醒",s:"0 仓位且导师通常有仓",st:"today",d:{作用:"叫醒一次：建仓或写理由，不强制"}},
+{id:"g_tail",c:7,r:4,t:"14:51 尾盘版",s:"每本错开 8 秒",st:"have",d:{}},
+{id:"g_settle",c:8,r:4,t:"尾盘撮合 + 结算",s:"→ report.html（待接）",st:"todo",d:{}},
+{id:"g_check",c:9,r:4,t:"check md / 相似库",s:"每晚",st:"have",d:{}},
+{id:"g_score",c:10,r:4,t:"拟人度打分",s:"召回 / L1~L4",st:"todo",d:{}},
+],edges:[["g_up","m_boot"],["g_up","p_boot"],["g_up","n_boot"],["g_up","d_boot"],["m_boot","m_auc"],["p_boot","p_auc"],["n_boot","n_auc"],["d_boot","d_auc"],["g_gate","m_auc"],["g_gate","p_auc"],["g_gate","n_auc"],
+["m_auc","g_fill"],["p_auc","g_fill"],["n_auc","g_fill"],["g_fill","m_mid"],["g_fill","p_mid"],["g_fill","n_mid"],["d_auc","d_mid"],["m_mid","g_nudge"],["m_mid","g_tail"],["p_mid","g_tail"],["n_mid","g_tail"],["d_mid","g_tail"],["g_tail","g_settle"],["g_settle","g_check"],["g_check","g_score"]]};
+const EXP={lanes:["实验","要回答的问题","账本（每本 10 万）","上线状态","怎么判"],nodes:[],edges:[]};
+const ROWS=[
+["主线 · 盯盘模式 02→04→05→06","have","AI 自己能不能做对","5 本：土豆 / 刘忆青 / 芷影 / 纳指 / 中行","✅ 明天上","have","拟人度 vs 延续基线；T 增值 vs 机械T / 不T",{作用:"03 已拿掉"}],
+["对照：计划模式（原作战卡）","have","盘中按事件叫醒值不值","土豆 / 刘忆青 / 芷影 各一本","✅ 你定：三位都开","have","收益 / 拟人度 / 花费 / 调用次数",{作用:"材料两种模式完全一样，只差盘中叫醒方式"}],
+["噪声基线：芷影同配置两本","have","同样设置两次差多少","芷影主线 + 复制一本","✅ 你定：芷影","have","差异 = 噪声带；别的对照要超过它",{作用:"芷影出手最多（8 月起 147 笔 / 每出手日 3 笔），噪声带定得最快"}],
+["消融：03 多空辩论（芷影 + 03）","have","03 有没有用","芷影加一本：多方 / 空方从主会话分叉并行独立跑，04 当裁判；竞价复核不跑 03","✅ 你定：明天就开","have","带 03 本 vs 芷影主线的差，要超过噪声本 vs 主线的差",{作用:"--fork-session 实测：两个分支 7.1 秒并行、彼此看不到、不写回主会话；跑 03 时叫醒队列一次占 3 个名额"}],
+["基线（零 token）","have","LLM 比纯统计 / 不做好在哪","BL- / BLT- / 不T / 机械T / 机械波段T","✅ 已在跑","have","report.html 并排",{}],
+["真人对照","have","差多少、差在哪","同花顺账本（23:10）/ 你的交割单","✅","have","拟人度 L1~L4 + 收益差",{}]];
+const TODO={lanes:["明早开盘前必须","等你定","明天收盘前后","之后"],nodes:[
+{id:"t1",c:0,r:0,t:"并发压测",s:"✅ 4 / 6 / 13 全 0 卡死",st:"have",d:{}},
+{id:"t2",c:0,r:1,t:"每轮超时",s:"✅ 按当日实际 10~30 分钟",st:"have",d:{}},
+{id:"t3",c:0,r:2,t:"放量彩排",s:"11 本 · 10/22 重放",st:"run",d:{作用:"第一次跑到 09:34 发现提示缓存 5 分钟过期、每次叫醒重写 33 万 token（9 分钟 $51）→ 停下实测 1 小时缓存后重跑；报告 results/_replay/2026-10-22/report.html"}},
+{id:"t4",c:0,r:3,t:"分钟路径过夜回补",s:"后台在跑",st:"run",d:{}},
+{id:"t5",c:0,r:4,t:"23:10 土豆真人补 CASE",s:"私有",st:"todo",d:{}},
+{id:"u1",c:1,r:0,t:"强势股结论落地",s:"✅ strong_next + 动态卖点分位进必查",st:"have",d:{}},
+{id:"u2",c:1,r:1,t:"知识 skill market-skill",s:"✅ 你批 · 全部拟人线用",st:"todo",d:{作用:"强势股三条教训 + 炸板回封知识卡 + 情绪周期；没有人格、case 驱动；和电报 skill 一起做"}},
+{id:"u3",c:1,r:2,t:"拓扑逐日滚动",s:"agent 在做",st:"run",d:{}},
+{id:"u4",c:1,r:3,t:"推微信范围",s:"明天默认只推失败",st:"open",d:{}},
+{id:"u5",c:1,r:4,t:"题材合并 2 条",s:"化肥→化工 / 玻纤→PCB",st:"open",d:{}},
+{id:"u6",c:1,r:5,t:"机械T 第二版 / 波段T 去留",s:"见 TODO 第七节",st:"open",d:{}},
+{id:"v1",c:2,r:0,t:"v3 账本接进 report.html",s:"T 增值口径",st:"todo",d:{}},
+{id:"v2",c:2,r:1,t:"拟人度打分",s:"23:10 后",st:"todo",d:{}},
+{id:"v3",c:2,r:2,t:"候选池召回率",s:"第一个要量的数",st:"todo",d:{}},
+{id:"v4",c:2,r:3,t:"强势股库加分钟冲高",s:"等股票分钟补完",st:"todo",d:{}},
+{id:"w1",c:3,r:0,t:"03 消融 / 网页检查版",s:"跑稳一周后",st:"open",d:{}},
+{id:"w2",c:3,r:1,t:"开盘价=昨收 复查",s:"你周末",st:"open",d:{}},
+{id:"w3",c:3,r:2,t:"个股事件日历",s:"东财 datacenter · 盘后低频",st:"todo",d:{}},
+],edges:[["t1","t3"],["t2","t3"],["u1","t3"],["t3","v1"],["v1","v2"],["t4","v4"]]};
+ROWS.forEach((x,r)=>{const ids=[0,1,2,3,4].map(i=>`e${r}_${i}`);[x[0],x[2],x[3],x[4],x[6]].forEach((t,i)=>EXP.nodes.push({id:ids[i],c:i,r,t,s:"",st:i==3?x[5]:x[1],d:i==0?x[7]:{}}));for(let i=0;i<4;i++)EXP.edges.push([ids[i],ids[i+1]]);});
+const svg=document.getElementById("svg"),ns="http://www.w3.org/2000/svg";
+const mk=(t,a,p)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e;};
+let cur=null,nodeEls={},edgeEls=[];
+function render(G,mode){svg.innerHTML="";nodeEls={};edgeEls=[];cur=G;
+ const W=mode=="day"?150:(mode=="exp"?230:205),H=50,GX=mode=="day"?18:45,GY=14,TOP=42,LEFT=mode=="day"?120:20,CH=mode=="day"?10:(mode=="exp"?17:16);
+ const rows=Math.max(...G.nodes.map(n=>n.r))+1,cols=G.lanes.length;
+ const SW=LEFT+cols*(W+GX)+20,SH=TOP+rows*(H+GY)+40;svg.setAttribute("width",SW);svg.setAttribute("height",SH);
+ const defs=mk("defs",{});const m=mk("marker",{id:"arr",viewBox:"0 0 10 10",refX:"9",refY:"5",markerWidth:"7",markerHeight:"7",orient:"auto-start-reverse"},defs);mk("path",{d:"M0,0 L10,5 L0,10 z",fill:"#94a3b8"},m);
+ G.lanes.forEach((t,i)=>{mk("rect",{class:"lane",x:LEFT+i*(W+GX)-6,y:8,width:W+12,height:SH-16,rx:8});const tx=mk("text",{class:"lanetxt",x:LEFT+i*(W+GX),y:28});tx.textContent=t;});
+ if(G.rowsLabel)G.rowsLabel.forEach((t,r)=>{const y=TOP+r*(H+GY);mk("line",{class:"grid",x1:8,y1:y+H+GY/2,x2:SW,y2:y+H+GY/2});const tx=mk("text",{class:"lanetxt",x:8,y:y+H/2+4});tx.textContent=t;});
+ G.nodes.forEach(n=>{n.x=LEFT+n.c*(W+GX);n.y=TOP+n.r*(H+GY);});
+ const id2=Object.fromEntries(G.nodes.map(n=>[n.id,n]));
+ G.edges.forEach(([a,b,child])=>{const A=id2[a],B=id2[b];if(!A||!B)return;let d;
+  if(B.c==A.c){d=`M${A.x+14},${A.y+H} L${B.x+14},${B.y}`;}
+  else if(B.c>A.c){const x1=A.x+W,y1=A.y+H/2,x2=B.x,y2=B.y+H/2,dx=(x2-x1)/2;d=`M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2-2},${y2}`;}
+  else{const x1=A.x+W/2,y1=A.y+H,x2=B.x+W/2,y2=B.y+H;d=`M${x1},${y1} C${x1},${SH-8} ${x2},${SH-8} ${x2},${y2+2}`;}
+  const todo=["todo","open"].includes(A.st)||["todo","open"].includes(B.st);
+  edgeEls.push([a,b,mk("path",{class:"edge"+(todo?" todo":"")+(child?" child":""),d,"marker-end":"url(#arr)"})]);});
+ G.nodes.forEach(n=>{const g=mk("g",{class:"node",transform:`translate(${n.x},${n.y})`});const c=ST[n.st][1];
+  mk("rect",{class:"box",width:W,height:H,fill:"#1e293b",stroke:c,rx:7},g);mk("rect",{width:6,height:H,fill:c,rx:3},g);
+  const cut=(s,k)=>s.length>k?s.slice(0,k)+"…":s;
+  mk("text",{class:"t1",x:13,y:20},g).textContent=cut(n.t,CH);mk("text",{class:"t2",x:13,y:38},g).textContent=cut(ST[n.st][0]+(n.s?" · "+n.s:""),CH+3);
+  const tt=mk("title",{},g);tt.textContent=n.t+(n.s?" · "+n.s:"");
+  g.addEventListener("click",ev=>{ev.stopPropagation();show(n);});nodeEls[n.id]=g;});
+ document.getElementById("side").innerHTML=intro[mode];}
+function related(id){const up=new Set([id]),dn=new Set([id]);for(let k=0;k<8;k++)cur.edges.forEach(([a,b])=>{if(dn.has(a))dn.add(b);if(up.has(b))up.add(a);});return new Set([...up,...dn]);}
+function show(n){const r=related(n.id);cur.nodes.forEach(x=>nodeEls[x.id].classList.toggle("dim",!r.has(x.id)));edgeEls.forEach(([a,b,p])=>{p.classList.toggle("dim",!(r.has(a)&&r.has(b)));p.classList.toggle("hi",a==n.id||b==n.id);});
+ const d=n.d||{},id2=Object.fromEntries(cur.nodes.map(x=>[x.id,x]));const ins=cur.edges.filter(e=>e[1]==n.id).map(e=>id2[e[0]]&&id2[e[0]].t),outs=cur.edges.filter(e=>e[0]==n.id).map(e=>id2[e[1]]&&id2[e[1]].t);
+ const li=a=>a&&a.length?"<ul>"+a.map(x=>"<li>"+x+"</li>").join("")+"</ul>":"<span class='k'>—</span>";
+ document.getElementById("side").innerHTML=`<h3>${n.t}</h3><span class="tag" style="background:${ST[n.st][1]}">${ST[n.st][0]}</span><span class="k">${n.s||""}</span>
+ <h4>作用</h4>${d.作用||"—"}${d.完成?"<h4>完成情况</h4>"+d.完成:""}<h4>上游</h4>${li(ins)}<h4>下游 / 拆出的子任务</h4>${li(outs)}${d.影响因素?"<h4>影响因素</h4>"+li(d.影响因素):""}
+ ${(d.案例||[]).length?"<h4>案例</h4>"+d.案例.map(x=>`<div class="case">${x}</div>`).join(""):""}${(d.问题||[]).length?"<h4>要你定</h4>"+d.问题.map(x=>`<div class="q">❓ ${x}</div>`).join(""):""}${d.文件?`<h4>文件</h4><code>${d.文件}</code>`:""}`;}
+const intro={arch:"<h3>① 架构 + 待做拆解</h3><ul><li>从左到右：数据 → 研究产物 / 材料 → 会话（A2：每次触发 --resume）→ 会话内轮次 02→04→05→06（03 消融）→ 条件单 → 执行 / 结算 → 反馈</li><li>黄色细线 + '└' = 从上一个节点拆出来的子任务</li><li>虚线箭头 = 两端有一端还没建</li></ul>",
+day:"<h3>② 明天（10/23）实际怎么跑</h3><ul><li>横轴时刻、纵轴账本组；11 本账（5 主线 + 3 计划模式 + 芷影计划模式 + 成交叫醒 + 芷影噪声基线 + 芷影带 03），拟人线各 10 万、决策T 各 1 万，都空仓起步</li><li>一个总控进程管 11 本账；叫醒模型统一排队（上限 = 导师 + UP skill 数，现 28；理论最大 13）</li><li>09:00 启动全套；09:20 竞价复核只跑 04→06，06 前现取此刻竞价；决策T 两本不做竞价复核</li><li>红色 = 还要你定</li></ul>",
+todo:"<h3>④ 还没做的 / 等你定</h3><ul><li>按什么时候必须做分列：明早开盘前 / 等你定 / 明天收盘前后 / 之后</li><li>红色 = 等你定；黄色 = 待做；青色 = 在跑</li><li>箭头 = 前一项做完才能做后一项（彩排要等压测、超时、强势股结论定了）</li></ul>",
+exp:"<h3>③ 消融 / 对照实验</h3><ul><li>每行一个实验：要回答的问题 → 开哪几本账 → 明天上不上 → 怎么判</li><li>红色 = 等你定是否开这本账；绿色 = 已在跑；灰色 = 本轮不上</li><li>没有噪声基线，其它对照的差异分不清真假</li></ul>"};
+document.getElementById("legend").innerHTML=Object.values(ST).map(([t,c])=>`<span class="tag" style="background:${c}">${t}</span>`).join("");
+const G={arch:ARCH,day:DAY,exp:EXP,todo:TODO};render(ARCH,"arch");
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");render(G[t.dataset.v],t.dataset.v);document.getElementById("onlyopen").checked=false;}));
+document.getElementById("canvas").addEventListener("click",()=>{Object.values(nodeEls).forEach(x=>x.classList.remove("dim"));edgeEls.forEach(([,,p])=>p.classList.remove("dim","hi"));});
+document.getElementById("onlyopen").addEventListener("change",e=>{const on=e.target.checked;cur.nodes.forEach(x=>nodeEls[x.id].classList.toggle("dim",on&&!["todo","open","run"].includes(x.st)));});
+</script>
+</html>

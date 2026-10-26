@@ -28,7 +28,7 @@ def run(args, text, extra_env):
     env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_MODEL"}
     env.update(extra_env)
     cmd = CC.claude_exe() + ["-p", "--output-format", "json", "--effort", "high", "--disallowedTools", "Bash,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,Task",
-                             "--system-prompt", (ROOT / "scripts" / "paper_v3" / "prompt" / "common.md").read_text(encoding="utf-8")] + args
+                             "--system-prompt", (ROOT / "scripts" / "paper_line" / "prompt" / "common.md").read_text(encoding="utf-8")] + args
     t0 = time.time()
     p = subprocess.run(cmd, input=text.encode("utf-8"), capture_output=True, cwd=P.CWD, env=env, creationflags=P.NOWIN, timeout=900)
     try:

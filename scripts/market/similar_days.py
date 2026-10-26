@@ -34,6 +34,7 @@ WINS = (("hi5", 5), ("hi10", 10), ("hi15", 15), ("hi30", 30), ("hi60", 60))
 
 def db():
     sys.path.insert(0, str(ROOT / "scripts" / "backfill_bilibili"))
+    sys.path.insert(0, str(ROOT / "scripts" / "lib"))   # dist_full
     import manual_backfill as mb
     c = mb.db()
     c.cursor().execute("use investment_market")
@@ -221,8 +222,12 @@ def query(code, D, gap=None):
         xs = [r for r in lib if all(r.get(x) == cur_f.get(x) for x in keys)]
         t = {"按": keys, "n": len(xs)}
         if xs:
+            import dist_full as DF   # 10/24 用户令: 统一报全分布(均值 / 中位 / P10~P90 / 最差 / 最好 + 案例), 不能只报中位
+            tg = lambda r: f"{r.get('code')} {r.get('d')}"   # noqa: E731
             t.update({"开盘后最高 P25/P40/中位/P75": [q([r["hi"] for r in xs], p) for p in (.25, .4, .5, .75)], "最低 中位": q([r["lo"] for r in xs], .5),
-                      "收盘相对开盘 中位": q([r["co"] for r in xs], .5), "收>开 比例": round(sum(1 for r in xs if r["co"] > 0) / len(xs), 2)})
+                      "收盘相对开盘 中位": q([r["co"] for r in xs], .5), "收>开 比例": round(sum(1 for r in xs if r["co"] > 0) / len(xs), 2),
+                      "开盘后最高 全分布": DF.full(xs, key=lambda r: r["hi"], tag=tg), "最低 全分布": DF.full(xs, key=lambda r: r["lo"], tag=tg),
+                      "收盘相对开盘 全分布": DF.full(xs, key=lambda r: r["co"], tag=tg)})
             if gap is None:
                 t["竞价开盘 中位"] = q([r["gap_pct"] for r in xs], .5)
             for kname, n in WINS:

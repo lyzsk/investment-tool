@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """v3_concurrency_probe.py — paper v3 叫醒队列上限压测(10/23 00:5x 用户令: 并发压测先跑)
 
-问题: 同时起 N 个 claude -p(走同一个中转站)会不会卡死 / 变慢? 定 V3_MAX_INFLIGHT(候选 4 / 6)
+问题: 同时起 N 个 claude -p(走同一个中转站)会不会卡死 / 变慢? 定 PAPER_MAX_INFLIGHT(候选 4 / 6)
 做法(和明天真实情况一致: cwd 仓库外 + paper 专用 system prompt + effort high):
   每档 N: ①启动轮: 同时新建 N 个会话, 第 1 条消息带约 60 KB 材料(bank-skill + nasdaq-skill + 资料目录 + 一段 md), 要求写一段市况分析
          ②续问轮: 同时对这 N 个会话 --resume, 问一道中等长度的题(模拟 09:20 竞价复核)
@@ -21,10 +21,10 @@ import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path[:0] = [str(ROOT / "scripts" / "lib"), str(ROOT / "scripts" / "paper_v3")]
+sys.path[:0] = [str(ROOT / "scripts" / "lib"), str(ROOT / "scripts" / "paper_line")]
 import claude_call as CC   # noqa: E402
 
-CWD = r"C:\Users\admin\dev\_paper_v3_cwd"
+CWD = r"C:\Users\admin\dev\_paper_line_cwd"
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 STALL_S = 120
 
@@ -34,7 +34,7 @@ def material():
     for sk in ("bank", "nasdaq"):
         for f in sorted((ROOT / "skills" / f"{sk}-skill" / "persona").glob("*.md")):
             parts.append(f"# {sk} · {f.name}\n" + f.read_text(encoding="utf-8", errors="replace"))
-    parts.append((ROOT / "scripts" / "paper_v3" / "catalog" / "data_catalog.md").read_text(encoding="utf-8"))
+    parts.append((ROOT / "scripts" / "paper_line" / "catalog" / "data_catalog.md").read_text(encoding="utf-8"))
     md = sorted((ROOT / "md").glob("2026S4/2026-10-2*.md"))
     if md:
         parts.append(md[-1].read_text(encoding="utf-8", errors="replace")[:30000])
@@ -46,7 +46,7 @@ def call(args, text, rec):
     first, res, lines = None, None, []
     env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_MODEL"}
     cmd = CC.claude_exe() + ["-p", "--output-format", "stream-json", "--verbose", "--effort", "high", "--disallowedTools", "Bash,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,Task",
-                             "--system-prompt", (ROOT / "scripts" / "paper_v3" / "prompt" / "common.md").read_text(encoding="utf-8")] + args
+                             "--system-prompt", (ROOT / "scripts" / "paper_line" / "prompt" / "common.md").read_text(encoding="utf-8")] + args
     try:
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=CWD, env=env, creationflags=NOWIN)
         p.stdin.write(text.encode("utf-8"))

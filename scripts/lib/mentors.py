@@ -70,7 +70,7 @@ def _selftest():
     r = subprocess.run(["node", "--input-type=module", "-e",
                         "import {ACCOUNTS} from './scripts/dfcf/paper/accounts.mjs'; console.log(JSON.stringify(ACCOUNTS))"],
                        cwd=str(_T.parents[1]), capture_output=True, text=True, encoding="utf-8", creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-    acc = [tuple(x) for x in json.loads(r.stdout) if x[2] not in ("混合", "做T")]   # 10/18: 做T 两本也不是导师链
+    acc = [tuple(x) for x in json.loads(r.stdout) if x[2] in ("UP", "导师", "对照")]   # 10/24: 只比导师链(混合 / 做T / paper v2·v3 / 统计基线都不是)
     want = [(e["book"], e["display"], {"tzzb": "导师"}.get(e["type"], e["type"])) for e in E]
     assert acc == want, f"accounts.mjs 与登记表不一致: {acc} vs {want}"
     print(f"mentors selftest OK: {len(E)} 条链 (UP {len(ids('UP'))} / tzzb {len(ids('tzzb'))} / 对照 {len(ids('对照'))}); accounts.mjs 一致")

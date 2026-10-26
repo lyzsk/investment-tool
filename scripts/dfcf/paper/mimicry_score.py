@@ -536,7 +536,7 @@ CFG = load_cfg()
 def run(days, mode_label):
     names = load(HERE / "names.json") or {}
     pairs = [(b, l) for b, l in PAIRS if (BOOKS / f"{b}.json").exists() and (TZ / l / "day_positions.json").exists()]
-    # 10/22 凌晨: 新 paper 影子账 S-<导师>[@变体] / 时机版基线 BLT-<导师>(books_ext.py 导出)也按同口径算拟人度, 和 A 线并排
+    # 10/22 凌晨: 新 paper 模拟账 S-<导师>[@变体] / 时机版基线 BLT-<导师>(books_ext.py 导出)也按同口径算拟人度, 和 A 线并排
     ext = HERE / "books_ext"
     ext_pairs = []
     for f in sorted(ext.glob("S-*.json")) + sorted(ext.glob("BLT-*.json")):

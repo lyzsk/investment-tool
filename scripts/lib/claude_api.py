@@ -21,7 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 COST_LOG = Path(__file__).resolve().parent / "claude_cost.csv"
-MODEL = os.environ.get("SE_MODEL", "claude-opus-5-5")
+MODEL = os.environ.get("EXEC_MODEL", "claude-opus-5-5")
 # 官方单价 美元 / 百万 token: (输入, 输出, 缓存读, 缓存写 5 分钟, 缓存写 1 小时)
 PRICE = {"claude-opus-5-5": (4.0, 20.0, 0.20, 5.0, 8.0), "claude-sonnet-5-5": (2.0, 10.0, 0.20, 2.5, 4.0)}
 

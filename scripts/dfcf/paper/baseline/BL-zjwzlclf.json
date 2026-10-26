@@ -3,9 +3,9 @@
  "kind": "baseline",
  "ledger": "zjwzlclf",
  "name": "zjwzlclf",
- "generated_at": "2026-10-22T19:46:32",
+ "generated_at": "2026-10-23T19:47:39",
  "since": "2026-10-08",
- "until": "2026-10-22",
+ "until": "2026-10-23",
  "note": "基线虚拟账户(统计模型/延续/常数出 L1·L2·L4 + fingerprint 池按打法挑票), 不进 books/、不进 matcher SOURCES; 开盘撮合保守口径见 mentor_model.py",
  "layer_choice": {
   "L1": "延续",
@@ -115,6 +115,14 @@
    "nav": 100000.0,
    "filled": 0,
    "orders": 0
+  },
+  {
+   "date": "2026-10-23",
+   "cash": 100000.0,
+   "mv": 0.0,
+   "nav": 100000.0,
+   "filled": 0,
+   "orders": 0
   }
  ],
  "daily": [
@@ -155,7 +163,7 @@
    "p_trade": 0.695,
    "p_dir_given_trade": [
     0.246,
-    0.54,
+    0.539,
     0.215
    ],
    "decision": {
@@ -210,7 +218,7 @@
    "orders": [],
    "stale": 0,
    "state_day": "2026-10-12",
-   "p_trade": 0.313,
+   "p_trade": 0.314,
    "p_dir_given_trade": [
     0.042,
     0.0,
@@ -242,8 +250,8 @@
    "p_trade": 0.261,
    "p_dir_given_trade": [
     0.022,
-    0.276,
-    0.702
+    0.277,
+    0.701
    ],
    "decision": {
     "trade": false,
@@ -270,9 +278,9 @@
    "state_day": "2026-10-14",
    "p_trade": 0.216,
    "p_dir_given_trade": [
-    0.029,
-    0.036,
-    0.934
+    0.03,
+    0.035,
+    0.935
    ],
    "decision": {
     "trade": false,
@@ -300,8 +308,8 @@
    "p_trade": 0.179,
    "p_dir_given_trade": [
     0.044,
-    0.35,
-    0.607
+    0.351,
+    0.606
    ],
    "decision": {
     "trade": false,
@@ -329,7 +337,7 @@
    "p_trade": 0.102,
    "p_dir_given_trade": [
     0.096,
-    0.565,
+    0.566,
     0.338
    ],
    "decision": {
@@ -358,8 +366,8 @@
    "p_trade": 0.127,
    "p_dir_given_trade": [
     0.074,
-    0.593,
-    0.333
+    0.595,
+    0.332
    ],
    "decision": {
     "trade": false,
@@ -416,8 +424,37 @@
    "p_trade": 0.694,
    "p_dir_given_trade": [
     0.028,
-    0.7,
-    0.272
+    0.699,
+    0.273
+   ],
+   "decision": {
+    "trade": true,
+    "dir": 0,
+    "tp_hat": 0.0,
+    "tp_target_cap": 0.0,
+    "tp_final": 0.0,
+    "tp_final_cap": 0.0,
+    "src": {
+     "L1": "延续",
+     "L2": "延续",
+     "L4": "延续"
+    },
+    "add_step": 0.1435151004306456,
+    "red_step": 0.18141187331733677,
+    "n_new": 1
+   },
+   "tp_acct_prev": 0.0
+  },
+  {
+   "date": "2026-10-23",
+   "orders": [],
+   "stale": 1,
+   "state_day": "2026-10-21",
+   "p_trade": 0.691,
+   "p_dir_given_trade": [
+    0.068,
+    0.583,
+    0.349
    ],
    "decision": {
     "trade": true,

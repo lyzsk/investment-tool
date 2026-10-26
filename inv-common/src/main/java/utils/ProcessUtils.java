@@ -99,6 +99,19 @@ public class ProcessUtils {
     }
 
     /**
+     * anaconda base 的 python(K 线截图收件箱要 rapidocr / pandas / PIL, 项目 venv 里没有): 先 ~/anaconda3, 不存在再退回 venvPython
+     *
+     * @author sichu huang
+     * @param rootDir 项目根目录
+     * @since 2026/10/25
+     * @return java.lang.String
+     **/
+    public static String condaPython(String rootDir) {
+        Path conda = Paths.get(System.getProperty("user.home"), "anaconda3", "python.exe");
+        return Files.exists(conda) ? conda.toString() : venvPython(rootDir);
+    }
+
+    /**
      * 项目 python 解释器: 先 scripts/venv, 不存在再用 PATH 里的 python
      *
      * @author sichu huang

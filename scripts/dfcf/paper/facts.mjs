@@ -352,7 +352,7 @@ function lhbDigest() {
     return L.join("\n");
 }
 
-// ---- 10/20 晚(市况改造 R3, 用户批): 多指数箱体位置表(位置层; 口径见 docs/knowledge/box.md) —— 前一交易日收盘, 20 日箱体取 indicators.jsonl, 60 日箱体用历史日线 + 每日 kline_day 现算 ----
+// ---- 10/20 晚(市况改造 R3, 用户批): 多指数箱体位置表(位置层; 口径见 skills/market-skill/persona/kline_rules.md KD7; 原 docs/knowledge 10/25 并入后删除) —— 前一交易日收盘, 20 日箱体取 indicators.jsonl, 60 日箱体用历史日线 + 每日 kline_day 现算 ----
 const BOX_IDX = [["sh000001", "上证"], ["sz399001", "深成"], ["sz399006", "创业板"], ["sh000688", "科创50"], ["sh000016", "上证50"], ["sh000300", "沪深300"], ["sh000905", "中证500"], ["sh000852", "中证1000"], ["sz399303", "国证2000"]];
 function boxStage(pos, regime, er) {
     if (pos == null) return "?";

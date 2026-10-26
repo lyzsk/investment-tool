@@ -188,7 +188,7 @@ def send_one(msg, src="", kind="", wait=600, verbose=True):
     return st
 
 
-CONF_EXEMPT = re.compile(r"^(aohong_alert|se_|event_|step_|session_rollover|open_live|todo_sync|schedule|plan1021)")   # 告警 / 状态 / 回执; 出单和分析不豁免
+CONF_EXEMPT = re.compile(r"^(aohong_alert|se_|v3_|live_|paper_|event_|step_|session_rollover|open_live|todo_sync|schedule|plan1021)")   # 告警 / 状态 / 回执; 出单和分析不豁免; 10/23 用户批: v3_ = paper v3 挂单 / 成交推送(执行状态, 带"成交概率"会误触闸, 10/23 早 4 本首版被静默拦)
 PRED = re.compile(r"概率|胜率|期望|次日|明天|明早|预计|大概率|会冲|冲高|套利|值得|倾向|判断|建议.*(买|卖|做|接)")
 
 
@@ -216,6 +216,7 @@ def send(text, src="", raw=False, kind=None, wait=600, mx=1800, dry=False, force
     miss = conf_lint(text, src)
     if miss and not force:   # 10/21 用户批评"分析缺乏置信度": 判断类推送缺置信度标注 → 不发, 退回补齐(--force 强发)
         print(f"[置信度闸] 不发: 这条像判断 / 预测, 但{miss}。每条结论要带 [置信 高/中/低 · 样本 n · 失效条件], 末尾列不自信点; 确认不需要请加 --force", file=sys.stderr)
+        _log(SENT, {"ts": dt.datetime.now().isoformat(timespec="seconds"), "src": src, "kind": "", "chars": len(text), "ok": False, "st": "noconf", "err": miss})   # 10/23 用户批: 拦下也落账, 不再静默
         return "noconf"
     k, msg = render(text, raw, kind)
     t0, used = quota()

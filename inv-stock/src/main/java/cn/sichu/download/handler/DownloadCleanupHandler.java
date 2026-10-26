@@ -2,6 +2,7 @@ package cn.sichu.download.handler;
 
 import cn.sichu.bilibili.service.IBilibiliVideoService;
 import cn.sichu.cls.service.IClsTelegraphService;
+import cn.sichu.kline.service.IKlineInboxService;
 import cn.sichu.system.quartz.handler.JobHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Component;
  * 结果文件在 results/ 永久不动
  * - cls 域: downloads/cls/<yyyy.MM.dd>/ 超过 90 天的日期目录整删(目录名日期判定);
  * DB images 字段是远程 URL 不受影响
+ * - kline 域(2026-10-25 加): downloads/kline/<yyyy.MM.dd>/ 超过 30 天的截图原图整删; 案例 / 续画 / 核销状态在 results/kline/ 不动,
+ * 不进 DB 所以没有逻辑删除, 收件箱下次跑在 _status.json 记"原图已删"
  * <p>
  * sys_job: job_handler_name=downloadCleanupHandler, cron 每天 0 点(0 0 0 * * ?, 9/27 用户定)
  *
@@ -23,16 +26,19 @@ import org.springframework.stereotype.Component;
 @Component("downloadCleanupHandler")
 @RequiredArgsConstructor
 public class DownloadCleanupHandler implements JobHandler {
-    /* 保留天数: 视频原料 30 天, cls 图 90 天 */
+    /* 保留天数: 视频原料 30 天, cls 图 90 天, K 线截图 30 天 */
     private static final int BILIBILI_RETENTION_DAYS = 30;
     private static final int CLS_RETENTION_DAYS = 90;
+    private static final int KLINE_RETENTION_DAYS = 30;
     private final IBilibiliVideoService bilibiliVideoService;
     private final IClsTelegraphService clsTelegraphService;
+    private final IKlineInboxService klineInboxService;
 
     @Override
     public String execute(String params) {
         String bilibili = bilibiliVideoService.cleanupPhysicalFiles(BILIBILI_RETENTION_DAYS);
         String cls = clsTelegraphService.cleanupLocalImages(CLS_RETENTION_DAYS);
-        return String.format("downloads 物理删除完成: %s; %s", bilibili, cls);
+        String kline = klineInboxService.cleanupLocalImages(KLINE_RETENTION_DAYS);
+        return String.format("downloads 物理删除完成: %s; %s; %s", bilibili, cls, kline);
     }
 }

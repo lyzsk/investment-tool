@@ -29,8 +29,8 @@ MKT = ROOT / "downloads" / "market"
 PAPER = ROOT / "scripts" / "dfcf" / "paper"
 LOCK = ROOT / "scripts" / "temp" / "collect_book.pid"
 LOG = ROOT / "scripts" / "temp" / "collect_book.log"
-START, END, STEP, MAXN = "0914", "1501", 3.0, 60
-FILL_TO, POOL_TOP = 50, 5   # 10/23 用户令: 恒定录 50 只, 分 6 档(T0 执行要用的 / T1 转债正股 / T2 导师昨日持仓与成交 / T3 v3 候选池前 5 / T4 昨日连板梯队 / T5 拓扑邻居与其余), 连续失败每 3 次从最低档砍一档
+START, END, STEP, MAXN = "0914", "1501", 3.0, 200   # 10/24 用户: 以压测为准(300 只 0.28 秒无错), 60 → 200 留余量
+FILL_TO, POOL_TOP = 200, 30   # 10/25: 150 → 200(用户定 3 秒盘口 200 只, 压测 300 只 0.28 秒无错; 空余名额给主线题材成员 + 转债); 10/24: 50/5 → 150/30(候选池 30 → 100 行, 每本前 30 名进 3 秒盘口);   # 10/23 用户令: 恒定录 50 只, 分 6 档(T0 执行要用的 / T1 转债正股 / T2 导师昨日持仓与成交 / T3 v3 候选池前 5 / T4 昨日连板梯队 / T5 拓扑邻居与其余), 连续失败每 3 次从最低档砍一档
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0) | getattr(subprocess, "DETACHED_PROCESS", 0)
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 import ipv4_first   # noqa: E402,F401  10/21: 本机 IPv6 不通, 先走 IPv4
@@ -88,7 +88,7 @@ def watch(D):
         pass
     se = set()   # 10/21 晚: 新 paper 策略执行器(15 条)的持仓 + 当前策略里的票, 优先录(成交要靠 3 秒盘口)
     live = ROOT / "results" / "_live" / D
-    for d in [*live.glob("se_*"), *live.glob("v3_*")]:   # 10/23 凌晨彩排查出: 原来只读 v2 的 se_*, v3 账本(v3_*)的持仓 / 挂单票进不了 3 秒盘口 → 只能靠新浪 10 秒补价, 没有五档深度和成交量
+    for d in [*live.glob("se_*"), *live.glob("v3_*"), *live.glob("live_*"), *live.glob("paper_*")]:   # 10/23 凌晨彩排查出: 原来只读 v2 的 se_*, v3 账本(v3_*)的持仓 / 挂单票进不了 3 秒盘口 → 只能靠新浪 10 秒补价, 没有五档深度和成交量
         try:
             se |= set((json.loads((d / "state.json").read_text(encoding="utf-8")).get("positions") or {}).keys())
             sp = sorted((d / "strategies").glob("*.json"))
@@ -104,7 +104,23 @@ def watch(D):
         T1 = set()
     T2 = mentor_hold_codes(D)   # T2 导师真人昨天收盘持仓 + 昨天成交过的
     T3 = v3_pool_codes(D)   # T3 v3 各本账 01 候选池前几名(模型可能临时买)
+    try:   # 10/25 用户选 D: 被加红电报点名封板 / 冲板的票进 3 秒盘口(之后开板 / 回封有秒级数据; 不叫醒 chain)
+        sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+        import telegraph_now as TGN
+        T3 = list(T3) + [c for c in TGN.limit_named(D, time.strftime("%H:%M:%S"))[:20] if c not in set(T3)]
+    except Exception:   # noqa: BLE001
+        pass
     T4 = ladder_codes(D)   # T4 昨天连板梯队
+    try:   # 10/25 用户问福莱新材 / 福莱转债为什么不在 3 秒盘口: 近 5 日最强 2 个主线题材的成员(涨停分析里出现过的) + 它们的转债, 排在梯队后面, 只填空余名额(上限 200 不挤别人)
+        sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+        import theme_life as TLF
+        tops = [x.split(":")[0] for x in (TLF.top(D).get("近 5 日最活跃题材") or [])[:2]]
+        d5 = sorted({r[0] for r in TLF.rows_canon() if r[0] < D})[-5:]
+        mem = sorted({str(r[3]) for r in TLF.rows_canon() if r[0] in d5 and r[1] in tops and str(r[3]).isdigit()})
+        cb_of = {v: k for k, v in (stk or {}).items() if v}
+        T4 = list(T4) + [c for c in mem if c not in set(T4)] + [cb_of[c] for c in mem if c in cb_of]
+    except Exception:   # noqa: BLE001
+        pass
     nbr = []
     try:   # T5 拓扑邻居(10/19 晚: 实盘 / 做T / 执行器票的前 3 邻居, ctx_index 给模型看"邻居此刻涨跌") + 其余(旧账本 / 计划单 / 手动加录)
         sys.path.insert(0, str(ROOT / "scripts" / "market"))
@@ -142,7 +158,7 @@ def mentor_hold_codes(D):
     if D not in _MHOLD:
         out = []
         try:
-            sys.path[:0] = [str(ROOT / "scripts" / "paper_v3"), str(ROOT / "scripts" / "paper_v3" / "tools")]
+            sys.path[:0] = [str(ROOT / "scripts" / "paper_line"), str(ROOT / "scripts" / "paper_line" / "tools")]
             import pack
             sks = list(dict.fromkeys(x["skill"] for x in pack.lines().values() if x.get("kind") == "mimic"))
             for sk in sks:
@@ -151,6 +167,12 @@ def mentor_hold_codes(D):
                 out += re.findall(r"\((\d{6})\)", t[i:] if i >= 0 else "")   # 持仓先
                 out += re.findall(r"\((\d{6})\)", t[:i] if i >= 0 else t)   # 再是昨天成交过的
         except Exception:   # noqa: BLE001  取不到不影响采集
+            pass
+        try:   # 10/24 用户: 导师 T−n 持仓 / 操作(当时结算入选; n = 各导师回头操作间隔 P90; mentor_recent.py, 零 token)
+            sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+            import mentor_recent as MR
+            out += list(MR.codes(D, "book"))
+        except Exception:   # noqa: BLE001
             pass
         _MHOLD[D] = list(dict.fromkeys(out))
     return _MHOLD[D]
@@ -183,7 +205,7 @@ def ladder_codes(D):
 def v3_pool_codes(D):
     """v3 各本账最新一版 01 候选池前 POOL_TOP 名(轮流取, 每本先取第 1 名再取第 2 名 …)"""
     per = []
-    for d in sorted((ROOT / "results" / "_live" / D).glob("v3_*")):
+    for d in sorted([*(ROOT / "results" / "_live" / D).glob("live_*"), *(ROOT / "results" / "_live" / D).glob("paper_*")]):
         vs = sorted((d / "versions").glob("*/01_facts.md"))
         if vs:
             try:

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""event_chain.py — 全天盯盘·事件触发子链(10/21 用户令: 全天盯盘今天至少上线一条, 先上梅月路; 其余链仍是 shadow_exec 零成本影子)
+"""event_chain.py — 全天盯盘·事件触发子链(10/21 用户令: 全天盯盘今天至少上线一条, 先上梅月路; 其余链仍是 trigger_stats 零成本影子)
 
-谁调: shadow_exec.py 每分钟判事件, EVENT_CHAIN_SKILLS 里的链没被冷却/上限拦下时 fire() 后台拉起本脚本(无窗口)。
+谁调: trigger_stats.py 每分钟判事件, EVENT_CHAIN_SKILLS 里的链没被冷却/上限拦下时 fire() 后台拉起本脚本(无窗口)。
 跑哪几步(用户 10/21 定的 D1 口径):
   价格越出策略区间 / 本链成交 / 封板炸板          → 06(+盲审): 只按新价位改挂单/撤单, 不重判市况
   开盘实况翻转 / 心跳 60 分钟 / 其他             → 02→04→05→06(+盲审), 即原盘中子链
@@ -43,7 +43,7 @@ def live_skills():
 
 
 def fire(skill, D, hm, why):
-    """shadow_exec 调: 后台拉起一轮, 立即返回"""
+    """trigger_stats 调: 后台拉起一轮, 立即返回"""
     subprocess.Popen([str(PY), "-X", "utf8", str(Path(__file__)), "--skill", skill, "--date", D, "--hm", hm, "--why", json.dumps(why, ensure_ascii=False)],
                      cwd=ROOT, creationflags=NOWIN | getattr(subprocess, "DETACHED_PROCESS", 0), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 

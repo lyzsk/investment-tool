@@ -104,6 +104,10 @@ public class BilibiliReconcileServiceImpl implements IBilibiliReconcileService {
         Set<LocalDate> distillDays = new TreeSet<>();
         int inserted = 0;
         int advanced = 0;
+        /* 10/24: 用户确认跳过的视频(remark 含"跳过"且 retry_count>=3, 如天哥 BV1cN19YuECh 生活 vlog) sum / distill 也不再报缺 */
+        Set<String> skippedBvids = db.values().stream()
+            .filter(v -> v.getRetryCount() != null && v.getRetryCount() >= 3 && v.getRemark() != null && v.getRemark().contains("跳过"))
+            .map(BilibiliVideo::getBvid).collect(Collectors.toSet());
         for (VideoFiles f : files.values()) {
             if (!f.full) {
                 continue;
@@ -121,7 +125,9 @@ public class BilibiliReconcileServiceImpl implements IBilibiliReconcileService {
                 doneDates.add(f.day);
             }
             String expected = mdDates.isEmpty() ? "VISION_DONE" : doneDates.isEmpty() ? "SUMMARIZED" : "DISTILLED";
-            if (mdDates.isEmpty()) {
+            if (skippedBvids.contains(f.bvid)) {
+                /* 10/24: 用户确认跳过, 不算 sum / distill 缺(db_skipped 一行照旧列出) */
+            } else if (mdDates.isEmpty()) {
                 (grace ? pending : sumMissing).add(f.bvid + "@" + f.day);
             } else {
                 sumDays.addAll(mdDates);

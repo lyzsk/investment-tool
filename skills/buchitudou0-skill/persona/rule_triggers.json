@@ -1,0 +1,548 @@
+{
+ "skill": "buchitudou0",
+ "name": "不吃土豆0",
+ "version": "2026-10-26 B 候选",
+ "src": "从 scripts/temp/distill_diag/tudou_eval.py 的 RU(新版 = both + new)翻译; 规则原文 skills/buchitudou0-skill/persona/rules.md(10/25 版, 本文件不改它)",
+ "dsl": "见 scripts/skills_ver/rule_dsl.py 文件头; 土豆只有账户日样本(day), 每个交易日一条",
+ "label": {
+  "field": "auction_main",
+  "name": "首笔 09:25 竞价买主做债",
+  "note": "基线对照用的二分类标签(他最关键的决策点, 见诊断不自信点 9)"
+ },
+ "rules": [
+  {
+   "id": "R26",
+   "kind": "day",
+   "modified": "2026-10-25",
+   "when": {
+    "has_main": true
+   },
+   "act": "出手",
+   "dim": "出手",
+   "sign": 1,
+   "expect": {
+    "traded": true
+   },
+   "note": "总纲: 有阶段主做债 → 默认出手(诊断里叫 R0/R26 出手; 诊断谓词不要求有主做债)",
+   "specific": 0.9162,
+   "broad": true
+  },
+  {
+   "id": "R8-竞价",
+   "kind": "day",
+   "when": {
+    "has_main": true
+   },
+   "act": "首笔竞价",
+   "expect": {
+    "first_channel": [
+     "竞价",
+     "死窗"
+    ]
+   },
+   "note": "首笔 09:25 竞价(或 09:30:00 死窗)",
+   "specific": 0.9162,
+   "broad": true
+  },
+  {
+   "id": "R8-主做债",
+   "kind": "day",
+   "when": {
+    "has_main": true
+   },
+   "act": "无方向",
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B: 并入 R29 / 只提醒 · 首笔竞价买主做债(近期 = 澳弘转债); 主做债按前 10 个交易日成交腿最多的转债机械判",
+   "specific": 0.9162,
+   "broad": true
+  },
+  {
+   "id": "R8-30秒",
+   "kind": "day",
+   "when": {},
+   "given": {
+    "traded": true,
+    "rt1_secs": {
+     "exists": true
+    }
+   },
+   "act": "30 秒内卖",
+   "expect": {
+    "rt1_secs": {
+     "<=": 30
+    }
+   },
+   "note": "开盘后 30 秒内卖出首笔(条件于当天出手)",
+   "specific": 0.8101,
+   "broad": true
+  },
+  {
+   "id": "R1",
+   "kind": "day",
+   "when": {},
+   "given": {
+    "traded": true,
+    "first_buy": {
+     "exists": true
+    }
+   },
+   "act": "只在开盘入场",
+   "expect": {
+    "first_buy": {
+     "<=": "09:30:59"
+    }
+   },
+   "note": "入场只在竞价 / 死窗, 从不尾盘开仓",
+   "specific": 0.8101,
+   "broad": true
+  },
+  {
+   "id": "R9",
+   "kind": "day",
+   "passive": true,
+   "when": {},
+   "given": {
+    "traded": true,
+    "first_buy": {
+     "exists": true
+    }
+   },
+   "act": "09:35 后不新开",
+   "expect": {
+    "late_buy": false
+   },
+   "note": "09:35 后不新开(R16: 偶尔小额)",
+   "specific": 0.8101,
+   "broad": true
+  },
+  {
+   "id": "R5",
+   "kind": "day",
+   "when": {},
+   "given": {
+    "traded": true,
+    "notional_first": {
+     "exists": true
+    }
+   },
+   "act": "名义 10~15 万",
+   "expect": {
+    "notional_first": {
+     ">=": 9.5,
+     "<=": 15.5
+    }
+   },
+   "note": "单笔名义固定 10~15 万",
+   "specific": 0.8101,
+   "broad": true
+  },
+  {
+   "id": "R27",
+   "kind": "day",
+   "modified": "2026-10-25",
+   "when": {
+    "stk_auc": {
+     "<=": -0.02
+    },
+    "bond_auc": {
+     ">": -0.01
+    }
+   },
+   "act": "无方向",
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B: 并入 R29 / 只提醒 · 正股 09:24 ≤−2% 且转债没跟跌 → 照 R8 竞价首笔(只提醒偏亏); 10/12 前没有 09:24 快照, 用最终开盘价近似",
+   "specific": 0.067
+  },
+  {
+   "id": "R28",
+   "kind": "day",
+   "modified": "2026-10-25",
+   "when": {
+    "stk_auc": {
+     "<=": -0.02
+    },
+    "bond_auc": {
+     "<=": -0.01
+    }
+   },
+   "act": "无方向",
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B: 并入 R29 / 只提醒 · 双低开 → 竞价买入",
+   "specific": 0.0894
+  },
+  {
+   "id": "R22",
+   "kind": "day",
+   "when": {
+    "bond_auc": {
+     "<=": -0.01
+    }
+   },
+   "act": "无方向",
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B: 并入 R29 / 只提醒 · [线索] 转债竞价低开 ≤−1% 的竞价单常出大肉(支持出手)",
+   "specific": 0.1788
+  },
+  {
+   "id": "R18",
+   "kind": "day",
+   "when": {
+    "any": [
+     {
+      "idx_gap": {
+       "<=": -0.01
+      }
+     },
+     {
+      "up_prev": {
+       "<=": 0.1
+      }
+     }
+    ]
+   },
+   "act": "大盘差照样出手",
+   "dim": "出手",
+   "sign": 1,
+   "expect": {
+    "traded": true
+   },
+   "note": "上涨占比 ≤10% 或上证低开 ≤−1% 照样出手; 诊断谓词是'每天都命中', 这里按原文收窄",
+   "specific": 0.0559
+  },
+  {
+   "id": "R23",
+   "kind": "day",
+   "when": {
+    "bond_auc": {
+     ">=": 0.03
+    }
+   },
+   "act": "无方向",
+   "note": "[线索] 转债高开 ≥3% 的开盘单 6 月后只剩 ±1%(只提醒, 不参与出不出手)",
+   "specific": 0.1061
+  },
+  {
+   "id": "R24",
+   "kind": "day",
+   "when": {
+    "loss_streak": {
+     ">=": 2
+    }
+   },
+   "act": "连亏照常出手",
+   "dim": "出手",
+   "sign": 1,
+   "expect": {
+    "traded": true
+   },
+   "note": "跨日不因亏损收手: 连亏 2 天照常出手(连亏 3 天歇 1 天 n=1 不编); 新加, 诊断没编",
+   "specific": 0.1229
+  },
+  {
+   "id": "R29-1",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     "<=": -0.004
+    },
+    "stk_auc": {
+     "<": -0.04
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开跌停…−4~−0.4(已并档) × 股开跌停…−6~−4(已并档): 竞价买主做债 3/10(30%) → 格内主动作=不竞价(3/10), 但体检没过(rule_exam 20 日 1/3; 历史分档用开盘价、实盘用 09:24 虚拟撮合, 深低开日两者差 2~4 个点) → 降为提醒, 方向照 R26 / R8 竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-2",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     "<=": -0.004
+    },
+    "stk_auc": {
+     ">=": -0.04,
+     "<": -0.02
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开跌停…−4~−0.4(已并档) × 股开−4~−2: 竞价买主做债 8/13(62%) → 主动作=竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-3",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     "<=": -0.004
+    },
+    "stk_auc": {
+     ">=": -0.02,
+     "<=": -0.002
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开跌停…−4~−0.4(已并档) × 股开−2~0: 竞价买主做债 10/19(53%) → 无主动作 → 照 R26 / R8 竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-4",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     "<=": -0.004
+    },
+    "stk_auc": {
+     ">": -0.002
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开跌停…−4~−0.4(已并档) × 股开平…涨停(已并档): 竞价买主做债 9/16(56%) → 无主动作 → 照 R26 / R8 竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-5",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     ">": -0.004,
+     "<": 0.004
+    },
+    "stk_auc": {
+     "<=": -0.002
+    }
+   },
+   "act": "不走竞价",
+   "dim": "竞价首笔",
+   "sign": -1,
+   "expect": {
+    "auction_main": false
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开平(±0.4%) × 股开跌停…−2~0(已并档): 竞价买主做债 4/12(33%) → 主动作=不竞价(死窗 / 追单); 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-6",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     ">": -0.004,
+     "<": 0.004
+    },
+    "stk_auc": {
+     ">": -0.002
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开平(±0.4%) × 股开平…涨停(已并档): 竞价买主做债 10/16(62%) → 主动作=竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-7",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     ">=": 0.004,
+     "<": 0.04
+    },
+    "stk_auc": {
+     "<=": -0.002
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开0.4~4 × 股开跌停…−2~0(已并档): 竞价买主做债 4/9(44%) → 无主动作 → 照 R26 / R8 竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-8",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     ">=": 0.004,
+     "<": 0.04
+    },
+    "stk_auc": {
+     ">": -0.002,
+     "<": 0.002
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开0.4~4 × 股开平: 竞价买主做债 6/12(50%) → 无主动作 → 照 R26 / R8 竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-9",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     ">=": 0.004,
+     "<": 0.04
+    },
+    "stk_auc": {
+     ">=": 0.002,
+     "<": 0.02
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开0.4~4 × 股开0~2: 竞价买主做债 14/23(61%) → 主动作=竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-10",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     ">=": 0.004,
+     "<": 0.04
+    },
+    "stk_auc": {
+     ">=": 0.02,
+     "<": 0.04
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开0.4~4 × 股开2~4: 竞价买主做债 6/9(67%) → 主动作=竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-11",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     ">=": 0.004,
+     "<": 0.04
+    },
+    "stk_auc": {
+     ">=": 0.04
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开0.4~4 × 股开4~6…涨停(已并档): 竞价买主做债 7/10(70%) → 主动作=竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-12",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     ">=": 0.04
+    },
+    "stk_auc": {
+     "<": 0.04
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开4~8…涨停(已并档) × 股开跌停…2~4(已并档): 竞价买主做债 5/8(62%) → 主动作=竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  },
+  {
+   "id": "R29-13",
+   "kind": "day",
+   "modified": "2026-10-26",
+   "when": {
+    "has_main": true,
+    "bond_auc": {
+     ">=": 0.04
+    },
+    "stk_auc": {
+     ">=": 0.04
+    }
+   },
+   "act": "竞价买主做债",
+   "dim": "竞价首笔",
+   "sign": 1,
+   "expect": {
+    "auction_main": true
+   },
+   "note": "10/26 B 重构 默认动作总表格 债开4~8…涨停(已并档) × 股开4~6…涨停(已并档): 竞价买主做债 7/15(47%) → 无主动作 → 照 R26 / R8 竞价; 正股按主板档距(创业板近似)",
+   "src": "scripts/temp/b_rework/tudou_b.py + gen_triggers_tudou.py"
+  }
+ ]
+}

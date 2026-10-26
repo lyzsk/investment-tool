@@ -60,9 +60,9 @@ DISCIPLINE = """做 T 硬纪律(规则与费用口径, 必须遵守):
 
 
 def amp_multi(code, D):
-    """五个窗口振幅(复用 paper v3 的必查口径: scripts/paper_v3/pack.amp_stats); 失败不拦决策"""
+    """五个窗口振幅(复用 paper v3 的必查口径: scripts/paper_line/pack.amp_stats); 失败不拦决策"""
     try:
-        sys.path.insert(0, str(ROOT / "scripts" / "paper_v3"))
+        sys.path.insert(0, str(ROOT / "scripts" / "paper_line"))
         import pack as V3P
         return V3P.amp_stats(code, D)
     except Exception as e:   # noqa: BLE001
@@ -88,7 +88,7 @@ def consensus(D):
             dirs[k] = dirs.get(k, 0) + 1
     # 10/23 凌晨用户令: v1 导师链已停 → 也读 paper v3 各本账 09:00 启动时的 02(results/_live/<日>/v3_<线>/versions/*/02.json: state / attitude / directions), 每本账一票并标来源
     who = []
-    for d in sorted((ROOT / "results" / "_live" / D).glob("v3_*")):
+    for d in sorted([*(ROOT / "results" / "_live" / D).glob("live_*"), *(ROOT / "results" / "_live" / D).glob("paper_*")]):
         fs = sorted(d.glob("versions/*/02.json"))
         if not fs:
             continue
