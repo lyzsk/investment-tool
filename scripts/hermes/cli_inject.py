@@ -22,7 +22,9 @@ def find_claude():
     ps = ("Get-CimInstance Win32_Process -Filter \"Name='claude.exe'\" | ForEach-Object { $p=Get-Process -Id $_.ProcessId -ErrorAction SilentlyContinue; "
           "$pp=Get-CimInstance Win32_Process -Filter ('ProcessId='+$_.ParentProcessId); "
           "[pscustomobject]@{pid=$_.ProcessId; parent=$pp.Name; cpu=$p.CPU; cmd=$_.CommandLine} } | ConvertTo-Json -Compress")
-    out = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True, creationflags=NOWIN).stdout.strip()
+    out = subprocess.run(["powershell", "-NoProfile", "-Command",
+                          "[Console]::OutputEncoding=[Text.Encoding]::UTF8; " + ps],
+                         capture_output=True, creationflags=NOWIN).stdout.decode("utf-8", "replace").strip()
     procs = json.loads(out) if out else []
     procs = procs if isinstance(procs, list) else [procs]
     procs = [p for p in procs if " -p " not in f" {p.get('cmd') or ''} " and (p.get("parent") or "").lower()

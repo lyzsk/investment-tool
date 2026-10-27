@@ -1,0 +1,7 @@
+--- v027_20261026-2109/scripts/claude_profile/chain_flags.txt
++++ v028_20261026-2304/scripts/claude_profile/chain_flags.txt
+@@ -199,2 +199,4 @@
+ EXEC_INTENT_TABLE=1   # 10/26 晚用户批: 06 只写意图(必须走 / 想走 / 冲高卖 / 低吸 / 打板 / 必须买), 执行器按落单那一刻盘面选挂法(executor._intent_expand 选型表 v2); 0 = 模型自己选挂法
+ EXEC_REBOUND_DEADLINE_MIN=60   # 选型表 急跌 → 反抽卖 那一半: 多少分钟没反抽到点按买一卖
++EXEC_NO_AVG_DOWN=1   # 10/26 22:0x 用户原则(market-skill U24): 浮亏持仓票盘中补仓 → 等反转(日内最低反弹 max(1.5%, 0.5×振幅)), 14:50 没反转就尾盘补; 0 = 关
++EXPECT_FORCE=固态电池   # 10/26 22:2x 用户: 导师判断明日看的题材, 明日备案里单列个股预案 + 套利债(逗号分隔; 用完清空)

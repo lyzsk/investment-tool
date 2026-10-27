@@ -3,8 +3,7 @@
 // 10/17 二B-4: 导师链(UP/tzzb 导师/对照组)读导师登记表(scripts/lib/mentors.mjs, 顺序=槽位序), 这里只留混合账本
 import * as MENTORS from "../../lib/mentors.mjs";
 export const ACCOUNTS = [
-    ...MENTORS.all().map((e) => [e.book, e.display, e.type === "tzzb" ? "导师" : e.type]),
-    ["A-mix", "混合·主", "混合"], ["A-mix-eq", "混合·等权", "混合"], ["A-mix-lhb", "混合·龙虎榜", "混合"], ["A-mix-sw", "混合·扬长避短", "混合"], ["A-tbank", "机械T·中行", "做T"], ["A-tndq", "机械T·纳指ETF", "做T"], ["A-hbank", "不T·中行", "做T"], ["A-hndq", "不T·纳指ETF", "做T"], ["A-dbank", "决策T·中行", "做T"], ["A-dndq", "决策T·纳指ETF", "做T"], ["A-sbank", "机械波段T·中行", "做T"], ["A-sndq", "机械波段T·纳指ETF", "做T"], ["A-wbank", "决策波段T·中行", "做T"], ["A-wndq", "决策波段T·纳指ETF", "做T"],   // 10/18 晚 t_bot.py   // 10/16 新增(槽 18-20, mix_plans.py)
+    ...MENTORS.all().map((e) => [e.book, e.display, e.type === "tzzb" ? "导师" : e.type]),   // 10/18 晚 t_bot.py   // 10/16 新增(槽 18-20, mix_plans.py)
 ];
 // 10/22 凌晨: books_ext/accounts.json(books_ext.py 导出: 新 paper 模拟账 S-<导师> / 统计基线 BL- / BLT-), 只进报告, 不进 matcher / 日报 ACTIVE
 import fs from "fs";

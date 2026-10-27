@@ -1066,6 +1066,11 @@ def main():
                     r_ = {}
                 if r_.get("新增") or r_.get("刷新"):
                     run(["node", "scripts/md/gen_rules_index.mjs", "--skill", mm.group(1)], f"规则索引 {mm.group(1)}", 120)
+            # 10/26 用户批: rules.md 只留规则本身, 蒸馏新写进去的 竞争假设 / 证伪条件 / 反例 / 登记后样本 挪到 persona/rule_log.md(幂等, 零 token)
+            run([PY, "-X", "utf8", "scripts/md/rules_split_log.py"], "规则核销记录挪到 rule_log.md", 120)
+            run([PY, "-X", "utf8", "scripts/live/open_class.py"], "开盘情境统计(竞价路径 → 当天走法)", 900)   # 10/26: 必查「开盘情境」用
+            # 10/26 晚用户令: 明日备案(项目整合视角: 情绪聚焦 / 流转 / 明日聚焦题材 + 梯队 + 题材套利债 → 候选池「备案·题材」+ 01 一节); 要 md 涨停分析已写完
+            run([PY, "-X", "utf8", "scripts/paper_line/tools/expect.py", "--date", d.isoformat()], "明日备案(题材聚焦 + 套利债 → 候选池)", 300)
             # 10/22 晚用户令: 不论 rules.md 多大(bank / nasdaq 只有几 KB)都要有索引, 将来量级会很大; rules.md 比索引新 / 没索引 → 重建
             for sk_dir in sorted((ROOT / "skills").glob("*-skill")):
                 rp, ip = sk_dir / "persona" / "rules.md", sk_dir / "persona" / "rules_index.md"

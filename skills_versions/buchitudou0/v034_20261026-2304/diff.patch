@@ -1,0 +1,9 @@
+--- v033_20261026-2206/persona/fingerprint.md
++++ v034_20261026-2304/persona/fingerprint.md
+@@ -1,5 +1,5 @@
+ # 不吃土豆0(buchitudou0) 交易指纹·机械层
+ 
+-> 生成: 2026-10-26T22:01:07 | 脚本: scripts/tzzb/mentor_fingerprint.py(零 token, 只读) | as-of: 全量
++> 生成: 2026-10-26T23:01:11 | 脚本: scripts/tzzb/mentor_fingerprint.py(零 token, 只读) | as-of: 全量
+ > 数据窗口: 2026-01-05 ~ 2026-10-26 | 成交腿 950 | 买入事件(日×票) 195, 其中新开仓 195 | 卖出事件 195
+ > 行情面板: 2025-06-03 ~ 2026-10-26(行情库 kline_day, 不复权价+交易所昨收) | 新开仓中有行情的占 48%

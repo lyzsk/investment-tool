@@ -187,7 +187,18 @@ WAKE_ASK = """
 
 
 STYLE_ASK = """
-【选挂法(10/26 用户令: 你出意图, 规则出价格和数量; 推荐这样写)】每条规则可以**不写 px / qty**, 改写:
+【意图(10/26 晚用户批, 首选这样写)】你只决定 卖不卖 / 买不买 / 多少 / 多急, **怎么挂由执行器在落单那一刻按盘面选**:
+  {"id": "r1", "intent": "必须走|想走|冲高卖|低吸|打板|必须买", "ratio": 0.5, "why": "… 依据：…"}   (ratio: 卖 = 占持仓比例, 买 = 占总资产比例)
+  选型表(落单那一刻的盘面 → 挂法; 离线 10 天 n=1332 验证, docs/research/bracket_offline_20261026.md):
+   必须走 → 立即按买一卖(逻辑破坏 / 止损) · 必须买 → 立即按卖一买 · 打板 → 排板(涨停价排队)
+   想走 / 冲高卖: 封着涨停 → 炸板走 · 急跌中(开盘后跌 ≥3% 或从日内高点回落 ≥max(3%, 0.6×振幅)) → 一半等反抽(日内最低反弹 0.8×振幅卖, 60 分钟没反抽到点卖) + 一半移动止盈(日内最高回落 0.8×振幅)
+                  已经在冲高(贴着日内高点、在开盘价和昨收上方) → 一半挂高(规则价) + 一半移动止盈 · 平稳 → 现价卖(追价)
+                  开盘 5 分钟内: 低于昨收开盘(水下, 例 百洋股份 10/26 竞价跌停被抢上来) → 全部移动止盈、不在第一波砸; 平开 / 高开 → 现价卖 · 盘前 → 移动止盈 · **不挂硬止损**(急跌后止损一半样本会被止损在低点)
+   低吸 → 一半低吸限价 + 一半防踏空(日内最低反弹 max(1.5%, 0.5×振幅) 追买; 低吸那半成交了就不追)
+   **浮亏的持仓票盘中补仓**(10/26 用户原则, market-skill U24: 越跌越补是教训): 执行器一律改成"等反转(日内最低反弹 max(1.5%, 0.5×振幅))才买, 14:50 还没反转就尾盘补"; 要立刻补必须写 "now": true 或引规则编号
+  要推翻选型表(导师本人的特定卖法 / 关键价位): 照旧写 style 或 px + "人工价": true, **why 里必须引规则或材料编号**(R / E / Q / U / KS …); 没引编号的 style 按选型表执行(你写的 style 留档), 每晚复盘对比推翻 vs 选型表谁更好。
+
+【选挂法(旧写法, 推翻选型表时用)】每条规则可以**不写 px / qty**, 改写:
   {"id": "r1", "side": "BUY|SELL", "style": "追价|低吸|挂高|排板|开盘|等反抽|移动止盈|防踏空|炸板走|立即", "ratio": 0.3, "strength": "强|中|弱", "why": "… 依据：…"}
   ratio = 卖出占这只票持仓的比例(1 = 全卖) / 买入占总资产的比例; 价格由执行器在落单那一刻按当时盘口算:
   追价 = 现价 ±0.2%(笼子内) · 低吸 / 挂高 = 现价(盘前用昨收)×(1 ∓ k×本票 30 日振幅), k = 导师自己被动挂单的去偏深度 · 排板 = 涨停价 · 开盘 = 竞价单(买保证成交 / 卖按跌停价挂保证卖掉) ·
@@ -299,12 +310,55 @@ class V3(X.SE):
     def facts_codes(self):
         return super().facts_codes() | getattr(self, "_pool", set()) | set(self.line.get("universe") or [])
 
+    def _seal_map(self):
+        out = {}
+        for c, q_ in list(self.feed.q.items()):
+            up, p_ = self._limit_up(c), q_.get("p")
+            if up and p_:
+                out[c] = p_ >= up - 0.005 and not (q_.get("a1") or 0)
+        return out
+
+    def _seal_changed(self, s):
+        """10/26 用户批(林州重机): 06 落单前机械复核盘面 —— 06 看盘口时封着、落单时已开板(或反过来)的票, 打板 / 排板买单不落, 排队重判(零 token)"""
+        fresh, bad = getattr(self, "_fresh_seal", None), []
+        if not fresh or not self.line.get("live"):
+            return bad
+        now_ = self._seal_map()
+        for x in (s or {}).get("codes") or []:
+            c = x["code"]
+            if c not in fresh or c not in now_ or fresh[c] == now_[c]:
+                continue
+            up = self._limit_up(c)
+            keep = []
+            for r in x.get("rules") or []:
+                boardy = r.get("side") == "BUY" and (r.get("style") == "排板" or (up and r.get("px") and float(r["px"]) >= up - 0.005))
+                if boardy:
+                    bad.append(f"{c} {r.get('id')} 06 看盘口时{'封板' if fresh[c] else '没封'}, 落单时已{'开板' if fresh[c] else '封板'} → 这张打板单不落, 重判")
+                else:
+                    keep.append(r)
+            x["rules"] = keep
+        if bad:
+            with self.lock:
+                rr = "盘面变了重判: " + "; ".join(bad)[:200]
+                self.queued = f"{self.queued}; {rr}" if self.queued else rr
+                self.queued_counted = False
+        return bad
+
     def check(self, s):
         self._autofix = []
-        bad_style = self._style_prep(s)
+        bad_seal = self._seal_changed(s)
+        bad_style = self._style_prep(s) + bad_seal
         bad_cond = self._cond_prep(s)
         s, dropped = super().check(s)
         dropped += bad_style + bad_cond
+        # 10/26 晚 selftest ⑮: 落单时已经封死涨停的 涨停价买单 = 真排队(开板时按涨停价成交), 守卫不能再把它改成"到涨停价才买"的条件单
+        qs = self.__dict__.setdefault("_qsealed", {})
+        sm = self._seal_map()
+        for x in (s or {}).get("codes") or []:
+            up = self._limit_up(x["code"])
+            for r in x.get("rules") or []:
+                if r.get("side") == "BUY" and r.get("px") and up and float(r["px"]) >= up - 0.005:
+                    qs[(x["code"], r.get("id"), float(r["px"]))] = bool(sm.get(x["code"]))
         if self._autofix:   # 10/25 少重写 ②: 代码自动修过的机械错误记一笔(不叫模型重写)
             self.ev(kind="06 自动修", n=len(self._autofix), items=self._autofix[:20])
         # 10/23 凌晨彩排查出: 新版把同一张单(同票同方向同价)原样保留时, 真实柜台里这张单一直挂着、排队位置不变; 原来每出新版都当新单重新排到队尾 → 中行 7.17 那张因此没排到
@@ -976,7 +1030,131 @@ class V3(X.SE):
         return nl2.join(parts) + nl2 + "上面是两位独立研究员的多空论点(他们彼此看不到对方)。请你作为裁判权衡后做 04, 在理由里写清采纳了哪方哪条、为什么。" + nl2, cost
 
     # ---------- 10/26 用户令: 06 选挂法(LLM 出意图, 规则出价格和数量); 06 可以不写 px / qty, 写 style + ratio, 落单那一刻由代码按当时盘口算 ----------
-    STYLES = ("追价", "低吸", "挂高", "排板", "开盘", "等反抽", "移动止盈", "防踏空", "炸板走", "立即")
+    STYLES = ("追价", "低吸", "挂高", "排板", "开盘", "等反抽", "移动止盈", "防踏空", "炸板走", "立即", "反抽卖")
+    INTENTS = ("必须走", "想走", "冲高卖", "低吸", "打板", "必须买")   # 10/26 晚用户批: 06 只写意图, 执行器在落单那一刻按盘面选挂法(选型表 _intent_expand)
+    REF_RE = re.compile(r"(?<![A-Za-z])(R|E|Q|U|KS|KD|M|B)\d+")   # 推翻选型表要引的依据编号
+
+    def _mkt_state(self, c, amp):
+        """落单那一刻的盘面: 封板 / 急跌 / 冲高 / 平稳 / 盘前(离线实验 docs/research/bracket_offline_20261026.md 的口径)"""
+        hm = now().strftime("%H:%M:%S")
+        if hm < "09:30:00":
+            return "盘前"
+        q_ = self.feed.q.get(c) or {}
+        p_ = q_.get("p")
+        if not p_:
+            return "平稳"
+        up = self._limit_up(c)
+        if up and p_ >= up - 0.005 and not (q_.get("a1") or 0):
+            return "封板"
+        o = (getattr(self, "_dopen", {}) or {}).get(c)
+        lo_, hi_ = getattr(self, "_dayhl", {}).get(c, (None, None))
+        a = (amp or 3.0) / 100
+        pc0 = X.prev_close(c, self.D)
+        if hm < "09:35:00":   # v2(10/26 晚回放): 开盘 5 分钟内没有日内走势可判 → 按开盘情境: 低于昨收开 = 拿着等(百洋股份 10/26 水下被抢上来), 平 / 高开 = 现价卖
+            return "开盘水下" if (o and pc0 and o < pc0 * 0.995) else "开盘水上"
+        if (o and p_ <= o * 0.97) or (hi_ and p_ <= hi_ * (1 - max(0.03, 0.6 * a))):
+            return "急跌"
+        pc = X.prev_close(c, self.D)
+        if hi_ and p_ >= hi_ * (1 - 0.25 * a) and (not o or p_ >= o) and (not pc or p_ > pc):
+            return "冲高"
+        return "平稳"
+
+    def _no_avg_down(self, x, amp, hm):
+        """10/26 22:0x 用户原则(market-skill U24): 越跌越补仓是教训 —— 浮亏的持仓票盘中再买, 要等反转信号, 没等到就尾盘补:
+        已有持仓且现价 < 成本 的盘中买单(非排板 / 非 now / 没引规则编号推翻)→ 条件单「日内最低反弹 max(1.5%, 0.5×振幅) 才买」, 14:50 还没反转按卖一尾盘补"""
+        if (X.flag("EXEC_NO_AVG_DOWN", "1") or "1") != "1" or hm < "09:30:00" or hm >= "14:50:00":
+            return
+        c = x["code"]
+        pos = (self.state.get("positions") or {}).get(c) or {}
+        p_ = (self.feed.q.get(c) or {}).get("p")
+        if not (int(pos.get("qty") or 0) > 0 and pos.get("cost") and p_ and p_ < float(pos["cost"])):
+            return
+        keep, hit = [], []
+        for r in x.get("rules") or []:
+            if r.get("side") != "BUY" or r.get("now") or r.get("auction") or str(r.get("style") or "") in ("排板", "立即") or r.get("type") in ("board_dip",)                     or r.get("_override") or (r.get("人工价") and self.REF_RE.search(str(r.get("why") or ""))):
+                keep.append(r)
+            else:
+                hit.append(r)
+        if not hit:
+            return
+        # 这只票的盘中补仓单合成一张: 等反转(日内最低反弹)买全部; 14:50 没反转按卖一尾盘补
+        q = sum(int(r.get("qty") or 0) for r in hit)
+        ra = sum(float(r.get("ratio") or 0) for r in hit if not r.get("qty"))
+        m = {k: v for k, v in hit[0].items() if k not in ("px", "type", "qty", "ratio", "unless", "ref", "dir", "pct", "book", "_armed")}
+        m.update(style="防踏空", _pct_floor=1.5, deadline="14:50:00", _no_avg_down={"cost": pos["cost"], "p": p_, "at": hm, "orig": [(r.get("id"), r.get("style"), r.get("px"), r.get("qty") or r.get("ratio")) for r in hit]})
+        if q:
+            m["qty"] = q
+        if ra:
+            m["ratio"] = round(ra, 4)
+        x["rules"] = keep + [m]
+
+    def _intent_expand(self, x, amp):
+        """意图 → 具体挂法(选型表, 10/26 晚用户批); 06 写了 style 没写 intent: 有依据编号(R / E / Q …)= 推翻选型表照它挂, 没有依据 = 按选型表(原 style 留档)"""
+        if (X.flag("EXEC_INTENT_TABLE", "1") or "1") != "1":
+            return
+        c = x["code"]
+        held = int(((self.state.get("positions") or {}).get(c) or {}).get("sellable") or 0)
+        out = []
+        for r in x.get("rules") or []:
+            it = str(r.get("intent") or "").strip()
+            sty = str(r.get("style") or "").strip()
+            if not it and sty and sty not in ("排板", "开盘", "立即") and not r.get("人工价"):
+                if self.REF_RE.search(str(r.get("why") or "")):
+                    r["_override"] = "推翻选型表(有依据)"
+                    out.append(r)
+                    continue
+                it = ("想走" if r.get("side") == "SELL" else "低吸") if sty in self.STYLES else ""
+                if it:
+                    r["_style_ignored"] = sty
+            if not it or it not in self.INTENTS:
+                out.append(r)
+                continue
+            side = "SELL" if it in ("必须走", "想走", "冲高卖") else "BUY"
+            st_ = self._mkt_state(c, amp)
+            base = {k: v for k, v in r.items() if k not in ("style", "px", "qty", "ratio", "type", "ref", "dir", "pct", "book")}
+            base.update(side=side, intent=it, _state=st_)
+            try:
+                R = float(r.get("ratio") or (1 if side == "SELL" else 0))
+            except (TypeError, ValueError):
+                R = 0
+            keepq = {k: r[k] for k in ("qty", "ratio") if r.get(k)}
+            if it in ("必须走", "必须买"):
+                out.append({**base, "style": "立即", **keepq})
+            elif it == "打板":
+                out.append({**base, "style": "排板", **keepq})
+            elif it == "低吸":   # 低吸限价一半 + 防踏空一半(低吸成交了就不追; 追买门槛下限 1.5%, 太极股份 10/23 0.5×振幅 = 1.33% 追早了)
+                q0 = int(r.get("qty") or 0)
+                if q0:   # 06 写的是股数(不是 ratio): 按股数对半分
+                    qa = int(X.AR.round_qty(c, q0 / 2)) or q0
+                    ha, hb = {"qty": qa}, {"qty": q0 - qa}
+                else:
+                    ha = hb = {"ratio": round(R / 2, 4)}
+                out.append({**base, "id": f"{r['id']}a", "style": "低吸", **ha})
+                if hb.get("qty", 1):
+                    out.append({**base, "id": f"{r['id']}b", "style": "防踏空", **hb, "unless": f"{r['id']}a", "_pct_floor": 1.5})
+            else:   # 想走 / 冲高卖
+                tot = min(held, int(r["qty"])) if r.get("qty") else (held if R >= 0.99 else int(X.AR.round_qty(c, held * R)))
+                q1 = int(X.AR.round_qty(c, tot / 2))
+                q2 = tot - q1
+                if not tot:
+                    out.append({**base, "style": "移动止盈", "ratio": R})   # 没可卖: 交给数量那段报"已经没有可卖"
+                elif st_ == "封板":
+                    out.append({**base, "style": "炸板走", "qty": tot})
+                elif st_ == "急跌":   # 等反抽: 日内最低反弹 0.8×振幅 卖一半(60 分钟没反抽到点卖) + 剩余 日内最高回落 0.8×振幅
+                    if q1:
+                        out.append({**base, "id": f"{r['id']}a", "style": "反抽卖", "qty": q1})
+                    if q2:
+                        out.append({**base, "id": f"{r['id']}b", "style": "移动止盈", "qty": q2})
+                elif st_ == "冲高":   # 已经在冲高: 不等反抽, 一半挂高(规则价) + 一半移动止盈
+                    if q1:
+                        out.append({**base, "id": f"{r['id']}a", "style": "挂高", "qty": q1})
+                    if q2:
+                        out.append({**base, "id": f"{r['id']}b", "style": "移动止盈", "qty": q2})
+                elif st_ in ("开盘水下", "盘前"):   # 水下开 / 盘前: 全部移动止盈(不在开盘第一波砸)
+                    out.append({**base, "style": "移动止盈", "qty": tot})
+                else:   # 平稳 / 开盘水上: 现价卖(追价) —— 10/26 晚回放: 这两种盘面移动止盈比模型直接卖差(中位 −1.3%), 离线实验也只证明了"急跌后等反抽"
+                    out.append({**base, "style": "追价", "qty": tot})
+        x["rules"] = out
     STYLE_TTL = {"追价": 5, "低吸": 30, "挂高": 30}   # 挂出多少分钟没成交 → 叫醒重判(低吸 / 挂高优先用导师被动单存续时间)
 
     def _style_prep(self, s):
@@ -1009,6 +1187,8 @@ class V3(X.SE):
                 kk = k * tf * vr
                 x["band"] = [round(cur * (1 - kk * dn_k), 3), round(cur * (1 + kk * up_k), 3)]
                 x["_band_calc"] = {"k": round(k * 100, 2), "时段": tf, "波动比": round(vr, 2), "持仓": held_}
+            self._intent_expand(x, amp)
+            self._no_avg_down(x, amp, hm)
             keep = []
             for r in x.get("rules") or []:
                 sty = str(r.get("style") or "").strip()
@@ -1030,7 +1210,11 @@ class V3(X.SE):
                     if sty in ("等反抽", "移动止盈"):
                         r.update(type="cond", side="SELL", ref="日内最高", dir="down", pct=round(min(6.0, max(1.5, 0.8 * amp)), 2), book="b1", _armed=True)
                     elif sty == "防踏空":
-                        r.update(type="cond", side="BUY", ref="日内最低", dir="up", pct=round(min(6.0, max(1.0, 0.5 * amp)), 2), book="a1", _armed=True)
+                        k_ = 0.8 if amp > 5.6 else 0.5
+                        r.update(type="cond", side="BUY", ref="日内最低", dir="up", pct=round(min(6.0, max(float(r.get("_pct_floor") or 1.0), k_ * amp)), 2), book="a1", _armed=True)
+                    elif sty == "反抽卖":   # 10/26 晚: 急跌后等反抽 = 日内最低(生效后)反弹 0.8×振幅 卖; 60 分钟没反抽到点按买一卖(北新路桥 10/23 一路跌)
+                        r.update(type="cond", side="SELL", ref="日内最低", dir="up", pct=round(min(6.0, max(1.5, 0.8 * amp)), 2), book="b1", _armed=True,
+                                 deadline=(now() + dt.timedelta(minutes=int(X.flag("EXEC_REBOUND_DEADLINE_MIN", "60") or 60))).strftime("%H:%M:%S"))
                     elif sty == "炸板走":
                         r.update(type="cond", side="SELL", ref="涨停价", dir="down", pct=1.75 if str(r.get("strength")) == "强" else 1.5, book="b1")
                     elif sty == "立即":
@@ -1069,7 +1253,7 @@ class V3(X.SE):
                     elif px_ > 0:
                         r["qty"] = int(X.AR.round_qty(c, nav * ratio / px_))
                     if not r.get("qty"):
-                        bad.append(f"{c} {r.get('id')} 挂法单数量为 0(ratio={r.get('ratio')})")
+                        bad.append(f"{c} {r.get('id')} 挂法单数量为 0(ratio={r.get('ratio')}" + (", 已经没有可卖: 本版开跑后这只已成交卖完" if side == "SELL" else "") + ")")
                         continue
                 r["_land"] = hm
                 keep.append(r)
@@ -1165,6 +1349,8 @@ class V3(X.SE):
                     continue
                 if r.get("after") and not any(str(t.get("rule", "")) == f"{self.ver}:{c}:{r['after']}" for t in self.state.get("trades") or []):
                     continue
+                if r.get("unless") and any(str(t.get("rule", "")) == f"{self.ver}:{c}:{r['unless']}" for t in self.state.get("trades") or []):
+                    continue   # 10/26 晚: 低吸那一半成交了 → 防踏空不追
                 r["_hi"] = max(r.get("_hi") or p_, p_)
                 r["_lo"] = min(r.get("_lo") or p_, p_)
                 ref = self._cond_ref(c, r["ref"], r)
@@ -1178,6 +1364,9 @@ class V3(X.SE):
                     else:
                         continue
                 hit = p_ >= ref * (1 + pct) - 1e-9 if r["dir"] == "up" else p_ <= ref * (1 - pct) + 1e-9
+                if not hit and r.get("deadline") and now().strftime("%H:%M:%S") >= r["deadline"]:
+                    hit = True   # 截止时间到了还没触发 → 按档价成交(反抽卖: 一路跌不反抽也要走)
+                    r["_deadline_hit"] = True
                 if not hit:
                     continue
                 bk = str(r.get("book") or ("b1" if r["side"] == "SELL" else "a1"))
@@ -1211,7 +1400,7 @@ class V3(X.SE):
                     self.state["cash"] = round(self.state["cash"] + amt - fe, 2)
                     if pos["qty"] <= 0:
                         self.state["positions"].pop(c, None)
-                cond_txt = f"{r['ref']}{'涨' if r['dir'] == 'up' else '回落'}{r['pct']}%(参考 {round(ref, 3)}) → 按{'买' if bk[0] == 'b' else '卖'}{bk[1]}"
+                cond_txt = f"{r['ref']}{'涨' if r['dir'] == 'up' else '回落'}{r['pct']}%(参考 {round(ref, 3)}) → 按{'买' if bk[0] == 'b' else '卖'}{bk[1]}" + (f"(截止 {r['deadline']} 到点成交)" if r.get("_deadline_hit") else "") + (f" · {r.get('intent')}@{r.get('_state')}" if r.get("intent") else "")
                 t = {"t": now().strftime("%H:%M:%S"), "code": c, "name": x.get("name"), "side": r["side"], "px": round(px, 3), "qty": n, "fee": fe, "rule": key,
                      "why": r.get("why"), "cond": cond_txt, "tape": {k_: q_.get(k_) for k_ in ("p", "t", "b", "k")}}
                 self.state["trades"].append({k_: v for k_, v in t.items() if k_ != "tape"})
@@ -1298,6 +1487,54 @@ class V3(X.SE):
             self._ampc[c] = v
         return self._ampc[c]
 
+    def _board_watch(self, hm, now_ts=None):
+        """10/26 用户批: 必查池 / 持仓 / 有挂单的票出现 首次封板 / 炸板 / 回封 → 叫醒这条线(必判, 不占上限)
+        冷却(用户: 防重复唤起快慢两版): 同票 LIVE_BOARD_CD 秒(默认 180)内只叫一次, 期间的新事件只记"最新板态"并进下一次;
+        正在算时的事件由 restrategize 排队合并(不并发); 炸板 = 开板持续 ≥ LIVE_BOARD_OPEN_S 秒(默认 18, 同 S4a)"""
+        if (X.flag("LIVE_BOARD_WAKE", "1") or "1") != "1" or self.dormant() or hm >= (X.flag("EXEC_LAST_CHAIN", "14:51") or "14:51"):
+            return []
+        ts = now_ts if now_ts is not None else time.time()
+        cd = float(X.flag("LIVE_BOARD_CD", "180") or 180)
+        n_open = float(X.flag("LIVE_BOARD_OPEN_S", "18") or 18)
+        st = self.__dict__.setdefault("_bst", {})
+        codes = {x["code"] for x in (self.strategy or {}).get("codes") or []} | set((self.state.get("positions") or {}).keys())
+        try:
+            codes |= set((json.loads((self.dir / "must_state.json").read_text(encoding="utf-8")).get("watch") or {}).keys()) if (self.dir / "must_state.json").exists() else set()
+        except (OSError, ValueError, AttributeError):
+            pass
+        fired = []
+        for c in sorted(codes):
+            q_ = self.feed.q.get(c) or {}
+            up, p_ = self._limit_up(c), q_.get("p")
+            if not up or not p_:
+                continue
+            sealed_now = p_ >= up - 0.005 and not (q_.get("a1") or 0) and bool(q_.get("b1") or 0)
+            z = st.setdefault(c, {"sealed": False, "ever": False, "open_t": None, "broke": False, "last": -1e9, "pend": None})
+            ev = None
+            if sealed_now and not z["sealed"]:
+                ev = "回封" if z["broke"] else (None if z["ever"] else "首次封板")
+                z.update(sealed=True, ever=True, open_t=None)
+            elif not sealed_now and z["sealed"]:
+                z.update(sealed=False, open_t=ts)
+            elif not sealed_now and z["open_t"] is not None and not z["broke"] and ts - z["open_t"] >= n_open:
+                ev = "炸板"
+                z["broke"] = True
+            if sealed_now and z["broke"] and ev is None:
+                pass
+            if ev:
+                z["pend"] = f"{ev}({hm}, 现价 {p_:g}, 涨停 {up:g})"
+            if z["pend"] and ts - z["last"] >= cd:
+                name = ""
+                for x in (self.strategy or {}).get("codes") or []:
+                    if x["code"] == c:
+                        name = x.get("name") or ""
+                fired.append(f"{name}{c} {z['pend']}")
+                z.update(last=ts, pend=None)
+        if fired:
+            self.ev(kind="板事件叫醒", items=fired)
+            self.restrategize("板事件: " + "; ".join(fired)[:300], counted=False)
+        return fired
+
     def _guard(self, hm):
         """10/25 晚用户令: 全天守卫(零 token, 每 3 秒随盘口判) —— 普通限价单的价格偏离现价 ≥ g%(卖单比现价低 / 买单比现价高 = 一碰就按市价成交,
         多半是按过时的盘面写的, 例 芷影 09:20 按竞价跌停 8.83 挂百洋卖 9.00, 开盘 10.09)→ 不让它按市价成交, 改成条件单:
@@ -1319,6 +1556,17 @@ class V3(X.SE):
                     px = float(r["px"])
                     if not ((r["side"] == "SELL" and p_ >= px * (1 + g)) or (r["side"] == "BUY" and p_ <= px * (1 - g))):
                         continue
+                    up_ = self._limit_up(c)
+                    if r["side"] == "BUY" and up_ and px >= up_ - 0.005 and (getattr(self, "_qsealed", {}) or {}).get((c, r.get("id"), px)):
+                        continue   # 落单时封死 = 已在涨停价排队, 开板按涨停价成交是对的(星光 10/22 例)
+                    if r["side"] == "BUY" and up_ and (r.get("style") == "排板" or px >= up_ - 0.005):
+                        # 10/26 用户复盘芷影林州重机: 06 写"涨停价 3.33 排板、开板才成交", 但普通限价买 3.33 在现价 3.05 时 = 立刻按卖一成交(不是排板);
+                        # 守卫原来把它改成"日内最低反弹 2.32% 买" = 意图从打板变成低吸, 09:34:42 在 3.13 买进 4000 股。
+                        # 改成真正的排板: 条件单"价格到涨停价才买"(封死时卖一空买不进 = 排队, 有卖单 / 开板才成交)
+                        r.update(type="cond", ref="涨停价", dir="up", pct=0, arm=False, book="a1",
+                                 _guarded={"orig_px": r.get("px"), "orig_op": r.get("op"), "at": hm, "p": p_})
+                        done.append(f"{x.get('name') or ''}{c} 原单 买{px:g}(涨停价, 现价 {p_} = 一碰就按市价买, 不是排板) → 改成 排板条件单: 价格到涨停价 {up_:g} 才买")
+                        continue
                     amp = self._amp(c)
                     old = {k: r.get(k) for k in ("px", "op")}
                     if r["side"] == "SELL":
@@ -1326,8 +1574,8 @@ class V3(X.SE):
                     else:
                         r.update(type="cond", ref="日内最低", dir="up", pct=round(min(6.0, max(1.0, 0.5 * amp)), 2), book="a1")
                     r.update(_guarded={"orig_px": old["px"], "at": hm, "p": p_}, _hi=p_, _lo=p_, _armed=True)
-                    done.append(f"{x.get('name') or ''}{c} {'卖' if r['side'] == 'SELL' else '买'}{old['px']} vs 现价 {p_}({(p_ / px - 1) * 100:+.1f}%) → "
-                                f"改条件单: {'日内最高回落' if r['side'] == 'SELL' else '日内最低反弹'} {r['pct']}%")
+                    done.append(f"{x.get('name') or ''}{c} 原单 {'卖' if r['side'] == 'SELL' else '买'}{old['px']}(现价 {p_}, 差 {(p_ / px - 1) * 100:+.1f}%, 一碰就按市价成交) → "
+                                f"改成 条件单: {'日内最高回落' if r['side'] == 'SELL' else '日内最低反弹'} {r['pct']}% 才{'卖' if r['side'] == 'SELL' else '买'}")   # 10/26 PC3 建议: 推送写清 原单 → 改成什么
         if done:
             self.ev(kind="守卫: 挂价偏离现价, 改条件单", items=done[:10], g_pct=g * 100)
             self.wx(f"【{self.skill} 守卫 {hm}】挂价离现价太远(一碰就按市价成交), 已改条件单: " + "; ".join(done)[:500])
@@ -1586,7 +1834,17 @@ class V3(X.SE):
                 self._seen02 = sh02.get("t")
                 T["shared02"] = sh02.get("t")
             (vd / "00_trigger_msg.md").write_text(msg, encoding="utf-8")
-            if self.line.get("debate") and not auction:   # 带 03: 先把 01 交给主会话(只读), 再分叉多空, 最后 04 裁判
+            fast = why.startswith("板事件") and (X.flag("LIVE_BOARD_FAST", "1") or "1") == "1" and isinstance(getattr(self, "_last04", None), dict) and not auction
+            if fast:   # 10/26 用户批: 板事件 → 先只跑 06 快裁(沿用上一版 04 的选票, 不新增票), 同时排队一轮整链重审(未成交的单由重审版替换)
+                r4 = {"ok": True, "json": self._last04, "text": "(板事件快裁: 沿用上一版 04, 没有重跑 02~04)", "usd": 0.0, "err": ""}
+                T["fast06"] = True
+                with self.lock:
+                    rr = "板事件后整链重审: " + why[4:][:200]
+                    if rr not in (self.queued or ""):
+                        self.queued = f"{self.queued}; {rr}" if self.queued else rr
+                        self.queued_counted = False
+                self.ev(kind="板事件快裁", why=why[:200])
+            elif self.line.get("debate") and not auction:   # 带 03: 先把 01 交给主会话(只读), 再分叉多空, 最后 04 裁判
                 core = msg.rsplit("---", 1)[0]
                 if one03:   # 一次调用: 这次的变化 + 03 合成一条消息
                     r3 = self._d03_one(core, vd, T, material=msg, crit=crit)
@@ -1604,7 +1862,9 @@ class V3(X.SE):
         self.facts_sent = src
         if not r4["ok"] and not r4["text"]:
             return fail(f"04 失败: {r4['err']}")
-        if gate_on and not self.fake:   # 10/24 用户批: 04 内容闸(必填深度 / 广度字段、E 编号真实、负样本不当依据、确定性用词带百分比); 不过 → 打回一次
+        if not T.get("fast06") and isinstance(r4.get("json"), dict):
+            self._last04 = r4["json"]   # 板事件快裁沿用这一版 04
+        if gate_on and not self.fake and not T.get("fast06"):   # 10/24 用户批: 04 内容闸(必填深度 / 广度字段、E 编号真实、负样本不当依据、确定性用词带百分比); 不过 → 打回一次
             material = (vd / ("00_boot_msg.md" if T["boot"] else "00_trigger_msg.md")).read_text(encoding="utf-8")
             if not T["boot"]:   # 10/24: E 编号全天固定, 触发消息只重发随价格变的项 → 闸要合看盘前首跑材料
                 material = self._boot_material() + chr(10) * 2 + material
@@ -1646,6 +1906,10 @@ class V3(X.SE):
             auc_field='"auction": true|false, ' if auction else "")
         a06 = "【06 终裁】" + a06.split("】", 1)[-1] + ("\n【harness 指引】06 只把 04 的结论落成单: 新开买单写 04 选了 建 / 加 的票(或上一版已挂的); 04 判清仓的票不再买; 不改 04 的选票和方向。" if gate_on else "") + "\n每条规则的 why 末尾写 `依据：规则编号 / E编号 / 相似日 / 关键价位 / 卖点 / 题材`(可多项, 没有写 `依据：无(理由)`)。" + ("\n【K 线看法(10/25 用户定: K 线是 06 输出的一部分)】codes 里每只有挂单的票加 \"kline\": {\"box\": \"日线 / 15 分钟箱体上下沿 + 现价位置(引用必查「K线结构」的 E 编号)\", \"struct\": \"上升 / 下降 / 震荡 + 关键 K 线事件(假突破 / 假跌破 / 放量长上影 / 缩量回踩…)\", \"view\": \"今天剩余时间 + 明天的走法看法\", \"prob\": {\"ref\": \"E / Q 编号(只能引用必查里代码算好的概率)\", \"value\": 0.0}}; 没有可引用的统计就 \"prob\": {\"ref\": null, \"value\": null, \"why\": \"…\"}" if self.line.get("live") else "") + WAKE_ASK.format(
             card="你是计划模式: 盘中**只有** band 出界或 wake 命中才会叫醒你(成交 / 心跳 / 市况翻转都不会), 所以失效条件要写全。" if self.mode == "plan" else "")
+        if self.line.get("live") and (X.flag("LIVE_BOARD_WAKE", "1") or "1") == "1":   # 10/26 用户: 告诉模型板事件会叫醒它, 不用为了怕错过提前排板
+            a06 += chr(10) + "【板事件叫醒】你必查池 / 持仓 / 有挂单的票出现 首次封板 / 炸板 / 回封 都会自动叫醒你重判(同票 3 分钟一次), 所以不用为了怕错过提前排板; 排板单只在你确定要在板上买时用。"
+        if T.get("fast06"):
+            a06 = "【板事件快裁】" + why[:300] + chr(10) + "只处理上一版 04 已选的票和持仓: 买 / 不买 / 撤单 / 改价, 不新增票; 按下面此刻盘口拍板。几分钟后会整链重审, 没成交的单会被重审版替换。" + chr(10) * 2 + a06
         picks_ = [p_ for p_ in ((r4.get("json") or {}).get("picks") or []) if isinstance(p_, dict)] if isinstance(r4.get("json"), dict) else []
         promB = self._promote({str(p_.get("code")) for p_ in picks_ if p_.get("action") in ("建", "加")}, "04 选了")
         if promB:   # 10/25 B: 04 建 / 加 的票之前只看过简版 → 06 拍板前先看完整必查(同一条 06 消息, 不多一轮)
@@ -1656,6 +1920,7 @@ class V3(X.SE):
                 a06 = self._run_ask(r4["json"], vd, T, crit, state) + a06
             except Exception as e:   # noqa: BLE001  查询出错不拦 06
                 self.ev(kind="04 查询失败", err=repr(e)[:200])
+        self._fresh_seal = self._seal_map()   # 10/26 林州重机: 记下 06 看盘口那一刻每只票封没封, 落单时对照
         a06 = self.fresh_block(at, P, state, strat, r4.get("json"), px) + "\n\n" + a06   # 10/22 晚用户令: 06 拍板前现取一次此刻盘口 / 竞价(01 是开跑时的快照, 04 想完已过 1~3 分钟)
         if use_mech05:   # 10/24: 机械风控上限给 06 看(超了执行器会剔)
             a06 = m05["text"] + "\n\n" + a06
@@ -1790,12 +2055,15 @@ class V3(X.SE):
                 self.ev(kind="未推微信", msg=msg[:120])
                 return
             if "执行器 v" in msg and "成交" not in msg.split("\n")[0]:
-                sig = sorted((x["code"], r.get("side"), r.get("op"), r.get("px"), r.get("qty"), r.get("type")) for x in (self.strategy or {}).get("codes") or [] for r in x.get("rules") or [])
+                st_ = self.strategy or {}
+                sig = sorted((x["code"], r.get("side"), r.get("op"), r.get("px"), r.get("qty"), r.get("type"), r.get("style")) for x in st_.get("codes") or [] for r in x.get("rules") or [])
+                # 10/26 15:3x 用户: 任何一条线挂单 / 叫醒条件 / 成交变了都要推这条线(多线同时出由总线合并) —— 原来"没挂单就不推", 空仓线只剩叫醒线时一条都看不到
+                wk = json.dumps(st_.get("wake"), ensure_ascii=False, sort_keys=True, default=str)
                 key_ver = "开盘前首版" in msg or "竞价段" in msg   # 10/23 用户问: 盘前版和竞价版一定推(没挂单也推, 让你知道今天的计划)
-                if not key_ver and (not sig or sig == getattr(self, "_wx_sig", None)):
-                    self.ev(kind="未推微信", msg="挂单没变 / 没有挂单: " + msg[:80])
+                if not key_ver and (sig, wk) == getattr(self, "_wx_sig", None):
+                    self.ev(kind="未推微信", msg="挂单 / 叫醒条件都没变: " + msg[:80])
                     return
-                self._wx_sig = sig
+                self._wx_sig = (sig, wk)
             msg = self._pretty(msg)
         else:
             msg = (f"⚠️ [实盘线] {self.line['name']}skill: " if self.line.get("live") else f"⚠️ [paper v3 · {self.line.get('name', self.line['id'])}] ") + msg
@@ -1926,6 +2194,8 @@ class V3(X.SE):
             if up and q_.get("p") and q_["p"] >= up - 1e-6 and not (q_.get("a1") or 0):
                 sealed.add(x["code"])
         self._sealed = sealed
+        if not auction and hm >= "09:30" and self.line.get("live"):
+            self._board_watch(hm)
         fills = super().tick(hm, auction)
         if auction is True:   # 条件单的"开盘价" = 09:25 撮合价
             self._dopen = {c: q_.get("p") for c, q_ in self.feed.q.items() if q_.get("p")}

@@ -1,0 +1,9 @@
+--- v026_20261026-2001/scripts/claude_profile/chain_flags.txt
++++ v027_20261026-2109/scripts/claude_profile/chain_flags.txt
+@@ -195,2 +195,6 @@
+ LIVE_BOARD_CD=180   # 同票板事件冷却秒数(期间新事件只记最新板态, 并进下一次)
+ LIVE_BOARD_OPEN_S=18   # 开板持续多少秒算炸板(同 signals S4a)
++SIG_VISION=1   # 10/26 20:1x 用户: 股票推送少 → 盘口池里不在盯盘名单的股票也出强势 / 板类信号(视野票, 普通通道 + 动态冷却); 0 = 只盯名单
++LIVE_ONLY=zhiyingjuexin,liuyiqing,zuoshoudeirong,buchitudou0,taoge   # 10/26 20:2x 用户令: 10/27 起只跑这 5 条(去掉卢本圆), 从盘前首跑开始; 空 = 按选人规则(入选导师 + 桃哥 / 卢本圆)
++EXEC_INTENT_TABLE=1   # 10/26 晚用户批: 06 只写意图(必须走 / 想走 / 冲高卖 / 低吸 / 打板 / 必须买), 执行器按落单那一刻盘面选挂法(executor._intent_expand 选型表 v2); 0 = 模型自己选挂法
++EXEC_REBOUND_DEADLINE_MIN=60   # 选型表 急跌 → 反抽卖 那一半: 多少分钟没反抽到点按买一卖

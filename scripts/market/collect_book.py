@@ -49,6 +49,9 @@ def sym(code):
         return ("sh" if code[0] in "569" else "sz") + code
 
 
+EXTRA = set()   # 手动加录名单(scripts/temp/collect_book_extra.txt), watch() 每次刷新
+
+
 def watch(D):
     codes = {"601988", "159941"}   # 做 T 账本标的(10/23 去掉牧原 002714: 用户 10/20 已清仓, 牧原三本账跟随实盘不再做 T; 实盘持仓由下面 snapshots 导出自动加)
     real = set()   # 用户实盘成交里出现过的票
@@ -83,7 +86,9 @@ def watch(D):
             codes |= {stk[c] for c in list(codes) if stk.get(c, "").isdigit()}
         ex = ROOT / "scripts" / "temp" / "collect_book_extra.txt"
         if ex.exists():
-            codes |= set(re.findall(r"(?<!\d)\d{6}(?!\d)", ex.read_text(encoding="utf-8")))
+            EXTRA.clear()
+            EXTRA.update(re.findall(r"(?<!\d)\d{6}(?!\d)", ex.read_text(encoding="utf-8")))
+            codes |= EXTRA
     except Exception:   # noqa: BLE001
         pass
     se = set()   # 10/21 晚: 新 paper 策略执行器(15 条)的持仓 + 当前策略里的票, 优先录(成交要靠 3 秒盘口)
@@ -100,6 +105,7 @@ def watch(D):
     T0 = set(codes) & ({"601988", "159941"} | real | se)   # T0 执行要用的: 做 T 标的 / 你的实盘持仓 / paper 执行器持仓 + 当前策略里的票
     try:
         T1 = {stk[c] for c in T0 if stk.get(c, "").isdigit()} - T0   # T1 这些转债的正股
+        T1 |= EXTRA - T0   # 10/26 用户令: 手动加录名单是用户点名要看的(东百集团 / 国芳集团), 原来落在最低档被 FILL_TO 挤掉 → 提到 T1
     except NameError:
         T1 = set()
     T2 = mentor_hold_codes(D)   # T2 导师真人昨天收盘持仓 + 昨天成交过的

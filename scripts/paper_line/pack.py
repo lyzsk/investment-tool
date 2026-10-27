@@ -631,6 +631,15 @@ def must_check(line, D, codes, names, state, quotes=None, tags=None, ereg=None, 
                         items.append(("封板状态", bsi))
                 except Exception as e:   # noqa: BLE001
                     items.append(("封板状态", f"查询失败 {e!r}"[:80]))
+            if c in held and c[:1] in ("0", "3", "6") and clock_hms() >= "09:25:00":   # 10/26 用户点评: 竞价跌停被抢上来的水下票 ≠ 水上冲高, 各线都在开盘第一波就卖错了
+                try:
+                    sys.path.insert(0, str(ROOT / "scripts" / "live"))
+                    import open_class as OC
+                    oci = OC.item(c, D)
+                    if oci:
+                        items.append(("开盘情境", oci))
+                except Exception as e:   # noqa: BLE001
+                    items.append(("开盘情境", f"查询失败 {e!r}"[:80]))
             if full and c[:1] in ("0", "3", "6"):   # 10/22 晚用户批: 强势股次日溢价(strong_next) + 导师卖点分位(动态) 进必查
                 try:
                     import strong_next as SN

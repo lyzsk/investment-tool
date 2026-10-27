@@ -1168,6 +1168,12 @@ px 在涨跌停之间; qty 为 100 的整数倍(卖出可等于全部可卖); �
                     self.restrategize("尾盘竞价版(15:00 前出, 规则进 14:57~15:00 尾盘竞价)", counted=False, tag="tail")
             if "11:30" < hm < "13:00":
                 self.heartbeat("午休")
+                kp_ = getattr(self, "_maybe_keepalive", None)
+                if kp_ and not (getattr(self, "dormant", None) and self.dormant()):   # 10/26 用户看回看页: 午休 90 分钟 > 1 小时缓存, 原来午休循环不调保温 → 13:00 缓存已过期、保温整段重写($1.66); 午休中间也按空闲 50 分钟续一次
+                    try:
+                        kp_(hm)
+                    except Exception as e:   # noqa: BLE001
+                        self.ev(kind="午休保温失败", err=repr(e)[:160])
                 time.sleep(20)
                 continue
             try:

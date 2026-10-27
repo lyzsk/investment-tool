@@ -272,6 +272,15 @@ def pool(skill, D, state, strategy, facts, at=None):
                     src.setdefault(c, "用户加")
     except OSError:
         pass
+    try:   # 10/26 晚用户令: 明日备案(前一晚 check md 机械算: 明日聚焦题材的梯队票 / 题材套利债)提前埋进候选池; 转债导师拿转债, 其余拿股票
+        sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+        import expect as EXP
+        import strong_themes as STH0
+        e_ = EXP.load(D) or {}
+        for c, th in ((e_.get("候选") or {}).get("转债" if STH0.scope(skill)["cb"] else "股票") or [])[:16]:
+            src.setdefault(str(c), f"备案·{th}")
+    except Exception:   # noqa: BLE001  备案没有 / 算不出来不挡候选池
+        pass
     try:
         sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
         import strong_themes as STH
@@ -490,6 +499,12 @@ def build_01(skill, D, at, why, state, strategy, fired, quotes, facts, open_text
         mood += chr(10) * 2 + STH.block(skill, D, at)
     except Exception as e:   # noqa: BLE001
         mood += chr(10) * 2 + f"(今日强题材读取失败 {e!r})"[:120]
+    try:   # 10/26 晚用户令: 明日备案(前一晚机械算的项目整合视角, 全线共用): 情绪聚焦 / 明日聚焦题材(延续概率 + 流转)/ 梯队 / 题材套利债
+        ef = ROOT / "results" / "_live" / D / "expect.md"
+        if ef.exists():
+            mood += chr(10) * 2 + ef.read_text(encoding="utf-8")
+    except OSError:
+        pass
     h = hz.get(skill) or hz.get("_default") or {}
     txt = f"""# 01 事实({D} {at}, 脚本生成)
 触发原因: {why}

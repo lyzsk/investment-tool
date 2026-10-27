@@ -235,8 +235,8 @@
      "base": 0.765
     }
    },
-   "next_avg": 0.0127,
-   "next_n": 77,
+   "next_avg": 0.0107,
+   "next_n": 78,
    "examples": [
     {
      "date": "2026-10-23",
@@ -248,7 +248,7 @@
      "rate": -0.0267,
      "hold": 13,
      "sell_t": null,
-     "next": null
+     "next": -0.1447
     },
     {
      "date": "2026-10-22",
@@ -319,8 +319,8 @@
      "base": 0.765
     }
    },
-   "next_avg": -0.005,
-   "next_n": 28,
+   "next_avg": -0.0098,
+   "next_n": 29,
    "examples": [
     {
      "date": "2026-10-23",
@@ -332,7 +332,7 @@
      "rate": -0.0267,
      "hold": 13,
      "sell_t": null,
-     "next": null
+     "next": -0.1447
     },
     {
      "date": "2026-10-19",
@@ -402,8 +402,8 @@
      "base": 0.765
     }
    },
-   "next_avg": -0.0017,
-   "next_n": 44,
+   "next_avg": -0.0049,
+   "next_n": 45,
    "examples": [
     {
      "date": "2026-10-23",
@@ -415,7 +415,7 @@
      "rate": -0.0267,
      "hold": 13,
      "sell_t": null,
-     "next": null
+     "next": -0.1447
     },
     {
      "date": "2026-10-22",
@@ -655,8 +655,8 @@
      "base": 0.765
     }
    },
-   "next_avg": 0.0032,
-   "next_n": 95,
+   "next_avg": 0.0016,
+   "next_n": 96,
    "examples": [
     {
      "date": "2026-10-23",
@@ -668,7 +668,7 @@
      "rate": -0.0267,
      "hold": 13,
      "sell_t": null,
-     "next": null
+     "next": -0.1447
     },
     {
      "date": "2026-10-22",
@@ -740,8 +740,8 @@
      "base": 0.765
     }
    },
-   "next_avg": -0.0014,
-   "next_n": 66,
+   "next_avg": -0.0036,
+   "next_n": 67,
    "examples": [
     {
      "date": "2026-10-23",
@@ -753,7 +753,7 @@
      "rate": -0.0267,
      "hold": 13,
      "sell_t": null,
-     "next": null
+     "next": -0.1447
     },
     {
      "date": "2026-10-19",
@@ -2582,8 +2582,8 @@
      "base": 0.789
     }
    },
-   "next_avg": 0.006,
-   "next_n": 50,
+   "next_avg": 0.003,
+   "next_n": 51,
    "examples": [
     {
      "date": "2026-10-23",
@@ -2595,7 +2595,7 @@
      "rate": -0.0267,
      "hold": 13,
      "sell_t": null,
-     "next": null
+     "next": -0.1447
     },
     {
      "date": "2026-10-22",

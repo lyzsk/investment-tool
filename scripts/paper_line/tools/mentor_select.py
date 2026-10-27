@@ -23,6 +23,18 @@ sys.path[:0] = [str(ROOT / "scripts" / "lib"), str(ROOT / "scripts" / "backfill_
 N, STALE = 20, 20   # 10/24 用户: 停更 = 账本连续 ≥20 个交易日没更新(daily_health 原 30 天、复活检查原 10 天, 取中间统一 20)
 FRESH = 5   # 10/25 用户: 盘前选人更严格 —— 账本最近净值日落在 T−1 之前第 5 个交易日或更早(= 连续 ≥5 个交易日没更新) → 不进盘前名单(记"近 5 日没更新"); 和停更(20 日)是两个口径
 MIN_AVG, MIN_RET20 = 0.2, 10.0   # 10/24 用户定: 日均收益率 < 0.2% 或 近 20 日收益率 < 10% → 样例(不进实盘线盘前 skill 名单)
+def _only():
+    """chain_flags.txt LIVE_ONLY=skill,skill,…(空 = 按选人规则)"""
+    try:
+        for l in (Path(__file__).resolve().parents[3] / "scripts" / "claude_profile" / "chain_flags.txt").read_text(encoding="utf-8").splitlines():
+            k, _, v = l.split("#")[0].partition("=")
+            if k.strip() == "LIVE_ONLY":
+                return [x.strip() for x in v.split(",") if x.strip()]
+    except OSError:
+        pass
+    return []
+
+
 UPS = ["taoge", "lubenyuan"]   # 10/25 用户: 趋势天哥没有公布自选 / 持仓、风格是机构大票和短线不匹配 → 不做 live line 的线, 只当市况参考(盘后评盘进事实包公共节, 开关 CHAIN_TIANGE_MARKET), 类似发哥
 
 
@@ -75,6 +87,10 @@ def select(D):
         out.append(r)
     out.sort(key=lambda x: (x["role"] != "入选", -(x.get("avg") or -99)))
     pre = [x["id"] for x in out if x["role"] == "入选"] + UPS
+    only = _only()
+    if only:   # 10/26 晚用户令: 明天起只跑指定几条(从盘前首跑开始); 名单里的导师不管入没入选都跑, 顺序 = 排名顺序, UP 在后
+        rk = [x["id"] for x in out]
+        pre = [i for i in rk if i in only] + [u for u in UPS if u in only] + [i for i in only if i not in rk and i not in UPS]
     return {"D": D, "T-1": d1, "ranked": out, "premarket": pre, "active": pre, "keep": None,
             "口径": f"近 {N} 个交易日收益 ≥{MIN_RET20:g}% 且日均 ≥{MIN_AVG}% 入选(按日均收益率排); 最近净值日 ≤ {fresh_at}(连续 ≥{FRESH} 个交易日没更新)→ 不进盘前名单; 最近净值日 ≤ {stale_at}(≥{STALE} 个交易日)= 停更 → 样例; 不加回撤 / 出手次数门槛(10/25 用户定); 不剔单日异常收益; 2 位 UP(桃哥 / 卢本圆)固定进盘前, 趋势天哥只当市况参考",
             "built": dt.datetime.now().isoformat(timespec="seconds")}

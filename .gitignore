@@ -115,3 +115,6 @@ scripts/tzzb/mentor_cards/2099-*.json
 
 # 10/25: 含实盘持仓 / 成本的页面(实盘线从真实持仓起步), 放 docs 方便看但不进 git(实盘隐私立法)
 docs/private/
+
+# 10/26 用户批移出 git: 07 复盘运行时队列
+scripts/md/review07_queue.jsonl

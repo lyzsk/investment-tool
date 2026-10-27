@@ -26,17 +26,18 @@ HERE = Path(__file__).resolve().parent
 QDIR = HERE / "state" / "push_queue"
 MAXC = 1800
 GAP_S = 31
+_ARR = []   # 最近到达的盘面信号 (ts, 通道) —— 动态攒批窗口用
 
 
 def _qf(D):
     return QDIR / f"{D}.jsonl"
 
 
-def enqueue(text, src="", urgent=False, key=None, D=None):
+def enqueue(text, src="", urgent=False, key=None, D=None, fast=False, slow=False):
     """生产方调用: 追加一行就返回(不等发送)"""
     D = D or dt.date.today().isoformat()
     QDIR.mkdir(parents=True, exist_ok=True)
-    rec = {"ts": time.time(), "at": dt.datetime.now().strftime("%H:%M:%S"), "src": src, "urgent": bool(urgent), "key": key, "text": text}
+    rec = {"ts": time.time(), "at": dt.datetime.now().strftime("%H:%M:%S"), "src": src, "urgent": bool(urgent), "fast": bool(fast), "slow": bool(slow), "key": key, "text": text}
     with _qf(D).open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
     return True
@@ -57,6 +58,8 @@ def window(pending, remaining):
     """→ (这批要等几秒, 这批发哪些); remaining = 剩余额度(None = 不知道, 按充足算)"""
     r = 10 if remaining is None else remaining
     urg = [e for e in pending if e["urgent"]]
+    if any(e.get("fast") for e in pending) and r >= 1:   # 10/26 用户: 回封预警要提前 → 快车道; 12:36 用户补: 快车道也要合并, 只是攒批短 → 等 8 秒把同时出的几条合成一条
+        return 5, pending if r >= 3 else [e for e in pending if e.get("fast") or e["urgent"]]   # 10/26 15:2x: 8 → 5 秒
     if r <= 2:
         if urg:
             return 10, urg
@@ -64,24 +67,39 @@ def window(pending, remaining):
         return (0 if time.time() - oldest >= 1200 else 10 ** 9), pending   # 非急件攒满 20 分钟才发
     if urg and r >= 3:
         return 10, pending
+    # 10/26 20:0x 用户批: 普通 / 慢通道按到达频率动态攒批 —— 来得越密攒得越久, 目标每 10 分钟普通通道约 3 条
+    now_ = time.time()
+    if all(e.get("slow") for e in pending):   # 只剩回踩均价(S2): 3~10 分钟
+        n15 = sum(1 for t, ln in _ARR if ln == "slow" and now_ - t < 900)
+        return int(min(600, max(180, 180 * n15 / 3))), pending
+    if all(e.get("src") == "live_signal" for e in pending):   # 普通通道(含顺带的慢通道): 15 秒 ~ 3 分钟
+        n10 = sum(1 for t, ln in _ARR if ln == "norm" and now_ - t < 600)
+        return int(min(180, max(15, 15 * n10 / 3))), pending
     return (20 if r >= 6 else 60), pending
 
 
 def compose(items, remaining):
     items = sorted(items, key=lambda e: (not e["urgent"], e["ts"]))
     head = f"📦 {dt.datetime.now():%H:%M} 合并推送({len(items)} 条)"
-    out, n, size = [], 0, len(head)
+    out, took, size = [], [], len(head)
     for e in items:
         t = e["text"].strip()
         if out and size + len(t) + 8 > MAXC:
-            break
+            continue   # 10/26: 装不下的大条留到下一批, 继续往里塞后面的小条(原来 break = 小条也被卡住)
         out.append(t if len(t) <= MAXC - len(head) - 10 else t[:MAXC - len(head) - 30] + "…(截断)")
+        took.append(e)
         size += len(t) + 8
-        n += 1
-    body = head + "\n" + "\n———\n".join(out)
+    body = head.replace(f"({len(items)} 条)", f"({len(took)} 条)") + "\n" + "\n———\n".join(out)
     if remaining is not None and remaining <= 3:
         body += "\n(微信额度快用完, 方便时回个字)"
-    return body, items[:n]
+    return body, took
+
+
+def _save_pending(pf, pending):
+    try:
+        pf.write_text(json.dumps(pending, ensure_ascii=False), encoding="utf-8")
+    except OSError:
+        pass
 
 
 def log(D, s):
@@ -96,8 +114,13 @@ def run(D, dry=False, until="15:05:00", once=False):
     import wx_send
     f = _qf(D)
     off, pending, last_send, n_sent = 0, [], 0.0, 0
+    pf = HERE / "state" / f"push_bus_{D}.pending.json"   # 10/26: 重启前没发出去的队列存这里, 重启续上(原来重启 = 丢掉)
     if f.exists():   # 重启续跑: 已有的行算处理过(避免重发)
         off = f.stat().st_size
+        try:
+            pending = json.loads(pf.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            pending = []
     log(D, f"dispatcher 启动 dry={dry} 起点 {off}")
     while dt.datetime.now().strftime("%H:%M:%S") < until:
         if f.exists() and f.stat().st_size > off:
@@ -108,10 +131,14 @@ def run(D, dry=False, until="15:05:00", once=False):
                         e = json.loads(l)
                     except ValueError:
                         continue
+                    if e.get("src") == "live_signal":   # 记到达时刻(动态攒批用)
+                        _ARR.append((e.get("ts") or time.time(), "fast" if e.get("fast") else "slow" if e.get("slow") else "norm"))
+                        del _ARR[:-300]
                     if e.get("key"):
                         pending = [x for x in pending if x.get("key") != e["key"]]   # 新一版顶掉还没发的旧版
                     pending.append(e)
                 off = fh.tell()
+            _save_pending(pf, pending)
         if pending and time.time() - last_send >= GAP_S:
             try:
                 t0, used = wx_send.quota()
@@ -127,6 +154,7 @@ def run(D, dry=False, until="15:05:00", once=False):
                 n_sent += 1
                 ids = {id(x) for x in sent}
                 pending = [x for x in pending if id(x) not in ids]
+                _save_pending(pf, pending)
                 log(D, f"发 {len(sent)} 条 → {r}; 剩余额度 {remaining}; 队列还剩 {len(pending)}; 来源 {sorted({x['src'] for x in sent})}")
         if once and n_sent and not pending:
             break

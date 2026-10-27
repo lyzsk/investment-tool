@@ -3,7 +3,7 @@
 # 字段: def = 定义; mech = 代码怎么判 / 数据里的标签在哪(没有 = 只是口径); ban = 禁用的同义词 / 旧叫法
 # 标 👤待你定 的是我按代码现状写的, 等你改
 version: 1
-updated: 2026-10-24
+updated: 2026-10-26
 
 rules:
   - "股票 / 转债 / ETF 名一律用全称(证券库 security_master 的名称), 第一次出现带 6 位代码: 北新路桥(002307), 不写北新 / 阿慈 / 宁王; 昵称表 scripts/live/stock_aliases.json"
@@ -97,5 +97,11 @@ terms:
   - {term: "计划核销", def: "晚上把盘前计划的每个情景和实际走势逐条对", ban: ["影子账核销"]}
   - {term: "你的决策日志", def: "用户在微信回 照 / 偏 + 理由 的记录"}
   - {term: "候选池", def: "04 只能从里面选的票(上限 100 行)", mech: "chain_steps.pool"}
-  - {term: "必查范围", def: "持仓 + 发哥提到的 + 入选导师 T−1 操作过的 + UP 提到的 + 盘前提到的 + 候选池前 50; 动态出池只影响必查", mech: "tools/watch_set.py"}
+  # ---------------- 池子统一叫法(10/26 用户点头; 包含关系 持仓 ⊂ 信号池 ⊂ 盘口池, 点名池 / 必查池都并进信号池) ----------------
+  - {term: "持仓", def: "用户实盘持仓 + 各线账上持仓", mech: "snapshots 最近持仓导出 + results/_live/<日>/live_*/state.json positions"}
+  - {term: "点名池", def: "用户手动点名加的票, 只进不自动出, 用户说删才删(例 10/26 东百集团、国芳集团 + 6 只消费票)", mech: "scripts/temp/collect_book_extra.txt; 盘口池 T1 档 + 信号池"}
+  - {term: "必查池", def: "各线给模型看的观察票: 持仓 + 发哥提到的 + 入选导师 T−1 操作过的 + UP 提到的 + 盘前提到的 + 电报点名 + 候选池前 50; 完整必查只展开前 20; 动态出池只影响必查", mech: "tools/watch_set.py → live_*/must_state.json watch(带来源标签)", ban: ["必查范围", "候选池前50", "候选池前 50"]}
+  - {term: "信号池", def: "出分时信号、推微信的范围 = 必查池 ∪ 持仓 ∪ 点名池(10/26 起再加: 当日涨停个股的转债, T+1 正股没连板就退出)", mech: "scripts/live/signals.py watch_codes", ban: ["盯盘池", "盯盘名单"]}
+  - {term: "盘口池", def: "每 3 秒录五档盘口的名单(200 只, 分 T0~T5 六档, 满了低档先被挤出); 只录数据不推送", mech: "scripts/market/collect_book.py watch()", ban: ["3S盘口池", "3 秒盘口池", "3S 盘口池"]}
+
   - {term: "共用 02", def: "市况会话写的 02, 全部账本共用, 触发式刷新", mech: "market02.py"}

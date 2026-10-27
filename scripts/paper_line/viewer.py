@@ -59,6 +59,51 @@ def k3(s):
     return sum((s.get(k) or 0) / 1e6 * v for k, v in K3.items())
 
 
+def trade_audit(bdir, trades, ev):
+    """10/26 用户: 回看页里逐笔人工审 BS 点的来源和触发 —— 成交 → 哪一版 chain(规则 key = 版本号:代码:规则 id)→ 这版为什么被叫醒 → 04 对这只票的结论 → 06 这条规则原文 → 执行器怎么撮合(守卫改单 / 条件单)"""
+    vdirs = sorted(bdir.glob("versions/*"))
+    out = []
+    for t in trades:
+        key = str(t.get("rule") or "")
+        parts = key.split(":")
+        vi = int(parts[0]) if parts and parts[0].isdigit() else None
+        vd = vdirs[vi - 1] if vi and 0 < vi <= len(vdirs) else None
+        a = {"t": t.get("t"), "side": t.get("side"), "code": t.get("code"), "name": t.get("name"), "qty": t.get("qty"), "px": t.get("px"), "rule": key, "cond": t.get("cond"),
+             "ver": vd.name if vd else None}
+        if vd:
+            tm = jl(vd / "timing.json", {}) or {}
+            a["why_wake"] = tm.get("why")
+            a["chain_start"] = tm.get("start")
+            j4 = jl(vd / "04.json", {}) or {}
+            for c in (j4.get("picks") or j4.get("codes") or []):
+                if isinstance(c, dict) and str(c.get("code")) == str(t.get("code")):
+                    a["pick04"] = {k: c.get(k) for k in ("action", "why", "default", "checked", "rebut") if c.get(k)}
+                    break
+            j6 = jl(vd / "06.json", {}) or {}
+            for c in j6.get("codes") or []:
+                if str(c.get("code")) == str(t.get("code")):
+                    rid = parts[2] if len(parts) > 2 else None
+                    r = next((r for r in c.get("rules") or [] if r.get("id") == rid), None)
+                    if r:
+                        a["rule06"] = {k: v for k, v in r.items() if not str(k).startswith("_")}
+                    a["kline06"] = c.get("kline")
+                    break
+            a["view06"] = str(j6.get("view") or "")[:300]
+        tt = str(t.get("t") or "")
+        a["exec"] = [e for e in ev if str(t.get("code")) in json.dumps(e, ensure_ascii=False) and e.get("kind") in ("守卫: 挂价偏离现价, 改条件单", "条件单成交", "06 自动修", "竞价单挂出", "未见成交剔买单", "板事件叫醒")
+                     and (not tt or abs(_sec(e.get("t")) - _sec(tt)) <= 600)][:6]
+        out.append(a)
+    return out
+
+
+def _sec(t):
+    try:
+        h, m, s = (int(x) for x in str(t)[:8].split(":"))
+        return h * 3600 + m * 60 + s
+    except ValueError:
+        return 0
+
+
 def book(bdir, line):
     vers = []
     for vd in sorted(bdir.glob("versions/*")):
@@ -86,7 +131,8 @@ def book(bdir, line):
     st = jl(bdir / "state.json", {}) or {}
     summ = (bdir / "summary.md").read_text(encoding="utf-8").split("\n")[0] if (bdir / "summary.md").exists() else ""
     m = re.search(r"模拟账 (\d+)\(开盘 (\d+), ([+-][\d.]+)%\)", summ)
-    return {"id": line["id"], "name": line.get("name"), "mode": line.get("mode"), "kind": line.get("kind"), "skill": line.get("skill"),
+    audit = trade_audit(bdir, st.get("trades") or [], ev)
+    return {"id": line["id"], "name": line.get("name"), "mode": line.get("mode"), "kind": line.get("kind"), "skill": line.get("skill"), "audit": audit,
             "nav0": int(m.group(2)) if m else None, "nav1": int(m.group(1)) if m else None, "ret": float(m.group(3)) if m else None,
             "trades": st.get("trades") or [], "positions": st.get("positions") or {},
             "events": [e for e in ev if e.get("kind") not in NOISY],

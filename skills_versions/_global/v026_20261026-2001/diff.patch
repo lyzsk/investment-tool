@@ -1,0 +1,9 @@
+--- v025_20261026-1927/scripts/claude_profile/chain_flags.txt
++++ v026_20261026-2001/scripts/claude_profile/chain_flags.txt
+@@ -167,5 +167,5 @@
+ LIVE_DIGEST_AT=09:12:00   # 盘前各版没全落地也在这时推盘前汇总(一条微信)
+ LIVE_KEEP_AT=09:19:00   # 这时起只有留下的线叫模型(竞价复核起); 其余休眠: 不叫模型 / 不保温, 已挂的单照样撮合; keep.py 随时加回 / 收束
+-LIVE_DEFAULT_KEEP=3   # 用户到 LIVE_KEEP_AT 还没挑 = 留下入选导师前 N 位(all = 全留)
++LIVE_DEFAULT_KEEP=all   # 用户到 LIVE_KEEP_AT 还没挑 = 留下入选导师前 N 位(all = 全留)
+ LIVE_PUSH=1   # 留下的线出新挂单 / 成交推微信(0 = 只推盘前汇总和告警)
+ LIVE_AUC_SKIP=0   # 10/25 用户: 漏叫一次的代价 > 多叫一次 → 09:20 竞价复核同 paper v3 照样叫模型(代码先对照盘前情景, 结果附在叫醒原因里); 1 = 全部落在情景内就不叫模型、直接挂计划里的竞价单

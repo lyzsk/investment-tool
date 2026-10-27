@@ -129,7 +129,14 @@ def split(msg, mx):
 
 
 # ================================================================ 发送
+def pc_lines(msg):
+    """10/26 晚用户实测(A~E 五种写法): 电脑微信 + 手机都只有"每行之间空一行"(C)能一行一行显示 → 单换行一律变空一行, 连续空行压成一个"""
+    L = [l.rstrip() for l in msg.replace("\r\n", "\n").split("\n")]
+    return "\n\n".join(l for l in L if l.strip())
+
+
 def _hermes(msg):
+    msg = pc_lines(msg)
     fd, p = tempfile.mkstemp(suffix=".txt", prefix="wx_")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:

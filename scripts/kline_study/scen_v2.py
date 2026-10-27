@@ -445,6 +445,8 @@ def _knn_pool(T, cur):
     zp = ((Z.fillna(med) - med) / sd).to_numpy() * w
     zc = ((cur[cols].astype(float).fillna(med) - med) / sd).to_numpy() * w
     dist = np.sqrt(((zp - zc) ** 2).sum(1)) + np.where(pool["typ"].values == cur["typ"], 0, 3.0)
+    if "is_cb" in pool.columns:   # 10/26: 转债优先找转债近邻, 股票优先找股票
+        dist = dist + np.where(pool["is_cb"].values == cur.get("is_cb", 0), 0, 2.0)
     return pool, dist
 
 
@@ -622,7 +624,7 @@ def mentor_sell_after(cur, pool_all):
 def scen(code, T, horizon=2, kind="prod"):
     """→ dict: top3 单日 / top3 两日组合 / 极端情景 / 代表样本(真实路径 + 分钟) / 因子贡献 / 同类证据 / 样本外摘要"""
     df = feat()
-    sym = ("sh" if code.startswith("6") else "sz") + code
+    sym = ("sh" if code.startswith(("6", "11")) else "sz") + code   # 10/26: 转债 sh11 / sz12
     row = df[(df["symbol"] == sym) & (df["trade_date"] == T)]
     if row.empty:
         raise ValueError(f"{code} {T} 不在特征表里(特征表最新 {df['trade_date'].max()}; 先 python scen_v2.py build)")

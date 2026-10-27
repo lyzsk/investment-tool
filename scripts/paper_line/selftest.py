@@ -32,6 +32,9 @@ import os   # noqa: E402
 os.environ["EXEC_FULL_PAUSE"] = "0"   # 同 executor.main(v3 不停触发)
 os.environ["LIVE_LINE"] = "0"   # 10/24: 基础用例按 lines.json 的 paper v3 账本跑; 实盘线用例(live_tests)自己临时打开
 CLK = {"t": "09:00:05"}
+# 10/26 晚: ⑮⑯ 用星光股份 002076 涨停价 2.70 写的用例; 日线文件每天更新(10/26 收 2.24 → 2099 测试日涨停 2.46)导致 3 项假失败 → 测试里钉死昨收 2.45(涨停 2.70)
+_pc0 = E.X.prev_close
+E.X.prev_close = lambda c, d: 2.45 if str(c) == "002076" else _pc0(c, d)
 E.X.now = lambda: dt.datetime.combine(dt.date.fromisoformat(D), dt.time.fromisoformat(CLK["t"]))   # 假钟(exec_base 里所有 now() 都走它)
 OK, BAD = [], []
 
@@ -493,6 +496,7 @@ def run():
         f_ = st_.tick("10:50")
         check("⑮排板单开板时按 2.70 成交(不是 2.58)", len(f_) == 1 and f_[0]["px"] == 2.70, str(f_[:1]))
         st2 = E.V3(L["zhiying_noise"], D, fake=True)
+        st2.state["positions"].pop("002076", None)   # 10/26 晚: 上一例已买进 1000@2.70(同账本), 现价 2.60 < 成本 → 会被"浮亏不越跌越补"改成等反转; 本例测的是空仓立即成交
         st2.feed.q["002076"] = {"p": 2.60, "t": "10:51:00", "b1": 2.59, "a1": 2.60}
         st2._pool = {"002076"}
         s2, _ = st2.check({"view": "x", "codes": [{"code": "002076", "band": [2.0, 3.0], "rules": [{"id": "r1", "side": "BUY", "op": "<=", "px": 2.65, "qty": 1000, "why": "立刻可成交"}]}]})
@@ -520,6 +524,59 @@ def run():
         dp.strategy, dp.ver = sd, 1
         f2 = dp.tick("10:53")
         check("⑯立刻成交按深度吃档(500@10.00 + 1000@10.01)", len(f2) == 1 and f2[0]["qty"] == 1500 and abs(f2[0]["px"] - 10.007) < 0.001, str(f2[:1]))
+        # ---------- 10/26 晚 选型表: 06 只写意图, 执行器按落单那一刻盘面选挂法 ----------
+        def _it(t, q, dopen, hl, rules, pos=2000):
+            CLK["t"] = t
+            b_ = E.V3(L["zhiying_noise"], D, fake=True)
+            b_._pool = {"002076"}
+            b_._lim = {"002076": 2.70}
+            b_.feed.q["002076"] = q
+            b_._dopen = {"002076": dopen}
+            b_._dayhl = {"002076": hl}
+            b_.state["positions"]["002076"] = {"qty": pos, "cost": 2.5, "sellable": pos}
+            s_, _ = b_.check({"view": "x", "codes": [{"code": "002076", "band": [2.0, 3.0], "rules": rules}]})
+            b_.strategy, b_.ver = s_, 1
+            return b_, ((s_ or {}).get("codes") or [{}])[0].get("rules") or []
+        jb, jr = _it("10:00:00", {"p": 2.40, "t": "10:00:00", "b1": 2.39, "a1": 2.40, "b": [[2.39, 90000]], "k": [[2.40, 90000]]}, 2.55, (2.38, 2.58),
+                     [{"id": "r1", "intent": "想走", "ratio": 1, "why": "测"}])
+        check("㊿b 选型表·急跌中想走 → 一半反抽卖(日内最低反弹, 带截止时间) + 一半移动止盈, 数量 1000 / 1000",
+              [(r.get("style"), r.get("ref"), r.get("dir"), r.get("qty")) for r in jr] == [("反抽卖", "日内最低", "up", 1000), ("移动止盈", "日内最高", "down", 1000)] and bool(jr[0].get("deadline")), str(jr))
+        pct_ = float(jr[0]["pct"]) / 100
+        jb.feed.q["002076"] = {"p": 2.30, "t": "10:01:00", "b1": 2.29, "a1": 2.30, "b": [[2.29, 90000]], "k": [[2.30, 90000]]}
+        f0 = jb.tick("10:01")
+        rb = round(2.30 * (1 + pct_) + 0.01, 2)
+        jb.feed.q["002076"] = {"p": rb, "t": "10:03:00", "b1": round(rb - 0.01, 2), "a1": rb, "b": [[round(rb - 0.01, 2), 90000]], "k": [[rb, 90000]]}
+        CLK["t"] = "10:03:00"
+        f1 = jb.tick("10:03")
+        check("㊿b 急跌后跌到 2.30 不卖, 从最低反弹够 0.8×振幅 才按买一卖出一半", not [t for t in f0 if t.get("side") == "SELL"] and [t["qty"] for t in f1 if t.get("side") == "SELL"] == [1000], f"f0={f0} f1={f1}")
+        _, jr2 = _it("10:05:00", {"p": 2.70, "t": "10:05:00", "b1": 2.70, "a1": 0, "b": [[2.70, 90000]], "k": [[0.0, 0]]}, 2.50, (2.45, 2.70),
+                     [{"id": "r1", "intent": "冲高卖", "ratio": 1, "why": "测"}])
+        check("㊿b 封着涨停时想走 → 炸板走(涨停价回落)", [(r.get("style"), r.get("ref")) for r in jr2] == [("炸板走", "涨停价")], str(jr2))
+        _, jr3 = _it("10:06:00", {"p": 2.62, "t": "10:06:00", "b1": 2.61, "a1": 2.62, "b": [[2.61, 90000]], "k": [[2.62, 90000]]}, 2.50, (2.45, 2.63),
+                     [{"id": "r1", "intent": "冲高卖", "ratio": 1, "why": "测"}])
+        check("㊿b 已经在冲高 → 一半挂高(限价) + 一半移动止盈, 不等反抽", [r.get("style") for r in jr3] == ["挂高", "移动止盈"] and jr3[0].get("type") != "cond", str(jr3))
+        _, jr4 = _it("10:07:00", {"p": 2.50, "t": "10:07:00", "b1": 2.49, "a1": 2.50, "b": [[2.49, 90000]], "k": [[2.50, 90000]]}, 2.50, (2.45, 2.55),
+                     [{"id": "r1", "intent": "低吸", "ratio": 0.2, "why": "测"}], pos=0)
+        check("㊿b 低吸 → 一半低吸限价 + 一半防踏空(低吸成交就不追, 追买门槛 ≥1.5%)",
+              [r.get("style") for r in jr4] == ["低吸", "防踏空"] and jr4[1].get("unless") == "r1a" and float(jr4[1].get("pct") or 0) >= 1.5, str(jr4))
+        _, jr5 = _it("10:08:00", {"p": 2.40, "t": "10:08:00", "b1": 2.39, "a1": 2.40, "b": [[2.39, 90000]], "k": [[2.40, 90000]]}, 2.55, (2.38, 2.58),
+                     [{"id": "r1", "side": "SELL", "style": "立即", "ratio": 1, "why": "止损 依据：R12"}, {"id": "r2", "side": "SELL", "style": "追价", "ratio": 0.5, "why": "随便卖"}])
+        check("㊿b 06 写 style 不引编号 → 按选型表(原 style 留档); 立即 照旧",
+              [r.get("style") for r in jr5][:1] == ["立即"] and any(r.get("_style_ignored") == "追价" or r.get("intent") == "想走" for r in jr5[1:]), str(jr5))
+        db_, dr_ = _it("10:10:00", {"p": 2.40, "t": "10:10:00", "b1": 2.39, "a1": 2.40, "b": [[2.39, 90000]], "k": [[2.40, 90000]]}, 2.55, (2.38, 2.58),
+                       [{"id": "r1", "intent": "想走", "ratio": 1, "why": "测"}])
+        db_.feed.q["002076"] = {"p": 2.39, "t": "11:11:00", "b1": 2.38, "a1": 2.39, "b": [[2.38, 90000]], "k": [[2.39, 90000]]}
+        CLK["t"] = "11:11:00"
+        fd_ = db_.tick("11:11")
+        check("㊿b 急跌后 60 分钟没反抽 → 到点按买一卖出反抽那一半(北新路桥一路跌)", [t["qty"] for t in fd_ if t.get("side") == "SELL" and t["rule"].endswith("r1a")] == [1000], str(fd_))
+        nb_, nr_ = _it("10:20:00", {"p": 2.40, "t": "10:20:00", "b1": 2.39, "a1": 2.40, "b": [[2.39, 90000]], "k": [[2.40, 90000]]}, 2.50, (2.38, 2.52),
+                       [{"id": "r1", "side": "BUY", "style": "低吸", "qty": 1000, "why": "补仓"}])
+        check("㊿c 浮亏票盘中补仓 → 改成等反转(日内最低反弹)的条件单, 带 14:50 截止",
+              [(r.get("type"), r.get("ref"), r.get("dir"), r.get("deadline")) for r in nr_] == [("cond", "日内最低", "up", "14:50:00")] and bool(nr_[0].get("_no_avg_down")), str(nr_))
+        nb_.feed.q["002076"] = {"p": 2.36, "t": "14:50:00", "b1": 2.35, "a1": 2.36, "b": [[2.35, 90000]], "k": [[2.36, 90000]]}
+        CLK["t"] = "14:50:00"
+        fb_ = nb_.tick("14:50")
+        check("㊿c 一直没反转 → 14:50 按卖一尾盘补", [(t["side"], t["qty"], t["px"]) for t in fb_] == [("BUY", 1000, 2.36)], str(fb_))
         # ---------- 03 消融(芷影 + 多空并行分叉) ----------
         E.GATE.log.clear()
         CLK["t"] = "09:00:50"

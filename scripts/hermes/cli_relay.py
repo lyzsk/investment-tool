@@ -64,7 +64,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("target")
     ap.add_argument("message", nargs="?")
-    ap.add_argument("--wait", type=int, default=1800, help="最长等多少秒(默认 30 分钟; 对方忙时消息排在它手上任务后面)")
+    ap.add_argument("--wait", type=int, default=None, help="最长等多少秒(答完立刻返回, 这是上限): 发消息默认 1800; --fetch 默认 120; --fetch --rest 默认 900")
     ap.add_argument("--fetch", metavar="标记", help="不发消息, 只按标记取回之前那条的回复(超时后补取用)")
     ap.add_argument("--rest", action="store_true", help="配 --fetch: 等到对方答完(最长 15 分钟), 只打印快版之后的完整版部分")
     ap.add_argument("--one-shot", action="store_true", help="不分两段, 答完一次性返回(旧行为)")
@@ -80,8 +80,8 @@ def main():
                 first = json.loads(run_on(target, ["read", a.fetch]).splitlines()[-1]).get("text", "").split("\n\n")[0]
             except (ValueError, IndexError, subprocess.TimeoutExpired):
                 first = ""
-            return wait_reply(target, a.fetch, min(a.wait, 900), skip=first)
-        return wait_reply(target, a.fetch, 15)
+            return wait_reply(target, a.fetch, min(a.wait or 900, 900), skip=first)
+        return wait_reply(target, a.fetch, a.wait or 120)   # 10/26 用户: 原来写死 15 秒(传 --wait 也无效) → 默认 120 秒, 传了 --wait 就按传的
     if target not in HOSTS or not msg:
         print(f"用法: cli_relay.py \"pcN cli: 消息\" [--wait 秒] | cli_relay.py pcN --fetch \"<标记>\"(可用: {', '.join(k for k in HOSTS if k.startswith('pc'))})")
         return 2
@@ -91,7 +91,7 @@ def main():
     print(f"送达 {target}: {sent} 标记 {mark}", flush=True)
     if not sent.startswith("SENT"):
         return 1
-    return wait_reply(target, mark, a.wait, first=not a.one_shot)
+    return wait_reply(target, mark, a.wait or 1800, first=not a.one_shot)
 
 
 if __name__ == "__main__":

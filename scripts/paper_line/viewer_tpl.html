@@ -271,13 +271,28 @@ function renderBook(b){
    ${codes.map(x=>chartSVG(x,b)).join('') || '<div class="mute">没有相关分时</div>'}</div>
   <div class="card"><h2>每次触发（点一行看每一步的输入输出）</h2><div class="legend">${Object.entries(STEP_COLOR).map(([k,v])=>`<span><span class="tag" style="background:${v}">${k}</span></span>`).join('')}</div>
    <table><tr><th>触发</th><th>原因</th><th class="num">排队 s</th><th class="num">链耗时 s</th><th>各步耗时</th><th class="num">实际 $</th><th class="num">K3 ¥</th><th class="num">挂单</th><th></th></tr>${rows}</table></div>
-  ${fateCard([b])}${mentorCard(b)}${keepBookCard(b)}
+  ${auditCard(b)}${fateCard([b])}${mentorCard(b)}${keepBookCard(b)}
   <div class="card"><h2>成交</h2><table><tr><th>时间</th><th>方向</th><th>票</th><th class="num">数量</th><th class="num">价</th><th>理由</th></tr>${b.trades.map(t=>`<tr><td>${t.t}</td><td class="${t.side==='BUY'?'pos':'neg'}">${t.side==='BUY'?'买':'卖'}</td><td>${esc((t.name||'')+' '+t.code)}</td><td class="num">${t.qty}</td><td class="num">${t.px}</td><td class="small">${esc((t.why||'').slice(0,160))}</td></tr>`).join('')||'<tr><td colspan="6" class="mute">无</td></tr>'}</table></div>
   <div class="card"><h2>事件（已去掉只记录类的噪声）</h2><pre>${b.events.map(e=>esc(JSON.stringify(e))).join('\n')}</pre></div>`;
   document.getElementById('cm').onchange = e => { SHOW_MENTOR = e.target.checked; renderBook(b); };
   const cu = document.getElementById('cu'); if (cu) cu.onchange = e => { SHOW_USER = e.target.checked; renderBook(b); };
   document.querySelectorAll('tr.v').forEach(tr => tr.onclick = () => toggleDetail(b, +tr.dataset.i, tr));
 }
+
+function auditCard(b){
+  const A = b.audit||[]; if(!A.length) return '';
+  const j = x => x==null ? '-' : esc(typeof x==='string' ? x : JSON.stringify(x, null, 1));
+  const rows = A.map((a,i)=>`<tr class="au" data-i="${i}" style="cursor:pointer"><td>${a.t}</td><td class="${a.side==='BUY'?'pos':'neg'}">${a.side==='BUY'?'买':'卖'}</td><td>${esc((a.name||'')+' '+a.code)}</td><td class="num">${a.qty}</td><td class="num">${a.px}</td><td>${esc(a.ver||'?')}</td><td class="small">${esc((a.why_wake||'').slice(0,70))}</td><td class="small">${a.cond?'条件单 '+esc(a.cond):(a.exec&&a.exec.some(e=>/守卫/.test(e.kind))?'<span class="neg">守卫改过</span>':'普通单')}</td></tr>
+   <tr id="au${i}" style="display:none"><td colspan="8"><div class="small">
+   <b>① 叫醒（这一版为什么跑）</b>：${esc(a.why_wake||'-')} · 链开始 ${esc(a.chain_start||'-')}<br>
+   <b>② 04 对这只票</b>：<pre>${j(a.pick04)}</pre>
+   <b>③ 06 这条规则原文</b>：<pre>${j(a.rule06)}</pre>
+   <b>06 K 线看法</b>：<pre>${j(a.kline06)}</pre><b>06 整体看法</b>：${esc(a.view06||'-')}<br>
+   <b>④ 执行器怎么撮合</b>（守卫改单 / 条件单 / 自动修，成交前后 10 分钟）：<pre>${a.exec&&a.exec.length?a.exec.map(e=>esc(JSON.stringify(e))).join(String.fromCharCode(10)):'(没有特殊处理: 普通限价单到价成交)'}</pre></div></td></tr>`).join('');
+  return `<div class="card"><h2>逐笔审计（人工审）—— 每笔成交从哪来、为什么</h2><div class="small mute">点一行展开：① 叫醒原因 → ② 04 选票结论 → ③ 06 挂单原文（含 K 线看法）→ ④ 执行器撮合（守卫 / 条件单）。规则 key = 版本号:代码:规则 id</div>
+   <table><tr><th>时间</th><th>方向</th><th>票</th><th class="num">数量</th><th class="num">价</th><th>来自哪版</th><th>那版叫醒原因</th><th>撮合方式</th></tr>${rows}</table></div>`;
+}
+document.addEventListener('click', ev => { const tr = ev.target.closest('tr.au'); if(!tr) return; const d = document.getElementById('au'+tr.dataset.i); d.style.display = d.style.display==='none' ? '' : 'none'; });
 
 function toggleDetail(b, i, tr){
   const det = document.getElementById('det'+i), v = b.versions[i];

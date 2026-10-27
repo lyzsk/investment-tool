@@ -1,0 +1,114 @@
+{
+ "skill": "telegraph",
+ "unit": "skill",
+ "version": {
+  "v": 12,
+  "id": "v012_20261026-2001",
+  "ts": "2026-10-26T20:01:19",
+  "effective_from": "2026-10-26T20:01:19",
+  "unit": "skill",
+  "version_hash": "1827531e05b6ad1f722741150ec293450b1925c531798c3bd33832da40eda826",
+  "cat_hash": {
+   "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+   "数据": "412a8c3b00f069bdd72470ca7e638cf38b0e288c85ff456c1936ad816b659795",
+   "画像": "12485059f0887987889fe9bee8af910f12e73ff9342df4ef710cd1304b138688"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v011_20261026-1927",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/cases_index.md",
+    "persona/rules_index.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "数据": [
+    "persona/cases_index.md",
+    "persona/rules_index.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 2,
+   "removed": 2
+  },
+  "bytes_weight": 9515,
+  "why": "check-md 2026-10-26 20:01",
+  "code": {
+   "chain": "2c2f34ea95bc",
+   "distill": "cf2c7a3cccf1"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "6d88d9860ac976b87fd2460284b00f23b0965b1ba93551d66bb718498f66a1ff",
+   "bytes": 2034,
+   "lines": 44,
+   "mtime": "2026-10-26T20:01:19",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/cases_index.md": {
+   "sha256": "3ef9c4856b7a4154cb083177527acee9a67f38cd197ae18ba419747e77489410",
+   "bytes": 1101,
+   "lines": 13,
+   "mtime": "2026-10-26T20:01:19",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "09ce1f61dcd73f11d6e7d36fce56c84e68e80b0c15fd7362a2f4cec3f78a88c0",
+   "bytes": 670,
+   "lines": 7,
+   "mtime": "2026-10-23T02:27:56",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "8535454224b4ad1b1b461f6a836ebc50a3327ba49ba0e68033b15b8acb772d6d",
+   "bytes": 2762,
+   "lines": 29,
+   "mtime": "2026-10-26T20:01:19",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules_index.md": {
+   "sha256": "e59dc2e4263581be8488ca5ee6e8dd13fe7b83ade2c5039cb917ab2763118764",
+   "bytes": 1769,
+   "lines": 10,
+   "mtime": "2026-10-26T20:01:19",
+   "cls": "数据",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "fd265b7fabc4544a030fb31d3c9fa8ae5cc81e8eef16f29ca34e34bec4b4eeba",
+   "bytes": 1179,
+   "lines": 12,
+   "mtime": "2026-10-23T02:27:56",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "2c2f34ea95bc",
+  "distill": "cf2c7a3cccf1",
+  "chain_files": {
+   "scripts/chain/run_chain.py": "9234e5ace876",
+   "skills/telegraph-skill/workflows/chain.md": null,
+   "skills/telegraph-skill/SKILL.md": "fd265b7fabc4",
+   "scripts/dfcf/paper/params.yaml": "8aa4869152ad"
+  },
+  "distill_files": {
+   "skills/telegraph-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "443cd320b2ac",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "4cd7fadb2640",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "8b7a4833fa9f"
+  }
+ }
+}

@@ -1,0 +1,9 @@
+--- v023_20261026-2206/persona/fingerprint.md
++++ v024_20261026-2304/persona/fingerprint.md
+@@ -1,5 +1,5 @@
+ # ynw01(ynw01) 交易指纹·机械层
+ 
+-> 生成: 2026-10-26T22:02:19 | 脚本: scripts/tzzb/mentor_fingerprint.py(零 token, 只读) | as-of: 全量
++> 生成: 2026-10-26T23:02:22 | 脚本: scripts/tzzb/mentor_fingerprint.py(零 token, 只读) | as-of: 全量
+ > 数据窗口: 2026-01-08 ~ 2026-09-11 | 成交腿 82 | 买入事件(日×票) 39, 其中新开仓 23 | 卖出事件 43
+ > 行情面板: 2025-06-03 ~ 2026-10-26(行情库 kline_day, 不复权价+交易所昨收) | 新开仓中有行情的占 100%

@@ -84,9 +84,17 @@ P = {
     "S5_FROM": "14:25:00", "S5_TO": "14:45:00", "S5_WIN": 600, "S5_UP": 0.015,
     "S6_UP": 0.03, "S6_BASE_LATE": "09:20:30",
     "S7_X": 6.0, "S7_WIN": 1800,
-    "DEDUP_MIN": 30, "PUSH_GAP_MIN": 30, "MAX_LINES": 12, "STALE_MIN": 5, "QUOTA_SOFT": 8,   # 10/24 主会话: K 2→3、推送间隔 15→30 分钟(agent 回放: 一天约 7~9 条, 微信额度约 10 条)
+    "S4P_SIGMA_K": 1.5, "S4P_NEAR": 0.02, "S4C_GAP": 45, "S4C_GAP_MAX": 240, "FAST_SIGS": ("S1", "S7", "S4p", "S4c", "S4b", "S4a", "S8", "S9", "D1", "D2", "D3"),   # 10/26 20:0x 用户: S1 / S7 也走快车道
+    "VISION_SIGS": ("S3", "S4a", "S4p", "S4c", "S4b", "S5", "S6", "S7", "S8", "S9"), "VISION_DIP_AFTER_ZB": ("D1", "D3"),   # 10/26 20:1x 用户"股票推送少": 盘口池里不在盯盘名单的股票(视野票)也出 强势 / 板类信号; 低吸只在当天炸过板之后(炸板回踩)
+    "PICK_STOCK": (20, 40), "PICK_CB": (10, 20),   # 10/26 晚用户: 视野股票 20~40 / 名单转债 10~20, 只数按盘面活跃度动态(Picker)
+    "CD_BASE_MIN": 30, "CD_MAX_MIN": 45, "CD_CODE_N": 3, "CD_CODE_WIN_MIN": 30,   # 10/26 20:0x 用户批动态冷却(只管普通 / 慢通道的推送, signals.jsonl 照记)
+    "SLOW_SIGS": ("S2",), "S8_NEAR": 0.07, "S8_RANGE": 0.025, "S8_HOLD": 900, "S9_NEAR": 0.01,   # 10/26 用户批 S8 / S9(百洋股份 / 锋龙股份上板方式 U21)
+      # 10/26 用户: 回封提醒要提前 45 秒~1 分钟(原 S4b 只比真回封早 3~6 秒)
+    "D_START": "09:40:00", "D_BOUNCE_K": 0.3,   # 10/26: 反弹门槛 = max(2 价位, 0.3×σ5×价) —— 转债一个价位 ≈0.0006% 形同虚设
+     "D1_K": 2.0, "D1_HOLD": 180, "D2_BAND": 0.003, "D2_HOLD": 180, "D3_K": 0.8, "D3_HOLD": 180,   # 10/26 用户批: 低吸信号 D1~D3(银轮转债 10:11 回到开盘价没任何提醒)
+    "DEDUP_D_MIN": 90, "DEDUP_MIN": 30, "PUSH_GAP_MIN": 30, "MAX_LINES": 12, "STALE_MIN": 5, "QUOTA_SOFT": 8,   # 10/24 主会话: K 2→3、推送间隔 15→30 分钟(agent 回放: 一天约 7~9 条, 微信额度约 10 条)
 }
-NAMES = {"S1": "急跌后拉起", "S2": "回踩均价线不破", "S3": "二次冲高", "S4a": "炸板", "S4b": "回封动作", "S5": "尾盘拉升", "S6": "竞价抢筹", "S7": "开盘冲高到位"}
+NAMES = {"S1": "急跌后拉起", "S2": "回踩均价线不破", "S3": "二次冲高", "S4a": "炸板", "S4p": "拉回贴近涨停", "S4c": "冲击涨停价", "S4b": "回封动作", "S5": "尾盘拉升", "S6": "竞价抢筹", "S7": "开盘冲高到位", "S8": "蓄势预警", "S9": "午后冲板候选", "D1": "跌破均价后企稳", "D2": "冲高回落到开盘价", "D3": "回撤到振幅位企稳"}
 DYN = {}   # 10/25 动态参数(signal_params.build; "_global" + 每只票), 启动时 load_dyn(D) 填
 
 
@@ -241,6 +249,15 @@ class Meta:
             if "S6_UP" in dp:
                 dp["S6_UP"] = dp["S6_UP"] / 100   # signal_params 存的是 %
             amt1 = None
+            amp = None
+            try:   # 10/26 D3: 本票近 30 日振幅中位(日线 (高−低)/昨收); 转债没日线文件 → 用 S7_X(开盘 30 分钟冲高 P80)×2 近似
+                k30 = [x for x in json.loads((QUOTES / "daily" / f"{c}.json").read_text(encoding="utf-8")).get("klines") or [] if x.get("d", "") < self.D][-31:]
+                amps = sorted((float(b["h"]) - float(b["l"])) / float(a["c"]) for a, b in zip(k30, k30[1:]) if float(a["c"]) > 0)
+                amp = amps[len(amps) // 2] if amps else None
+            except (OSError, ValueError, KeyError):
+                pass
+            if amp is None and dp.get("S7_X"):
+                amp = 2 * float(dp["S7_X"]) / 100
             try:   # 平时 1 分钟成交额(近 20 日日均成交额 / 240)
                 k_ = json.loads((QUOTES / "daily" / f"{c}.json").read_text(encoding="utf-8")).get("klines") or []
                 k_ = [x for x in k_ if x.get("d", "") < self.D and x.get("a")][-20:]
@@ -248,8 +265,48 @@ class Meta:
                     amt1 = statistics.fmean(float(x["a"]) for x in k_) / 240
             except (OSError, ValueError):
                 pass
-            self._cache[c] = {"prev": prev, "up": up, "dn": dn, "tick": tk, "sigma": sg, "sigma_src": src, "name": self.name(c), "dp": dp, "amt1": amt1}
+            self._cache[c] = {"prev": prev, "up": up, "dn": dn, "tick": tk, "sigma": sg, "sigma_src": src, "name": self.name(c), "dp": dp, "amt1": amt1, "amp30": amp}
+            stk = cb_stock(c)
+            if stk:   # 10/26 15:2x 用户: 转债敏感度 = 正股动态数值 × (转债涨跌幅 / 正股涨跌幅) —— 10cm 正股 ×2, 20cm / 30cm 正股复用同一套(×1)
+                try:
+                    sm = self.get(stk)
+                    f_ = (0.2 / ((sm["up"] / sm["prev"]) - 1)) if sm.get("up") and sm.get("prev") else 2.0
+                    f_ = max(1.0, min(2.0, round(f_, 2)))
+                    m_ = self._cache[c]
+                    if sm.get("sigma_src") != "默认":
+                        m_["sigma"], m_["sigma_src"] = sm["sigma"] * f_, f"正股{stk}×{f_:g}"
+                    else:   # 正股没分钟 / 日线: 用全市场正股 σ5 中位 × 系数, 且不低于转债自己的
+                        g_ = float((DYN.get("_global") or {}).get("σ5中位") or P["SIGMA_DEFAULT"]) * f_
+                        if g_ > m_["sigma"]:
+                            m_["sigma"], m_["sigma_src"] = g_, f"全市场正股σ5中位×{f_:g}"
+                    if sm.get("amp30"):
+                        m_["amp30"] = sm["amp30"] * f_
+                    for key in ("S2_BAND", "S3_RISE", "S3_PULLBACK", "S7_X", "S6_UP"):
+                        if key in (sm.get("dp") or {}):
+                            m_["dp"][key] = sm["dp"][key] * f_
+                    m_["stock"], m_["cb_k"] = stk, f_
+                except Exception:   # noqa: BLE001  正股取不到就用转债自己的
+                    pass
         return self._cache[c]
+
+
+_CB = {}
+
+
+def cb_stock(c):
+    """转债代码 → 正股代码(东财转债列表最新一份); 不是转债 → None"""
+    if not c.startswith(("11", "12")):
+        return None
+    if not _CB:
+        try:
+            fs = sorted((ROOT / "downloads" / "quotes" / "cb" / "meta").glob("RPT_BOND_CB_LIST_all_*.json"))
+            m = json.loads(fs[-1].read_text(encoding="utf-8"))
+            rows = m if isinstance(m, list) else ((m.get("result") or {}).get("data") or m.get("data") or [])
+            _CB.update({str(r.get("SECURITY_CODE")): str(r.get("CONVERT_STOCK_CODE") or "") for r in rows})
+        except (OSError, ValueError, IndexError):
+            _CB["_"] = ""
+    v = _CB.get(c) or ""
+    return v if re.fullmatch(r"\d{6}", v) else None
 
 
 # ================================================================ 检测器
@@ -270,8 +327,81 @@ class St:
         self.s1 = None          # {H, L, tL}
         self.s2 = {"armed": False, "t0": None}
         self.s3 = {"H1": None, "tH": None, "vol1": None, "ok": False}
-        self.s4 = {"sealed": False, "t_open": None, "low": None, "s_open": None, "a_fired": False, "b_fired": False, "mx": 0.0}
+        self.s4 = {"sealed": False, "t_open": None, "low": None, "s_open": None, "a_fired": False, "b_fired": False, "mx": 0.0, "p_fired": False, "att": False, "att_n": 0, "att_mx": 0.0, "prev_mx": 0.0, "c_last": -10 ** 9, "c_n": 0}
         self.s5 = {"L": None, "tL": None}
+        self.d = {"hi": None, "d1": None, "d2": None, "d3": None}
+        self.s8 = None   # 蓄势: 进入"离涨停 ≤2% 且在均价上方"的起点   # 10/26 低吸 D1~D3 状态
+
+
+class Picker:
+    """10/26 晚用户: 视野股票 20~40 只、转债 10~20 只, 多少按盘面动态定(股票比转债多, 转债也重要; 今天转债重复提同几只、又怕遗漏)
+    活跃分(每只票可比, 0~9): 3×今天碰过涨停(转债看正股) + 现涨跌幅 / 本票 30 日振幅(封顶 3) + 今天成交额 / 平时同时段成交额(封顶 3);
+    最近 30 分钟每推一次 −1(让位给没推过的, 治"重复提同几只"); 名额 = 活跃分 ≥ ACT_TH 的只数, 夹在 [下限, 上限] 内(盘面热 → 多看, 冷 → 少看);
+    刚出过信号的票 15 分钟内留在集合里(炸板后的回封 / 低吸不断档); 持仓 / 点名 / 线上盯盘名单里的股票不占名额、一直在"""
+    ACT_TH = 3.0
+
+    def __init__(self, det, meta):
+        self.det, self.meta = det, meta
+        self.hist = collections.defaultdict(list)   # 代码 → [事件交易秒]
+        self.at, self.out = -10 ** 9, (set(), set())
+
+    def note(self, c, x):
+        self.hist[c].append(x)
+
+    def score(self, c, S_, xnow):
+        p_, pv = S_.win[-1][1], S_.m.get("prev")
+        if not pv:
+            return None
+        amp = S_.m.get("amp30") or 3.0
+        hi = (S_.d or {}).get("hi") or p_
+        up = S_.m.get("up")
+        touched = bool(up and hi >= up - S_.m["tick"] / 2)
+        stk = cb_stock(c)
+        if stk and stk in self.det.st and self.det.st[stk].win:   # 转债: 正股碰过涨停也算
+            T_ = self.det.st[stk]
+            uph = T_.m.get("up")
+            touched = touched or bool(uph and ((T_.d or {}).get("hi") or 0) >= uph - T_.m["tick"] / 2)
+        move = min(3.0, abs(p_ / pv - 1) * 100 / max(0.5, amp))
+        a1 = S_.m.get("amt1")
+        mins = max(1.0, (getattr(S_, "x_last", 0) or 0) / 60)
+        ar = min(3.0, (getattr(S_, "a_cum", 0) or 0) / (a1 * mins)) if a1 else 1.0
+        pen = sum(1 for t in self.hist.get(c, []) if xnow - t < 1800)
+        return 3.0 * touched + move + ar - pen
+
+    def pick(self, want, keep, xnow, force=False):
+        """→ (视野股票集合, 在看的转债集合); 每 60 交易秒算一次"""
+        if not force and xnow - self.at < 60:
+            return self.out
+        st_rows, cb_rows = [], []
+        for c, S_ in self.det.st.items():
+            if not S_.win or c in keep:
+                continue
+            is_cb = c[:2] in ("11", "12")
+            if is_cb and c not in want:
+                continue   # 转债只在名单里(土豆候选等)挑
+            if not is_cb and (c in want or c[:1] not in ("0", "3", "6")):
+                continue
+            sc = self.score(c, S_, xnow)
+            if sc is None:
+                continue
+            (cb_rows if is_cb else st_rows).append((sc, c))
+        recent = {c for c, ts in self.hist.items() if ts and xnow - ts[-1] < 900}
+
+        def take(rows, lo, hi):   # 名额含"刚出过信号留着的", 总数不超过上限
+            rows.sort(reverse=True)
+            n = min(hi, max(lo, sum(1 for sc, _ in rows if sc >= self.ACT_TH)))
+            got = [c for _, c in rows if c in recent][:n]
+            for _, c in rows:
+                if len(got) >= n:
+                    break
+                if c not in got:
+                    got.append(c)
+            return set(got)
+        lo_s, hi_s = P["PICK_STOCK"]
+        lo_c, hi_c = P["PICK_CB"]
+        self.out = (take(st_rows, lo_s, hi_s), take(cb_rows, lo_c, hi_c))
+        self.at = xnow
+        return self.out
 
 
 class Detector:
@@ -314,6 +444,7 @@ class Detector:
             ratio = a / v / p
             S.scale = 10 ** round(math.log10(ratio)) if ratio > 0 else 1
         vw = a / v / S.scale if v > 0 and a > 0 and S.scale else None
+        S.a_cum, S.x_last = a, x   # 10/26 晚: 动态选票(Picker)用 —— 今天累计成交额 / 最近时刻
         S.win.append((x, p, v))
         while S.win and S.win[0][0] < x - P["S1_WIN"]:
             S.win.popleft()
@@ -324,6 +455,8 @@ class Detector:
         self._s4(S, ctx, out)   # 10/25: S4a 炸板 + S4b 回封动作
         self._s5(S, ctx, out)
         self._s7(S, ctx, out)
+        self._dip(S, ctx, out)   # 10/26: 低吸 D1~D3
+        self._s89(S, ctx, out)   # 10/26: S8 蓄势预警 / S9 午后冲板候选
         return out
 
     def _ev(self, S, c, t, sig, px, detail, out):
@@ -455,11 +588,12 @@ class Detector:
         g = DYN.get("_global") or {}
         n_open, drop = float(g.get("S4a_N秒") or 18), float(g.get("S4b_DROP") or 0.5)
         sealed = float(b[0][0] or 0) >= up - S.m["tick"] / 2
+        fresh = dict(mx=0.0, a_fired=False, b_fired=False, p_fired=False, att=False, att_n=0, att_mx=0.0, prev_mx=0.0, c_last=-10 ** 9, c_n=0)
         if sealed:
-            z.update(sealed=True, t_open=None, mx=0.0, a_fired=False, b_fired=False)
+            z.update(sealed=True, t_open=None, **fresh)
             return
         if z["sealed"]:   # 刚开板
-            z.update(sealed=False, t_open=x, s_open=t, low=p, mx=0.0, a_fired=False, b_fired=False)
+            z.update(sealed=False, t_open=x, s_open=t, low=p, **fresh)
             return
         if z["t_open"] is None:
             return
@@ -468,7 +602,31 @@ class Detector:
         if not z["a_fired"] and dur >= n_open:   # S4a: 开板持续 ≥ N 秒(全市场开板时长 P25)才算炸板, 排除秒开秒封
             z["a_fired"] = True
             self._ev(S, c, t, "S4a", p, f"{z['s_open']} 开板, 已开 {dur} 秒(≥{n_open:g} 秒算炸板), 现价离涨停 {(p / up - 1) * 100:+.2f}%, 开板后最低 {(z['low'] / up - 1) * 100:+.2f}%", out)
-        if k and k[0][0] and abs(float(k[0][0]) - up) < S.m["tick"] / 2:   # 卖一挂在涨停价 = 正在往回封
+        lim = (up / S.m["prev"] - 1) if S.m.get("prev") else 0.1
+        near = P["S4P_NEAR"] * lim / 0.1   # 10cm 2% / 20cm 4%
+        # 10/26 用户: 拉回幅度用动态 —— 本票 5 分钟波动 σ5 × K(波动大的票要拉回更多才算), 至少 2 个价位, 最多开板深度的 60%(浅开板也能报)
+        need = min(max(2 * S.m["tick"], P["S4P_SIGMA_K"] * float(S.m.get("sigma") or P["SIGMA_DEFAULT"]) * up), 0.6 * (up - z["low"]))
+        if z["a_fired"] and not z["p_fired"] and p >= up * (1 - near) and up > z["low"] and (p - z["low"]) >= need and p > z["low"]:
+            # 10/26 S4p: 炸板后从开板低点拉回 ≥ 动态幅度 且离涨停 ≤2% → 提前预警(襄阳轴承 09:51:57 / 真回封 09:52:54)
+            z["p_fired"] = True
+            self._ev(S, c, t, "S4p", p, f"{z['s_open']} 开板后最低 {z['low']:g}({(z['low'] / up - 1) * 100:+.2f}%), 已拉回 {(p - z['low']) / up * 100:.2f}%(阈 {need / up * 100:.2f}% = {P['S4P_SIGMA_K']:g}×本票σ5)到离涨停 {(p / up - 1) * 100:+.2f}%, 可能回封", out)
+        # 10/26 用户: S4c 不等卖一到涨停价, 而是涨停价进了卖五档(= 卖一离涨停 ≤4 个价位)就算冲击; 冷却动态: 同一次开板里每报一次冷却翻倍(45 → 90 → 180, 封顶 240 秒)
+        lv = next((i for i, a in enumerate(k[:5]) if a and a[0] and abs(float(a[0]) - up) < S.m["tick"] / 2), None) if k else None
+        if lv is None and z["att"]:   # 一次冲击结束(涨停价退出卖五档)
+            z.update(att=False, prev_mx=max(z["prev_mx"], z["att_mx"]), att_mx=0.0)
+        if lv is not None:
+            vl = float(k[lv][1] or 0)   # 涨停价那一档的卖单量
+            if not z["att"]:
+                z.update(att=True, att_n=z["att_n"] + 1, att_mx=0.0)
+                gap = min(P["S4C_GAP"] * 2 ** z["c_n"], P["S4C_GAP_MAX"])
+                if z["a_fired"] and x - z["c_last"] >= gap:
+                    # 10/26 S4c: 冲到涨停价附近都报(动态冷却), 带涨停价卖单量和上次比 —— 大业股份第 3 次冲击 09:58:18, 真回封 09:59:30
+                    z["c_last"], z["c_n"] = x, z["c_n"] + 1
+                    cmp_ = f", 上次冲击最多 {z['prev_mx'] / 100:.0f} 手({'变小 = 抛压在减' if vl < z['prev_mx'] else '变大'})" if z["prev_mx"] else ""
+                    self._ev(S, c, t, "S4c", p, f"{z['s_open']} 开板后第 {z['att_n']} 次冲向涨停价(涨停价在卖{lv + 1}), 涨停价卖单 {vl / 100:.0f} 手{cmp_}", out)
+            z["att_mx"] = max(z["att_mx"], vl)
+        at_lim = lv == 0
+        if at_lim:   # 卖一挂在涨停价 = 正在往回封
             va = float(k[0][1] or 0)
             z["mx"] = max(z["mx"], va)
             if z["a_fired"] and not z["b_fired"] and z["mx"] > 0 and va <= (1 - drop) * z["mx"]:   # S4b: 涨停价上的卖单被吃掉 ≥ DROP(近 3 日真回封前的降幅中位)
@@ -502,17 +660,106 @@ class Detector:
             self._ev(S, c, t, "S7", p, f"开盘 {S.open:g} × (1+{x7:g}%[本票近 30 日 P80]) = {tgt:.3f}, {t} 到 {p:g}", out)
 
 
+    # ---------- S8 蓄势预警 / S9 午后冲板候选(10/26 用户批; U21 百洋股份离涨停 2% 横 30 分钟后拉板、锋龙股份午前离涨停 0.8% 午后开盘即封) ----------
+    def _s89(self, S, ctx, out):
+        c, t, x, p, v, vw, b, k = ctx
+        up = S.m["up"]
+        if not up or not vw:
+            return
+        sealed = bool(b and float(b[0][0] or 0) >= up - S.m["tick"] / 2)
+        lim = (up / S.m["prev"] - 1) if S.m.get("prev") else 0.1
+        if "S8" not in S.done:
+            # 离涨停 ≤ S8_NEAR(10cm 7% / 20cm 14%)、在均价上方、没封板, 连续 S8_HOLD 秒且这段振幅 ≤ S8_RANGE = 高位横盘蓄势
+            ok = not sealed and up * (1 - P["S8_NEAR"] * lim / 0.1) <= p < up and p >= vw
+            if not ok:
+                S.s8 = None
+            else:
+                if S.s8 is None:
+                    S.s8 = {"x0": x, "t0": t, "hi": p, "lo": p}
+                z = S.s8
+                z["hi"], z["lo"] = max(z["hi"], p), min(z["lo"], p)
+                if (z["hi"] - z["lo"]) / up > P["S8_RANGE"] * lim / 0.1:
+                    S.s8 = {"x0": x, "t0": t, "hi": p, "lo": p}   # 振幅超了 = 不是横盘, 从这里重新算
+                elif x - z["x0"] >= P["S8_HOLD"]:
+                    S.done.add("S8")
+                    self._ev(S, c, t, "S8", p, f"{z['t0']} 起在 {z['lo']:g}~{z['hi']:g} 横盘 {(x - z['x0']) // 60} 分钟(振幅 {(z['hi'] - z['lo']) / up * 100:.2f}%), 一直在均价 {vw:.3f} 上方; 现 {p:g} 离涨停 {(p / up - 1) * 100:+.2f}%", out)
+        if "S9" not in S.done and "11:29:00" <= t <= "11:30:05" and not sealed and up * (1 - P["S9_NEAR"] * lim / 0.1) <= p < up:
+            S.done.add("S9")
+            self._ev(S, c, t, "S9", p, f"午前收盘 {p:g} 离涨停 {(p / up - 1) * 100:+.2f}%(≤{P['S9_NEAR'] * lim / 0.1 * 100:.0f}%), 均价 {vw:.3f}; 午后开盘可能直接冲板", out)
+
+    # ---------- D1~D3 低吸(10/26 用户批; 只是盘面事实, 参数按本票波动 / 振幅动态) ----------
+    def _dip(self, S, ctx, out):
+        c, t, x, p, v, vw, b, k = ctx
+        z = S.d
+        z["hi"] = p if z["hi"] is None else max(z["hi"], p)
+        if t < P["D_START"]:
+            return
+        tk = S.m["tick"]
+        # D1 跌破均价后企稳: 跌到均价下方 ≥ D1_K × σ5, 之后 D1_HOLD 秒不创新低、离低点反弹 ≥2 个价位、仍在均价下方
+        if vw:
+            d1 = z["d1"]
+            if p <= vw * (1 - P["D1_K"] * S.m["sigma"]):
+                if d1 is None or p < d1["L"]:
+                    z["d1"] = d1 = {"L": p, "tL": x, "tLs": t}
+            elif p >= vw:
+                z["d1"] = d1 = None   # 回到均价上方 = 这一段结束
+            if d1 and x - d1["tL"] >= P["D1_HOLD"] and p >= d1["L"] + max(2 * tk, P["D_BOUNCE_K"] * S.m["sigma"] * p) and p < vw:
+                self._ev(S, c, t, "D1", p, f"{d1['tLs']} 跌到 {d1['L']:g}(均价下方 {(1 - d1['L'] / vw) * 100:.2f}%, 阈 {P['D1_K']:g}×σ5={P['D1_K'] * S.m['sigma'] * 100:.2f}%), {x - d1['tL']} 秒没创新低, 现 {p:g} 均价 {vw:.3f}", out)
+                if out and out[-1]["sig"] == "D1":
+                    out[-1]["low"] = d1["L"]
+                z["d1"] = None
+        # D2 冲高回落到开盘价: 当天出过 S7 冲高到位, 回落到开盘价 ±D2_BAND 内并守住 D2_HOLD 秒(没跌破下沿)
+        if "S7" in S.done and S.open:
+            lo, hi = S.open * (1 - P["D2_BAND"]), S.open * (1 + P["D2_BAND"])
+            d2 = z["d2"]
+            if p < lo:
+                z["d2"] = None
+            elif p <= hi and d2 is None:
+                z["d2"] = d2 = {"t0": x, "t0s": t}
+            elif d2 and p > hi * (1 + P["D2_BAND"]):
+                z["d2"] = d2 = None   # 已经弹走了, 不算守住
+            if d2 and x - d2["t0"] >= P["D2_HOLD"] and "D2" not in S.done:
+                S.done.add("D2")
+                self._ev(S, c, t, "D2", p, f"冲高到位后 {d2['t0s']} 回落到开盘价 {S.open:g} ±{P['D2_BAND'] * 100:.1f}%, 守住 {x - d2['t0']} 秒没跌破, 现 {p:g}", out)
+                z["d2"] = None
+        # D3 回撤到振幅位企稳: 从日内最高回撤 ≥ D3_K × 本票 30 日振幅中位, 之后 D3_HOLD 秒不创新低、反弹 ≥2 个价位
+        amp = S.m.get("amp30")
+        if amp and z["hi"]:
+            d3 = z["d3"]
+            if (z["hi"] - p) / z["hi"] >= P["D3_K"] * amp:
+                if d3 is None or p < d3["L"]:
+                    z["d3"] = d3 = {"L": p, "tL": x, "tLs": t, "H": z["hi"]}
+            if d3 and x - d3["tL"] >= P["D3_HOLD"] and p >= d3["L"] + max(2 * tk, P["D_BOUNCE_K"] * S.m["sigma"] * p):
+                self._ev(S, c, t, "D3", p, f"日内最高 {d3['H']:g} 回撤到 {d3['L']:g}({d3['tLs']}, −{(1 - d3['L'] / d3['H']) * 100:.2f}%, 阈 {P['D3_K']:g}×30 日振幅中位 {amp * 100:.2f}%), {x - d3['tL']} 秒没创新低, 现 {p:g}", out)
+                if out and out[-1]["sig"] == "D3":
+                    out[-1]["low"] = d3["L"]
+                z["d3"] = None
+                z["hi"] = p   # 重新从这里算下一次回撤
+
+
 # ================================================================ 节流 + 推送
 class Throttle:
     """同票同信号 DEDUP_MIN 分钟(事件时间)内只记一次"""
     def __init__(self):
         self.last = {}
+        self.low = {}   # 10/26: D1 / D3 上次报的低点
 
     def ok(self, e):
         key, x = (e["code"], e["sig"]), secs(e["t"])
-        if key in self.last and x - self.last[key] < P["DEDUP_MIN"] * 60:
+        if e["sig"] in ("S4p", "S4c"):   # 10/26: 每次开板 / 每次冲击都要报, 检测器自己限频
+            return True
+        if e["sig"] in ("D1", "D3") and key in self.last:
+            # 10/26 14:5x 用户(鼎捷转债 14:39 均价下方企稳没推): 同票低吸 90 分钟一次会漏掉"更低的第二个低点" →
+            # 30 分钟后, 这次的低点比上次报的低点更低(新的一段下跌后企稳)就再报; 否则仍按 90 分钟
+            dt_ = x - self.last[key]
+            lo, lo0 = e.get("low"), self.low.get(key)
+            if dt_ < P["DEDUP_MIN"] * 60 or (dt_ < P["DEDUP_D_MIN"] * 60 and not (lo and lo0 and lo < lo0)):
+                return False
+        elif key in self.last and x - self.last[key] < (P["DEDUP_D_MIN"] if e["sig"] == "D2" else P["DEDUP_MIN"]) * 60:
             return False
         self.last[key] = x
+        if e.get("low"):
+            self.low[key] = e["low"]
         return True
 
 
@@ -520,19 +767,59 @@ def line(e):
     return f"{e['name']}({e['code']}) {e['sig']} {e['sig_name']} {e['t'][:5]} 价 {e['px']:g}"
 
 
+SIG_EMOJI = {"S8": "🔋", "S9": "⏰", "D1": "🔴🛬", "D2": "🔴↩️", "D3": "🔴🪂", "S1": "📈", "S2": "➖", "S3": "🔼", "S4a": "💥", "S4p": "⤴️", "S4c": "⚡", "S4b": "🔁", "S5": "🌇", "S6": "🎯", "S7": "🚀"}
+_WHY = {"t": 0.0, "map": {}, "seen": set()}
+
+
+def watch_why(D):
+    """10/26 用户: 推送里新增的盯盘票要有 emoji 标识 + 为什么在盯 —— 读各线 must_state.json 的 watch 来源标签(60 秒缓存)"""
+    if time.time() - _WHY["t"] < 60:
+        return _WHY["map"]
+    m = {}
+    for f in [*(LIVE / D).glob("live_*/must_state.json"), *(LIVE / D).glob("paper_*/must_state.json")]:
+        try:
+            w = json.loads(f.read_text(encoding="utf-8")).get("watch") or {}
+        except (OSError, ValueError):
+            continue
+        for c, v in (w.items() if isinstance(w, dict) else [(x, []) for x in w]):
+            for r in v or []:
+                r = str(r)
+                k = "候选池" if "候选池" in r else "导师操作" if "导师T" in r else "UP提到" if "UP" in r else "持仓" if "持仓" in r else "盘前提到" if "盘前" in r else "电报点名" if "电报" in r else r[:8]
+                m.setdefault(str(c), set()).add(k)
+    for c in extra_codes():
+        m.setdefault(c, set()).add("你点名")
+    _WHY.update(t=time.time(), map=m)
+    return m
+
+
+KEY_TAGS = ("持仓", "你点名")   # 10/26 晚用户定: 低吸 / 炸板类 + 持仓 + 点名 = 快车道(利益相关); 回踩均价(S2)延迟攒批; 其余扩展视野的票攒批带冷却
+
+
+def is_key(code, D):
+    """重点票 = 持仓 / UP 提到 / 导师操作 / 发哥提到 / 用户点名(必查池来源标签)"""
+    tags = watch_why(D).get(code) or set()
+    return any(t in KEY_TAGS for t in tags)
+
+
 def compose(evs, D, hold):
-    """合并成一条: 持仓在前, 同组按时间; 最多 MAX_LINES 行"""
+    """合并成一条: 持仓在前, 同组按时间; 最多 MAX_LINES 行; 10/26: 每条带信号 emoji, 当天第一次推的盯盘票标 🆕 + 进盯盘原因"""
     hs = sorted([e for e in evs if e["code"] in hold], key=lambda e: e["t"])
-    ot = sorted([e for e in evs if e["code"] not in hold], key=lambda e: e["t"])
-    L, n = [f"分时信号 {dt.datetime.now():%H:%M}(同票同信号 {P['DEDUP_MIN']} 分钟只报一次, 只是盘面事实不是买卖建议)"], 0
-    for title, grp in (("持仓:", hs), ("盯盘票:", ot)):
+    ot = sorted([e for e in evs if e["code"] not in hold and not e.get("vision")], key=lambda e: e["t"])
+    vs = sorted([e for e in evs if e["code"] not in hold and e.get("vision")], key=lambda e: e["t"])
+    why = watch_why(D)
+    L, n = [f"分时信号 {dt.datetime.now():%H:%M}"], 0   # 10/26 用户: "同票 30 分钟只报一次 / 盘面事实不是买卖建议"已知, 不推(省字数)
+    for title, grp in (("💼 持仓:", hs), ("👀 盯盘票:", ot), ("🔭 视野票(盘口池, 不在盯盘名单):", vs)):
         if not grp:
             continue
         L.append(title)
         for e in grp:
             if n >= P["MAX_LINES"]:
                 break
-            L.append(line(e))
+            s = f"{SIG_EMOJI.get(e['sig'], '•')} {line(e)}"
+            if e["code"] not in hold and e["code"] not in _WHY["seen"] and not e.get("vision"):
+                s = f"🆕 {s} 〔进盯盘: {'/'.join(sorted(why.get(e['code']) or [])) or '来源不明'}〕"
+            _WHY["seen"].add(e["code"])
+            L.append(s)
             n += 1
     if len(evs) > n:
         L.append(f"另 {len(evs) - n} 条见 results/_live/{D}/signals.jsonl")
@@ -553,6 +840,23 @@ class Pusher:
         with self.lock:
             self.pending.append(e)
 
+    def _cool_ok(self, e):
+        """动态冷却(只管普通 / 慢通道推送; 10/26 20:0x 用户批): 同票同信号第 n 次推 要距上次 ≥ CD_BASE × 2^(n−1) 分钟(封顶 CD_MAX);
+        同一只票 CD_CODE_WIN 分钟内已推 ≥ CD_CODE_N 次普通信号 → 这段时间不再推它(signals.jsonl 照记, 只是不推)"""
+        now_, k = time.time(), (e["code"], e["sig"])
+        pc = self.__dict__.setdefault("_pc", {})
+        hist = self.__dict__.setdefault("_ph", collections.defaultdict(list))
+        n, last = pc.get(k, (0, 0.0))
+        if n and now_ - last < min(P["CD_MAX_MIN"], P["CD_BASE_MIN"] * 2 ** (n - 1)) * 60:
+            return False
+        h = [t for t in hist[e["code"]] if now_ - t < P["CD_CODE_WIN_MIN"] * 60]
+        if len(h) >= P["CD_CODE_N"]:
+            hist[e["code"]] = h
+            return False
+        pc[k] = (n + 1, now_)
+        hist[e["code"]] = h + [now_]
+        return True
+
     def tick(self):
         try:   # 10/25 用户批: 合并推送总线开着 → 不再自己攒 30 分钟, 来了就交给总线(总线按剩余额度动态攒批, 和 live line 挂单合成一条)
             import push_bus as PB
@@ -563,7 +867,15 @@ class Pusher:
             hold = self.hold_fn()
             with self.lock:
                 evs, self.pending = list(self.pending), []
-            PB.enqueue(compose(evs, self.D, hold), src="live_signal", urgent=any(e["code"] in hold for e in evs) or any(e["sig"] == "S4b" for e in evs), D=self.D)
+            key = {e["code"] for e in evs if is_key(e["code"], self.D)} | {e["code"] for e in evs if e["code"] in hold}   # 持仓 + 你点名 = 快车道
+            # 10/26 20:0x 用户: 快车道 = 快信号(低吸 / 炸板 / 回封类 / S1 / S7 / S8 / S9)或 持仓 / 点名票; 其余分 普通 / 慢(只有回踩均价 S2), 两条都动态攒批 + 动态冷却
+            fe = [e for e in evs if (e["sig"] in P["FAST_SIGS"] and not e.get("vision")) or e["code"] in key]   # 视野票 = 扩展视野, 不走快车道
+            rest = [e for e in evs if e not in fe and self._cool_ok(e)]
+            if fe:
+                PB.enqueue(compose(fe, self.D, hold), src="live_signal", urgent=True, fast=True, D=self.D)
+            if rest:
+                slow = all(e["sig"] in P["SLOW_SIGS"] for e in rest)
+                PB.enqueue(compose(rest, self.D, hold), src="live_signal", slow=slow, D=self.D)
             return
         if self.busy or not self.pending or time.time() - self.last_push < P["PUSH_GAP_MIN"] * 60:
             return
@@ -636,7 +948,27 @@ def watch_codes(D):
         except (OSError, ValueError, AttributeError):
             continue
     out = {c for c in out if re.fullmatch(r"\d{6}", c)}
-    return out | v3_holds(D) | real_holds()
+    return out | v3_holds(D) | real_holds() | extra_codes()
+
+
+def _flag(k, d=""):
+    """chain_flags.txt 开关(k=v, # 注释)"""
+    try:
+        for l in (ROOT / "scripts" / "claude_profile" / "chain_flags.txt").read_text(encoding="utf-8").splitlines():
+            kk, _, v = l.split("#")[0].partition("=")
+            if kk.strip() == k:
+                return v.strip()
+    except OSError:
+        pass
+    return os.environ.get(k, d)
+
+
+def extra_codes():
+    """10/26 用户点名加的票(scripts/temp/collect_book_extra.txt, 和 3 秒盘口池同一份)也出信号"""
+    try:
+        return set(re.findall(r"(?<!\d)\d{6}(?!\d)", (ROOT / "scripts" / "temp" / "collect_book_extra.txt").read_text(encoding="utf-8")))
+    except OSError:
+        return set()
 
 
 def snap_files(D):
@@ -722,9 +1054,28 @@ def run(D, codes=None, all_=False, dry=False):
             if not fixed:
                 state["want"] = watch_codes(D)
 
-    det = Detector(D, meta, emit=None if all_ else (lambda c: c in state["want"]))
+    vision = (_flag("SIG_VISION", "1") == "1") and not fixed   # 视野票: 盘口池里不在名单的股票(不含转债), 只出 VISION_SIGS, 走普通通道 + 动态冷却
+    is_stock = lambda c: str(c)[:2] not in ("11", "12") and str(c)[:1] in ("0", "3", "6")   # noqa: E731
+    vis = {"st": set(), "cb": set()}
+    keep_of = lambda: state["hold"] | extra_codes()   # noqa: E731  持仓 / 点名: 不占名额、一直在
+
+    def emit_ok(c):
+        if c in keep_of():
+            return True
+        if not vision:
+            return c in state["want"]
+        if c[:2] in ("11", "12"):
+            return c in vis["cb"]   # 名单里的转债: 只看 Picker 挑出来的 10~20 只
+        return c in state["want"] or c in vis["st"]
+    det = Detector(D, meta, emit=None if all_ else emit_ok)
+    picker = Picker(det, meta)
+    zb = set()   # 今天炸过板的视野票(之后的 D1 / D3 = 炸板回踩低吸)
     th = Throttle()
     out_f = LIVE / D / "signals.jsonl"
+    try:   # 10/26: 重启后 🆕 标识不重复 —— 今天已推过信号的票算"见过"
+        _WHY["seen"] |= {json.loads(l)["code"] for l in out_f.read_text(encoding="utf-8").splitlines() if l.strip() and not json.loads(l).get("stale")}
+    except (OSError, ValueError, KeyError):
+        pass
     out_f.parent.mkdir(parents=True, exist_ok=True)
     seen = set()
     if out_f.exists():   # 重启续跑: 已记过的不重复记 / 推, 节流表也接上
@@ -743,9 +1094,16 @@ def run(D, codes=None, all_=False, dry=False):
     def handle(r):
         now_hm = dt.datetime.now().strftime("%H:%M:%S")
         for e in det.feed(r):
+            if e["code"] not in state["want"]:
+                if e["sig"] == "S4a":
+                    zb.add(e["code"])
+                if not (e["sig"] in P["VISION_SIGS"] or (e["sig"] in P["VISION_DIP_AFTER_ZB"] and e["code"] in zb)):
+                    continue
+                e["vision"] = True
             key = (e["code"], e["sig"], e["t"])
             if key in seen or not th.ok(e):
                 continue
+            picker.note(e["code"], trs(e["t"]))
             seen.add(key)
             e["hold"] = e["code"] in state["hold"]
             stale = secs(now_hm) - secs(e["t"]) > P["STALE_MIN"] * 60
@@ -761,6 +1119,10 @@ def run(D, codes=None, all_=False, dry=False):
             if hm > "15:00:30":
                 break
             refresh()
+            if vision:
+                xs = [S_.x_last for S_ in list(det.st.values())[:50] if getattr(S_, "x_last", None)]
+                if xs:
+                    vis["st"], vis["cb"] = picker.pick(state["want"], keep_of(), max(xs))
             if fh is None:
                 if f.exists():
                     fh = f.open("r", encoding="utf-8", errors="replace")
@@ -779,7 +1141,7 @@ def run(D, codes=None, all_=False, dry=False):
                 elif not f.exists():   # 被收盘压缩挪走
                     break
             pusher.tick()
-            time.sleep(3)
+            time.sleep(1)   # 10/26: 3→1 秒, 回封预警少等 2 秒
     finally:
         if fh:
             fh.close()

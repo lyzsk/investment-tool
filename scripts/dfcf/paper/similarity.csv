@@ -128,3 +128,13 @@ date,book,导师,real_n,sim_n,jac,op,comp,ctrl,delta
 20261022,A-xingjianye,xingjianye,0,1,0,0,0,0,0
 20261022,A-ynw01,ynw01,5,0,0,1,0.4,0.4,0
 20261022,A-zhiyingjuexin,zhiyingjuexin,2,1,0.5,0.5,0.5,0,0.5
+20261023,A-a658,a658,1,1,0,1,0.4,0.4,0
+20261023,A-gaogailvfuli,gaogailvfuli,6,2,0.1429,0,0.0857,0,0.0857
+20261023,A-hanxiao,hanxiao,0,0,,,,0.4,
+20261023,A-lianghuaxiaohao,lianghuaxiaohao,3,2,0,0,0,0,0
+20261023,A-liuyiqing,liuyiqing,1,1,0,0,0,0,0
+20261023,A-stzhilang,stzhilang,0,1,0,0,0,0,0
+20261023,A-wudaokongfang,wudaokongfang,3,0,0,0,0,0,0
+20261023,A-xingjianye,xingjianye,0,1,0,1,0.4,0.4,0
+20261023,A-ynw01,ynw01,4,0,0,0,0,0,0
+20261023,A-zhiyingjuexin,zhiyingjuexin,3,1,0.3333,0,0.2,0,0.2

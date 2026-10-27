@@ -146,6 +146,9 @@ def main():
                     subprocess.Popen([sys.executable, "-X", "utf8", str(ROOT / "scripts" / "hermes" / "push_bus.py"), "--run", a.date], cwd=str(ROOT),
                                      creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), stdout=open(ROOT / "scripts" / "temp" / f"push_bus_{a.date}.out", "a", encoding="utf-8"), stderr=subprocess.STDOUT)
                     print(f"[{dt.datetime.now():%H:%M:%S}] 合并推送总线已拉起(日志 scripts/hermes/state/push_bus_{a.date}.log)", flush=True)
+                if (E.X.flag("LIVE_WATCHCARD", "1") or "1") == "1":   # 10/26 用户: 6 条线盯盘卡(持仓 / 挂单 / 计划 / 叫醒条件, 任一线变了重推, 进总线合并)
+                    subprocess.Popen([sys.executable, "-X", "utf8", str(ROOT / "scripts" / "paper_line" / "tools" / "watchcard.py"), "--run", a.date], cwd=str(ROOT),
+                                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), stdout=open(ROOT / "scripts" / "temp" / f"watchcard_{a.date}.log", "a", encoding="utf-8"), stderr=subprocess.STDOUT)
             except Exception as e:   # noqa: BLE001
                 print(f"[{dt.datetime.now():%H:%M:%S}] 信号检测启动失败 {e!r}", flush=True)
         ths = []

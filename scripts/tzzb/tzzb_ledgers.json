@@ -16,7 +16,8 @@
     "short": "不吃土豆0(转债T+0, A-cb用)",
     "cluster": "转债",
     "circle": "可转债 T+0 日内交易(转债域独立模板)",
-    "online": "2026-10-08"
+    "online": "2026-10-08",
+    "view_checked_at": "2026-10-26T07:10:53.263Z"
   },
   {
     "ledger": "liuyiqing",
@@ -108,7 +109,7 @@
     "cluster": null,
     "circle": "光通信/消费电子元件链的图腾熟票单票梭哈",
     "online": "2026-10-08",
-    "view_checked_at": "2026-10-19T07:19:35.606Z"
+    "view_checked_at": "2026-10-26T07:19:14.738Z"
   },
   {
     "ledger": "xingjianye",
@@ -163,7 +164,7 @@
     "cluster": "两融高杠杆",
     "circle": "创业板题材的核心底仓+卫星快轮(两融满仓习惯)",
     "online": "2026-10-08",
-    "view_checked_at": "2026-10-25T07:13:53.825Z"
+    "view_checked_at": "2026-10-26T07:24:25.673Z"
   },
   {
     "ledger": "stzhilang",
@@ -193,7 +194,7 @@
     "rank_rate_pct": 2.5635,
     "entered": "2025-12-12",
     "key": "yNkQm2X",
-    "view_checked_at": "2026-10-25T07:15:13.269Z",
+    "view_checked_at": "2026-10-26T07:27:20.313Z",
     "type": "tzzb",
     "display": "冲5000w",
     "book": "A-chong5000w",
@@ -223,7 +224,7 @@
     "cluster": "两融高杠杆",
     "circle": "AI/算力创业板高弹性的融资重仓+底仓高频 T",
     "online": "2026-10-16",
-    "view_checked_at": "2026-10-25T07:16:43.120Z"
+    "view_checked_at": "2026-10-26T07:28:51.177Z"
   },
   {
     "ledger": "zhiyingjuexin",
@@ -262,7 +263,7 @@
     "rank_rate_pct": -0.9489,
     "entered": "2025-09-30",
     "key": "yNkQm2X",
-    "view_checked_at": "2026-10-25T07:30:19.578Z",
+    "view_checked_at": "2026-10-26T07:47:03.180Z",
     "type": "tzzb"
   },
   {
@@ -342,7 +343,7 @@
     "cluster": null,
     "circle": "稳健波段(非短线): 半仓 3 只, 持股中位 3 天, 创业板/主板各半",
     "online": "2026-10-19",
-    "view_checked_at": "2026-10-25T07:32:16.270Z"
+    "view_checked_at": "2026-10-26T08:00:12.548Z"
   },
   {
     "ledger": "ynw01",
@@ -412,7 +413,7 @@
     "cluster": null,
     "circle": "哑铃型: 满仓 2 只, 底仓长拿 + 卫星快进快出, 主板为主",
     "online": "2026-10-19",
-    "view_checked_at": "2026-10-25T07:34:15.108Z",
+    "view_checked_at": "2026-10-26T08:05:53.925Z",
     "views_tried": [
       {
         "key": "XfDymq2",
@@ -425,8 +426,8 @@
   {
     "ledger": "zuoshoudeirong",
     "name": "做手德融",
-    "user_key": "219235",
-    "key": "7CK72My",
+    "user_key": "219234",
+    "key": "joonDP3",
     "kind": "pos",
     "match": "待补",
     "entered": "2026-10-17",
@@ -441,13 +442,19 @@
     "cluster": null,
     "circle": "单票满仓做主板连板接力: 一次只拿 1 只, 隔日了结, 午后和尾盘出手多",
     "online": "2026-10-19",
-    "view_checked_at": "2026-10-25T07:35:37.960Z",
+    "view_checked_at": "2026-10-26T08:06:58.667Z",
     "views_tried": [
       {
         "key": "NwYK3nj",
         "user_key": "219235",
         "lastNavDate": "20261014",
         "at": "2026-10-19T08:10:12.661Z"
+      },
+      {
+        "key": "7CK72My",
+        "user_key": "219235",
+        "lastNavDate": "20261021",
+        "at": "2026-10-26T08:06:58.667Z"
       }
     ]
   },
@@ -475,7 +482,7 @@
     "ledger": "meiyuelu",
     "name": "梅月路111号",
     "user_key": "183550",
-    "key": "joonDP3",
+    "key": "wqNOWPc",
     "kind": "pos",
     "match": "joonDP3 第9名(+185%) / yNkQm2X 第29名",
     "entered": "2026-10-18",
@@ -490,6 +497,14 @@
     "cluster": null,
     "circle": "有色资源与 ETF 为主的左侧低吸, 隔日多在竞价卖出, 回撤小",
     "online": "2026-10-19",
-    "view_checked_at": "2026-10-25T07:37:03.015Z"
+    "view_checked_at": "2026-10-26T08:10:20.217Z",
+    "views_tried": [
+      {
+        "key": "joonDP3",
+        "user_key": "183550",
+        "lastNavDate": "20261021",
+        "at": "2026-10-26T08:10:20.217Z"
+      }
+    ]
   }
 ]

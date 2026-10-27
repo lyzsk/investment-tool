@@ -65,7 +65,7 @@ def _load_month(a):
     d0, d1 = a
     return sql_df("select symbol, trade_date, open, high, low, close, pre_close, volume, amount, turnover_rate, limit_up, limit_down from kline_day "
                   "where is_deleted=0 and trade_date >= %s and trade_date < %s and open > 0 and pre_close > 0 "
-                  "and (symbol like 'sh60%%' or symbol like 'sz00%%' or symbol like 'sz30%%' or symbol in ('sh000001','sz399303','sz399006'))", (d0, d1))
+                  "and (symbol like 'sh60%%' or symbol like 'sz00%%' or symbol like 'sz30%%' or symbol like 'sh11%%' or symbol like 'sz12%%' or symbol in ('sh000001','sz399303','sz399006'))", (d0, d1))   # 10/26: 加转债(sh11 / sz12), 和股票同一个 K 线预测业务
 
 
 def load_daily(since="2023-06-01", until=None):
@@ -168,7 +168,9 @@ def base_features(df, st):
     g = df.groupby("symbol", sort=False)
     sym = df["symbol"].values
     is_idx = df["symbol"].isin(list(IDX)).values
-    is20 = df["symbol"].str[2:4].eq("30").values
+    is_cb = df["symbol"].str[:4].isin(["sh11", "sz12"]).values   # 10/26 用户: 转债 ±20% → 按 20cm 口径(幅度 ÷2, 和正股同一套数值)
+    is20 = df["symbol"].str[2:4].eq("30").values | is_cb
+    df["is_cb"] = is_cb.astype(np.int8)
     is_st = df["symbol"].isin(st).values
     lim = np.where(is20, 0.2, np.where(is_st, 0.05, 0.1))
     pc = df["pre_close"].values
