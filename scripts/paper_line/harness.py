@@ -340,6 +340,22 @@ def gate_terms(text):
     return V
 
 
+def gate_rebound(strategy):
+    """10/27 晚用户批: 06 里写「反抽」的规则必须把四样写出来(起点 / 起算 / 结束 / 走强改判, 数值取 01 反抽卡), 否则记违规(指引模式只记录; 守卫 B 照常接管)
+    判定: why 里出现「反抽」, 但没有同时出现 起点(最低) / 起算 / 结束(回落) / 改判(弱转强 / 走强) 中至少 3 样 → 违规"""
+    V = []
+    for c in (strategy or {}).get("codes") or []:
+        for r in c.get("rules") or []:
+            w = str(r.get("why") or "")
+            if "反抽" not in w:
+                continue
+            got = [bool(re.search(k, w)) for k in (r"起点|最低", r"起算|进入反抽", r"结束|回落", r"改判|弱转强|走强")]
+            if sum(got) < 3:
+                miss = [n for n, g in zip(("起点", "起算", "结束", "走强改判"), got) if not g]
+                V.append(f"{c.get('code')} {r.get('id')}: 写了「反抽」但没填 {'/'.join(miss)}(数值看 01 反抽卡)")
+    return V
+
+
 SRC02 = r"导师逆向|发哥|桃哥|天哥|卢本圆|涨停分析|梯队|指数\s*K\s*线|(?<![A-Za-z])M\d+|K[DS]\d+"
 
 

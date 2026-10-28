@@ -110,6 +110,10 @@ def watch(D):
         T1 = set()
     T2 = mentor_hold_codes(D)   # T2 导师真人昨天收盘持仓 + 昨天成交过的
     T3 = v3_pool_codes(D)   # T3 v3 各本账 01 候选池前几名(模型可能临时买)
+    try:   # 10/27 晚: 奥普特 09:36 后掉出 3 秒盘口(奥普转债在点名名单, 正股只进了最低档被挤掉) → 名单里所有转债的正股都进 T1(翻红拉升 S10 要靠正股盘口)
+        T1 |= {stk[c] for c in (set(codes) | EXTRA | set(T2) | set(T3)) if stk.get(c, "").isdigit()} - T0
+    except NameError:
+        pass
     try:   # 10/25 用户选 D: 被加红电报点名封板 / 冲板的票进 3 秒盘口(之后开板 / 回封有秒级数据; 不叫醒 chain)
         sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
         import telegraph_now as TGN
@@ -188,6 +192,20 @@ def ladder_codes(D):
     """T−1 收盘的连板梯队(二板及以上, 封死的; 高度高的先)—— strong_next 库(每晚重建)里状态日 = D 前一交易日的记录; 每天读一次"""
     if D not in _LADDER:
         out = []
+        try:   # 10/28 凌晨: 强势股库只收"有次日结果"的日子(strong_next 建库 range(20, len(k)−1)), 最新收盘日永远不在里面 → 梯队停在前一天;
+            #   先读 watch_seed.json(check md 收盘后按当天日 K 算的续板, D = 下一交易日), 没有再退回强势股库
+            ws = json.loads((ROOT / "results" / "_live" / D / "watch_seed.json").read_text(encoding="utf-8"))
+            lv = []
+            for x in ws.get("seed") or []:
+                if "续板" in (x.get("tags") or []):
+                    m = re.match(r"(\d+) 连板 →", (x.get("why") or [""])[0])   # 只认"N 连板 → 明天冲"(海洋王"6 连板断板后今天回封"= 1 板, 不算)
+                    if m and int(m.group(1)) >= 2:
+                        lv.append((int(m.group(1)), x["code"]))
+            if lv:
+                _LADDER[D] = [c for _, c in sorted(lv, key=lambda t: -t[0])]
+                return _LADDER[D]
+        except (OSError, ValueError, KeyError):
+            pass
         try:
             f = MKT / "similar" / "stock_strong.jsonl"
             rows, last = [], ""

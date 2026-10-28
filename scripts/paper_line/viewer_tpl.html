@@ -250,7 +250,7 @@ function chartSVG(code, b){
     const shape = `<circle cx="${x}" cy="${y}" r="2" fill="${c}"/><text x="${x}" y="${ty}" text-anchor="middle" style="font-size:12px;font-weight:700;fill:${c};paint-order:stroke;stroke:#15171c;stroke-width:3px">${up?'B':'S'}</text>`;
     return `<g>${shape}<title>${esc(m.tip)}</title></g>`; }).join('');
   const ticks = [['09:30',0],['10:30',60],['11:30',120],['14:00',210],['15:00',240]].map(([t,i])=>`<text x="${X(i)}" y="${H-4}" text-anchor="middle">${t}</text>`).join('');
-  const name = (b.trades.find(t=>t.code===code)||{}).name || (DATA.user.find(x=>x[1]===code)||[])[2] || ((DATA.mentor[b.skill]||[]).find(x=>x[1]===code)||[])[2] || '';
+  const name = (b.trades.find(t=>t.code===code)||{}).name || (DATA.user.find(x=>x[1]===code)||[])[2] || ((DATA.mentor[b.skill]||[]).find(x=>x[1]===code)||[])[2] || (DATA.names||{})[code] || '';
   return `<div class="small"><b>${code} ${esc(name)}</b></div><svg width="${W}" height="${H}"><text x="2" y="${T+8}">${hi.toFixed(2)}</text><text x="2" y="${H-Bm}">${lo.toFixed(2)}</text>${vlines}<path d="${path}" fill="none" stroke="#e6e8ec" stroke-width="1.2"/>${mk}${ticks}</svg>`;
 }
 
@@ -300,7 +300,7 @@ function toggleDetail(b, i, tr){
   tr.classList.add('on'); det.style.display = '';
   const steps = v.steps.map(s => `<tr><td><span class="tag" style="background:${STEP_COLOR[s.name]||'#555'}">${s.name}</span></td><td class="num">${fmt(s.secs,1)}</td><td class="num">${tok(s.cr)}</td><td class="num">${tok(s.cw)}</td><td class="num">${tok(s.in)}</td><td class="num">${tok(s.out)}</td><td class="num">${fmt(s.usd,3)}</td><td class="num">${fmt(s.k3,2)}${s.est?' <span class="tag est">估</span>':''}</td><td class="small neg">${esc(s.err||'')}</td></tr>`).join('');
   const files = Object.keys(v.files).map(f => `<span class="btn" data-f="${f}">${f} <span class="mute">${(v.sizes[f]/1024).toFixed(0)}KB</span></span>`).join('');
-  const orders = v.orders.map(o => { const f = o.fate||{}; return `<tr><td>${esc((o.name||'')+' '+o.code)} <span class="mute">${esc(o.id||'')}</span></td><td class="${o.side==='BUY'?'pos':'neg'}">${o.side==='BUY'?'买':'卖'} ${o.op||''}${o.px}</td><td class="num">${o.qty}</td><td>${o.auction?'竞价 ':''}${o.type||''}${o.after?' 等'+o.after:''}</td>
+  const orders = v.orders.map(o => { const f = o.fate||{}; return `<tr><td>${esc((o.name||(DATA.names||{})[o.code]||'')+' '+o.code)} <span class="mute">${esc(o.id||'')}</span></td><td class="${o.side==='BUY'?'pos':'neg'}">${o.side==='BUY'?'买':'卖'} ${o.op||''}${o.px}</td><td class="num">${o.qty}</td><td>${o.auction?'竞价 ':''}${o.type||''}${o.after?' 等'+o.after:''}</td>
     <td>${fateTag(o.fate)}<div class="small">${esc(f.why||'')}</div><div class="small mute">${f.win?'有效 '+f.win:''}${f.repl?' · '+esc(f.repl):''}</div></td><td class="num">${f.t30?f.t30+' ':''}${pct(f.d30)}</td><td class="num">${pct(f.dc)}</td><td class="small">${esc((o.why||'').slice(0,220))}</td></tr>`; }).join('');
   det.firstElementChild.innerHTML = `
    <div class="small mute">触发 ${v.trig} · 开始 ${v.start||'-'} · 链耗时 ${fmt(v.total,1)} 秒 · ${v.boot?'启动轮（第一次建会话）':'续会话'}</div>

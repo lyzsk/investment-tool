@@ -150,6 +150,23 @@ def charts(D, codes):
     return {c: sorted(v) for c, v in out.items()}
 
 
+def names_of(D, codes):
+    """10/27 用户: 只出现在挂单 / 分时里的票(杰克科技 / 光洋股份)页面上没名字 → 证券表兜底(当天或之前最近一份 security_master.jsonl)"""
+    out = {}
+    fs = sorted(f for f in (ROOT / "downloads" / "market").glob("*/security_master.jsonl") if f.parent.name <= D)
+    if not fs:
+        return out
+    for l in fs[-1].open(encoding="utf-8"):
+        try:
+            r = json.loads(l)
+        except ValueError:
+            continue
+        c = str(r.get("code") or "")
+        if c in codes and c not in out:
+            out[c] = str(r.get("name") or "").replace(" ", "")
+    return out
+
+
 def mentor_trades(D, skills):
     try:
         import manual_backfill as mb
@@ -224,7 +241,7 @@ def main():
         probs += X.keep_check(b, ratio)
         b["mentor_day"] = X.mentor_block(b, M, D)
         probs += [f"{b['id']} {v['dir']} 缺 timing.json(没有开始时刻 / 耗时)" for v in b["versions"] if not v.get("start")]
-    data = {"date": D, "k3": K3, "ratio": ratio, "books": B, "charts": bars, "mentor": M, "user": U,
+    data = {"date": D, "k3": K3, "ratio": ratio, "books": B, "charts": bars, "mentor": M, "user": U, "names": names_of(D, codes | set(bars)),
             "tpm": X.tpm(B), "limits": {"t2": {"tpm": 3e6, "rpm": 100, "conc": 40}, "t4": {"tpm": 4e6, "rpm": 200, "conc": 60}},
             "calc": X.calc_defaults(B), "probs": probs, "keep_design": X.KEEP_DESIGN_USD}
     out = (base / "review" / "viewer.html") if a.root else ROOT / "results" / "inv-stock" / "paper_line" / f"viewer_{D}.html"

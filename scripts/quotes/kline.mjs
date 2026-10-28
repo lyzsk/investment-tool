@@ -188,7 +188,11 @@ export async function archiveDaily(codes, { dir = "downloads/quotes/daily", src,
                 }
             }
             const map = new Map((!full && old?.klines || []).map((x) => [x.d, x]));
-            for (const x of fresh.bars) map.set(x.d, x);
+            // 10/28 凌晨: 盘中调用(snapshot.mjs / matcher)会把当天未收盘的 bar 当日线写进档(10/26 百洋股份收盘记成 09:36 现价 → 涨停价算错 → 假 S4 信号);
+            //   15:05 前当天的 bar 一律不落档(收盘后 refresh_daily_cache 再补)
+            const now = new Date(), today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+            const live = now.getHours() * 100 + now.getMinutes() < 1505;
+            for (const x of fresh.bars) { if (live && x.d === today) continue; map.set(x.d, x); }
             const klines = [...map.values()].sort((a, b) => a.d.localeCompare(b.d));
             fs.writeFileSync(f, JSON.stringify({ code, adjusted: fresh.adjusted, src: fresh.src, klines }));
             old && !full ? inc++ : ok++;

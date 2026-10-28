@@ -88,7 +88,11 @@ try { lines.push(...realLines(DATE)); } catch (e) { lines.push(`导师真人对�
 lines.push("详情: scripts/dfcf/paper/report.html(悬停看全部账户); 真人对照全表 real_vs_chain/" + DATE + ".md");
 const msg = lines.join("\n");
 console.log(msg);
-if (process.argv.includes("--send")) {
+// 10/27 用户令: 现在不跑 paper line, 【paper 日报】不再推微信; chain_flags.txt PAPER_DIGEST_PUSH=1 才推(默认关), 关着时只打印
+const _flagPath = path.join(SCRIPT_DIR, "..", "..", "claude_profile", "chain_flags.txt");
+const _digestPush = (() => { try { const m = fs.readFileSync(_flagPath, "utf8").match(/^\s*PAPER_DIGEST_PUSH\s*=\s*(\S+)/m); return m ? m[1] === "1" : false; } catch { return false; } })();
+if (process.argv.includes("--send") && !_digestPush) console.log("[daily_digest] PAPER_DIGEST_PUSH 关(10/27 用户令), 不推微信");
+if (process.argv.includes("--send") && _digestPush) {
     // 10/19 起统一出口 scripts/hermes/wx_send.py(--raw: 日报本身已是微信格式, 只用它的配额退避 / 分段 / 落账); 出口不在就退回直接 hermes send
     const WX = path.resolve(SCRIPT_DIR, "../../hermes/wx_send.py");
     const PY = path.resolve(SCRIPT_DIR, "../../venv/Scripts/python.exe");

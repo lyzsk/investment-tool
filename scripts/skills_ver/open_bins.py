@@ -9,9 +9,21 @@
   · 档名一律用主板口径(创业板开 +13% 记「6~8」), 这样不同板的票能进同一格
 查表: lookup(tab, key, base) — 格内样本 <3 → 依次并上相邻 1 档、2 档 ... 直到 ≥3, 都不够 → base(默认动作)
 """
+import math
 from collections import Counter
 
 ORDER = ["跌停", "<−8", "−8~−6", "−6~−4", "−4~−2", "−2~0", "平", "0~2", "2~4", "4~6", "6~8", ">8", "涨停"]
+# 10/27 晚用户定: 20cm / 30cm 股票 = 主板 13 档 + ±10%~±涨跌停 对称外延(每档 2 个点); 外延档按数值插进 ORDER(查表并相邻档时挨着)
+_EXT = {}
+for _a in range(8, 28, 2):
+    _EXT[f"{_a}~{_a + 2}"] = _a + 1
+    _EXT[f"−{_a + 2}~−{_a}"] = -_a - 1
+for _t in (18, 28):
+    _EXT[f">{_t}"] = _t + 1.5
+    _EXT[f"<−{_t}"] = -_t - 1.5
+_VAL = {k: v for v, k in enumerate(ORDER)}
+_VAL = {**{k: (-99 if k == "跌停" else 99 if k == "涨停" else -9 if k == "<−8" else 9 if k == ">8" else 0 if k == "平" else (float(k.replace("−", "-").split("~")[0]) + 1)) for k in ORDER}, **_EXT}
+ORDER = sorted(_VAL, key=lambda k: (_VAL[k], k))
 MIN_N = 3
 
 
@@ -28,10 +40,27 @@ def lim_of(code, kind=None):
     return 10
 
 
-def bin13(p, lim=10):
-    """p = 涨跌幅(%), lim = 涨跌停幅度(%); 返回 ORDER 里的档名(主板口径)"""
+def bin13(p, lim=10, cb=False):
+    """p = 涨跌幅(%), lim = 涨跌停幅度(%); 返回 ORDER 里的档名(主板口径); 20cm / 30cm 股票 ±8% 外用外延档(10/27 用户定), 转债仍按 lim/10 缩放"""
     if p is None:
         return None
+    if lim > 10 and not cb:
+        top = int(lim) - 2
+        if p >= lim - 0.2:
+            return "涨停"
+        if p <= -lim + 0.2:
+            return "跌停"
+        if p >= top:
+            return f">{top}"
+        if p < -top:
+            return f"<−{top}"
+        if p >= 8:
+            a = int(p // 2 * 2)
+            return f"{a}~{a + 2}"
+        if p < -8:   # 10/28: 与主板同口径「−2~0 含 −2」→ 下沿含在档里(−18.00 归 −18~−16, 原写法会落到 −20~−18)
+            a = math.ceil(-p / 2) * 2 - 2   # −8.5 → 8(−10~−8) / −10 → 8 / −18 → 16(−18~−16)
+            return f"−{a + 2}~−{a}"
+        lim = 10   # ±8% 以内和主板同档
     u = lim / 10
     if p >= lim - 0.2 * u:
         return "涨停"
@@ -50,7 +79,8 @@ def bin13(p, lim=10):
 
 def bin13_frac(x, code=None, kind=None):
     """x = 小数口径的涨跌(0.05 = +5%)"""
-    return None if x is None else bin13(x * 100, lim_of(code, kind))
+    cb = kind == "cb" or str(code or "")[-6:].startswith(("11", "12"))
+    return None if x is None else bin13(x * 100, lim_of(code, kind), cb)
 
 
 def fit(pairs):

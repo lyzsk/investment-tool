@@ -1,0 +1,9 @@
+--- v038_20261027-2209/persona/fingerprint.md
++++ v039_20261027-2304/persona/fingerprint.md
+@@ -1,5 +1,5 @@
+ # 芷影攫心(zhiyingjuexin) 交易指纹·机械层
+ 
+-> 生成: 2026-10-27T22:01:32 | 脚本: scripts/tzzb/mentor_fingerprint.py(零 token, 只读) | as-of: 全量
++> 生成: 2026-10-27T23:01:42 | 脚本: scripts/tzzb/mentor_fingerprint.py(零 token, 只读) | as-of: 全量
+ > 数据窗口: 2025-09-25 ~ 2026-10-27 | 成交腿 2562 | 买入事件(日×票) 361, 其中新开仓 300 | 卖出事件 361
+ > 行情面板: 2025-06-03 ~ 2026-10-27(行情库 kline_day, 不复权价+交易所昨收) | 新开仓中有行情的占 99%

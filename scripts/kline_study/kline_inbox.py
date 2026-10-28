@@ -163,7 +163,7 @@ def scan(day, force=False, manual=None):
 V2_RETRY = 5   # v2 失败(多半是特征表还没建到截止日: scen_v2.py all 没跑)最多重试几轮, 期间用旧引擎兜底出图
 # 10/26 晚: 衔接式续画(draw_stitch: 在截图图框右边剖开接着画, 同价格轴 / 同 K 线宽 / 同配色 + 日 K 近日放大)。默认关, 用户审完再开:
 #   环境变量 KLINE_STITCH=1 或命令行 --stitch; 文件名和旧画法一样(覆盖), 衔接画法报错就退回旧画法(预测.衔接err 记原因)
-STITCH = os.environ.get("KLINE_STITCH", "0") == "1"
+STITCH = os.environ.get("KLINE_STITCH", "1") == "1"   # 10/27 23:0x 用户看样图点头: 默认开; KLINE_STITCH=0 关
 
 
 def _draw(shot, kind, code, v2, od, end, **kw):

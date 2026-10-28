@@ -27,6 +27,7 @@ terms:
   - {term: "地天板", def: "跌停 → 涨停(中间触及也算)", mech: "board_knowledge typ=地天"}
   - {term: "天地天板", def: "涨停 → 跌停 → 涨停(触及也算)", mech: "board_knowledge typ=天地天"}
   - {term: "地天地板", def: "跌停 → 涨停 → 跌停(触及也算)", mech: "board_knowledge typ=地天地"}
+  - {term: "13 档", def: "(10/27 用户定) md 午评 / 收评里的涨跌分析档位, 从涨停到跌停一共 13 档: 涨停 / >8 / 6~8 / 4~6 / 2~4 / 0~2 / 平(±0.2%) / −2~0 / −4~−2 / −6~−4 / −8~−6 / <−8 / 跌停(单位 %, 每档 2 个点); 用户说「13 档的 2 个点内」= 落在 0~2 档, 「4 个点内」= 2~4 档, 「水上的 3 档」= 涨停以下的 >8 / 6~8 / 4~6; 20cm / 30cm 股票(10/27 晚用户定): ±8% 以内同主板, 往外每档仍 2 个点对称外延到涨跌停(8~10 / 10~12 / … / >18 / −10~−8 / … / <−18); 转债 ±20% 仍是档距 ×2(每档 4 个点)", mech: "skills_ver/open_bins.py / market/similar_days.b13(开盘档同口径)"}
   - {term: "首板", def: "前一天没涨停、今天收盘封住涨停", mech: "强势股库 state=首板"}
   - {term: "N连板", def: "连续 N 个交易日收盘涨停(二板 / 三板…)", mech: "强势股库 state=二板 / 三板+; 财联社涨停池 limit_up_days", ban: ["N板连板"]}
   - {term: "续板", def: "昨天涨停、今天继续收盘涨停", mech: "collect_mood / must_extra.market_ctx 的 xb"}
@@ -101,7 +102,8 @@ terms:
   - {term: "持仓", def: "用户实盘持仓 + 各线账上持仓", mech: "snapshots 最近持仓导出 + results/_live/<日>/live_*/state.json positions"}
   - {term: "点名池", def: "用户手动点名加的票, 只进不自动出, 用户说删才删(例 10/26 东百集团、国芳集团 + 6 只消费票)", mech: "scripts/temp/collect_book_extra.txt; 盘口池 T1 档 + 信号池"}
   - {term: "必查池", def: "各线给模型看的观察票: 持仓 + 发哥提到的 + 入选导师 T−1 操作过的 + UP 提到的 + 盘前提到的 + 电报点名 + 候选池前 50; 完整必查只展开前 20; 动态出池只影响必查", mech: "tools/watch_set.py → live_*/must_state.json watch(带来源标签)", ban: ["必查范围", "候选池前50", "候选池前 50"]}
-  - {term: "信号池", def: "出分时信号、推微信的范围 = 必查池 ∪ 持仓 ∪ 点名池(10/26 起再加: 当日涨停个股的转债, T+1 正股没连板就退出)", mech: "scripts/live/signals.py watch_codes", ban: ["盯盘池", "盯盘名单"]}
+  - {term: "信号池", def: "出分时信号、推微信的范围 = 必查池 ∪ 持仓 ∪ 点名池(10/26 起再加: 当日涨停个股的转债, T+1 正股没连板就退出)", mech: "scripts/live/signals.py watch_codes", ban: ["盯盘名单"]}
+  - {term: "盯盘池", def: "(10/27 晚用户定, 原「视野票」作废) 3 秒盘口里不在信号池、但盘中触发了盯盘条件(强势 / 板类 / 翻红 / 跨档 / 炸板后低吸)而进池的股票和转债; 推送里单列一组, 股票:转债推送比例按两边活跃只数动态(夹 1~3)", mech: "scripts/live/signals.py POOL_SIGS / Picker / Pusher._balance", ban: ["视野票"]}
   - {term: "盘口池", def: "每 3 秒录五档盘口的名单(200 只, 分 T0~T5 六档, 满了低档先被挤出); 只录数据不推送", mech: "scripts/market/collect_book.py watch()", ban: ["3S盘口池", "3 秒盘口池", "3S 盘口池"]}
 
   - {term: "共用 02", def: "市况会话写的 02, 全部账本共用, 触发式刷新", mech: "market02.py"}

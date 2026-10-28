@@ -221,4 +221,5 @@ check-cls-md(Java 侧已灌) → **taoge-skill sum**(results→md 桃哥小节; 
 | 脚本 | 用法 | 说明 |
 |---|---|---|
 | `cli_relay.py` / `cli_inject.py` | 见 CLAUDE.md「跨机转接」 | `pcN cli: xxx` 转给别的电脑上的 Claude Code 窗口 |
+| `drain_pending.py` | 07:58 `session_rollover.py` 关旧会话前自动调；04:00 计划任务 HermesGwRestart0400 → `gw_restart_0400.vbs` → `--mode hermes0400 --restart`；`--report` 只看 | **换会话 / hermes 重启前扫交互会话 jsonl(10/27, 零 token)**：窗口 = 你睡着那段：睡前最后一条消息 ~ 早上第一条消息（还没醒 = 现在；≥3 小时没发消息算睡着；睡前发的、回复睡着后才写完的也算）。①排队没送进会话 ②没答完 → 写进交接、新会话开场带上（含 →pc1 标记, PC3 --fetch 照样取得到；04:00 会话还活着不带）③该推微信没推（你要求发微信 / 盘中手机转来的实盘类；"不要发微信"不算）→ 补推 ④outbox 窗口内的 → 补发（更早的不动）；被限频就后台 `--watch` 等你回微信再发，最长到 10:00。已处理的记 `state/drain_state.json` 防重复；被置信度闸拦下的不强发、07:58 带进新会话 |
 | `fmt_cli_reply.py` | `python fmt_cli_reply.py "原文"` / stdin / `--from-jsonl [--at HH:MM] [--grep 词]`；`--kind` 强制类型、`--debug` 看每行归类、`--send` 排好直接推微信 | **CLI 回复 → 微信格式(10/19, 零 token)**：自动认挂单 / 日报 / 预判 / 兜底；挂单 = 📊状态 → 🔴B档(买) → 🟢S档(卖) → 🔗配对 → ⚡改单条件(触发价加粗)，改单行旧档"撤→新价"、新档"改(原价)"都进表，依据压到约 20 字；日报 = 异常前置、正常压一句 |

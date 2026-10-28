@@ -225,8 +225,15 @@ def rules_brief(t):
     """规则全文 → 简表: 每条 ### R 只留标题 + 规则 / 方向 / 机械触发 / 消费提示 几行(各 ≤220 字); 去掉修订记录、验证状态等长段"""
     out, keep = [], False
     skip_sec = False
+    lesson, has_hint = False, False   # 10/27 晚用户令: [教训] 规则简表里没有消费提示 / 警告时自动补一句「只提醒, 不是禁止」
+
+    def _close():
+        if lesson and not has_hint:
+            out.append("- **消费提示**(自动补): [教训] = 他这类做法的结果偏差, 只提醒 / 降一档仓位, 不是禁止, 不能单独否决他本人会做的动作; 引用时写这类情境他本人做没做")
     for l in (t or "").splitlines():
         if l.startswith("## "):
+            _close()
+            lesson, keep = False, False
             skip_sec = "修订记录" in l or "核销" in l or "候选假设" in l
             if not skip_sec:
                 out.append(l)
@@ -234,11 +241,18 @@ def rules_brief(t):
         if skip_sec:
             continue
         if l.startswith("### "):
+            _close()
             out.append(l)
             keep = True
+            lesson, has_hint = "教训" in l and "只提醒" not in l and "不是禁" not in l and "不给方向" not in l, False
             continue
         if keep and re.match(r"^- \*\*(规则|方向|机械触发|消费提示|触发|动作)\*\*", l):
             out.append(l[:220] + ("…" if len(l) > 220 else ""))
+            has_hint = has_hint or l.startswith("- **消费提示**")
+        elif keep and lesson and l.startswith("- **消费警告**"):   # [教训] 的消费警告也带上(原来简表丢了)
+            out.append(l[:220] + ("…" if len(l) > 220 else ""))
+            has_hint = True
+    _close()
     return "\n".join(out) + "\n\n(简表: 每条规则的验证状态 / 样本 / 修订记录不常驻; 要全文用 ./q rule <skill> <R编号>)"
 
 

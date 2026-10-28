@@ -1,0 +1,9 @@
+--- v041_20261027-2209/persona/fingerprint.md
++++ v042_20261027-2304/persona/fingerprint.md
+@@ -1,5 +1,5 @@
+ # ST之狼(stzhilang) 交易指纹·机械层
+ 
+-> 生成: 2026-10-27T22:01:17 | 脚本: scripts/tzzb/mentor_fingerprint.py(零 token, 只读) | as-of: 全量
++> 生成: 2026-10-27T23:01:23 | 脚本: scripts/tzzb/mentor_fingerprint.py(零 token, 只读) | as-of: 全量
+ > 数据窗口: 2025-11-06 ~ 2026-10-22 | 成交腿 255 | 买入事件(日×票) 120, 其中新开仓 93 | 卖出事件 118
+ > 行情面板: 2025-06-03 ~ 2026-10-27(行情库 kline_day, 不复权价+交易所昨收) | 新开仓中有行情的占 99%

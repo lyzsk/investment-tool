@@ -74,6 +74,15 @@ def targets(day):
             codes += [str(s.get("code")) for s in json.loads(f.read_text("utf-8")).get("snaps") or []]
         except (OSError, ValueError, AttributeError):
             continue
+    try:   # 10/28 用户令(09:25~09:30 竞价结果推送): 明日种子池 / 点名(collect_book_extra.txt, 含 watch_seed 自动块)+ 明日预案候选都要有竞价过程
+        import re as _re
+        ex = ROOT / "scripts" / "temp" / "collect_book_extra.txt"
+        if ex.exists():
+            codes += _re.findall(r"(?<!\d)\d{6}(?!\d)", ex.read_text("utf-8"))
+        ej = json.loads((ROOT / "results" / "_live" / day / "expect.json").read_text("utf-8"))
+        codes += [str(c) for c, _ in (ej.get("候选") or {}).get("股票") or []] + [str(c) for c, _ in (ej.get("候选") or {}).get("转债") or []]
+    except (OSError, ValueError, AttributeError, TypeError):
+        pass
     syms += [AR.symbol(c) for c in dict.fromkeys(codes) if len(c) == 6 and c.isdigit()]
     syms = [s for s in syms if s[:2] in ("sh", "sz")]
     # 10/19(TODO 二-5 土豆竞价T, 用户令提前做): 全市场可转债都进竞价采集 —— 土豆 103 天竞价 09:25 买、09:30 卖, 他最可能看的信号是

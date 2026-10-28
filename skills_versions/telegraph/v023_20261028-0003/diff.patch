@@ -1,0 +1,14 @@
+--- v022_20261027-2304/persona/cases_index.md
++++ v023_20261028-0003/persona/cases_index.md
+@@ -1,3 +1,3 @@
+-# cases_index.md — telegraph 案例目录(生成于 2026-10-27 23:04; 源 cases.md 44 行 / 1 KB, 10 个小节)
++# cases_index.md — telegraph 案例目录(生成于 2026-10-28 00:03; 源 cases.md 44 行 / 1 KB, 10 个小节)
+ > 用法: 先看这张目录定位, 再按行号读 cases.md 对应区间; 票名列只抽了标题和表格首列, 不全时用 grep 搜票名
+ 
+--- v022_20261027-2304/persona/rules_index.md
++++ v023_20261028-0003/persona/rules_index.md
+@@ -1,3 +1,3 @@
+-# rules_index.md — telegraph 决策规则索引(B3 分级加载; 生成于 2026-10-27 15:04)
++# rules_index.md — telegraph 决策规则索引(B3 分级加载; 生成于 2026-10-27 16:03)
+ > 源: rules.md(4 条/1KB)。本索引=常驻; **禁全量读 rules.md**。
+ > 捞全文: grep -n "<编号> " skills/telegraph-skill/persona/rules.md 得行号, 读到下一条规则前(10/11 修: 原写死 taoge 路径)。

@@ -167,6 +167,13 @@ def main():
                     print(f"[{dt.datetime.now():%H:%M:%S}] 盘前汇总{'已推' if t else '今天推过了'}", flush=True)
                 except Exception as e:   # noqa: BLE001
                     print(f"[{dt.datetime.now():%H:%M:%S}] 盘前汇总失败 {e!r}", flush=True)
+                if not a.fake and (E.X.flag("MORNING_KLINE", "1") or "1") == "1":   # 10/28: 盘前首跑收尾 → 持仓 K 线预测 + 明日预案要点推微信(用户 10/27 令; 一天一次)
+                    try:
+                        sys.path.insert(0, str(ROOT / "scripts" / "kline_study"))
+                        import morning_push as MP
+                        print(f"[{dt.datetime.now():%H:%M:%S}] 盘前持仓 K 线预测: {MP.run(a.date)}", flush=True)
+                    except Exception as e:   # noqa: BLE001
+                        print(f"[{dt.datetime.now():%H:%M:%S}] 盘前持仓 K 线预测失败 {e!r}", flush=True)
             threading.Thread(target=_dg, name="live-digest", daemon=True).start()
         for th in ths:
             th.join()

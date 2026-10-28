@@ -18,6 +18,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -54,6 +55,46 @@ def on():
     return os.environ.get("PUSH_BUS", "0") == "1"
 
 
+_SIG_CACHE = [0.0, "1"]
+CB_RE = re.compile(r"\((1[12]\d{4})\)")   # 转债代码 11xxxx / 12xxxx
+
+
+def sig_wx_mode():
+    """chain_flags SIG_WX: 1 = 分时信号照推; 0 = 不推(10/27 10:1x 用户令止血, 只留成交 / 挂单 / 叫醒 / 盯盘卡); cb = 只推转债那几行(10/27 10:4x 用户嫌转债推少了, 股票信号仍关);
+    每 10 秒重读一次(不用重启)"""
+    if time.time() - _SIG_CACHE[0] < 10:
+        return _SIG_CACHE[1]
+    v = "1"
+    try:
+        for line in (HERE.parent / "claude_profile" / "chain_flags.txt").read_text(encoding="utf-8").splitlines():
+            k, _, val = line.split("#")[0].partition("=")
+            if k.strip() == "SIG_WX":
+                v = val.strip() or "1"
+    except OSError:
+        pass
+    _SIG_CACHE[:] = [time.time(), v]
+    return v
+
+
+def sig_wx_on():
+    return sig_wx_mode() == "1"
+
+
+def cb_only(text):
+    """分时信号批只留转债行(抬头 / 分组标题留着, 分组下没有转债的连标题一起去掉); 一只转债都没有 → None"""
+    out, grp = [], []
+    for l in (text or "").splitlines():
+        if CB_RE.search(l):
+            out += grp + [l]
+            grp = []
+        elif not re.search(r"\(\d{6}\)", l):   # 抬头 / 分组标题(💼 持仓: / 👀 盯盘票: / 🔭 盯盘池…)
+            if l.rstrip().endswith((":", "：")):
+                grp = [l]
+            elif not out:
+                out.append(l)
+    return "\n".join(out) if any(CB_RE.search(l) for l in out) else None
+
+
 def window(pending, remaining):
     """→ (这批要等几秒, 这批发哪些); remaining = 剩余额度(None = 不知道, 按充足算)"""
     r = 10 if remaining is None else remaining
@@ -76,6 +117,12 @@ def window(pending, remaining):
         n10 = sum(1 for t, ln in _ARR if ln == "norm" and now_ - t < 600)
         return int(min(180, max(15, 15 * n10 / 3))), pending
     return (20 if r >= 6 else 60), pending
+
+
+def _fill_key(text):
+    """成交卡(✅ 开头)的身份 = 前 3 行(线 + 成交时刻 / 买卖 + 代码 / 股数 @ 价); 不是成交卡 → None"""
+    t = (text or "").strip()
+    return "\n".join(t.splitlines()[:3]) if t.startswith("✅") else None
 
 
 def compose(items, remaining):
@@ -113,14 +160,29 @@ def log(D, s):
 def run(D, dry=False, until="15:05:00", once=False):
     import wx_send
     f = _qf(D)
-    off, pending, last_send, n_sent = 0, [], 0.0, 0
+    off, pending, last_send, n_sent, n_drop, t_drop, n_dup = 0, [], 0.0, 0, 0, time.time(), 0
     pf = HERE / "state" / f"push_bus_{D}.pending.json"   # 10/26: 重启前没发出去的队列存这里, 重启续上(原来重启 = 丢掉)
-    if f.exists():   # 重启续跑: 已有的行算处理过(避免重发)
-        off = f.stat().st_size
+    of = HERE / "state" / f"push_bus_{D}.offset"   # 10/27: 读到哪了也落盘; 原来启动时一律跳到文件末尾 → 08:49:52 启动同一秒进队的盯盘卡被跳过没发
+    if f.exists():   # 重启续跑: 上次读到的位置之前算处理过(避免重发); 当天第一次启动(没有 offset 文件)从头读
+        try:
+            off = min(int(of.read_text(encoding="utf-8").strip() or 0), f.stat().st_size)
+        except (OSError, ValueError):
+            off = 0
         try:
             pending = json.loads(pf.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             pending = []
+    seen_fill = set()   # 10/27: 同一笔成交卡只推一次(执行器守卫消息被误排成"最新一笔成交", 做手德融 09:35 那笔进队 19 遍); 启动时把已处理过的成交卡也记上
+    if f.exists() and off:
+        with f.open("rb") as fh:
+            done = fh.read(off).decode("utf-8", "replace")   # off = 字节位置, 和下面 tell() 同口径
+        for l in done.splitlines():
+            try:
+                k = _fill_key(json.loads(l).get("text"))
+            except ValueError:
+                continue
+            if k:
+                seen_fill.add(k)
     log(D, f"dispatcher 启动 dry={dry} 起点 {off}")
     while dt.datetime.now().strftime("%H:%M:%S") < until:
         if f.exists() and f.stat().st_size > off:
@@ -134,11 +196,33 @@ def run(D, dry=False, until="15:05:00", once=False):
                     if e.get("src") == "live_signal":   # 记到达时刻(动态攒批用)
                         _ARR.append((e.get("ts") or time.time(), "fast" if e.get("fast") else "slow" if e.get("slow") else "norm"))
                         del _ARR[:-300]
+                        mode = sig_wx_mode()
+                        if mode == "0":   # 止血开关: 分时信号只落队列文件, 不推微信
+                            n_drop += 1
+                            continue
+                        if mode == "cb":   # 只推转债行
+                            t = cb_only(e.get("text"))
+                            if not t:
+                                n_drop += 1
+                                continue
+                            e = {**e, "text": t}
+                    fk = _fill_key(e.get("text"))
+                    if fk:
+                        if fk in seen_fill:
+                            n_dup += 1
+                            continue
+                        seen_fill.add(fk)
                     if e.get("key"):
                         pending = [x for x in pending if x.get("key") != e["key"]]   # 新一版顶掉还没发的旧版
                     pending.append(e)
                 off = fh.tell()
             _save_pending(pf, pending)
+            of.write_text(str(off), encoding="utf-8")
+        if sig_wx_mode() == "0":
+            pending = [x for x in pending if x.get("src") != "live_signal"]   # 开关刚关时已在队里的信号也不发
+        if (n_drop or n_dup) and time.time() - t_drop >= 300:
+            log(D, f"近 5 分钟: SIG_WX=0 拦下分时信号 {n_drop} 批; 重复成交卡丢掉 {n_dup} 张")
+            n_drop, n_dup, t_drop = 0, 0, time.time()
         if pending and time.time() - last_send >= GAP_S:
             try:
                 t0, used = wx_send.quota()

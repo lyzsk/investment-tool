@@ -780,6 +780,16 @@ def step_index_pit(date_arg, dry):
     return msg
 
 
+def expect_next_day(d):
+    """watch_seed / expect 要的下一交易日"""
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+        import expect as EXP
+        return EXP.next_day(d.isoformat())
+    except Exception:   # noqa: BLE001
+        return (d + dt.timedelta(days=1)).isoformat()
+
+
 def push_summary(d, summary, rv, hj):
     """check md 总结微信(10/24 用户): 每天只推 1 条 —— 当天最后一轮(23:00 后)跑完时; 复活写在这里; 导师写 "<中文名>skill: …" """
     if dt.datetime.now().hour < 23 or d != dt.date.today():
@@ -804,6 +814,12 @@ def push_summary(d, summary, rv, hj):
         L.append(f"- 复活 {x['name']}: 账本恢复更新(最新净值 {x['nav'][5:]}, 停更时停在 {x['was'][4:6]}-{x['was'][6:]}); 明天盘前选人按近 20 日收益重新判")
     if rv.get("stale_all"):
         L.append(f"- 停更中: {'、'.join(rv['stale_all'])}")
+    try:   # 10/27 晚用户: 投资账本推荐(近20日 ≥x% 且日均 ≥y%)也和 check md 总结一起发
+        sys.path.insert(0, str(ROOT / "scripts" / "tzzb"))
+        import candidates_daily as CD
+        L += CD.brief(d.isoformat(), top=5)
+    except Exception as e:   # noqa: BLE001
+        L.append(f"- 投资账本推荐: 算失败({type(e).__name__})")
     sys.path.insert(0, str(ROOT / "scripts" / "hermes"))
     import wx_send
     wx_send.send("\n".join(L), src="check_md_summary", wait=300, verbose=False)
@@ -1071,6 +1087,13 @@ def main():
             run([PY, "-X", "utf8", "scripts/live/open_class.py"], "开盘情境统计(竞价路径 → 当天走法)", 900)   # 10/26: 必查「开盘情境」用
             # 10/26 晚用户令: 明日备案(项目整合视角: 情绪聚焦 / 流转 / 明日聚焦题材 + 梯队 + 题材套利债 → 候选池「备案·题材」+ 01 一节); 要 md 涨停分析已写完
             run([PY, "-X", "utf8", "scripts/paper_line/tools/expect.py", "--date", d.isoformat()], "明日备案(题材聚焦 + 套利债 → 候选池)", 300)
+            # 10/27 晚用户: 明日种子池(续板 / 断板观察 / 字辈) + 投资账本候选 每天跟着 check md 一起出; 明日预案要把种子池读进去(expect.py 读 watch_seed.json)
+            if (ROOT / "scripts" / "live" / "watch_seed.py").exists():
+                rc_ws, _ = run([PY, "-X", "utf8", "scripts/live/watch_seed.py", "--date", expect_next_day(d)], "明日种子池(watch_seed)", 300)
+                summary["watch_seed"] = "完成" if rc_ws == 0 else "失败"
+                run([PY, "-X", "utf8", "scripts/paper_line/tools/expect.py", "--date", d.isoformat()], "明日预案(补种子池 / 大消费次簇)", 300)
+            rc_cd, _ = run([PY, "-X", "utf8", "scripts/tzzb/candidates_daily.py", "--date", d.isoformat()], "投资账本推荐(候选导师)", 300)
+            summary["mentor_cand"] = "完成" if rc_cd == 0 else "失败"
             # 10/22 晚用户令: 不论 rules.md 多大(bank / nasdaq 只有几 KB)都要有索引, 将来量级会很大; rules.md 比索引新 / 没索引 → 重建
             for sk_dir in sorted((ROOT / "skills").glob("*-skill")):
                 rp, ip = sk_dir / "persona" / "rules.md", sk_dir / "persona" / "rules_index.md"

@@ -5,6 +5,7 @@
 做什么:
   ① 非交易日(a_rules 读 Java 同一份 holiday 表) → 什么都不做
   ② 找旧的交互会话: claude.exe 且命令行不含 " -p "(排除后台 claude -p), 父进程是 cmd / powershell / WindowsTerminal
+  ②' 关之前先扫 jsonl(10/27 用户令, drain_pending.py): 该推微信没推的现在补推; 没答完 / 排队没送进会话的写进交接, 新会话开场带上(含 →pc1 标记)
   ③ 旧会话正忙(还有子进程在跑: bash / python / node = 我在跑工具或后台任务) → 10/20 用户定: 不推迟, 写交接到 scripts/temp/handoff_session_*.md,
      只关 claude 和窗口、子进程留着跑完, 新会话带开场提示"先读交接"
   ④ 关旧: 不忙 = taskkill /T /F claude + 它的 cmd 窗口; 忙 = 只关 claude 和 cmd 窗口(不带 /T, 子进程跑完); 父进程是 WindowsTerminal 时不关整个终端
@@ -106,9 +107,18 @@ def main():
     busy = {s["pid"]: busy_children(rows, s["pid"]) for s in old}
     busy = {k: v for k, v in busy.items() if v}
     handoff = None
+    try:   # 10/27 用户令: 关之前先扫 jsonl —— 该推微信没推的现在补推, 没答完 / 排队没送进去的带进新会话
+        import drain_pending as DP
+        drain = DP.run("rollover", dry=a.dry)
+    except Exception as e:   # noqa: BLE001  扫描出错不耽误换会话
+        log(f"扫 jsonl 出错: {e!r}")
+        drain = {"carry": [], "pushed": 0, "outbox_left": 0, "lines": []}
     if busy:   # 10/20 用户定: 旧会话还有任务在跑 → 不推迟, 写交接(scripts/temp/), 只关 claude 和窗口、不杀它的子进程(后台任务继续跑完), 新会话开场提示读交接
-        handoff = write_handoff(rows, busy) if not a.dry else Path("(空跑不写交接)")
+        handoff = write_handoff(rows, busy, drain["lines"]) if not a.dry else Path("(空跑不写交接)")
         log(f"旧会话正忙 {busy} → 交接写到 {handoff}")
+    elif drain["carry"]:
+        handoff = write_handoff(rows, {}, drain["lines"]) if not a.dry else Path("(空跑不写交接)")
+        log(f"有 {len(drain['carry'])} 条消息没处理完 → 交接写到 {handoff}")
     for s in old:
         tree = [] if busy else ["/T"]   # 忙: 只关 claude 本身和它的窗口(cmd), 子进程留着跑完; 不忙: 连同子进程一起关
         tgts = [s["pid"]] + ([s["parent"]] if s["parent_name"] in ("cmd.exe", "powershell.exe", "pwsh.exe") else [])
@@ -120,7 +130,10 @@ def main():
         time.sleep(3)
     args = [str(CLAUDE_CMD), "--dangerously-skip-permissions"]
     if handoff:
-        args.append(f"上一个会话换掉时还有任务在跑，交接在 {handoff}，先读它，接着处理里面没做完的事。")
+        marks = " ".join(c["mark"] for c in drain["carry"] if c["mark"])   # 带上 →pc1 标记: PC3 --fetch 按标记能在新会话里取到回复
+        args.append((f"上一个会话换掉时还有任务在跑，" if busy else "上一个会话换掉时") +
+                    (f"有 {len(drain['carry'])} 条你的消息没答完或没送进会话{(' ' + marks) if marks else ''}，" if drain["carry"] else "") +
+                    f"交接在 {handoff}，先读它，接着处理里面没做完的事" + ("，要推微信的照规矩推" if any(c["need_push"] for c in drain["carry"]) else "") + "。")
     log(f"开新会话: cmd /k {' '.join(args)} (cwd {HOME})")
     if a.dry:
         log("[dry] 不实际关 / 开; 当前交互会话:", old)
@@ -132,18 +145,24 @@ def main():
     ok = len(now) == 1 and now[0]["parent"] == newp.pid
     hm = dt.datetime.now().strftime("%H:%M")
     log(f"自检: 交互会话 {now}; 新开 cmd {newp.pid} → {'通过' if ok else '异常'}")
-    wechat((f"{hm} 已换新的 Claude 会话（旧会话已关），微信中继照常可用。" + (f"旧会话还有任务在跑，已写交接 {handoff.name} 并让新会话接手。" if handoff else "")) if ok else
+    drained = (f"补推了 {drain['pushed']} 条之前没推到微信的回复。" if drain["pushed"] else "") + \
+              (f"{len(drain['carry'])} 条没答完的消息已带进新会话。" if drain["carry"] else "")
+    wechat((f"{hm} 已换新的 Claude 会话（旧会话已关），微信中继照常可用。" + drained +
+            (f"旧会话还有任务在跑，已写交接 {handoff.name} 并让新会话接手。" if busy else "")) if ok else
            f"{hm} 换会话自检异常：现在交互会话 {len(now)} 个（应为 1 个），请回 PC1 看一眼。", a.no_wechat)
     return 0 if ok else 1
 
 
-def write_handoff(rows, busy):
-    """旧会话还在忙时的交接(机械, 不调模型): 还在跑的子进程命令行 + 后台任务输出文件 + 旧会话最近的对话摘录(你的消息 / 我的回复)"""
+def write_handoff(rows, busy, extra=()):
+    """交接(机械, 不调模型): 还在跑的子进程命令行 + 后台任务输出文件 + 没处理完的消息(drain_pending) + 旧会话最近的对话摘录(你的消息 / 我的回复)"""
     now = dt.datetime.now()
     out = ROOT / "scripts" / "temp" / f"handoff_session_{now:%Y%m%d_%H%M}.md"
     by = {r["ProcessId"]: r for r in rows}
-    L = [f"# 会话交接 {now:%Y-%m-%d %H:%M}（session_rollover.py 自动写；旧会话换掉时还有任务在跑）", "",
-         "## 还在跑的进程（没杀，会继续跑完；用 tasklist / 输出文件看结果）"]
+    L = [f"# 会话交接 {now:%Y-%m-%d %H:%M}（session_rollover.py 自动写）", ""]
+    if extra:
+        L += ["## 没处理完的消息（drain_pending 扫 jsonl 得出；逐条答，答完照规矩推微信 / 等 PC3 来取）", ""] + list(extra)
+    if busy:
+        L += ["## 还在跑的进程（没杀，会继续跑完；用 tasklist / 输出文件看结果）"]
     for pid, kids in busy.items():
         for k in kids:
             kp = int(k.split("(")[1].rstrip(")"))

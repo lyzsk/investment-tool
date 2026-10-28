@@ -48,8 +48,9 @@ def cb_map():
     return {str(r.get("SECURITY_CODE")): str(r.get("CONVERT_STOCK_CODE") or "") for r in rows if r.get("CONVERT_STOCK_CODE")}
 
 
-def b13(p, lim):
-    """13 档; lim = 该品种涨跌停幅度(主板 10 / 创业科创 20 / 转债 20); 档距按 lim/10 缩放"""
+def b13(p, lim, cb=False):
+    """13 档; lim = 该品种涨跌停幅度(主板 10 / 创业科创 20 / 转债 20)
+    10/27 晚用户定: 20cm(30cm)股票 = 主板 13 档(每档 2 个点)+ 往 ±10%~±lim 对称外延, 每档仍 2 个点(≥18 / ≥16 … ≥−18 / <−18); 转债仍按 lim/10 缩放(每档 4 个点)"""
     if p is None:
         return None
     u = lim / 10
@@ -57,10 +58,16 @@ def b13(p, lim):
         return "涨停"
     if p <= -lim + 0.2 * u:
         return "跌停"
-    for e in (8, 6, 4, 2, 0, -2, -4, -6, -8):
-        if p >= e * u:
-            return f"≥{e * u:g}"
-    return f"<{-8 * u:g}"
+    if cb or lim <= 10:
+        for e in (8, 6, 4, 2, 0, -2, -4, -6, -8):
+            if p >= e * u:
+                return f"≥{e * u:g}"
+        return f"<{-8 * u:g}"
+    top = int(lim) - 2
+    for e in range(top, -top - 1, -2):
+        if p >= e:
+            return f"≥{e:g}"
+    return f"<{-top:g}"
 
 
 def b_gap(g):
@@ -151,7 +158,7 @@ def feats(k, i, st_k, st_d, lim, mkt):
     sp = (st_k[st_d[j - 1]] / st_k[st_d[j - 2]] - 1) * 100 if j >= 2 and st_d[j - 1] < d else None
     po, ph, pl = k[i - 1][1], k[i - 1][2], k[i - 1][3]
     return {"gap_pct": round((o / pc - 1) * 100, 3), "gap": b_gap((o / pc - 1) * 100), "stk_prev_pct": None if sp is None else round(sp, 3), "stk_prev": b13(sp, lim),
-            "cb_prev": b13((pc / p2 - 1) * 100, 20), "kline": b_kline(po, ph, pl, pc, p2), "level": b_level(pc),
+            "cb_prev": b13((pc / p2 - 1) * 100, 20, cb=True), "kline": b_kline(po, ph, pl, pc, p2), "level": b_level(pc),
             "spike": ("退潮" if spike and -15 <= dd <= -5 else "深退" if spike and dd < -15 else "未回撤" if spike else "无"), "mkt": mkt.get(k[i - 1][0])}
 
 

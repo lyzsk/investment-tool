@@ -60,6 +60,7 @@ def steps(D, N, prevD):
          ("plan_review", [PY, "-X", "utf8", "scripts/live/plan_review.py", "--date", D], 600)]
     if prevD:
         S.append(("plan_review_prev", [PY, "-X", "utf8", "scripts/live/plan_review.py", "--date", prevD], 600))
+    S.append(("deviation", [PY, "-X", "utf8", "scripts/live/deviation_review.py", "--date", D], 300))   # 10/28: 备案与链路偏差复盘(用户 10/27 令; 零 token, 「为什么」晚上填)
     S.append(("rule_exam", [PY, "-X", "utf8", "scripts/skills_ver/rule_exam.py", "--skill", "zhiyingjuexin,liuyiqing,zuoshoudeirong,buchitudou0", "--days", "20"], 300))   # 10/26: 规则样本外拟人体检(零 token)
     S.append(("session_growth", [PY, "-X", "utf8", "scripts/live/session_growth.py", "--date", D, "--todo"], 120))   # 10/25: 午后是否变贵变慢 → TODO 一行
     S.append(("skill_score", [PY, "-X", "utf8", "scripts/live/skill_score.py", "--date", D], 900))   # 10/25 C 方案: skill 单日超额 + 部分时段 + 起点检查(内含再跑一次核销)

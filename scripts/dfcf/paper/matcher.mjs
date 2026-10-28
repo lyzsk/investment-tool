@@ -849,6 +849,19 @@ async function eod(date) {
 const MODE = process.argv.includes("--init") ? "init" : arg("import") ? "import" : arg("import-fills") ? "fills"
     : arg("seed") ? "seed" : process.argv.includes("--once") ? "once" : process.argv.includes("--replay-min") ? "replay-min" : process.argv.includes("--replay") ? "replay" : process.argv.includes("--eod") ? "eod" : null;
 if (!MODE) { console.error("用法: --init | --import <file> | --import-fills <file> | --seed <src> <code> <qty> <cost> <cash> | --once [--dry] | --replay --date <d> [--dry] | --eod --date <d> [--restate]"); process.exit(1); }
+// 10/27 晚用户令: 旧 paper(A 线账本)每天收盘结算停掉 —— Java 定时任务 paperEodHandler 照常调本脚本 --eod, 这里直接返回成功(不碰账本 / 不出日报);
+// chain_flags.txt OLD_PAPER_SETTLE=1 才恢复; 手动补算历史日(--restate)不受影响
+if (MODE === "eod" && !process.argv.includes("--restate")) {
+    let on = false;
+    try { const m = fs.readFileSync(path.join(SCRIPT_DIR, "..", "..", "claude_profile", "chain_flags.txt"), "utf8").match(/^\s*OLD_PAPER_SETTLE\s*=\s*(\S+)/m); on = !!m && m[1] === "1"; } catch { on = false; }
+    if (!on) { console.log("[matcher] OLD_PAPER_SETTLE 关(10/27 用户令), 旧 paper 收盘结算跳过"); process.exit(0); }
+}
+// 10/27 23:0x 用户令: 旧 paper 盘中撮合(Java paperMatchHandler 调 --once)也停; chain_flags.txt OLD_PAPER_MATCH=1 才恢复
+if (MODE === "once") {
+    let on = false;
+    try { const m = fs.readFileSync(path.join(SCRIPT_DIR, "..", "..", "claude_profile", "chain_flags.txt"), "utf8").match(/^\s*OLD_PAPER_MATCH\s*=\s*(\S+)/m); on = !!m && m[1] === "1"; } catch { on = false; }
+    if (!on) { console.log("[matcher] OLD_PAPER_MATCH 关(10/27 用户令), 旧 paper 盘中撮合跳过"); process.exit(0); }
+}
 // 10/11 账本互斥锁: 读-改-写整段持锁(原 --once 载入账本→等行情→存盘期间, 链的 --import 存盘被覆盖=丢单);
 // 持锁进程死亡即回收(process.kill(pid,0) 只探活不杀), 等锁上限 180s
 const LOCK = path.join(BOOKS, ".matcher.lock");

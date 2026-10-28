@@ -84,17 +84,20 @@ P = {
     "S5_FROM": "14:25:00", "S5_TO": "14:45:00", "S5_WIN": 600, "S5_UP": 0.015,
     "S6_UP": 0.03, "S6_BASE_LATE": "09:20:30",
     "S7_X": 6.0, "S7_WIN": 1800,
-    "S4P_SIGMA_K": 1.5, "S4P_NEAR": 0.02, "S4C_GAP": 45, "S4C_GAP_MAX": 240, "FAST_SIGS": ("S1", "S7", "S4p", "S4c", "S4b", "S4a", "S8", "S9", "D1", "D2", "D3"),   # 10/26 20:0x 用户: S1 / S7 也走快车道
-    "VISION_SIGS": ("S3", "S4a", "S4p", "S4c", "S4b", "S5", "S6", "S7", "S8", "S9"), "VISION_DIP_AFTER_ZB": ("D1", "D3"),   # 10/26 20:1x 用户"股票推送少": 盘口池里不在盯盘名单的股票(视野票)也出 强势 / 板类信号; 低吸只在当天炸过板之后(炸板回踩)
-    "PICK_STOCK": (20, 40), "PICK_CB": (10, 20),   # 10/26 晚用户: 视野股票 20~40 / 名单转债 10~20, 只数按盘面活跃度动态(Picker)
+    "S4P_SIGMA_K": 1.5, "S4P_NEAR": 0.02, "S4C_GAP": 45, "S4C_GAP_MAX": 240, "FAST_SIGS": ("S1", "S7", "S4p", "S4c", "S4b", "S4a", "S8", "S9", "D1", "D2", "D3", "S10", "S11"),   # 10/26 20:0x 用户: S1 / S7 也走快车道; 10/27 S10 翻红拉升
+    "POOL_SIGS": ("S3", "S4a", "S4p", "S4c", "S4b", "S5", "S6", "S7", "S8", "S9", "S10", "S11"), "POOL_DIP_AFTER_ZB": ("D1", "D3"),   # 10/26 20:1x 用户"股票推送少": 盘口池里不在盯盘名单的股票(盯盘池)也出 强势 / 板类信号; 低吸只在当天炸过板之后(炸板回踩)
+    "PICK_STOCK": (20, 40), "PICK_CB": (10, 20),   # 10/26 晚用户: 盯盘池股票 20~40 / 名单转债 10~20, 只数按盘面活跃度动态(Picker)
     "CD_BASE_MIN": 30, "CD_MAX_MIN": 45, "CD_CODE_N": 3, "CD_CODE_WIN_MIN": 30,   # 10/26 20:0x 用户批动态冷却(只管普通 / 慢通道的推送, signals.jsonl 照记)
     "SLOW_SIGS": ("S2",), "S8_NEAR": 0.07, "S8_RANGE": 0.025, "S8_HOLD": 900, "S9_NEAR": 0.01,   # 10/26 用户批 S8 / S9(百洋股份 / 锋龙股份上板方式 U21)
       # 10/26 用户: 回封提醒要提前 45 秒~1 分钟(原 S4b 只比真回封早 3~6 秒)
     "D_START": "09:40:00", "D_BOUNCE_K": 0.3,   # 10/26: 反弹门槛 = max(2 价位, 0.3×σ5×价) —— 转债一个价位 ≈0.0006% 形同虚设
+     "S10_DIP": 0.005, "S10_DIP_AMP_K": 0.15, "S10_EPS": 0.001, "S10_CROSS_WIN": 600, "S10_LOW_WIN": 1500, "S10_RISE_MIN": 0.01, "S10_RISE_K": 0.3, "S10_VOL_WIN": 180, "S10_VOL_K": 2.0, "S10_MAX": 3,
+     "S11_LOOK": 1800, "S11_BANDS": 3, "S11_Z": 3.0, "S11_REARM": 2, "S11_MAX": 3,   # 10/27 用户: 连续跨越 13 档 3 档(奥普特 10:30); 快慢按本票 σ5 定: 涨幅 / (σ5·√(用时/5分钟)) ≥ 3 才算"连续"(本票少见的快)   # 10/27 晚用户: 绿翻红(尤其放量)是重要反转信号, 转债的正股翻红拉升必须提醒(奥普特 10:30 翻红拉升 → 奥普转债 +5%, 当天没任何提醒)
      "D1_K": 2.0, "D1_HOLD": 180, "D2_BAND": 0.003, "D2_HOLD": 180, "D3_K": 0.8, "D3_HOLD": 180,   # 10/26 用户批: 低吸信号 D1~D3(银轮转债 10:11 回到开盘价没任何提醒)
     "DEDUP_D_MIN": 90, "DEDUP_MIN": 30, "PUSH_GAP_MIN": 30, "MAX_LINES": 12, "STALE_MIN": 5, "QUOTA_SOFT": 8,   # 10/24 主会话: K 2→3、推送间隔 15→30 分钟(agent 回放: 一天约 7~9 条, 微信额度约 10 条)
 }
-NAMES = {"S1": "急跌后拉起", "S2": "回踩均价线不破", "S3": "二次冲高", "S4a": "炸板", "S4p": "拉回贴近涨停", "S4c": "冲击涨停价", "S4b": "回封动作", "S5": "尾盘拉升", "S6": "竞价抢筹", "S7": "开盘冲高到位", "S8": "蓄势预警", "S9": "午后冲板候选", "D1": "跌破均价后企稳", "D2": "冲高回落到开盘价", "D3": "回撤到振幅位企稳"}
+NAMES = {"S1": "急跌后拉起", "S2": "回踩均价线不破", "S3": "二次冲高", "S4a": "炸板", "S4p": "拉回贴近涨停", "S4c": "冲击涨停价", "S4b": "回封动作", "S5": "尾盘拉升", "S6": "竞价抢筹", "S7": "开盘冲高到位", "S8": "蓄势预警", "S9": "午后冲板候选", "D1": "跌破均价后企稳", "D2": "冲高回落到开盘价", "D3": "回撤到振幅位企稳", "S10": "绿翻红拉升", "S11": "连续跨越 13 档 3 档"}
+MUST_SIGS = ("S10", "S11")   # 10/27 用户"必须提醒": 名单 / 持仓 / 点名里的票(含转债)不受 Picker 名额限制
 DYN = {}   # 10/25 动态参数(signal_params.build; "_global" + 每只票), 启动时 load_dyn(D) 填
 
 
@@ -291,6 +294,33 @@ class Meta:
 
 
 _CB = {}
+_BANDS = {}
+_IDX = {"t": 0.0, "D": None, "rows": {}}   # 10/28: 指数此刻(index_snap.jsonl, 60 秒重读) —— 低吸信号带上「此刻上证 / 创业板」, 回放 10/19~27: 普跌日低吸到收盘中位 −1.8%
+
+
+def idx_now(D, t):
+    """→ "上证 −0.52% / 创业板 +0.10%"(t 时刻及以前最近一笔); 没数据 = """""
+    import bisect as _bs
+    if _IDX["D"] != D or time.time() - _IDX["t"] > 60:
+        rows = {}
+        try:
+            for l in (MKT / D / "index_snap.jsonl").open(encoding="utf-8"):
+                if '"sh000001"' in l[:20] or '"sz399006"' in l[:20]:
+                    r = json.loads(l)
+                    if r.get("p") and r.get("pc"):
+                        rows.setdefault(r["s"], []).append((r["t"], (r["p"] / r["pc"] - 1) * 100))
+        except OSError:
+            pass
+        for v in rows.values():
+            v.sort()
+        _IDX.update(t=time.time(), D=D, rows=rows)
+    out = []
+    for s_, nm in (("sh000001", "上证"), ("sz399006", "创业板")):
+        v = _IDX["rows"].get(s_) or []
+        i = _bs.bisect_right([x for x, _ in v], t) - 1
+        if i >= 0:
+            out.append(f"{nm} {v[i][1]:+.2f}%")
+    return " / ".join(out)   # 10/28: S11 每个涨跌幅限制的档位表(别和 _CB 混用)
 
 
 def cb_stock(c):
@@ -330,11 +360,13 @@ class St:
         self.s4 = {"sealed": False, "t_open": None, "low": None, "s_open": None, "a_fired": False, "b_fired": False, "mx": 0.0, "p_fired": False, "att": False, "att_n": 0, "att_mx": 0.0, "prev_mx": 0.0, "c_last": -10 ** 9, "c_n": 0}
         self.s5 = {"L": None, "tL": None}
         self.d = {"hi": None, "d1": None, "d2": None, "d3": None}
+        self.s10 = {"lo": None, "xlo": None, "tlo": None, "xb": None, "armed": False, "n": 0, "aw": collections.deque()}   # 10/27 绿翻红拉升
+        self.s11 = {"w": collections.deque(), "fired_band": None, "n": 0}   # 10/27 跨档: (交易秒, 档序号, 价)
         self.s8 = None   # 蓄势: 进入"离涨停 ≤2% 且在均价上方"的起点   # 10/26 低吸 D1~D3 状态
 
 
 class Picker:
-    """10/26 晚用户: 视野股票 20~40 只、转债 10~20 只, 多少按盘面动态定(股票比转债多, 转债也重要; 今天转债重复提同几只、又怕遗漏)
+    """10/26 晚用户: 盯盘池股票 20~40 只、转债 10~20 只, 多少按盘面动态定(股票比转债多, 转债也重要; 今天转债重复提同几只、又怕遗漏)
     活跃分(每只票可比, 0~9): 3×今天碰过涨停(转债看正股) + 现涨跌幅 / 本票 30 日振幅(封顶 3) + 今天成交额 / 平时同时段成交额(封顶 3);
     最近 30 分钟每推一次 −1(让位给没推过的, 治"重复提同几只"); 名额 = 活跃分 ≥ ACT_TH 的只数, 夹在 [下限, 上限] 内(盘面热 → 多看, 冷 → 少看);
     刚出过信号的票 15 分钟内留在集合里(炸板后的回封 / 低吸不断档); 持仓 / 点名 / 线上盯盘名单里的股票不占名额、一直在"""
@@ -369,7 +401,7 @@ class Picker:
         return 3.0 * touched + move + ar - pen
 
     def pick(self, want, keep, xnow, force=False):
-        """→ (视野股票集合, 在看的转债集合); 每 60 交易秒算一次"""
+        """→ (盯盘池股票集合, 在看的转债集合); 每 60 交易秒算一次"""
         if not force and xnow - self.at < 60:
             return self.out
         st_rows, cb_rows = [], []
@@ -410,6 +442,8 @@ class Detector:
         self.meta = meta or Meta(D)
         self.st = {}
         self.emit_filter = emit   # callable(code) -> bool; None = 全部
+        self.must = None   # callable(code) -> bool: MUST_SIGS 绕过 emit_filter(名单 / 持仓 / 点名)
+        self._rev = None   # 正股 → [转债]
 
     def _state(self, c):
         if c not in self.st:
@@ -457,11 +491,17 @@ class Detector:
         self._s7(S, ctx, out)
         self._dip(S, ctx, out)   # 10/26: 低吸 D1~D3
         self._s89(S, ctx, out)   # 10/26: S8 蓄势预警 / S9 午后冲板候选
+        self._s10(S, ctx, out)   # 10/27: 绿翻红拉升(正股翻红 → 同时报它的转债)
+        self._s11(S, ctx, out)   # 10/27: 连续跨越 13 档 3 档(正股 → 同时报转债)
         return out
 
     def _ev(self, S, c, t, sig, px, detail, out):
-        if self.emit_filter and not self.emit_filter(c):
+        if self.emit_filter and not self.emit_filter(c) and not (sig in MUST_SIGS and self.must and self.must(c)):
             return
+        if sig in ("D1", "D2", "D3"):   # 10/28: 低吸要看大盘 —— 回放 10/19~27: 上证收 −1.3% 以下的两天低吸到收盘中位 −1.4% / −1.8%, 上证收 +0.9% 那天 +2.8%
+            ix = idx_now(self.D, t)
+            if ix:
+                detail = f"{detail}; 此刻 {ix}"
         out.append({"t": t, "code": c, "name": S.m["name"], "sig": sig, "sig_name": NAMES.get(sig, sig), "px": px, "detail": detail})
 
     # ---------- S6 竞价抢筹 + 开盘价 ----------
@@ -687,6 +727,119 @@ class Detector:
             S.done.add("S9")
             self._ev(S, c, t, "S9", p, f"午前收盘 {p:g} 离涨停 {(p / up - 1) * 100:+.2f}%(≤{P['S9_NEAR'] * lim / 0.1 * 100:.0f}%), 均价 {vw:.3f}; 午后开盘可能直接冲板", out)
 
+    # ---------- S10 绿翻红拉升(10/27 用户: 从绿翻红是重要反转信号, 尤其放量; 要冷却) ----------
+    def cbs_of(self, stk):
+        if self._rev is None:
+            cb_stock("110000")   # 触发 _CB 加载
+            self._rev = collections.defaultdict(list)
+            for b_, s_ in _CB.items():
+                if re.fullmatch(r"\d{6}", s_ or ""):
+                    self._rev[s_].append(b_)
+        return self._rev.get(stk, [])
+
+    def _s10(self, S, ctx, out):
+        """先在水下 ≥ max(0.5%, 0.15×本票 30 日振幅中位)(= 待命), 再拉回昨收上方 ≥0.1%, 且 离上次在水下 ≤10 分钟、从 25 分钟内的低点拉起 ≥ max(1%, 0.3×振幅);
+        放量 = 最近 3 分钟成交额 / 平时同长度成交额(近 20 日均 / 240 × 分钟数), ≥2 倍标 🔥;
+        冷却: 触发后要重新跌到待命深度才再认, 每天每票最多 3 次, 节流表同票 30 分钟一次; 股票触发时它的转债(在盘口里)同时出一条(转债名单 / 持仓 / 点名必推)"""
+        c, t, x, p, v, vw, b, k = ctx
+        pv = S.m.get("prev")
+        z = S.s10
+        z["aw"].append((x, getattr(S, "a_cum", 0) or 0))
+        while z["aw"] and z["aw"][0][0] < x - P["S10_VOL_WIN"]:
+            z["aw"].popleft()
+        if not pv or t < "09:31:00" or c[:2] in ("11", "12"):   # 转债不单独算(跟正股走)
+            return
+        amp = S.m.get("amp30") or 0.04
+        dip = max(P["S10_DIP"], P["S10_DIP_AMP_K"] * amp)
+        if p < pv:
+            z["xb"] = x
+            if z["lo"] is None or p < z["lo"] or x - z["xlo"] > P["S10_LOW_WIN"]:
+                z["lo"], z["xlo"], z["tlo"] = p, x, t
+            if p <= pv * (1 - dip):
+                z["armed"] = True
+            return
+        rise = max(P["S10_RISE_MIN"], P["S10_RISE_K"] * amp)
+        if not (z["armed"] and z["n"] < P["S10_MAX"] and z["lo"] and p >= pv * (1 + P["S10_EPS"]) and z["xb"] is not None
+                and x - z["xb"] <= P["S10_CROSS_WIN"] and x - z["xlo"] <= P["S10_LOW_WIN"] and (p - z["lo"]) / pv >= rise):
+            return
+        a1, (x0, a0), base = S.m.get("amt1"), z["aw"][0], "平时"
+        if not a1 and x0 > 300:   # 没有日线成交额(没日线文件) → 用今天开盘以来的每分钟均额(开盘 5 分钟内不算, 太短)
+            a1, base = (getattr(S, "a_cum", 0) or 0) / (x / 60) if x > 0 else None, "今天均额"
+        vr = (S.a_cum - a0) / (a1 * (x - x0) / 60) if a1 and x - x0 >= 60 else None
+        hot = vr is not None and vr >= P["S10_VOL_K"]
+        vtxt = f"近 {(x - x0) // 60} 分钟成交额是{base} {vr:.1f} 倍{'(放量)' if hot else ''}" if vr is not None else "量比未知"
+        lo, tlo = z["lo"], z["tlo"]
+        z.update(armed=False, n=z["n"] + 1, lo=None, xlo=None, tlo=None)
+        det = f"{tlo} 低点 {lo:g}({(lo / pv - 1) * 100:+.2f}%) → {t} 翻红到 {p:g}({(p / pv - 1) * 100:+.2f}%), 拉起 {(p - lo) / pv * 100:.2f}%(阈 {rise * 100:.2f}%); {vtxt}"
+        self._ev(S, c, t, "S10", p, det, out)
+        if out and out[-1]["code"] == c and out[-1]["sig"] == "S10":
+            out[-1]["hot"] = hot
+            if hot:
+                out[-1]["sig_name"] = "绿翻红放量拉升"
+        for cb in self.cbs_of(c):
+            T_ = self.st.get(cb)
+            if not T_ or not T_.win:
+                continue
+            cp, cpv = T_.win[-1][1], T_.m.get("prev")
+            n0 = len(out)
+            self._ev(T_, cb, t, "S10", cp, f"正股 {S.m['name']}({c}) {det}; 转债现 {cp:g}" + (f"({(cp / cpv - 1) * 100:+.2f}%)" if cpv else ""), out)
+            if len(out) > n0:
+                out[-1].update(stock=c, hot=hot, sig_name=f"正股{S.m['name']}绿翻红{'放量' if hot else ''}拉升")
+
+    # ---------- S11 连续跨越 13 档 3 档(10/27 用户: 奥普转债 10:30 正股从绿翻红跨越 3 档时该果断进; 13 档口径同 open_bins, 20cm 外延) ----------
+    def _s11(self, S, ctx, out):
+        c, t, x, p, v, vw, b, k = ctx
+        pv = S.m.get("prev")
+        if not pv or t < "09:31:00" or c[:2] in ("11", "12"):
+            return
+        try:
+            import open_bins as OB
+        except Exception:   # noqa: BLE001
+            sys.path.insert(0, str(ROOT / "scripts" / "skills_ver"))
+            import open_bins as OB
+        lim = OB.lim_of(c)
+        key_ = ("bands", lim)
+        if key_ not in _BANDS:   # 本品种实际会出现的档(主板 13 档 / 20cm 外延), 按涨跌幅从低到高; "跨 N 档" 按这张表数, 不按 ORDER 全表
+            seq = []
+            for i_ in range(-int(lim * 100), int(lim * 100) + 1):
+                lb = OB.bin13(i_ / 100, lim)
+                if not seq or seq[-1] != lb:
+                    seq.append(lb)
+            _BANDS[key_] = seq
+        bands = _BANDS[key_]
+        lab = OB.bin13((p / pv - 1) * 100, lim)
+        bi = bands.index(lab) if lab in bands else 0
+        z = S.s11
+        z["w"].append((x, bi, p))
+        while z["w"] and z["w"][0][0] < x - P["S11_LOOK"]:
+            z["w"].popleft()
+        if z["fired_band"] is not None:
+            if bi <= z["fired_band"] - P["S11_REARM"]:
+                z["fired_band"] = None   # 跌回 2 档以上 = 重新待命
+            return
+        if z["n"] >= P["S11_MAX"]:
+            return
+        lo = min(z["w"], key=lambda r: (r[1], -r[0]))
+        if bi - lo[1] < P["S11_BANDS"]:
+            return
+        dt_ = max(60, x - lo[0])
+        sg = S.m.get("sigma") or P["SIGMA_DEFAULT"]
+        zz = (p / lo[2] - 1) / (sg * math.sqrt(dt_ / 300))
+        if zz < P["S11_Z"]:
+            return
+        z["fired_band"], z["n"] = bi, z["n"] + 1
+        det = f"{dt_ // 60} 分钟内 {bands[lo[1]]} → {bands[bi]}(跨 {bi - lo[1]} 档), {lo[2]:g} → {p:g}(+{(p / lo[2] - 1) * 100:.2f}%, 本票 σ5 {sg * 100:.2f}% 的 {zz:.1f} 倍)"
+        self._ev(S, c, t, "S11", p, det, out)
+        for cb in self.cbs_of(c):
+            T_ = self.st.get(cb)
+            if not T_ or not T_.win:
+                continue
+            cp, cpv = T_.win[-1][1], T_.m.get("prev")
+            n0 = len(out)
+            self._ev(T_, cb, t, "S11", cp, f"正股 {S.m['name']}({c}) {det}; 转债现 {cp:g}" + (f"({(cp / cpv - 1) * 100:+.2f}%)" if cpv else ""), out)
+            if len(out) > n0:
+                out[-1].update(stock=c, sig_name=f"正股{S.m['name']}连续跨 3 档")
+
     # ---------- D1~D3 低吸(10/26 用户批; 只是盘面事实, 参数按本票波动 / 振幅动态) ----------
     def _dip(self, S, ctx, out):
         c, t, x, p, v, vw, b, k = ctx
@@ -767,7 +920,7 @@ def line(e):
     return f"{e['name']}({e['code']}) {e['sig']} {e['sig_name']} {e['t'][:5]} 价 {e['px']:g}"
 
 
-SIG_EMOJI = {"S8": "🔋", "S9": "⏰", "D1": "🔴🛬", "D2": "🔴↩️", "D3": "🔴🪂", "S1": "📈", "S2": "➖", "S3": "🔼", "S4a": "💥", "S4p": "⤴️", "S4c": "⚡", "S4b": "🔁", "S5": "🌇", "S6": "🎯", "S7": "🚀"}
+SIG_EMOJI = {"S8": "🔋", "S9": "⏰", "D1": "🔴🛬", "D2": "🔴↩️", "D3": "🔴🪂", "S1": "📈", "S2": "➖", "S3": "🔼", "S4a": "💥", "S4p": "⤴️", "S4c": "⚡", "S4b": "🔁", "S5": "🌇", "S6": "🎯", "S7": "🚀", "S10": "🟥↗", "S11": "🪜"}
 _WHY = {"t": 0.0, "map": {}, "seen": set()}
 
 
@@ -792,7 +945,7 @@ def watch_why(D):
     return m
 
 
-KEY_TAGS = ("持仓", "你点名")   # 10/26 晚用户定: 低吸 / 炸板类 + 持仓 + 点名 = 快车道(利益相关); 回踩均价(S2)延迟攒批; 其余扩展视野的票攒批带冷却
+KEY_TAGS = ("持仓", "你点名")   # 10/26 晚用户定: 低吸 / 炸板类 + 持仓 + 点名 = 快车道(利益相关); 回踩均价(S2)延迟攒批; 其余盯盘池的票攒批带冷却
 
 
 def is_key(code, D):
@@ -804,11 +957,11 @@ def is_key(code, D):
 def compose(evs, D, hold):
     """合并成一条: 持仓在前, 同组按时间; 最多 MAX_LINES 行; 10/26: 每条带信号 emoji, 当天第一次推的盯盘票标 🆕 + 进盯盘原因"""
     hs = sorted([e for e in evs if e["code"] in hold], key=lambda e: e["t"])
-    ot = sorted([e for e in evs if e["code"] not in hold and not e.get("vision")], key=lambda e: e["t"])
-    vs = sorted([e for e in evs if e["code"] not in hold and e.get("vision")], key=lambda e: e["t"])
+    ot = sorted([e for e in evs if e["code"] not in hold and not e.get("pool")], key=lambda e: e["t"])
+    vs = sorted([e for e in evs if e["code"] not in hold and e.get("pool")], key=lambda e: e["t"])
     why = watch_why(D)
     L, n = [f"分时信号 {dt.datetime.now():%H:%M}"], 0   # 10/26 用户: "同票 30 分钟只报一次 / 盘面事实不是买卖建议"已知, 不推(省字数)
-    for title, grp in (("💼 持仓:", hs), ("👀 盯盘票:", ot), ("🔭 视野票(盘口池, 不在盯盘名单):", vs)):
+    for title, grp in (("💼 持仓:", hs), ("👀 盯盘票:", ot), ("🔭 盯盘池(触发盯盘条件进池的股票 / 转债):", vs)):
         if not grp:
             continue
         L.append(title)
@@ -816,7 +969,9 @@ def compose(evs, D, hold):
             if n >= P["MAX_LINES"]:
                 break
             s = f"{SIG_EMOJI.get(e['sig'], '•')} {line(e)}"
-            if e["code"] not in hold and e["code"] not in _WHY["seen"] and not e.get("vision"):
+            if e["sig"] in ("D1", "D2", "D3") and "此刻 " in (e.get("detail") or ""):   # 10/28: 低吸带上大盘此刻(普跌日低吸到收盘中位 −1.8%)
+                s += f"〔{e['detail'].rsplit('此刻 ', 1)[1]}〕"
+            if e["code"] not in hold and e["code"] not in _WHY["seen"] and not e.get("pool"):
                 s = f"🆕 {s} 〔进盯盘: {'/'.join(sorted(why.get(e['code']) or [])) or '来源不明'}〕"
             _WHY["seen"].add(e["code"])
             L.append(s)
@@ -829,6 +984,9 @@ def compose(evs, D, hold):
 class Pusher:
     def __init__(self, D, hold_fn, dry=False):
         self.D, self.hold_fn, self.dry = D, hold_fn, dry
+        self.ratio = 2.0          # 10/27 晚用户: 股票推送约是转债的 2 倍, 按两边活跃只数动态(run 每分钟按 Picker 选中的 股票 / 转债 只数更新, 夹在 1~3)
+        self._pushed = collections.deque()   # (time, 是转债)
+        self._cb_day, self._t0 = 0, time.time()   # 今天累计推的转债条数 / 开始时刻(算每小时平均, 当股票配额的底)
         self.pending, self.lock, self.busy = [], threading.Lock(), False
         self.sf = LIVE / D / "signals_push.json"
         try:
@@ -839,6 +997,29 @@ class Pusher:
     def add(self, e):
         with self.lock:
             self.pending.append(e)
+
+    def _balance(self, rest, hold):
+        """10/27 晚用户: 股票:转债 推送 ≈ ratio:1(ratio 动态 = Picker 当前选中的股票只数 / 转债只数, 夹 1~3); 只管普通通道里非持仓的股票 ——
+        近 60 分钟已推股票 > ratio × max(1, 已推转债) 时, 这批普通股票只记不推(signals.jsonl 照记); 转债不受限"""
+        now_ = time.time()
+        while self._pushed and now_ - self._pushed[0][0] > 3600:
+            self._pushed.popleft()
+        n_cb = sum(1 for _, cb in self._pushed if cb)
+        n_st = len(self._pushed) - n_cb
+        if self.ratio is None:   # Picker 没选中任何转债 = 今天没转债可看, 不限股票
+            return rest
+        cb_avg = self._cb_day / max(1.0, (now_ - self._t0) / 3600)   # 今天每小时平均转债推送, 防"这一小时刚好没转债信号就把股票全压住"
+        out = []
+        for e in rest:
+            is_cb = e["code"][:2] in ("11", "12")
+            if not is_cb and e["code"] not in hold and n_st >= self.ratio * max(1, n_cb, cb_avg):
+                continue
+            self._cb_day += is_cb
+            out.append(e)
+            n_cb += is_cb
+            n_st += not is_cb
+            self._pushed.append((now_, is_cb))
+        return out
 
     def _cool_ok(self, e):
         """动态冷却(只管普通 / 慢通道推送; 10/26 20:0x 用户批): 同票同信号第 n 次推 要距上次 ≥ CD_BASE × 2^(n−1) 分钟(封顶 CD_MAX);
@@ -869,8 +1050,11 @@ class Pusher:
                 evs, self.pending = list(self.pending), []
             key = {e["code"] for e in evs if is_key(e["code"], self.D)} | {e["code"] for e in evs if e["code"] in hold}   # 持仓 + 你点名 = 快车道
             # 10/26 20:0x 用户: 快车道 = 快信号(低吸 / 炸板 / 回封类 / S1 / S7 / S8 / S9)或 持仓 / 点名票; 其余分 普通 / 慢(只有回踩均价 S2), 两条都动态攒批 + 动态冷却
-            fe = [e for e in evs if (e["sig"] in P["FAST_SIGS"] and not e.get("vision")) or e["code"] in key]   # 视野票 = 扩展视野, 不走快车道
+            fe = [e for e in evs if (e["sig"] in P["FAST_SIGS"] and (not e.get("pool") or e["sig"] in ("D1", "D2", "D3", "S10"))) or e["code"] in key]   # 10/28: 低吸 / 放量翻红 盯盘池里的也走快车道(跨档 S11 在池里太多, 仍走普通通道)(用户 10/27: 低吸提醒不受攒批 / 限频影响)   # 盯盘池(条件触发进池)的票不走快车道
             rest = [e for e in evs if e not in fe and self._cool_ok(e)]
+            self._pushed.extend((time.time(), e["code"][:2] in ("11", "12")) for e in fe)   # 快车道推出去的也计入比例
+            self._cb_day += sum(1 for e in fe if e["code"][:2] in ("11", "12"))
+            rest = self._balance(rest, hold)
             if fe:
                 PB.enqueue(compose(fe, self.D, hold), src="live_signal", urgent=True, fast=True, D=self.D)
             if rest:
@@ -1054,7 +1238,7 @@ def run(D, codes=None, all_=False, dry=False):
             if not fixed:
                 state["want"] = watch_codes(D)
 
-    vision = (_flag("SIG_VISION", "1") == "1") and not fixed   # 视野票: 盘口池里不在名单的股票(不含转债), 只出 VISION_SIGS, 走普通通道 + 动态冷却
+    pool_on = (_flag("SIG_POOL", _flag("SIG_VISION", "1")) == "1") and not fixed   # 盯盘池: 盘口池里不在名单、触发盯盘条件的股票(转债另走 Picker 名额), 只出 POOL_SIGS, 走普通通道 + 动态冷却
     is_stock = lambda c: str(c)[:2] not in ("11", "12") and str(c)[:1] in ("0", "3", "6")   # noqa: E731
     vis = {"st": set(), "cb": set()}
     keep_of = lambda: state["hold"] | extra_codes()   # noqa: E731  持仓 / 点名: 不占名额、一直在
@@ -1062,14 +1246,15 @@ def run(D, codes=None, all_=False, dry=False):
     def emit_ok(c):
         if c in keep_of():
             return True
-        if not vision:
+        if not pool_on:
             return c in state["want"]
         if c[:2] in ("11", "12"):
             return c in vis["cb"]   # 名单里的转债: 只看 Picker 挑出来的 10~20 只
         return c in state["want"] or c in vis["st"]
     det = Detector(D, meta, emit=None if all_ else emit_ok)
+    det.must = lambda c: c in state["want"] or c in keep_of()   # 10/27 S10 必须提醒: 名单 / 持仓 / 点名(含转债)不受 Picker 名额限制
     picker = Picker(det, meta)
-    zb = set()   # 今天炸过板的视野票(之后的 D1 / D3 = 炸板回踩低吸)
+    zb = set()   # 今天炸过板的盯盘池票(之后的 D1 / D3 = 炸板回踩低吸)
     th = Throttle()
     out_f = LIVE / D / "signals.jsonl"
     try:   # 10/26: 重启后 🆕 标识不重复 —— 今天已推过信号的票算"见过"
@@ -1097,9 +1282,11 @@ def run(D, codes=None, all_=False, dry=False):
             if e["code"] not in state["want"]:
                 if e["sig"] == "S4a":
                     zb.add(e["code"])
-                if not (e["sig"] in P["VISION_SIGS"] or (e["sig"] in P["VISION_DIP_AFTER_ZB"] and e["code"] in zb)):
+                if not (e["sig"] in P["POOL_SIGS"] or (e["sig"] in P["POOL_DIP_AFTER_ZB"] and e["code"] in zb)):
                     continue
-                e["vision"] = True
+                if e["sig"] == "S10" and not e.get("hot"):
+                    continue   # 10/27: 盘口池里不在名单的票, 翻红只报放量的(10/27 回放全池 79 条 / 天, 放量约一半)
+                e["pool"] = True
             key = (e["code"], e["sig"], e["t"])
             if key in seen or not th.ok(e):
                 continue
@@ -1119,10 +1306,22 @@ def run(D, codes=None, all_=False, dry=False):
             if hm > "15:00:30":
                 break
             refresh()
-            if vision:
+            if not fixed and not dry and "09:25:45" <= hm <= "09:29:30" and not state.get("auction_pushed") and _flag("AUCTION_PUSH", "1") == "1":   # 10/28: 竞价结果推送(auction_push.py), 一天一次
+                state["auction_pushed"] = True
+                if not (LIVE / D / "auction_result.md").exists():
+                    def _ap():
+                        try:
+                            sys.path.insert(0, str(ROOT / "scripts" / "live"))
+                            import auction_push as AUP
+                            AUP.run(D)
+                        except Exception as e_:   # noqa: BLE001
+                            print(f"[signals] 竞价结果推送失败 {e_!r}", file=sys.stderr, flush=True)
+                    threading.Thread(target=_ap, daemon=True).start()
+            if pool_on:
                 xs = [S_.x_last for S_ in list(det.st.values())[:50] if getattr(S_, "x_last", None)]
                 if xs:
                     vis["st"], vis["cb"] = picker.pick(state["want"], keep_of(), max(xs))
+                    pusher.ratio = max(1.0, min(3.0, len(vis["st"]) / len(vis["cb"]))) if vis["cb"] else None   # 10/27 晚: 股票:转债 推送比例跟两边活跃只数走
             if fh is None:
                 if f.exists():
                     fh = f.open("r", encoding="utf-8", errors="replace")

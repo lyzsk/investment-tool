@@ -48,12 +48,50 @@ def chart_type(img):
     return "分时" if x < 0.14 else "五日" if x < 0.28 else "日K" if x < 0.42 else "周K" if x < 0.56 else "月K"
 
 
+def chart_type_ocr(img, T):
+    """10/28: 按 OCR 认出的 tab 文字位置找蓝色下划线(原 chart_type 只扫 26%~33% 高度的固定带: 区间统计 / 超级复盘页 tab 行下移到 ~36%,
+    扫到别处的蓝色 → 五日判「未知」、日K 判「月K」); 每个 tab 字下方 0.5%~3% 高度里蓝色像素最多的那个 = 选中的 tab"""
+    W, H = img.size
+    a = np.asarray(img.convert("RGB")).astype(int)
+    best, bn = None, 0
+    for x, y, t in T:
+        tt = t.replace("k", "K")
+        if tt not in ("分时", "五日", "日K", "周K", "月K") or not (H * 0.2 < y < H * 0.45):
+            continue
+        x0, x1 = max(0, int(x - W * 0.01)), min(W, int(x + W * 0.09))
+        y0, y1 = int(y + H * 0.005), min(H, int(y + H * 0.03))
+        blk = a[y0:y1, x0:x1]
+        if not blk.size:
+            continue
+        n = int(((blk[..., 2] > 180) & (blk[..., 0] < 100) & (blk[..., 1] > 100) & (blk[..., 1] < 190)).sum())
+        if n > bn:
+            best, bn = tt, n
+    if bn >= 20:
+        return best
+    # 选中的 tab 是蓝字, OCR 常常认不出 → 认出了其余 tab、只缺一个时, 按相邻 tab 的间距插出它的位置, 那里(字 + 下划线)有蓝色就是它
+    order = ["分时", "五日", "日K", "周K", "月K"]
+    got = {t.replace("k", "K"): (x, y) for x, y, t in T if t.replace("k", "K") in order and H * 0.2 < y < H * 0.45}
+    miss = [t for t in order if t not in got]
+    if len(got) >= 3 and len(miss) == 1:
+        i = order.index(miss[0])
+        xs = sorted((order.index(k), v[0]) for k, v in got.items())
+        step = (xs[-1][1] - xs[0][1]) / max(1, xs[-1][0] - xs[0][0])
+        xm = xs[0][1] + (i - xs[0][0]) * step
+        ym = sorted(v[1] for v in got.values())[len(got) // 2]
+        x0, x1 = max(0, int(xm - W * 0.01)), min(W, int(xm + W * 0.09))
+        y0, y1 = max(0, int(ym - H * 0.015)), min(H, int(ym + H * 0.03))
+        blk = a[y0:y1, x0:x1]
+        if blk.size and int(((blk[..., 2] > 180) & (blk[..., 0] < 100) & (blk[..., 1] > 100) & (blk[..., 1] < 190)).sum()) >= 20:
+            return miss[0]
+    return None
+
+
 def parse(path):
     img = Image.open(path).convert("RGB")
     W, H = img.size
     r, _ = ocr()(np.array(img))
     T = [(float(b[0][0]), float((b[0][1] + b[2][1]) / 2), str(t).strip()) for b, t, s in (r or [])]
-    out = {"file": Path(path).name, "W": W, "H": H, "类型": chart_type(img), "texts": T}
+    out = {"file": Path(path).name, "W": W, "H": H, "类型": chart_type_ocr(img, T) or chart_type(img), "texts": T}
     tabs = {t for x, y, t in T if t in ("分时", "五日", "日K", "周K", "月K", "日k", "周k", "月k") and H * 0.2 < y < H * 0.4}
     if len(tabs) < 2:   # 10/25: 只看蓝色下划线会把别的图(matplotlib 蓝线)误认成行情页 → 还要认出 tab 行文字(分时 / 五日 / 日K …)至少 2 个
         out["类型"] = "未知"

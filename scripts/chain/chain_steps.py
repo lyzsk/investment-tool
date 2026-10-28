@@ -72,6 +72,14 @@ def names(D):
 
 
 def prev_close(c, D):
+    try:   # 10/27 事故: 日线缓存盘中被写过(百洋股份 10-26 c=10.13 是 09:36 现价, 真收盘 11.28)→ 先用前一交易日正式日线 downloads/market/<日>/kline_day.jsonl
+        sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+        import official_close as OC
+        v = OC.prev_close(c, D)
+        if v:
+            return v
+    except Exception:   # noqa: BLE001
+        pass
     k = (jl(ROOT / "downloads" / "quotes" / "daily" / f"{c}.json", {}) or {}).get("klines") or []
     k = [x for x in k if x.get("d", "") < D]
     return k[-1]["c"] if k else None
@@ -272,15 +280,6 @@ def pool(skill, D, state, strategy, facts, at=None):
                     src.setdefault(c, "用户加")
     except OSError:
         pass
-    try:   # 10/26 晚用户令: 明日备案(前一晚 check md 机械算: 明日聚焦题材的梯队票 / 题材套利债)提前埋进候选池; 转债导师拿转债, 其余拿股票
-        sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
-        import expect as EXP
-        import strong_themes as STH0
-        e_ = EXP.load(D) or {}
-        for c, th in ((e_.get("候选") or {}).get("转债" if STH0.scope(skill)["cb"] else "股票") or [])[:16]:
-            src.setdefault(str(c), f"备案·{th}")
-    except Exception:   # noqa: BLE001  备案没有 / 算不出来不挡候选池
-        pass
     try:
         sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
         import strong_themes as STH
@@ -298,6 +297,15 @@ def pool(skill, D, state, strategy, facts, at=None):
             if e["tier"] in ("must", "pool"):
                 src.setdefault(c, f"导师近期·T-{e['k']}")
     except Exception:   # noqa: BLE001
+        pass
+    try:   # 10/27 晚: 挪到导师近期之后(备案是项目推测, 排在导师本人 / 强题材 / 导师近期后面) · 10/26 晚用户令: 明日备案(前一晚 check md 机械算: 明日聚焦题材的梯队票 / 题材套利债)提前埋进候选池; 转债导师拿转债, 其余拿股票
+        sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+        import expect as EXP
+        import strong_themes as STH0
+        e_ = EXP.load(D) or {}
+        for c, th in ((e_.get("候选") or {}).get("转债" if STH0.scope(skill)["cb"] else "股票") or [])[:16]:
+            src.setdefault(str(c), f"备案·{th}")
+    except Exception:   # noqa: BLE001  备案没有 / 算不出来不挡候选池
         pass
     try:   # 10/25 用户: live line 暂停的线盘前选过的票不出池, 都是重点观察对象 —— 其他线最新一版策略里的票进本线候选池
         live = ROOT / "results" / "_live" / D
@@ -506,6 +514,17 @@ def build_01(skill, D, at, why, state, strategy, fired, quotes, facts, open_text
     except OSError:
         pass
     h = hz.get(skill) or hz.get("_default") or {}
+    rebound_txt = ""
+    try:   # 10/27 晚用户批: 「反抽」四样(起点 / 起算 / 结束 / 走强改判)按本票近 30 天分时动态算, 持仓 + 上一版策略里的票都给; REBOUND_CARD=0 关
+        _rb_on = not re.search(r"(?m)^\s*REBOUND_CARD\s*=\s*0", (ROOT / "scripts" / "claude_profile" / "chain_flags.txt").read_text(encoding="utf-8"))
+        if _rb_on:
+            sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+            import rebound_card as RBC
+            rc_codes = list(dict.fromkeys(list(state.get("positions") or {}) + [str(x.get("code")) for x in (strategy or {}).get("codes") or []]))[:8]
+            if rc_codes:
+                rebound_txt = RBC.block(rc_codes, D)
+    except Exception as e:   # noqa: BLE001
+        rebound_txt = f"(反抽卡算失败 {type(e).__name__})"
     txt = f"""# 01 事实({D} {at}, 脚本生成)
 触发原因: {why}
 交易阶段: {phase}
@@ -521,6 +540,8 @@ def build_01(skill, D, at, why, state, strategy, fired, quotes, facts, open_text
 
 ## 开盘实况(机械判定, 每次触发现读)
 {open_text}
+
+{rebound_txt}
 
 ## A 股指数(3 秒级) + 大小盘 / 风格剪刀差
 {index3_block(D, at)}

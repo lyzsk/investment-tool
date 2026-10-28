@@ -194,9 +194,16 @@ LIVE_BOARD_WAKE=1   # 10/26 用户批: 必查池 / 持仓 / 有挂单的票 首�
 LIVE_BOARD_FAST=1   # 10/26 用户批: 板事件先只跑 06 快裁(沿用上一版 04), 同时排队整链重审; 0 = 板事件直接整链
 LIVE_BOARD_CD=180   # 同票板事件冷却秒数(期间新事件只记最新板态, 并进下一次)
 LIVE_BOARD_OPEN_S=18   # 开板持续多少秒算炸板(同 signals S4a)
-SIG_VISION=1   # 10/26 20:1x 用户: 股票推送少 → 盘口池里不在盯盘名单的股票也出强势 / 板类信号(视野票, 普通通道 + 动态冷却); 0 = 只盯名单
-LIVE_ONLY=zhiyingjuexin,liuyiqing,zuoshoudeirong,buchitudou0,taoge   # 10/26 20:2x 用户令: 10/27 起只跑这 5 条(去掉卢本圆), 从盘前首跑开始; 空 = 按选人规则(入选导师 + 桃哥 / 卢本圆)
+SIG_POOL=1   # 10/28 改名(原 SIG_VISION; 「视野票」→「盯盘池」用户 10/27 定) · 10/26 20:1x 用户: 股票推送少 → 盘口池里不在盯盘名单的股票也出强势 / 板类信号(视野票, 普通通道 + 动态冷却); 0 = 只盯名单
+SIG_WX=1   # 10/27 11:36 用户裁决: 分时信号(含股票)不能关, 恢复 1; 重复乱码的根因按修法 A+B 处理(gateway 机械回"额度已补" + 推送卡记成系统通知). 历史: 10/27 10:4x 改 cb = 只推转债行(用户嫌转债推少; 股票分时信号仍不推, 等 hermes 规则验证 2 次再改 1); 10:1x 用户令止血: 分时信号重复 30+ 遍乱码 → 不推微信(只落 push_queue 队列文件), 成交 / 挂单 / 叫醒 / 盯盘卡照推; 根因修好前别改回 1
+LIVE_ONLY=zhiyingjuexin,liuyiqing,buchitudou0,taoge   # 10/27 晚用户令: 10/28 起停做手德融, 只跑这 4 条(芷影 / 刘忆青 / 土豆 / 桃哥); 原: 10/26 20:2x 用户令: 10/27 起只跑这 5 条(去掉卢本圆), 从盘前首跑开始; 空 = 按选人规则(入选导师 + 桃哥 / 卢本圆)
 EXEC_INTENT_TABLE=1   # 10/26 晚用户批: 06 只写意图(必须走 / 想走 / 冲高卖 / 低吸 / 打板 / 必须买), 执行器按落单那一刻盘面选挂法(executor._intent_expand 选型表 v2); 0 = 模型自己选挂法
 EXEC_REBOUND_DEADLINE_MIN=60   # 选型表 急跌 → 反抽卖 那一半: 多少分钟没反抽到点按买一卖
 EXEC_NO_AVG_DOWN=1   # 10/26 22:0x 用户原则(market-skill U24): 浮亏持仓票盘中补仓 → 等反转(日内最低反弹 max(1.5%, 0.5×振幅)), 14:50 没反转就尾盘补; 0 = 关
 EXPECT_FORCE=固态电池   # 10/26 22:2x 用户: 导师判断明日看的题材, 明日备案里单列个股预案 + 套利债(逗号分隔; 用完清空)
+ZIBEI_FORCE=yang,百,九   # 10/27 用户点名的字辈(yang = 洋/阳/羊; 百 = 百货百字辈; 九 = 上海九百/九牧王); watch_seed.py 必列, 其余自动挑
+PAPER_DIGEST_PUSH=0   # 10/27 用户令: 现在不跑 paper line, 【paper 日报】(matcher --eod 15:05 自动 daily_digest --send)不推微信; 1 = 恢复推送
+OLD_PAPER_SETTLE=0   # 10/27 晚用户令: 旧 paper(A 线账本)每天 15:05 收盘结算(Java paperEodHandler → matcher.mjs --eod)停掉, 脚本直接返回成功; 1 = 恢复; --restate 手动补算不受影响
+OLD_PAPER_MATCH=0   # 10/27 23:0x 用户令: 旧 paper 盘中撮合 matcher --once 停(Java paperMatchHandler 照常调, 脚本直接返回); 1=恢复
+AUCTION_PUSH=1   # 10/28: 09:25:45 竞价结果推送(scripts/live/auction_push.py; signals.py 里调, 一天一次); 0=关
+MORNING_KLINE=1   # 10/28: 盘前首跑收尾 → 持仓 K 线预测(scen_v2) + 主情景图 + 明日预案要点推微信(scripts/kline_study/morning_push.py); 0=关

@@ -1,0 +1,6 @@
+--- v030_20261027-2209/scripts/claude_profile/chain_flags.txt
++++ v031_20261027-2304/scripts/claude_profile/chain_flags.txt
+@@ -205,2 +205,3 @@
+ PAPER_DIGEST_PUSH=0   # 10/27 用户令: 现在不跑 paper line, 【paper 日报】(matcher --eod 15:05 自动 daily_digest --send)不推微信; 1 = 恢复推送
+ OLD_PAPER_SETTLE=0   # 10/27 晚用户令: 旧 paper(A 线账本)每天 15:05 收盘结算(Java paperEodHandler → matcher.mjs --eod)停掉, 脚本直接返回成功; 1 = 恢复; --restate 手动补算不受影响
++OLD_PAPER_MATCH=0   # 10/27 23:0x 用户令: 旧 paper 盘中撮合 matcher --once 停(Java paperMatchHandler 照常调, 脚本直接返回); 1=恢复

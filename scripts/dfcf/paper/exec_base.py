@@ -75,6 +75,14 @@ def jl(p, d=None):
 
 
 def prev_close(c, D):
+    try:   # 10/27 事故: 日线缓存盘中被写过(百洋股份 10-26 c=10.13 是 09:36 现价, 真收盘 11.28)→ 先用前一交易日正式日线 downloads/market/<日>/kline_day.jsonl
+        sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+        import official_close as OC
+        v = OC.prev_close(c, D)
+        if v:
+            return v
+    except Exception:   # noqa: BLE001
+        pass
     k = (jl(ROOT / "downloads" / "quotes" / "daily" / f"{c}.json", {}) or {}).get("klines") or []
     k = [x for x in k if x.get("d", "") < D]
     return k[-1]["c"] if k else None

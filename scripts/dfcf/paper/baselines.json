@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-26 15:05",
+ "updated": "2026-10-27 15:05",
  "etfMapVer": "2026-10-14",
  "fee": 0.001,
  "口径": "见 baselines.mjs 文件头; 06 实际=0915 BUY 挂单按金额加权(未成交=现金), 04/02=D 开盘等权(开盘涨停未开板=买不到), 持有到 D+1 收盘, 扣往返 0.1%",
@@ -1064,20 +1064,6 @@
      }
     }
    },
-   "A-mix": {},
-   "A-mix-eq": {},
-   "A-mix-lhb": {},
-   "A-mix-sw": {},
-   "A-tbank": {},
-   "A-tndq": {},
-   "A-hbank": {},
-   "A-hndq": {},
-   "A-dbank": {},
-   "A-dndq": {},
-   "A-sbank": {},
-   "A-sndq": {},
-   "A-wbank": {},
-   "A-wndq": {},
    "S-buchitudou0": {},
    "S-liuyiqing": {},
    "S-xingjianye": {},

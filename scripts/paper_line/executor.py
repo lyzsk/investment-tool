@@ -1535,6 +1535,79 @@ class V3(X.SE):
             self.restrategize("板事件: " + "; ".join(fired)[:300], counted=False)
         return fired
 
+    def _vmin(self, c):
+        """本票近 20 个交易日日均成交量 / 240 = 平时 1 分钟量(股 / 张); 取不到 → None"""
+        cache = self.__dict__.setdefault("_vminc", {})
+        if c not in cache:
+            v = None
+            try:
+                sys.path.insert(0, str(ROOT / "scripts" / "backfill_bilibili"))
+                import manual_backfill as mb
+                cur = mb.db().cursor()
+                sym = ("sh" if c.startswith(("6", "5", "11")) else "sz") + c
+                cur.execute("select volume from investment_market.kline_day where is_deleted=0 and symbol=%s and trade_date < %s and volume > 0 "
+                            "order by trade_date desc limit 20", (sym, self.D))
+                xs = [float(r[0]) for r in cur.fetchall()]
+                v = sum(xs) / len(xs) / 240 if xs else None
+            except Exception:   # noqa: BLE001
+                v = None
+            cache[c] = v
+        return cache[c]
+
+    def _rebound_guard(self, hm):
+        """10/27 晚用户令(候选 B): 普通限价卖单马上要成交、但此刻正处在「强反抽」里 → 不让它按死价卖在反抽起点, 改成移动止盈(从此刻起的最高回落 trail 才按买一卖)
+        强反抽(零 token, 每 3 秒): 近 3 分钟从最低反弹 ≥ RB_UP_K × 本票 20 日振幅中位 且 近 1 分钟量 ≥ RB_VOL × 本票平时 1 分钟量
+        回落 trail = RB_TRAIL_K × 振幅(夹 1.5~6%) —— 10/26~10/27 两天 5 条线普通限价卖单离线回放(scripts/temp/guard_rebound_eval.py):
+        满足上面门槛的 n=17, 改移动止盈后 均 +3.58% / 中位 +3.44% / 13 赚 4 亏 / 最差 −4.86%(只两天、票集中, 置信低)
+        不拦: 条件单 / 竞价单 / now 单 / 已经改过的; 开关 LIVE_REBOUND_GUARD(默认 1)"""
+        if (X.flag("LIVE_REBOUND_GUARD", "1") or "1") != "1":
+            return
+        up_k = float(X.flag("LIVE_RB_UP_K", "0.4") or 0.4)
+        vol_k = float(X.flag("LIVE_RB_VOL", "5") or 5)
+        tr_k = float(X.flag("LIVE_RB_TRAIL_K", "0.8") or 0.8)
+        hist = self.__dict__.setdefault("_rb_hist", {})
+        ts = time.time()
+        done = []
+        with self.lock:
+            for x in (self.strategy or {}).get("codes") or []:
+                c = x["code"]
+                q_ = self.feed.q.get(c) or {}
+                p_, v_ = q_.get("p"), q_.get("v")
+                if not p_ or v_ is None:
+                    continue
+                h = hist.setdefault(c, [])
+                h.append((ts, float(p_), float(v_)))
+                while h and h[0][0] < ts - 200:
+                    h.pop(0)
+                for r in x.get("rules") or []:
+                    key = f"{self.ver}:{c}:{r['id']}"
+                    if r.get("side") != "SELL" or r.get("type") or r.get("auction") or r.get("now") or r.get("_rb_guarded") or key in self.fired or not r.get("px"):
+                        continue
+                    px = float(r["px"])
+                    try:
+                        tick = float(X.AR.tick(c))
+                    except Exception:   # noqa: BLE001
+                        tick = 0.01
+                    if p_ < px - tick - 1e-9:
+                        continue   # 还没到挂价附近
+                    amp = self._amp(c)
+                    lo3 = min(p for t_, p, _ in h if t_ >= ts - 180)
+                    up3 = (p_ / lo3 - 1) * 100 if lo3 else 0
+                    h60 = [(t_, v) for t_, _, v in h if t_ >= ts - 60]
+                    vol60 = h60[-1][1] - h60[0][1] if len(h60) > 1 else 0
+                    vm = self._vmin(c)
+                    vr = vol60 / vm if vm else 0
+                    if up3 < up_k * amp or vr < vol_k:
+                        continue
+                    trail = round(min(6.0, max(1.5, tr_k * amp)), 2)
+                    r.update(type="cond", ref="日内最高", dir="down", pct=trail, book="b1", _armed=True, _hi=p_, _lo=p_,
+                             _rb_guarded={"orig_px": px, "at": hm, "p": p_, "up3": round(up3, 2), "amp": round(amp, 2), "vr": round(vr, 1)})
+                    done.append(f"{x.get('name') or ''}{c} 原单 卖{px:g} 正在强反抽(3 分钟从 {lo3:g} 弹 {up3:.1f}% ≥ {up_k:g}×振幅 {amp:.1f}%, 1 分钟量 {vr:.0f} 倍平时)"
+                                f" → 改成 移动止盈: 从此刻起最高回落 {trail}% 才按买一卖(不卖在反抽起点)")
+        if done:
+            self.ev(kind="守卫: 强反抽中的限价卖单改移动止盈", items=done[:10])
+            self.wx(f"【{self.skill} 守卫 {hm}】强反抽里不按死价卖: " + "; ".join(done)[:500])
+
     def _guard(self, hm):
         """10/25 晚用户令: 全天守卫(零 token, 每 3 秒随盘口判) —— 普通限价单的价格偏离现价 ≥ g%(卖单比现价低 / 买单比现价高 = 一碰就按市价成交,
         多半是按过时的盘面写的, 例 芷影 09:20 按竞价跌停 8.83 挂百洋卖 9.00, 开盘 10.09)→ 不让它按市价成交, 改成条件单:
@@ -1977,6 +2050,13 @@ class V3(X.SE):
                     T["terms"] = VT[:15]
             except Exception as e:   # noqa: BLE001
                 self.ev(kind="术语闸失败", err=repr(e)[:200])
+            try:   # 10/27 晚用户批: 06 写「反抽」必须填四样(起点 / 起算 / 结束 / 走强改判); 指引模式只记录, 晚上复盘看
+                VR = H.gate_rebound(s)
+                if VR:
+                    self.ev(kind="反抽四样闸", n=len(VR), items=VR[:8])
+                    T["rebound"] = VR[:15]
+            except Exception as e:   # noqa: BLE001
+                self.ev(kind="反抽四样闸失败", err=repr(e)[:200])
         if gate_on:   # 10/24 步骤边界 v2: 06 只能落 04 选中的票(建 / 加) + 持仓 + 上一版已有的票; 04 清仓的票不许买 → 机械剔掉
             try:
                 drop06 = H.enforce06(s, r4.get("json"), set((state.get("positions") or {}).keys()), {str(x.get("code")) for x in (strat or {}).get("codes") or []},
@@ -2093,7 +2173,9 @@ class V3(X.SE):
         mode = "实盘线" if self.line.get("live") else {"watch": "盯盘", "plan": "计划"}.get(self.mode, "")
         head = msg.split("\n")[0]
         side_cn = {"BUY": "买", "SELL": "卖"}
-        if "成交" in head and self.state.get("trades"):
+        # 10/27 修: 原来 `"成交" in head` —— 守卫消息"挂价离现价太远(一碰就按市价成交)"也含成交两字, 每出一版就被排成"最新一笔成交"卡(做手德融 09:35 那笔推了 19 遍);
+        # 只认真成交消息的抬头: "策略执行器 成交 HH:MM" / "成交(条件单)" / "成交(炸板接)"
+        if re.search(r"(执行器 成交 \d|成交\((条件单|炸板接)\))", head) and self.state.get("trades"):
             t = self.state["trades"][-1]
             pos = (self.state.get("positions") or {}).get(t["code"]) or {}
             return "\n".join([f"✅ {nm} 成交 {str(t.get('t'))[:5]}",
@@ -2173,6 +2255,8 @@ class V3(X.SE):
             threading.Timer(1.0, lambda: self.restrategize("竞价定格偏离计划: " + "; ".join(dev925)[:300], counted=False)).start()
         if self.line.get("live") and (auction is True or (not auction and hm >= "09:30")) and not dev925:
             self._guard(hm)
+        if self.line.get("live") and not auction and hm >= "09:30":
+            self._rebound_guard(hm)
         if not auction:   # 停牌保护(10/23 凌晨用户提醒: 纳指 ETF 溢价高时常临时停牌 09:30~10:30): 买一卖一同时为空 = 不可交易, 这一跳不撮合
             for c in [c for c, q_ in self.feed.q.items() if not (q_.get("b1") or 0) and not (q_.get("a1") or 0)]:
                 self.feed.q.pop(c, None)

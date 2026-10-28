@@ -1,0 +1,14 @@
+--- v029_20261027-1910/scripts/claude_profile/chain_flags.txt
++++ v030_20261027-2209/scripts/claude_profile/chain_flags.txt
+@@ -197,5 +197,5 @@
+ SIG_VISION=1   # 10/26 20:1x 用户: 股票推送少 → 盘口池里不在盯盘名单的股票也出强势 / 板类信号(视野票, 普通通道 + 动态冷却); 0 = 只盯名单
+ SIG_WX=1   # 10/27 11:36 用户裁决: 分时信号(含股票)不能关, 恢复 1; 重复乱码的根因按修法 A+B 处理(gateway 机械回"额度已补" + 推送卡记成系统通知). 历史: 10/27 10:4x 改 cb = 只推转债行(用户嫌转债推少; 股票分时信号仍不推, 等 hermes 规则验证 2 次再改 1); 10:1x 用户令止血: 分时信号重复 30+ 遍乱码 → 不推微信(只落 push_queue 队列文件), 成交 / 挂单 / 叫醒 / 盯盘卡照推; 根因修好前别改回 1
+-LIVE_ONLY=zhiyingjuexin,liuyiqing,zuoshoudeirong,buchitudou0,taoge   # 10/26 20:2x 用户令: 10/27 起只跑这 5 条(去掉卢本圆), 从盘前首跑开始; 空 = 按选人规则(入选导师 + 桃哥 / 卢本圆)
++LIVE_ONLY=zhiyingjuexin,liuyiqing,buchitudou0,taoge   # 10/27 晚用户令: 10/28 起停做手德融, 只跑这 4 条(芷影 / 刘忆青 / 土豆 / 桃哥); 原: 10/26 20:2x 用户令: 10/27 起只跑这 5 条(去掉卢本圆), 从盘前首跑开始; 空 = 按选人规则(入选导师 + 桃哥 / 卢本圆)
+ EXEC_INTENT_TABLE=1   # 10/26 晚用户批: 06 只写意图(必须走 / 想走 / 冲高卖 / 低吸 / 打板 / 必须买), 执行器按落单那一刻盘面选挂法(executor._intent_expand 选型表 v2); 0 = 模型自己选挂法
+ EXEC_REBOUND_DEADLINE_MIN=60   # 选型表 急跌 → 反抽卖 那一半: 多少分钟没反抽到点按买一卖
+@@ -203,2 +203,4 @@
+ EXPECT_FORCE=固态电池   # 10/26 22:2x 用户: 导师判断明日看的题材, 明日备案里单列个股预案 + 套利债(逗号分隔; 用完清空)
+ ZIBEI_FORCE=yang,百,九   # 10/27 用户点名的字辈(yang = 洋/阳/羊; 百 = 百货百字辈; 九 = 上海九百/九牧王); watch_seed.py 必列, 其余自动挑
++PAPER_DIGEST_PUSH=0   # 10/27 用户令: 现在不跑 paper line, 【paper 日报】(matcher --eod 15:05 自动 daily_digest --send)不推微信; 1 = 恢复推送
++OLD_PAPER_SETTLE=0   # 10/27 晚用户令: 旧 paper(A 线账本)每天 15:05 收盘结算(Java paperEodHandler → matcher.mjs --eod)停掉, 脚本直接返回成功; 1 = 恢复; --restate 手动补算不受影响

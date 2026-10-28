@@ -98,16 +98,17 @@ def main():
     check("S3 反例: 第一波只涨 1%", run(open25 + path([("09:30:00", 10.0, 1000), ("09:40:00", 10.1, 101000), ("09:50:00", 9.85, 121000), ("10:00:00", 9.9, 131000), ("10:05:00", 10.08, 171000)])), "S3", False)
 
     # S4: 涨停 11.00; 封 → 开板 2 分钟 → 回封
-    def board(open_min):
+    def board(open_sec):
         rows = open25 + [snap(hms(S.secs("10:00:00") + i * 3), 11.0, 1000 + i, b1=11.0, k1=0) for i in range(20)]
         x0 = S.secs("10:01:00")
-        rows += [snap(hms(x0 + i * 3), 10.9, 2000 + i, b1=10.89) for i in range(open_min * 20)]
-        x1 = x0 + open_min * 60
+        rows += [snap(hms(x0 + i * 3), 10.9, 2000 + i, b1=10.89) for i in range(max(1, open_sec // 3))]
+        x1 = x0 + open_sec
         rows += [snap(hms(x1 + i * 3), 11.0, 5000 + i, b1=11.0, k1=0) for i in range(5)]
         return rows
-    check("S4 正例: 开板 2 分钟回封", run(board(2)), "S4", True)
-    check("S4 反例: 开板 12 分钟才回封", run(board(12)), "S4", False)
-    check("S4 反例: 没封过", run(open25 + path([("10:00:00", 10.9, 1000), ("10:05:00", 10.95, 2000)])), "S4", False)
+    # 10/28: 10/25 起 S4 拆成 S4a 炸板(开板 ≥N 秒, N 动态约 15~18 秒) / S4b 回封动作(卖一涨停价挂单量下降) / S4p / S4c, 老的「S4 回封」用例跟着改
+    check("S4a 正例: 封板后开板 2 分钟", run(board(120)), "S4a", True)
+    check("S4a 反例: 开板 6 秒就回封(不算炸板)", run(board(6)), "S4a", False)
+    check("S4a 反例: 没封过", run(open25 + path([("10:00:00", 10.9, 1000), ("10:05:00", 10.95, 2000)])), "S4a", False)
 
     # S5: 14:30 低点 10.00, 14:36 到 10.16(+1.6%)
     pre = [("14:20:00", 10.1, 1000), ("14:30:00", 10.0, 2000)]

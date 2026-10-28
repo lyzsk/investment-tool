@@ -64,17 +64,11 @@ def _lim(code):
     return 20 if code[:3] in ("300", "301", "688", "689") or code[:2] in ("11", "12") else 30 if code[:1] in ("4", "8", "9") and code[:3] != "900" else 10
 
 
-def _b13(p, lim):
-    """13 档(同 similar_days.b13): 涨停 / ≥8 / ≥6 / ≥4 / ≥2 / ≥0 / ≥−2 / ≥−4 / ≥−6 / ≥−8 / <−8 / 跌停; 创业科创转债按 20cm 等比缩放"""
-    u = lim / 10
-    if p >= lim - 0.2 * u:
-        return "涨停"
-    if p <= -lim + 0.2 * u:
-        return "跌停"
-    for e in (8, 6, 4, 2, 0, -2, -4, -6, -8):
-        if p >= e * u:
-            return f"≥{e * u:g}"
-    return f"<{-8 * u:g}"
+def _b13(p, lim, cb=False):
+    """13 档(同 similar_days.b13): 涨停 / ≥8 / ≥6 / ≥4 / ≥2 / ≥0 / ≥−2 / ≥−4 / ≥−6 / ≥−8 / <−8 / 跌停;
+    10/27 晚用户定: 20cm / 30cm 股票每档仍 2 个点, ±10% 外对称外延到涨跌停(≥18 … <−18); 转债仍按 20cm 等比缩放(每档 4 个点)"""
+    import similar_days as _SD
+    return _SD.b13(p, lim, cb=cb)
 
 
 B13_ORDER = ["涨停", "≥8", "≥6", "≥4", "≥2", "≥0", "≥-2", "≥-4", "≥-6", "≥-8", "<-8", "跌停"]
@@ -138,10 +132,10 @@ GROUPS = [   # (名字, 判定) —— 拿一天的市场状态
 ]
 
 
-def _hist(vals, lim):
+def _hist(vals, lim, cb=False):
     c = {}
     for v in vals:
-        b = _b13(v, lim)
+        b = _b13(v, lim, cb)
         c[b] = c.get(b, 0) + 1
     key = lambda z: 999 if z == "涨停" else -999 if z == "跌停" else float(z.lstrip("≥<")) - (0.5 if z.startswith("<") else 0)   # noqa: E731  按数值从涨停排到跌停
     return " ".join(f"{b} {c[b]}" for b in sorted(c, key=key, reverse=True))
@@ -176,7 +170,7 @@ def market_link(code, D, days=120, detail=True):
             continue
         s = f"{nm}的 {len(xs)} 天: {DF.line(DF.full(xs, key=lambda x: x['v'], tag=lambda x: x['d'][5:]))}"
         if detail:
-            s += f" | 13 档: {_hist([x['v'] for x in xs], lim)}"
+            s += f" | 13 档: {_hist([x['v'] for x in xs], lim, code[:2] in ("11", "12"))}"
         parts.append(s)
     last = sorted(M)[-1] if M else None
     ctx = ""

@@ -21,10 +21,53 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "scripts" / "paper_line" / "tools")]
 import theme_life as TL  # noqa: E402
+import theme_phase as TPH  # noqa: E402  10/27 晚: 新阶段口径(3 日趋势 + 相对峰值 + 梯队完整度 + 晋级率, 阈值取本题材历史分位)
 
 LIVE = ROOT / "results" / "_live"
 MKT = ROOT / "downloads" / "market"
 TOP_N, PER_THEME, CB_PER = 6, 4, 2
+# 10/27 用户: 明日预案要有 大消费 主簇 → 次簇(百货 / 乳制品 / 食品饮料 / 白酒 …); 按 md 涨停分析的 题材名 + 上涨逻辑 关键字归簇(按顺序, 先命中先归)
+CONSUME = [("百货零售", ("百货", "零售", "商业", "商超", "免税", "购物")), ("乳制品", ("乳", "奶")), ("白酒", ("白酒", "酒")),
+           ("食品饮料", ("食品", "饮料", "零食", "调味", "预制菜", "粮油", "肉", "种业", "农业")), ("旅游酒店", ("旅游", "酒店", "景区", "演出", "影视院线")),
+           ("大消费·其他", ("消费", "家电", "纺织", "服装", "宠物", "医美", "美容"))]
+
+
+def consume_clusters(D, look=5):
+    """大消费 主簇 → 次簇: 近 look 天每个次簇的涨停家数(逐日)+ D 当天成员"""
+    days = sorted({r[0] for r in TL.parse_md() if r[0] <= D})[-look:]
+    per = {k: {"逐日": {d: 0 for d in days}, "今天": []} for k, _ in CONSUME}
+    for r in TL.parse_md():
+        if r[0] not in days:
+            continue
+        txt = f"{r[1] or ''} {r[7] or ''}"
+        for k, kws in CONSUME:
+            if any(w in txt for w in kws):
+                per[k]["逐日"][r[0]] += 1
+                if r[0] == D:
+                    per[k]["今天"].append(f"{str(r[2]).replace(chr(92), '')}({r[3]}) {r[4] or 1}板")
+                break
+    out = []
+    for k, v in per.items():
+        seq = [v["逐日"][d] for d in days]
+        if sum(seq) == 0:
+            continue
+        trend = "升" if seq[-1] > (seq[-2] if len(seq) > 1 else 0) else "降" if seq[-1] < (seq[-2] if len(seq) > 1 else 0) else "平"
+        out.append({"次簇": k, "近5日逐日涨停": seq, "今天比昨天": trend, "今天成员": v["今天"][:6]})
+    total = [sum(v["逐日"][d] for v in per.values()) for d in days]
+    return {"日期": days, "大消费合计逐日": total, "次簇": sorted(out, key=lambda x: (-x["近5日逐日涨停"][-1], -sum(x["近5日逐日涨停"])))}
+
+
+def seed_block(nxt):
+    """10/27 用户: 明日预案要有 yang / 百 / 九字辈 + 连板梯队缺位 + 断板观察 —— 读 watch_seed.json(D = 下一交易日; 没有就提示先跑)"""
+    try:
+        w = json.loads((LIVE / nxt / "watch_seed.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {"err": f"results/_live/{nxt}/watch_seed.json 没有(先跑 scripts/venv/Scripts/python.exe scripts/live/watch_seed.py --date {nxt})"}
+    sd = w.get("seed") or []
+    pick = lambda tag: [f"{x['name']}({x['code']})" for x in sd if any(t.startswith(tag) for t in x.get("tags") or [])]   # noqa: E731
+    return {"T": w.get("T"), "梯队": w.get("ladder"), "缺位": w.get("gaps"),
+            "字辈": [{"组": f"{z['py']}({'/'.join(z['chars'])})", "近10日涨停": z["n"], "来源": z.get("src"), "成员": (z.get("members_lu10") or [])[:10]} for z in w.get("zibei") or []],
+            "续板": pick("续板"), "断板观察": pick("断板观察")}
 
 
 def next_day(D):
@@ -188,7 +231,16 @@ def build(D):
         seeds_stock += [(c, kw) for c, *_ in st_[:5]]
         seeds_cb += [(x["code"], kw) for x in cl]
     nxt = next_day(D)
-    out = {"D": D, "for": nxt, "built": dt.datetime.now().isoformat(timespec="seconds"), "样本天数": len(days),
+    for f_ in focus:   # 10/27 用户(pc3_msg_2): 阶段是项目推测, 不当事实 —— 一律写「疑似」, 只有发哥说过且当天核销命中的才写定论
+        if f_.get("阶段") and not str(f_["阶段"]).startswith("疑似"):
+            f_["阶段"] = "疑似" + str(f_["阶段"])
+    try:   # 10/27 晚用户令: 阶段改成新口径(只比一天作废); 明日聚焦的题材都用新口径重算一遍, 老口径的"阶段"留着当对照
+        for f_ in focus:
+            ph = TPH.phase(f_["题材"], D)
+            f_["新口径"] = {k: ph.get(k) for k in ("标签", "近3个出现日家数", "3日斜率", "相对峰值", "梯队完整度", "晋级率", "本段晋级率P50", "离峰天数")}
+    except Exception as e:   # noqa: BLE001
+        print(f"[expect] 题材阶段新口径失败 {e!r}", file=sys.stderr)
+    out = {"D": D, "for": nxt, "大消费": consume_clusters(D), "种子池": seed_block(nxt), "built": dt.datetime.now().isoformat(timespec="seconds"), "样本天数": len(days),
            "情绪聚焦(近5日)": TL.top(D, after=True, n=10)["近 5 日最活跃题材"], "明日聚焦": focus,
            "题材预案": plans, "候选": {"股票": seeds_stock, "转债": seeds_cb},
            "不自信点": ["题材名来自 md 涨停分析的人工归类, 同一题材不同天叫法不同时靠同义表合并, 会漏", "延续率按 家数档 × 是否比前一天多 分组, 没分主线 / 非主线, 也没看大盘",
@@ -201,11 +253,16 @@ def build(D):
 
 
 def render(o):
-    L = [f"## 明日备案({o['for']}; 按 {o['D']} 收盘 + md 涨停分析 {o['样本天数']} 天历史机械算, 全线共用的项目视角)", "",
+    L = [f"## 明日预案〔参考·项目推测, 未核销〕({o['for']}; 按 {o['D']} 收盘 + md 涨停分析 {o['样本天数']} 天历史机械算)", "",
+         "> 只给 live line 参考: 下单依据以盘前首跑 chain 的结果为准, 只凭本预案不得下单; 阶段(退潮 / 高潮 / 分歧)是机械推测, 一律写「疑似」", "",
          "### 情绪聚焦(近 5 日)"] + [f"- {x}" for x in o["情绪聚焦(近5日)"][:8]] + ["", "### 明日聚焦(延续概率 + 流转; 分高在前)"]
     for f in o["明日聚焦"]:
         L.append(f"- **{f['题材']}**: 今天 {f['今天涨停']} 家(昨天 {f['昨天涨停']}) · {f['阶段']} · 本波第 {f['本波第几天']} 天 · 明天 ≥3 家概率 {f['明天≥3家·延续概率']:.0%}(同档历史 n={f['延续样本n']})"
                  + (f" · 流转: {'; '.join(f['流转依据'])}" if f["流转依据"] else ""))
+        nq = f.get("新口径") or {}
+        if nq.get("标签"):
+            L.append(f"  新口径阶段: **{nq['标签']}** · 近 3 个出现日 {nq['近3个出现日家数']} 斜率 {nq['3日斜率']:+.1f} · 相对峰值 {nq['相对峰值']:.0%}(离峰 {nq['离峰天数']} 天) · 梯队完整度 {nq['梯队完整度']:.0%} · 晋级率 "
+                     + (f"{nq['晋级率']:.0%}" if nq.get("晋级率") is not None else "—") + " (本段 P50 " + (f"{nq['本段晋级率P50']:.0%}" if nq.get("本段晋级率P50") is not None else "—") + ")〔标签只是展示, 判断要引这些数字〕")
         if f.get("梯队"):
             L.append(f"  梯队: {' / '.join(f['梯队'])}")
         if f.get("套利债"):
@@ -216,7 +273,27 @@ def render(o):
             L.append(f"- **{p_['题材']}**({p_['来源']}): " + (" / ".join(p_["个股"]) or "近 60 天没找到"))
             if p_["套利债"]:
                 L.append(f"  套利债: {' / '.join(p_['套利债'])}")
-    L += ["", "不自信点: " + "; ".join(o["不自信点"])]
+    sb = o.get("种子池") or {}
+    if sb:
+        L += ["", f"### 种子池(watch_seed; 按 {sb.get('T') or '?'} 收盘)"]
+        if sb.get("err"):
+            L.append(f"- {sb['err']}")
+        else:
+            lad = sb.get("梯队") or {}
+            L.append("- 连板梯队: " + " / ".join(f"{k} 板 {v} 只" for k, v in sorted(lad.items(), key=lambda kv: -int(kv[0])))
+                     + (f" · **缺位: {'、'.join(str(g) + ' 板' for g in sb.get('缺位') or [])}**(盯下一档续板票能不能补位)" if sb.get("缺位") else " · 无缺位"))
+            if sb.get("续板"):
+                L.append(f"- 续板: {'、'.join(sb['续板'])}")
+            for z in sb.get("字辈") or []:
+                L.append(f"- 字辈 {z['组']}: 近 10 日涨停 {z['近10日涨停']} 只({z['来源']}) · {'、'.join(z['成员'])}")
+            if sb.get("断板观察"):
+                L.append(f"- 断板观察(≥2 连板后断 1~2 天): {'、'.join(sb['断板观察'])}")
+    cs = o.get("大消费") or {}
+    if cs.get("次簇"):
+        L += ["", f"### 大消费 主簇 → 次簇(近 5 日涨停家数 {cs['日期'][0][5:]}~{cs['日期'][-1][5:]}; 合计 {'/'.join(map(str, cs['大消费合计逐日']))})"]
+        for c in cs["次簇"]:
+            L.append(f"- {c['次簇']}: {'/'.join(map(str, c['近5日逐日涨停']))}(今天比昨天{c['今天比昨天']})" + (f" · 今天: {'、'.join(c['今天成员'])}" if c["今天成员"] else ""))
+    L += ["", "不自信点: " + "; ".join(o["不自信点"] + ["大消费次簇按题材名 / 上涨逻辑关键字归, 一只票只归第一个命中的簇", "字辈 / 梯队来自 watch_seed(只看日 K 封板)"])]
     return "\n".join(L)
 
 
