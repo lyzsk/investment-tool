@@ -1,0 +1,6 @@
+--- v034_20261028-2001/scripts/claude_profile/chain_flags.txt
++++ v035_20261029-0008/scripts/claude_profile/chain_flags.txt
+@@ -208,2 +208,3 @@
+ AUCTION_PUSH=1   # 10/28: 09:25:45 竞价结果推送(scripts/live/auction_push.py; signals.py 里调, 一天一次); 0=关
+ MORNING_KLINE=1   # 10/28: 盘前首跑收尾 → 持仓 K 线预测(scen_v2) + 主情景图 + 明日预案要点推微信(scripts/kline_study/morning_push.py); 0=关
++LIVE_ROT_MODE=kimi   # 10/29 凌晨用户令: 实盘线走 kimi(订阅 kimi-code 优先, 撞 5 小时 / 7 天窗口换烧 token 的 kimi-api, 探测恢复切回; scripts/claude_profile/rotation.py kimi 模式); 空 = 照 rotation.txt(gravitex balance)

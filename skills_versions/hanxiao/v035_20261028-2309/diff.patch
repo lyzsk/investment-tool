@@ -1,0 +1,9 @@
+--- v034_20261028-2215/persona/fingerprint.md
++++ v035_20261028-2309/persona/fingerprint.md
+@@ -1,5 +1,5 @@
+ # 含笑96998(hanxiao) 交易指纹·机械层
+ 
+-> 生成: 2026-10-28T22:02:51 | 脚本: scripts/tzzb/mentor_fingerprint.py(零 token, 只读) | as-of: 全量
++> 生成: 2026-10-28T23:02:41 | 脚本: scripts/tzzb/mentor_fingerprint.py(零 token, 只读) | as-of: 全量
+ > 数据窗口: 2025-11-06 ~ 2026-10-09 | 成交腿 526 | 买入事件(日×票) 191, 其中新开仓 36 | 卖出事件 169
+ > 行情面板: 2025-06-03 ~ 2026-10-28(行情库 kline_day, 不复权价+交易所昨收) | 新开仓中有行情的占 94%

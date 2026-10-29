@@ -116,8 +116,20 @@ def mentor_t1(D, ids):
     return out
 
 
+def old_mentor(D):
+    """10/28 晚用户定: 导师票 T−1 / T−2 都没持有、没操作(mentor_recent k > 2) → 不进必查(只留 3 秒盘口); → {代码: k}"""
+    if ("old", D) not in _C:
+        try:
+            import mentor_recent as MR
+            _C[("old", D)] = {c: int(e.get("k") or 1) for c, e in MR.load(D)["codes"].items() if int(e.get("k") or 1) > 2}
+        except Exception:   # noqa: BLE001
+            _C[("old", D)] = {}
+    return _C[("old", D)]
+
+
 def build(D, positions=(), pool=(), skill_ids=None):
     W = OrderedDict()
+    old = old_mentor(D)
 
     def add(c, tag):
         W.setdefault(c, [])
@@ -133,7 +145,7 @@ def build(D, positions=(), pool=(), skill_ids=None):
             import mentor_recent as MR
             mr = MR.load(D)["codes"]
             for c, e in mr.items():
-                if e["tier"] == "must":
+                if e["tier"] == "must" and c not in old:   # 10/28 晚: k > 2 的导师票不进必查(P50 长的导师 must 档也会到 k=12)
                     for t in e["tags"][:3]:
                         add(c, t)
         except Exception:   # noqa: BLE001  算不出来退回旧口径: 今天入选导师 T−1 操作过的
@@ -156,16 +168,19 @@ def build(D, positions=(), pool=(), skill_ids=None):
     pre = md_section(D, r"^## 盘前.*?(?=^## |\Z)")
     for c, (n, _) in find(re.sub(r"(?s)#### 红旗大街发哥.*?(?=^#{2,4} |\Z)", "", pre)).items():
         add(c, f"盘前提到 {n}".strip())
+    held = {str(c) for c in positions or ()}
     for c in list(pool or ())[:POOL_N]:
+        if str(c) in old and str(c) not in held and str(c) not in W:   # 10/28 晚: 候选池里只因导师 T−3 以前操作进来的, 不整批进必查
+            continue
         add(str(c), "候选池前50")
     return W
 
 
-def prune(W, at, mentioned, pool):
+def prune(W, at, mentioned, pool, D=None):
     """动态出池: 09:25:30 后, 非常驻、没被最近一版 04 / 06 提到、不在当前候选池前 50 的去掉 → (保留, 去掉 [(代码, 标签)])"""
     if at < "09:25:30":
         return W, []
-    top = set(list(pool or ())[:POOL_N])
+    top = set(list(pool or ())[:POOL_N]) - set(old_mentor(D) if D else {})   # 10/28 晚: 导师 k > 2 的票不靠"在候选池前 50"留在必查
     keep, drop = OrderedDict(), []
     for c, tags in W.items():
         if any(t.startswith(STICKY) for t in tags) or c in mentioned or c in top:

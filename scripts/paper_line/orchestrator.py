@@ -100,6 +100,11 @@ def main():
     ap.add_argument("--lines", default="")
     ap.add_argument("--fake", action="store_true")
     a = ap.parse_args()
+    _rm = (E.X.flag("LIVE_ROT_MODE", "") or "").strip()   # 10/29 用户令: 实盘线 key 轮换模式(kimi = 订阅 kimi-code 优先, 撞窗口换烧 token 的 kimi-api; 空 = 照 rotation.txt)
+    os.environ["CLAUDE_ROT_MODE"] = _rm or "day"   # 10/29: 实盘线(08:28 起进程)固定白天档 gravitex, 不吃夜间 kimi-night 时段规则
+    _lm = (E.X.flag("LIVE_MODEL", "") or "").strip()   # 10/29 用户令: 实盘线统一模型(白天 gravitex 上跑 claude-sonnet-5-5)
+    if _lm:
+        os.environ["CLAUDE_MODEL_OVERRIDE"] = _lm
     take_lock()
     try:
         common_env()

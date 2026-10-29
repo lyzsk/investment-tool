@@ -92,6 +92,7 @@ function renderSummary(){
   const cats = {}; B.forEach(b => b.versions.forEach(v => { const k = whyCat(v.why); const o = cats[k] ||= {n:0,secs:0,usd:0,k3:0}; o.n++; o.secs+=v.total||0; o.usd+=v.usd; o.k3+=v.k3; }));
   const keepN = sum(B,b=>b.keep.length), keepUsd = sum(B,b=>sum(b.keep,k=>k.usd)), keepK3 = sum(B,b=>sum(b.keep,k=>k.k3));
   document.getElementById('main').innerHTML = `
+  ${multiCard()}
   <div class="card"><h2>各账本</h2><table><tr><th>账本</th><th>模式</th><th class="num">收益</th><th class="num">触发</th><th class="num">成交</th><th class="num">平均耗时 s</th><th class="num">实际 $</th><th class="num">K3 ¥</th><th class="num">每次 ¥</th></tr>
   ${B.map(b=>{const c=bookCost(b), n=b.versions.length; return `<tr><td>${esc(b.name)}</td><td>${b.mode==='plan'?'计划':'盯盘'}${b.kind==='dt'?' · 决策T':''}</td><td class="num ${b.ret>0?'pos':b.ret<0?'neg':''}">${b.ret==null?'-':b.ret.toFixed(2)+'%'}</td><td class="num">${n}</td><td class="num">${b.trades.length}</td><td class="num">${fmt(sum(b.versions,v=>v.total)/Math.max(1,n),0)}</td><td class="num">${fmt(c.usd,1)}</td><td class="num">${fmt(c.k3,0)}</td><td class="num">${fmt(c.k3/Math.max(1,n),1)}</td></tr>`}).join('')}</table></div>
   ${keepCard()}${waitCard()}${tpmCard()}
@@ -103,6 +104,31 @@ function renderSummary(){
   ${Object.entries(cats).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`<tr><td>${k}</td><td class="num">${o.n}</td><td class="num">${fmt(o.secs/o.n,0)}</td><td class="num">${fmt(o.usd,1)}</td><td class="num">${fmt(o.k3,0)}</td></tr>`).join('')}</table></div>
   ${fateCard(B)}${calcCard()}${probsCard()}`;
   bindTPM(); bindCalc();
+}
+
+// ---------- 10/28 晚: 多日收益曲线(skill vs 不动 vs 导师真人 vs 你实盘) ----------
+function multiCard(){
+  const M = DATA.multi; if(!M || !M.days || !M.days.length) return '';
+  const names = Object.keys(M.lines), cum = {};
+  const ser = (get) => { let v = 1; return M.days.map(d => { const x = get(d); if(x!=null) v *= 1 + x/100; return (v-1)*100; }); };
+  names.forEach(n => { const L = M.lines[n]; cum[n] = {skill: ser(d=>L[d]?.skill), hold: ser(d=>L[d]?.hold), mentor: ser(d=>L[d]?.mentor)}; });
+  const user = ser(d=>M.user[d]);
+  const all = [].concat(...names.map(n=>[...cum[n].skill, ...cum[n].hold, ...cum[n].mentor]), user, [0]);
+  const lo = Math.min(...all), hi = Math.max(...all), W = 760, H = 240, P = 36;
+  const x = i => P + (W-2*P) * (M.days.length===1 ? 0.5 : i/(M.days.length-1)), y = v => H-P - (H-2*P) * (v-lo)/Math.max(0.01,hi-lo);
+  const COL = ['#60a5fa','#f472b6','#34d399','#fbbf24','#a78bfa','#f87171'];
+  const path = (arr, col, dash) => `<polyline fill="none" stroke="${col}" stroke-width="2" ${dash?'stroke-dasharray="5 4"':''} points="${arr.map((v,i)=>`${x(i)},${y(v)}`).join(' ')}"/>`;
+  let svg = `<svg width="${W}" height="${H}" style="background:#111418"><line x1="${P}" x2="${W-P}" y1="${y(0)}" y2="${y(0)}" stroke="#444" stroke-dasharray="3 3"/>`;
+  M.days.forEach((d,i)=> svg += `<text x="${x(i)}" y="${H-10}" fill="#8b93a1" font-size="11" text-anchor="middle">${d.slice(5)}</text>`);
+  svg += `<text x="4" y="${y(hi)+4}" fill="#8b93a1" font-size="11">${hi.toFixed(1)}%</text><text x="4" y="${y(lo)+4}" fill="#8b93a1" font-size="11">${lo.toFixed(1)}%</text>`;
+  names.forEach((n,k)=>{ svg += path(cum[n].skill, COL[k%COL.length]) + path(cum[n].mentor, COL[k%COL.length], true); });
+  svg += path(user, '#ffffff') + '</svg>';
+  const last = a => a[a.length-1];
+  const rows = names.map((n,k)=>`<tr><td><span style="color:${COL[k%COL.length]}">■</span> ${esc(n)}</td><td class="num ${last(cum[n].skill)>=0?'pos':'neg'}">${last(cum[n].skill).toFixed(2)}%</td><td class="num">${last(cum[n].hold).toFixed(2)}%</td><td class="num ${last(cum[n].skill)-last(cum[n].hold)>=0?'pos':'neg'}">${(last(cum[n].skill)-last(cum[n].hold)).toFixed(2)}</td><td class="num">${last(cum[n].mentor).toFixed(2)}%</td><td class="small mute">${M.days.map(d=>{const L=M.lines[n][d]; return L?`${d.slice(5)} ${L.skill.toFixed(1)}/${L.hold.toFixed(1)}/${L.mentor==null?'-':L.mentor.toFixed(1)}`:''}).filter(Boolean).join(' · ')}</td></tr>`).join('');
+  return `<div class="card"><h2>多日收益曲线 —— skill 有没有模仿出赚钱的人</h2>${svg}
+  <div class="small mute">实线 = skill 线累计；虚线 = 同色导师真人累计；白线 = 你实盘（当日盈亏 ÷ 前一日总资产）。每天的线从你当天的持仓起步（按导师仓位缩放），所以按「每天收益连乘」算，不是一个连续账户。</div>
+  <table><tr><th>线</th><th class="num">skill 累计</th><th class="num">不动累计</th><th class="num">增值（skill − 不动）</th><th class="num">导师真人累计</th><th>每天 skill / 不动 / 导师 %</th></tr>${rows}
+  <tr><td>你实盘</td><td class="num ${last(user)>=0?'pos':'neg'}">${last(user).toFixed(2)}%</td><td colspan="4" class="small mute">${M.days.map(d=>M.user[d]==null?'':`${d.slice(5)} ${M.user[d].toFixed(2)}`).filter(Boolean).join(' · ')}</td></tr></table></div>`;
 }
 
 // ---------- 10/24 B 版: 缓存保温体检 ----------

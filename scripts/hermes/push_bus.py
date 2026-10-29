@@ -130,7 +130,7 @@ def compose(items, remaining):
     head = f"📦 {dt.datetime.now():%H:%M} 合并推送({len(items)} 条)"
     out, took, size = [], [], len(head)
     for e in items:
-        t = e["text"].strip()
+        t = (e.get("text_d") or e["text"]).strip()
         if out and size + len(t) + 8 > MAXC:
             continue   # 10/26: 装不下的大条留到下一批, 继续往里塞后面的小条(原来 break = 小条也被卡住)
         out.append(t if len(t) <= MAXC - len(head) - 10 else t[:MAXC - len(head) - 30] + "…(截断)")
@@ -140,6 +140,49 @@ def compose(items, remaining):
     if remaining is not None and remaining <= 3:
         body += "\n(微信额度快用完, 方便时回个字)"
     return body, took
+
+
+_LAST = {}   # 10/28 用户: 同 key 上一次真正发出去的文本(盯盘卡 / 各线新版), 用来去掉没变化的部分; 落盘 push_bus_<D>.last.json
+
+
+def _norm_ver(t):
+    """线版本卡比较口径: 去掉标题(版本号 / 时刻)、触发原因、本次花费行"""
+    return "\n".join(l for l in (t or "").strip().splitlines() if not l.startswith(("📋", "触发：", "本次 $")))
+
+
+def _blocks(t):
+    """盯盘卡 → (标题行, {【线名】: 整块文本})"""
+    head, cur, out = [], None, {}
+    for l in (t or "").strip().splitlines():
+        if l.startswith("【") and "】" in l:
+            cur = l[: l.index("】") + 1]
+            out[cur] = [l]
+        elif cur:
+            out[cur].append(l)
+        else:
+            head.append(l)
+    return "\n".join(head), {k: "\n".join(v) for k, v in out.items()}
+
+
+def dedup(e):
+    """→ 要发的文本; None = 和上一次发的完全一样(整条不发)。盯盘卡: 有变化的线照发整块, 没变化的线合成一行「无变化」; 线版本卡: 除标题 / 触发 / 花费外一样 = 一行「无变化」"""
+    k, t = e.get("key"), e.get("text") or ""
+    if not k or k not in _LAST:
+        return t
+    old = _LAST[k]
+    if k == "live_watchcard":
+        h, nb = _blocks(t)
+        _, ob = _blocks(old)
+        same = [n for n, b in nb.items() if ob.get(n) == b]
+        if len(same) == len(nb):
+            return None
+        out = [h] + [b for n, b in nb.items() if n not in same]
+        if same:
+            out.append("无变化: " + "、".join(same))
+        return "\n".join(out)
+    if k.endswith(":ver") and _norm_ver(t) == _norm_ver(old):
+        return f"{t.strip().splitlines()[0]} · 和上一版无变化(只是重想了一次)"
+    return t
 
 
 def _save_pending(pf, pending):
@@ -183,6 +226,11 @@ def run(D, dry=False, until="15:05:00", once=False):
                 continue
             if k:
                 seen_fill.add(k)
+    lf = HERE / "state" / f"push_bus_{D}.last.json"
+    try:
+        _LAST.update(json.loads(lf.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        pass
     log(D, f"dispatcher 启动 dry={dry} 起点 {off}")
     while dt.datetime.now().strftime("%H:%M:%S") < until:
         if f.exists() and f.stat().st_size > off:
@@ -229,6 +277,16 @@ def run(D, dry=False, until="15:05:00", once=False):
                 remaining = max(0, wx_send.QUOTA - used) if t0 else None
             except Exception:   # noqa: BLE001
                 remaining = None
+            for x in list(pending):   # 10/28: 去掉和上一次一样的部分; 整条没变化 = 不发(记日志)
+                if x.get("key") and "text_d" not in x:
+                    d_ = dedup(x)
+                    if d_ is None:
+                        pending.remove(x)
+                        log(D, f"无变化不发: {x['key']} {x.get('at')}")
+                        continue
+                    x["text_d"] = d_
+            if not pending:
+                continue
             wait, batch = window(pending, remaining)
             first = min(e["ts"] for e in batch)
             if time.time() - first >= wait:
@@ -236,6 +294,13 @@ def run(D, dry=False, until="15:05:00", once=False):
                 r = wx_send.send(text, src="live_bus", raw=True, wait=120, dry=dry, verbose=False)
                 last_send = time.time()
                 n_sent += 1
+                for x in sent:
+                    if x.get("key"):
+                        _LAST[x["key"]] = x["text"]
+                try:
+                    lf.write_text(json.dumps(_LAST, ensure_ascii=False), encoding="utf-8")
+                except OSError:
+                    pass
                 ids = {id(x) for x in sent}
                 pending = [x for x in pending if id(x) not in ids]
                 _save_pending(pf, pending)

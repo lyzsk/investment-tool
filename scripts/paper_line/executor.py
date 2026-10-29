@@ -166,7 +166,7 @@ WAKE_ASK = """
   {{"type": "index", "code": "sh000001|sz399006|sh000688|sz399303", "op": ">=|<=", "pct": 当日涨跌幅%, "why": "..."}}
   {{"type": "cond", "code": "代码", "ref": "涨停价|开盘价|昨收|跌停价|日内最高|日内最低|具体价格", "dir": "down|up", "pct": 2.0, "why": "..."}}   (10/25: 和条件单同一种写法, 命中只叫醒你重判、不自动下单; 例 "涨停价回落 2% 叫醒""从日内最高回落 3% 叫醒")
 时间止损、指数转弱、关键价位破位都要写成 wake; 没有就写 "wake": []。时间止损只能写**将来**的时刻(已过去的会被执行器剔除); 价格 / 指数条件在你写下时就已成立的, 要等它先回到不成立(满 1 分钟)再成立才会叫醒你。
-每张普通限价单的 why 里写"成交概率 x%"(取上面"挂在这里今天能成交的概率"或必查"触及概率"里最接近的那格, 不要自己估): ≥50% = 正常单; 30~50% = 写一句为什么不挂近一点; <30% = 预案单(如"等大跌才接"), 必须写清在等什么情景。成交概率只说"买不买得到 / 卖不卖得掉", 不说"该不该做"; 该不该做看导师规则和当下情景, 目的是这一单最后赚钱。每张单的 why 用一两句回答三件事(按导师的做法答, 不必套格式): ①目的: 建仓 / 加仓 / 打板接力 / 做T(正T 先买后卖、反T 先卖后买)/ 止盈 / 止损 / 换仓; ②怎么收尾: 买单打算在哪个价、什么时候卖(或接着拿, 拿到什么情况才走); 卖单是不是要接回、在哪接回, 不接回也写; ③最怕什么、为什么还做: 买单 = 买了继续跌(看振幅、关键价位、导师同状态亏损的案例); 卖单 = 卖飞(看必查里导师"卖后 3 日最高"、强势股次日冲高分布)、卖在成本下方是止损还是做T。**挂价先按导师规则 / 关键价位 / 情景定, 概率只用来检查"是不是根本够不着"; 不许为了凑高概率把单挪到现价附近**, 要挪价必须写出是哪条规则或盘面变化让你挪, 写不出就保持原价并标成预案单(决策T 线例外: 本线说明里"能成交优先、挂价贴近买一 / 卖一"照旧, 前提是价差够费用门槛)。
+每张普通限价单的 why 里写"成交概率 x%"(取上面"挂在这里今天能成交的概率"或必查"触及概率"里最接近的那格, 不要自己估): ≥50% = 正常单; 30~50% = 写一句为什么不挂近一点; <30% = 预案单(如"等大跌才接"), 必须写清在等什么情景。成交概率只说"买不买得到 / 卖不卖得掉", 不说"该不该做"; 该不该做看导师规则和当下情景, 目的是这一单最后赚钱。每张单的 why 用一两句回答三件事(按导师的做法答, 不必套格式): ①目的: 建仓 / 加仓 / 打板接力 / 做T(正T 先买后卖、反T 先卖后买)/ 止盈 / 止损 / 换仓; ②怎么收尾: 买单打算在哪个价、什么时候卖(或接着拿, 拿到什么情况才走); 卖单是不是要接回、在哪接回, 不接回也写; ③最怕什么、为什么还做: 买单 = 买了继续跌(看振幅、关键价位、导师同状态亏损的案例); 卖单两面都写(10/28 晚用户令: 不许只写怕卖飞) —— 卖飞的证据(必查导师"卖后 3 日最高"、强势股次日冲高分布)**和**这里就是高点的证据(冲高后回落跌破均价 / 第二次冲高没过第一次 / 量价背离 / 同簇龙头或拓扑邻居先掉头 / 指数翻绿 / 卖墙), 哪边证据多就按哪边定挂价和数量; 卖在成本下方是止损还是做T; 卖了之后在什么情况下接回(反抽站回卖价上方 + 量 / 同簇转强), 不接回也要写为什么。**挂价先按导师规则 / 关键价位 / 情景定, 概率只用来检查"是不是根本够不着"; 不许为了凑高概率把单挪到现价附近**, 要挪价必须写出是哪条规则或盘面变化让你挪, 写不出就保持原价并标成预案单(决策T 线例外: 本线说明里"能成交优先、挂价贴近买一 / 卖一"照旧, 前提是价差够费用门槛)。
 引用任何统计(强势股次日 / 相似日 / 同逻辑邻居 / 触及概率 / 回封)都要**同时写中位和最差情景**(必查里每条都给了 均值 / 中位 / P10 / 最差案例), 只写中位或只写好的一面会被内容闸打回(10/24 用户令)。
 有先后顺序的单(先卖后买 / 先买后卖)用 "after": 例 买回单写 "after": "r1" = 只有 r1 成交之后这张才生效; 不写 after 的单价格碰到就成交, 不管先后。
 炸板接单(可选, 少用): 只在**导师历史上真有"开板接 / 排板回封"做法**的票型上用, why 里要引用对应的规则或案例编号; 它只是补充, **不能代替导师当天会直接下的单**(导师多数是开盘后看盘直接分批买 / 卖, 照导师的节奏写普通限价单)。开板到回封常常只有 1 分钟, 叫醒你来不及, 所以要用就事先写好。**统计参考**(docs/research/board_reseal_20261023.md, 30 天关注票、置信低~中): 开板后跌到离涨停 −2% 时接, 之后能封回 49%、当天收盘中位 −0.4%、次日最高中位 +2.0%、次日收盘中位 −2.7%; 跌到 −5% 再接封回只有 21%; 开板 ≥5 分钟还没封回, 之后封回 58%、≥20 分钟 37% —— 整体是负期望, 只有导师有对应案例、且准备次日冲高就卖时才用。写法(放进该票 rules):
@@ -709,6 +709,15 @@ class V3(X.SE):
     def restrategize(self, why, counted=True, effort=None, tag=None):
         if self.dormant() and not why.startswith("开盘前首版"):
             return
+        hard = int(X.flag("LIVE_HARD_MAX_VERSIONS", "0") or 0)   # 10/29 凌晨(切 kimi 烧 token): 每条线每天总版本数硬上限(含必判; 开盘前首版 / 尾盘版不算), 到了不再叫模型, 已挂的单照常撮合; 0 = 不限
+        if hard and self.line.get("live") and not why.startswith("开盘前首版") and tag != "tail":
+            nv = sum(1 for _ in (self.dir / "versions").glob("*")) if (self.dir / "versions").exists() else 0
+            if nv >= hard:
+                if not getattr(self, "_hard_logged", False):
+                    self._hard_logged = True
+                    self.ev(kind="当日版本数到硬上限", n=nv, cap=hard, why=why)
+                    self.wx(f"【{self.skill}】今天已跑 {nv} 版(上限 {hard}), 之后不再叫模型, 已挂的单照常撮合")
+                return
         if tag == "auction" and self.line.get("live") and not self.pending:   # 模块 7: 09:20 竞价复核 → 先代码对照计划情景
             dev, hit = self.scen_compare("09:20")
             skip = (X.flag("LIVE_AUC_SKIP", "0") or "0") == "1"   # 10/25 用户: 漏叫一次的代价 > 多叫一次 → 默认同 paper v3(09:20 照样叫模型, 对照结果附在叫醒原因里); =1 才是"全落在情景内就不叫"
@@ -1098,6 +1107,9 @@ class V3(X.SE):
         for r in x.get("rules") or []:
             it = str(r.get("intent") or "").strip()
             sty = str(r.get("style") or "").strip()
+            w_ = str(r.get("why") or "")
+            if (X.flag("EXEC_SEM_FIX", "1") or "1") == "1" and r.get("side") == "SELL" and sty in ("开盘", "立即", "追价") and not r.get("now")                     and re.search(r"当天清|当日清|R39|默认动作", w_) and not re.search(r"止损|失效|破位|跌破|风控|硬止", w_):
+                it, r["_sem_fix"] = "想走", f"「当天清」≠「{sty}」: 改成想走(按导师卖点分布分批)"   # 10/28 晚: 当天清被读成开盘清 → 代码纠正
             if not it and sty and sty not in ("排板", "开盘", "立即") and not r.get("人工价"):
                 if self.REF_RE.search(str(r.get("why") or "")):
                     r["_override"] = "推翻选型表(有依据)"
@@ -1136,7 +1148,10 @@ class V3(X.SE):
                 tot = min(held, int(r["qty"])) if r.get("qty") else (held if R >= 0.99 else int(X.AR.round_qty(c, held * R)))
                 q1 = int(X.AR.round_qty(c, tot / 2))
                 q2 = tot - q1
-                if not tot:
+                dist = self._dist_sell(c, base, r, tot, st_) if tot and it == "想走" and st_ != "封板" else None
+                if dist:   # 10/28 晚用户令: 导师卖点分布 → 分时段分批(不再把分散在整个早盘的分布压成开盘价 / 不再各线同一套反抽参数)
+                    out += dist
+                elif not tot:
                     out.append({**base, "style": "移动止盈", "ratio": R})   # 没可卖: 交给数量那段报"已经没有可卖"
                 elif st_ == "封板":
                     out.append({**base, "style": "炸板走", "qty": tot})
@@ -1155,6 +1170,47 @@ class V3(X.SE):
                 else:   # 平稳 / 开盘水上: 现价卖(追价) —— 10/26 晚回放: 这两种盘面移动止盈比模型直接卖差(中位 −1.3%), 离线实验也只证明了"急跌后等反抽"
                     out.append({**base, "style": "追价", "qty": tot})
         x["rules"] = out
+    def _dist_sell(self, c, base, r, tot, st_):
+        """隔夜仓「想走」→ 按本导师同状态卖点分布(mentor_sells.sell_plan: 各时段占比 + 该时段卖价相对开盘中位)拆成条件单:
+        每段 = 从时段起点生效, 价到 开盘价 × (1 + 该段中位) 就按买一卖, 到时段终点还没到价 → 按买一卖(= 他在这个时段会卖掉这么多);
+        已经过去的时段占比摊给后面; 样本 <8 / 不是拟人实盘线 / 今天买的(T+1)→ None(退回原挂法); 开关 EXEC_DIST_SELL(默认 1)"""
+        if (X.flag("EXEC_DIST_SELL", "1") or "1") != "1" or self.line.get("kind") != "mimic" or c.startswith(("11", "12")):
+            return None
+        pos = (self.state.get("positions") or {}).get(c) or {}
+        cost, pc = pos.get("cost"), X.prev_close(c, self.D)
+        if not cost or not pc:
+            return None
+        try:
+            import mentor_sells as MS_
+        except Exception:   # noqa: BLE001
+            sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+            import mentor_sells as MS_
+        op = (getattr(self, "_dopen", {}) or {}).get(c)
+        try:
+            P_ = MS_.sell_plan(self.skill, self.D, round((pc / float(cost) - 1) * 100, 2), max(int(pos.get("days") or 1), 1),
+                               round((op / pc - 1) * 100, 2) if op else None, "stock")
+        except Exception as e:   # noqa: BLE001
+            self.ev(kind="分布卖失败", code=c, err=repr(e)[:160])
+            return None
+        hm = now().strftime("%H:%M:%S")
+        segs = [g for g in (P_ or {}).get("plan") or [] if g["to"] > hm]
+        if not segs:
+            return None
+        tw = sum(g["share"] for g in segs) or 1
+        out, left = [], tot
+        for i, g in enumerate(segs):
+            q = left if i == len(segs) - 1 else min(left, int(X.AR.round_qty(c, tot * g["share"] / tw)))
+            if q <= 0:
+                continue
+            left -= q
+            v = float(g["vs_open"] or 0)
+            out.append({**base, "id": f"{r['id']}d{i + 1}", "qty": q, "type": "cond", "ref": "开盘价", "dir": "up", "pct": round(max(v, 0.0), 2), "arm": False, "book": "b1",
+                        "_t_from": max(g["from"], "09:30:00"), "deadline": min(g["to"], "14:56:00"),
+                        "_dist": {"时段": f"{g['from'][:5]}~{g['to'][:5]}", "占比": round(g["share"] / tw, 3), "卖价相对开盘中位": v, "样本": g["n"], "导师同状态当天卖": P_["p_sell"]}})
+        if out:
+            self.ev(kind="分布卖", code=c, n=len(out), segs=[f"{x['_dist']['时段']} {x['qty']}股 开盘{x['_dist']['卖价相对开盘中位']:+}%" for x in out])
+        return out or None
+
     STYLE_TTL = {"追价": 5, "低吸": 30, "挂高": 30}   # 挂出多少分钟没成交 → 叫醒重判(低吸 / 挂高优先用导师被动单存续时间)
 
     def _style_prep(self, s):
@@ -1346,6 +1402,8 @@ class V3(X.SE):
             for r in x.get("rules") or []:
                 key = f"{self.ver}:{c}:{r['id']}"
                 if r.get("type") != "cond" or key in self.fired:
+                    continue
+                if r.get("_t_from") and hm < r["_t_from"]:   # 10/28 晚: 分布卖的时段还没到
                     continue
                 if r.get("after") and not any(str(t.get("rule", "")) == f"{self.ver}:{c}:{r['after']}" for t in self.state.get("trades") or []):
                     continue
@@ -1607,6 +1665,98 @@ class V3(X.SE):
         if done:
             self.ev(kind="守卫: 强反抽中的限价卖单改移动止盈", items=done[:10])
             self.wx(f"【{self.skill} 守卫 {hm}】强反抽里不按死价卖: " + "; ".join(done)[:500])
+
+    def _resonance_guard(self, hm):
+        """10/28 晚用户批(U37 核对结论): 转债限价卖单马上要成交时, 如果 ①上证或创业板 15 分钟内刚从绿翻红(此刻 ≥ 0)
+        ②正股(或转债自己)10 分钟内出过 S10 绿翻红拉升 / S11 连续跨 3 档(signals.jsonl)同时成立 → 共振起涨点, 不按死价卖,
+        改成移动止盈(同守卫 B: 从此刻起最高回落 LIVE_RB_TRAIL_K × 振幅, 夹 1.5~6% 才按买一卖)。
+        样本: 10/27 福新转债 10:17~10:19 卖在 538.6~545(上证 10:16 翻红、正股福莱新材 10:16 → 10:19 二次拉升、机器人龙头封板), 之后到 559.8。
+        「题材龙头封板」这一条还没机械化(只写进说明); 开关 LIVE_RESONANCE_GUARD: shadow(默认) = 只记"会改成什么"不改单 / 1 = 真改 / 0 = 关
+        10/28 核: 10/27 福新这一单按 0.8×振幅(5.08%)回落会卖在 527.14(比原价 540 差), 回落 2% 才卖 544.24 —— 1 个样本定不了回落幅度, 先影子攒样本"""
+        mode = (X.flag("LIVE_RESONANCE_GUARD", "shadow") or "shadow").strip()
+        if mode == "0":
+            return
+        z = self.__dict__.setdefault("_rs", {"t": 0.0, "idx_red": None, "sig": {}, "pos": 0, "ipos": 0, "ix": {}})
+        if time.time() - z["t"] >= 15:   # 指数 / 信号文件 15 秒读一次增量
+            z["t"] = time.time()
+            try:
+                with (ROOT / "downloads" / "market" / self.D / "index_snap.jsonl").open(encoding="utf-8") as f:
+                    f.seek(z["ipos"])
+                    for l in f:
+                        if '"sh000001"' in l[:20] or '"sz399006"' in l[:20]:
+                            r = json.loads(l)
+                            if r.get("p") and r.get("pc"):
+                                z["ix"].setdefault(r["s"], []).append((r["t"], (r["p"] / r["pc"] - 1) * 100))
+                    z["ipos"] = f.tell()
+            except (OSError, ValueError):
+                pass
+            try:
+                with (LIVE / self.D / "signals.jsonl").open(encoding="utf-8") as f:
+                    f.seek(z["pos"])
+                    for l in f:
+                        e = json.loads(l)
+                        if e.get("sig") in ("S10", "S11"):
+                            z["sig"].setdefault(str(e.get("code")), []).append((e.get("t") or "", e["sig"]))
+                    z["pos"] = f.tell()
+            except (OSError, ValueError):
+                pass
+            red = None
+            for s_, nm in (("sh000001", "上证"), ("sz399006", "创业板")):
+                v = z["ix"].get(s_) or []
+                if v and v[-1][1] >= 0:
+                    t15 = (dt.datetime.strptime(v[-1][0], "%H:%M:%S") - dt.timedelta(minutes=15)).strftime("%H:%M:%S")
+                    lo = [p for t_, p in v if t_ >= t15]
+                    if lo and min(lo) < 0:
+                        red = f"{nm} 15 分钟内从 {min(lo):+.2f}% 翻红到 {v[-1][1]:+.2f}%"
+                        break
+            z["idx_red"] = red
+        if not z["idx_red"]:
+            return
+        try:
+            import signals as SG
+        except Exception:   # noqa: BLE001
+            sys.path.insert(0, str(ROOT / "scripts" / "live"))
+            import signals as SG
+        t10 = (dt.datetime.strptime(hm[:8] if len(hm) >= 8 else hm[:5] + ":00", "%H:%M:%S") - dt.timedelta(minutes=10)).strftime("%H:%M:%S")
+        tr_k = float(X.flag("LIVE_RB_TRAIL_K", "0.8") or 0.8)
+        done = []
+        with self.lock:
+            for x in (self.strategy or {}).get("codes") or []:
+                c = x["code"]
+                if not c.startswith(("11", "12")):
+                    continue
+                stk = SG.cb_stock(c)
+                hits = [f"{'正股' if cc == stk else ''}{s}@{t_[:5]}" for cc in (stk, c) if cc for t_, s in z["sig"].get(cc, []) if t_ >= t10]
+                if not hits:
+                    continue
+                p_ = (self.feed.q.get(c) or {}).get("p")
+                if not p_:
+                    continue
+                for r in x.get("rules") or []:
+                    key = f"{self.ver}:{c}:{r['id']}"
+                    if r.get("side") != "SELL" or r.get("type") or r.get("auction") or r.get("now") or r.get("_rb_guarded") or r.get("_rs_guarded") or key in self.fired or not r.get("px"):
+                        continue
+                    px = float(r["px"])
+                    try:
+                        tick = float(X.AR.tick(c))
+                    except Exception:   # noqa: BLE001
+                        tick = 0.01
+                    if p_ < px - tick - 1e-9:
+                        continue
+                    amp = self._amp(c)
+                    trail = round(min(6.0, max(1.5, tr_k * amp)), 2)
+                    if mode != "1":   # 影子: 只记一次, 不改单
+                        r["_rs_guarded"] = {"shadow": True, "orig_px": px, "at": hm, "p": p_, "idx": z["idx_red"], "sig": hits[:4], "trail": trail}
+                        done.append(f"〔影子〕{x.get('name') or ''}{c} 卖{px:g} 共振起涨({z['idx_red']}; {' '.join(hits[:4])}) → 若真改: 移动止盈回落 {trail}%")
+                        continue
+                    r.update(type="cond", ref="日内最高", dir="down", pct=trail, book="b1", _armed=True, _hi=p_, _lo=p_,
+                             _rs_guarded={"orig_px": px, "at": hm, "p": p_, "idx": z["idx_red"], "sig": hits[:4]})
+                    done.append(f"{x.get('name') or ''}{c} 原单 卖{px:g} 共振起涨({z['idx_red']}; {' '.join(hits[:4])}) → 改成 移动止盈: 最高回落 {trail}% 才按买一卖")
+        if done and mode != "1":
+            self.ev(kind="守卫影子: 共振起涨中的转债卖单(只记不改)", items=done[:10])
+        elif done:
+            self.ev(kind="守卫: 共振起涨中的转债卖单改移动止盈", items=done[:10])
+            self.wx(f"【{self.skill} 守卫 {hm}】共振起涨不按死价卖转债: " + "; ".join(done)[:500])
 
     def _guard(self, hm):
         """10/25 晚用户令: 全天守卫(零 token, 每 3 秒随盘口判) —— 普通限价单的价格偏离现价 ≥ g%(卖单比现价低 / 买单比现价高 = 一碰就按市价成交,
@@ -1884,9 +2034,11 @@ class V3(X.SE):
             if self._watch and self.line.get("kind") != "dt":   # 10/24: 必查范围动态出池(只影响必查, 不影响 3 秒盘口 / 候选池)
                 try:
                     import watch_set as WS
+                    _old = WS.old_mentor(self.D)
                     for c in list(P)[:WS.POOL_N]:
-                        self._watch.setdefault(c, ["候选池前50"])
-                    W2, drop = WS.prune(self._watch, at, set(getattr(self, "_mentioned", set())) | set(base), list(P))
+                        if c not in _old or c in base:   # 10/28 晚用户定: 导师 T−1 / T−2 都没持有没操作的票不整批进必查(只留 3 秒盘口)
+                            self._watch.setdefault(c, ["候选池前50"])
+                    W2, drop = WS.prune(self._watch, at, set(getattr(self, "_mentioned", set())) | set(base), list(P), self.D)
                     if drop:
                         self.ev(kind="必查动态出池", n=len(drop), out=[f"{c}({(tg or ['-'])[0][:20]})" for c, tg in drop][:20])
                     self._watch = dict(W2)
@@ -2052,6 +2204,16 @@ class V3(X.SE):
                 self.ev(kind="术语闸失败", err=repr(e)[:200])
             try:   # 10/27 晚用户批: 06 写「反抽」必须填四样(起点 / 起算 / 结束 / 走强改判); 指引模式只记录, 晚上复盘看
                 VR = H.gate_rebound(s)
+                try:   # 10/28 晚: 词汇误读闸(当天清≠开盘清 / 10:15 分桶≠时间止损 / R7 教训≠禁令 / 昨未封只给连板票)
+                    sys.path.insert(0, str(ROOT / "scripts" / "skills_ver"))
+                    import default_table as DTB_
+                    VS = H.gate_semantics(s, {x["code"]: DTB_.cell(self.skill, self.D, x["code"], 0.0, 0.0)["票型"] for x in (s or {}).get("codes") or []
+                                             if x.get("code") in (self.state.get("positions") or {}) and not str(x.get("code")).startswith(("11", "12"))})
+                    if VS:
+                        self.ev(kind="语义闸", n=len(VS), items=VS[:8])
+                        T["gate_sem"] = VS[:10]
+                except Exception as e:   # noqa: BLE001
+                    self.ev(kind="语义闸失败", err=repr(e)[:160])
                 if VR:
                     self.ev(kind="反抽四样闸", n=len(VR), items=VR[:8])
                     T["rebound"] = VR[:15]
@@ -2257,6 +2419,7 @@ class V3(X.SE):
             self._guard(hm)
         if self.line.get("live") and not auction and hm >= "09:30":
             self._rebound_guard(hm)
+            self._resonance_guard(hm)   # 10/28 晚用户批: 指数翻红 + 正股 S10 / S11 共振时转债卖单改移动止盈
         if not auction:   # 停牌保护(10/23 凌晨用户提醒: 纳指 ETF 溢价高时常临时停牌 09:30~10:30): 买一卖一同时为空 = 不可交易, 这一跳不撮合
             for c in [c for c, q_ in self.feed.q.items() if not (q_.get("b1") or 0) and not (q_.get("a1") or 0)]:
                 self.feed.q.pop(c, None)

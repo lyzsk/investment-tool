@@ -41,10 +41,10 @@ def lim_of(code, kind=None):
 
 
 def bin13(p, lim=10, cb=False):
-    """p = 涨跌幅(%), lim = 涨跌停幅度(%); 返回 ORDER 里的档名(主板口径); 20cm / 30cm 股票 ±8% 外用外延档(10/27 用户定), 转债仍按 lim/10 缩放"""
+    """p = 涨跌幅(%), lim = 涨跌停幅度(%); 返回 ORDER 里的档名(主板口径); 20cm / 30cm 股票和转债: ±8% 外用外延档(10/27 用户定股票, 10/28 转债同口径)"""
     if p is None:
         return None
-    if lim > 10 and not cb:
+    if lim > 10:   # 10/28 晚用户定: 转债(±20%)也按 20cm 股票同口径 —— ±8% 内同主板 13 档, 往外每 2 个点外延(原转债按 lim/10 缩放 = 每档 4 个点)
         top = int(lim) - 2
         if p >= lim - 0.2:
             return "涨停"

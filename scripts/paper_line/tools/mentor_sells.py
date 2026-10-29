@@ -110,6 +110,20 @@ def build(skill):
                    "gap": round((k[t][1] / k[t - 1][4] - 1) * 100, 2), "sold": t == i}
             if key not in panel or row["sold"]:
                 panel[key] = row
+    # 10/28 晚: 持仓日当天有没有再买(加仓 / 先买后卖做T) —— 原面板只标"卖没卖", 拿着隔夜仓时 skill 只会想卖(刘忆青 10/28 百洋股份: 导师低位加仓再卖, skill 按 R39 清仓)
+    f = ROOT / "skills" / f"{skill}-skill" / "persona" / "cases_auto.jsonl"
+    buys = {}
+    for b_ in (json.loads(l) for l in f.read_text(encoding="utf-8").splitlines() if l.strip()):
+        if b_.get("side") == "买" and b_.get("vwap"):
+            buys.setdefault((str(b_["code"]), b_["date"]), []).append(b_)
+    for key, row in panel.items():
+        bb = buys.get(key)
+        if bb:
+            k = K.get(key[0]) or []
+            ds = [x[0] for x in k]
+            i = bisect.bisect_left(ds, key[1])
+            o = k[i][1] if i < len(k) and ds[i] == key[1] else None
+            row["add"] = {"t": min(x.get("time", "")[:5] for x in bb), "vs_open": round((bb[0]["vwap"] / o - 1) * 100, 2) if o else None}
     return list(panel.values()), sold, intra
 
 
@@ -158,6 +172,11 @@ def query(skill, D, pnl, days, gap=None, kind=None, k=40):
     out = {"skill": skill, "D": D, "此刻状态": {"昨收浮盈%": pnl, "已持有交易日": days, "今开幅度%": gap, "品种": kind},
            "样本": f"持仓日面板 {len(P)} 行(其中卖出日 {sum(r['sold'] for r in P)}), 取最像的 {len(nb)} 行",
            "最像的这些日子里 当天卖出比例": f"{len(sold_keys) / len(nb):.0%}",
+           "最像的这些日子里 当天加仓比例(含先买后卖做T)": f"{sum(1 for r in nb if r.get('add')) / len(nb):.0%}",
+           "加仓 / 做T 的那些次": ({"n": sum(1 for r in nb if r.get("add")), "其中当天又卖(做T)": sum(1 for r in nb if r.get("add") and r["sold"]),
+                              "加仓时段": mix([tbucket(r["add"]["t"]) for r in nb if r.get("add") and r["add"].get("t")]),
+                              "加仓价相对开盘 P25/中位/P75": [q([r["add"]["vs_open"] for r in nb if r.get("add")], p) for p in (.25, .5, .75)]}
+                             if any(r.get("add") for r in nb) else "没有"),
            "邻居范围": {"浮盈": (q([r['pnl_prev'] for r in nb], .1), q([r['pnl_prev'] for r in nb], .9)), "持有天数": (min(r["days"] for r in nb), max(r["days"] for r in nb))}}
     if sx:
         out["卖的那些次"] = {"n": len(sx), "卖出类型": mix([s["kind"] or "?" for s in sx]), "卖出时段": mix([tbucket(s["t"]) for s in sx]),
@@ -170,6 +189,36 @@ def query(skill, D, pnl, days, gap=None, kind=None, k=40):
                           "最像的 5 次": [f"{s['d']} {s['t']} {s['name']}({s['kind']}) 卖出盈亏{s['pnl']}% 持{s['days']}天 开{s['gap']:+}% 卖在开盘{s['vs_open']:+}% → 3日最高{s['max3']}%"
                                        for s in sorted(sx, key=lambda s: dist({**s, 'pnl_prev': s['pnl']}))[:5]]}
     return out
+
+
+def sell_plan(skill, D, pnl, days, gap=None, kind=None, k=40):
+    """10/28 晚: 把导师同状态的卖点分布还原成分批计划(不再压成一个开盘价锚) —— 返回
+    {"n": 卖出样本数, "p_sell": 当天卖出比例, "plan": [{"from": 时段起点 HH:MM:SS, "to": 时段终点, "share": 占卖出样本比例, "vs_open": 该时段卖价相对开盘中位 %}]}
+    时段沿用 tbucket; 样本 <8 → None(调用方退回原挂法)"""
+    r = query(skill, D, pnl, days, gap, kind, k)
+    panel, sold, _ = data(skill)
+    if "卖的那些次" not in r:
+        return None
+    P = [x for x in panel if x["d"] < D and (kind is None or x["asset"] == kind)]
+    import math
+    def dist(x):
+        dd = ((x["pnl_prev"] - pnl) / 3) ** 2 + (math.log2(1 + x["days"]) - math.log2(1 + days)) ** 2
+        if gap is not None:
+            dd += ((x["gap"] - gap) / 2) ** 2
+        return dd ** 0.5
+    nb = sorted(P, key=dist)[:k]
+    keys = {(x["code"], x["d"]) for x in nb if x["sold"]}
+    sx = [s for s in sold if (s["code"], s["d"]) in keys and s.get("t") and s.get("vs_open") is not None]
+    if len(sx) < 8:
+        return None
+    edges = [("09:25~09:31", "09:25:00", "09:31:00"), ("09:31~09:45", "09:31:00", "09:45:00"), ("09:45~10:30", "09:45:00", "10:30:00"),
+             ("10:30~11:30", "10:30:00", "11:30:00"), ("13:00~14:30", "13:00:00", "14:30:00"), ("14:30 后", "14:30:00", "15:00:00")]
+    plan = []
+    for nm, a, b in edges:
+        xs = [s for s in sx if tbucket(s["t"]) == nm]
+        if xs:
+            plan.append({"from": a, "to": b, "share": round(len(xs) / len(sx), 3), "vs_open": q([s["vs_open"] for s in xs], .5), "n": len(xs)})
+    return {"n": len(sx), "p_sell": round(len(keys) / len(nb), 3), "plan": plan}
 
 
 def query_intraday(skill, D, gap=None, kind=None, k=40):

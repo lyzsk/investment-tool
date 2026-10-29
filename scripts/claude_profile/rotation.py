@@ -9,7 +9,7 @@
 配置文件: 调 <dev>/switch-claude-settings/cs.mjs file <配置>(切换工具不在本项目, 10/11 用户令放 dev 目录下; 默认=本项目上一级目录/switch-claude-settings,
   可用环境变量 CLAUDE_SWITCH_DIR 覆盖; 找不到=不轮换走默认 settings) 生成 ~/.claude-profiles/<配置>.json, 以 --settings 叠加(不改 settings.json, 10/9 立法)
 """
-import json, os, subprocess, time
+import json, os, re, subprocess, time
 from datetime import datetime
 from pathlib import Path
 
@@ -55,6 +55,75 @@ def automemory_env():
 
 
 FOLLOW_SETTINGS = ROT_FILE.exists() and any(l.strip() == "follow-settings" for l in ROT_FILE.read_text(encoding="utf-8").splitlines())
+# 10/29 凌晨用户令: kimi 模式 = 订阅 kimi-code 优先, 撞 5 小时 / 7 天额度窗口立刻换烧 token 的 kimi-api 重试; 到预计恢复时刻先用 key-switcher 的
+#   1 token 探测(auto-switcher-kimi.mjs probe)确认订阅恢复了再切回; 开关 = 环境变量 CLAUDE_ROT_MODE=kimi(实盘总控按 chain_flags LIVE_ROT_MODE 设)
+#   或 rotation.txt 写一行 kimi(全部自动化都走); 优先级: 钉死(CLAUDE_PROFILE_PIN) > kimi > balance > 手动切 > 跟随设置
+KIMI_SUB = os.environ.get("CLAUDE_KIMI_SUB", "kimi-code")
+KIMI_API = os.environ.get("CLAUDE_KIMI_API", "kimi-api")
+KIMI_PROBE = HERE.parents[2] / "dev-notes" / "others" / "key-switcher" / "scripts" / "auto-switcher-kimi.mjs"
+
+
+_KM = {}
+
+
+def kimi_mode():
+    """一个进程只判一次(10/29: 跨 08:30 / 18:30 的进程不中途换网关, resume 会话和缓存不断)"""
+    if "v" not in _KM:
+        _KM["v"] = _kimi_mode_now()
+    return _KM["v"]
+
+
+def _kimi_mode_now():
+    """kimi 档位: 环境变量 CLAUDE_ROT_MODE=kimi / rotation.txt 写 kimi(全天)/ rotation.txt 写 `kimi-night 18:30 08:30`(10/29 用户: 下班后统一切 k3.1-pro;
+    跨夜时段内的新调用走 kimi, 白天照旧; CLAUDE_ROT_MODE=day 可让某个进程强制不走夜间档)"""
+    m = os.environ.get("CLAUDE_ROT_MODE", "").strip()
+    if m == "kimi":
+        return True
+    if m == "day":
+        return False
+    lines = [l.strip() for l in ROT_FILE.read_text(encoding="utf-8").splitlines()] if ROT_FILE.exists() else []
+    if "kimi" in lines:
+        return True
+    for l in lines:
+        if l.startswith("kimi-night"):
+            parts = l.split()
+            a_, b_ = (parts[1], parts[2]) if len(parts) >= 3 else ("18:30", "08:30")
+            if "from" in parts and time.strftime("%Y-%m-%d %H:%M") < parts[parts.index("from") + 1] + " " + a_:
+                return False   # 还没到启用日
+            hm = time.strftime("%H:%M")
+            return hm >= a_ or hm < b_
+    return False
+
+
+def _kimi_pick():
+    """订阅可用 → kimi-code; 撞窗口未到恢复时刻 → kimi-api; 到点 → 探测(多进程共享结果, 30 分钟内不重复探测)"""
+    s = _state()
+    k = s.setdefault("kimi", {})
+    until = float(k.get("sub_until") or 0)
+    if not until:
+        return KIMI_SUB
+    now = time.time()
+    if now < until:
+        return KIMI_API
+    if now - float(k.get("probe_at") or 0) < 1800:
+        return KIMI_SUB if k.get("probe") == "ok" else KIMI_API
+    res = "unknown"
+    try:
+        r = subprocess.run(["node", str(KIMI_PROBE), "probe", KIMI_SUB], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=90, creationflags=NOWIN)
+        out = (r.stdout or "") + (r.stderr or "")
+        res = "ok" if ": ok" in out else "5h" if ": 5h" in out else "7d" if ": 7d" in out else "unknown"
+    except Exception:   # noqa: BLE001
+        pass
+    s = _state()
+    k = s.setdefault("kimi", {})
+    k.update(probe=res, probe_at=now)
+    if res == "ok":
+        k["sub_until"] = 0
+        print(f"kimi 订阅 {KIMI_SUB} 探测恢复, 切回订阅")
+    else:
+        k["sub_until"] = now + (7 * 86400 if res == "7d" else 1800)
+    _save(s)
+    return KIMI_SUB if res == "ok" else KIMI_API
 # 10/17 晚用户定: rotation.txt 写一行 manual-switch = 不自动换模型——永远用你本机当前设置那套; 撞额度窗口时推微信提醒你手动切,
 #   调用方原地等(每分钟看一次设置变没变, 你一切就继续; 最多等 45 分钟再按原逻辑顺延)
 MANUAL_SWITCH = ROT_FILE.exists() and any(l.strip() == "manual-switch" for l in ROT_FILE.read_text(encoding="utf-8").splitlines())
@@ -133,6 +202,8 @@ def current_profile():
     pin = os.environ.get("CLAUDE_PROFILE_PIN")
     if pin and pin in ps:
         return pin
+    if kimi_mode():   # 10/29: 订阅优先, 撞窗口烧 token, 探测恢复切回
+        return _kimi_pick()
     if BALANCE:   # 10/20: 本进程第一次调用时按欠额选一把, 之后一直用它(撞窗口时 on_window_limit 换)
         if not _bal["p"]:
             _bal["p"] = _balance_pick(ps)
@@ -181,12 +252,23 @@ def settings_args():
     return ["--settings", _files[p]]
 
 
-def on_window_limit():
-    """当前配置撞额度窗口: 记耗尽并切到下一套可用的; 全部耗尽返回 False"""
+def on_window_limit(err=""):
+    """当前配置撞额度窗口: 记耗尽并切到下一套可用的; 全部耗尽返回 False; err = 报错原文(kimi 模式用来分 5 小时 / 7 天)"""
     ps = profiles()
     if not ps:
         return False
     s = _state()
+    if kimi_mode() and not os.environ.get("CLAUDE_PROFILE_PIN"):
+        used = _last_used["p"] or current_profile()
+        if used == KIMI_SUB:   # 订阅撞窗口 → 记预计恢复时刻, 立刻换烧 token 的 key 重试
+            weekly = bool(re.search(r"7.?day|weekly|week|7 天|每周", err or "", re.I))
+            k = s.setdefault("kimi", {})
+            k.update(sub_until=time.time() + (7 * 86400 if weekly else 5 * 3600), hit_at=time.time(), hit_msg=(err or "")[-160:], probe=None, probe_at=0)
+            _save(s)
+            print(f"⚠ 额度窗口: kimi 订阅 {KIMI_SUB} 撞{'7 天' if weekly else ' 5 小时'}窗口, 换 {KIMI_API}(烧 token)立即重试")
+            return True
+        print(f"⚠ 额度窗口: {used} 也撞限流 / 窗口, 不再换, 等窗口")
+        return False
     if BALANCE and _bal["p"] and not os.environ.get("CLAUDE_PROFILE_PIN"):   # 10/20 balance: 标耗尽, 按欠额换下一把可用的
         used = _bal["p"]
         s["exhausted"][used] = time.time()

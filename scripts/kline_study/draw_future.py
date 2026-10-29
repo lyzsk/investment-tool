@@ -213,6 +213,48 @@ PANEL_W = 1180
 YEL, GRY, WHT, CYN = (255, 200, 0), (150, 150, 150), (230, 230, 230), (120, 200, 255)
 
 
+UP_W = ("涨停", "单边上涨", "深V")
+DN_W = ("跌停", "单边下跌", "冲高A杀", "高开低走")
+
+
+def wdir(w):
+    return "涨" if w in UP_W else "跌" if w in DN_W else "平"
+
+
+def v2_pair(v2, fac=lambda a: []):
+    """10/28 晚用户定: 每只票只画 2 张 —— 正例 = 两日组合概率第 1(标过不过半)/ 反例 = 首日方向和正例相反的里概率最高的那个
+    (候选 = 两日 top3 的其余 + 极端情景 涨停 / 跌停 / 冲高A杀 / 深V; 正例是「平(震荡)」时取涨向 / 跌向里概率最高的); 连板 / 连跌停票的涨跌停就在这里一起排"""
+    cand = []
+    for x in v2.get("top3_两日") or []:
+        a = x["名"].split("→")[0]
+        cand.append({"名": x["名"], "首日": a, "概率": x["概率"], "口径": "两日组合", "票型基线": x.get("票型基线"), "代表样本": x.get("代表样本"),
+                     "近邻路径": x.get("近邻路径") or {}, "因子": fac(a), "T+2分布": next((v for k, v in x.items() if k.endswith("T+2 分布%")), None)})
+    for e, y in ((v2.get("极端") or {}).get("极端代表样本") or {}).items():
+        if y.get("代表样本"):
+            cand.append({"名": e, "首日": e, "概率": v2["极端"]["T+1"][e]["模型"], "口径": "T+1 单日", "票型基线": v2["极端"]["T+1"][e]["票型基线"],
+                         "代表样本": y["代表样本"], "近邻路径": y.get("近邻路径") or {}, "因子": fac(e)})
+    cand = [c for c in cand if c.get("代表样本")]
+    if not cand:
+        return []
+    allw = v2.get("全部走法%") or {}
+    side = {k: round(sum(float(v["模型"] if isinstance(v, dict) else v) for w, v in allw.items() if wdir(w) == k), 1) for k in ("涨", "跌", "平")} if allw else {}
+    # 正例 = 涨向 / 跌向 / 平(震荡) 三个方向里合计概率最高的那个方向; 反例 = 涨跌里另一个方向(正例是平时 = 涨跌里大的那个)
+    ps = max(side, key=side.get) if side else wdir(cand[0]["首日"])
+    rs = ("跌" if ps == "涨" else "涨") if ps != "平" else max(("涨", "跌"), key=lambda k: side.get(k, 0))
+
+    def best(sd):
+        xs = [c for c in cand if wdir(c["首日"]) == sd]
+        return max(xs, key=lambda c: (c["口径"] == "两日组合", c["概率"])) if xs else None
+    out = []
+    for lab, sd in (("1正例", ps), ("2反例", rs)):
+        c = best(sd)
+        if c:
+            c = dict(c)
+            c.update(标签=lab, 方向=sd, 方向概率=side.get(sd), 过半=(side.get(sd) or 0) >= 50, 方向合计=side)
+            out.append(c)
+    return out
+
+
 def v2_items(v2, with_extreme=True):
     """scen_v2 输出 → 待画情景: top3 两日组合各一张(标签 1/2/3; 2 天路径 = 同一个代表样本的真实 T+1 / T+2)
     + 极端合成一张(标签 X, 子 = 各极端情景)"""
@@ -222,6 +264,9 @@ def v2_items(v2, with_extreme=True):
     def fac(a):
         f1 = next((y for y in v2["top3_单日"] if y["名"] == a), None)
         return ((f1 or {}).get("单因子top3") or single.get(a) or [f"{g} {v:+.1f}pp" for g, v in list((by_sc.get(a) or {}).items())[:3]])[:3]
+    import os
+    if os.environ.get("KLINE_PAIR", "1") == "1":   # 10/28 晚用户定: 正例 + 反例 两张(旧: 两日 top3 + 极端 4 张)
+        return v2_pair(v2, fac)
     out = []
     for i, x in enumerate(v2["top3_两日"]):
         a = x["名"].split("→")[0]
@@ -247,6 +292,13 @@ def v2_summary(v2):
     """每张图都一样的总表: 票型 / top3 / 两日 top3 / 极端 / 置信 / 样本"""
     s = v2.get("状态摘要") or {}
     lim = 20 if v2.get("20cm") else 10
+    import os
+    if os.environ.get("KLINE_SHORT", "1") == "1":   # 10/28 晚用户: 行文太费劲 → 只留 3 行(票 / 方向合计 / 命中参考)
+        allw = v2.get("全部走法%") or {}
+        side = {k: round(sum(float(v["模型"] if isinstance(v, dict) else v) for w, v in allw.items() if wdir(w) == k), 1) for k in ("涨", "跌", "平")}
+        return [(f"{v2.get('name', '')}({v2['code']}) {v2['T'][5:]} 收 {v2['收盘']:.2f} · {v2['票型']}" + (f" · {v2['连板高度']} 连板" if v2.get("连板高度") else ""), YEL),
+                (f"明后两天方向: 涨 {side['涨']}% · 跌 {side['跌']}% · 平 {side['平']}%(涨停价 {v2['收盘'] * (1 + lim / 100):.2f} / 跌停价 {v2['收盘'] * (1 - lim / 100):.2f})", WHT),
+                ("参考: 方向命中率 44%(54 只回算, 永远猜震荡 43%)—— 当参考, 不当结论", GRY)]
     L = [(f"{v2.get('name', '')}({v2['code']}) 截止 {v2['T']} 收 {v2['收盘']:.2f} · 票型「{v2['票型']}」"
           + (f" · {v2['连板高度']} 连板" if v2.get("连板高度") else "") + (" · 20cm" if v2.get("20cm") else ""), YEL),
          (f"当天 {s.get('当天涨跌%')}% · 收在当天 {s.get('收在当天位置')} · 量比 {s.get('量比5日')} · 近20日涨停 {s.get('近20日涨停次数')} 次 · {s.get('箱体', '')}", GRY),
@@ -284,6 +336,9 @@ def v2_scen_lines(v2, it, p0, days):
         return L
     col = COL_V2.get(it["首日"], WHT)
     rep, st = it["代表样本"], it["近邻路径"]
+    if it.get("方向"):   # 正例 / 反例: 一行结论 + 一行路径
+        return [(f"── {it['标签'][1:]}: 偏{it['方向']} {it.get('方向概率')}%{'(过半)' if it.get('过半') else '(没过半)'} · 画的是这个方向里最可能的「{it['名']}」{it['概率']}%" + ("(深V = 先杀后拉, 收盘可能仍收绿)" if it['首日'] == '深V' else "") + " ──", col),
+                ("  " + " → ".join(f"{dd} 收 {p0 * (1 + p['c'] / 100):.2f}({p['c']:+.1f}%)" for dd, p in zip(days, rep["path"])), WHT)]
     L = [(f"── 本图: 两日组合 {it['标签']}  {it['名']}  {it['概率']}%(同票型基线 {it.get('票型基线')}%) ──", col)]
     if it.get("T+2分布"):
         L.append((f"T+1={it['首日']} 时 T+2: " + " / ".join(f"{k} {v}%" for k, v in it["T+2分布"].items()), GRY))
@@ -390,6 +445,10 @@ def _wrap(lines, f, width):
 
 
 def v2_panel_lines(v2, it, p0, days, pa=None, pa_md=None, extra=None):
+    import os
+    if os.environ.get("KLINE_SHORT", "1") == "1" and it.get("方向"):   # 10/28 晚用户: 行文太费劲 → 结论 + 两个概率 + 路径 + 不自信点一句; 衔接校准 / pa 全文 / 长不自信点 进 _status.json 和 pa_reason md
+        ds = v2_doubts(v2, pa)
+        return v2_summary(v2) + [("", WHT)] + v2_scen_lines(v2, it, p0, days) + [("", WHT), ("不自信点: " + (ds[0] if ds else "样本少"), (255, 170, 170))]
     L = v2_summary(v2) + [("", WHT)] + v2_scen_lines(v2, it, p0, days) + (extra or []) + [("", WHT)] + pa_lines(pa, pa_md) + [("", WHT)]
     L.append(("不自信点:", (255, 120, 120)))
     L += [(f"  · {x}", (255, 170, 170)) for x in v2_doubts(v2, pa)]

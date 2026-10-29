@@ -1,0 +1,16 @@
+--- v032_20261028-0800/scripts/claude_profile/chain_flags.txt
++++ v033_20261028-1929/scripts/claude_profile/chain_flags.txt
+@@ -177,5 +177,5 @@
+ PAPER_LAST_CHAIN=auto   # 10/25 用户: 尾盘闸动态 —— 最晚开链 = PAPER_CLOSE_DEADLINE − 本线今天链耗时 P90 − 30 秒(夹在 14:45~14:57); 15:00 前出的单都进尾盘集合竞价; 写 --fixed 回到 EXEC_LAST_CHAIN 固定值
+ PAPER_CLOSE_DEADLINE=14:59:45   # 尾盘竞价最晚落单时刻(15:00 撮合前留 15 秒)
+-LIVE_OWN_BOOK=buchitudou0   # 10/25 用户: 这些 skill 不跟你的真实持仓, 自己的账接着跑(第一天本钱 = 你的总资产, 全现金); 土豆只做转债
++LIVE_OWN_BOOK=buchitudou0   # 10/25 用户: 这些 skill 不跟你的真实持仓, 自己的账接着跑(第一天本钱 = 你的总资产, 全现金); 土豆只做转债 ｜10/28 当天临时改, 收盘已还原
+ LIVE_STOP_AFTER=buchitudou0@10:00:00   # 10/25 用户: 到点后不再叫醒这条线(土豆只有开盘段规则); 已挂的单照样撮合; 逗号分隔 skill@时刻
+ OLD_PAPER=0   # 10/25 用户令: 旧 paper v1 / v2(导师链报告 / 拟人度 / 权重 / 混合账本 / 决策结算 / 真人对照 / 统计基线 / 做T / 时段周检)每晚不再跑, 脚本归档到 C:/Users/admin/dev/_archive/investment-tool-paper-old-20261025/
+@@ -184,5 +184,5 @@
+ T_BOOKS=0   # 10/25 用户令: 中行 / 纳指 机械T、决策T(A-dbank/A-dndq/t_event)、波段T、拿着不T对照全部停; 1 = 恢复(check md 里 t_bot / t_decide / t_swing / t_event)
+ PAPER_NOON_RESET=0   # 10/25 午休换会话(上下文第 ② 招, 单线真调回放测过: 换会话那版 262 秒 / $3.5); 用户定周一先关, 看实盘上午会话涨多大、午后叫醒明显变贵变慢再开
+-LIVE_SCALE_TO_MENTOR=1   # 10/25 晚用户令: live 拟人线起点 = 你的持仓结构, 总仓位等比例缩放到导师 T-1 收盘仓位(防仓位不同走不同分支); UP 线 / 土豆自己的账不缩放
++LIVE_SCALE_TO_MENTOR=1   # 10/25 晚用户令: live 拟人线起点 = 你的持仓结构, 总仓位等比例缩放到导师 T-1 收盘仓位(防仓位不同走不同分支); UP 线 / 土豆自己的账不缩放 ｜10/28 当天临时改, 收盘已还原
+ LIVE_AUC_FORCE=1   # 10/25 晚用户令: 实盘线竞价决定买 → 一律按 09:25 开盘价成交, 限价 vs 开盘价差记 results/_live/auc_force.jsonl 供以后优化竞价挂单
+ LIVE_OPEN_GUARD_PCT=3   # 10/25 晚用户令: 全天守卫(零 token, 每 3 秒) —— 普通限价单价格偏离现价 ≥3%(卖低于现价 / 买高于现价 = 一碰就按市价成交)→ 自动改条件单(卖: 日内最高回落 0.8×振幅; 买: 日内最低反弹 0.5×振幅); 不拦条件单 / 竞价单 / 炸板接 / now:true

@@ -88,8 +88,17 @@ def _enter(res_file, variant):
         Path(res_file).write_text(f"ATTACH_FAIL pid={pid}", encoding="utf-8"); return
     k.CreateFileW.restype = W.HANDLE
     h = k.CreateFileW("CONIN$", 0xC0000000, 3, None, 3, 0, None)
-    ch = "\n" if variant == "lf" else "\r"
-    recs, cnt = _records(ch, enter=(variant != "lf"))
+    if variant == "esc":   # 10/29: 按 Esc = 打断 CLI 正在进行的回复 / 工具调用(上下班切配置用)
+        recs, cnt = _records("\x1b")
+        for r_ in recs:
+            r_.Event.KeyEvent.wVirtualKeyCode, r_.Event.KeyEvent.wVirtualScanCode = 0x1B, 0x01
+    elif variant == "ctrlc":   # 10/29 用户: 双保险 Esc + Ctrl+C(只按一次; 连按两次会退出 CLI)
+        recs, cnt = _records("\x03")
+        for r_ in recs:
+            r_.Event.KeyEvent.wVirtualKeyCode, r_.Event.KeyEvent.wVirtualScanCode, r_.Event.KeyEvent.dwControlKeyState = 0x43, 0x2E, 0x0008
+    else:
+        ch = "\n" if variant == "lf" else "\r"
+        recs, cnt = _records(ch, enter=(variant != "lf"))
     n = W.DWORD(0)
     ok = k.WriteConsoleInputW(h, recs, cnt, ctypes.byref(n))
     Path(res_file).write_text(f"SENT enter({variant}) pid={pid} ok={ok}", encoding="utf-8")

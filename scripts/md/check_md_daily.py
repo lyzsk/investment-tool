@@ -1109,8 +1109,11 @@ def main():
             if dt.datetime.now().hour >= 22:   # 导师逐笔事件库 + 指纹: 00:00 的 tzzb 蒸馏要读 fingerprint.md 的"paper 偏离"块 → 晚间保留一次(夜间重算再按完整数据覆盖)
                 rc_fp, _ = run([PY, "-X", "utf8", "scripts/tzzb/mentor_fingerprint.py", "--all"], "导师逐笔事件库(cases_auto)", 900)
                 summary["cases_auto"] = "完成" if rc_fp == 0 else "失败"
+                # 10/29: 特征表没跟着日线更新 → 预测退回 v1(10/28 晚表只到 10/27); 画图前先重建
+                run([r"C:/Users/admin/anaconda3/python.exe", "-X", "utf8", "scripts/kline_study/scen_v2.py", "build"], "K 线 v2 特征表重建", 900)
                 rc_kl, _ = run([r"C:/Users/admin/anaconda3/python.exe", "-X", "utf8", "scripts/kline_study/kline_inbox.py", "--all"], "K 线截图收件箱", 1800)
                 summary["kline_resolve"] = "完成" if rc_kl == 0 else "失败"
+                run([r"C:/Users/admin/anaconda3/python.exe", "-X", "utf8", "scripts/kline_study/kline_score.py"], "K 线预测核销(v2 / pa / 基线)", 300)   # 10/28 晚用户令
             if not nightly:
                 # 10/22 晚用户批: 强势股次日溢价库(paper v3 必查用)跟着行情库日线走, 日线更新了才重建(约 40 秒, 只读行情库)
                 rc_sn, _ = run([PY, "-X", "utf8", "scripts/paper_line/tools/strong_next.py", "--build-if-stale"], "强势股次日溢价库", 600)
@@ -1152,6 +1155,40 @@ def main():
             rc_tn, _ = run([PY, "-X", "utf8", "scripts/test/telegraph_nextday.py"], "电报次日累计表", 300)
             run([PY, "-X", "utf8", "scripts/test/telegraph_skill.py"], "电报 skill 规则重算(10/23 用户批)", 300)
             summary["telegraph"] = "完成" if rc_tn == 0 else "失败"
+            run([PY, "-X", "utf8", "scripts/lib/kimi_estimate.py", "--date", d.isoformat()], "kimi-k3.1-pro 口径用量估算", 120)   # 10/29 用户令
+            # 10/28 晚: 市况分级(三层统计的「同市况」层) → 导师默认动作表(票型格, 取代 R39) → 买入侧体检(live 线为什么不买); 都零 token
+            run([PY, "-X", "utf8", "scripts/market/regime_day.py"], "市况分级 regime_day", 600)
+            for sk_ in ("liuyiqing", "zhiyingjuexin"):
+                run([PY, "-X", "utf8", "scripts/skills_ver/default_table.py", "--skill", sk_], f"默认动作表 {sk_}", 600)
+            if (ROOT / "results" / "_live" / d.isoformat()).exists():
+                run([PY, "-X", "utf8", "scripts/review/buy_audit.py", "--date", d.isoformat()], "买入侧体检", 300)
+            # 10/28 晚用户令: 导师核对卡(芷影 2 + 刘忆青 2 + 桃哥 2)—— 19 点后、tzzb 当天逐笔和桃哥小节都有了才建; 建好后拉起后台 watch(一张一张推微信, 用户没回不推下一张)
+            try:
+                cj = ROOT / "results" / "_review" / d.isoformat() / "cards.json"
+                if dt.datetime.now().hour >= 19 and d == dt.date.today() and not cj.exists():
+                    ana = r"C:/Users/admin/anaconda3/python.exe"
+                    rc_mc, _ = run([ana, "-X", "utf8", "scripts/review/mentor_cards.py", "build", "--date", d.isoformat()], "导师核对卡(建)", 1200)
+                    summary["mentor_cards"] = "完成" if rc_mc == 0 else "失败"
+                    if rc_mc == 0 and cj.exists():
+                        lg = open(ROOT / "scripts" / "temp" / f"mentor_cards_{d:%m%d}.log", "a", encoding="utf-8")
+                        subprocess.Popen([ana, "-X", "utf8", "scripts/review/mentor_cards.py", "watch", "--date", d.isoformat(), "--until", "23:50"], cwd=str(ROOT),
+                                         stdout=lg, stderr=lg, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) | getattr(subprocess, "DETACHED_PROCESS", 0))
+            except OSError as e:
+                log(f"[mentor_cards] 跳过 {e!r}")
+            # 10/28 晚用户令: 你贴交割单后, 当天 md「### 复盘持仓」自动补上收盘持仓的股票名(只名字; 你写的不动; 零 token)
+            run([PY, "-X", "utf8", "scripts/md/sync_holdings_md.py", "--date", d.isoformat()], "md 复盘持仓补名", 60)
+            # 10/28 晚用户令: 回看页(viewer)收盘后第一轮就先出; 你贴交割单后(snapshots/<日>_成交_*.txt 比页面新)下一轮自动重出、补上你的成交(零 token)
+            try:
+                vh = ROOT / "results" / "inv-stock" / "paper_line" / f"viewer_{d.isoformat()}.html"
+                snaps = list((ROOT / "scripts" / "dfcf" / "snapshots").glob(f"{d.isoformat()}_成交_*.txt"))
+                if (ROOT / "results" / "_live" / d.isoformat()).exists() and (not vh.exists() or any(f.stat().st_mtime > vh.stat().st_mtime for f in snaps)):
+                    rc_vw, _ = run([PY, "-X", "utf8", "scripts/paper_line/viewer.py", "--date", d.isoformat()], "回看页 viewer", 900)
+                    summary["viewer"] = "完成" if rc_vw == 0 else "失败"
+                    if rc_vw == 0 and vh.exists():   # 用户看的是这一份: docs/private/replay_viewer_<yyyyMMdd>_live.html(同内容)
+                        import shutil
+                        shutil.copy2(vh, ROOT / "docs" / "private" / f"replay_viewer_{d:%Y%m%d}_live.html")
+            except OSError as e:
+                log(f"[viewer] 跳过 {e!r}")
         # 10/16 晚 B11: 每轮末尾给画像打快照(本轮蒸馏改了才升版本, 没改=秒退); --only persona_snap = 08:00 盘前兜底
         if (not only or "persona_snap" in only) and not a.dry:
             rc_ps, _ = run([PY, "-X", "utf8", "scripts/skills_ver/persona_versions.py", "snapshot", "--all", "--why", f"check-md {d.isoformat()} {dt.datetime.now():%H:%M}"], "画像快照", 600)

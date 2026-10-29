@@ -29,8 +29,8 @@ MKT = ROOT / "downloads" / "market"
 PAPER = ROOT / "scripts" / "dfcf" / "paper"
 LOCK = ROOT / "scripts" / "temp" / "collect_book.pid"
 LOG = ROOT / "scripts" / "temp" / "collect_book.log"
-START, END, STEP, MAXN = "0914", "1501", 3.0, 200   # 10/24 用户: 以压测为准(300 只 0.28 秒无错), 60 → 200 留余量
-FILL_TO, POOL_TOP = 200, 30   # 10/25: 150 → 200(用户定 3 秒盘口 200 只, 压测 300 只 0.28 秒无错; 空余名额给主线题材成员 + 转债); 10/24: 50/5 → 150/30(候选池 30 → 100 行, 每本前 30 名进 3 秒盘口);   # 10/23 用户令: 恒定录 50 只, 分 6 档(T0 执行要用的 / T1 转债正股 / T2 导师昨日持仓与成交 / T3 v3 候选池前 5 / T4 昨日连板梯队 / T5 拓扑邻居与其余), 连续失败每 3 次从最低档砍一档
+START, END, STEP, MAXN = "0914", "1501", 3.0, 300   # 10/28 12:4x 用户令扩大盯盘范围: 200 → 300(10/24 压测 300 只 0.28 秒无错)   # 10/24 用户: 以压测为准(300 只 0.28 秒无错), 60 → 200 留余量
+FILL_TO, POOL_TOP = 300, 30   # 10/25: 150 → 200(用户定 3 秒盘口 200 只, 压测 300 只 0.28 秒无错; 空余名额给主线题材成员 + 转债); 10/24: 50/5 → 150/30(候选池 30 → 100 行, 每本前 30 名进 3 秒盘口);   # 10/23 用户令: 恒定录 50 只, 分 6 档(T0 执行要用的 / T1 转债正股 / T2 导师昨日持仓与成交 / T3 v3 候选池前 5 / T4 昨日连板梯队 / T5 拓扑邻居与其余), 连续失败每 3 次从最低档砍一档
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0) | getattr(subprocess, "DETACHED_PROCESS", 0)
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 import ipv4_first   # noqa: E402,F401  10/21: 本机 IPv6 不通, 先走 IPv4
@@ -50,6 +50,57 @@ def sym(code):
 
 
 EXTRA = set()   # 手动加录名单(scripts/temp/collect_book_extra.txt), watch() 每次刷新
+EXPIRED = set()   # 10/28 用户: 手动点名超过 2 个交易日(且不是持仓)→ 降到最低档(池满先让位), 不删文件
+
+
+def prev_tdays(D, n):
+    """D 之前 n 个交易日(按 downloads/market 有数据的日子)"""
+    ds = sorted(p.name for p in (ROOT / "downloads" / "market").iterdir() if p.is_dir() and re.fullmatch(r"20\d\d-\d\d-\d\d", p.name) and p.name < D)
+    return ds[-n:]
+
+
+def extra_split(text, D, n=2):
+    """→ (有效, 过期): 自动段(# >>> … # <<<)每天重生成, 一律有效; 手动行注释带 MM/DD 日期, 早于 D 前第 n 个交易日 = 过期; 没日期 = 有效"""
+    pv = prev_tdays(D, n)
+    cut_d = pv[0] if len(pv) == n else "0000-00-00"
+    act, exp, auto = set(), set(), False
+    for l in text.splitlines():
+        if l.startswith("# >>>"):
+            auto = True
+        elif l.startswith("# <<<"):
+            auto = False
+        cs = re.findall(r"(?<!\d)\d{6}(?!\d)", l.split("#")[0])
+        if not cs:
+            continue
+        m = re.search(r"#\s*(\d{1,2})/(\d{1,2})", l)
+        if not auto and m and f"{D[:4]}-{int(m.group(1)):02d}-{int(m.group(2)):02d}" < cut_d:
+            exp.update(cs)
+        else:
+            act.update(cs)
+    return act, exp
+
+
+def live_codes(D, stk):
+    """10/28 用户令「盘中自动」档: 实时涨停池 + 炸板池(mood.jsonl 最新一行, 财联社每分钟) + 每只的拓扑前 3 邻居(主 / 次簇) + 它们的转债"""
+    out = []
+    try:
+        ls = (ROOT / "downloads" / "market" / D / "mood.jsonl").read_text(encoding="utf-8").strip().splitlines()
+        m = json.loads(ls[-1]) if ls else {}
+        hot = [str(x[0]) for x in (m.get("up") or [])] + [str(x[0]) for x in (m.get("zb_list") or [])]
+    except (OSError, ValueError, IndexError, TypeError):
+        return out
+    cb_of = {v: k for k, v in (stk or {}).items() if v}
+    out += hot + [cb_of[c] for c in hot if c in cb_of]   # 顺序 = 优先级: 涨停 / 炸板本身 → 它们的转债 → 拓扑邻居 → 邻居的转债(池满从后面砍)
+    nb = []
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "market"))
+        import topology as TOPO
+        for c in hot:
+            nb += [x["c"] for x in ((TOPO.load(c, D, strict=True) or {}).get("nb") or [])[:3]]
+    except Exception:   # noqa: BLE001
+        pass
+    out += nb + [cb_of[c] for c in nb if c in cb_of]
+    return list(dict.fromkeys(out))
 
 
 def watch(D):
@@ -87,7 +138,10 @@ def watch(D):
         ex = ROOT / "scripts" / "temp" / "collect_book_extra.txt"
         if ex.exists():
             EXTRA.clear()
-            EXTRA.update(re.findall(r"(?<!\d)\d{6}(?!\d)", ex.read_text(encoding="utf-8")))
+            act, exp = extra_split(ex.read_text(encoding="utf-8"), D)
+            EXTRA.update(act)
+            EXPIRED.clear()
+            EXPIRED.update(exp - act)
             codes |= EXTRA
     except Exception:   # noqa: BLE001
         pass
@@ -109,6 +163,14 @@ def watch(D):
     except NameError:
         T1 = set()
     T2 = mentor_hold_codes(D)   # T2 导师真人昨天收盘持仓 + 昨天成交过的
+    try:   # 10/28 用户: 导师 T−1 / T−2 都没持有、没操作的票降级 → 排到最低档(池满先让位), 不占 T2
+        sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+        import mentor_recent as MR
+        _k = {c: e.get("k", 1) for c, e in MR.load(D)["codes"].items()}
+        T2_OLD = sorted((c for c in T2 if _k.get(c, 1) > 2), key=lambda c: _k.get(c, 1))   # 回头间隔 P90 以外的 mentor_recent 本来就不给(MR.codes "book" 档)
+        T2 = sorted((c for c in T2 if _k.get(c, 1) <= 2), key=lambda c: _k.get(c, 1))   # 10/28 晚用户定: T−1 / T−2 操作过(含清仓)都留; 池满先退 T−2 再退 T−1(名单靠后的先被挤出)
+    except Exception:   # noqa: BLE001
+        T2_OLD = []
     T3 = v3_pool_codes(D)   # T3 v3 各本账 01 候选池前几名(模型可能临时买)
     try:   # 10/27 晚: 奥普特 09:36 后掉出 3 秒盘口(奥普转债在点名名单, 正股只进了最低档被挤掉) → 名单里所有转债的正股都进 T1(翻红拉升 S10 要靠正股盘口)
         T1 |= {stk[c] for c in (set(codes) | EXTRA | set(T2) | set(T3)) if stk.get(c, "").isdigit()} - T0
@@ -124,8 +186,19 @@ def watch(D):
     try:   # 10/25 用户问福莱新材 / 福莱转债为什么不在 3 秒盘口: 近 5 日最强 2 个主线题材的成员(涨停分析里出现过的) + 它们的转债, 排在梯队后面, 只填空余名额(上限 200 不挤别人)
         sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
         import theme_life as TLF
-        tops = [x.split(":")[0] for x in (TLF.top(D).get("近 5 日最活跃题材") or [])[:2]]
         d5 = sorted({r[0] for r in TLF.rows_canon() if r[0] < D})[-5:]
+        # 10/28 晚用户令: 题材数要动态(多题材并行时不止 2 个), 且 T−1 新冒头的题材第一天就要进(原来只看近 5 日累计前 2 → 新题材进不来)
+        from collections import Counter as _Cn
+        c5 = _Cn(r[1] for r in TLF.rows_canon() if r[0] in d5 and r[5])
+        c1 = _Cn(r[1] for r in TLF.rows_canon() if d5 and r[0] == d5[-1] and r[5])
+        tot5, acc, tops = sum(c5.values()) or 1, 0, []
+        for th, n_ in c5.most_common():
+            if n_ < 3 or (acc / tot5 >= 0.7 and len(tops) >= 2):
+                break
+            tops.append(th)
+            acc += n_
+        tops += [th for th, n_ in c1.most_common() if n_ >= 3 and th not in tops]   # T−1 当天 ≥3 家涨停的题材(含新冒头)
+        tops = [t for t in tops if t not in getattr(TLF, "NOT_THEME", set())][:8]
         mem = sorted({str(r[3]) for r in TLF.rows_canon() if r[0] in d5 and r[1] in tops and str(r[3]).isdigit()})
         cb_of = {v: k for k, v in (stk or {}).items() if v}
         T4 = list(T4) + [c for c in mem if c not in set(T4)] + [cb_of[c] for c in mem if c in cb_of]
@@ -142,7 +215,11 @@ def watch(D):
     ok = lambda c: bool(re.fullmatch(r"\d{6}", c)) and not c.startswith(("204", "1318"))   # noqa: E731
     order = []
     TIER.clear()
-    for lv, grp in enumerate([sorted(T0), sorted(T1), T2, T3, T4, nbr + sorted(set(codes) - T0)]):
+    try:
+        LIVEC = live_codes(D, stk)
+    except NameError:
+        LIVEC = live_codes(D, {})
+    for lv, grp in enumerate([sorted(T0), sorted(T1), T2, T3, LIVEC, T4, nbr + sorted(set(codes) - T0) + T2_OLD + sorted(EXPIRED)]):
         for c in grp:
             if ok(c) and c not in TIER:
                 TIER[c] = lv
@@ -156,8 +233,8 @@ def watch(D):
 
 
 def cut(syms, level):
-    """降级: level = 砍掉的档数(1 = 砍 T5, 2 = 再砍 T4 … 5 = 只剩 T0)"""
-    return [x for x in syms if TIER.get(x[2:], 5) <= 5 - level]
+    """降级: level = 砍掉的档数(1 = 砍最低档, … 6 = 只剩 T0); 10/28 加了「盘中自动」档(lv4), 共 7 档"""
+    return [x for x in syms if TIER.get(x[2:], 6) <= 6 - level]
 
 
 _LADDER, CORE_N, _MHOLD, TIER = {}, {}, {}, {}
@@ -309,7 +386,7 @@ def run(D):
                 except Exception as e:   # noqa: BLE001
                     fails += 1
                     back = min(60.0, back * 2)
-                    if fails % 3 == 0 and level < 5:   # 连续失败每 3 次砍一档(T5 → T4 → … 最后只剩 T0), 当天不恢复
+                    if fails % 3 == 0 and level < 6:   # 连续失败每 3 次砍一档(T5 → T4 → … 最后只剩 T0), 当天不恢复
                         level, refreshed = level + 1, 0.0
                         log(f"连续失败 {fails} 次 → 降级到砍掉 {level} 档(只录 T0~T{5 - level})")
                     if fails in (1, 5) or fails % 20 == 0:

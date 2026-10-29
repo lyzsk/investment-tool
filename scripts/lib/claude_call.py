@@ -204,6 +204,8 @@ def call(prompt, *, tag, cwd=ROOT, timeout=1800, permission="acceptEdits", allow
     if resume:
         base += ["--resume", resume]
     base += list(extra_args or [])
+    if os.environ.get("CLAUDE_MODEL_OVERRIDE") and "--model" not in base and not (rot and str(rot.current_profile() or "").startswith("kimi")):   # 10/29 用户令: 实盘线统一用 claude-sonnet-5-5(chain_flags LIVE_MODEL → 总控设这个环境变量); kimi 档位(夜间)不带, 用配置自己的模型
+        base += ["--model", os.environ["CLAUDE_MODEL_OVERRIDE"]]
     t_start = time.time()
     res = Result(ok=False)
     n400 = 0   # 10/16 用户立法: 同一请求 API 400 重试 3 次, 3 次都 400 → rotation.on_api400 切 gravitex 再试一次
@@ -250,7 +252,11 @@ def call(prompt, *, tag, cwd=ROOT, timeout=1800, permission="acceptEdits", allow
                 continue
         if res.is_error and WINDOW_RE.search(err_text) and res.window_waits < max_window_waits:
             res.window_waits += 1
-            if rot and rot.on_window_limit():
+            try:
+                switched = bool(rot) and rot.on_window_limit(err_text)   # 10/29: 传报错原文(kimi 分 5 小时 / 7 天)
+            except TypeError:
+                switched = bool(rot) and rot.on_window_limit()
+            if switched:
                 continue
             time.sleep(WINDOW_DEFER_S)
             continue

@@ -537,6 +537,13 @@ def run():
             s_, _ = b_.check({"view": "x", "codes": [{"code": "002076", "band": [2.0, 3.0], "rules": rules}]})
             b_.strategy, b_.ver = s_, 1
             return b_, ((s_ or {}).get("codes") or [{}])[0].get("rules") or []
+        os.environ["EXEC_DIST_SELL"] = "1"   # 10/28 晚: 隔夜仓想走默认按导师卖点分布分批(分布卖); 先测分布卖, 再关掉测旧选型表
+        jd, jrd = _it("09:29:00", {"p": 2.55, "t": "09:29:00", "b1": 2.54, "a1": 2.55, "b": [[2.54, 90000]], "k": [[2.55, 90000]]}, 2.55, (2.55, 2.55),
+                      [{"id": "r1", "intent": "想走", "ratio": 1, "why": "测"}])
+        check("51 分布卖: 隔夜仓想走 → 按导师同状态卖出时段拆成多张条件单(开盘价 × (1+该段中位) 才卖, 时段末按买一), 数量合计 2000",
+              len(jrd) >= 2 and all(r.get("type") == "cond" and r.get("ref") == "开盘价" and r.get("_t_from") and r.get("deadline") and r.get("_dist") for r in jrd)
+              and sum(int(r["qty"]) for r in jrd) == 2000, str([(r.get("id"), r.get("qty"), r.get("pct"), r.get("_t_from"), r.get("deadline")) for r in jrd]))
+        os.environ["EXEC_DIST_SELL"] = "0"
         jb, jr = _it("10:00:00", {"p": 2.40, "t": "10:00:00", "b1": 2.39, "a1": 2.40, "b": [[2.39, 90000]], "k": [[2.40, 90000]]}, 2.55, (2.38, 2.58),
                      [{"id": "r1", "intent": "想走", "ratio": 1, "why": "测"}])
         check("㊿b 选型表·急跌中想走 → 一半反抽卖(日内最低反弹, 带截止时间) + 一半移动止盈, 数量 1000 / 1000",
@@ -569,6 +576,7 @@ def run():
         CLK["t"] = "11:11:00"
         fd_ = db_.tick("11:11")
         check("㊿b 急跌后 60 分钟没反抽 → 到点按买一卖出反抽那一半(北新路桥一路跌)", [t["qty"] for t in fd_ if t.get("side") == "SELL" and t["rule"].endswith("r1a")] == [1000], str(fd_))
+        os.environ.pop("EXEC_DIST_SELL", None)
         nb_, nr_ = _it("10:20:00", {"p": 2.40, "t": "10:20:00", "b1": 2.39, "a1": 2.40, "b": [[2.39, 90000]], "k": [[2.40, 90000]]}, 2.50, (2.38, 2.52),
                        [{"id": "r1", "side": "BUY", "style": "低吸", "qty": 1000, "why": "补仓"}])
         check("㊿c 浮亏票盘中补仓 → 改成等反转(日内最低反弹)的条件单, 带 14:50 截止",
@@ -730,7 +738,7 @@ def run():
         ss, ds = sb.check({"view": "x", "codes": [
             {"code": "002696", "name": "百洋股份", "band_w": "中", "rules": [
                 {"id": "s1", "side": "SELL", "style": "移动止盈", "ratio": 0.5, "why": "x 依据：R39"},
-                {"id": "s2", "side": "SELL", "style": "追价", "ratio": 1, "px": 9.0, "why": "x 依据：R39"}]},
+                {"id": "s2", "side": "SELL", "style": "追价", "ratio": 1, "px": 9.0, "why": "x 依据：R12"}]},
             {"code": "002724", "name": "海洋王", "band": [10, 12], "rules": [
                 {"id": "s3", "side": "BUY", "style": "低吸", "ratio": 0.1, "why": "x 依据：R10"},
                 {"id": "s4", "side": "BUY", "style": "瞎写", "ratio": 0.1, "why": "x"}]}]})
@@ -740,6 +748,10 @@ def run():
               sr["s1"].get("type") == "cond" and sr["s1"].get("qty") == 700 and sr["s2"].get("model_px") == 9.0 and sr["s2"].get("px", 0) > 10.0
               and 0 < sr["s3"].get("px", 99) < 11.0 and sr["s3"].get("qty", 0) >= 100 and "s4" not in sr and any("瞎写" in d for d in ds) and bw and bw[0] < 10.30 < bw[1],
               str({k: {kk: v.get(kk) for kk in ("type", "px", "qty", "model_px", "ttl")} for k, v in sr.items()}) + str(ds) + str(bw))
+        ss2, ds2 = sb.check({"view": "x", "codes": [{"code": "002696", "name": "百洋股份", "band_w": "中", "rules": [{"id": "s5", "side": "SELL", "style": "追价", "ratio": 1, "why": "R39 当天清"}]}]})
+        r5 = [r for x in ss2["codes"] for r in x["rules"]]
+        check("52 语义纠正: why 写「当天清 / R39」却挂追价卖(不是止损)→ 改成想走(分布卖或选型表), 不再开盘一把卖",
+              r5 and all(r.get("_sem_fix") or r.get("intent") == "想走" for r in r5) and not any(r.get("style") == "追价" for r in r5), str([(r.get("id"), r.get("style"), r.get("type"), r.get("_sem_fix")) for r in r5]) + str(ds2))
         # ---------- 10/25 全天守卫: 卖价远低于现价 → 改移动止盈条件单; 写了 now 的 / 条件单不动 ----------
         gb = E.V3(L["zhiying"], "2026-10-23", fake=True)
         gb.line = {**gb.line, "live": True}

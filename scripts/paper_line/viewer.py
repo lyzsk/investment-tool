@@ -11,6 +11,7 @@
 用法: scripts/venv/Scripts/python.exe -X utf8 scripts/paper_line/viewer.py [--date 2026-10-23] [--no-user]
 """
 import argparse
+import datetime as dt
 import base64
 import glob
 import gzip
@@ -195,6 +196,45 @@ def user_trades(D):
     return sorted(out)
 
 
+def multi_day(D, root):
+    """10/28 晚用户令: 汇总页要有各 skill 的多日收益曲线 —— 每条 live 线每天 (收盘 nav / 开盘起点 − 1) 连乘; 对照: 不动(起点持仓原样拿着)/ 导师真人(账本日净值)/ 你实盘(交割单 当日盈亏 ÷ 前一日总资产)"""
+    import csv
+    import line_dirs as LDS_
+    days = sorted(p.name for p in root.iterdir() if p.is_dir() and p.name[:2] == "20" and p.name <= D)
+    lines = {}
+    for d in days:
+        for ld in (root / d).glob("live_*"):
+            f = ld / "curve.csv"
+            try:
+                last = list(csv.reader(f.open(encoding="utf-8")))[-1]
+                lines.setdefault(ld.name[5:], {})[d] = {"skill": float(last[3]), "hold": float(last[4])}
+            except (OSError, IndexError, ValueError):
+                continue
+    try:
+        import manual_backfill as mb
+        c = mb.db().cursor()
+        for sk in lines:
+            c.execute("select record_time, json_unquote(json_extract(payload_json, '$.index')) from investment_tool.tzzb_record where ledger=%s and record_type='nav_day' and is_deleted=0 and record_time >= %s and record_time <= %s order by record_time",
+                      (sk, (dt.date.fromisoformat(days[0]) - dt.timedelta(days=10)).isoformat() if days else D, D + " 23:59:59"))
+            pts = {str(t)[:10]: float(v) for t, v in c.fetchall() if v not in (None, "null")}
+            ks = sorted(pts)
+            for a_, b_ in zip(ks, ks[1:]):
+                if b_ in lines[sk]:
+                    lines[sk][b_]["mentor"] = round((pts[b_] / pts[a_] - 1) * 100, 2)
+    except Exception:   # noqa: BLE001
+        pass
+    user = {}
+    for f in sorted((ROOT / "scripts" / "dfcf" / "snapshots").glob("20*_成交_*.txt")):
+        t = f.read_text(encoding="utf-8", errors="replace")
+        m = re.search(r"总资产\s*([\d.]+)[^\n]*?当日盈亏参考\s*([+-]?[\d.]+)", t)
+        if m and f.name[:10] in days:
+            tot, pl = float(m.group(1)), float(m.group(2))
+            user[f.name[:10]] = round(pl / (tot - pl) * 100, 2) if tot - pl else None
+    d0 = min((d for v in lines.values() for d in v), default=None)
+    days = [d for d in days if d0 and d >= d0]
+    return {"days": days, "lines": lines, "user": {k: v for k, v in user.items() if k in days}}
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -243,7 +283,7 @@ def main():
         probs += [f"{b['id']} {v['dir']} 缺 timing.json(没有开始时刻 / 耗时)" for v in b["versions"] if not v.get("start")]
     data = {"date": D, "k3": K3, "ratio": ratio, "books": B, "charts": bars, "mentor": M, "user": U, "names": names_of(D, codes | set(bars)),
             "tpm": X.tpm(B), "limits": {"t2": {"tpm": 3e6, "rpm": 100, "conc": 40}, "t4": {"tpm": 4e6, "rpm": 200, "conc": 60}},
-            "calc": X.calc_defaults(B), "probs": probs, "keep_design": X.KEEP_DESIGN_USD}
+            "calc": X.calc_defaults(B), "probs": probs, "keep_design": X.KEEP_DESIGN_USD, "multi": multi_day(D, base)}
     out = (base / "review" / "viewer.html") if a.root else ROOT / "results" / "inv-stock" / "paper_line" / f"viewer_{D}.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     html = (Path(__file__).parent / "viewer_tpl.html").read_text(encoding="utf-8").replace("/*__DATA__*/", json.dumps(data, ensure_ascii=False).replace("</", "<\\/"))

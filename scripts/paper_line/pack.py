@@ -104,6 +104,30 @@ def lines(D=None):
 LIVE_EXCLUDE = {"601988"}   # 10/25 用户: 中国银行长期持有, 留下来的导师都不做它 → 不进 live line 账本、不让模型判断
 
 
+def _real_from_table(t, f):
+    """券商原表格式: 「导出时间 总资产 可用资金 …」下一行取可用; 「序 证券代码 证券名称 持仓数量 可用数量 成本价 …」各行取 持仓数量 > 0"""
+    lines = t.splitlines()
+    cash, pos = None, {}
+    for i, l in enumerate(lines):
+        if l.startswith("导出时间") and "可用资金" in l and i + 1 < len(lines):
+            w = lines[i + 1].split()
+            try:
+                cash = float(w[3])   # 日期 时间 总资产 可用资金
+            except (IndexError, ValueError):
+                pass
+        w = l.split()
+        if len(w) >= 6 and w[0].isdigit() and len(w[0]) <= 3 and len(w[1]) == 6 and w[1].isdigit():
+            try:
+                q, cost = int(w[3]), float(w[5])
+            except ValueError:
+                continue
+            if q > 0 and w[1] not in LIVE_EXCLUDE:
+                pos[w[1]] = {"qty": q, "cost": cost, "name": w[2]}
+    if cash is None:
+        return None
+    return {"cash": round(cash, 2), "positions": pos, "from": f.name[:10]}
+
+
 def real_start(D):
     """10/25 用户令: live line 每条线开盘前拿到的持仓 = 用户此刻的真实持仓和仓位分布(隐私: 只在内存 / results(已 gitignore), 不进 git、不进 skill)
     读 scripts/dfcf/snapshots/<日>_成交_*.txt 里 D 之前最近一份的「资产 / 持仓(收盘)」行 → {"cash", "positions": {代码: {qty, cost}}, "from"}; 去掉 LIVE_EXCLUDE; 没有 → None"""
@@ -113,6 +137,9 @@ def real_start(D):
         t = rd(f)
         m = re.search(r"^持仓\(收盘\)[:：](.*)$", t, re.M)
         if not m:
+            tb = _real_from_table(t, f)   # 10/28: 10/27 那份是券商原表直接贴进来、没写「持仓(收盘)」行 → 原来会跳过退回 10/26 的持仓(4 条线拿错起点)
+            if tb:
+                return tb
             continue
         pos, cash = {}, 0.0
         for part in m.group(1).split(";"):
@@ -671,11 +698,28 @@ def must_check(line, D, codes, names, state, quotes=None, tags=None, ereg=None, 
                     r = M.query(skill, D, round((ref / cost - 1) * 100, 2), max(days, 1), None,
                                 "cb" if c.startswith(("11", "12")) else "stock") if days >= 1 else M.query_intraday(skill, D)
                     sx = r.get("卖的那些次") or {}
-                    items.append(("导师相似卖点", f"同状态当天卖出 {r.get('最像的这些日子里 当天卖出比例', '-')}; 卖出时段 {sx.get('卖出时段')}; "
-                                              f"卖价相对开盘 {sx.get('卖价相对开盘 P25/中位/P75')}; 卖后 3 日最高 {sx.get('卖后: 3 日内最高相对卖价 中位 / ≥5% 比例')}"
+                    ad = r.get("加仓 / 做T 的那些次")
+                    items.append(("导师相似卖点", f"同状态当天卖出 {r.get('最像的这些日子里 当天卖出比例', '-')}; 卖出时段 {sx.get('卖出时段')}(**是分散在这些时段里卖, 不是开盘就卖**; 执行器按这个分布分批挂); "
+                                              f"卖价相对开盘 {sx.get('卖价相对开盘 P25/中位/P75')}; 卖后 3 日最高 {sx.get('卖后: 3 日内最高相对卖价 中位 / ≥5% 比例')}; "
+                                              f"**同状态当天加仓 {r.get('最像的这些日子里 当天加仓比例(含先买后卖做T)', '-')}**"
+                                              + (f"(其中当天又卖 = 做T {ad.get('其中当天又卖(做T)')}/{ad.get('n')}; 加仓时段 {ad.get('加仓时段')}; 加仓价相对开盘 {ad.get('加仓价相对开盘 P25/中位/P75')})" if isinstance(ad, dict) else "")
                                   if "卖的那些次" in r or "最像的这些日子里 当天卖出比例" in r else json.dumps(r, ensure_ascii=False)[:300]))
                 except Exception as e:   # noqa: BLE001
                     items.append(("导师相似卖点", f"查询失败 {e!r}"[:80]))
+                try:   # 10/28 晚(C): 可复现的默认动作表 —— 票型 × 开盘档 × 赚亏, 动作含 加仓 / 做T, 三层(全期 / 近 20 日); 取代 R39 那张打板模板表
+                    sys.path.insert(0, str(ROOT / "scripts" / "skills_ver"))
+                    import default_table as DTB
+                    op_ = (quotes.get(c) or {}).get("o") or ref
+                    import auction_path as APX
+                    pc_ = APX.prev_close(c, D)
+                    pcx = pc_ or ref
+                    cl = DTB.cell(skill, D, c, round((op_ / pcx - 1) * 100, 2) if op_ and pcx else 0.0, round((pcx / cost - 1) * 100, 2))
+                    g1, g2 = cl.get("全期"), cl.get("近20日")
+                    items.append(("导师默认动作(票型格)", f"格 = {cl['票型']} · {cl['开盘']} · {cl['赚亏']}(只按开盘那一刻能知道的算; 「昨封没封」只对连板票有意义, 已不用); "
+                                                     f"全期 {json.dumps(g1, ensure_ascii=False) if g1 else '没有样本'}; 近 20 日 {json.dumps(g2, ensure_ascii=False) if g2 else '没有样本'} "
+                                                     "—— 主动作按这格最大的那个(清 / 做T / 加 / 持); 做T / 加 占比不低时, 隔夜仓不是只能卖"))
+                except Exception as e:   # noqa: BLE001
+                    items.append(("导师默认动作(票型格)", f"查询失败 {e!r}"[:80]))
         L.append(f"### {c} {nm}{' (持仓)' if c in held else ''}" + (f" [来源: {' | '.join((tags or {}).get(c) or [])[:240]}]" if tags and tags.get(c) else ""))
         occ, skipped = {}, []
         for k, v in items:
@@ -976,6 +1020,7 @@ def _boot_msg(line, D, f01, P, names, state, round02, watch, ereg, lv, cache):
             *([("导师近 20 个交易日全部逐笔 + 每天收盘仓位(看他最近的票池、节奏、仓位高低)", mentor_recent(line["skill"], D)),
                ("昨天本线 vs 导师真人(哪里像、哪里不像)", vs_mentor_yesterday(line, D))] if line["kind"] == "mimic" and not up else []),
             *([("近 5 个交易日全市场转债成交额前 10(土豆选债口径)", cb_turnover_top(D))] if line["skill"] == "buchitudou0" else []),
+            *([("用户给本线的授权(优先于导师作息习惯, 不优先于风控)", rd(V3 / "line_notes" / f"{line['skill']}.md"))] if line.get("live") and (V3 / "line_notes" / f"{line['skill']}.md").exists() else []),   # 10/28 晚: 用户逐条线的授权 / 进化方向(scripts/paper_line/line_notes/<skill>.md)
             *([("做 T 知识包 t_knowledge.md(全体导师 T 法正反面 / 各 skill 做 T 规则 / 梅月路银行·ETF 专题 / 土豆竞价T)", rd(ROOT / "scripts" / "dfcf" / "paper" / "t_knowledge.md")),
                ("旧决策T 近 5 天复盘(当时怎么决策 vs 事后最优 T, 带标签的真实样本)", t_review(line["skill"], D))] if line["kind"] == "dt" else []),
             (f"md 日记 {D}(今天, 截至现在)", mdD or "(今天的 md 还没生成)"),

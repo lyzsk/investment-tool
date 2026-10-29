@@ -155,16 +155,16 @@ PAPER_TMO_K=3
 PAPER_TMO_MAX=1800
 PAPER_PUSH_LINES=tudou,liuyiqing,zhiying,zhiying_03,bank   # 10/23 用户令: 土豆 / 刘忆青 / 芷影三本主线 + 芷影带 03 + 中行决策T 出现挂单推微信(挂单变了才推, 盘前版 / 竞价版必推, 成交照推); 空 = 都不推(告警除外)
 PAPER_CACHE_TTL=1h   # 10/23 00:5x 实测中转站支持 1 小时提示缓存(5 分钟档: 叫醒间隔 >5 分钟就整段重写 33 万 token ≈ $1.7/次; 彩排 9 分钟 $51); 空 = 默认 5 分钟
-PAPER_KEEPALIVE_MIN=50   # 双保险(用户令): 一本账空闲满 50 分钟(09:30~14:50)发一句短话续缓存, 约 $0.1~0.2/次(午休 90 分钟中间续一次); 0 = 不保温
+PAPER_KEEPALIVE_MIN=0   # 10/29 凌晨: 关保温(10/28 保温 5 次 4 次缓存已失效 = 整段重写 $9.7; 烧 token 后保温是净亏); 原 50   # 双保险(用户令): 一本账空闲满 50 分钟(09:30~14:50)发一句短话续缓存, 约 $0.1~0.2/次(午休 90 分钟中间续一次); 0 = 不保温
 PAPER_03_MODE=one   # 10/24 用户批: 03 多空一次调用写两面(主会话里, 缓存共用); fork = 10/22 版两个独立分叉(10/23 带 03 那本 $157 vs 不带 $32)
 PAPER_05=mech   # 10/24 用户批: 05 = 机械风控(导师近 5/10/20 日动态新开上限 + 当日亏损暂停 + 单票上限, 执行器强制剔单; 阈值在 scripts/live/harness.yaml risk05); model = 旧的模型 05
 PAPER_GATE04=1   # 10/24 用户批: 04 内容闸(必填 depth 深度 / 广度字段 + market_risk、E 编号真实、负样本不当依据、确定性用词带出处), 不过打回一次; 0 = 关
 # ---- 实盘线(10/24 用户定, 10/26 起替代 paper v3; 逻辑 scripts/paper_line/live.py, 留下名单 scripts/paper_line/keep.py) ----
 LIVE_LINE=1   # 10/24 晚打开(你定周一跑实盘线);  1 = 总控按 results/_live/<日>/selected_mentors.json 动态生成线(入选导师 + 2 位 UP 桃哥 / 卢本圆, 趋势天哥不成线, 线号 live_<skill>), 不读 lines.json / PAPER_LINES
-LIVE_FIRST=08:55:00   # 10/26 用户令提前 5 分钟(原 09:00 赶 09:12 汇总太紧); 10/25 用户定: 第 1 条线盘前首跑(只为写热共享开头缓存), 它第一轮回来后其余线一起跑(LIVE_BOOT_GROUP=99); 总控 08:28 拉起先出名单 + 事实包 + 02 共用
+LIVE_FIRST=08:59:00   # 10/29 凌晨用户令: 让 08:30 切 gravitex 之后才开跑(进程 08:31 起, 02 共用 08:51, 首跑 08:59); 原 08:55   # 10/26 用户令提前 5 分钟(原 09:00 赶 09:12 汇总太紧); 10/25 用户定: 第 1 条线盘前首跑(只为写热共享开头缓存), 它第一轮回来后其余线一起跑(LIVE_BOOT_GROUP=99); 总控 08:28 拉起先出名单 + 事实包 + 02 共用
 LIVE_BOOT_GROUP=99   # 10/25 用户定: 第 1 条回来后其余全部一起放行(原 3 = 每组 3 条); 省钱的大头是第 1 条写缓存 + 02 共用
 LIVE_BOOT_WAIT=240   # 每组最多等几秒(超时照放)
-LIVE_DIGEST_AT=09:12:00   # 盘前各版没全落地也在这时推盘前汇总(一条微信)
+LIVE_DIGEST_AT=09:10:00   # 10/29 用户定 09:10;  # 10/29: 首跑 08:59 起要 5.4~7.9 分钟(10/28 实测), 09:00 推一条都没落地, 09:08 基本齐; 原 09:12   # 盘前各版没全落地也在这时推盘前汇总(一条微信)
 LIVE_KEEP_AT=09:19:00   # 这时起只有留下的线叫模型(竞价复核起); 其余休眠: 不叫模型 / 不保温, 已挂的单照样撮合; keep.py 随时加回 / 收束
 LIVE_DEFAULT_KEEP=all   # 用户到 LIVE_KEEP_AT 还没挑 = 留下入选导师前 N 位(all = 全留)
 LIVE_PUSH=1   # 留下的线出新挂单 / 成交推微信(0 = 只推盘前汇总和告警)
@@ -176,14 +176,14 @@ NIGHTLY_RECALC=1   # 10/25 用户批: 强势股次日 / 事件本体 / 规律回
 TG_TAG_PUSH=0   # 10/25 用户: 电报点名 J(推送 / 盘前汇总里标 ⚠电报HH:MM·动作)周一先不上, 周一看推送不再密集的话周二改 1; A/B/D/G/H 照常
 PAPER_LAST_CHAIN=auto   # 10/25 用户: 尾盘闸动态 —— 最晚开链 = PAPER_CLOSE_DEADLINE − 本线今天链耗时 P90 − 30 秒(夹在 14:45~14:57); 15:00 前出的单都进尾盘集合竞价; 写 --fixed 回到 EXEC_LAST_CHAIN 固定值
 PAPER_CLOSE_DEADLINE=14:59:45   # 尾盘竞价最晚落单时刻(15:00 撮合前留 15 秒)
-LIVE_OWN_BOOK=buchitudou0   # 10/25 用户: 这些 skill 不跟你的真实持仓, 自己的账接着跑(第一天本钱 = 你的总资产, 全现金); 土豆只做转债
-LIVE_STOP_AFTER=buchitudou0@10:00:00   # 10/25 用户: 到点后不再叫醒这条线(土豆只有开盘段规则); 已挂的单照样撮合; 逗号分隔 skill@时刻
+LIVE_OWN_BOOK=buchitudou0   # 10/25 用户: 这些 skill 不跟你的真实持仓, 自己的账接着跑(第一天本钱 = 你的总资产, 全现金); 土豆只做转债 ｜10/28 当天临时改, 收盘已还原
+LIVE_STOP_AFTER=   # 10/28 晚用户令: 土豆线放开全天做(原 buchitudou0@10:00:00); 格式 skill@时刻, 逗号分隔; 空 = 不停
 OLD_PAPER=0   # 10/25 用户令: 旧 paper v1 / v2(导师链报告 / 拟人度 / 权重 / 混合账本 / 决策结算 / 真人对照 / 统计基线 / 做T / 时段周检)每晚不再跑, 脚本归档到 C:/Users/admin/dev/_archive/investment-tool-paper-old-20261025/
 BOOT_MAX_KB=auto   # 10/25 起超上限先压必查只数、最后才压 skill(周五 paper line 没压 skill); 盘前首跑材料上限 KB; auto = 上下文 × 0.95 − 近 5 天会话一天增长 P90, 按实测 token/KB 换算(pack.boot_budget_kb); 数字 = 固定; 0 = 不限(桃哥全量 2.7MB 会超上下文); 超了逐级省: skill 常驻版 → skill 大节只给路径 → 必查全量 60/30/10 只
 CONTEXT_TOKENS=1000000   # 会话上下文上限(算盘前首跑预算用)
 T_BOOKS=0   # 10/25 用户令: 中行 / 纳指 机械T、决策T(A-dbank/A-dndq/t_event)、波段T、拿着不T对照全部停; 1 = 恢复(check md 里 t_bot / t_decide / t_swing / t_event)
 PAPER_NOON_RESET=0   # 10/25 午休换会话(上下文第 ② 招, 单线真调回放测过: 换会话那版 262 秒 / $3.5); 用户定周一先关, 看实盘上午会话涨多大、午后叫醒明显变贵变慢再开
-LIVE_SCALE_TO_MENTOR=1   # 10/25 晚用户令: live 拟人线起点 = 你的持仓结构, 总仓位等比例缩放到导师 T-1 收盘仓位(防仓位不同走不同分支); UP 线 / 土豆自己的账不缩放
+LIVE_SCALE_TO_MENTOR=1   # 10/25 晚用户令: live 拟人线起点 = 你的持仓结构, 总仓位等比例缩放到导师 T-1 收盘仓位(防仓位不同走不同分支); UP 线 / 土豆自己的账不缩放 ｜10/28 当天临时改, 收盘已还原
 LIVE_AUC_FORCE=1   # 10/25 晚用户令: 实盘线竞价决定买 → 一律按 09:25 开盘价成交, 限价 vs 开盘价差记 results/_live/auc_force.jsonl 供以后优化竞价挂单
 LIVE_OPEN_GUARD_PCT=3   # 10/25 晚用户令: 全天守卫(零 token, 每 3 秒) —— 普通限价单价格偏离现价 ≥3%(卖低于现价 / 买高于现价 = 一碰就按市价成交)→ 自动改条件单(卖: 日内最高回落 0.8×振幅; 买: 日内最低反弹 0.5×振幅); 不拦条件单 / 竞价单 / 炸板接 / now:true
 LIVE_GUARD_WAKE=0   # 守卫改单后是否叫醒模型重判(1 = 叫, 多花一次链; 用户 10/25 定 0 token)
@@ -207,3 +207,6 @@ OLD_PAPER_SETTLE=0   # 10/27 晚用户令: 旧 paper(A 线账本)每天 15:05 �
 OLD_PAPER_MATCH=0   # 10/27 23:0x 用户令: 旧 paper 盘中撮合 matcher --once 停(Java paperMatchHandler 照常调, 脚本直接返回); 1=恢复
 AUCTION_PUSH=1   # 10/28: 09:25:45 竞价结果推送(scripts/live/auction_push.py; signals.py 里调, 一天一次); 0=关
 MORNING_KLINE=1   # 10/28: 盘前首跑收尾 → 持仓 K 线预测(scen_v2) + 主情景图 + 明日预案要点推微信(scripts/kline_study/morning_push.py); 0=关
+LIVE_ROT_MODE=   # 10/29 凌晨用户令「暂时先不切」: 空 = 白天照 rotation.txt(gravitex balance); kimi = 订阅 kimi-code 优先撞窗口换 kimi-api。夜间 18:30~08:30 是否走 kimi 看 rotation.txt 的 kimi-night 行
+LIVE_HARD_MAX_VERSIONS=30   # 10/29 凌晨(切 kimi 烧 token): 每条线每天总版本数硬上限(含必判; 首版 / 尾盘版不算); 10/28 刘忆青 68 版 / 芷影 67 / 桃哥 61; 0 = 不限
+LIVE_MODEL=claude-sonnet-5-5   # 10/29 凌晨用户令: 实盘线统一用 Sonnet 5.5(总控设 CLAUDE_MODEL_OVERRIDE → claude -p --model); 空 = 用配置自带模型(gravitex 是 Opus 5.5)

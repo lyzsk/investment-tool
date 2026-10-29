@@ -226,7 +226,10 @@ def block(rec):
     return (f"## 02 共用市况({rec.get('t', '')[:5]} 版, 因: {rec.get('why', '盘前首跑')}; 市况会话写, 全部账本共用; 你按本导师的打法用它, 不用重写 02)\n"
             f"- 态度: {j.get('attitude')}({j.get('state', '')})\n- 依据: " + " | ".join(str(w) for w in j.get("why") or []) +
             f"\n- 方向: {dirs or '无'}\n- 和机械状态不一致: {j.get('vs_mech', '-')}\n- 翻转条件: {fl or '-'}" + (f"\n- 备注: {j.get('note')}" if j.get("note") else "")
-            + ("\n- UP 近 3 日: " + " | ".join(f"{k}: {v}" for k, v in (j.get("up_views") or {}).items()) if j.get("up_views") else ""))
+            + ("\n- UP 近 3 日: " + " | ".join(f"{k}: {v}" for k, v in (j.get("up_views") or {}).items()) if j.get("up_views") else "")
+            + (f"\n- T−1 A 股 vs 外围: {j.get('t1_vs_global')}" if j.get("t1_vs_global") else "")
+            + (f"\n- 反方情景: {j.get('opposite')}" if j.get("opposite") else "")
+            + "\n- **怎么用(10/28 晚用户令)**: 这是全部账本共用的参考, 不是命令。偏空 ≠ 不买: 本导师在这种日子的打法(必查「导师默认动作」「同状态加仓」、04 已选的低吸)照常做, 只能降仓或改价, 不许因为态度偏空就整单删掉低吸 / 加仓; 要删写出哪条事实让它失效")
 
 
 def scheduler(D, now_fn, fake=False, stop=lambda: False, open_fn=None, sleep=time.sleep):

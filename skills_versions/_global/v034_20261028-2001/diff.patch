@@ -1,0 +1,9 @@
+--- v033_20261028-1929/scripts/claude_profile/chain_flags.txt
++++ v034_20261028-2001/scripts/claude_profile/chain_flags.txt
+@@ -178,5 +178,5 @@
+ PAPER_CLOSE_DEADLINE=14:59:45   # 尾盘竞价最晚落单时刻(15:00 撮合前留 15 秒)
+ LIVE_OWN_BOOK=buchitudou0   # 10/25 用户: 这些 skill 不跟你的真实持仓, 自己的账接着跑(第一天本钱 = 你的总资产, 全现金); 土豆只做转债 ｜10/28 当天临时改, 收盘已还原
+-LIVE_STOP_AFTER=buchitudou0@10:00:00   # 10/25 用户: 到点后不再叫醒这条线(土豆只有开盘段规则); 已挂的单照样撮合; 逗号分隔 skill@时刻
++LIVE_STOP_AFTER=   # 10/28 晚用户令: 土豆线放开全天做(原 buchitudou0@10:00:00); 格式 skill@时刻, 逗号分隔; 空 = 不停
+ OLD_PAPER=0   # 10/25 用户令: 旧 paper v1 / v2(导师链报告 / 拟人度 / 权重 / 混合账本 / 决策结算 / 真人对照 / 统计基线 / 做T / 时段周检)每晚不再跑, 脚本归档到 C:/Users/admin/dev/_archive/investment-tool-paper-old-20261025/
+ BOOT_MAX_KB=auto   # 10/25 起超上限先压必查只数、最后才压 skill(周五 paper line 没压 skill); 盘前首跑材料上限 KB; auto = 上下文 × 0.95 − 近 5 天会话一天增长 P90, 按实测 token/KB 换算(pack.boot_budget_kb); 数字 = 固定; 0 = 不限(桃哥全量 2.7MB 会超上下文); 超了逐级省: skill 常驻版 → skill 大节只给路径 → 必查全量 60/30/10 只

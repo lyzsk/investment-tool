@@ -47,8 +47,9 @@ def scen(code, T):
         return None
 
 
-def latest_img(code, T):
-    best = None
+def latest_imgs(code, T):
+    """10/28 晚用户令: 每只持仓 = 日 K 正例 / 反例 + 五日(或分时)正例 / 反例; 取截止 ≤T 最新一份截图的续画"""
+    got = {}
     for st in sorted((ROOT / "results" / "kline").glob("20*/_status.json")):
         if st.parent.name.replace(".", "-") > T:
             continue
@@ -57,22 +58,55 @@ def latest_img(code, T):
         except (OSError, ValueError):
             continue
         for k, v in im.items():
-            if str(v.get("case") or "").startswith(code + "@") and "日K" in str(v.get("类型")):
-                g = [x for x in ((v.get("预测") or {}).get("图") or []) if "_v2_1" in x]
-                if g:
-                    best = ROOT / g[0].replace("\\", "/")
-    return best if best and best.exists() else None
+            if not str(v.get("case") or "").startswith(code + "@"):
+                continue
+            ty = "日K" if "日K" in str(v.get("类型")) else "五日" if str(v.get("类型")) in ("五日", "分时") else None
+            if not ty:
+                continue
+            g = [ROOT / x.replace("\\", "/") for x in ((v.get("预测") or {}).get("图") or []) if "_v2_1" in x or "_v2_2" in x]
+            g = [x for x in g if x.exists()]
+            if g:
+                got[ty] = sorted(g)[:2]
+    return got
+
+
+def compose(code, nm, got, T):
+    """一只票一张图: 上 = 日 K 正例 | 反例, 下 = 五日 正例 | 反例(缺哪行就少哪行); 每张缩到 1000 宽"""
+    from PIL import Image
+    rows = []
+    for ty in ("日K", "五日"):
+        ims = [Image.open(x).convert("RGB") for x in got.get(ty) or []]
+        if not ims:
+            continue
+        ims = [im.resize((1000, int(im.height * 1000 / im.width))) for im in ims]
+        h = max(im.height for im in ims)
+        row = Image.new("RGB", (1000 * len(ims), h), (17, 20, 24))
+        for i, im in enumerate(ims):
+            row.paste(im, (1000 * i, 0))
+        rows.append(row)
+    if not rows:
+        return None
+    W, H = max(r.width for r in rows), sum(r.height for r in rows)
+    cv = Image.new("RGB", (W, H), (17, 20, 24))
+    y = 0
+    for r in rows:
+        cv.paste(r, (0, y))
+        y += r.height
+    out = ROOT / "results" / "kline" / "_morning" / f"{code}_{T}.jpg"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    cv.save(out, quality=85)
+    return out
 
 
 def lines(c, nm, d):
     if not d:
         return f"{nm}: 预测没跑出来(特征表没到昨天?)"
-    t1, ex = d["top3_单日"], d["极端"]
-    nb = t1[0]["近邻路径"]
-    return (f"{nm} {d['票型']} 收 {d['收盘']} · {d['置信']}\n"
-            f"  T+1: " + " / ".join(f"{x['名']} {x['概率']:.0f}%" for x in t1)
-            + f" · 涨停 {ex['T+1']['涨停']['模型']:.0f}% 跌停 {ex['T+1']['跌停']['模型']:.0f}%"
-            + f"\n  近邻 {nb['近邻n']} 例 T+1 高 P25/中/75 {nb['T+1高']} · 收 {nb['T+1收 P25/中位/P75']}")
+    allw = d.get("全部走法%") or {}
+    up = ("涨停", "单边上涨", "深V")
+    dn = ("跌停", "单边下跌", "冲高A杀", "高开低走")
+    f = lambda xs: round(sum(float(v["模型"] if isinstance(v, dict) else v) for w, v in allw.items() if w in xs), 0)   # noqa: E731
+    u, dw = f(up), f(dn)
+    return f"{nm}: 涨 {u:.0f}% / 跌 {dw:.0f}% / 平 {100 - u - dw:.0f}% → 偏{'涨' if u > dw else '跌'}(方向命中参考 44%, 基线 43%)"
 
 
 def expect_brief(D):
@@ -106,7 +140,8 @@ def run(D, dry=False):
         if c.startswith(("204", "1318")):
             continue
         L.append(lines(c, nm, scen(c, T)))
-        im = latest_img(c, T)
+        got = latest_imgs(c, T)
+        im = compose(c, nm, got, T) if got else None
         if im:
             imgs.append((nm, im))
     L.append("")
@@ -118,7 +153,7 @@ def run(D, dry=False):
     import wx_send
     wx_send.send(txt, src="morning_kline", raw=True, wait=300, force=True)
     for nm, im in imgs[:4]:   # 图最多 4 张(微信额度)
-        wx_send.send(f"MEDIA:{im} {nm} 两日 top1 续画", src="morning_kline", raw=True, wait=300, force=True)
+        wx_send.send(f"MEDIA:{im} {nm} 上 = 日K 正例 | 反例 · 下 = 五日 正例 | 反例", src="morning_kline", raw=True, wait=300, force=True)
     flag.parent.mkdir(parents=True, exist_ok=True)
     flag.write_text(dt.datetime.now().isoformat(timespec="seconds"), encoding="utf-8")
     return "已推"

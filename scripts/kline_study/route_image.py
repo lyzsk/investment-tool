@@ -37,7 +37,9 @@ def main():
     ap.add_argument("files", nargs="+")
     ap.add_argument("--date", default=dt.date.today().strftime("%Y.%m.%d"))
     ap.add_argument("--dry", action="store_true")
+    ap.add_argument("--keep", action="store_true", help="不删系统 Downloads 里的原图")
     a = ap.parse_args()
+    dl = Path("C:/Users/admin/Downloads").resolve()
     dest = {"K线图": ROOT / "downloads" / "kline" / a.date, "成交截图": ROOT / "scripts" / "dfcf" / "snapshots" / "images" / a.date.replace(".", "-"),
             "其他": ROOT / "downloads" / "wx_images" / a.date}
     for f in a.files:
@@ -50,6 +52,10 @@ def main():
             shutil.copy2(p, out)
             if kind == "其他":
                 out.with_suffix(".txt").write_text("\n".join(t for _, _, t in o.get("texts") or []), encoding="utf-8")
+            if not a.keep and p.resolve().parent == dl:   # 10/28 晚用户令: 从系统 Downloads 搬进来的图, sha1 一致就删原图
+                import hashlib
+                if hashlib.sha1(p.read_bytes()).hexdigest() == hashlib.sha1(out.read_bytes()).hexdigest():
+                    p.unlink()
         print(f"{kind} → {out.relative_to(ROOT)}  ({o.get('code') or '-'} {o.get('name') or ''} {o.get('类型')})")
 
 

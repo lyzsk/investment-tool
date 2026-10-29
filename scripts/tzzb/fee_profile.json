@@ -11,8 +11,8 @@
   "buy_rate": 8.6e-05,
   "min_fee": 5.0,
   "sell_rate_incl_stamp": 0.000585,
-  "n_buy": 9289,
-  "n_sell": 16468,
+  "n_buy": 9399,
+  "n_sell": 16714,
   "note": ""
  },
  "bianbenling": {
@@ -35,8 +35,16 @@
   "buy_rate": 9.5e-05,
   "min_fee": 0.0,
   "sell_rate_incl_stamp": 0.000595,
-  "n_buy": 129,
-  "n_sell": 144,
+  "n_buy": 139,
+  "n_sell": 152,
+  "note": ""
+ },
+ "gjieshenqiangshou": {
+  "buy_rate": 0.0001,
+  "min_fee": 0.0,
+  "sell_rate_incl_stamp": 0.0006,
+  "n_buy": 12,
+  "n_sell": 10,
   "note": ""
  },
  "hanxiao": {
@@ -51,32 +59,32 @@
   "buy_rate": 0.000175,
   "min_fee": 5.0,
   "sell_rate_incl_stamp": 0.000696,
-  "n_buy": 165,
-  "n_sell": 139,
+  "n_buy": 164,
+  "n_sell": 137,
   "note": ""
  },
  "lianghuaxiaohao": {
   "buy_rate": 0.000115,
   "min_fee": 5.0,
   "sell_rate_incl_stamp": 0.000615,
-  "n_buy": 635,
-  "n_sell": 514,
+  "n_buy": 659,
+  "n_sell": 535,
   "note": ""
  },
  "liurenih": {
   "buy_rate": 0.000245,
   "min_fee": 5.0,
   "sell_rate_incl_stamp": 0.000745,
-  "n_buy": 289,
-  "n_sell": 226,
+  "n_buy": 307,
+  "n_sell": 238,
   "note": ""
  },
  "liuyiqing": {
   "buy_rate": 9.4e-05,
   "min_fee": 0.0,
   "sell_rate_incl_stamp": 0.000594,
-  "n_buy": 111,
-  "n_sell": 93,
+  "n_buy": 123,
+  "n_sell": 103,
   "note": ""
  },
  "mairutaiji": {
@@ -106,17 +114,17 @@
  "wudaokongfang": {
   "buy_rate": 0.000227,
   "min_fee": 5.0,
-  "sell_rate_incl_stamp": 0.000725,
-  "n_buy": 156,
-  "n_sell": 164,
+  "sell_rate_incl_stamp": 0.000724,
+  "n_buy": 171,
+  "n_sell": 180,
   "note": ""
  },
  "xingjianye": {
   "buy_rate": 8.5e-05,
   "min_fee": 0.0,
   "sell_rate_incl_stamp": 0.000585,
-  "n_buy": 102,
-  "n_sell": 115,
+  "n_buy": 103,
+  "n_sell": 118,
   "note": ""
  },
  "xuanqiucaijing": {
@@ -139,7 +147,7 @@
   "buy_rate": 9.5e-05,
   "min_fee": 0.0,
   "sell_rate_incl_stamp": 0.000595,
-  "n_buy": 132,
+  "n_buy": 134,
   "n_sell": 120,
   "note": ""
  },
@@ -155,8 +163,8 @@
   "buy_rate": 0.000129,
   "min_fee": 5.0,
   "sell_rate_incl_stamp": 0.000622,
-  "n_buy": 66,
-  "n_sell": 61,
+  "n_buy": 76,
+  "n_sell": 72,
   "note": ""
  }
 }

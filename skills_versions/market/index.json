@@ -575,6 +575,239 @@
     "chain": "e663a1349c0e",
     "distill": "18c1605c0e9b"
    }
+  },
+  {
+   "v": 11,
+   "id": "v011_20261028-1929",
+   "ts": "2026-10-28T19:29:20",
+   "effective_from": "2026-10-28T19:26:50",
+   "unit": "skill",
+   "version_hash": "78b34e12f3de7bcfc1292c441c1d8834f525ead641ee57ee0d7a4f0157591577",
+   "cat_hash": {
+    "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+    "数据": "b66a11616e1ac64945e788b13178347eb73515ca4331bbd2655c22e9c4b05913",
+    "画像": "b749cca2a6781c18dfc0282fbc14438bab6d4a02fb8b0675adaa93b41030925a"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v010_20261028-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/user_found.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/user_found.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 84,
+    "removed": 0
+   },
+   "bytes_weight": 3106336,
+   "why": "check-md 2026-10-28 19:29",
+   "code": {
+    "chain": "e663a1349c0e",
+    "distill": "18c1605c0e9b"
+   }
+  },
+  {
+   "v": 12,
+   "id": "v012_20261028-2001",
+   "ts": "2026-10-28T20:01:06",
+   "effective_from": "2026-10-28T19:54:29",
+   "unit": "skill",
+   "version_hash": "7b04c7f6948e9eb7219e437063c945841b7c894b11cda70cb1c297072332ee7e",
+   "cat_hash": {
+    "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+    "数据": "b66a11616e1ac64945e788b13178347eb73515ca4331bbd2655c22e9c4b05913",
+    "画像": "8c008c9fa76a18f88edfa4c49b15c40c8cfc2eaf063b0343e5ad311159004078"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v011_20261028-1929",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/user_found.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/user_found.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 14,
+    "removed": 0
+   },
+   "bytes_weight": 3108775,
+   "why": "check-md 2026-10-28 20:01",
+   "code": {
+    "chain": "e663a1349c0e",
+    "distill": "e41bfd31a673"
+   }
+  },
+  {
+   "v": 13,
+   "id": "v013_20261028-2105",
+   "ts": "2026-10-28T21:05:48",
+   "effective_from": "2026-10-28T21:02:30",
+   "unit": "skill",
+   "version_hash": "05f2b22c731521bb92ba0671bc4b9a540c6f33260f4a024d2ff58d56d5e627c1",
+   "cat_hash": {
+    "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+    "数据": "b66a11616e1ac64945e788b13178347eb73515ca4331bbd2655c22e9c4b05913",
+    "画像": "154e8aabb447f7633063d367e400cb211bedc981ff3191bd84397f67608ab35e"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v012_20261028-2001",
+   "changed": {
+    "added": [
+     "persona/reading_methods.md"
+    ],
+    "modified": [],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/reading_methods.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 26,
+    "removed": 0
+   },
+   "bytes_weight": 3113297,
+   "why": "check-md 2026-10-28 21:05",
+   "code": {
+    "chain": "e663a1349c0e",
+    "distill": "d45a953cdde9"
+   }
+  },
+  {
+   "v": 14,
+   "id": "v014_20261028-2215",
+   "ts": "2026-10-28T22:15:56",
+   "effective_from": "2026-10-28T22:14:00",
+   "unit": "skill",
+   "version_hash": "24625b3cf34ce264fb23b70c4f70424ca2b525be4c83b3eaa62d900c5e2b31b7",
+   "cat_hash": {
+    "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+    "数据": "b66a11616e1ac64945e788b13178347eb73515ca4331bbd2655c22e9c4b05913",
+    "画像": "36d4d40177b928bae1e8b1530c065e39955bbfd79ccfc76189daf45af6b53574"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v013_20261028-2105",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/kline_cases.md",
+     "persona/reading_methods.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/kline_cases.md",
+     "persona/reading_methods.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 161,
+    "removed": 0
+   },
+   "bytes_weight": 3138924,
+   "why": "check-md 2026-10-28 22:15",
+   "code": {
+    "chain": "e663a1349c0e",
+    "distill": "d45a953cdde9"
+   }
+  },
+  {
+   "v": 15,
+   "id": "v015_20261028-2309",
+   "ts": "2026-10-28T23:09:50",
+   "effective_from": "2026-10-28T22:42:50",
+   "unit": "skill",
+   "version_hash": "591f82117732b9539f4c0e24198449a59330fbe84f3436ebe7ef1341b5280022",
+   "cat_hash": {
+    "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+    "数据": "b66a11616e1ac64945e788b13178347eb73515ca4331bbd2655c22e9c4b05913",
+    "画像": "70637fe1f6a8725da09d343e18b2a1b02bafe8cae94a73b489e2e53325c403d4"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v014_20261028-2215",
+   "changed": {
+    "added": [
+     "persona/kline_families.md"
+    ],
+    "modified": [
+     "persona/reading_methods.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/kline_families.md",
+     "persona/reading_methods.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 319,
+    "removed": 0
+   },
+   "bytes_weight": 3160950,
+   "why": "check-md 2026-10-28 23:09",
+   "code": {
+    "chain": "e663a1349c0e",
+    "distill": "d45a953cdde9"
+   }
+  },
+  {
+   "v": 16,
+   "id": "v016_20261029-0800",
+   "ts": "2026-10-29T08:00:57",
+   "effective_from": "2026-10-29T02:54:54",
+   "unit": "skill",
+   "version_hash": "e55766f4ecee88132d9a483babf4424e13bfd0de44b9e5a5c8861cb6ef764cc4",
+   "cat_hash": {
+    "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+    "数据": "b66a11616e1ac64945e788b13178347eb73515ca4331bbd2655c22e9c4b05913",
+    "画像": "a6edc078df7d8e9aae1dd7becbb383ad6d2b947f9cb9b7cfc869a1b0ea1dc094"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v015_20261028-2309",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/reading_methods.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/reading_methods.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 160,
+    "removed": 0
+   },
+   "bytes_weight": 3187372,
+   "why": "check-md 2026-10-28 08:00",
+   "code": {
+    "chain": "e663a1349c0e",
+    "distill": "2037fef4d0de"
+   }
   }
  ],
  "events": [],
