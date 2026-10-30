@@ -100,6 +100,8 @@ def main():
     (KL / "_score.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     (KL / "_score.json").write_text(json.dumps(rows, ensure_ascii=False, indent=0), encoding="utf-8")
     print("\n".join(L[:8]), f"\n(共 {n} 只)")
+    import forecast_kline_ingest as FI   # 10/30: kline_score 同时是 forecast_ledger 的 K 线适配器, nightly 不再另跑一份
+    FI.main()
 
 
 if __name__ == "__main__":

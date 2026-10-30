@@ -159,7 +159,7 @@ def build(up):
                     ok = k[2] * 0.99 <= px <= k[1] * 1.01
                     pos = (px - k[2]) / (k[1] - k[2]) if k[1] > k[2] else None
                     if ok and pos is not None:
-                        bsl.append(f"{name} {side}@{px:g}(日内位置 {pos:.2f}, 较昨收 {pc(px / k[4] - 1)})")
+                        bsl.append(f"{name} {side}@{px:g}(日内位置 {pos:.2f}, 较昨收 {pc(px / k[4] - 1) if k[4] else '缺'})")   # 10/29: 昨收缺(新股 / 复牌首日)时 None 除法崩整步, 10/27 起连报
                         continue
                     # 当天对不上 → 多半是 K 线页回顾前几天的买卖点: 往前 5 个交易日找唯一能落进区间的那天
                     i = bisect.bisect_left(cal, D)

@@ -19,9 +19,10 @@ from datetime import date as _d
 target = a.date or _d.today().isoformat()   # 10/14 修: 原 _d().today() 缺参必崩(只在不传 --date 时触发)
 if a.ledgers:
     ledgers = [x.strip() for x in a.ledgers.split(",") if x.strip()]
-    bad = [x for x in ledgers if x not in ALL_LEDGERS]
+    REG = mentors.ids("tzzb")   # 10/29: 10/24 用户令"样例导师照常蒸馏", check md 已按有账本名单传(含退出 paper 的), 这里还卡 active → 10/26 起整步 exit 2、三天没蒸馏; 点名的按登记表认
+    bad = [x for x in ledgers if x not in REG]
     if bad or not ledgers:
-        print(f"--ledgers 含未知账本: {bad}(可选: {', '.join(ALL_LEDGERS)})", flush=True)
+        print(f"--ledgers 含未知账本: {bad}(可选: {', '.join(REG)})", flush=True)
         sys.exit(2)
 else:
     ledgers = ALL_LEDGERS

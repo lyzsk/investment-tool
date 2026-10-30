@@ -666,7 +666,7 @@ def step_tzzb_distill(c, state, morning):
     if not has:
         mark_done(state, c.d, "tzzb_distill", "当日全部导师无账本记录, 未调模型", ledgers=[])
         return "完成(当日无人报单, 未调模型)"
-    rc, out = run([PY, "-X", "utf8", "scripts/tzzb/distill_daily.py", "--date", c.d.isoformat(), "--ledgers", ",".join(has)], f"tzzb distill_daily({len(has)} 人有当日记录)", 4000)
+    rc, out = run([PY, "-X", "utf8", "scripts/tzzb/distill_daily.py", "--date", c.d.isoformat(), "--ledgers", ",".join(has)], f"tzzb distill_daily({len(has)} 人有当日记录)", 7200)   # 10/30 实测 15 人 3 会话共约 85 分钟, 原 4000s 必超时
     if "ALL_DISTILL_DONE" in out:
         mark_done(state, c.d, "tzzb_distill", next((l for l in out.splitlines() if "哨兵" in l), "")[:200], ledgers=has)
         return f"完成(有数据 {len(has)} 家已记名单)"
@@ -691,7 +691,7 @@ def _tzzb_distill_late(c, state, rec):
     if c.dry:
         return f"dry: 将补蒸馏晚到的 {new}(distill_daily --ledgers)"
     rc, out = run([PY, "-X", "utf8", "scripts/tzzb/distill_daily.py", "--date", c.d.isoformat(), "--ledgers", ",".join(new)],
-                  f"tzzb 补蒸馏晚到 {new}", 2400)
+                  f"tzzb 补蒸馏晚到 {new}", 7200)
     if "ALL_DISTILL_DONE" in out:
         rec["ledgers"] = sorted(set(base) | set(new))
         rec.setdefault("late", []).append({"at": dt.datetime.now().isoformat(timespec="seconds"), "ledgers": new})
@@ -1097,7 +1097,8 @@ def main():
             # 10/22 晚用户令: 不论 rules.md 多大(bank / nasdaq 只有几 KB)都要有索引, 将来量级会很大; rules.md 比索引新 / 没索引 → 重建
             for sk_dir in sorted((ROOT / "skills").glob("*-skill")):
                 rp, ip = sk_dir / "persona" / "rules.md", sk_dir / "persona" / "rules_index.md"
-                if rp.exists() and (not ip.exists() or rp.stat().st_mtime > ip.stat().st_mtime):
+                if rp.exists() and (not ip.exists() or rp.stat().st_mtime > ip.stat().st_mtime) \
+                        and re.search(r"^(#{3,4} [A-Z]+\d+ |- \*\*[A-Z]+\d+ )", rp.read_text(encoding="utf-8", errors="replace"), re.M):   # 10/29: 还没有编号规则的(发哥 persona 是分节体 / 神枪手骨架没蒸馏)跳过, 原来每轮报 ✗
                     run(["node", "scripts/md/gen_rules_index.mjs", "--skill", sk_dir.name[:-6]], f"规则索引(补) {sk_dir.name[:-6]}", 120)
                 cp, cip = sk_dir / "persona" / "cases.md", sk_dir / "persona" / "cases_index.md"
                 if cp.exists() and (not cip.exists() or cp.stat().st_mtime > cip.stat().st_mtime):
@@ -1113,7 +1114,7 @@ def main():
                 run([r"C:/Users/admin/anaconda3/python.exe", "-X", "utf8", "scripts/kline_study/scen_v2.py", "build"], "K 线 v2 特征表重建", 900)
                 rc_kl, _ = run([r"C:/Users/admin/anaconda3/python.exe", "-X", "utf8", "scripts/kline_study/kline_inbox.py", "--all"], "K 线截图收件箱", 1800)
                 summary["kline_resolve"] = "完成" if rc_kl == 0 else "失败"
-                run([r"C:/Users/admin/anaconda3/python.exe", "-X", "utf8", "scripts/kline_study/kline_score.py"], "K 线预测核销(v2 / pa / 基线)", 300)   # 10/28 晚用户令
+                run([r"C:/Users/admin/anaconda3/python.exe", "-X", "utf8", "scripts/kline_study/kline_score.py"], "K 线预测核销(v2 / pa / 基线 + forecast_ledger)", 300)   # 10/28 晚用户令; 10/30 起内部同步写预测核销账本
             if not nightly:
                 # 10/22 晚用户批: 强势股次日溢价库(paper v3 必查用)跟着行情库日线走, 日线更新了才重建(约 40 秒, 只读行情库)
                 rc_sn, _ = run([PY, "-X", "utf8", "scripts/paper_line/tools/strong_next.py", "--build-if-stale"], "强势股次日溢价库", 600)

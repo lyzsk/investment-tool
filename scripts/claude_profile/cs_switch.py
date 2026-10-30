@@ -7,7 +7,7 @@
   ② cs.mjs set <配置>(改 settings.json)
   ③ 往交互 CLI 注入 `/model <模型>`(cli_inject 的 AttachConsole 打字 + 单独回车), 模型 = 该配置的 ANTHROPIC_MODEL
 后台 claude -p 不受影响: 它们每个进程开跑时按 rotation 选一次配置(--settings 叠加, 不读 settings.json 默认), 跑完前不会中途换
-用法: python cs_switch.py gravitex | kimi-code [--wait-max 30] [--dry]
+用法: python cs_switch.py [auto | gravitex | kimi-code] [--dry]   (auto = 交易日 08:30~18:30 gravitex, 其余 kimi-code; 计划任务用 auto)
 """
 import argparse
 import base64
@@ -100,45 +100,131 @@ def model_of(name):
         return None
 
 
+def _procs_like(pat, sub="run"):
+    """命令行含 pat 且含子命令 sub 的 node 进程号(结束 auto-switcher 正在跑的那一轮 / kimi 常驻 watch 用)"""
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-Command",
+                            f"Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object {{$_.CommandLine -like '*{pat}*' -and $_.CommandLine -like '* {sub}*'}} | ForEach-Object {{ $_.ProcessId }}"],
+                           capture_output=True, text=True, encoding="utf-8", errors="replace", creationflags=NOWIN, timeout=60)
+        return [int(x) for x in r.stdout.split() if x.strip().isdigit()]
+    except Exception:   # noqa: BLE001
+        return []
+
+
+HOL_DIR = ROOT / "inv-common" / "src" / "main" / "resources" / "holiday"
+KS = CS.parent
+SETTINGS = Path.home() / ".claude" / "settings.json"
+
+
+def trade_day(d):
+    """工作日 = 交易日口径: 周一~周五且不在法定假日表(holiday/<年>.json, true=休市; 调休补班的周末交易所不开市 → 不算)"""
+    try:
+        hol = json.loads((HOL_DIR / f"{d.year}.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        hol = {}
+    return d.weekday() < 5 and not hol.get(d.isoformat(), False)
+
+
+def want(now=None):
+    """10/29 晚用户令: 交易日 08:30~18:30 → gravitex(Sonnet 5.5), 其余时间 → kimi 订阅(kimi-code; 撞窗口由 kimi 切换器换 kimi-api)"""
+    now = now or dt.datetime.now()
+    return "gravitex" if trade_day(now.date()) and "08:30" <= now.strftime("%H:%M") < "18:30" else "kimi-code"
+
+
+def current_family():
+    try:
+        u = (json.loads(SETTINGS.read_text(encoding="utf-8-sig")).get("env") or {}).get("ANTHROPIC_BASE_URL", "")
+    except (OSError, ValueError):
+        return None
+    return "gravitex" if "gravitex" in u else "kimi" if ("kimi" in u or "moonshot" in u) else None
+
+
+def current_model():
+    try:
+        return (json.loads(SETTINGS.read_text(encoding="utf-8-sig")).get("env") or {}).get("ANTHROPIC_MODEL")
+    except (OSError, ValueError):
+        return None
+
+
+def node(js, cmd):
+    r_ = subprocess.run(["node", str(KS / js), cmd], capture_output=True, text=True, encoding="utf-8", errors="replace", creationflags=NOWIN, timeout=120)
+    log(f"{js} {cmd}:", (r_.stdout or r_.stderr).strip()[-200:])
+
+
+def stop_gravitex_switcher():
+    """关掉 gravitex 切换器: 禁用计划任务 auto-switcher + 结束正在跑(随机延后 0~5 分钟)的那一轮 —— 10/29 22:03 就是那一轮把 kimi 切回 gravitex"""
+    node("auto-switcher.mjs", "stop")
+    subprocess.run(["schtasks", "/End", "/TN", "auto-switcher"], capture_output=True, creationflags=NOWIN, timeout=60)
+    for p_ in _procs_like("auto-switcher.mjs"):
+        subprocess.run(["taskkill", "/PID", str(p_), "/F"], capture_output=True, creationflags=NOWIN)
+        log("结束在跑的 auto-switcher.mjs pid", p_)
+
+
+def stop_kimi_switcher():
+    """关掉 kimi 切换器: 结束常驻进程(vbs 拉起的 watch) + 删计划任务 auto-switcher-kimi / auto-switcher-kimi-return(它自己的 stop 全做)"""
+    node("auto-switcher-kimi.mjs", "stop")
+    for p_ in _procs_like("auto-switcher-kimi.mjs", "watch"):
+        subprocess.run(["taskkill", "/PID", str(p_), "/F"], capture_output=True, creationflags=NOWIN)
+        log("结束 auto-switcher-kimi 常驻进程 pid", p_)
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("profile")
+    ap.add_argument("profile", nargs="?", default="auto", help="auto(按时段定) | gravitex | kimi-code")
     ap.add_argument("--wait-max", type=int, default=30)
     ap.add_argument("--dry", action="store_true")
+    ap.add_argument("--interrupt", action="store_true", help="先 Esc 终止 CLI 正在做的事再切; 默认不切任务, CLI 忙也能 /model")
     a = ap.parse_args()
-    ok, why = idle()
-    stopped = None
-    if not ok:   # 10/29 用户定: 有任务在跑 → 马上停(按 Esc 打断)再切, 推微信说停了什么
-        stopped = last_ask()
-        log(f"切 {a.profile}: CLI 在忙({why}), 按 Esc 打断; 停掉的任务: {stopped}")
-        if not a.dry:
-            esc()
-            time.sleep(5)
-    m = model_of(a.profile)
-    log(f"切 {a.profile}: 模型 {m}" + (" [dry]" if a.dry else ""))
+    target = want() if a.profile == "auto" else a.profile
+    fam = "gravitex" if target.startswith("gravitex") else "kimi"
+    cur = current_family()
+    m = model_of(target)
+    log(f"[{a.profile}] 目标 {target}({m}), 当前 settings = {cur}" + (" [dry]" if a.dry else ""))
     if a.dry:
         return 0
-    r = subprocess.run(["node", str(CS), "set", a.profile], capture_output=True, text=True, encoding="utf-8", errors="replace", creationflags=NOWIN)
+    # ① 先关另一边的切换器(不然它会把 settings 改回去), 再开这一边的
+    if fam == "gravitex":
+        stop_kimi_switcher()
+    else:
+        stop_gravitex_switcher()
+    if cur == fam and current_model() == m and a.profile == "auto":   # 同网关且模型也对(比如开机补跑): 只保证切换器, 不改 settings、不动 CLI
+        node("auto-switcher.mjs" if fam == "gravitex" else "auto-switcher-kimi.mjs", "start")
+        log(f"已在 {fam} / {m}, 只确认切换器")
+        return 0
+    ok, why = idle()
+    stopped = None
+    if not ok:
+        log(f"CLI 在忙({why}); " + ("按 --interrupt 终止" if a.interrupt else "不终止, 直接切 settings 并注入 /model"))   # 10/30 用户: 忙时也能 /model
+    if a.interrupt:
+        stopped = last_ask()
+        esc()
+        time.sleep(5)
+    # ② 改 settings.json(cs.mjs set: 按 profiles-claude.json 的 env + dev 目录下的 key 文件)
+    target_ = "gravitex" if fam == "gravitex" else "kimi-code"   # 10/29 晚用户: 默认 key = dev 下 gravitex-api-key.txt / kimi-code-api-key.txt(订阅); 之后的轮换交给各自切换器
+    r = subprocess.run(["node", str(CS), "set", target_], capture_output=True, text=True, encoding="utf-8", errors="replace", creationflags=NOWIN)
     log("cs set:", (r.stdout or r.stderr).strip()[-200:])
+    # ③ 开这一边的切换器(gravitex: 按 auto-switcher-config.json 在几把 gravitex key 间轮换; kimi: 订阅优先, 撞 5 小时 / 7 天窗口换 kimi-api)
+    node("auto-switcher.mjs" if fam == "gravitex" else "auto-switcher-kimi.mjs", "start")
+    # ④ 在当前唯一的 CLI 里 /model <模型> + 回车确认「Switch model?」
     if m:
         msg = f"/model {m}"
         r2 = subprocess.run([str(ROOT / "scripts" / "venv" / "Scripts" / "python.exe"), "-X", "utf8", str(ROOT / "scripts" / "hermes" / "cli_inject.py"), "send",
                              base64.b64encode(msg.encode("utf-8")).decode()], capture_output=True, text=True, encoding="utf-8", errors="replace", creationflags=NOWIN, timeout=120)
         log("注入", msg, "→", (r2.stdout or r2.stderr).strip()[-200:])
-        time.sleep(4)   # 10/29 用户指出: /model 后还会弹「Switch model?」确认框(1 Yes / 2 No), 必须再按一次回车选 Yes, 否则不会真切
+        time.sleep(4)
         r3 = subprocess.run([str(ROOT / "scripts" / "venv" / "Scripts" / "python.exe"), "-X", "utf8", str(ROOT / "scripts" / "hermes" / "cli_inject.py"), "enter", "cr"],
                             capture_output=True, text=True, encoding="utf-8", errors="replace", creationflags=NOWIN, timeout=90)
         log("确认 Switch model? 回车 →", (r3.stdout or r3.stderr).strip()[-120:])
+    log(f"切完: settings = {current_family()}")
     if stopped:
         try:
             sys.path.insert(0, str(ROOT / "scripts" / "hermes"))
             import wx_send
-            wx_send.send(f"【切配置 {dt.datetime.now():%H:%M}】已切到 {a.profile}({m})。切之前 CLI 在忙, 我按 Esc 停掉了这个任务: {stopped[:200]} —— 要继续就在 CLI 里再说一次",
+            wx_send.send(f"【切配置 {dt.datetime.now():%H:%M}】已切到 {target}({m})。切之前 CLI 在忙, 我按 Esc 停掉了这个任务: {stopped[:200]} —— 要继续就在 CLI 里再说一次",
                          src="cs_switch", raw=True, wait=60, force=True)
         except Exception as e:   # noqa: BLE001
             log("推微信失败", repr(e))
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

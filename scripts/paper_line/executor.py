@@ -174,6 +174,7 @@ WAKE_ASK = """
   执行器只在 这只票今天封过涨停 → 现在开板(有卖单) → 价格落在 [floor, px] 时, 按此刻卖二价买一次; 一直封死或跌破 floor 都不买。
 **两种单你自己选(10/25 用户令)**: ①限价单(上面的普通写法: 价格碰到 px 就成交) ②**条件单**(像人在券商 App 里挂的条件单: 某个参考价涨 / 回落到 x% 时, 按买 n / 卖 n 档的价一次成交), 适合"冲板失败就走""从高点回落 x% 卖(防卖飞)""从低点反弹 x% 买(防踏空)""跌破开盘价 x% 止损"这类你等不及被叫醒的情况:
   {{"id": "r5", "side": "SELL", "type": "cond", "ref": "涨停价|开盘价|昨收|跌停价|日内最高|日内最低|具体价格", "dir": "down|up", "pct": 2.0, "book": "b1|b2|a1|a2", "qty": 股数, "why": "… 依据：…"}}
+  普通限价单也可加 "conditional": true → 买 = 先到 px 或以下武装、再从日内最低反弹 Y% 才成交; 卖 = 先到 px 或以上、再从日内最高回落 Y%(Y 由代码按本票振幅算); 不加则保留限价单原行为
   **全天守卫(10/25)**: 普通限价单的价格比现价差 ≥3%(卖单低于现价 / 买单高于现价 = 一碰就按市价成交)会被执行器自动改成条件单(卖 → 日内最高回落 0.8×振幅; 买 → 日内最低反弹 0.5×振幅); 真要立刻按市价成交的(止损清仓)在那条规则里写 "now": true。
   含义: 参考价 ref 涨(dir=up)≥ pct% 或 回落(dir=down)≥ pct% 时, 按 book 档价成交(卖用 b1 买一 / b2 买二, 买用 a1 卖一 / a2 卖二; 多让一档换成交)。
   "日内最高" = 这张单生效后的最高价(回落卖出 = 移动止盈), "日内最低" = 生效后的最低价(反弹买入); ref = 涨停价 / 日内最高 / 日内最低 时默认先要碰到参考价才开始算(arm), 别的参考价立刻生效, 要改写 "arm": true / false。
@@ -252,14 +253,31 @@ class V3(X.SE):
                     tot = cash + val
                     if mp and tot > 0 and val > 0:
                         k = mp[0] * tot / val
-                        for c, q in pos.items():
-                            q["qty"] = q["sellable"] = int(X.AR.round_qty(c, q["qty"] * k)) if k < 1 else int(q["qty"] * k // 100 * 100)
+                        tgt = min(mp[0], 1.0) * tot   # 目标市值(≤ 总资产)
+                        q0 = {c: q["qty"] for c, q in pos.items()}
+                        for c, q in pos.items():   # 每只先按本票最小单位向下取整(股票 100 / 科创 200 起步 1 / 转债 10 张)
+                            q["qty"] = int(X.AR.round_qty(c, q0[c] * k))
+                        # 10/29 用户: 线的仓位可以比导师低, 但只能是"整体向下取整"那一点, 不要每只各自取整累计少 1~3 个点
+                        # → 取整后按缺口最大的票逐手补回, 每补一手总市值仍 ≤ 目标; 缩小(k<1)时每只不超过原股数
+                        while True:
+                            cand = []
+                            for c, q in pos.items():
+                                stp = X.AR.lot_rule(c)["step"] if q["qty"] else X.AR.lot_rule(c)["min"]
+                                add = stp * px_[c]
+                                if px_[c] <= 0 or (k < 1 and q["qty"] + stp > q0[c]):
+                                    continue
+                                if sum(x["qty"] * px_[x2] for x2, x in pos.items()) + add <= tgt + 1e-6:
+                                    cand.append((q0[c] * k * px_[c] - q["qty"] * px_[c], c, stp))
+                            if not cand:
+                                break
+                            _, c, stp = max(cand)
+                            pos[c]["qty"] += stp
+                        for q in pos.values():
+                            q["sellable"] = q["qty"]
                         val2 = sum(q["qty"] * px_[c] for c, q in pos.items())
-                        if val2 > tot:   # 放大时不能超过总资产
-                            val2 = val
                         cash = round(tot - val2, 2)
                         pos = {c: q for c, q in pos.items() if q["qty"] > 0}
-                        scaled = {"user_pct": round(val / tot, 4), "mentor_pct": round(mp[0], 4), "why": mp[1], "k": round(k, 4), "nav": round(tot, 2)}
+                        scaled = {"user_pct": round(val / tot, 4), "mentor_pct": round(mp[0], 4), "line_pct": round(val2 / tot, 4), "why": mp[1], "k": round(k, 4), "nav": round(tot, 2)}
                 except Exception as e:   # noqa: BLE001  缩放失败 → 照你的真实仓位, 不拦启动
                     scaled = {"err": repr(e)[:200]}
             st = {"cash": cash, "positions": pos, "trades": [], "start": {"cash": cash, "positions": json.loads(json.dumps(pos)), "from": f"real:{rs['from']}",
@@ -767,6 +785,57 @@ class V3(X.SE):
                 self.ev(kind="导师持仓统计失败", err=repr(e)[:200])
         return self._mhold
 
+    NEWBUY_RULES = {"zhiyingjuexin": "R1(单票满仓·日换股)/ R19(卖旧 14 分钟内买新)/ R36(低吸前期强势票日内深跌)"}
+
+    def mentor_newopen(self):
+        """导师近 20 个交易日「有新开仓的日子」占比 + 平均每天新开几只(新开 = 当天买入、前一天收盘快照里没有的票); 缓存一天"""
+        if getattr(self, "_mnew", None) is None:
+            self._mnew = (None, None, 0)
+            try:
+                sys.path.insert(0, str(ROOT / "scripts" / "backfill_bilibili"))
+                import manual_backfill as mb
+                cur = mb.db().cursor()
+                cur.execute("select date(record_time), record_type, stock_code, payload_json from investment_tool.tzzb_record where is_deleted=0 and ledger=%s "
+                            "and record_type in ('bs_leg','position_snap') and record_time < %s and record_time >= date_sub(%s, interval 45 day)", (self.skill, self.D, self.D))
+                buys, held = collections.defaultdict(set), collections.defaultdict(set)
+                for d, rt, code, pj in cur.fetchall():
+                    try:
+                        p = json.loads(pj or "{}")
+                    except ValueError:
+                        continue
+                    if rt == "bs_leg" and str(p.get("op")) == "1":
+                        buys[str(d)].add(str(code))
+                    elif rt == "position_snap" and float(p.get("position_percent") or 0) > 0:
+                        held[str(d)].add(str(code))
+                ds = sorted(set(buys) | set(held))[-20:]
+                news = []
+                for d in ds:
+                    prv = [x for x in sorted(held) if x < d]
+                    news.append(len(buys.get(d, set()) - (held[prv[-1]] if prv else set())))
+                if ds:
+                    self._mnew = (sum(1 for n in news if n) / len(ds), sum(news) / len(ds), len(ds))
+            except Exception as e:   # noqa: BLE001
+                self.ev(kind="导师新开仓统计失败", err=repr(e)[:200])
+        return self._mnew
+
+    def newbuy_nudge(self, hm):
+        """10/29 晚用户批: 4 天各线几乎不新开(芷影线 98 版 0 条买单)而导师天天新开 → 到 LIVE_NEWBUY_AT(默认 14:30)本线今天还 0 只新开、
+        导师近 20 日 ≥ LIVE_NEWBUY_MIN(默认 0.5)的日子有新开 → 叫醒一次, 只问「今天买哪只」; 答不买要写依据(不强制买); 每天一次, 不占叫醒名额"""
+        if self.line["kind"] != "mimic" or not self.line.get("live") or self.line.get("role") == "UP" or hm != (X.flag("LIVE_NEWBUY_AT", "14:30") or "14:30"):
+            return
+        if getattr(self, "_newbuy_done", False):
+            return
+        self._newbuy_done = True
+        start = set(((self.state.get("start") or {}).get("positions") or {}).keys())
+        mine = {t.get("code") for t in self.state.get("trades") or [] if str(t.get("side", "")).upper() == "BUY" and t.get("code") not in start}
+        ratio, avg, n = self.mentor_newopen()
+        if mine or ratio is None or ratio < float(X.flag("LIVE_NEWBUY_MIN", "0.5") or 0.5):
+            self.ev(kind="新开仓提醒不触发", at=hm, mine=sorted(mine), mentor_ratio=ratio, avg=avg, n=n)
+            return
+        rules = self.NEWBUY_RULES.get(self.skill) or "本导师规则索引里 新开 / 换股 / 低吸 那几条"
+        self.restrategize(f"新开仓提醒: 现在 {hm} 本线今天还没有新开仓; 导师近 {n} 个交易日 {ratio:.0%} 的日子有新开仓、平均每天 {avg:.1f} 只。"
+                          f"请按 {rules} 回答: 今天买哪只、怎么挂(价位按导师真实买入习惯); 答「今天不买」必须写依据(市况 / 规则编号 / 样例), 不强制买", counted=False)
+
     def empty_nudge(self, hm):
         if self.line["kind"] != "mimic" or hm not in ("10:30", "13:30") or self.state.get("positions"):
             return
@@ -819,6 +888,7 @@ class V3(X.SE):
         self._track_all()
         self._maybe_keepalive(hm)
         self.empty_nudge(hm)
+        self.newbuy_nudge(hm)   # 10/29 晚: 14:30 还 0 只新开 → 叫醒问买哪只
         wk = self.wake_hits(hm) if now().strftime("%H:%M") < X.flag("EXEC_LAST_CHAIN", "14:51") else []
         if now().strftime("%H:%M") < X.flag("EXEC_LAST_CHAIN", "14:51"):
             wk += [f"挂单超时: {t_}" for t_ in self._ttl_check(hm)]   # 10/26 选挂法: 挂出 ttl 分钟没成交叫醒一次(只读策略, 不拿锁; need_re 和 tick 同一线程)
@@ -1170,6 +1240,63 @@ class V3(X.SE):
                 else:   # 平稳 / 开盘水上: 现价卖(追价) —— 10/26 晚回放: 这两种盘面移动止盈比模型直接卖差(中位 −1.3%), 离线实验也只证明了"急跌后等反抽"
                     out.append({**base, "style": "追价", "qty": tot})
         x["rules"] = out
+    def _conditionalize(self, c, r, amp):
+        """10/30 用户: 买 = 监控价 ≤ X 后从最低累计反弹 Y% 才成交; 卖 = 监控价 ≥ X 后从最高累计回落 Y%。
+        X 用本条限价(买单已被 _dist_buy 按导师 × 市况修正); Y = 0.35×本票近 20 日振幅中位, 夹 0.4%~2%。
+        竞价单 / 立即单 / 已是条件单不动; 开关 EXEC_COND_ARM(默认 1)"""
+        if (X.flag("EXEC_COND_ARM", "1") or "1") != "1" or not r.get("conditional") or r.get("type") == "cond" or r.get("auction") or r.get("now") or not r.get("px"):
+            return   # 10/30: 每条单显式选择才转; 普通限价单保留"穿过限价即成交"原行为
+        side = str(r.get("side", "")).upper()
+        if side not in ("BUY", "SELL") or r.get("op") not in ("<=", "<", ">=", ">"):
+            return
+        y = round(min(2.0, max(0.4, 0.35 * float(amp or 4.0))), 2)
+        old = float(r["px"])
+        r.update(type="cond", ref="日内最低" if side == "BUY" else "日内最高", dir="up" if side == "BUY" else "down",
+                 pct=y, arm=True, arm_px=old, book="a1" if side == "BUY" else "b1")
+        r["_cond_from_limit"] = {"触发价": old, "反弹" if side == "BUY" else "回落": y}
+        self.ev(kind="条件单化", code=c, rid=r.get("id"), side=side, arm_px=old, pct=y)
+
+    def _dist_buy(self, c, x, r, pc, q_, preopen):
+        """10/29 晚用户批 + 定调「a 是最好的方法, 重点做好 a: 按 skill 学导师买的节奏」(刘忆青线 10/29 九阳股份挂 21.95 = M2「低于昨收 2%」, 当天最低只 −1.1%):
+        拟人实盘线自己写死价的限价买单(op <=, 没写挂法), 按导师同类买入(本线没持有 = 新开 / 持有 = 加仓)在「此刻这个时段」的买价相对昨收中位
+        (tools/mentor_buy_depth.plan, 来源 cases_auto.jsonl; 该段 <5 笔退全天 P25)算导师价; 原价更深 → 抬到导师价, 但最多到此刻买一(盘前到昨收)= 仍是挂着等的单,
+        不把低吸单变成追价单(芷影新开中位 +8~10% = 打板型, 他的问题是选不选票, 交给 14:30 新开仓提醒); 只抬不压; 写了 人工价 的不动; 开关 EXEC_DIST_BUY(默认 1)"""
+        if (X.flag("EXEC_DIST_BUY", "1") or "1") != "1" or self.line.get("kind") != "mimic" or not self.line.get("live") or self.line.get("role") == "UP":
+            return
+        if str(r.get("side", "")).upper() != "BUY" or r.get("op") not in ("<=", "<") or not r.get("px") or r.get("人工价") or c.startswith(("11", "12")) or not pc:
+            return
+        try:
+            sys.path.insert(0, str(ROOT / "scripts" / "paper_line" / "tools"))
+            import mentor_buy_depth as MBD
+            held = int(((self.state.get("positions") or {}).get(c) or {}).get("qty") or 0) > 0
+            ip = (self.idx_now() or {}).get("sh000001")
+            mkt = None
+            if ip and len(ip) >= 2 and ip[1]:
+                r_ = ip[0] / ip[1] - 1
+                mkt = "up" if r_ >= 0.003 else "dn" if r_ <= -0.003 else "flat"   # 10/30 用户: 买价也要跟市况
+            pl = MBD.plan(self.skill, self.D, new_open=not held, mkt=mkt)
+            dp = MBD.depth(self.skill, self.D)
+        except Exception as e:   # noqa: BLE001
+            self.ev(kind="分布买失败", code=c, err=repr(e)[:160])
+            return
+        hm = "09:25:00" if preopen else now().strftime("%H:%M:%S")
+        seg = next((g for g in (pl or {}).get("plan") or [] if g["from"] <= hm < g["to"] and g["n"] >= 5), None)
+        if seg:
+            v, src = float(seg["vs_prev"]), f"导师{(pl or {}).get('by')}买入 {seg['from'][:5]}~{seg['to'][:5]} 段中位 {seg['vs_prev']:+}%(n={seg['n']}, 占他这类买入 {seg['share']:.0%})"
+        elif int(dp.get("n") or 0) >= 20 and dp.get("p25") is not None:
+            v, src = float(dp["p25"]), f"导师近 {dp.get('days')} 日全部买入 P25 {dp['p25']:+}%(n={dp['n']}, 本时段样本不足)"
+        else:
+            return
+        tgt = float(pc) * (1 + v / 100)
+        cap = float(q_.get("b1") or 0) if not preopen else float(pc)
+        if not cap:
+            cap = float(q_.get("p") or pc)
+        tgt = round(min(tgt, cap), 3)
+        old = float(r["px"])
+        if old < tgt - 1e-9:
+            r["px"], r["_dist_buy"] = tgt, {"原价": old, "新价": tgt, "依据": src, "封顶": "此刻买一" if not preopen else "昨收"}
+            self.ev(kind="分布买", code=c, rid=r.get("id"), old=old, new=tgt, why=src + ("; 封顶到此刻买一" if tgt >= cap - 1e-9 else ""))
+
     def _dist_sell(self, c, base, r, tot, st_):
         """隔夜仓「想走」→ 按本导师同状态卖点分布(mentor_sells.sell_plan: 各时段占比 + 该时段卖价相对开盘中位)拆成条件单:
         每段 = 从时段起点生效, 价到 开盘价 × (1 + 该段中位) 就按买一卖, 到时段终点还没到价 → 按买一卖(= 他在这个时段会卖掉这么多);
@@ -1249,6 +1376,8 @@ class V3(X.SE):
             for r in x.get("rules") or []:
                 sty = str(r.get("style") or "").strip()
                 if not sty:
+                    self._dist_buy(c, x, r, pc, q_, preopen)   # 10/29 晚用户批: 买单挂价按导师自己的买入深度, 不用固定 −2%
+                    self._conditionalize(c, r, amp)   # 10/30 用户: 限价单也可改成「到价后反弹 / 回落再成交」的条件单
                     keep.append(r)
                     continue
                 if sty not in self.STYLES:
@@ -1415,6 +1544,12 @@ class V3(X.SE):
                 if not ref:
                     continue
                 pct = float(r["pct"]) / 100
+                arm_px = r.get("arm_px")   # 10/30: 两段式条件单 —— 先到触发价武装, 再按 日内最低反弹 / 日内最高回落
+                if arm_px is not None and not r.get("_armed"):
+                    if (r["side"] == "BUY" and p_ <= float(arm_px) + 1e-9) or (r["side"] == "SELL" and p_ >= float(arm_px) - 1e-9):
+                        r["_armed"] = True
+                    else:
+                        continue
                 arm = r.get("arm", r["ref"] in ("涨停价", "日内最高", "日内最低"))
                 if arm and not r.get("_armed"):   # 回落类: 先要到过参考价; 反弹类: 先要到过最低(日内最低天然成立)
                     if (r["dir"] == "down" and p_ >= ref - 1e-6) or (r["dir"] == "up" and p_ <= ref + 1e-6) or r["ref"] in ("日内最高", "日内最低"):
@@ -2207,7 +2342,9 @@ class V3(X.SE):
                 try:   # 10/28 晚: 词汇误读闸(当天清≠开盘清 / 10:15 分桶≠时间止损 / R7 教训≠禁令 / 昨未封只给连板票)
                     sys.path.insert(0, str(ROOT / "scripts" / "skills_ver"))
                     import default_table as DTB_
-                    VS = H.gate_semantics(s, {x["code"]: DTB_.cell(self.skill, self.D, x["code"], 0.0, 0.0)["票型"] for x in (s or {}).get("codes") or []
+                    up_ = self.line.get("role") == "UP"   # 10/29: UP 线没有导师卖点面板, cell 会 FileNotFoundError → 只查票型
+                    VS = H.gate_semantics(s, {x["code"]: (DTB_.kind(x["code"], self.D) if up_ else DTB_.cell(self.skill, self.D, x["code"], 0.0, 0.0)["票型"])
+                                             for x in (s or {}).get("codes") or []
                                              if x.get("code") in (self.state.get("positions") or {}) and not str(x.get("code")).startswith(("11", "12"))})
                     if VS:
                         self.ev(kind="语义闸", n=len(VS), items=VS[:8])

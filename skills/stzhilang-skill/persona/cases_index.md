@@ -1,4 +1,4 @@
-# cases_index.md — stzhilang 案例目录(生成于 2026-10-24 00:42; 源 cases.md 492 行 / 35 KB, 74 个小节)
+# cases_index.md — stzhilang 案例目录(生成于 2026-10-30 08:00; 源 cases.md 492 行 / 36 KB, 74 个小节)
 > 用法: 先看这张目录定位, 再按行号读 cases.md 对应区间; 票名列只抽了标题和表格首列, 不全时用 grep 搜票名
 
 - L3-4 LLM 叙事立案区(手维护, gen_tzzb_cases.py 重生成不动)｜0 条

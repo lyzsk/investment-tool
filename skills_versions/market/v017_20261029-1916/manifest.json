@@ -1,0 +1,816 @@
+{
+ "skill": "market",
+ "unit": "skill",
+ "version": {
+  "v": 17,
+  "id": "v017_20261029-1916",
+  "ts": "2026-10-29T19:16:51",
+  "effective_from": "2026-10-29T16:17:44",
+  "unit": "skill",
+  "version_hash": "944f625db7726bae862bf89fdb497a6695184b299c29f9d2bf45b2f2954c1a0a",
+  "cat_hash": {
+   "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+   "数据": "b66a11616e1ac64945e788b13178347eb73515ca4331bbd2655c22e9c4b05913",
+   "画像": "4f8819765f180709b7ed99948272400e303ba6f758bcf851941b59ed5ee20aa8"
+  },
+  "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "parent": "v016_20261029-0800",
+  "changed": {
+   "added": [],
+   "modified": [
+    "persona/user_found.md"
+   ],
+   "removed": []
+  },
+  "changed_by_cat": {
+   "画像": [
+    "persona/user_found.md"
+   ]
+  },
+  "data_changed": [],
+  "lines": {
+   "added": 1,
+   "removed": 0
+  },
+  "bytes_weight": 3188012,
+  "why": "check-md 2026-10-29 19:16",
+  "code": {
+   "chain": "e663a1349c0e",
+   "distill": "2037fef4d0de"
+  }
+ },
+ "files": {
+  "persona/cases.md": {
+   "sha256": "d9ef11b4c3e1252c41ec694b0bf127fe55e82b45a38e7450ed4dfe0f4fd228a8",
+   "bytes": 598,
+   "lines": 9,
+   "mtime": "2026-10-23T02:25:10",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/cases_index.md": {
+   "sha256": "d6ee1da9051b63c2fabcd670e8933a07dcd46a2c62b75fbb052d3f82030ee1e7",
+   "bytes": 335,
+   "lines": 4,
+   "mtime": "2026-10-23T02:25:10",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/kline_cases.md": {
+   "sha256": "5dbe8a9fdcda9afd85b2580e3855dbef3630c4a189fffefe19004ba598c4de72",
+   "bytes": 19536,
+   "lines": 136,
+   "mtime": "2026-10-28T22:14:00",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/kline_families.md": {
+   "sha256": "79107bec999c8b136decac5bfaf287c6110c45bab64ca06c23b6dd565c3b0a22",
+   "bytes": 21297,
+   "lines": 317,
+   "mtime": "2026-10-28T22:42:50",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/kline_rules.md": {
+   "sha256": "237751ecf3c346deefe4129b2ab29817b24f983a10ffd30925861cd4abdff4f9",
+   "bytes": 19392,
+   "lines": 127,
+   "mtime": "2026-10-25T19:11:03",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/profile.md": {
+   "sha256": "0ebad7c839c77c97ce6e9be789fda47e032b30aa6d6e149b9b9bc9212268c513",
+   "bytes": 892,
+   "lines": 7,
+   "mtime": "2026-10-23T02:25:10",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/reading_methods.md": {
+   "sha256": "de7efdf15999b293943ab0532f5eb00ffe72d3f452bcf5dd37b4636b91f57a87",
+   "bytes": 39983,
+   "lines": 231,
+   "mtime": "2026-10-29T02:54:54",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules.md": {
+   "sha256": "3aab7f5df14418083207601de40067f7e2c78402b00de4efb895e4fdce5f2396",
+   "bytes": 4747,
+   "lines": 35,
+   "mtime": "2026-10-27T21:49:56",
+   "cls": "画像",
+   "bulk": false
+  },
+  "persona/rules_index.md": {
+   "sha256": "d44be7a5bb3b2716424f978bbe22b1ef06d41a917f88950fb9a9bf10130ee345",
+   "bytes": 2077,
+   "lines": 10,
+   "mtime": "2026-10-27T21:49:56",
+   "cls": "数据",
+   "bulk": false
+  },
+  "persona/user_found.md": {
+   "sha256": "983250dca63e74ec04dab300029aaf70145247248b7827f23b6278af65d0eeaa",
+   "bytes": 95693,
+   "lines": 493,
+   "mtime": "2026-10-29T16:17:44",
+   "cls": "画像",
+   "bulk": false
+  },
+  "references/kline_study/backtest.md": {
+   "sha256": "facaadd066c0503fc5b153ed45a080519fea76dba779ac15f386aea32c8d1963",
+   "bytes": 11763,
+   "lines": 100,
+   "mtime": "2026-10-24T20:40:49",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/backtest_extra.md": {
+   "sha256": "c37865b34b148645b1a35bf3d7eb6321f7f1ce4909e37dc7726bea510dd9fb4d",
+   "bytes": 5527,
+   "lines": 57,
+   "mtime": "2026-10-24T19:50:24",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/backtest_factor.md": {
+   "sha256": "595a433c6707961fe002d0023584b90bcedd53ca18f608b4e5c026cb21958286",
+   "bytes": 10574,
+   "lines": 131,
+   "mtime": "2026-10-24T20:21:08",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/backtest_minute.md": {
+   "sha256": "af3e8627746ed0cc31abf31777d49ec8442b647f4d9563d148b94e2b16a22498",
+   "bytes": 4930,
+   "lines": 42,
+   "mtime": "2026-10-24T19:52:19",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/backtest_tables.md": {
+   "sha256": "1f96cf7f58a74ef1e44a9876b86770ec3e3c268a838536df170054ff31c8c958",
+   "bytes": 27199,
+   "lines": 342,
+   "mtime": "2026-10-24T19:49:51",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/backtest_zwquant.md": {
+   "sha256": "8d076080215e740e3922a3bd87507742bacdd81e9e07f197f254a0220879f3c0",
+   "bytes": 4620,
+   "lines": 36,
+   "mtime": "2026-10-24T20:38:12",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_aldridge_hft.md": {
+   "sha256": "11b99152d9209a8d6f37cc4e4b401028ff86acca52ffcf2e6ee98d92294a8f69",
+   "bytes": 10427,
+   "lines": 69,
+   "mtime": "2026-10-25T17:39:55",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_caopanshou.md": {
+   "sha256": "9312af3aed1812a944392bae665987acb580e2ec79d10d1d2e33d2e73830c56e",
+   "bytes": 4061,
+   "lines": 31,
+   "mtime": "2026-10-24T19:11:46",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_clenow_trend.md": {
+   "sha256": "4bad4c5d24582420a0a1082b3f801020ecc96fc950d90343d7c646bd6273dcb7",
+   "bytes": 4919,
+   "lines": 43,
+   "mtime": "2026-10-25T17:37:29",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_dorsey_five_rules.md": {
+   "sha256": "ae6ba1805a977d74b1038002a37ae03edcf937329439b4b1171a226fa8781633",
+   "bytes": 1921,
+   "lines": 17,
+   "mtime": "2026-10-24T19:18:47",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_edwards_magee.md": {
+   "sha256": "9ecc972f6e7ce73837658903ec59821009c1c292ebd9b4923a4a6ee12c3d6838",
+   "bytes": 7038,
+   "lines": 52,
+   "mtime": "2026-10-25T17:36:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_elder.md": {
+   "sha256": "309f7ded8f862c199f8d293424a1589408695c5de7519a4c21b44115794d620d",
+   "bytes": 9744,
+   "lines": 66,
+   "mtime": "2026-10-25T17:32:53",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_elliott_wave.md": {
+   "sha256": "449f1b9d132d57474e7fd3094380f1e0222156e5c3f75ae730f8b8ad2288054b",
+   "bytes": 5935,
+   "lines": 37,
+   "mtime": "2026-10-25T18:38:41",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_flash_boys.md": {
+   "sha256": "5f1517dce3ab7989d65874873e5297e10c59b17808f48b33dc7de607effe8f9c",
+   "bytes": 1938,
+   "lines": 17,
+   "mtime": "2026-10-24T19:18:58",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_heima_boduan.md": {
+   "sha256": "b2947ec7b61f48c93a6a6be972708ad54ab67837df50461c024fe0dd2a426cf3",
+   "bytes": 9521,
+   "lines": 58,
+   "mtime": "2026-10-25T18:20:16",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_kirkpatrick_vol1.md": {
+   "sha256": "480896343d7cd1301d6a746cde20962083506c21e792aa868fc82d4800ea32be",
+   "bytes": 9279,
+   "lines": 63,
+   "mtime": "2026-10-25T17:31:03",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_lingbo_probability.md": {
+   "sha256": "e17c51a71e7f7e22293e5b5f1d9cf377f79279c6751075623d6a90d0500fe9b6",
+   "bytes": 9579,
+   "lines": 64,
+   "mtime": "2026-10-25T18:21:24",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_market_sense.md": {
+   "sha256": "39cb94b8b0b96983f0921f54e0a5f88bdf56e660370d767b5eed17e100cca850",
+   "bytes": 3245,
+   "lines": 25,
+   "mtime": "2026-10-24T19:45:41",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_marks_cycle.md": {
+   "sha256": "29616123886c090b5b0e7c3453292fcd2a0677a6ecc5d7506ac1aa68ad6b7e61",
+   "bytes": 3818,
+   "lines": 27,
+   "mtime": "2026-10-24T19:11:23",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_morris.md": {
+   "sha256": "ec8e768d652b51f0dd1e5a710e627483b8f42541d8b035dc4cd6a465e8ca8d37",
+   "bytes": 9140,
+   "lines": 85,
+   "mtime": "2026-10-24T19:19:03",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_murphy_intermarket.md": {
+   "sha256": "794e48364e7ba2c6278626630d530862dfb34d124b9fd9e3e5e62be424912ee9",
+   "bytes": 6582,
+   "lines": 51,
+   "mtime": "2026-10-25T17:31:59",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_natenberg_volatility.md": {
+   "sha256": "c6d34efb227f0ea40e74f24203f469c0d764031e27eeb31d5bb390ad4329dfe2",
+   "bytes": 3352,
+   "lines": 21,
+   "mtime": "2026-10-24T19:18:37",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_nison_new.md": {
+   "sha256": "9e7130a1075c7c5c04792321396e020248346c93c0ddc701a7a00a9ec8d42589",
+   "bytes": 9937,
+   "lines": 72,
+   "mtime": "2026-10-24T19:07:04",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_python_finance.md": {
+   "sha256": "988ac2381b234c3fa3c079c71d6748fbeda15c2cd1bdd4baaaf4e7e9c5032a17",
+   "bytes": 7772,
+   "lines": 62,
+   "mtime": "2026-10-24T20:40:49",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_quant_strategy.md": {
+   "sha256": "ebec6b65056fc934d3fd3c5b7561d0209ed628d28b298dfe653b9462fd5a455a",
+   "bytes": 6861,
+   "lines": 49,
+   "mtime": "2026-10-24T20:22:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_vpa_coulling.md": {
+   "sha256": "51aef5a316d6fb53a2bc955ea527c8fdcd48546b75bc869a4bc226f20f9efbb1",
+   "bytes": 6493,
+   "lines": 51,
+   "mtime": "2026-10-25T18:38:41",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_wangning_violent_k.md": {
+   "sha256": "848068d72e1c46d3b78f3fbe8bafb1b58d44f2e1d53520762be76352f1fb269e",
+   "bytes": 8840,
+   "lines": 64,
+   "mtime": "2026-10-25T17:35:16",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_wyckoff_meng.md": {
+   "sha256": "02cc7489f7d7d2c7ac856614729048ebc009fb2262c3a9b935b28b30266f2653",
+   "bytes": 12013,
+   "lines": 82,
+   "mtime": "2026-10-25T18:38:41",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/book_zero_quant.md": {
+   "sha256": "9dbd99191042052794927a959b18b56736bc52c37577853e511d4c09d4ff051e",
+   "bytes": 6538,
+   "lines": 52,
+   "mtime": "2026-10-24T20:22:53",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/code_kronos_charts.md": {
+   "sha256": "088823bc63c9e4e95ca245e5082e9d0a0f036d5d77d6eb5056475666cbe8d0e8",
+   "bytes": 2572,
+   "lines": 25,
+   "mtime": "2026-10-24T19:23:07",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/code_wyckoff_trading_agent.md": {
+   "sha256": "749f1ded4ca7b000eb287e8b8da458711a234efb7f96ee7462870eb69ba9b6f0",
+   "bytes": 4292,
+   "lines": 39,
+   "mtime": "2026-10-24T19:22:54",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/code_wyckoffpro.md": {
+   "sha256": "9e986134777fc8cee61a76926660c1f1db5f1117a9f48446f98eb08a601866f8",
+   "bytes": 3737,
+   "lines": 48,
+   "mtime": "2026-10-24T19:22:32",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/definitions.md": {
+   "sha256": "15cefc44095f57a733eba5d1ac2a96abfeeb6965f2e35fd06118734e81c547f8",
+   "bytes": 12405,
+   "lines": 106,
+   "mtime": "2026-10-24T20:41:21",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/aldridge_fig11-3_trade_moves_quote.jpg": {
+   "sha256": "7c25aa96d700be72494774a0fc12ff5540a828a3b5e50a9bbeb0ea2fd066e338",
+   "bytes": 9332,
+   "lines": 38,
+   "mtime": "2026-10-25T17:27:30",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/aldridge_fig11-6_liquidity_peak.jpg": {
+   "sha256": "e2f21eb102aec06a7916443784fd81d9815d2febe067eb513c40359559479a39",
+   "bytes": 7760,
+   "lines": 18,
+   "mtime": "2026-10-25T17:27:30",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/aldridge_fig11-7_ofi_vs_dp.jpg": {
+   "sha256": "dccea2a5a711f6955bdaf7919e625ba4353ce14b0c82494afa814e7e9d8a14bd",
+   "bytes": 17732,
+   "lines": 90,
+   "mtime": "2026-10-25T17:27:30",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/baoli_fig4-28_diantousongke.jpg": {
+   "sha256": "c0c4f5913f1a978e1594bc617dcdbf1a88b712befe93996ee4b54b656e531a09",
+   "bytes": 14139,
+   "lines": 148,
+   "mtime": "2026-10-25T17:27:30",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/baoli_fig4-33_kongzhongfeiren.jpg": {
+   "sha256": "3afebab15ea12c42ff99283e81bd0d2ac338d57d715b593d232a489131b7019e",
+   "bytes": 15138,
+   "lines": 80,
+   "mtime": "2026-10-25T17:27:30",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/box_002714_2026-10-23.png": {
+   "sha256": "cf1d4bb62e03d8485bb375fc053606ed0c70434a2161f1250e1bf172818b6bc9",
+   "bytes": 112652,
+   "lines": 482,
+   "mtime": "2026-10-24T20:47:49",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elder_fig6-6_impulse.jpg": {
+   "sha256": "c1948d016ec753b2df695e93dd89f382a41c1427ae60b09e5ebfcf7d3040925b",
+   "bytes": 77704,
+   "lines": 378,
+   "mtime": "2026-10-25T17:27:30",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elder_fig6-8_safezone_long.jpg": {
+   "sha256": "c128553f6acaf584c3278eb12f137aaa442d50a3c370e55a18d20d2f65498bfb",
+   "bytes": 70268,
+   "lines": 451,
+   "mtime": "2026-10-25T17:27:30",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00010.jpg": {
+   "sha256": "fade78cb7dcef2388043b11a4ee169ebc8cc4b716065f07f828d4cf64547ce7f",
+   "bytes": 18204,
+   "lines": 60,
+   "mtime": "2026-10-25T00:46:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00019.jpg": {
+   "sha256": "e15501dc706ba7906d2043ff570933546a3bdfa2f6f6e19d25c8687c11251d9e",
+   "bytes": 23376,
+   "lines": 54,
+   "mtime": "2026-10-25T00:46:03",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00022.jpg": {
+   "sha256": "d2de8adbece03c2de1f6237d127549f7cf98b6e02a86e9e5fbfedbb993faf7db",
+   "bytes": 20628,
+   "lines": 59,
+   "mtime": "2026-10-25T00:46:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00054.jpg": {
+   "sha256": "15bb7a3a7a43bb8272fc9745d9c8fa90c5f351ac0c74157b8b844ede2ee16783",
+   "bytes": 45740,
+   "lines": 115,
+   "mtime": "2026-10-25T00:46:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00058.jpg": {
+   "sha256": "557903a99ccade6a1fda6b106a97501a109c00afdf25fde28b28d7ab5ad232a7",
+   "bytes": 44244,
+   "lines": 131,
+   "mtime": "2026-10-25T00:46:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00062.jpg": {
+   "sha256": "6dcd5186c8331a36c830839e9131146c083d4ccda3c4fe936f0c8d198f738029",
+   "bytes": 68480,
+   "lines": 208,
+   "mtime": "2026-10-25T00:46:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00066.jpg": {
+   "sha256": "d8efc71db1e1be91416f0adb7151e326fad6c1dd7c8570087f28f0de7e709d8e",
+   "bytes": 35760,
+   "lines": 120,
+   "mtime": "2026-10-25T00:46:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00080.jpg": {
+   "sha256": "315969b90afbe690a04a06d93337318f79766b5d266db8ff5149382b9052c03c",
+   "bytes": 30960,
+   "lines": 105,
+   "mtime": "2026-10-25T00:46:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00097.jpg": {
+   "sha256": "86fb10a0a17e7482c3409c5884cabcb58de8f760b63725826a35df17caeff05f",
+   "bytes": 19556,
+   "lines": 41,
+   "mtime": "2026-10-25T00:46:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00120.jpg": {
+   "sha256": "b4713c9e9f25fc4f495b2a42394c71d270e79c8f777fbb0c60ea029a7e0f19d0",
+   "bytes": 17672,
+   "lines": 50,
+   "mtime": "2026-10-25T00:46:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/elliott_00165.jpg": {
+   "sha256": "1802f0637b664d69a74b148f4737d75bdb4460f96dd254d18c99b7c656ade6d6",
+   "bytes": 26648,
+   "lines": 95,
+   "mtime": "2026-10-25T00:46:02",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/gailv_tab2-1_key_bottom_k.jpg": {
+   "sha256": "370fb3563f3f482dbac29e0428a72572d0a7cefa450a2c0da87008fc47ad840c",
+   "bytes": 95857,
+   "lines": 428,
+   "mtime": "2026-10-25T17:27:30",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/heima_tab8-4_system_params.jpg": {
+   "sha256": "67615914403487924de6c7b26ac36b77c35f82cc22cb7f0a67b6b7f31635b68c",
+   "bytes": 124530,
+   "lines": 519,
+   "mtime": "2026-10-25T18:19:21",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/heima_tab8-5_test_000060.jpg": {
+   "sha256": "bd04c4f503db638c31da0089b41409f6e42d89651056201c3d1bb133e7c49c62",
+   "bytes": 122302,
+   "lines": 459,
+   "mtime": "2026-10-25T18:19:21",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/heima_tab8-6_test_600997.jpg": {
+   "sha256": "f63806829c15effc3395bd3931cef7e7ca7a29d3b70c828f47baef1fdba92c61",
+   "bytes": 125298,
+   "lines": 594,
+   "mtime": "2026-10-25T18:19:21",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/kirk_fig13-11_specialist_breakout.jpg": {
+   "sha256": "af63ba29da9bd0fc82f17450a19d3a2310bbfe9180be562fcf374e2752270297",
+   "bytes": 41973,
+   "lines": 159,
+   "mtime": "2026-10-25T17:27:30",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/kirk_fig13-6_anticipated_breakout.jpg": {
+   "sha256": "3aa5edc977c96808912cb88b667a16a6e276f3087a73854dabdca272ed19d117",
+   "bytes": 16122,
+   "lines": 369,
+   "mtime": "2026-10-25T17:27:30",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/morris_tab7-8_part3_engulf_hammer.jpg": {
+   "sha256": "7a88f855553446aaeb5a7b43b1270d83c649c8dbbaeb0944dc9e12d51689bf60",
+   "bytes": 95051,
+   "lines": 534,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/morris_tab7-8_total.jpg": {
+   "sha256": "e4de252e41be4a86b74c9f34bbec1db78b953656569e00961fd0c68490d7df49",
+   "bytes": 49833,
+   "lines": 193,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/nison_fig2-38_doji_position.jpg": {
+   "sha256": "1076703e6d098e9bd593142743995069025d97d01a46c38bfc58dcfbf147799e",
+   "bytes": 11260,
+   "lines": 112,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/nison_fig3-3_spring_line.jpg": {
+   "sha256": "7ef8de86ea6c961cc41f9b4523c02812e71c3bbc4b7b0ff3654d143fa3aeb8f8",
+   "bytes": 4784,
+   "lines": 47,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/nison_fig3-76_new_high_count.jpg": {
+   "sha256": "ba1c970b2e92690d25a1fedfd34f0af815b22baf6769b939940874c9891ac428",
+   "bytes": 19304,
+   "lines": 169,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/pyfin_fig10-20_var_gbm_vs_jump.jpg": {
+   "sha256": "b4e3f5b3f344c344251b239413e2dc42fb4fd9e4d374c1fad80a75d3078b5d5e",
+   "bytes": 163522,
+   "lines": 660,
+   "mtime": "2026-10-24T20:39:28",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/pyfin_fig11-9_sp500_qq_fat_tails.jpg": {
+   "sha256": "50892e4ae0272f6d1027bfa9decfc12ac06bae6e38476c07ab63ba97efe0b840",
+   "bytes": 134849,
+   "lines": 797,
+   "mtime": "2026-10-24T20:39:28",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/quantstrat_fig2-3_template.jpg": {
+   "sha256": "351f341d3fab8b54d7f55fe8d068599c66dcf61935776d7d32a7d5ba0367d3f5",
+   "bytes": 121144,
+   "lines": 655,
+   "mtime": "2026-10-24T20:15:44",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/quantstrat_fig9-1_rs_period_scan.jpg": {
+   "sha256": "522f26c283084ce5b3a9b9110364b41a07a0eaec4136d7d26469d64d9e88a7ff",
+   "bytes": 156088,
+   "lines": 725,
+   "mtime": "2026-10-24T20:15:44",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/quantstrat_fig9-9_52w_range_rolling.jpg": {
+   "sha256": "72a36bd5b7ccd1e2380d863a7c6ab0b3d6c2bbad125e15767579ebed805c9a87",
+   "bytes": 84560,
+   "lines": 328,
+   "mtime": "2026-10-24T20:15:44",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/vpa_fig5-18_full_cycle.jpg": {
+   "sha256": "80e9964140dbfff3b9bea4749818c47ec44770f8d511bb9090409b2781318fe8",
+   "bytes": 67232,
+   "lines": 196,
+   "mtime": "2026-10-24T19:15:42",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/vpa_fig6-17_stopping_volume.jpg": {
+   "sha256": "88752f0fdd0afb0a7ab21a402a988413aa4bd59de22a05011ae53bfc448bacde",
+   "bytes": 63563,
+   "lines": 214,
+   "mtime": "2026-10-24T19:15:42",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/vpa_fig7-14_pivot_box_start.jpg": {
+   "sha256": "33deb1cefb9fa4785811f3e34210e9a36366a4e54813453233b884fb4164bf77",
+   "bytes": 57413,
+   "lines": 179,
+   "mtime": "2026-10-24T19:15:42",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/vpa_fig7-16_breakout_volume.jpg": {
+   "sha256": "ce3787b7fd1d7bf3cbb31691e4e9272155c14ff5b31e3fc022ca3ba1b35903ab",
+   "bytes": 84366,
+   "lines": 295,
+   "mtime": "2026-10-24T19:15:42",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/wyckoff_fig2-1_bear_end_4steps.jpg": {
+   "sha256": "e891fff0cd248cc524303cf9d9b8a969fb4b03d8dbe4cf9057c22eec6aef1430",
+   "bytes": 71520,
+   "lines": 466,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/wyckoff_fig2-28_terminal_shakeout.jpg": {
+   "sha256": "1a306b0ea8c0d3e84d8861831477e449767e3747f97790fd2089b3a0348e7afc",
+   "bytes": 46712,
+   "lines": 225,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/wyckoff_fig2-2_PS_SC_ST_case.jpg": {
+   "sha256": "039bd42b9b114c36f6828b23f7a22ef08035a875ec9ba97b9664c1c6782f195e",
+   "bytes": 59156,
+   "lines": 400,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/wyckoff_fig2-4_accum_entry_points.jpg": {
+   "sha256": "7c031508e89df5e8032ce28a6282381dc5dbdb77b6a7ee4dc8db83b12aa22cc9",
+   "bytes": 38692,
+   "lines": 215,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/wyckoff_fig3-7_distribution_UT_SOW.jpg": {
+   "sha256": "ed82b163032a6e45bb7ca63677b371c71a2482e82acfeb4683b31f8bd07cb506",
+   "bytes": 49416,
+   "lines": 301,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/wyckoff_fig3-8_000006_distribution.jpg": {
+   "sha256": "232b9e6a050ee665e0bcba88e9e796ed7ea0decc13357b611d55302eaad8ff24",
+   "bytes": 99516,
+   "lines": 407,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/img/wyckoff_fig4-2_spring_3types.jpg": {
+   "sha256": "03bc7fbe692709091696898cde7eba4b75486bce797213a4732f4ac9f8e77c0b",
+   "bytes": 35648,
+   "lines": 300,
+   "mtime": "2026-10-24T19:12:39",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/open_questions.md": {
+   "sha256": "aed4740efcac6e36eeaffd47563f0e0694a663b62ce586aa5efa0dfbe9ddbbb6",
+   "bytes": 5384,
+   "lines": 49,
+   "mtime": "2026-10-24T20:42:38",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/README.md": {
+   "sha256": "82e7f9d23f76a56a3f6455fb4b3ea933c6353b4672aa146b5955e19ce33c24a4",
+   "bytes": 6667,
+   "lines": 51,
+   "mtime": "2026-10-25T18:38:41",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/stat_inference.md": {
+   "sha256": "674ebb4a4e447960db45cd2529d6770ba26a6beb06831124565c00b3ebfcf088",
+   "bytes": 2074,
+   "lines": 16,
+   "mtime": "2026-10-24T20:39:06",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "references/kline_study/stat_tails_amplitude.md": {
+   "sha256": "16b2c358f81234b25ca28e063bf5c9aa33ec8461d3a8e696f5236f297aa93039",
+   "bytes": 3382,
+   "lines": 42,
+   "mtime": "2026-10-24T20:37:49",
+   "cls": "提示词",
+   "bulk": false
+  },
+  "SKILL.md": {
+   "sha256": "46f053f8c839d12c3738468d7c1578aa126b74b6bfd6b76e8884932456dee4b2",
+   "bytes": 3679,
+   "lines": 26,
+   "mtime": "2026-10-25T19:11:10",
+   "cls": "提示词",
+   "bulk": false
+  }
+ },
+ "code": {
+  "chain": "e663a1349c0e",
+  "distill": "2037fef4d0de",
+  "chain_files": {
+   "scripts/chain/run_chain.py": "9234e5ace876",
+   "skills/market-skill/workflows/chain.md": null,
+   "skills/market-skill/SKILL.md": "46f053f8c839",
+   "scripts/dfcf/paper/params.yaml": "8aa4869152ad"
+  },
+  "distill_files": {
+   "skills/market-skill/workflows/distill.md": null,
+   "scripts/tzzb/distill_daily.py": "08edf247034b",
+   "scripts/tzzb/llm_batch_tzzb.py": "ba6f85dc98e1",
+   "scripts/tzzb/mentor_fingerprint.py": "443cd320b2ac",
+   "scripts/backfill_bilibili/backfill_bilibili.py": "d0b25e098a56",
+   "scripts/md/gen_profile_index.py": "4cd7fadb2640",
+   "scripts/md/gen_rules_index.mjs": "d4bc9ea84022",
+   "scripts/md/check_md_daily.py": "6c1149e93dcb"
+  }
+ }
+}

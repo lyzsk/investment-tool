@@ -1,4 +1,4 @@
-# cases_index.md — gjieshenqiangshou 案例目录(生成于 2026-10-29 00:07; 源 cases.md 26 行 / 1 KB, 3 个小节)
+# cases_index.md — gjieshenqiangshou 案例目录(生成于 2026-10-30 08:00; 源 cases.md 26 行 / 1 KB, 3 个小节)
 > 用法: 先看这张目录定位, 再按行号读 cases.md 对应区间; 票名列只抽了标题和表格首列, 不全时用 grep 搜票名
 
 - L5-9 执行质量双尾样本库(机械全量, gen_tzzb_cases.py 重生成, 勿手改)｜0 条

@@ -1,4 +1,4 @@
-# cases_index.md — gaogailvfuli 案例目录(生成于 2026-10-23 00:38; 源 cases.md 172 行 / 12 KB, 26 个小节)
+# cases_index.md — gaogailvfuli 案例目录(生成于 2026-10-30 08:00; 源 cases.md 172 行 / 12 KB, 26 个小节)
 > 用法: 先看这张目录定位, 再按行号读 cases.md 对应区间; 票名列只抽了标题和表格首列, 不全时用 grep 搜票名
 
   - L5-8 [画像样本] 2026-10-08 节后首日无操作持旧仓｜1 条

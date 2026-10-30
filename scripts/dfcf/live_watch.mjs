@@ -22,6 +22,14 @@ import { loadAuction, auctionMd } from "../lib/auction.mjs";   // 10/18: 集合�
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const arg = (k, d) => { const i = process.argv.indexOf("--" + k); return i > 0 ? process.argv[i + 1] : d; };
 const WL = path.join(ROOT, "scripts", "dfcf", "snapshots", "live", "watchlist.txt");
+if (!arg("stocks", "")) {   // 10/29: watchlist.txt 停在 10/26 持仓没人更新 → 启动先按最新收盘快照(和实盘线同一份)重写; 失败就用旧文件
+    try {
+        console.log(execFileSync(path.join(ROOT, "scripts", "venv", "Scripts", "python.exe"), ["-X", "utf8", path.join(ROOT, "scripts", "dfcf", "sync_watchlist.py")],
+            { cwd: ROOT, encoding: "utf8", windowsHide: true, timeout: 60000 }).trim());
+    } catch (e) {
+        console.log("sync_watchlist 失败, 用旧 watchlist.txt: " + String(e.message || e).slice(0, 200));
+    }
+}
 const CODES = arg("stocks", fs.existsSync(WL) ? fs.readFileSync(WL, "utf8").split(/[,\s]+/).filter((x) => /^\d{6}$/.test(x)).join(",") || "002714" : "002714")   // 不能叫 --codes: import snapshot.mjs 时它的 CLI 见 --codes 就会执行并退出
 .split(",").filter(Boolean);
 // 10/15: 关联妖股(scripts/dfcf/related_yao.mjs 按持仓自动挑: 同行业/同概念/统计同向或跷跷板), 取 ≤今天最新一份; 只看行情不出个股信号

@@ -4,14 +4,17 @@
 一本账一个会话, 状态在 results/_live/<D>/v3_<line>/session.json: {date, line, sid, boot_tag, boot_at, turns: [...]}
 三道"当天会话"校验(10/22 用户问"怎么证明 --resume 用的是当天自动启动的那个"):
   ①session.json 的 date ≠ 今天 → 拒绝 resume(要重新启动)
-  ②会话记录文件(~/.claude/projects/<cwd 编码>/<sid>.jsonl)第一条用户消息必须含本线 BOOT 暗号 [BOOT D line v3]
+  ②会话记录文件(~/.claude/projects/<cwd 编码>/<sid>.jsonl)前两条用户消息必须含本线 BOOT 暗号 [BOOT D line v3](10/29 起从当天预热会话分叉: 第 1 条 = 共享开头, 暗号在第 2 条)
   ③每次返回的 session_id 必须等于记录的 sid
 隔离(10/22 20:00 实测, TODO 3.0): cwd = 仓库外 C:/Users/admin/dev/_paper_line_cwd(不加载项目记忆, 首轮少 4 万 token); --system-prompt = paper 专用指令;
   --add-dir 仓库(只读工具能读); 只放行 Read / Grep / Glob / Bash(./q:*)
 """
 import datetime as dt
+import hashlib
 import json
+import os
 import sys
+import threading
 import time
 import uuid
 from pathlib import Path
@@ -43,7 +46,9 @@ def transcript(sid):
     return fs[0] if fs else None
 
 
-def first_user_text(f):
+def first_user_text(f, n=1):
+    """前 n 条用户消息全文(10/29 预热分叉: 第 1 条 = 共享开头, 本线 BOOT 暗号在第 2 条 → check 用 n=2)"""
+    out = []
     try:
         for l in f.read_text(encoding="utf-8", errors="replace").splitlines():
             j = json.loads(l)
@@ -51,10 +56,63 @@ def first_user_text(f):
                 c = (j.get("message") or {}).get("content")
                 if isinstance(c, list):
                     c = " ".join(x.get("text", "") for x in c if isinstance(x, dict))
-                return str(c or "")   # 10/24: 共享开头放最前面, BOOT 暗号不在开头了 → 返回全文, 校验用"包含"
+                out.append(str(c or ""))   # 10/24: 共享开头放最前面, BOOT 暗号不在开头了 → 返回全文, 校验用"包含"
+                if len(out) >= n:
+                    break
     except (OSError, ValueError):
         pass
-    return ""
+    return "\n".join(out)
+
+
+SHARED_MARK = "[共享开头: "   # = pack.SHARED_HEAD 开头(session 不 import pack)
+WARM_ASK = "\n\n(以上是今天全部账本共用的开头材料; 现在先不要分析、不要调用工具, 只回答两个字: 收到)"
+_WARM_LOCK = threading.Lock()
+
+
+def _flag(name, default=""):
+    if os.environ.get(name) is not None:
+        return os.environ[name]
+    try:
+        for l in (ROOT / "scripts" / "claude_profile" / "chain_flags.txt").read_text(encoding="utf-8").splitlines():
+            k, _, v = l.split("#")[0].partition("=")
+            if k.strip() == name:
+                return v.strip()
+    except OSError:
+        pass
+    return default
+
+
+def split_head(text):
+    """第一条消息 → (共享开头, 本线部分); 没有共享开头 / 开关关 → (None, text)"""
+    if not text.startswith(SHARED_MARK) or (_flag("PAPER_WARM_FORK", "1") or "1") != "1":
+        return None, text
+    i = text.find("\n\n---\n\n[BOOT ")
+    return (text[:i], text[i + len("\n\n---\n\n"):]) if i > 0 else (None, text)
+
+
+def warm_session(head, out_dir, effort, timeout=600):
+    """10/29 收盘后真调(scripts/temp/cache_probe_1029*.py): 中转站按会话号 + 第一条消息分流上游, 各线第一条消息不同 → 共享开头永远读不到别人的缓存(0/7)。
+    改法: 当天一个预热会话, 第一条 = 共享开头; 各线 --resume 它 --fork-session 发本线材料 → 第一条逐字相同, 分叉首轮读到共享开头(2/2, read 43K)。
+    同一天同一份开头只建一次(results/_live/<D>/_warm_<hash>.json); 失败 → None(调用方退回老办法新建会话)"""
+    f = Path(out_dir).parent / f"_warm_{hashlib.sha1((head + effort).encode('utf-8')).hexdigest()[:10]}.json"
+    with _WARM_LOCK:
+        try:
+            w = json.loads(f.read_text(encoding="utf-8"))
+            if w.get("sid") and transcript(w["sid"]):
+                return {**w, "new": False}
+        except (OSError, ValueError):
+            pass
+        sid = str(uuid.uuid4())
+        t0 = time.time()
+        r = CC.call(head + WARM_ASK, tag="v3-warm", cwd=CWD, timeout=timeout, permission="default", allowed_tools=TOOLS, disallowed_tools=NO_TOOLS,
+                    extra_args=["--session-id", sid, "--system-prompt", system_prompt(), "--add-dir", str(ROOT), "--effort", effort], json_tag="json")
+        if r.is_error or (r.session_id or "") != sid or not transcript(sid):
+            return None
+        u = r.usage or {}
+        w = {"sid": sid, "cum": float(r.cost_usd or 0.0), "at": dt.datetime.now().isoformat(timespec="seconds"), "secs": round(time.time() - t0, 1),
+             "cache_read": u.get("cache_read_input_tokens"), "cache_write": u.get("cache_creation_input_tokens")}
+        f.write_text(json.dumps(w, ensure_ascii=False, indent=1), encoding="utf-8")
+        return {**w, "new": True}
 
 
 class Session:
@@ -88,7 +146,7 @@ class Session:
         tf = transcript(self.st["sid"])
         if not tf:
             return False, "找不到会话记录文件"
-        if self.tag not in first_user_text(tf):
+        if self.tag not in first_user_text(tf, 2):
             return False, "会话记录第一条不含本线今天的 BOOT 暗号"
         return True, "ok"
 
@@ -115,9 +173,15 @@ class Session:
         if boot:
             assert self.tag in text[:600000], "第一条消息必须含 BOOT 暗号"   # 10/24: 共享开头在前, 暗号在共享开头之后
             self.st = {"date": self.D, "line": self.line, "sid": str(uuid.uuid4()), "boot_tag": self.tag, "boot_at": dt.datetime.now().isoformat(timespec="seconds"), "turns": []}
+            head, rest = split_head(text)
+            warm = warm_session(head, self.dir, self.effort) if head else None
+            if warm:   # 10/29: 从当天预热会话分叉(第一条 = 共享开头), 本线材料当第二条发; 新会话号以返回为准
+                text = rest
+                self.st.update(sid="", warm=warm["sid"], cost_cum=warm["cum"])
+                extra, resume = ["--fork-session"], warm["sid"]
+            else:
+                extra, resume = ["--session-id", self.st["sid"]], None
             self._save()
-            extra = ["--session-id", self.st["sid"]]
-            resume = None
         else:
             ok, why = self.check()
             if not ok:
@@ -128,7 +192,9 @@ class Session:
         r = CC.call(text, tag=f"v3-{self.line}-{rnd}", cwd=CWD, timeout=timeout, permission="default", allowed_tools=TOOLS, disallowed_tools=NO_TOOLS,
                     resume=resume, extra_args=extra, json_tag="json")
         secs = round(time.time() - t0, 1)
-        sid_ok = (r.session_id or "") == self.st["sid"]   # 校验③
+        if boot and self.st.get("warm") and r.session_id and r.session_id != self.st["warm"]:
+            self.st["sid"] = r.session_id   # 分叉出的新会话号 = 本线会话号
+        sid_ok = bool(self.st["sid"]) and (r.session_id or "") == self.st["sid"]   # 校验③
         j = CC.extract_json_block(r.result or "")[0] if r.result else None
         u = r.usage or {}
         cum = float(r.cost_usd or 0.0)
@@ -138,6 +204,11 @@ class Session:
         turn = {"t": dt.datetime.now().strftime("%H:%M:%S"), "round": rnd, "secs": secs, "ok": bool(r.result) and not r.is_error and sid_ok, "sid_ok": sid_ok,
                 "usd": round(usd, 4), "cum_raw": r.cost_usd, "in": u.get("input_tokens"), "cache_read": u.get("cache_read_input_tokens"), "cache_write": u.get("cache_creation_input_tokens"),
                 "out": u.get("output_tokens"), "err": " | ".join(r.errors)[:300] if r.errors else ""}
+        if boot and warm:
+            turn.update(warm=warm["sid"], warm_new=warm["new"])
+            if warm["new"]:   # 预热那一轮的钱记在建它的这条线上(当天总账不漏)
+                turn.update(warm_usd=round(warm["cum"], 4), usd=round(usd + warm["cum"], 4), warm_cache_write=warm.get("cache_write"))
+                usd = turn["usd"]
         self.st.setdefault("turns", []).append(turn)
         self._save()
         err = turn["err"] if not turn["ok"] else ""

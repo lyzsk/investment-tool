@@ -1,4 +1,4 @@
-# rules.md 来源检查（2026-10-29；每条规则必须带「证据链 / 证据 / 来源 / 出处 / 样本」之一）
+# rules.md 来源检查（2026-10-30；每条规则必须带「证据链 / 证据 / 来源 / 出处 / 样本」之一）
 
 > 脚本 `scripts/md/rules_lint.py`（零 token，只读，不改 rules.md）。缺来源的规则：要么补来源（蒸馏 / 你给），要么降级 / 删。
 
@@ -12,13 +12,14 @@
 | buchitudou0 | 30 | 0 | 0 |
 | chong5000w | 25 | 2 | 0 |
 | gaogailvfuli | 24 | 0 | 0 |
+| gjieshenqiangshou | 1 | 0 | 0 |
 | hanxiao | 41 | 0 | 0 |
 | lianghuaxiaohao | 40 | 0 | 0 |
 | liuyiqing | 40 | 0 | 0 |
 | meiyuelu | 45 | 0 | 0 |
 | nasdaq | 28 | 0 | 0 |
 | stzhilang | 41 | 0 | 0 |
-| taoge | 156 | 6 | 1 |
+| taoge | 157 | 6 | 1 |
 | wudaokongfang | 38 | 0 | 0 |
 | xingjianye | 40 | 3 | 0 |
 | xuanqiucaijing | 28 | 0 | 0 |
@@ -27,7 +28,7 @@
 | zjwzlclf | 24 | 0 | 0 |
 | zuoshoudeirong | 23 | 0 | 0 |
 
-合计 876 条规则，缺来源 18 条。
+合计 878 条规则，缺来源 18 条。
 
 ## 缺来源的规则
 

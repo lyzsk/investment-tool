@@ -256,8 +256,8 @@ def v2_pair(v2, fac=lambda a: []):
 
 
 def v2_items(v2, with_extreme=True):
-    """scen_v2 输出 → 待画情景: top3 两日组合各一张(标签 1/2/3; 2 天路径 = 同一个代表样本的真实 T+1 / T+2)
-    + 极端合成一张(标签 X, 子 = 各极端情景)"""
+    """scen_v2 输出 → 待画情景: 默认两日组合 top1 / top2 各一张(10/30 用户定);
+    KLINE_PAIR=1 退回旧「正例 + 反例」; KLINE_PAIR=0 退回两日 top3 + 极端。两天路径 = 同一个代表样本的真实 T+1 / T+2"""
     fc = v2.get("因子贡献") or {}
     by_sc, single = fc.get("按情景") or {}, fc.get("单因子(按情景, 绝对值最大 5 个)") or {}
 
@@ -265,14 +265,16 @@ def v2_items(v2, with_extreme=True):
         f1 = next((y for y in v2["top3_单日"] if y["名"] == a), None)
         return ((f1 or {}).get("单因子top3") or single.get(a) or [f"{g} {v:+.1f}pp" for g, v in list((by_sc.get(a) or {}).items())[:3]])[:3]
     import os
-    if os.environ.get("KLINE_PAIR", "1") == "1":   # 10/28 晚用户定: 正例 + 反例 两张(旧: 两日 top3 + 极端 4 张)
+    mode = os.environ.get("KLINE_PAIR", "top2")   # 10/30 用户定: 默认只画两日组合概率 top1 / top2; 1 = 旧正例+反例; 0 = 旧 top3 + 极端
+    if mode == "1":
         return v2_pair(v2, fac)
     out = []
-    for i, x in enumerate(v2["top3_两日"]):
+    pairs = v2["top3_两日"][:2] if mode == "top2" else v2["top3_两日"]
+    for i, x in enumerate(pairs):
         a = x["名"].split("→")[0]
         out.append({"标签": str(i + 1), "名": x["名"], "首日": a, "概率": x["概率"], "票型基线": x.get("票型基线"), "代表样本": x.get("代表样本"),
                     "近邻路径": x.get("近邻路径") or {}, "因子": fac(a), "T+2分布": next((v for k, v in x.items() if k.endswith("T+2 分布%")), None)})
-    if with_extreme:
+    if with_extreme and mode != "top2":
         ex = []
         for e, y in ((v2.get("极端") or {}).get("极端代表样本") or {}).items():
             if y.get("代表样本"):
@@ -288,6 +290,23 @@ def _pa_n(pa):
     return int(m.group(1)) if m else None
 
 
+def _ledger_calib_line(v2):
+    """预测核销账本 → 图右侧「本类事前命中」; 样本 <10 不显示, 不阻塞画图"""
+    try:
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+        import forecast_ledger as FL
+        c = FL.db()
+        r = FL.calib(c, "kline_v2", "two_day_top1", f"票型:{v2.get('票型') or '未知'}")
+        c.close()
+        if r["n"] >= 10 and r["hit"] is not None:
+            return f"本类事前 top1 命中 {r['hit']:.0%} · 基线 {r['baseline']:.0%} · n={r['n']}"
+    except Exception:   # noqa: BLE001
+        pass
+    return None
+
+
 def v2_summary(v2):
     """每张图都一样的总表: 票型 / top3 / 两日 top3 / 极端 / 置信 / 样本"""
     s = v2.get("状态摘要") or {}
@@ -298,7 +317,7 @@ def v2_summary(v2):
         side = {k: round(sum(float(v["模型"] if isinstance(v, dict) else v) for w, v in allw.items() if wdir(w) == k), 1) for k in ("涨", "跌", "平")}
         return [(f"{v2.get('name', '')}({v2['code']}) {v2['T'][5:]} 收 {v2['收盘']:.2f} · {v2['票型']}" + (f" · {v2['连板高度']} 连板" if v2.get("连板高度") else ""), YEL),
                 (f"明后两天方向: 涨 {side['涨']}% · 跌 {side['跌']}% · 平 {side['平']}%(涨停价 {v2['收盘'] * (1 + lim / 100):.2f} / 跌停价 {v2['收盘'] * (1 - lim / 100):.2f})", WHT),
-                ("参考: 方向命中率 44%(54 只回算, 永远猜震荡 43%)—— 当参考, 不当结论", GRY)]
+                ("参考: 方向命中率 44%(54 只回算, 永远猜震荡 43%)—— 当参考, 不当结论", GRY)] + ([(_ledger_calib_line(v2), GRY)] if _ledger_calib_line(v2) else [])
     L = [(f"{v2.get('name', '')}({v2['code']}) 截止 {v2['T']} 收 {v2['收盘']:.2f} · 票型「{v2['票型']}」"
           + (f" · {v2['连板高度']} 连板" if v2.get("连板高度") else "") + (" · 20cm" if v2.get("20cm") else ""), YEL),
          (f"当天 {s.get('当天涨跌%')}% · 收在当天 {s.get('收在当天位置')} · 量比 {s.get('量比5日')} · 近20日涨停 {s.get('近20日涨停次数')} 次 · {s.get('箱体', '')}", GRY),
@@ -319,6 +338,8 @@ def v2_summary(v2):
     if bt:
         L.append((f"样本: 本票型{('(' + bt['口径'] + ')') if bt.get('口径') else ''}样本外 n={bt.get('n')} · 单日 top3 命中 模型 {bt.get('单日top3_模型', 0):.0%} / 基线 {bt.get('单日top3_票型基线', 0):.0%}"
                   f" · 两日 top3 命中 模型 {bt.get('两日top3_模型', 0):.0%} / 基线 {bt.get('两日top3_票型基线', 0):.0%}", YEL))
+    if _ledger_calib_line(v2):
+        L.append((_ledger_calib_line(v2), GRY))
     return L
 
 

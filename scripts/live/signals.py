@@ -84,20 +84,21 @@ P = {
     "S5_FROM": "14:25:00", "S5_TO": "14:45:00", "S5_WIN": 600, "S5_UP": 0.015,
     "S6_UP": 0.03, "S6_BASE_LATE": "09:20:30",
     "S7_X": 6.0, "S7_WIN": 1800,
-    "S4P_SIGMA_K": 1.5, "S4P_NEAR": 0.02, "S4C_GAP": 45, "S4C_GAP_MAX": 240, "FAST_SIGS": ("S1", "S7", "S4p", "S4c", "S4b", "S4a", "S8", "S9", "D1", "D2", "D3", "S10", "S11", "S12", "S13", "D4", "D5", "R1", "S2"),   # 10/26 20:0x 用户: S1 / S7 也走快车道; 10/27 S10 翻红拉升
-    "POOL_SIGS": ("S3", "S4a", "S4p", "S4c", "S4b", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "D4", "D5", "D1", "D2", "D3", "S2", "R1"), "POOL_DIP_AFTER_ZB": (),   # 10/28 12:2x 用户: 盯盘池出低吸不用过大盘门槛、也不用先炸板(噪声交给统计期望闸 SIG_ODDS)   # 10/26 20:1x 用户"股票推送少": 盘口池里不在盯盘名单的股票(盯盘池)也出 强势 / 板类信号; 低吸只在当天炸过板之后(炸板回踩)
+    "S4P_SIGMA_K": 1.5, "S4P_NEAR": 0.02, "S4C_GAP": 45, "S4C_GAP_MAX": 240, "FAST_SIGS": ("S1", "S7", "S4p", "S4c", "S4b", "S4a", "S8", "S9", "D1", "D2", "D3", "S10", "S11", "S12", "S13", "D4", "D5", "R1", "S2", "S14", "S15"),   # 10/26 20:0x 用户: S1 / S7 也走快车道; 10/27 S10 翻红拉升
+    "POOL_SIGS": ("S3", "S4a", "S4p", "S4c", "S4b", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "D4", "D5", "D1", "D2", "D3", "S2", "R1", "S14", "S15"), "POOL_DIP_AFTER_ZB": (),   # 10/28 12:2x 用户: 盯盘池出低吸不用过大盘门槛、也不用先炸板(噪声交给统计期望闸 SIG_ODDS)   # 10/26 20:1x 用户"股票推送少": 盘口池里不在盯盘名单的股票(盯盘池)也出 强势 / 板类信号; 低吸只在当天炸过板之后(炸板回踩)
     "PICK_STOCK": (40, 80), "PICK_CB": (15, 30),   # 10/28 12:4x 用户: 盯盘范围扩大(有统计期望闸兜噪声); 原 20~40 / 10~20   # 10/26 晚用户: 盯盘池股票 20~40 / 名单转债 10~20, 只数按盘面活跃度动态(Picker)
     "CD_BASE_MIN": 30, "CD_MAX_MIN": 45, "CD_CODE_N": 3, "CD_CODE_WIN_MIN": 30,   # 10/26 20:0x 用户批动态冷却(只管普通 / 慢通道的推送, signals.jsonl 照记)
     "SLOW_SIGS": (), "S8_NEAR": 0.07, "S8_RANGE": 0.025, "S8_HOLD": 900, "S9_NEAR": 0.01,   # 10/26 用户批 S8 / S9(百洋股份 / 锋龙股份上板方式 U21); 10/28 用户: S2 回踩均价来不及看 → SLOW_SIGS 清空走快车道
       # 10/26 用户: 回封提醒要提前 45 秒~1 分钟(原 S4b 只比真回封早 3~6 秒)
     "D_START": "09:40:00", "D_BOUNCE_K": 0.3,   # 10/26: 反弹门槛 = max(2 价位, 0.3×σ5×价) —— 转债一个价位 ≈0.0006% 形同虚设
-     "S10_DIP": 0.005, "S10_DIP_AMP_K": 0.15, "S10_EPS": 0.001, "S10_CROSS_WIN": 600, "S10_LOW_WIN": 1500, "S10_RISE_MIN": 0.01, "S10_RISE_K": 0.3, "S10_VOL_WIN": 180, "S10_VOL_K": 2.0, "S10_MAX": 3,
+     "S10_DIP": 0.005, "S10_DIP_AMP_K": 0.15, "S10_EPS": 0.001, "S10_CROSS_WIN": 600, "S10_LOW_WIN": 1500, "S10_RISE_MIN": 0.01, "S10_RISE_K": 0.3, "S10_VOL_WIN": 180, "S10_VOL_K": 2.0, "S10_MAX": 3, "S14_HOLD": 180, "S14_HOLD_MIN": 120, "S14_HOLD_MAX": 600, "S14_MAX": 3,   # 10/29 晚用户: 水下翻水上 / 水上翻水下后企稳各单列(S14 / S15); 企稳时长按本票 σ5 动态
+    
      "S11_LOOK": 1800, "S11_BANDS": 3, "S11_Z": 3.0, "S11_REARM": 2, "S11_MAX": 3,   # 10/27 用户: 连续跨越 13 档 3 档(奥普特 10:30); 快慢按本票 σ5 定: 涨幅 / (σ5·√(用时/5分钟)) ≥ 3 才算"连续"(本票少见的快)   # 10/27 晚用户: 绿翻红(尤其放量)是重要反转信号, 转债的正股翻红拉升必须提醒(奥普特 10:30 翻红拉升 → 奥普转债 +5%, 当天没任何提醒)
      "WALL_K": 4.0, "WALL_AMT_K": 0.25, "WALL_SEEN": 2, "WALL_AGE": 30, "WALL_KEEP": 600, "WALL_GO_TICKS": 3, "WALL_GO_SIGMA": 0.5, "WALL_GAP": 60, "WALL_FLIP_WIN": 1200, "WALL_NEAR_TICKS": 2, "WALL_MAX": 2, "WALL_START": "09:35:00",   # 10/28 晚用户批: 墙位翻转(大业股份 09:30 17.40 卖 1538 手 → 09:49 被吃穿 → 09:53 同价买一 1290 手托住 = 转强)
      "D1_K": 2.0, "D1_HOLD": 180, "D2_BAND": 0.003, "D2_HOLD": 180, "D3_K": 0.8, "D3_HOLD": 180,   # 10/26 用户批: 低吸信号 D1~D3(银轮转债 10:11 回到开盘价没任何提醒)
     "DEDUP_D_MIN": 90, "DEDUP_MIN": 30, "PUSH_GAP_MIN": 30, "MAX_LINES": 12, "STALE_MIN": 5, "QUOTA_SOFT": 8,   # 10/24 主会话: K 2→3、推送间隔 15→30 分钟(agent 回放: 一天约 7~9 条, 微信额度约 10 条)
 }
-NAMES = {"S1": "急跌后拉起", "S2": "回踩均价线不破", "S3": "二次冲高", "S4a": "炸板", "S4p": "拉回贴近涨停", "S4c": "冲击涨停价", "S4b": "回封动作", "S5": "尾盘拉升", "S6": "竞价抢筹", "S7": "开盘冲高到位", "S8": "蓄势预警", "S9": "午后冲板候选", "D1": "跌破均价后企稳", "D2": "冲高回落到开盘价", "D3": "回撤到振幅位企稳", "S10": "绿翻红拉升", "S11": "连续跨越 13 档 3 档", "S12": "卖墙变买墙", "S13": "买墙变卖墙", "D4": "跌停封单松动", "D5": "跌停撬板", "R1": "指数共振低点"}
+NAMES = {"S1": "急跌后拉起", "S2": "回踩均价线不破", "S3": "二次冲高", "S4a": "炸板", "S4p": "拉回贴近涨停", "S4c": "冲击涨停价", "S4b": "回封动作", "S5": "尾盘拉升", "S6": "竞价抢筹", "S7": "开盘冲高到位", "S8": "蓄势预警", "S9": "午后冲板候选", "D1": "跌破均价后企稳", "D2": "冲高回落到开盘价", "D3": "回撤到振幅位企稳", "S10": "绿翻红拉升", "S11": "连续跨越 13 档 3 档", "S12": "卖墙变买墙", "S13": "买墙变卖墙", "D4": "跌停封单松动", "D5": "跌停撬板", "R1": "指数共振低点", "S14": "水下翻水上企稳", "S15": "水上翻水下企稳"}
 MUST_SIGS = ("S10", "S11")   # 10/27 用户"必须提醒": 名单 / 持仓 / 点名里的票(含转债)不受 Picker 名额限制
 DYN = {}   # 10/25 动态参数(signal_params.build; "_global" + 每只票), 启动时 load_dyn(D) 填
 
@@ -440,6 +441,7 @@ class St:
         self.s5 = {"L": None, "tL": None}
         self.d = {"hi": None, "d1": None, "d2": None, "d3": None}
         self.s10 = {"lo": None, "xlo": None, "tlo": None, "xb": None, "armed": False, "n": 0, "aw": collections.deque()}   # 10/27 绿翻红拉升
+        self.s1415 = {"side": None, "x0": None, "t0": None, "ext": None, "arm_up": False, "arm_dn": False, "n14": 0, "n15": 0}   # 10/29 晚: 翻红 / 翻绿企稳
         self.s11 = {"w": collections.deque(), "fired_band": None, "n": 0}   # 10/27 跨档: (交易秒, 档序号, 价)
         self.wall = {"ask": {}, "bid": {}, "brk": [], "fired": set(), "n": {"S12": 0, "S13": 0}}   # 10/28 墙位翻转: 候选墙 {价: {cnt, mx, t, x, ref}} / 被穿的墙
         self.s8 = None   # 蓄势: 进入"离涨停 ≤2% 且在均价上方"的起点   # 10/26 低吸 D1~D3 状态
@@ -574,6 +576,7 @@ class Detector:
         self._s89(S, ctx, out)   # 10/26: S8 蓄势预警 / S9 午后冲板候选
         self._s10(S, ctx, out)   # 10/27: 绿翻红拉升(正股翻红 → 同时报它的转债)
         self._s11(S, ctx, out)   # 10/27: 连续跨越 13 档 3 档(正股 → 同时报转债)
+        self._s1415(S, ctx, out)   # 10/29 晚: S14 水下翻水上企稳 / S15 水上翻水下企稳
         self._dt(S, ctx, out)    # 10/28 晚: D4 跌停封单松动 / D5 跌停撬板
         self._wall(S, ctx, out)  # 10/28: 墙位翻转 S12 卖墙变买墙(转强) / S13 买墙变卖墙(转弱)
         return out
@@ -907,6 +910,40 @@ class Detector:
             if len(out) > n0:
                 out[-1].update(stock=c, hot=hot, sig_name=f"正股{S.m['name']}绿翻红{'放量' if hot else ''}拉升")
 
+    # ---------- S14 水下翻水上企稳 / S15 水上翻水下企稳(10/29 晚用户: 翻水位后站稳要单列, 两个方向都要) ----------
+    def _s1415(self, S, ctx, out):
+        """待命 = 先在另一侧走到过 ≥ max(0.5%, 0.15×本票 30 日振幅中位)(同 S10 的水下深度); 穿过昨收后连续 HOLD 秒没再穿回 = 企稳;
+        HOLD = 180 秒 × 本票 σ5 / 0.005(σ5 中位), 夹在 120~600 秒(越活跃的票要站得越久); 每天每个方向最多 3 次, 触发后要重新走到待命深度才再认"""
+        c, t, x, p, v, vw, b, k = ctx
+        pv = S.m.get("prev")
+        if not pv or t < "09:31:00" or c[:2] in ("11", "12"):
+            return
+        z = S.s1415
+        amp = S.m.get("amp30") or 0.04
+        dip = max(P["S10_DIP"], P["S10_DIP_AMP_K"] * amp)
+        if p <= pv * (1 - dip):
+            z["arm_up"] = True
+        if p >= pv * (1 + dip):
+            z["arm_dn"] = True
+        side = "up" if p > pv else "dn" if p < pv else z["side"]
+        if side != z["side"]:   # 穿过昨收: 重新计时
+            z.update(side=side, x0=x, t0=t, ext=p)
+            return
+        if side is None or z["x0"] is None:
+            return
+        z["ext"] = min(z["ext"], p) if side == "up" else max(z["ext"], p)
+        hold = min(P["S14_HOLD_MAX"], max(P["S14_HOLD_MIN"], P["S14_HOLD"] * float(S.m.get("sigma") or P["SIGMA_DEFAULT"]) / 0.005))
+        if x - z["x0"] < hold:
+            return
+        if side == "up" and z["arm_up"] and z["n14"] < P["S14_MAX"]:
+            z.update(arm_up=False, n14=z["n14"] + 1)
+            self._ev(S, c, t, "S14", p, f"{z['t0']} 翻红后 {int(x - z['x0']) // 60} 分钟没回水下(期间最低 {z['ext']:g}, 昨收 {pv:g}; 企稳阈 {int(hold)} 秒按 σ5 定); 现 {p:g}"
+                     + (f", 均价 {vw:.3f}{'上方' if p >= vw else '下方'}" if vw else ""), out)
+        elif side == "dn" and z["arm_dn"] and z["n15"] < P["S14_MAX"]:
+            z.update(arm_dn=False, n15=z["n15"] + 1)
+            self._ev(S, c, t, "S15", p, f"{z['t0']} 翻绿后 {int(x - z['x0']) // 60} 分钟没回水上(期间最高 {z['ext']:g}, 昨收 {pv:g}; 企稳阈 {int(hold)} 秒按 σ5 定); 现 {p:g}"
+                     + (f", 均价 {vw:.3f}{'上方' if p >= vw else '下方'}" if vw else ""), out)
+
     # ---------- S11 连续跨越 13 档 3 档(10/27 用户: 奥普转债 10:30 正股从绿翻红跨越 3 档时该果断进; 13 档口径同 open_bins, 20cm 外延) ----------
     def _s11(self, S, ctx, out):
         c, t, x, p, v, vw, b, k = ctx
@@ -1135,7 +1172,7 @@ def cat_of(e):
     return em, cat
 
 
-SIG_EMOJI = {"S8": "🔋", "S9": "⏰", "D1": "🔴🛬", "D2": "🔴↩️", "D3": "🔴🪂", "S1": "📈", "S2": "➖", "S3": "🔼", "S4a": "💥", "S4p": "⤴️", "S4c": "⚡", "S4b": "🔁", "S5": "🌇", "S6": "🎯", "S7": "🚀", "S10": "🟥↗", "S11": "🪜", "S12": "🧱↗", "S13": "🧱↘", "D4": "🩸", "D5": "🔓", "R1": "🌊"}
+SIG_EMOJI = {"S8": "🔋", "S9": "⏰", "D1": "🔴🛬", "D2": "🔴↩️", "D3": "🔴🪂", "S1": "📈", "S2": "➖", "S3": "🔼", "S4a": "💥", "S4p": "⤴️", "S4c": "⚡", "S4b": "🔁", "S5": "🌇", "S6": "🎯", "S7": "🚀", "S10": "🟥↗", "S11": "🪜", "S12": "🧱↗", "S13": "🧱↘", "D4": "🩸", "D5": "🔓", "R1": "🌊", "S14": "🟥✅", "S15": "🟩⬇"}
 SIG_CAT = {   # 10/28 13:0x 用户定类别(一个 emoji + 【类别】, 不用两个 emoji 连写): 低吸 / 追涨 / 板 / 炸板 / 炸板有希望回封 / 冲高回落 / 深V拉升 / 共振, 我补 冲高到位 / 尾盘 / 竞价
     "D1": ("🔵", "低吸"), "D3": ("🔵", "低吸"), "S2": ("🔵", "低吸"),
     "D2": ("🟢", "冲高回落"),           # 冲高到位后回落到开盘价守住(既是冲高回落, 也是开盘价低吸位)
@@ -1146,7 +1183,8 @@ SIG_CAT = {   # 10/28 13:0x 用户定类别(一个 emoji + 【类别】, 不用�
     "S4b": ("🔁", "炸板有希望回封"), "S4p": ("🔁", "炸板有希望回封"),
     "S7": ("🚀", "冲高到位"), "S3": ("🚀", "冲高到位"),   # 开盘冲高到位 / 二次冲高: 持仓的卖点参考
     "S5": ("🌇", "尾盘"), "S6": ("🎯", "竞价"), "R1": ("🌊", "共振"),
-    "S12": ("🔺", "转强"), "S13": ("🔻", "转弱"), "D4": ("🔵", "低吸"), "D5": ("🔵", "低吸")}   # 10/28 晚用户批: 墙位翻转 = 转强 / 转弱提醒
+    "S12": ("🔺", "转强"), "S13": ("🔻", "转弱"), "D4": ("🔵", "低吸"), "D5": ("🔵", "低吸"),
+    "S14": ("🔴", "翻红企稳"), "S15": ("🟢", "翻绿企稳")}   # 10/29 晚用户: 水下翻水上 / 水上翻水下企稳单列   # 10/28 晚用户批: 墙位翻转 = 转强 / 转弱提醒
 _WHY = {"t": 0.0, "map": {}, "seen": set()}
 
 
@@ -1205,6 +1243,8 @@ def compose(evs, D, hold):
                 s += f"〔历史+{o['tgt']:g}% 盈利率 {o['p'] * 100:.0f}% n{o['n']}〕"
             if e["sig"] in ("D1", "D2", "D3") and "此刻 " in (e.get("detail") or ""):   # 10/28: 低吸带上大盘此刻(普跌日低吸到收盘中位 −1.8%)
                 s += f"〔{e['detail'].rsplit('此刻 ', 1)[1]}〕"
+            if e.get("osc"):   # 10/29 晚: 反复来回穿降级的标一下
+                s += f"〔{e['osc']}〕"
             if e["code"] not in hold and e["code"] not in _WHY["seen"] and not e.get("pool"):
                 s = f"{s} 〔新进盯盘: {'/'.join(sorted(why.get(e['code']) or [])) or '来源不明'}〕"   # 10/28: 去掉 🆕, 一行只留一个 emoji
             _WHY["seen"].add(e["code"])
@@ -1215,6 +1255,34 @@ def compose(evs, D, hold):
     return "\n".join(L)
 
 
+OSC_SIGS = ("S2", "D1", "S10", "S14", "S15")   # 10/29 晚: 均价 / 昨收来回穿那几类(回踩均价 / 跌破均价企稳 / 绿翻红 / 翻红企稳 / 翻绿企稳)
+
+
+def osc_n(code, pu):
+    """本票「正常一天会来回穿几次」= 前几天 signals.jsonl 里本票每天 OSC 类信号条数的 P75(向上取整), 不足 3 天用全部票的 P75; 下限 2、上限 8"""
+    if pu._osc_n is None:
+        per = collections.defaultdict(list)
+        days = sorted(d.name for d in LIVE.glob("20*") if d.is_dir() and d.name < pu.D)[-10:]
+        for d in days:
+            cnt = collections.Counter()
+            try:
+                for l in (LIVE / d / "signals.jsonl").read_text(encoding="utf-8").splitlines():
+                    try:
+                        e = json.loads(l)
+                    except ValueError:
+                        continue
+                    if e.get("sig") in OSC_SIGS:
+                        cnt[e.get("code")] += 1
+            except OSError:
+                continue
+            for c, n in cnt.items():
+                per[c].append(n)
+        allv = sorted(n for v in per.values() for n in v)
+        g = allv[min(len(allv) - 1, int(len(allv) * 0.75))] if allv else 3
+        pu._osc_n = {"_g": g, **{c: sorted(v)[min(len(v) - 1, int(len(v) * 0.75))] for c, v in per.items() if len(v) >= 3}}
+    return min(8, max(2, int(pu._osc_n.get(code, pu._osc_n["_g"]))))
+
+
 class Pusher:
     def __init__(self, D, hold_fn, dry=False):
         self.D, self.hold_fn, self.dry = D, hold_fn, dry
@@ -1222,6 +1290,7 @@ class Pusher:
         self._pushed = collections.deque()   # (time, 是转债)
         self._cb_day, self._t0 = 0, time.time()   # 今天累计推的转债条数 / 开始时刻(算每小时平均, 当股票配额的底)
         self.pending, self.lock, self.busy = [], threading.Lock(), False
+        self._osc, self._osc_n = collections.Counter(), None   # 10/29 晚用户: 同票反复震荡(均价 / 昨收来回穿)第 N 次后自动降一级通道, N 按本票历史动态
         self.sf = LIVE / D / "signals_push.json"
         try:
             self.last_push = json.loads(self.sf.read_text(encoding="utf-8")).get("last_push", 0.0)
@@ -1286,7 +1355,7 @@ class Pusher:
             # 10/26 20:0x 用户: 快车道 = 快信号(低吸 / 炸板 / 回封类 / S1 / S7 / S8 / S9)或 持仓 / 点名票; 其余分 普通 / 慢(只有回踩均价 S2), 两条都动态攒批 + 动态冷却
             # 10/28 13:0x 用户: 通道按统计期望分(历史盈利率 p = 信号价买入摸到目标价的比例, 见 odds_gate): p ≥ 50% 快车道 / 35~50% 普通(动态攒批 15 秒~3 分钟 + 动态冷却) / 25~35% 慢通道(3~10 分钟攒一批); <25% 已在闸里只记不推
             # 例外: 持仓 / 你点名 / 指数共振 一律快车道; 板类(炸板 / 回封 / 冲板)抢的是秒级, 最慢走普通不进慢通道
-            fast_p, norm_p = float(_flag("SIG_LANE_FAST", "0.5")), float(_flag("SIG_LANE_NORM", "0.35"))
+            fast_p, norm_p = float(_flag("SIG_LANE_FAST", "0.45")), float(_flag("SIG_LANE_NORM", "0.35"))   # 10/29 晚用户批: 快车道门槛 50% → 45%
 
             def lane(e):
                 if e["code"] in key or e["sig"] == "R1":
@@ -1297,6 +1366,11 @@ class Pusher:
                 return "norm" if ln == "slow" and e["sig"] in ("S4a", "S4b", "S4p", "S4c") else ln
             for e in evs:
                 e["lane"] = lane(e)
+                if e["sig"] in OSC_SIGS:   # 10/29 晚: 同票反复震荡 → 超过本票的 N 次后降一级(快 → 普通 → 慢; 持仓 / 点名最多降到普通); 板类 / 跌停类不降
+                    n_ = osc_n(e["code"], self)
+                    if self._osc[e["code"]] > n_:
+                        e["lane"] = {"fast": "norm", "norm": "slow" if e["code"] not in key else "norm"}.get(e["lane"], e["lane"])
+                        e["osc"] = f"今天第 {self._osc[e['code']]} 次来回穿(本票常态 {n_} 次), 降一级"
             fe = [e for e in evs if e["lane"] == "fast"]
             ne = [e for e in evs if e["lane"] == "norm" and self._cool_ok(e)]
             se = [e for e in evs if e["lane"] == "slow" and self._cool_ok(e)]
@@ -1557,6 +1631,8 @@ def run(D, codes=None, all_=False, dry=False):
                 e["stale"] = True
             with out_f.open("a", encoding="utf-8") as w:
                 w.write(json.dumps(e, ensure_ascii=False) + "\n")
+            if e["sig"] in OSC_SIGS:   # 10/29 晚: 来回穿计数在落盘时加(和 osc_n 的历史口径一致: 含没过闸的)
+                pusher._osc[e["code"]] += 1
             if not stale and passed:
                 pusher.add(e)
     try:

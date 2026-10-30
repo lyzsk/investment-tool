@@ -141,6 +141,13 @@ def main():
     env = {**os.environ, "DISABLE_AUTOUPDATER": "1"}   # 10/23 用户批: 交互会话不自动更新(彩排实测 00:58 自更新替换 claude.exe 3.5 分钟+, 盘中会让后台 claude -p 全起不来); 想升级手动 claude update
     newp = subprocess.Popen(["cmd.exe", "/k", *args], cwd=str(HOME), creationflags=NEWCON, env=env)
     time.sleep(45)
+    # 10/29 晚用户: 重启后也必须落到当时该用的网关 / 模型; cs_switch auto 会核对时段、settings、切换器, 不对才改并在新 CLI 里 /model
+    try:
+        r_ = subprocess.run([sys.executable, "-X", "utf8", str(ROOT / "scripts" / "claude_profile" / "cs_switch.py"), "auto"],
+                            capture_output=True, text=True, encoding="utf-8", errors="replace", creationflags=NOWIN, timeout=240)
+        log(f"重启后 cs_switch auto exit={r_.returncode}: {(r_.stdout or r_.stderr).strip()[-200:]}")
+    except Exception as e:   # noqa: BLE001
+        log(f"重启后 cs_switch auto 异常: {e!r}")
     now = sessions(procs())
     ok = len(now) == 1 and now[0]["parent"] == newp.pid
     hm = dt.datetime.now().strftime("%H:%M")

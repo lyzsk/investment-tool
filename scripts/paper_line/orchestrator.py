@@ -49,6 +49,14 @@ def common_env():
     ttl = E.X.flag("PAPER_CACHE_TTL", "1h") or ""   # 10/23 00:5x 实测: 中转站支持 1 小时提示缓存(scripts/test/cache_ttl_probe.py), 叫醒间隔 >5 分钟不再整段重写
     if ttl:
         os.environ.update(CLAUDE_CODE_PROMPT_CACHE_TTL=ttl, ENABLE_PROMPT_CACHING_1H="1" if ttl == "1h" else "0")
+    if (E.X.flag("PAPER_SHARED_META", "1") or "1") == "1":
+        # 10/29 收盘后真调(scripts/temp/cache_probe_1029*.py): 中转站按请求里的会话号分流上游, 新会话之间逐字相同也 0 命中(7/7);
+        # 全部账本钉同一个会话号(元数据 + 请求头)后跨会话命中 2/2($0.129 → $0.005) → 共享开头只写一次
+        import json
+        import uuid
+        sid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"inv-paper-line-{dt.date.today().isoformat()}"))
+        os.environ["CLAUDE_CODE_EXTRA_BODY"] = json.dumps({"metadata": {"user_id": json.dumps({"device_id": "inv-paper-line", "account_uuid": "", "session_id": sid})}})
+        os.environ["ANTHROPIC_CUSTOM_HEADERS"] = f"X-Claude-Code-Session-Id: {sid}"
 
 
 def line_ov(ln, idx):

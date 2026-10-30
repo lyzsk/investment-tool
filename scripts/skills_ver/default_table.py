@@ -131,6 +131,16 @@ def recent_start(R, D=None, n=20):
     return ds[-n] if len(ds) >= n else (ds[0] if ds else None)
 
 
+def kind(code, D):
+    """只要票型(不查导师卖点面板): 10/29 桃哥线(UP, 没有 tzzb 面板)语义闸调 cell 报 FileNotFoundError → UP 线走这里"""
+    import mentor_sells as M
+    K = M.load_kline({code}).get(code) or []
+    if not K:
+        return "其他"
+    i = bisect.bisect_left([x[0] for x in K], D)
+    return kind_of(K + [(D, 0, 0, 0, 0)] if i >= len(K) else K, i)
+
+
 def cell(skill, D, code, open_pct, pnl_prev):
     """盘中查: 这只票今天的格子 → 三层分布(只用 D 之前)"""
     import mentor_sells as M

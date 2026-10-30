@@ -808,6 +808,82 @@
     "chain": "e663a1349c0e",
     "distill": "2037fef4d0de"
    }
+  },
+  {
+   "v": 17,
+   "id": "v017_20261029-1916",
+   "ts": "2026-10-29T19:16:51",
+   "effective_from": "2026-10-29T16:17:44",
+   "unit": "skill",
+   "version_hash": "944f625db7726bae862bf89fdb497a6695184b299c29f9d2bf45b2f2954c1a0a",
+   "cat_hash": {
+    "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+    "数据": "b66a11616e1ac64945e788b13178347eb73515ca4331bbd2655c22e9c4b05913",
+    "画像": "4f8819765f180709b7ed99948272400e303ba6f758bcf851941b59ed5ee20aa8"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v016_20261029-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/user_found.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/user_found.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 1,
+    "removed": 0
+   },
+   "bytes_weight": 3188012,
+   "why": "check-md 2026-10-29 19:16",
+   "code": {
+    "chain": "e663a1349c0e",
+    "distill": "2037fef4d0de"
+   }
+  },
+  {
+   "v": 18,
+   "id": "v018_20261030-0801",
+   "ts": "2026-10-30T08:01:03",
+   "effective_from": "2026-10-30T00:36:30",
+   "unit": "skill",
+   "version_hash": "8859c05c11f4e1253bad2bd4dd1ccf04e53c62cbf0a10e272640468c539547f8",
+   "cat_hash": {
+    "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+    "数据": "b66a11616e1ac64945e788b13178347eb73515ca4331bbd2655c22e9c4b05913",
+    "画像": "3407ddfd1f1b203b1372c5564e10882652a3468279c4f9ad2e1c015e3b5ce9bc"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v017_20261029-1916",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/kline_cases.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/kline_cases.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 140,
+    "removed": 0
+   },
+   "bytes_weight": 3199703,
+   "why": "check-md 2026-10-29 08:01",
+   "code": {
+    "chain": "e663a1349c0e",
+    "distill": "b8213371c97e"
+   }
   }
  ],
  "events": [],

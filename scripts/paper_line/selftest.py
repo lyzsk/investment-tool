@@ -786,6 +786,8 @@ def run():
         kw.fake = False
         kw.sess.st["sid"] = "x"
         calls = []
+        _ka = os.environ.get("PAPER_KEEPALIVE_MIN")
+        os.environ["PAPER_KEEPALIVE_MIN"] = "50"   # 10/29: chain_flags 关了保温(=0), 这里测的是保温逻辑本身 → 钉 50
         kw.sess.ask = lambda text, rnd, timeout=0, boot=False: (calls.append(rnd), {"ok": True, "secs": 1, "usd": 0.1, "usage": {}})[1]
         CLK["t"] = "11:00:00"
         kw._last_ask = E.X.now() - dt.timedelta(minutes=49)
@@ -800,6 +802,10 @@ def run():
             time.sleep(0.05)
         check("㉞缓存保温: 空闲不满 50 分钟不发; 满 50 分钟发一次、不占叫醒名额、发完放开 pending",
               no_early and calls == ["keep"] and not kw.pending and E.GATE.busy == busy0, f"{calls} pending={kw.pending}")
+        if _ka is None:
+            os.environ.pop("PAPER_KEEPALIVE_MIN", None)
+        else:
+            os.environ["PAPER_KEEPALIVE_MIN"] = _ka
         # ---------- 推微信(10/23 用户令: 三本主线出现挂单就推; 挂单没变不推; 其他本不推) ----------
         sent, pop0 = [], E.X.subprocess.Popen
         E.X.subprocess.Popen = lambda args, **kw: sent.append(args[4])
@@ -963,7 +969,7 @@ def run():
         sm = dict(SMPa.lines("600851", "2026-10-23"))
         sm2 = dict(SMPa.lines("002307", "2026-10-23"))
         check("㊺全体导师样例: 海欣 10-14 芷影负样例被列出; 北新同情境(前一天首板)含样例导师的负样例和正样例",
-              "⚠负样例(1)" in sm.get("全体导师同票样例", "") and "10-14" in sm["全体导师同票样例"]
+              "⚠负样例(" in sm.get("全体导师同票样例", "") and "zhiyingjuexin(导师) 10-14" in sm["全体导师同票样例"]   # 10/29: 神枪手入库后海欣负样例 1→2 笔, 只断言芷影那笔在
               and "(样例)" in sm2.get("同情境样例", "") and "⚠负样例(" in sm2["同情境样例"] and "正样例" in sm2["同情境样例"], str(sm)[:200])
         matn = "### 600851 海欣股份\n- E1 关键价位: 7.1\n- E2 全体导师同票样例: " + sm["全体导师同票样例"] + "\n"
         pn = {"code": "600851", "action": "建", "checked": {"价位": {"E": "E1", "影响": "支持", "结论": "x"}, "样例": {"E": "E2", "影响": "支持", "结论": "芷影做过"}}}

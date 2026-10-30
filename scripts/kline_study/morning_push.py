@@ -48,7 +48,7 @@ def scen(code, T):
 
 
 def latest_imgs(code, T):
-    """10/28 晚用户令: 每只持仓 = 日 K 正例 / 反例 + 五日(或分时)正例 / 反例; 取截止 ≤T 最新一份截图的续画"""
+    """每只持仓 = 日 K + 五日(或分时)各两张: 原衔接画法, _v2_1 = 两日组合概率最高 / _v2_2 = 次高(10/30 用户最终口径); 取截止 ≤T 最新一份截图的续画"""
     got = {}
     for st in sorted((ROOT / "results" / "kline").glob("20*/_status.json")):
         if st.parent.name.replace(".", "-") > T:
@@ -71,7 +71,7 @@ def latest_imgs(code, T):
 
 
 def compose(code, nm, got, T):
-    """一只票一张图: 上 = 日 K 正例 | 反例, 下 = 五日 正例 | 反例(缺哪行就少哪行); 每张缩到 1000 宽"""
+    """一只票一张图: 上 = 日 K 概率最高 | 次高, 下 = 五日 概率最高 | 次高(缺哪行就少哪行); 每张缩到 1000 宽"""
     from PIL import Image
     rows = []
     for ty in ("日K", "五日"):
@@ -99,8 +99,24 @@ def compose(code, nm, got, T):
 
 
 def lines(c, nm, d):
+    """10/29 晚用户改口径: 持仓 K 线预测只给概率最高 + 次高两种(两日组合 top1 / top2), 不再给正例 / 反例 / 涨跌平合计"""
     if not d:
         return f"{nm}: 预测没跑出来(特征表没到昨天?)"
+    t2 = (d.get("top3_两日") or d.get("两日top3") or [])[:2]   # scen_v2 实时输出 = top3_两日(对象); 截图状态 = 两日top3(字符串)
+    if t2:
+        parts = [f"{x['名']} {float(x['概率']):.1f}%" if isinstance(x, dict) else str(x) for x in t2]
+        cal = ""
+        try:   # 预测核销账本: 本票型两日 top1 的事前命中(样本 <10 不显示)
+            sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+            import forecast_ledger as FL
+            lc = FL.db()
+            r = FL.calib(lc, "kline_v2", "two_day_top1", f"票型:{d.get('票型') or '未知'}")
+            lc.close()
+            if r["n"] >= 10 and r["hit"] is not None:
+                cal = f" · 本类事前top1 {r['hit']:.0%}(基线 {r['baseline']:.0%},n={r['n']})"
+        except Exception:   # noqa: BLE001
+            pass
+        return f"{nm}: ①{parts[0]}" + (f" ②{parts[1]}" if len(parts) > 1 else "") + (f"(置信 {d.get('置信')})" if d.get("置信") else "") + cal
     allw = d.get("全部走法%") or {}
     up = ("涨停", "单边上涨", "深V")
     dn = ("跌停", "单边下跌", "冲高A杀", "高开低走")
@@ -140,7 +156,7 @@ def run(D, dry=False):
         if c.startswith(("204", "1318")):
             continue
         L.append(lines(c, nm, scen(c, T)))
-        got = latest_imgs(c, T)
+        got = latest_imgs(c, T)   # 10/30 用户最终确认: 原衔接画法, 但选图改为两日组合概率 top1 / top2
         im = compose(c, nm, got, T) if got else None
         if im:
             imgs.append((nm, im))
@@ -153,7 +169,7 @@ def run(D, dry=False):
     import wx_send
     wx_send.send(txt, src="morning_kline", raw=True, wait=300, force=True)
     for nm, im in imgs[:4]:   # 图最多 4 张(微信额度)
-        wx_send.send(f"MEDIA:{im} {nm} 上 = 日K 正例 | 反例 · 下 = 五日 正例 | 反例", src="morning_kline", raw=True, wait=300, force=True)
+        wx_send.send(f"MEDIA:{im} {nm} 上 = 日K 概率最高 | 次高 · 下 = 五日 概率最高 | 次高(原衔接画法)", src="morning_kline", raw=True, wait=300, force=True)
     flag.parent.mkdir(parents=True, exist_ok=True)
     flag.write_text(dt.datetime.now().isoformat(timespec="seconds"), encoding="utf-8")
     return "已推"

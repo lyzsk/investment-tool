@@ -1466,6 +1466,64 @@
     "chain": "4508c3f27bc5",
     "distill": "e7dee20f8ba2"
    }
+  },
+  {
+   "v": 37,
+   "id": "v037_20261030-0801",
+   "ts": "2026-10-30T08:01:03",
+   "effective_from": "2026-10-30T08:00:13",
+   "unit": "skill",
+   "version_hash": "3a35133c34fa88de8e6beea02f7c738223b0ea81ad850742d34c5768099a20d9",
+   "cat_hash": {
+    "提示词": "fa2dc20479d2fe2e969235d7037d152a0e8390d31de101cfeccfaac7ea7252c1",
+    "数据": "8e9ad0f2d044300c616e4586afd7386879ab91bdfffd14ad363577c3bb701f83",
+    "画像": "e9a0be8d7f85f57048a0dd763f120181fa98e18cc1a93bfac55cb8698de15556"
+   },
+   "data_hash": "29b448a1dd1ff18ac1084bdf64160673715fd724604af1973a7f54fa903730cf",
+   "parent": "v036_20261029-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/cases_index.md",
+     "persona/fingerprint.md",
+     "persona/profile.md",
+     "persona/profile_index.md",
+     "persona/rule_log.md",
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md",
+     "persona/profile.md",
+     "persona/rule_log.md",
+     "persona/rules.md"
+    ],
+    "数据": [
+     "persona/cases_index.md",
+     "persona/fingerprint.md",
+     "persona/profile_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [
+    "persona/case_log/2026-10.md",
+    "persona/case_log/index.md",
+    "persona/cases_auto.jsonl"
+   ],
+   "lines": {
+    "added": 196,
+    "removed": 117
+   },
+   "bytes_weight": 247244,
+   "why": "check-md 2026-10-29 08:01",
+   "code": {
+    "chain": "4508c3f27bc5",
+    "distill": "6131bf68145a"
+   }
   }
  ],
  "events": [],

@@ -1272,6 +1272,90 @@
     "chain": "2c2f34ea95bc",
     "distill": "9376596daa44"
    }
+  },
+  {
+   "v": 32,
+   "id": "v032_20261029-1916",
+   "ts": "2026-10-29T19:16:52",
+   "effective_from": "2026-10-29T19:16:33",
+   "unit": "skill",
+   "version_hash": "e6c30a4e9caa76f555c8b443e99ddd4e260d9365930f618fb4fbb274188d557e",
+   "cat_hash": {
+    "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+    "数据": "0ff7a6a7bdb704daebe2d621ebdf30799f0616decc4998ca107d561970fc74de",
+    "画像": "5dbb8feda38b586ce7160faabfa326f1e66af47de7b8a205ab844272f005dd0a"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v031_20261029-0800",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases_index.md",
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ],
+    "画像": [
+     "persona/rules.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 17,
+    "removed": 17
+   },
+   "bytes_weight": 9515,
+   "why": "check-md 2026-10-29 19:16",
+   "code": {
+    "chain": "2c2f34ea95bc",
+    "distill": "9376596daa44"
+   }
+  },
+  {
+   "v": 33,
+   "id": "v033_20261030-0801",
+   "ts": "2026-10-30T08:01:03",
+   "effective_from": "2026-10-30T08:00:52",
+   "unit": "skill",
+   "version_hash": "0a6ab89ce1903a2a016ea0984054df2e65fa4b2fa6dfb61d24d7346ca1b95e9b",
+   "cat_hash": {
+    "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+    "数据": "3a55d2493feec0476dbfbfff31351c4c75c44080ea6b2f077f29550a43169c91",
+    "画像": "5dbb8feda38b586ce7160faabfa326f1e66af47de7b8a205ab844272f005dd0a"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v032_20261029-1916",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 2
+   },
+   "bytes_weight": 9515,
+   "why": "check-md 2026-10-29 08:01",
+   "code": {
+    "chain": "2c2f34ea95bc",
+    "distill": "68603e19e09c"
+   }
   }
  ],
  "events": [],

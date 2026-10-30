@@ -168,7 +168,7 @@ def keep_of(D):
     return set([x for x in s.get("premarket") or [] if x not in MS.UPS][:int(v or 0)])
 
 
-REPO_CODES = ("SZRQ88", "GC001", "204001", "131810")   # 逆回购 / 国标准券 = 现金, 不算仓位
+REPO_CODES = ("SZRQ88", "GC001", "204001", "131810", "888880", "131990")   # 逆回购 / 国标准券 = 现金, 不算仓位; 10/29: 补 888880 新标准券(刘忆青 10/29 58% 被当仓位 → 缩放算成 99.9%)/ 131990 标准券(悟到空方)
 
 
 def mentor_pos_pct(skill, D):
@@ -176,11 +176,11 @@ def mentor_pos_pct(skill, D):
     10/25 用户: live line 起点持仓按你的真实持仓结构、但总仓位等比例缩放到导师的仓位(防"仓位不同 → 走不同分支"的歧义)"""
     import manual_backfill as mb
     c = mb.db().cursor()
-    c.execute("select date(record_time), stock_code, payload_json from investment_tool.tzzb_record where record_type='position_snap' and is_deleted=0 and ledger=%s "
+    c.execute("select date(record_time), stock_code, payload_json, stock_name from investment_tool.tzzb_record where record_type='position_snap' and is_deleted=0 and ledger=%s "
               "and record_time < %s and record_time >= date_sub(%s, interval 40 day) order by record_time", (skill, D, D))
     by = {}
-    for d, code, pj in c.fetchall():
-        if str(code) in REPO_CODES:
+    for d, code, pj, nm in c.fetchall():
+        if str(code) in REPO_CODES or any(w in str(nm or "") for w in ("标准券", "逆回购", "回购")):   # 10/29: 名字兜底, 新出现的回购代码不再漏
             by.setdefault(str(d), 0.0)
             continue
         try:
