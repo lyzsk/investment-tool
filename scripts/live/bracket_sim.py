@@ -96,6 +96,10 @@ def _gate_ok(g, P, j):
         return bool(P.n_open[j] >= g.get("n", 2))
     if t == "time":
         return j >= R.hm2k(g["at"])
+    if t == "time_low_vol":
+        return j >= R.hm2k(g["at"]) and P.vr[j] <= g.get("vr", 0.8)
+    if t == "low_vol":
+        return P.vr[j] <= g.get("vr", 0.8)
     if t == "price":
         return bool(P.C[j] >= g["px"]) if g.get("op", ">=") == ">=" else bool(P.C[j] <= g["px"])
     raise ValueError(f"未知 gate {t}")

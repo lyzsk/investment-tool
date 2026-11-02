@@ -114,6 +114,13 @@ def brief(D, top=5):
     return L if rows else [f"投资账本推荐: 今天没有过门槛的({o.get('门槛')})"]
 
 
+def push(D, top=5):
+    """T−1独立推送，避免候选混在check md长总结里被忽略。"""
+    sys.path.insert(0, str(ROOT / "scripts" / "hermes"))
+    import wx_send
+    return wx_send.send("\n".join(brief(D, top)), src="mentor_candidates", raw=True, wait=120)
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -121,11 +128,14 @@ def main():
     ap.add_argument("--date", default=dt.date.today().isoformat())
     ap.add_argument("--refresh", action="store_true")
     ap.add_argument("--top", type=int, default=10)
+    ap.add_argument("--push", action="store_true", help="独立推送当天候选到微信")
     a = ap.parse_args()
     if a.refresh:
         print(refresh())
     _, md = build(a.date, a.top)
     print(md)
+    if a.push:
+        print(push(a.date, min(a.top, 5)))
 
 
 if __name__ == "__main__":

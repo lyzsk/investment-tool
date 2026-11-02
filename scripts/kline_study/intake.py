@@ -398,7 +398,11 @@ def intake(paths, code, end=None, note="", redo=False, out_day=None):
     for p in paths:
         p = Path(p)
         img = Image.open(p).convert("RGB")
-        ty = chart_type(img)
+        try:
+            import ocr_shot as OS   # 统一用新版 OCR tab 识别，避免固定像素把日K误判成月K
+            ty = OS.parse(p).get("类型") or chart_type(img)
+        except Exception:
+            ty = chart_type(img)
         last = None
         if ty == "日K" and end:   # 看图的人 / OCR 横轴已经确认最右一根就不再猜
             last = end

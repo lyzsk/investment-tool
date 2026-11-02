@@ -1,0 +1,8 @@
+{
+  "default_days": 5,
+  "min_days": 5,
+  "max_days": 20,
+  "adaptive": false,
+  "recency_weight": "linear",
+  "note": "近期先固定5日；未来按市况/形态完整度在5~20日滑动。权重仅表示阅读顺序，不是预测权重。"
+}

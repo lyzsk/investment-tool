@@ -83,6 +83,8 @@ LHB_BACKFILL_UNTIL = "06:40"   # 06:40 后不开新的一天(单日 ≤20s), 07:
 
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 import mentors as _MENTORS  # noqa: E402  10/17 导师登记表(唯一真源; scripts/lib 已在 sys.path)
+sys.path.insert(0, str(ROOT / "scripts" / "tzzb"))
+import check_md_mentors as CM  # noqa: E402  10/31 用户人工白名单，仅控制 tzzb sum+distill
 UPS = [(m, "#### " + _MENTORS.get(m)["name"]) for m in _MENTORS.ids("UP")]   # 10/17: 原写死三 UP, 改读登记表(顺序同)
 sys.path.insert(0, str(ROOT / "scripts" / "backfill_bilibili"))
 LOG_FH = None
@@ -413,6 +415,7 @@ def step_up(c, b):
 # ---------- ④ tzzb sum: 硬数据层(零 token, 每轮覆盖) + 推测层(LLM, 有硬数据且无【推测】的才补) ----------
 def step_tzzb_sum(c):
     ledgers = json.loads((ROOT / "scripts" / "tzzb" / "tzzb_ledgers.json").read_text(encoding="utf-8"))
+    ledgers = CM.filter_enabled(ledgers)   # 10/31 用户白名单；暂停者保留为样例/负样本，不更新sum+distill
     if not c.md.exists():
         return "未就绪(当日 md 不存在)"
     # 10/17 A13: 先按导师登记表补齐 + 排序同花顺小节(模板里不再需要写死导师名; 无数据写占位), 再按小节生成
@@ -634,6 +637,7 @@ def tzzb_has_data(c):
     if c.tzzb_has_data is not None:
         return c.tzzb_has_data
     ledgers = json.loads((ROOT / "scripts" / "tzzb" / "tzzb_ledgers.json").read_text(encoding="utf-8"))
+    ledgers = CM.filter_enabled(ledgers)   # 10/31 用户白名单；暂停者保留为样例/负样本，不更新sum+distill
     heads = {re.sub(r"\s+", "", m.group(1)) for m in re.finditer(r"^#### (.+)$", c.md_text(), re.M)}
     got = []
     for L in ledgers:
@@ -660,7 +664,7 @@ def step_tzzb_distill(c, state, morning):
     if not c.can_llm():
         return "跳过(过截止)"
     if c.dry:
-        return f"dry: 将跑 distill_daily(全部 11 人; 完成时记有数据名单 {tzzb_has_data(c)})"
+        return f"dry: 将跑 distill_daily(白名单内当日有数据者; 完成时记名单 {tzzb_has_data(c)})"
     has = tzzb_has_data(c)     # 先取名单再蒸馏: 蒸馏期间晚到的账本不在名单里, 下一轮会被当新增补上(宁可多补一次不漏)
     # 10/17 晚用户定: 当天没报单(账本没有当天记录 = md 小节无硬数据)的导师不调模型; 报了单但持仓不动 / 空仓无操作的照常蒸馏(分析他为什么拿着)
     if not has:
@@ -814,15 +818,16 @@ def push_summary(d, summary, rv, hj):
         L.append(f"- 复活 {x['name']}: 账本恢复更新(最新净值 {x['nav'][5:]}, 停更时停在 {x['was'][4:6]}-{x['was'][6:]}); 明天盘前选人按近 20 日收益重新判")
     if rv.get("stale_all"):
         L.append(f"- 停更中: {'、'.join(rv['stale_all'])}")
-    try:   # 10/27 晚用户: 投资账本推荐(近20日 ≥x% 且日均 ≥y%)也和 check md 总结一起发
-        sys.path.insert(0, str(ROOT / "scripts" / "tzzb"))
-        import candidates_daily as CD
-        L += CD.brief(d.isoformat(), top=5)
     except Exception as e:   # noqa: BLE001
         L.append(f"- 投资账本推荐: 算失败({type(e).__name__})")
     sys.path.insert(0, str(ROOT / "scripts" / "hermes"))
     import wx_send
     wx_send.send("\n".join(L), src="check_md_summary", wait=300, verbose=False)
+    try:
+        import candidates_daily as CD
+        CD.push(d.isoformat(), top=5)   # 候选独立一条，避免混在长总结里被忽略
+    except Exception as e:   # noqa: BLE001
+        log(f"[candidates_push] 失败 {e!r}")
     st["summary_pushed"] = d.isoformat()
     sf.write_text(json.dumps(st, ensure_ascii=False, indent=1), encoding="utf-8")
 

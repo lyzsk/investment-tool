@@ -1,7 +1,7 @@
-# profile_index.md — zjwzlclf 导师画像目录(链改造 F; 生成于 2026-10-30 04:50)
-> 源: skills/zjwzlclf-skill/persona/profile.md sha12=db648f83fac8 · 121 行 · 17.6KB · 16 节(超长节按行切片≤6KB)
+# profile_index.md — zjwzlclf 导师画像目录(链改造 F; 生成于 2026-10-30 19:18)
+> 源: skills/zjwzlclf-skill/persona/profile.md sha12=b4e3ba64003e · 128 行 · 18.3KB · 17 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: --no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill zjwzlclf`(未变节复用标注)
+> 标注来源: 复用旧标注, 原标注=--no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill zjwzlclf`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 2.3KB / 03 3.5KB / 04 9.2KB / 05 5.2KB / 06 8.7KB
 
 ## 核心摘要
@@ -30,3 +30,4 @@
 | S14 | 【盘中节奏】（10/17 深度蒸馏） | 盘中节奏：首笔小、同票向下阶梯加、多票换股与熟票底仓做T | L98-107 | 3.0 | 04,06 | 1 | e24870be |
 | S15 | 10-26 数据缺口(2026-10-30 蒸馏) | (未标注: --no-llm) | L109-112 | 0.4 | — | 3 | 91913e7d |
 | S16 | 10-27 当日行为(原始腿档补出; 2026-10-30 蒸馏) | (未标注: --no-llm) | L114-119 | 0.9 | — | 3 | 27625315 |
+| S17 | 10-29 当日行为(2026-10-30 蒸馏) | (未标注: --no-llm) | L122-127 | 0.7 | — | 3 | c328e456 |

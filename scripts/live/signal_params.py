@@ -76,7 +76,9 @@ def build(D, sig_fn=None):
     cache = MKT / D / "signal_params.json"
     if cache.exists():
         try:
-            return json.loads(cache.read_text(encoding="utf-8"))
+            old = json.loads(cache.read_text(encoding="utf-8"))
+            if (old.get("_global") or {}).get("_schema") == 2:
+                return old
         except ValueError:
             pass
     out = {}
@@ -103,8 +105,9 @@ def build(D, sig_fn=None):
                     s7[str(r["code"])].append((max(p[:30]) / p[0] - 1) * 100)
     pool7 = [x for v in s7.values() for x in v]
     g7 = _q(pool7, 0.8) or 6.0
-    # S6: 竞价 09:20 后变动
+    # S6/S16~S18: 09:20 后竞价路径；抢筹/低吸用抬高分布，抢跑/高抛用压低分布
     s6 = collections.defaultdict(list)
+    s16, s17, s18 = collections.defaultdict(list), collections.defaultdict(list), collections.defaultdict(list)
     for f in sorted(MKT.glob("20*/auction_live_open.json")):
         if f.parent.name >= D:
             continue
@@ -114,15 +117,28 @@ def build(D, sig_fn=None):
             continue
         for s, v in (j.get("symbols") or {}).items():
             if isinstance(v, dict) and v.get("d_after920") is not None:
-                s6[s[2:]].append(float(v["d_after920"]))
+                code, change = s[2:], float(v["d_after920"])
+                s6[code].append(change)
+                if change > 0:
+                    s17[code].append(change)
+                elif change < 0:
+                    s16[code].append(-change)
+                    s18[code].append(-change)
     pool6 = [x for v in s6.values() for x in v if x > 0]
+    pool16 = [x for v in s16.values() for x in v]
+    pool17 = [x for v in s17.values() for x in v]
+    pool18 = [x for v in s18.values() for x in v]
     g6 = max(1.0, _q(pool6, 0.9) or 3.0)
+    g16 = max(1.0, _q(pool16, 0.9) or 3.0)
+    g17 = max(1.0, _q(pool17, 0.9) or 3.0)
+    g18 = max(1.0, _q(pool18, 0.9) or 3.0)
     durs, drops, bdays = board_stats(D)
     n_open = min(60, max(6, _q(durs, 0.25) or 6))
     drop = min(0.8, max(0.3, st.median(drops) if drops else 0.5))
-    out["_global"] = {"σ5中位": round(smed, 5), "k": {n: round(v, 3) for n, v in k.items()}, "S7_X_pool": round(g7, 2), "S6_UP_pool": round(g6, 2),
+    out["_global"] = {"_schema": 2, "σ5中位": round(smed, 5), "k": {n: round(v, 3) for n, v in k.items()}, "S7_X_pool": round(g7, 2), "S6_UP_pool": round(g6, 2),
+                      "S16_DOWN_pool": round(g16, 2), "S17_REBOUND_pool": round(g17, 2), "S18_DROP_pool": round(g18, 2),
                       "S4a_N秒": n_open, "S4b_DROP": round(drop, 2), "开板样本": len(durs), "回封样本": len(drops), "盘口天": bdays, "S6天数": len({f.parent.name for f in MKT.glob('20*/auction_live_open.json')})}
-    for c in set(sig) | set(s7) | set(s6):
+    for c in set(sig) | set(s7) | set(s6) | set(s16) | set(s17) | set(s18):
         d = {}
         sg = sig.get(c)
         if sg:
@@ -132,6 +148,9 @@ def build(D, sig_fn=None):
             d["S7_X"] = round(_q(s7[c], 0.8), 2)
         if len([x for x in s6.get(c, []) if x > 0]) >= 8:
             d["S6_UP"] = round(max(1.0, _q([x for x in s6[c] if x > 0], 0.9)), 2)
+        for key, rows in (("S16_DOWN", s16), ("S17_REBOUND", s17), ("S18_DROP", s18)):
+            if len(rows.get(c, [])) >= 8:
+                d[key] = round(max(1.0, _q(rows[c], 0.9)), 2)
         if d:
             out[c] = d
     try:

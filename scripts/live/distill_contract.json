@@ -1,0 +1,15 @@
+{
+  "contract_version": "1.1",
+  "required": ["id", "owner", "version", "context_id", "trigger", "action", "evidence", "relations", "confidence", "epistemic", "review"],
+  "relations": ["supports", "refines", "conflicts", "restructures"],
+  "review_states": ["candidate", "active", "watch", "rejected", "restructured"],
+  "epistemic_states": ["verified", "candidate", "prior"],
+  "verified_requirements": ["n>0", "0<=hit_rate<=1", "source=mechanical", "as_of", "evidence"],
+  "citation_gate": "chain04/chain06/live/signal 只能引用 epistemic.status=verified 且通过机械校验的知识；无标记、候选、纯先验一律不得引用",
+  "distill_output_rule": "模型蒸馏只能标 candidate 或 prior；verified 只能由机械核销聚合产生，active 必须已核销",
+  "context_dimensions": "周期阶段/题材/字辈/位置/竞价表现/票型只接受 dimensions.json 的机械生成值，不接受模型自由描述",
+  "evidence_min_items": 1,
+  "required_relation_fields": ["type", "target"],
+  "time_rule": "available_at 不得晚于决策时刻；target_start/target_end 可空，支持盘后、跨日、未来猜想",
+  "failure_policy": "结构、维度或认识论标记不通过 -> 进入观察池，不允许 chain 反复回炉"
+}

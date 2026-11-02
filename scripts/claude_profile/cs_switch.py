@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""claude_profile/cs_switch.py — 上下班切交互 CLI 的配置(10/29 用户令; 计划任务 08:30 → gravitex / 18:30 → kimi-code, 经 cs_switch.vbs 无窗口启动)
+"""claude_profile/cs_switch.py — 交互 CLI 的 Kimi 配置(10/30 用户令: gravitex 全面禁用, 只允许自己的 kimi-code 订阅 / kimi-api 按量 key)
 
 用户实测: CLI 运行中改 settings.json 会生效, 但要在同一个 CLI 里再打一次 /model 选模型。所以:
   ① 等 CLI 空闲: 最近一轮已经答完(会话 jsonl 最后一条是 turn_duration / 没有正在写的回复)且 2 分钟内没有新写入; 最多等 WAIT_MAX 分钟,
@@ -7,7 +7,7 @@
   ② cs.mjs set <配置>(改 settings.json)
   ③ 往交互 CLI 注入 `/model <模型>`(cli_inject 的 AttachConsole 打字 + 单独回车), 模型 = 该配置的 ANTHROPIC_MODEL
 后台 claude -p 不受影响: 它们每个进程开跑时按 rotation 选一次配置(--settings 叠加, 不读 settings.json 默认), 跑完前不会中途换
-用法: python cs_switch.py [auto | gravitex | kimi-code] [--dry]   (auto = 交易日 08:30~18:30 gravitex, 其余 kimi-code; 计划任务用 auto)
+用法: python cs_switch.py [auto | kimi-code] [--dry]   (auto 也永远指向 kimi-code; gravitex 参数直接拒绝)
 """
 import argparse
 import base64
@@ -126,9 +126,8 @@ def trade_day(d):
 
 
 def want(now=None):
-    """10/29 晚用户令: 交易日 08:30~18:30 → gravitex(Sonnet 5.5), 其余时间 → kimi 订阅(kimi-code; 撞窗口由 kimi 切换器换 kimi-api)"""
-    now = now or dt.datetime.now()
-    return "gravitex" if trade_day(now.date()) and "08:30" <= now.strftime("%H:%M") < "18:30" else "kimi-code"
+    """10/30 用户令: 全天只允许自己的 Kimi key; 原工作日 08:30~18:30 gravitex 规则作废。"""
+    return "kimi-code"
 
 
 def current_family():
@@ -170,13 +169,18 @@ def stop_kimi_switcher():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("profile", nargs="?", default="auto", help="auto(按时段定) | gravitex | kimi-code")
+    ap.add_argument("profile", nargs="?", default="auto", help="auto / kimi-code(只允许自己的 Kimi key; gravitex 直接拒绝)")
     ap.add_argument("--wait-max", type=int, default=30)
     ap.add_argument("--dry", action="store_true")
     ap.add_argument("--interrupt", action="store_true", help="先 Esc 终止 CLI 正在做的事再切; 默认不切任务, CLI 忙也能 /model")
     a = ap.parse_args()
     target = want() if a.profile == "auto" else a.profile
-    fam = "gravitex" if target.startswith("gravitex") else "kimi"
+    if target.startswith("gravitex"):
+        msg = "拒绝切换: 10/30 用户令 gravitex 全面禁用, 只允许自己的 kimi-code 订阅 / kimi-api 按量 key"
+        log(msg)
+        print(msg)
+        return 2
+    fam = "kimi"
     cur = current_family()
     m = model_of(target)
     log(f"[{a.profile}] 目标 {target}({m}), 当前 settings = {cur}" + (" [dry]" if a.dry else ""))

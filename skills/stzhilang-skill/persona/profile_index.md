@@ -1,7 +1,7 @@
-# profile_index.md — stzhilang 导师画像目录(链改造 F; 生成于 2026-10-30 03:38)
-> 源: skills/stzhilang-skill/persona/profile.md sha12=e30d6e11f60e · 190 行 · 19.8KB · 26 节(超长节按行切片≤6KB)
+# profile_index.md — stzhilang 导师画像目录(链改造 F; 生成于 2026-10-30 19:13)
+> 源: skills/stzhilang-skill/persona/profile.md sha12=e860b7831bb4 · 208 行 · 21.8KB · 28 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: --no-llm: 10 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill stzhilang`(未变节复用标注)
+> 标注来源: 复用旧标注, 原标注=--no-llm: 2 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill stzhilang`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 3.8KB / 03 3.9KB / 04 9.0KB / 05 3.7KB / 06 10.3KB
 
 ## 核心摘要
@@ -68,4 +68,6 @@
 | S23 | 10-22 当日行为(硬数据锚点) | 10-22 锚点：T+1 不卖反在成本下加仓至 53.3%，偏离常态 | L161-167 | 0.8 | 05,06 | 1 | 0f049298 |
 | S24 | 10-23 当日行为(硬数据锚点) | 10-23 锚点：越过摊薄成本即清仓，等回本式卖出后卖飞 4.2% | L169-175 | 0.9 | 05,06 | 1 | f4d3befe |
 | S25 | 10-26 当日行为(硬数据锚点) | (未标注: --no-llm) | L177-181 | 0.7 | — | 3 | 50cc2819 |
-| S26 | 10-28 当日行为(硬数据锚点) | (未标注: --no-llm) | L183-189 | 0.8 | — | 3 | cfcd80ab |
+| S26 | 10-27 当日行为(硬数据锚点) | (未标注: --no-llm) | L183-190 | 1.2 | — | 3 | 0b1e1ff7 |
+| S27 | 10-28 当日行为(硬数据锚点) | (未标注: --no-llm) | L192-198 | 0.8 | — | 3 | cfcd80ab |
+| S28 | 10-29 当日行为(硬数据锚点) | (未标注: --no-llm) | L200-206 | 1.0 | — | 3 | d4fddeab |

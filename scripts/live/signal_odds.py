@@ -23,6 +23,7 @@ import signals as SG   # noqa: E402
 MKT = ROOT / "downloads" / "market"
 OUT = ROOT / "results" / "_live"
 TGTS = (1, 2, 3, 5)   # 同时记几个目标的盈利率, 门槛目标用 --tgt / chain_flags SIG_ODDS_TGT
+SELL_SIGS = {"S16", "S18", "S20"}   # 抢跑/高抛/首次跌停候选是风险信号：命中 = 之后跌到 -TGT
 
 
 def next_day(D):
@@ -34,13 +35,33 @@ def day_hi(D):
     out = {}
     if not D:
         return out
-    for l in (MKT / D / "kline_day.jsonl").open(encoding="utf-8"):
-        try:
-            r = json.loads(l)
-            out[r["symbol"][-6:]] = (float(r["high"]), float(r["close"]))
-        except (ValueError, KeyError, TypeError):
-            continue
+    with (MKT / D / "kline_day.jsonl").open(encoding="utf-8") as fh:
+        for l in fh:
+            try:
+                r = json.loads(l)
+                sym, code = r["symbol"], r["symbol"][-6:]
+                expected = ("sh" if code.startswith(("6", "5", "11")) else "bj" if code.startswith(("4", "8")) else "sz") + code
+                if sym != expected:   # 指数与股票后六位可相同：sh000010 不得覆盖 sz000010
+                    continue
+                out[code] = (float(r["high"]), float(r["close"]), float(r["low"]))
+            except (ValueError, KeyError, TypeError):
+                continue
     return out
+
+
+def row_bucket():
+    return {"n": 0, "win": 0, "ret": 0.0, "rets": [], **{f"w{g:g}": 0 for g in TGTS}}
+
+
+def add_score(rows, key, px, extreme, cl, sell, tgt):
+    """同一计分器服务信号和基准；sell=True 时收益=规避后续下跌。"""
+    z = rows[key]
+    z["n"] += 1
+    z["win"] += int(extreme <= px * (1 - tgt / 100) if sell else extreme >= px * (1 + tgt / 100))
+    z["ret"] += ((px / cl - 1) if sell else (cl / px - 1)) * 100
+    z["rets"].append(((px / cl - 1) if sell else (cl / px - 1)) * 100)
+    for g in TGTS:
+        z[f"w{g:g}"] += int(extreme <= px * (1 - g / 100) if sell else extreme >= px * (1 + g / 100))
 
 
 def one(D, tgt):
@@ -61,22 +82,23 @@ def one(D, tgt):
             last[c] = p
     nd = next_day(D)
     hi = day_hi(nd)
-    rows = defaultdict(lambda: {"n": 0, "win": 0, "ret": 0.0, **{f"w{g:g}": 0 for g in TGTS}})
+    rows = defaultdict(row_bucket)
     for e in evs:
         c, px = e["code"], float(e["px"] or 0)
         if px <= 0:
             continue
+        sell = e["sig"] in SELL_SIGS
         if c[:2] in ("11", "12"):
             after = [p for t, p in mx.get(c, []) if t > e["t"]]
             if not after:
                 continue
-            top, ret = max(after), (last[c] / px - 1) * 100
+            extreme, cl = (min(after) if sell else max(after)), last[c]
             k = "cb"
         else:
             if c not in hi:
                 continue
-            top, cl = hi[c]
-            ret = (cl / px - 1) * 100
+            top, cl, low = hi[c]
+            extreme = low if sell else top
             k = "stock"
         ix = SG.idx_now(D, e["t"])   # "上证 +0.52% / 创业板 …" → 分「上证此刻红 / 绿」两组(10/28 用户: 期望要分情况, 不能一个信号一个数)
         try:
@@ -84,12 +106,35 @@ def one(D, tgt):
         except (IndexError, ValueError):
             bk = None
         for kk in [f"{e['sig']}|{k}"] + ([f"{e['sig']}|{k}|{bk}"] if bk else []):
-            z = rows[kk]
-            z["n"] += 1
-            z["win"] += int(top >= px * (1 + tgt / 100))
-            z["ret"] += ret
-            for g in TGTS:
-                z[f"w{g:g}"] += int(top >= px * (1 + g / 100))
+            add_score(rows, kk, px, extreme, cl, sell, tgt)
+    # 同日、同 3 秒盘口池、同 09:25 起点的全量竞价基准；用于消融“只是当天整体强/弱”
+    af = MKT / D / "auction_live_open.json"
+    if af.exists():
+        try:
+            symbols = (json.loads(af.read_text(encoding="utf-8")).get("symbols") or {})
+        except ValueError:
+            symbols = {}
+        for sym, s in symbols.items():
+            c = sym[2:]
+            if c not in det.st:
+                continue
+            px = float((s.get("fin") or {}).get("px") or 0)
+            if px <= 0:
+                continue
+            cb = c[:2] in ("11", "12")
+            if cb:
+                after = [p for _, p in mx.get(c, [])]
+                if not after:
+                    continue
+                high, low, cl = max(after), min(after), last[c]
+                k = "cb"
+            else:
+                if c not in hi:
+                    continue
+                high, cl, low = hi[c]
+                k = "stock"
+            add_score(rows, f"BASE_AUCTION_BUY|{k}", px, high, cl, False, tgt)
+            add_score(rows, f"BASE_AUCTION_SELL|{k}", px, low, cl, True, tgt)
     return {"D": D, "next": nd, "rows": dict(rows)}
 
 
@@ -101,9 +146,20 @@ def merge(files, tgt):
         days.append(d["D"])
         for k, v in d["rows"].items():
             for kk, vv in v.items():
-                tot[k][kk] += vv
-    rows = {k: {"n": int(v["n"]), "win": round(v["win"] / v["n"], 4) if v["n"] else None, "avg_close": round(v["ret"] / v["n"], 3) if v["n"] else None,
-                **{f"win{g:g}": round(v.get(f"w{g:g}", 0) / v["n"], 4) for g in TGTS if v["n"]}} for k, v in tot.items()}
+                if kk == "rets":
+                    if not isinstance(tot[k][kk], list):
+                        tot[k][kk] = []
+                    tot[k][kk].extend(vv)
+                else:
+                    tot[k][kk] += vv
+    def stats(v):
+        xs = sorted(v.get("rets") or [])
+        q = lambda p: round(xs[int(p * (len(xs) - 1))], 3) if xs else None
+        return {"n": int(v["n"]), "win": round(v["win"] / v["n"], 4) if v["n"] else None,
+                "avg_close": round(v["ret"] / v["n"], 3) if v["n"] else None,
+                "median": q(.5), "p10": q(.1), "p90": q(.9), "best": q(1), "worst": q(0),
+                **{f"win{g:g}": round(v.get(f"w{g:g}", 0) / v["n"], 4) for g in TGTS if v["n"]}}
+    rows = {k: stats(v) for k, v in tot.items()}
     res = {"tgt": tgt, "days": sorted(days), "built": dt.datetime.now().isoformat(timespec="seconds"), "rows": dict(sorted(rows.items()))}
     (OUT / "signal_odds.json").write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
     return res
@@ -126,4 +182,7 @@ if __name__ == "__main__":
         r = merge(a.merge or sorted(str(p) for p in (OUT / "_odds").glob("20*.json")), a.tgt)
         print(f"天: {r['days']}  目标 +{r['tgt']}%")
         for k, v in r["rows"].items():
-            print(f"  {k:10s} n={v['n']:5d}  " + "  ".join(f"+{g}% {v.get(f'win{g}', 0) * 100:5.1f}%" for g in TGTS) + f"  收盘卖均值 {v['avg_close']:+.2f}%")
+            sell = k.startswith(("S16|", "S18|", "S20|", "BASE_AUCTION_SELL|"))
+            sign = "−" if sell else "+"
+            tail = "规避收益均值" if sell else "收盘卖均值"
+            print(f"  {k:22s} n={v['n']:5d}  " + "  ".join(f"{sign}{g}% {v.get(f'win{g}', 0) * 100:5.1f}%" for g in TGTS) + f"  {tail} {v['avg_close']:+.2f}% 中位 {v['median']:+.2f}% P10 {v['p10']:+.2f}% P90 {v['p90']:+.2f}% 最差 {v['worst']:+.2f}%")

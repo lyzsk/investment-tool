@@ -1,0 +1,51 @@
+{
+  "version": "1.0",
+  "fields": {
+    "cycle_stage": {
+      "title": "周期阶段",
+      "values": ["首日", "发酵", "高潮", "分歧", "退潮", "修复", "冰点", "震荡", "断档", "无数据"],
+      "source": "downloads/market/<D>/mood.jsonl + theme_phase.py",
+      "generator": "mechanical"
+    },
+    "theme": {
+      "title": "题材",
+      "source": "mood.jsonl:up / topology.jsonl:main",
+      "generator": "mechanical_source_canonical",
+      "dynamic_values": true,
+      "forbidden_free_text": ["主线归属", "同市况", "百字辈退潮"]
+    },
+    "zibei": {
+      "title": "字辈及阶段",
+      "source": "results/_live/<D>/watch_seed.json",
+      "generator": "mechanical",
+      "stage_values": ["首日", "发酵", "高潮", "分歧", "退潮", "修复", "冰点", "震荡", "断档", "无数据"]
+    },
+    "position": {
+      "title": "位置",
+      "values": ["1板", "2板", "3板", "4板+", "断板", "非板", "无数据"],
+      "source": "mood.jsonl:up + watch_seed.json:tags",
+      "generator": "mechanical"
+    },
+    "auction": {
+      "title": "竞价表现",
+      "values": ["竞价抢筹", "竞价抢跑", "竞价低吸", "竞价高抛", "高开", "低开", "平开", "无数据"],
+      "source": "downloads/market/<D>/auction_live_open.json",
+      "generator": "mechanical"
+    },
+    "pattern": {
+      "title": "票型",
+      "values": ["连板中", "首板", "断板", "趋势", "转强候选", "转债", "ETF", "普通", "无数据"],
+      "source": "code + position",
+      "generator": "mechanical"
+    }
+  },
+  "zibei_stage_rules": {
+    "首日": "当前出现且此前3日未出现",
+    "高潮": "lift>=2 且 sync3/n>=0.6",
+    "发酵": "n>前3日中位 且 excess>0",
+    "退潮": "n<前3日中位 且 excess<0",
+    "分歧": "excess<0 或 sync3/n<0.4",
+    "修复": "前一日退潮且当日n增加、excess>0",
+    "震荡": "其余有数据状态"
+  }
+}

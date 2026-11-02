@@ -1,7 +1,7 @@
-# profile_index.md — anlizhuohuo 导师画像目录(链改造 F; 生成于 2026-10-30 04:53)
+# profile_index.md — anlizhuohuo 导师画像目录(链改造 F; 生成于 2026-10-30 19:21)
 > 源: skills/anlizhuohuo-skill/persona/profile.md sha12=5f0844ca23fb · 159 行 · 21.5KB · 20 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: --no-llm: 2 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill anlizhuohuo`(未变节复用标注)
+> 标注来源: 复用旧标注, 原标注=--no-llm: 2 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill anlizhuohuo`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 2.4KB / 03 0.0KB / 04 10.1KB / 05 12.2KB / 06 12.1KB
 
 ## 核心摘要

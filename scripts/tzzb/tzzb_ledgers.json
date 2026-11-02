@@ -78,7 +78,7 @@
         "note": "10/14 用户手贴个人分享"
       }
     ],
-    "view_checked_at": "2026-10-28T07:18:32.241Z",
+    "view_checked_at": "2026-11-01T07:12:42.238Z",
     "views_tried": [
       {
         "key": "joonDP3",
@@ -115,7 +115,7 @@
     "cluster": null,
     "circle": "光通信/消费电子元件链的图腾熟票单票梭哈",
     "online": "2026-10-08",
-    "view_checked_at": "2026-10-29T07:19:43.951Z"
+    "view_checked_at": "2026-11-01T07:14:20.543Z"
   },
   {
     "ledger": "xingjianye",
@@ -170,7 +170,7 @@
     "cluster": "两融高杠杆",
     "circle": "创业板题材的核心底仓+卫星快轮(两融满仓习惯)",
     "online": "2026-10-08",
-    "view_checked_at": "2026-10-29T07:24:36.127Z"
+    "view_checked_at": "2026-11-01T07:15:37.953Z"
   },
   {
     "ledger": "stzhilang",
@@ -200,7 +200,7 @@
     "rank_rate_pct": 2.5635,
     "entered": "2025-12-12",
     "key": "yNkQm2X",
-    "view_checked_at": "2026-10-29T07:27:16.467Z",
+    "view_checked_at": "2026-11-01T07:18:40.297Z",
     "type": "tzzb",
     "display": "冲5000w",
     "book": "A-chong5000w",
@@ -230,7 +230,7 @@
     "cluster": "两融高杠杆",
     "circle": "AI/算力创业板高弹性的融资重仓+底仓高频 T",
     "online": "2026-10-16",
-    "view_checked_at": "2026-10-29T07:28:41.422Z"
+    "view_checked_at": "2026-11-01T07:20:01.990Z"
   },
   {
     "ledger": "zhiyingjuexin",
@@ -269,7 +269,7 @@
     "rank_rate_pct": -0.9489,
     "entered": "2025-09-30",
     "key": "yNkQm2X",
-    "view_checked_at": "2026-10-29T07:56:59.209Z",
+    "view_checked_at": "2026-11-01T07:33:54.936Z",
     "type": "tzzb"
   },
   {
@@ -282,7 +282,8 @@
     "rank_rate_pct": -0.5665,
     "entered": "2026-05-06",
     "key": "yNkQm2X",
-    "type": "tzzb"
+    "type": "tzzb",
+    "view_checked_at": "2026-10-30T07:51:59.769Z"
   },
   {
     "ledger": "huweigang",
@@ -419,7 +420,7 @@
     "cluster": null,
     "circle": "哑铃型: 满仓 2 只, 底仓长拿 + 卫星快进快出, 主板为主",
     "online": "2026-10-19",
-    "view_checked_at": "2026-10-26T08:05:53.925Z",
+    "view_checked_at": "2026-11-01T07:40:42.617Z",
     "views_tried": [
       {
         "key": "XfDymq2",
@@ -448,7 +449,7 @@
     "cluster": null,
     "circle": "单票满仓做主板连板接力: 一次只拿 1 只, 隔日了结, 午后和尾盘出手多",
     "online": "2026-10-19",
-    "view_checked_at": "2026-10-26T08:06:58.667Z",
+    "view_checked_at": "2026-11-01T07:41:56.803Z",
     "views_tried": [
       {
         "key": "NwYK3nj",

@@ -1356,6 +1356,290 @@
     "chain": "2c2f34ea95bc",
     "distill": "68603e19e09c"
    }
+  },
+  {
+   "v": 34,
+   "id": "v034_20261030-1955",
+   "ts": "2026-10-30T19:55:30",
+   "effective_from": "2026-10-30T19:53:48",
+   "unit": "skill",
+   "version_hash": "ec71f834f826fa36d20d1b4e51c5d61439bb02e478d394102aea465286f287b2",
+   "cat_hash": {
+    "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+    "数据": "3bc233782e61366b6570282885ff98bceb8fbca45d6334fffb785ecff5df2f6d",
+    "画像": "558ea41649b96fcaae06947df73baab6da80a0a52cde4234332639783ac8fb43"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v033_20261030-0801",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases_index.md",
+     "persona/rules.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ],
+    "画像": [
+     "persona/rules.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 17,
+    "removed": 17
+   },
+   "bytes_weight": 9515,
+   "why": "check-md 2026-10-30 19:55",
+   "code": {
+    "chain": "2c2f34ea95bc",
+    "distill": "68603e19e09c"
+   }
+  },
+  {
+   "v": 35,
+   "id": "v035_20261030-2119",
+   "ts": "2026-10-30T21:19:50",
+   "effective_from": "2026-10-30T21:19:40",
+   "unit": "skill",
+   "version_hash": "77886280aa24491779adaa1594eb9b9c52a016c9a4df3852ab8a750aed7c1a19",
+   "cat_hash": {
+    "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+    "数据": "d51ab76311879d4251fc56a901e130178691436eb99fa416a48413f3b7ed1641",
+    "画像": "558ea41649b96fcaae06947df73baab6da80a0a52cde4234332639783ac8fb43"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v034_20261030-1955",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 2
+   },
+   "bytes_weight": 9515,
+   "why": "check-md 2026-10-30 21:19",
+   "code": {
+    "chain": "2c2f34ea95bc",
+    "distill": "68603e19e09c"
+   }
+  },
+  {
+   "v": 36,
+   "id": "v036_20261030-2214",
+   "ts": "2026-10-30T22:14:05",
+   "effective_from": "2026-10-30T22:13:47",
+   "unit": "skill",
+   "version_hash": "68f337ae6f3b5aaf67460ea8cd0d748a08073002e7ba6aff0a55ca3aeaa309a5",
+   "cat_hash": {
+    "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+    "数据": "19081011e8f7eef3aa113a12ad43680c71fd14aa77ba22b79532381813e0132f",
+    "画像": "558ea41649b96fcaae06947df73baab6da80a0a52cde4234332639783ac8fb43"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v035_20261030-2119",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 2
+   },
+   "bytes_weight": 9515,
+   "why": "check-md 2026-10-30 22:14",
+   "code": {
+    "chain": "2c2f34ea95bc",
+    "distill": "68603e19e09c"
+   }
+  },
+  {
+   "v": 37,
+   "id": "v037_20261030-2310",
+   "ts": "2026-10-30T23:10:40",
+   "effective_from": "2026-10-30T23:10:30",
+   "unit": "skill",
+   "version_hash": "ffd03097d06520e2489631d2c3b2fb45270977045d5b2ba2bb18e2b67f2754d4",
+   "cat_hash": {
+    "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+    "数据": "0555ad8ac548aff0d09033c8bd602e6a5574b2ab05337eff63eb91796e369862",
+    "画像": "558ea41649b96fcaae06947df73baab6da80a0a52cde4234332639783ac8fb43"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v036_20261030-2214",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 2
+   },
+   "bytes_weight": 9515,
+   "why": "check-md 2026-10-30 23:10",
+   "code": {
+    "chain": "2c2f34ea95bc",
+    "distill": "68603e19e09c"
+   }
+  },
+  {
+   "v": 38,
+   "id": "v038_20261031-0126",
+   "ts": "2026-10-31T01:26:15",
+   "effective_from": "2026-10-31T01:26:05",
+   "unit": "skill",
+   "version_hash": "dc7ee11e1ed1bb50990446f41d875a26ad9cd111e44ca3a7a818d7f8128e9ad9",
+   "cat_hash": {
+    "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+    "数据": "bef7bd7400fde41f3ccf607fd51aea097dda5622b711b56787143368a85eafc5",
+    "画像": "558ea41649b96fcaae06947df73baab6da80a0a52cde4234332639783ac8fb43"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v037_20261030-2310",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 2
+   },
+   "bytes_weight": 9515,
+   "why": "check-md 2026-10-30 01:26",
+   "code": {
+    "chain": "2c2f34ea95bc",
+    "distill": "68603e19e09c"
+   }
+  },
+  {
+   "v": 39,
+   "id": "v039_20261101-0001",
+   "ts": "2026-11-01T00:01:19",
+   "effective_from": "2026-11-01T00:01:09",
+   "unit": "skill",
+   "version_hash": "6c1de1fad7667797dbb7d266f5971af25fce7f4a4bdcc1d200bc56c78af49a62",
+   "cat_hash": {
+    "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+    "数据": "78562a23aec6186a742d4ab8f7a9a7d11cda990a7ac15136ce74ac22e1d0d08b",
+    "画像": "558ea41649b96fcaae06947df73baab6da80a0a52cde4234332639783ac8fb43"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v038_20261031-0126",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 2
+   },
+   "bytes_weight": 9515,
+   "why": "check-md 2026-10-30 00:01",
+   "code": {
+    "chain": "4227be897d09",
+    "distill": "92e53f6f16d5"
+   }
+  },
+  {
+   "v": 40,
+   "id": "v040_20261102-0001",
+   "ts": "2026-11-02T00:01:32",
+   "effective_from": "2026-11-02T00:01:22",
+   "unit": "skill",
+   "version_hash": "a45fe71be3c8ab6f3af16e9dd62eb64c9968686b690255625cf58474e42e3444",
+   "cat_hash": {
+    "提示词": "2bc154a851107a30d76d5e07f90a4e53fa0391fc319cb8a9be6ba2fcbb33f4e3",
+    "数据": "820b6fac7143adc629d53b24c12ba7e3cd9f69e61e20f6cd347cfe62186b326c",
+    "画像": "558ea41649b96fcaae06947df73baab6da80a0a52cde4234332639783ac8fb43"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v039_20261101-0001",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "数据": [
+     "persona/cases_index.md",
+     "persona/rules_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 2,
+    "removed": 2
+   },
+   "bytes_weight": 9515,
+   "why": "check-md 2026-10-30 00:01",
+   "code": {
+    "chain": "4227be897d09",
+    "distill": "92e53f6f16d5"
+   }
   }
  ],
  "events": [],

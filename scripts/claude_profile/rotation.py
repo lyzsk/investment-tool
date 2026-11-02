@@ -29,6 +29,14 @@ def _find_cs():
 
 CS = _find_cs()
 ROT_FILE, STATE, USE_LOG = HERE / "rotation.txt", HERE / ".rotation_state.json", HERE / "profile_log.csv"
+# 10/31 用户批: 生产环境唯一 key 管理器 = key-switcher/auto-switcher-kimi；rotation.txt 写 off 后本项目不再选/切 key。
+OFF = ROT_FILE.exists() and any(l.strip() == "off" for l in ROT_FILE.read_text(encoding="utf-8").splitlines())
+
+
+def rotation_off():
+    return OFF or os.environ.get("CLAUDE_ROT_MODE", "").strip() == "off"
+
+
 # 10/15: rotation.txt 里写一行 follow-settings 就开启"跟随本机默认"(首选=用户 cs 切的那套; 撞额度窗口再按名单往后切)
 COOLDOWN_S = 5 * 3600
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)
@@ -154,7 +162,7 @@ def profiles():
     if not ROT_FILE.exists():
         return []
     raw = ROT_FILE.read_text(encoding="utf-8")
-    return [p.strip() for line in raw.splitlines() if not line.strip().startswith("#") for p in line.split(",") if p.strip() and p.strip() not in ("follow-settings", "manual-switch")]
+    return [p.strip() for line in raw.splitlines() if not line.strip().startswith("#") for p in line.split(",") if p.strip() and p.strip() not in ("off", "follow-settings", "manual-switch")]
 
 
 def _state():
@@ -196,12 +204,14 @@ _settings_cache = {}
 
 def current_profile():
     ps = profiles()
-    if not ps:
-        return None
-    # 10/17 晚: 环境变量 CLAUDE_PROFILE_PIN=<配置名> 钉死一套(沙盒 A/B 要求全程同一个模型, 不跟你中途切 settings; 撞窗口也不换, 由调用方等)
+    # 显式测试 pin 仍可固定一套配置，但 on_window_limit() 在 off 下也绝不轮换；生产调用不设 pin。
     pin = os.environ.get("CLAUDE_PROFILE_PIN")
     if pin and pin in ps:
         return pin
+    if rotation_off():
+        return None   # 统一跟随 auto-switcher-kimi 管理的默认 settings
+    if not ps:
+        return None
     if kimi_mode():   # 10/29: 订阅优先, 撞窗口烧 token, 探测恢复切回
         return _kimi_pick()
     if BALANCE:   # 10/20: 本进程第一次调用时按欠额选一把, 之后一直用它(撞窗口时 on_window_limit 换)
@@ -253,7 +263,9 @@ def settings_args():
 
 
 def on_window_limit(err=""):
-    """当前配置撞额度窗口: 记耗尽并切到下一套可用的; 全部耗尽返回 False; err = 报错原文(kimi 模式用来分 5 小时 / 7 天)"""
+    """当前配置撞额度窗口: 记耗尽并切到下一套可用的; 全部耗尽返回 False; off 模式由 auto-switcher-kimi 处理, 本项目绝不自行换 key"""
+    if rotation_off():
+        return False
     ps = profiles()
     if not ps:
         return False
@@ -314,12 +326,13 @@ def on_window_limit(err=""):
 
 
 def log_use(tag):
-    """每次调用记一笔 用了哪套配置(事后判断某天是否混用模型)"""
+    """每次调用记一笔实际跟随的配置；off 下向 key-switcher 查询默认身份，不写 settings。"""
     new = not USE_LOG.exists()
+    profile = current_profile() or _settings_profile() or "default"
     with USE_LOG.open("a", encoding="utf-8") as f:
         if new:
             f.write("time,profile,tag\n")
-        f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S},{current_profile() or 'default'},{tag}\n")
+        f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S},{profile},{tag}\n")
 
 
 # ---------- 10/16 用户立法(TODO §2-19): API 400 自动切回 gravitex key ----------

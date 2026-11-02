@@ -209,6 +209,6 @@ OLD_PAPER_SETTLE=0   # 10/27 晚用户令: 旧 paper(A 线账本)每天 15:05 �
 OLD_PAPER_MATCH=0   # 10/27 23:0x 用户令: 旧 paper 盘中撮合 matcher --once 停(Java paperMatchHandler 照常调, 脚本直接返回); 1=恢复
 AUCTION_PUSH=1   # 10/28: 09:25:45 竞价结果推送(scripts/live/auction_push.py; signals.py 里调, 一天一次); 0=关
 MORNING_KLINE=1   # 10/28: 盘前首跑收尾 → 持仓 K 线预测(scen_v2) + 主情景图 + 明日预案要点推微信(scripts/kline_study/morning_push.py); 0=关
-LIVE_ROT_MODE=   # 10/29 凌晨用户令「暂时先不切」: 空 = 白天照 rotation.txt(gravitex balance); kimi = 订阅 kimi-code 优先撞窗口换 kimi-api。夜间 18:30~08:30 是否走 kimi 看 rotation.txt 的 kimi-night 行
+LIVE_ROT_MODE=off   # 10/30 用户令: live line 不允许任何项目内 key 切换; off = 不用 rotation.txt / 不叠加 --settings, 统一跟随 C:/Users/admin/dev/dev-notes/others/key-switcher 下 auto-switcher-kimi 管理的默认 settings(只允许自己的 kimi-code 订阅 / kimi-api 按量 key, gravitex 禁用)
 LIVE_HARD_MAX_VERSIONS=30   # 10/29 凌晨(切 kimi 烧 token): 每条线每天总版本数硬上限(含必判; 首版 / 尾盘版不算); 10/28 刘忆青 68 版 / 芷影 67 / 桃哥 61; 0 = 不限
-LIVE_MODEL=claude-sonnet-5-5   # 10/29 凌晨用户令: 实盘线统一用 Sonnet 5.5(总控设 CLAUDE_MODEL_OVERRIDE → claude -p --model); 空 = 用配置自带模型(gravitex 是 Opus 5.5)
+LIVE_MODEL=   # 10/30 用户令: live line 模型 / key 都跟随 auto-switcher-kimi 管理的默认 settings, 不再由总控覆盖; 非空 = CLAUDE_MODEL_OVERRIDE(目前禁用)

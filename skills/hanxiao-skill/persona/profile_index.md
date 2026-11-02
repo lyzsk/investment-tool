@@ -1,7 +1,7 @@
-# profile_index.md — hanxiao 导师画像目录(链改造 F; 生成于 2026-10-30 04:30)
-> 源: skills/hanxiao-skill/persona/profile.md sha12=9b0d68b788ac · 139 行 · 22.7KB · 17 节(超长节按行切片≤6KB)
+# profile_index.md — hanxiao 导师画像目录(链改造 F; 生成于 2026-10-31 01:24)
+> 源: skills/hanxiao-skill/persona/profile.md sha12=759a8006357a · 151 行 · 24.1KB · 19 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: --no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill hanxiao`(未变节复用标注)
+> 标注来源: 复用旧标注, 原标注=--no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill hanxiao`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 2.6KB / 03 5.1KB / 04 11.7KB / 05 6.8KB / 06 13.4KB
 
 ## 核心摘要
@@ -55,3 +55,5 @@
 | S15 | 【T法】（10/18 深度蒸馏） | T法: 核心票底仓先买后卖约+1.3%, 按振幅定挂单参数 | L116-127 | 3.5 | 04,06 | 2 | 2738c0ef |
 | S16 | 10-26 账户状态(硬数据锚点; 2026-10-30 蒸馏) | (未标注: --no-llm) | L129-133 | 0.7 | — | 3 | 878eec27 |
 | S17 | 10-27 账户状态(源缺; 2026-10-30 蒸馏) | (未标注: --no-llm) | L135-138 | 0.4 | — | 3 | fe58c5f4 |
+| S18 | 10-29 账户状态(2026-10-30 蒸馏) | (未标注: --no-llm) | L140-144 | 0.6 | — | 3 | e700e4f2 |
+| S19 | 10-30 账户状态(2026-10-31 蒸馏) | (未标注: --no-llm) | L146-150 | 0.7 | — | 3 | 9c735ba1 |

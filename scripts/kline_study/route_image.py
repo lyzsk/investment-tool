@@ -10,6 +10,7 @@
 """
 import argparse
 import datetime as dt
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -46,7 +47,17 @@ def main():
         p = Path(f)
         kind, o = classify(p)
         d = dest[kind]
-        out = d / p.name
+        if kind == "K线图":   # 10/31 用户定: yyyy.mm.dd/股票代码-股票名-K线类型；同型多张追加哈希，禁止覆盖
+            code = o.get("code") or "未知"
+            nm = re.sub(r'[<>:"/\\|?*]', "_", str(o.get("name") or code)).strip() or code
+            ty = str(o.get("类型") or "未知").replace("/", "_")
+            out = d / f"{code}-{nm}-{ty}{p.suffix.lower()}"
+            if out.exists():
+                import hashlib
+                if hashlib.sha1(p.read_bytes()).hexdigest() != hashlib.sha1(out.read_bytes()).hexdigest():
+                    out = d / f"{code}-{nm}-{ty}-{hashlib.sha1(p.read_bytes()).hexdigest()[:8]}{p.suffix.lower()}"
+        else:
+            out = d / p.name
         if not a.dry:
             d.mkdir(parents=True, exist_ok=True)
             shutil.copy2(p, out)

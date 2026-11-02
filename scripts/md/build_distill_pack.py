@@ -191,12 +191,25 @@ def build(skill, d):
     else:
         L.append("(profile_index.md 缺失)")
     L.append("")
-    # 10/19 用户定: "paper 和导师为什么偏离" 直接在蒸馏里消费(不另存报告) —— 读 fingerprint.md 的 AUTO:paper偏离 块(paper_vs_real.py 每晚写)
+    # ⑥ 公共情境与跨skill证据：统一从知识底座取，不让每个模块另拼一套
+    try:
+        sys.path.insert(0, str(ROOT / "scripts" / "knowledge"))
+        from context_pack import knowledge_section
+        from store import KnowledgeStore
+        store = KnowledgeStore(ROOT / "downloads" / "ontology" / "ontology.db")
+        for code in st:
+            extra = knowledge_section(store, code, f"{d}T23:59:59")
+            if extra:
+                L += ["", extra, ""]
+        store.close()
+    except Exception:
+        pass
+    # ⑦ paper 链 vs 本人 偏离
     try:
         fpt = (ROOT / "skills" / f"{skill}-skill" / "persona" / "fingerprint.md").read_text(encoding="utf-8")
         m = re.search(r"<!-- AUTO:paper偏离 -->([\s\S]*?)<!-- /AUTO:paper偏离 -->", fpt)
         if m:
-            L += ["## ⑥ paper 链 vs 本人 偏离(看'看见没选'和'仓位差'两类: 这是规则 / 画像要改进的地方; '看不见'是候选池问题, 不要为它改规则)", "", m.group(1).strip(), ""]
+            L += ["## ⑦ paper 链 vs 本人 偏离(看'看见没选'和'仓位差'两类: 这是规则 / 画像要改进的地方; '看不见'是候选池问题, 不要为它改规则)", "", m.group(1).strip(), ""]
     except OSError:
         pass
     out = OUT / d / f"{skill}.md"

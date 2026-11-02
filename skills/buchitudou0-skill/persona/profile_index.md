@@ -1,7 +1,7 @@
-# profile_index.md — buchitudou0 导师画像目录(链改造 F; 生成于 2026-10-30 04:28)
-> 源: skills/buchitudou0-skill/persona/profile.md sha12=4324f094e970 · 159 行 · 19.7KB · 19 节(超长节按行切片≤6KB)
+# profile_index.md — buchitudou0 导师画像目录(链改造 F; 生成于 2026-10-30 18:57)
+> 源: skills/buchitudou0-skill/persona/profile.md sha12=d8053bf64fca · 166 行 · 20.6KB · 20 节(超长节按行切片≤6KB)
 > 用途: 链驱动器开 `CHAIN_PROFILE_INDEX=1` 时, 按当前步把「适用步骤」含本步的节原文机械拼进 prompt(按 节+sha8 在当前 profile.md 重新定位, 改过的节跳过+告警); 其余节模型按行号补读。默认关闭=不读本文件。
-> 标注来源: --no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill buchitudou0`(未变节复用标注)
+> 标注来源: 复用旧标注, 原标注=--no-llm: 1 节未标注(只按需补读); 节划分/行号/KB/sha8=机械。重跑: `scripts/venv/Scripts/python.exe -X utf8 scripts/md/gen_profile_index.py --skill buchitudou0`(未变节复用标注)
 > 各步注入量(全部适用节原文合计, 驱动器另有单步上限): 02 2.2KB / 03 7.6KB / 04 10.7KB / 05 4.0KB / 06 12.3KB
 
 ## 核心摘要
@@ -77,3 +77,4 @@
 | S17 | 【市况应对】 | 市况应对：月度优势衰减、8月停手、大盘不是开关，含成因分布 | L132-137 | 1.4 | 02,03 | 1 | e476a335 |
 | S18 | 【盘中节奏】 | 盘中节奏：每日笔数、第几笔胜率递减、盈亏不影响继续、同债复做 | L139-146 | 1.4 | 03,05,06 | 1 | 57296680 |
 | S19 | 【T法】（转债 T+0 剥头皮; 他没有底仓 T） | T法：无底仓日内回转的触发/出场/规模/成功率，paper可学边界 | L148-158 | 1.7 | 04,06 | 1 | 1a26ef5a |
+| S20 | 当日行为(2026-10-29) | (未标注: --no-llm) | L160-165 | 1.0 | — | 3 | 9c123a56 |

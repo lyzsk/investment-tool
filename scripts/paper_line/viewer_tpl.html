@@ -262,6 +262,7 @@ function chartSVG(code, b){
   const ys = bars.flatMap(x=>[x[2],x[3]]); let lo = Math.min(...ys), hi = Math.max(...ys);
   const marks = [];
   b.trades.filter(t=>t.code===code).forEach(t => marks.push({t:t.t, px:t.px, side:t.side, who:'paper', tip:`本账 ${t.side==='BUY'?'买':'卖'} ${t.qty}@${t.px} ${t.t}`}));
+  (b.suggestions||[]).filter(t=>t.code===code).forEach(t => marks.push({t:t.t, px:t.px, side:t.side, who:'system', tip:`系统候选(未执行) ${t.side==='BUY'?'买':'卖'} ${t.qty}@${t.px} ${t.t}`}));
   if (SHOW_MENTOR) (DATA.mentor[b.skill]||[]).filter(x=>x[1]===code).forEach(x => marks.push({t:x[0], px:x[4], side:x[3], who:'mentor', tip:`导师真人 ${x[3]==='BUY'?'买':'卖'} ${x[5]}@${x[4]} ${x[0]}`}));
   if (SHOW_USER) DATA.user.filter(x=>x[1]===code).forEach(x => marks.push({t:x[0], px:x[4], side:x[3], who:'user', tip:`你 ${x[3]==='BUY'?'买':'卖'} ${x[5]}@${x[4]} ${x[0]}`}));
   marks.forEach(m => { lo = Math.min(lo, m.px); hi = Math.max(hi, m.px); });
@@ -269,7 +270,7 @@ function chartSVG(code, b){
   const X = i => L + i/240*(W-L-R), Y = p => T + (hi-p)/(hi-lo)*(H-T-Bm);
   const path = bars.map((x,i)=>`${i?'L':'M'}${X(tIdx(x[0])).toFixed(1)},${Y(x[1]).toFixed(1)}`).join('');
   const vlines = b.versions.map(v => { const x = X(tIdx(v.trig.slice(0,5))); return `<line x1="${x}" x2="${x}" y1="${T}" y2="${H-Bm}" stroke="#3b4a7a" stroke-dasharray="2,3"><title>${esc(v.trig+' '+(v.why||''))}</title></line>`; }).join('');
-  const col = {paper:'#5b9bff', mentor:'#f0a03c', user:'#b48cff'};
+  const col = {paper:'#5b9bff', mentor:'#f0a03c', user:'#b48cff', system:'#34d399'};
   const mk = marks.map(m => { const x = X(tIdx(m.t.slice(0,5))), y = Y(m.px), c = col[m.who];
     // 10/25 用户: 买卖点用 B / S 文字(不用三角 / 圆圈), 颜色区分 本账 / 导师真人 / 你; 买在价格点上方、卖在下方, 小圆点标准确位置
     const up = m.side==='BUY', ty = up ? y-6 : y+15;
@@ -282,7 +283,7 @@ function chartSVG(code, b){
 
 function renderBook(b){
   const c = bookCost(b);
-  const codes = [...new Set([...b.trades.map(t=>t.code), ...Object.keys(b.positions), ...(SHOW_MENTOR?(DATA.mentor[b.skill]||[]).map(x=>x[1]):[]), ...b.versions.flatMap(v=>v.orders.map(o=>o.code))])].filter(x=>x && DATA.charts[x]).slice(0, 8);
+  const codes = [...new Set([...b.trades.map(t=>t.code), ...(b.suggestions||[]).map(t=>t.code), ...Object.keys(b.positions), ...(SHOW_MENTOR?(DATA.mentor[b.skill]||[]).map(x=>x[1]):[]), ...b.versions.flatMap(v=>v.orders.map(o=>o.code))])].filter(x=>x && DATA.charts[x]).slice(0, 8);
   const maxT = Math.max(...b.versions.map(v=>v.total||0), 1);
   const rows = b.versions.map((v,i) => {
     const nf = v.orders.filter(o=>o.fate&&o.fate.cat==='成交').length;
@@ -292,7 +293,7 @@ function renderBook(b){
   <div class="card"><h2>${esc(b.name)} <span class="mute small">${b.mode==='plan'?'计划模式':'盯盘模式'}${b.kind==='dt'?' · 决策T':''} · skill ${esc(b.skill)}</span></h2>
    <div>收益 <b class="${b.ret>0?'pos':b.ret<0?'neg':''}">${b.ret==null?'-':b.ret.toFixed(2)+'%'}</b>（${b.nav0??'-'} → ${b.nav1??'-'}） · 触发 ${b.versions.length} 次 · 成交 ${b.trades.length} 笔 · 实际 $${fmt(c.usd,2)} · K3 预估 ¥${fmt(c.k3,1)} · 保温 ${b.keep.length} 次（¥${fmt(sum(b.keep,k=>k.k3),1)}）</div>
    <div class="small mute">收盘持仓：${Object.entries(b.positions).map(([k,p])=>`${p.name||k} ${p.qty}`).join('、')||'空仓'}</div></div>
-  <div class="card"><h2>分时 + 买卖点</h2><div class="legend"><span style="color:#5b9bff"><b>B S</b> 本账(skill)</span><span style="color:#f0a03c"><b>B S</b> 导师真人</span><span style="color:#b48cff"><b>B S</b> 你</span><span class="mute">虚线 = 每次触发（悬停看原因）</span>
+  <div class="card"><h2>分时 + 买卖点</h2><div class="legend"><span style="color:#5b9bff"><b>B S</b> 本账(skill)</span><span style="color:#34d399"><b>B S</b> 系统候选(未执行)</span><span style="color:#f0a03c"><b>B S</b> 导师真人</span><span style="color:#b48cff"><b>B S</b> 你</span><span class="mute">虚线 = 每次触发（悬停看原因）</span>
    <label><input type="checkbox" id="cm" ${SHOW_MENTOR?'checked':''}> 导师</label> <label><input type="checkbox" id="cu" ${SHOW_USER?'checked':''} ${DATA.user.length?'':'disabled'}> 你的实盘</label></div>
    ${codes.map(x=>chartSVG(x,b)).join('') || '<div class="mute">没有相关分时</div>'}</div>
   <div class="card"><h2>每次触发（点一行看每一步的输入输出）</h2><div class="legend">${Object.entries(STEP_COLOR).map(([k,v])=>`<span><span class="tag" style="background:${v}">${k}</span></span>`).join('')}</div>

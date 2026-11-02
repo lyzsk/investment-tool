@@ -884,6 +884,90 @@
     "chain": "e663a1349c0e",
     "distill": "b8213371c97e"
    }
+  },
+  {
+   "v": 19,
+   "id": "v019_20261030-2214",
+   "ts": "2026-10-30T22:14:05",
+   "effective_from": "2026-10-30T22:08:09",
+   "unit": "skill",
+   "version_hash": "e730b92f24e087ec6800264b667f442c75378ab4210c5d0079100cac5ce38333",
+   "cat_hash": {
+    "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+    "数据": "b66a11616e1ac64945e788b13178347eb73515ca4331bbd2655c22e9c4b05913",
+    "画像": "3867889bb26bf7f80cd9a47bb30fe2db097e54f5d7aacb2df596b4f5e32e9847"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v018_20261030-0801",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/kline_cases.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/kline_cases.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 147,
+    "removed": 0
+   },
+   "bytes_weight": 3212277,
+   "why": "check-md 2026-10-30 22:14",
+   "code": {
+    "chain": "e663a1349c0e",
+    "distill": "b8213371c97e"
+   }
+  },
+  {
+   "v": 20,
+   "id": "v020_20261102-0001",
+   "ts": "2026-11-02T00:01:32",
+   "effective_from": "2026-11-02T00:00:43",
+   "unit": "skill",
+   "version_hash": "b724e2a7a34bb712bc43eb4fa9b8fdb0f2be5bd9e9c5d19a7b4fb0c83912bc65",
+   "cat_hash": {
+    "提示词": "0a6061eb1ab871e70ed26e97b3c54675c78c402fde7df3f939e990959320dec9",
+    "数据": "1dae2b1e706fa7b248e8bfab2cdcf77fa556df4e42391122228cc1aba3cba17e",
+    "画像": "a2380202d048223fab0d45c70e6bc75cf96e8eb114513d2cd86b51bdd655b340"
+   },
+   "data_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "parent": "v019_20261030-2214",
+   "changed": {
+    "added": [],
+    "modified": [
+     "persona/cases.md",
+     "persona/cases_index.md",
+     "persona/reading_methods.md",
+     "persona/user_found.md"
+    ],
+    "removed": []
+   },
+   "changed_by_cat": {
+    "画像": [
+     "persona/cases.md",
+     "persona/reading_methods.md",
+     "persona/user_found.md"
+    ],
+    "数据": [
+     "persona/cases_index.md"
+    ]
+   },
+   "data_changed": [],
+   "lines": {
+    "added": 64,
+    "removed": 2
+   },
+   "bytes_weight": 3219190,
+   "why": "check-md 2026-10-30 00:01",
+   "code": {
+    "chain": "b949fea4f731",
+    "distill": "593da2569490"
+   }
   }
  ],
  "events": [],

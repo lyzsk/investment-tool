@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "updated": "2026-10-31",
+  "updated_by": "user",
+  "policy": "on=每日check md sum+distill；sample_paused=保留为样例/负样本但暂停sum+distill；stale_paused=停更暂停，恢复更新后人工复审",
+  "mentors": {
+    "gjieshenqiangshou": {"state": "on", "note": "10/31 用户保留 #1"},
+    "zhiyingjuexin": {"state": "on", "note": "10/31 用户保留 #2"},
+    "liuyiqing": {"state": "on", "note": "10/31 用户保留 #3"},
+    "buchitudou0": {"state": "on", "note": "10/31 用户保留 #4"},
+    "stzhilang": {"state": "on", "note": "10/31 用户保留 #6"},
+    "zuoshoudeirong": {"state": "on", "note": "10/31 用户保留 #7"},
+    "wudaokongfang": {"state": "on", "note": "10/31 用户保留 #8"},
+    "lianghuaxiaohao": {"state": "on", "note": "10/31 用户保留 #12"},
+    "xingjianye": {"state": "on", "note": "10/31 用户保留 #13"},
+    "xuanqiucaijing": {"state": "sample_paused", "note": "保留样例/负样本，暂停sum+distill"},
+    "zjwzlclf": {"state": "sample_paused", "note": "保留样例/负样本，暂停sum+distill"},
+    "meiyuelu": {"state": "sample_paused", "note": "保留样例/负样本，暂停sum+distill"},
+    "antoo": {"state": "sample_paused", "note": "保留样例/负样本，暂停sum+distill"},
+    "ynw01": {"state": "sample_paused", "note": "保留样例/负样本，暂停sum+distill"},
+    "hanxiao": {"state": "sample_paused", "note": "保留样例/负样本，暂停sum+distill"},
+    "anlizhuohuo": {"state": "sample_paused", "note": "保留样例/负样本，暂停sum+distill"},
+    "a658": {"state": "sample_paused", "note": "保留样例/负样本，暂停sum+distill"},
+    "bianbenling": {"state": "sample_paused", "note": "保留样例/负样本，暂停sum+distill"},
+    "gaogailvfuli": {"state": "sample_paused", "note": "保留样例/负样本，暂停sum+distill"},
+    "chong5000w": {"state": "stale_paused", "note": "07-06起停更；恢复更新后人工复审"}
+  }
+}

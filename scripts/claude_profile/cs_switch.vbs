@@ -1,4 +1,4 @@
-' cs_switch.vbs - 10/29 user: 08:30 -> gravitex, 18:30 -> kimi-code; waits for the interactive CLI to be idle, sets settings.json, then types /model into the CLI (no restart)
+' cs_switch.vbs - 10/30 user: Kimi only (gravitex disabled); waits for the interactive CLI to be idle, sets settings.json, then types /model into the CLI (no restart)
 ' usage: wscript //B cs_switch.vbs <profile>
 ' 10/29 晚: 08:30 / 18:30 两次都崩 = cmd 的 >> 重定向占着 cs_switch.log, py 自己再写同一个文件 PermissionError → stdout 改到 cs_switch_stdout.log
 Set sh = CreateObject("WScript.Shell")

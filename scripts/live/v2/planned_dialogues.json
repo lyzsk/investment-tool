@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "prepare": {"time": "08:59:00", "note": "发哥盘前蒸馏后准备；session文件零token，真实base调用另计"},
+  "tasks": [
+    {
+      "id": "0940_taoge_dip",
+      "time": "09:40:00",
+      "skill": "taoge",
+      "code": "AUTO",
+      "question": "准备怎么低吸性价比高的股，博弈次日溢价和今日低吸差价；给候选、条件和失效点",
+      "stage": "auto",
+      "push": true,
+      "enabled": true
+    },
+    {
+      "id": "0924_tudou_cb_pair",
+      "time": "09:24:00",
+      "skill": "buchitudou0",
+      "code": "111024",
+      "compare_codes": ["111012"],
+      "question": "澳弘转债和福新转债怎么看：准备怎么BS，什么条件下BS，引用两只近期妖债联动差异",
+      "stage": "auto",
+      "push": true,
+      "enabled": true
+    },
+    {
+      "id": "0924_liuyiqing_xinhua",
+      "time": "09:24:00",
+      "skill": "liuyiqing",
+      "code": "600785",
+      "question": "新华百货怎么看，准备怎么BS，什么条件下BS",
+      "stage": "auto",
+      "push": true,
+      "enabled": true
+    },
+    {
+      "id": "0931_zhiying_news",
+      "time": "09:31:00",
+      "skill": "zhiyingjuexin",
+      "code": "AUTO",
+      "question": "业绩、涨停分析或消息催化的持续性如何，准备B哪只股；必须区分一日消息和持续主线",
+      "stage": "auto",
+      "push": true,
+      "enabled": true
+    },
+    {
+      "id": "0935_liuyiqing_yang",
+      "time": "09:35:00",
+      "skill": "liuyiqing",
+      "code": "AUTO",
+      "question": "准备怎么操盘yang字辈：哪些股准备怎么BS，核心/跟风和失效条件是什么",
+      "stage": "auto",
+      "push": true,
+      "enabled": true
+    }
+  ]
+}

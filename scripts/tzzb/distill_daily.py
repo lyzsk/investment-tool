@@ -9,11 +9,12 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 import mentors  # noqa: E402  10/17 二B-4: 导师登记表
-ALL_LEDGERS = mentors.active_ids("tzzb")   # tzzb 导师链(含土豆), 顺序=登记表序; 10/18 起去掉退出 paper 的导师(只做零 token 维护)
+import check_md_mentors as CM  # noqa: E402  10/31 check md 白名单；显式 --ledgers 仍可人工历史复核
+ALL_LEDGERS = [x for x in mentors.active_ids("tzzb") if x in CM.enabled_ids()]   # 日常默认只跑白名单，暂停样例不进每日蒸馏
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--date", default=None)
-ap.add_argument("--ledgers", default=None, help="逗号分隔, 只蒸馏这几家(缺省=全部 11 人)")
+ap.add_argument("--ledgers", default=None, help="逗号分隔, 只蒸馏这几家(缺省=check_md_mentors.json 白名单)")
 a = ap.parse_args()
 from datetime import date as _d
 target = a.date or _d.today().isoformat()   # 10/14 修: 原 _d().today() 缺参必崩(只在不传 --date 时触发)

@@ -442,6 +442,31 @@ def exec_buy(q1=50, q2=25, z=0.5, h="60"):
         {"id": "chase", "type": "cond", "qty": 0.5, "ref": "日内最低", "dir": "up", "pct": {"amp_k": z}, "book": "a1"}]}
 
 
+def batch_single_wave(days):
+    """只冲高一次就一路跌：现行 / 两份卖 / 两份卖+时间上限+缩量退出，同窗全分布。"""
+    E = R.RangeEngine()
+    smp = samples(days)
+    two = exec_sell(0.5, trail_k=0.8)
+    timed = dict(two)
+    timed["rules"] = [*two["rules"], {"id": "timeout", "type": "market", "qty": 1.0, "gate": {"type": "time", "at": "10:30"}}]
+    lowvol = dict(two)
+    lowvol["rules"] = [*two["rules"], {"id": "lowvol", "type": "market", "qty": 1.0, "gate": {"type": "time_low_vol", "at": "10:00", "vr": 0.8}}]
+    specs = [("现行: 一半立即 + 一半收盘", {"side": "SELL", "deadline": "14:56", "rules": [{"id": "m", "type": "market", "qty": 0.5}]}),
+             ("两份卖: 首波反弹0.5×振幅 + 移动0.8", two),
+             ("两份卖 + 10:30时间上限", timed),
+             ("两份卖 + 10:00缩量提前结束", lowvol)]
+    res = run_set(smp, specs, "SELL", E, "single_wave")
+    ts = dt.datetime.now().strftime("%m%d_%H%M")
+    (OUT / f"single_wave_{ts}.json").write_text(json.dumps({"days": days, "rows": res}, ensure_ascii=False, default=str), encoding="utf-8")
+    rows = [(nm, summarize(evs, "SELL")) for nm, evs in res.items() if evs]
+    keys = list(rows[0][1].keys()) if rows else []
+    md = [f"## 只冲高一次就一路跌 · n={len(smp)} · 近期窗口 {days[0]}~{days[-1]}(全期仅对照)", "",
+          "| 方案 | " + " | ".join(keys) + " |", "|---|" + "---|" * len(keys)]
+    md += [f"| {nm} | " + " | ".join(str(s_[k]) for k in keys) + " |" for nm, s_ in rows]
+    (OUT / f"single_wave_{ts}.md").write_text(chr(10).join(md), encoding="utf-8")
+    print(chr(10).join(md))
+
+
 def batch_exec(days):
     E = R.RangeEngine()
     smp = samples(days)
@@ -576,6 +601,9 @@ def main():
     elif a.cmd == "exec":
         lo, hi = a.days.split(":")
         batch_exec([d for d in R.trade_days() if lo <= d <= hi])
+    elif a.cmd == "single":
+        lo, hi = a.days.split(":")
+        batch_single_wave([d for d in R.trade_days() if lo <= d <= hi])
     elif a.cmd == "board":
         lo, hi = a.days.split(":")
         batch_board([d for d in R.trade_days() if lo <= d <= hi], reseal="--reseal" in sys.argv)

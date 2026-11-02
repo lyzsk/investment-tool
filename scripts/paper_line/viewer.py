@@ -23,6 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 import line_dirs as LDS   # noqa: E402  10/25 账本目录命名(live_<skill> / paper_<id>)
+from broker_trades import parse_trade_line  # noqa: E402
 sys.path[:0] = [str(ROOT / "scripts" / "backfill_bilibili"), str(Path(__file__).resolve().parent)]
 K3 = {"in": 20.0, "out": 100.0, "cache_read": 2.0, "cache_write": 20.0}   # 元 / 百万 token(用户 10/23 晚给的价)
 FILES = ["00_boot_msg.md", "00_trigger_msg.md", "01_facts.md", "01.md", "02.md", "02.json", "03_ask.md", "03.md", "03.json", "03_bull.md", "03_bear.md", "04_ask.md", "04.md", "04.json",
@@ -143,7 +144,10 @@ def book(bdir, line):
 
 def charts(D, codes):
     out = {}
-    for l in (ROOT / "downloads" / "market" / D / "kline_minute.jsonl").open(encoding="utf-8"):
+    f = ROOT / "downloads" / "market" / D / "kline_minute.jsonl"
+    if not f.exists():   # 非交易日也允许看咨询/复盘，不伪造分时
+        return out
+    for l in f.open(encoding="utf-8"):
         x = json.loads(l)
         c = x.get("symbol", "")[2:]
         if c in codes:
@@ -188,11 +192,9 @@ def user_trades(D):
     out = []
     for f in (ROOT / "scripts" / "dfcf" / "snapshots").glob(f"{D}_成交_*.txt"):
         for l in f.read_text(encoding="utf-8").splitlines():
-            m = re.match(r"(\d\d:\d\d:\d\d)(?:~\d\d)? (\d{6}) (\S+) (买|卖) (\S+) ([\d.]+)", l)
-            if m and m.group(2) != "204001":
-                g = m.group(5)
-                q = int(g.split("(=")[1].rstrip(")")) if "(=" in g else int(g)
-                out.append([m.group(1), m.group(2), m.group(3), "BUY" if m.group(4) == "买" else "SELL", float(m.group(6)), q])
+            row = parse_trade_line(l)
+            if row:
+                out.append(list(row))
     return sorted(out)
 
 

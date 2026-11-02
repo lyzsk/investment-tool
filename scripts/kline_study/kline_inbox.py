@@ -108,7 +108,7 @@ def scan(day, force=False, manual=None):
     for name, g in st["images"].items():   # 原图被定时任务删了: 只记一笔, 案例不受影响
         if not (src / name).exists() and not g.get("原图已删"):
             g["原图已删"] = now()
-    todo = [p for p in files if (st["images"].get(p.name) or {}).get("收件") is None or (manual and p.name in manual)]
+    todo = [p for p in files if force or (st["images"].get(p.name) or {}).get("收件") is None or (manual and p.name in manual)]
     if not todo:
         save_st(day, st)
         return st
@@ -144,7 +144,7 @@ def scan(day, force=False, manual=None):
         groups.setdefault((code, end), []).append(p)
     for (code, end), ps in groups.items():
         try:
-            case = I.intake([str(p) for p in ps], code, end, out_day=day)
+            case = I.intake([str(p) for p in ps], code, end, out_day=day, redo=force)
             for p in ps:
                 g = st["images"][p.name]
                 g.update({"收件": now(), "case": case["key"], "导师核销至": case.get("导师核销至")})
@@ -201,13 +201,36 @@ def pa_load(code, end):
         return None, None, repr(e)[:200]
 
 
-def _intra_axis(g, x):
+def _intra_axis(g, x, shot=None):
     """分时 / 五日图的价格轴(OCR axis → 原图坐标); 对不上返回 (None, 原因)
     0% 对应价以库为准(10/26: 五日图顶部刻度被光标价格框盖住时 OCR 反推的 0% 会偏, 北新路桥五日 2.934 实为 2.98):
       分时 = 截止日昨收; 五日 = 5 日窗口前一天收盘(截止日往前第 6 根日线)。OCR 和库差 >2%(分时)/ >3%(五日)= 认错图或叠加了别的, 不画"""
     ax = (g.get("ocr") or {}).get("axis")
     if (g.get("类型") or "") not in ("分时", "五日"):
         return None, None
+    if not ax and shot is not None:
+        try:
+            import ocr_shot as OS
+            o = OS.parse(shot)
+            W, H = o["W"], o["H"]
+            F = x["事实"]
+            base = F["昨收"]
+            if g["类型"] == "五日":
+                R = I.daily_rows(x["code"], x["截止日"], 6)
+                if len(R) == 6 and R[-1][0] == x["截止日"] and R[0][4]:
+                    base = R[0][4]
+            # 左侧上下价格标签 + 库里的 0% 价反推轴；用于 %666 / %666- 这类百分比误识别
+            nums = [(xx, yy, float(t)) for xx, yy, t in o.get("texts") or []
+                    if xx < W * 0.15 and H * 0.30 < yy < H * 0.72 and OS.NUM.match(t)]
+            if len(nums) >= 2 and base:
+                top, bot = min(nums, key=lambda z: z[1]), max(nums, key=lambda z: z[1])
+                tp, bp = abs(top[2] / base - 1) * 100, abs(bot[2] / base - 1) * 100
+                if tp > 0.05 and bp > 0.05 and top[1] < bot[1]:
+                    zero = top[1] + (bot[1] - top[1]) * tp / (tp + bp)
+                    return {"top": top[1], "zero": zero, "bot": bot[1], "pmax": tp, "base": base,
+                            "ocr_base": base, "day_w": 249 if g["类型"] == "五日" else 300}, None
+        except Exception:
+            pass
     if not ax or not ax.get("base"):
         return None, "OCR 没认出价格轴"
     F = x["事实"]
@@ -285,7 +308,7 @@ def predict(day, force=False):
                     outs, C1, how, serr = _draw(INBOX / day / n, "daily", code, v2, od, end, days=days_, pa=pa, pa_md=pa_md)
                     C = C1
                 else:
-                    gg, why = _intra_axis(g, x)
+                    gg, why = _intra_axis(g, x, INBOX / day / n)
                     if not gg:
                         g["预测"] = {"跳过": why or f"图类型 {ty} 不续画", "时间": now()}
                         continue
@@ -335,7 +358,7 @@ def predict_v1(day, st, x, names):
         g["预测"] = {"图": outs, "时间": now(), "引擎": "v1兜底"}
     for n in names:
         g = st["images"][n]
-        gg, why = _intra_axis(g, x)
+        gg, why = _intra_axis(g, x, INBOX / day / n)
         if not gg:
             if why:
                 g["预测"] = {"跳过": why}

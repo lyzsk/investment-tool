@@ -2,7 +2,7 @@
 统一此前 7 个文件各写一套的调用方式(盘点见 docs/TODO.md §0.5 10/12):
   - prompt 一律走 stdin(cmd /c 传 argv 会在首个换行截断 = 10/11 实锤 bug; 原生 exe 传 argv 有 ~32k 命令行上限)
   - 一律 --output-format json, 解析信封: 跳过网关通知行取末个 JSON 行; is_error / subtype(非 success 即失败, 如 error_max_turns)
-  - 额度窗口/限流只在**错误文本**里匹配(\\b429\\b 等严格词), 撞上 → rotation 切下一套 key, 全耗尽等 45min, 有上限
+  - 明确额度窗口交给 auto-switcher-kimi；普通429/overloaded原配置短退避，unrecognized_model直接报错，不换key
   - 哨兵: result 文本里按整行匹配(DISTILL_OK 2026-10-09 等), 可要求必须出现
   - 结构化输出: result 文本末个 ```json(或指定 tag) 代码块 → JSON 解析 → 迷你 JSON Schema 校验(type/required/properties/items/enum/pattern/min*/max*)
   - 副作用核验: expect_files 每个都必须在调用开始后被改过(mtime 新鲜), 防"只回了哨兵没写文件"
@@ -26,8 +26,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 COST_LOG = Path(os.environ.get("CLAUDE_CALL_COST_LOG") or Path(__file__).resolve().parent / "claude_cost.csv")
 _EXE = Path(os.environ.get("APPDATA", "")) / "npm" / "node_modules" / "@anthropic-ai" / "claude-code" / "bin" / "claude.exe"
-WINDOW_RE = re.compile(r"usage limit|5-hour limit|rate.?limit|\b429\b|quota exceeded|overloaded", re.I)
+QUOTA_RE = re.compile(r"usage limit|reached your .{0,30}limit|quota will reset|quota exceeded|kimi\.com/membership|使用上限|额度已用", re.I)
+TRANSIENT_RE = re.compile(r"rate.?limit|\b429\b|overloaded", re.I)
+CONFIG_RE = re.compile(r"unrecognized_model", re.I)
+WINDOW_RE = QUOTA_RE   # 兼容旧导入名；普通429不再算额度窗口
 WINDOW_DEFER_S = 2700
+MANAGER_WAIT_S = 60   # off 模式给 auto-switcher-kimi 完成日志探测和默认配置切换的时间
+TRANSIENT_BACKOFF_S = (5, 15, 45)
 NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 # 10/15 A13①: 精简参数(去动态系统提示段/斜杠命令与 skill 自动加载/MCP), 调用方按需再加 "--tools" 白名单;
 #   提示词里"读 skills/xxx/SKILL.md"是按文件路径读, 不依赖斜杠命令, 不受影响(链驱动器 10/12 起即此口径)
@@ -209,6 +214,7 @@ def call(prompt, *, tag, cwd=ROOT, timeout=1800, permission="acceptEdits", allow
     t_start = time.time()
     res = Result(ok=False)
     n400 = 0   # 10/16 用户立法: 同一请求 API 400 重试 3 次, 3 次都 400 → rotation.on_api400 切 gravitex 再试一次
+    n_transient = 0
     while True:
         args = base + (rot.settings_args() if rot else [])
         if rot:
@@ -253,12 +259,19 @@ def call(prompt, *, tag, cwd=ROOT, timeout=1800, permission="acceptEdits", allow
         if res.is_error and WINDOW_RE.search(err_text) and res.window_waits < max_window_waits:
             res.window_waits += 1
             try:
-                switched = bool(rot) and rot.on_window_limit(err_text)   # 10/29: 传报错原文(kimi 分 5 小时 / 7 天)
+                switched = bool(rot) and rot.on_window_limit(err_text)   # off 下恒 False；切换只由 auto-switcher-kimi 做
             except TypeError:
                 switched = bool(rot) and rot.on_window_limit()
             if switched:
                 continue
-            time.sleep(WINDOW_DEFER_S)
+            managed = bool(rot) and hasattr(rot, "rotation_off") and rot.rotation_off()
+            time.sleep(MANAGER_WAIT_S if managed else WINDOW_DEFER_S)
+            continue
+        if res.is_error and TRANSIENT_RE.search(err_text) and not CONFIG_RE.search(err_text) and n_transient < len(TRANSIENT_BACKOFF_S):
+            delay = TRANSIENT_BACKOFF_S[n_transient]
+            n_transient += 1
+            print(f"⚠ 临时限流/繁忙，原配置 {delay}s 后重试 {n_transient}/{len(TRANSIENT_BACKOFF_S)}，不切 key")
+            time.sleep(delay)
             continue
         break
     if not env_ok:

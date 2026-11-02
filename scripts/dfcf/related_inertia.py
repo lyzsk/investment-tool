@@ -61,6 +61,9 @@ def main():
         v["related"] = [x for x in v["related"] if x.get("kind") not in ("中军", "资金惯性")] + [x for x in add if x["code"] not in have]
         print(h, "中军", anchor["name"], anchor["corr"], "| 资金惯性", [f"{x['name']}(相关{x['corr']} 换手{x['turnover']} 振幅{x['amp']}%)" for x in hot])
     f.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+    dest = ROOT / "results" / "_live" / a.date / "inertia_neighbors.json"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(json.dumps({"date": a.date, "holdings": out["holdings"]}, ensure_ascii=False, indent=1), encoding="utf-8")
     return 0
 
 

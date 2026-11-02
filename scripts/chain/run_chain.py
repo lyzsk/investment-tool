@@ -2526,8 +2526,8 @@ def presnap_codes(run_dir, ctx):
 # ---------- claude -p 调用 + token 台账 ----------
 # 10/11 修 429 误判: 原对 stdout+stderr 全文搜 "429" → 模型正文里的金额(如 42976)命中 → 整链白等 45min
 # (10/9 taoge 0915 链 197min 元凶之一)。现仅在调用失败(非 0 退出或 JSON is_error)时, 查 stderr+错误正文, 且 429 须为独立数字
-WINDOW_RE = re.compile(r"usage limit|5-hour limit|rate.?limit|\b429\b|quota exceeded|overloaded", re.I)
-WINDOW_DEFER_S = 2700                                           # 顺延 45min(10/4 用户: 顺延不跳过)
+from claude_call import QUOTA_RE as WINDOW_RE, TRANSIENT_RE, CONFIG_RE, MANAGER_WAIT_S  # 统一错误分类，普通429不当额度窗口
+WINDOW_DEFER_S = 2700                                           # 非托管旧模式才顺延45min；off 下等 auto-switcher-kimi 60s
 # 10/11 全局并发闸: 跨进程最多 N 个 claude -p 同时跑(9:15 曾 14 链齐发, 额度窗口被瞬间打满); 槽=文件锁, 持有进程死亡即回收
 # 10/12 用户令: 每条链各自串行=一条车道, 15 条链(14 skill+对照)同时各占一条 → 默认 15(6 时 9 条链排队, 0915 拖 2h+)
 # 切回订阅制时 15 并发吃不消: 改 scripts/claude_profile/max_concurrency.txt 一个数字即可(下次链运行生效, 不用重启应用); 环境变量优先
@@ -2669,6 +2669,7 @@ def call_claude(prompt, trace=None, resume=None, fork=False):
     memenv = {**os.environ, "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1"} if NO_AUTOMEMORY else None
     parse = _claude_result if traced else _claude_json
     n400 = 0   # 10/16 用户立法: API 400 同一请求重试 3 次, 3 次都 400 → 切 gravitex key 再试一次(rotation.on_api400)
+    n_transient = 0
     while True:
         slot = _acquire_slot()
         t0 = time.time()
@@ -2710,8 +2711,15 @@ def call_claude(prompt, trace=None, resume=None, fork=False):
         if is_err and WINDOW_RE.search(err_text):
             if rotation.on_window_limit():
                 continue
-            print(f"⚠ API window 限: 顺延 {WINDOW_DEFER_S // 60}min 后重试(欠账留账不跳过, k3 语义; manual-switch 模式下会先等你手动切, 返回后检查你切了没再决定顺延): {err_text[-120:]}")
-            time.sleep(WINDOW_DEFER_S)
+            wait_s = MANAGER_WAIT_S if rotation.rotation_off() else WINDOW_DEFER_S
+            print(f"⚠ API 明确额度窗口: {wait_s}s 后重试；off 模式由 auto-switcher-kimi 统一切换: {err_text[-120:]}")
+            time.sleep(wait_s)
+            continue
+        if is_err and TRANSIENT_RE.search(err_text) and not CONFIG_RE.search(err_text) and n_transient < 3:
+            delay = (5, 15, 45)[n_transient]
+            n_transient += 1
+            print(f"⚠ 临时限流/繁忙，原配置 {delay}s 后重试 {n_transient}/3，不切 key")
+            time.sleep(delay)
             continue
         break
     usage, cost = {}, ""

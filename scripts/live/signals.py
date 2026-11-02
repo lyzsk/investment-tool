@@ -82,10 +82,10 @@ P = {
     "S2_ARM_HOLD": 120,   # 10/25 agent 建议 + 用户批: 待命要在均价线上方(ARM = 2 × 本票带宽)持续这么多交易秒才算
     "S6_MIN_AMT_K": 0.5,  # 10/25: 竞价未匹配买入金额 ≥ 本票平时 1 分钟成交额 × 这个系数(防小票几手单子推高)
     "S5_FROM": "14:25:00", "S5_TO": "14:45:00", "S5_WIN": 600, "S5_UP": 0.015,
-    "S6_UP": 0.03, "S6_BASE_LATE": "09:20:30",
+    "S6_UP": 0.03, "S6_BASE_LATE": "09:20:30", "S16_DOWN": 0.03, "S17_REBOUND": 0.03, "S18_DROP": 0.03, "AUC_FINAL": "09:24:30",
     "S7_X": 6.0, "S7_WIN": 1800,
-    "S4P_SIGMA_K": 1.5, "S4P_NEAR": 0.02, "S4C_GAP": 45, "S4C_GAP_MAX": 240, "FAST_SIGS": ("S1", "S7", "S4p", "S4c", "S4b", "S4a", "S8", "S9", "D1", "D2", "D3", "S10", "S11", "S12", "S13", "D4", "D5", "R1", "S2", "S14", "S15"),   # 10/26 20:0x 用户: S1 / S7 也走快车道; 10/27 S10 翻红拉升
-    "POOL_SIGS": ("S3", "S4a", "S4p", "S4c", "S4b", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "D4", "D5", "D1", "D2", "D3", "S2", "R1", "S14", "S15"), "POOL_DIP_AFTER_ZB": (),   # 10/28 12:2x 用户: 盯盘池出低吸不用过大盘门槛、也不用先炸板(噪声交给统计期望闸 SIG_ODDS)   # 10/26 20:1x 用户"股票推送少": 盘口池里不在盯盘名单的股票(盯盘池)也出 强势 / 板类信号; 低吸只在当天炸过板之后(炸板回踩)
+    "S4P_SIGMA_K": 1.5, "S4P_NEAR": 0.02, "S4C_GAP": 45, "S4C_GAP_MAX": 240, "FAST_SIGS": ("S1", "S7", "S4p", "S4c", "S4b", "S4a", "S8", "S9", "D1", "D2", "D3", "S10", "S11", "S12", "S13", "D4", "D5", "R1", "S2", "S14", "S15", "S16", "S17", "S18", "S19", "S20"),   # 10/26 20:0x 用户: S1 / S7 也走快车道; 10/27 S10 翻红拉升
+    "POOL_SIGS": ("S3", "S4a", "S4p", "S4c", "S4b", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "D4", "D5", "D1", "D2", "D3", "S2", "R1", "S14", "S15", "S16", "S17", "S18", "S19", "S20"), "POOL_DIP_AFTER_ZB": (),   # 10/28 12:2x 用户: 盯盘池出低吸不用过大盘门槛、也不用先炸板(噪声交给统计期望闸 SIG_ODDS)   # 10/26 20:1x 用户"股票推送少": 盘口池里不在盯盘名单的股票(盯盘池)也出 强势 / 板类信号; 低吸只在当天炸过板之后(炸板回踩)
     "PICK_STOCK": (40, 80), "PICK_CB": (15, 30),   # 10/28 12:4x 用户: 盯盘范围扩大(有统计期望闸兜噪声); 原 20~40 / 10~20   # 10/26 晚用户: 盯盘池股票 20~40 / 名单转债 10~20, 只数按盘面活跃度动态(Picker)
     "CD_BASE_MIN": 30, "CD_MAX_MIN": 45, "CD_CODE_N": 3, "CD_CODE_WIN_MIN": 30,   # 10/26 20:0x 用户批动态冷却(只管普通 / 慢通道的推送, signals.jsonl 照记)
     "SLOW_SIGS": (), "S8_NEAR": 0.07, "S8_RANGE": 0.025, "S8_HOLD": 900, "S9_NEAR": 0.01,   # 10/26 用户批 S8 / S9(百洋股份 / 锋龙股份上板方式 U21); 10/28 用户: S2 回踩均价来不及看 → SLOW_SIGS 清空走快车道
@@ -94,11 +94,12 @@ P = {
      "S10_DIP": 0.005, "S10_DIP_AMP_K": 0.15, "S10_EPS": 0.001, "S10_CROSS_WIN": 600, "S10_LOW_WIN": 1500, "S10_RISE_MIN": 0.01, "S10_RISE_K": 0.3, "S10_VOL_WIN": 180, "S10_VOL_K": 2.0, "S10_MAX": 3, "S14_HOLD": 180, "S14_HOLD_MIN": 120, "S14_HOLD_MAX": 600, "S14_MAX": 3,   # 10/29 晚用户: 水下翻水上 / 水上翻水下后企稳各单列(S14 / S15); 企稳时长按本票 σ5 动态
     
      "S11_LOOK": 1800, "S11_BANDS": 3, "S11_Z": 3.0, "S11_REARM": 2, "S11_MAX": 3,   # 10/27 用户: 连续跨越 13 档 3 档(奥普特 10:30); 快慢按本票 σ5 定: 涨幅 / (σ5·√(用时/5分钟)) ≥ 3 才算"连续"(本票少见的快)   # 10/27 晚用户: 绿翻红(尤其放量)是重要反转信号, 转债的正股翻红拉升必须提醒(奥普特 10:30 翻红拉升 → 奥普转债 +5%, 当天没任何提醒)
+     "S1920_WIN": 60, "S1920_NEAR_K": 1.5, "S1920_VOL_K": 2.0, "S1920_START": "09:35:00",   # 11/2 用户: T日首次冲板/跌停候选，预测不是事实
      "WALL_K": 4.0, "WALL_AMT_K": 0.25, "WALL_SEEN": 2, "WALL_AGE": 30, "WALL_KEEP": 600, "WALL_GO_TICKS": 3, "WALL_GO_SIGMA": 0.5, "WALL_GAP": 60, "WALL_FLIP_WIN": 1200, "WALL_NEAR_TICKS": 2, "WALL_MAX": 2, "WALL_START": "09:35:00",   # 10/28 晚用户批: 墙位翻转(大业股份 09:30 17.40 卖 1538 手 → 09:49 被吃穿 → 09:53 同价买一 1290 手托住 = 转强)
      "D1_K": 2.0, "D1_HOLD": 180, "D2_BAND": 0.003, "D2_HOLD": 180, "D3_K": 0.8, "D3_HOLD": 180,   # 10/26 用户批: 低吸信号 D1~D3(银轮转债 10:11 回到开盘价没任何提醒)
     "DEDUP_D_MIN": 90, "DEDUP_MIN": 30, "PUSH_GAP_MIN": 30, "MAX_LINES": 12, "STALE_MIN": 5, "QUOTA_SOFT": 8,   # 10/24 主会话: K 2→3、推送间隔 15→30 分钟(agent 回放: 一天约 7~9 条, 微信额度约 10 条)
 }
-NAMES = {"S1": "急跌后拉起", "S2": "回踩均价线不破", "S3": "二次冲高", "S4a": "炸板", "S4p": "拉回贴近涨停", "S4c": "冲击涨停价", "S4b": "回封动作", "S5": "尾盘拉升", "S6": "竞价抢筹", "S7": "开盘冲高到位", "S8": "蓄势预警", "S9": "午后冲板候选", "D1": "跌破均价后企稳", "D2": "冲高回落到开盘价", "D3": "回撤到振幅位企稳", "S10": "绿翻红拉升", "S11": "连续跨越 13 档 3 档", "S12": "卖墙变买墙", "S13": "买墙变卖墙", "D4": "跌停封单松动", "D5": "跌停撬板", "R1": "指数共振低点", "S14": "水下翻水上企稳", "S15": "水上翻水下企稳"}
+NAMES = {"S1": "急跌后拉起", "S2": "回踩均价线不破", "S3": "二次冲高", "S4a": "炸板", "S4p": "拉回贴近涨停", "S4c": "冲击涨停价", "S4b": "回封动作", "S5": "尾盘拉升", "S6": "竞价抢筹", "S7": "开盘冲高到位", "S8": "蓄势预警", "S9": "午后冲板候选", "D1": "跌破均价后企稳", "D2": "冲高回落到开盘价", "D3": "回撤到振幅位企稳", "S10": "绿翻红拉升", "S11": "连续跨越 13 档 3 档", "S12": "卖墙变买墙", "S13": "买墙变卖墙", "D4": "跌停封单松动", "D5": "跌停撬板", "R1": "指数共振低点", "S14": "水下翻水上企稳", "S15": "水上翻水下企稳", "S16": "竞价抢跑", "S17": "竞价低吸", "S18": "竞价高抛", "S19": "首次冲板候选", "S20": "首次跌停候选", "W1": "决策窗口"}
 MUST_SIGS = ("S10", "S11")   # 10/27 用户"必须提醒": 名单 / 持仓 / 点名里的票(含转债)不受 Picker 名额限制
 DYN = {}   # 10/25 动态参数(signal_params.build; "_global" + 每只票), 启动时 load_dyn(D) 填
 
@@ -143,6 +144,9 @@ def prm(S, name):
         return g["S7_X_pool"]
     if name == "S6_UP" and g.get("S6_UP_pool"):
         return g["S6_UP_pool"] / 100
+    pool_name = {"S16_DOWN": "S16_DOWN_pool", "S17_REBOUND": "S17_REBOUND_pool", "S18_DROP": "S18_DROP_pool"}.get(name)
+    if pool_name and g.get(pool_name):
+        return g[pool_name] / 100
     return P[name]
 
 
@@ -253,6 +257,9 @@ class Meta:
             dp = dict(DYN.get(c) or {})
             if "S6_UP" in dp:
                 dp["S6_UP"] = dp["S6_UP"] / 100   # signal_params 存的是 %
+            for key in ("S16_DOWN", "S17_REBOUND", "S18_DROP"):
+                if key in dp:
+                    dp[key] = dp[key] / 100
             amt1 = None
             amp = None
             try:   # 10/26 D3: 本票近 30 日振幅中位(日线 (高−低)/昨收); 转债没日线文件 → 用 S7_X(开盘 30 分钟冲高 P80)×2 近似
@@ -286,7 +293,7 @@ class Meta:
                             m_["sigma"], m_["sigma_src"] = g_, f"全市场正股σ5中位×{f_:g}"
                     if sm.get("amp30"):
                         m_["amp30"] = sm["amp30"] * f_
-                    for key in ("S2_BAND", "S3_RISE", "S3_PULLBACK", "S7_X", "S6_UP"):
+                    for key in ("S2_BAND", "S3_RISE", "S3_PULLBACK", "S7_X", "S6_UP", "S16_DOWN", "S17_REBOUND", "S18_DROP"):
                         if key in (sm.get("dp") or {}):
                             m_["dp"][key] = sm["dp"][key] * f_
                     m_["stock"], m_["cb_k"] = stk, f_
@@ -363,7 +370,7 @@ def odds_gate(e):
     if not o or o[0] is None:
         e["odds"] = None
         return False
-    e["odds"] = {"p": o[0], "n": o[1], "tgt": o[2]}
+    e["odds"] = {"p": o[0], "n": o[1], "tgt": o[2], "dir": "sell" if e["sig"] in ("S16", "S18", "S20") else "buy"}
     return o[1] >= int(_flag("SIG_ODDS_MIN_N", "10")) and o[0] >= float(_flag("SIG_ODDS_MIN", "0.25"))
 
 
@@ -445,6 +452,7 @@ class St:
         self.s11 = {"w": collections.deque(), "fired_band": None, "n": 0}   # 10/27 跨档: (交易秒, 档序号, 价)
         self.wall = {"ask": {}, "bid": {}, "brk": [], "fired": set(), "n": {"S12": 0, "S13": 0}}   # 10/28 墙位翻转: 候选墙 {价: {cnt, mx, t, x, ref}} / 被穿的墙
         self.s8 = None   # 蓄势: 进入"离涨停 ≤2% 且在均价上方"的起点   # 10/26 低吸 D1~D3 状态
+        self.s1920 = {"aw": collections.deque(), "touched_up": False, "touched_dn": False}   # T日首次冲板/跌停候选
 
 
 class Picker:
@@ -572,6 +580,7 @@ class Detector:
         self._s4(S, ctx, out)   # 10/25: S4a 炸板 + S4b 回封动作
         self._s5(S, ctx, out)
         self._s7(S, ctx, out)
+        self._s1920(S, ctx, out)   # T日首次冲板/跌停候选(预测,不是事实)
         self._dip(S, ctx, out)   # 10/26: 低吸 D1~D3
         self._s89(S, ctx, out)   # 10/26: S8 蓄势预警 / S9 午后冲板候选
         self._s10(S, ctx, out)   # 10/27: 绿翻红拉升(正股翻红 → 同时报它的转债)
@@ -617,17 +626,37 @@ class Detector:
                         S.p20 = (q[0][0], q[0][1])
                 except Exception:   # noqa: BLE001
                     pass
-        if S.p20 is None or "S6" in S.done:
+        if S.p20 is None:
             return
         ub = int(b[1][1]) if len(b) > 1 else 0
         us = int(k[1][1]) if len(k) > 1 else 0
-        up6, amt1 = prm(S, "S6_UP"), S.m.get("amt1")
+        amt1 = S.m.get("amt1")
         min_amt = (amt1 or 0) * P["S6_MIN_AMT_K"]
-        if px >= S.p20[1] * (1 + up6) and ub > us and ub * px >= min_amt:
+        # 抬价/压价时未匹配单会被撮合消化；匹配成交额按 09:20~09:25 五分钟折算，和当前未匹配额取大，仍过本票流动性地板
+        matched_amt = float(b[0][1] or 0) * px / 5
+        bid_amt, ask_amt = max(ub * px, matched_amt), max(us * px, matched_amt)
+        change = px / S.p20[1] - 1
+        pv = S.m["prev"]
+        pc = f"(较昨收 {(px / pv - 1) * 100:+.2f}%)" if pv else ""
+        base = f"09:20 基准 {S.p20[1]:g}({S.p20[0]}) → {px:g}{pc}"
+        up6 = prm(S, "S6_UP")
+        if "S6" not in S.done and change >= up6 and ub > us and bid_amt >= min_amt:
             S.done.add("S6")
-            pv = S.m["prev"]
-            pc = f"(较昨收 {(px / pv - 1) * 100:+.2f}%)" if pv else ""
-            self._ev(S, c, t, "S6", px, f"09:20 基准 {S.p20[1]:g}({S.p20[0]}) → {px:g}{pc} 抬高 {(px / S.p20[1] - 1) * 100:.2f}%(本票阈 {up6 * 100:.2f}%); 未匹配 买 {ub} > 卖 {us}, 买入金额 {ub * px / 1e4:.0f} 万(阈 {min_amt / 1e4:.0f} 万)", out)
+            self._ev(S, c, t, "S6", px, f"{base} 抬高 {change * 100:.2f}%(本票阈 {up6 * 100:.2f}%); 未匹配 买 {ub} > 卖 {us}, 买侧金额证据 {bid_amt / 1e4:.0f} 万(未匹配/匹配额折算取大, 阈 {min_amt / 1e4:.0f} 万)", out)
+        down16 = prm(S, "S16_DOWN")
+        if "S16" not in S.done and -change >= down16 and us > ub and ask_amt >= min_amt:
+            S.done.add("S16")
+            self._ev(S, c, t, "S16", px, f"{base} 压低 {-change * 100:.2f}%(本票阈 {down16 * 100:.2f}%); 未匹配 卖 {us} > 买 {ub}, 卖侧金额证据 {ask_amt / 1e4:.0f} 万(未匹配/匹配额折算取大, 阈 {min_amt / 1e4:.0f} 万)", out)
+        # 09:25 定稿附近：低吸/高抛不仅看路径方向，还要求最终仍是低开/高开；与 S6/S16 的盘中抢单事实互补
+        if t >= P["AUC_FINAL"] and pv:
+            gap = max(0.005, 0.15 * float(S.m.get("amp30") or 0))
+            up17, down18 = prm(S, "S17_REBOUND"), prm(S, "S18_DROP")
+            if "S17" not in S.done and px <= pv * (1 - gap) and change >= up17 and ub > us and bid_amt >= min_amt:
+                S.done.add("S17")
+                self._ev(S, c, t, "S17", px, f"{base} 竞价拉回 {change * 100:.2f}%(本票阈 {up17 * 100:.2f}%), 仍低开 {(px / pv - 1) * 100:.2f}%(低开阈 {-gap * 100:.2f}%); 未匹配买 {ub} > 卖 {us}", out)
+            if "S18" not in S.done and px >= pv * (1 + gap) and -change >= down18 and us > ub and ask_amt >= min_amt:
+                S.done.add("S18")
+                self._ev(S, c, t, "S18", px, f"{base} 竞价回落 {-change * 100:.2f}%(本票阈 {down18 * 100:.2f}%), 仍高开 {(px / pv - 1) * 100:+.2f}%(高开阈 {gap * 100:+.2f}%); 未匹配卖 {us} > 买 {ub}", out)
 
     # ---------- S1 急跌后拉起 ----------
     def _s1(self, S, ctx, out):
@@ -823,6 +852,39 @@ class Detector:
             S.done.add("S7")
             self._ev(S, c, t, "S7", p, f"开盘 {S.open:g} × (1+{x7:g}%[本票近 30 日 P80]) = {tgt:.3f}, {t} 到 {p:g}", out)
 
+
+    # ---------- S19 / S20 T日首次冲板/跌停候选(预测,不是事实) ----------
+    def _s1920(self, S, ctx, out):
+        c, t, x, p, v, vw, b, k = ctx
+        up, dn = S.m.get("up"), S.m.get("dn")
+        if not up or not dn or t < P["S1920_START"] or c[:2] in ("11", "12"):
+            return
+        z = S.s1920
+        z["aw"].append((x, p, getattr(S, "a_cum", 0) or 0))
+        while z["aw"] and z["aw"][0][0] < x - P["S1920_WIN"]:
+            z["aw"].popleft()
+        if p >= up - S.m["tick"] / 2:
+            z["touched_up"] = True
+        if p <= dn + S.m["tick"] / 2:
+            z["touched_dn"] = True
+        if len(z["aw"]) < 2 or (up - S.m["tick"] / 2 <= p <= dn + S.m["tick"] / 2):
+            return
+        x0, p0, a0 = z["aw"][0]
+        elapsed = max(1, x - x0)
+        move = (p / p0 - 1) if p0 else 0
+        need = max(2 * S.m["tick"] / p, S.m["sigma"] * math.sqrt(elapsed / 300))
+        a1 = S.m.get("amt1")
+        vr = (S.a_cum - a0) / (a1 * elapsed / 60) if a1 else None
+        b1 = float(b[0][1] or 0) if b else 0
+        k1 = float(k[0][1] or 0) if k else 0
+        lim = (up / S.m["prev"] - 1) if S.m.get("prev") else 0.1
+        near = min(0.02 * lim / 0.1, max(2 * S.m["tick"] / up, P["S1920_NEAR_K"] * S.m["sigma"]))
+        if "S19" not in S.done and not z["touched_up"] and up * (1 - near) <= p < up and move >= need and (vr is None and b1 > k1 or vr is not None and vr >= P["S1920_VOL_K"]):
+            S.done.add("S19")
+            self._ev(S, c, t, "S19", p, f"T日首次冲板候选(预测不是事实): {elapsed}秒涨 {move * 100:.2f}%(阈 {need * 100:.2f}%), 现离涨停 {(p / up - 1) * 100:.2f}%(候选带宽 {near * 100:.2f}%); 近{elapsed}秒成交额/平时 {vr:.1f}倍" if vr is not None else f"T日首次冲板候选(预测不是事实): {elapsed}秒涨 {move * 100:.2f}%, 现离涨停 {(p / up - 1) * 100:.2f}%; 买一 {b1} > 卖一 {k1}", out)
+        if "S20" not in S.done and not z["touched_dn"] and dn * (1 + near) >= p > dn and -move >= need and (vr is None and k1 > b1 or vr is not None and vr >= P["S1920_VOL_K"]):
+            S.done.add("S20")
+            self._ev(S, c, t, "S20", p, f"T日首次跌停候选(预测不是事实): {elapsed}秒跌 {-move * 100:.2f}%(阈 {need * 100:.2f}%), 现离跌停 {(p / dn - 1) * 100:+.2f}%(候选带宽 {near * 100:.2f}%); 近{elapsed}秒成交额/平时 {vr:.1f}倍" if vr is not None else f"T日首次跌停候选(预测不是事实): {elapsed}秒跌 {-move * 100:.2f}%, 现离跌停 {(p / dn - 1) * 100:+.2f}%; 卖一 {k1} > 买一 {b1}", out)
 
     # ---------- S8 蓄势预警 / S9 午后冲板候选(10/26 用户批; U21 百洋股份离涨停 2% 横 30 分钟后拉板、锋龙股份午前离涨停 0.8% 午后开盘即封) ----------
     def _s89(self, S, ctx, out):
@@ -1172,7 +1234,7 @@ def cat_of(e):
     return em, cat
 
 
-SIG_EMOJI = {"S8": "🔋", "S9": "⏰", "D1": "🔴🛬", "D2": "🔴↩️", "D3": "🔴🪂", "S1": "📈", "S2": "➖", "S3": "🔼", "S4a": "💥", "S4p": "⤴️", "S4c": "⚡", "S4b": "🔁", "S5": "🌇", "S6": "🎯", "S7": "🚀", "S10": "🟥↗", "S11": "🪜", "S12": "🧱↗", "S13": "🧱↘", "D4": "🩸", "D5": "🔓", "R1": "🌊", "S14": "🟥✅", "S15": "🟩⬇"}
+SIG_EMOJI = {"S8": "🔋", "S9": "⏰", "D1": "🔴🛬", "D2": "🔴↩️", "D3": "🔴🪂", "S1": "📈", "S2": "➖", "S3": "🔼", "S4a": "💥", "S4p": "⤴️", "S4c": "⚡", "S4b": "🔁", "S5": "🌇", "S6": "🎯", "S7": "🚀", "S10": "🟥↗", "S11": "🪜", "S12": "🧱↗", "S13": "🧱↘", "D4": "🩸", "D5": "🔓", "R1": "🌊", "S14": "🟥✅", "S15": "🟩⬇", "S16": "🟩🏃", "S17": "🔵🛬", "S18": "🟢↗", "S19": "🚀❓", "S20": "🩸❓", "W1": "🧭"}
 SIG_CAT = {   # 10/28 13:0x 用户定类别(一个 emoji + 【类别】, 不用两个 emoji 连写): 低吸 / 追涨 / 板 / 炸板 / 炸板有希望回封 / 冲高回落 / 深V拉升 / 共振, 我补 冲高到位 / 尾盘 / 竞价
     "D1": ("🔵", "低吸"), "D3": ("🔵", "低吸"), "S2": ("🔵", "低吸"),
     "D2": ("🟢", "冲高回落"),           # 冲高到位后回落到开盘价守住(既是冲高回落, 也是开盘价低吸位)
@@ -1182,7 +1244,7 @@ SIG_CAT = {   # 10/28 13:0x 用户定类别(一个 emoji + 【类别】, 不用�
     "S4a": ("💥", "炸板"),
     "S4b": ("🔁", "炸板有希望回封"), "S4p": ("🔁", "炸板有希望回封"),
     "S7": ("🚀", "冲高到位"), "S3": ("🚀", "冲高到位"),   # 开盘冲高到位 / 二次冲高: 持仓的卖点参考
-    "S5": ("🌇", "尾盘"), "S6": ("🎯", "竞价"), "R1": ("🌊", "共振"),
+    "S5": ("🌇", "尾盘"), "S6": ("🎯", "竞价"), "S16": ("🟩", "竞价抢跑"), "S17": ("🔵", "竞价低吸"), "S18": ("🟢", "竞价高抛"), "S19": ("🚀", "首次冲板候选"), "S20": ("🩸", "首次跌停候选"), "W1": ("🧭", "候选窗口"), "R1": ("🌊", "共振"),
     "S12": ("🔺", "转强"), "S13": ("🔻", "转弱"), "D4": ("🔵", "低吸"), "D5": ("🔵", "低吸"),
     "S14": ("🔴", "翻红企稳"), "S15": ("🟢", "翻绿企稳")}   # 10/29 晚用户: 水下翻水上 / 水上翻水下企稳单列   # 10/28 晚用户批: 墙位翻转 = 转强 / 转弱提醒
 _WHY = {"t": 0.0, "map": {}, "seen": set()}
@@ -1240,7 +1302,8 @@ def compose(evs, D, hold):
                 s += f"〔第 {e['nth']} 次〕"
             o = e.get("odds")
             if o and o.get("p") is not None:
-                s += f"〔历史+{o['tgt']:g}% 盈利率 {o['p'] * 100:.0f}% n{o['n']}〕"
+                s += (f"〔历史−{o['tgt']:g}% 触及率 {o['p'] * 100:.0f}% n{o['n']}〕" if o.get("dir") == "sell"
+                      else f"〔历史+{o['tgt']:g}% 盈利率 {o['p'] * 100:.0f}% n{o['n']}〕")
             if e["sig"] in ("D1", "D2", "D3") and "此刻 " in (e.get("detail") or ""):   # 10/28: 低吸带上大盘此刻(普跌日低吸到收盘中位 −1.8%)
                 s += f"〔{e['detail'].rsplit('此刻 ', 1)[1]}〕"
             if e.get("osc"):   # 10/29 晚: 反复来回穿降级的标一下
@@ -1255,7 +1318,7 @@ def compose(evs, D, hold):
     return "\n".join(L)
 
 
-OSC_SIGS = ("S2", "D1", "S10", "S14", "S15")   # 10/29 晚: 均价 / 昨收来回穿那几类(回踩均价 / 跌破均价企稳 / 绿翻红 / 翻红企稳 / 翻绿企稳)
+OSC_SIGS = ("S2", "D1", "S10", "S14", "S15", "S16", "S17", "S18", "S19", "S20")   # 10/29 晚: 均价 / 昨收来回穿那几类(回踩均价 / 跌破均价企稳 / 绿翻红 / 翻红企稳 / 翻绿企稳)
 
 
 def osc_n(code, pu):
@@ -1446,6 +1509,18 @@ def real_holds():
     return out
 
 
+def hot_cb_codes(D):
+    """实时涨停/炸板正股对应的转债：复用 collect_book.live_codes，至少进入 signal 盯盘名单。"""
+    try:
+        cb_stock("110000")
+        stk = {cb: stk for cb, stk in _CB.items() if re.fullmatch(r"\d{6}", stk or "")}
+        sys.path.insert(0, str(ROOT / "scripts" / "market"))
+        import collect_book as CBK
+        return {c for c in CBK.live_codes(D, stk) if c.startswith(("11", "12"))}
+    except Exception:   # noqa: BLE001  映射/盘面缺失不拖垮原名单
+        return set()
+
+
 def watch_codes(D):
     out = set()
     for f in [*(LIVE / D).glob("live_*/must_state.json"), *(LIVE / D).glob("paper_*/must_state.json")]:
@@ -1455,7 +1530,7 @@ def watch_codes(D):
         except (OSError, ValueError, AttributeError):
             continue
     out = {c for c in out if re.fullmatch(r"\d{6}", c)}
-    return out | v3_holds(D) | real_holds() | extra_codes()
+    return out | v3_holds(D) | real_holds() | extra_codes() | hot_cb_codes(D)
 
 
 def _flag(k, d=""):
@@ -1602,6 +1677,17 @@ def run(D, codes=None, all_=False, dry=False):
             seen.add((e["code"], e["sig"], e["t"]))
             th.ok(e)
     pusher = Pusher(D, lambda: state["hold"], dry)
+    v2_worker = None
+    if not dry and _flag("LIVE_V2_MODEL", "0") == "1":   # live v2 默认关；开启也只有一个后台队列/一个 resume 会话
+        sys.path.insert(0, str(ROOT / "scripts" / "live" / "v2"))
+        from driver import start_worker
+        v2_worker = start_worker(D, LIVE / D / "live_v2")
+    v2_queue = v2_worker[0] if v2_worker else None
+    radar = None
+    if not dry and _flag("LIVE_V2_RADAR", "1") == "1":   # 零token机械雷达：无人询问也更新状态/盯盘池，少量候选推送
+        sys.path.insert(0, str(ROOT / "scripts" / "live" / "v2"))
+        from radar import Radar
+        radar = Radar(D, LIVE / D / "radar", max_day=int(_flag("RADAR_MAX_DAY", "6")))
     print(f"[signals] {D} 开始 pid={os.getpid()} 盯 {'全部' if all_ else len(state['want'])} 只 → {out_f}", file=sys.stderr, flush=True)
     f = MKT / D / "book_snap.jsonl"
     fh, buf = None, ""
@@ -1635,6 +1721,15 @@ def run(D, codes=None, all_=False, dry=False):
                 pusher._osc[e["code"]] += 1
             if not stale and passed:
                 pusher.add(e)
+                if v2_queue is not None:
+                    v2_queue.put(dict(e))
+                if radar is not None:
+                    try:
+                        we = radar.on_event(e, secs(now_hm))
+                        if we:
+                            pusher.add(we)
+                    except Exception as e_:   # 雷达失败不拖垮原signal
+                        print(f"[signals] 雷达事件失败 {e_!r}", file=sys.stderr, flush=True)
     try:
         while True:
             hm = dt.datetime.now().strftime("%H:%M:%S")
@@ -1708,6 +1803,13 @@ def run(D, codes=None, all_=False, dry=False):
                 if not pusher.busy:
                     break
                 time.sleep(1)
+        if v2_worker is not None:
+            v2_worker[0].put(None)
+            v2_worker[1].join()
+        if radar is not None:
+            radar.close()
+            from radar import update_extra
+            update_extra(set())
         print(f"[signals] {D} 结束", file=sys.stderr, flush=True)
 
 

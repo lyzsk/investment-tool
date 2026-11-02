@@ -1,0 +1,25 @@
+{
+  "default_stage": "auto",
+  "slow_mode": "full_chain",
+  "windows": [
+    {"start": "09:15:00", "end": "10:30:00", "stage": "fast_slow"},
+    {"start": "00:00:00", "end": "09:15:00", "stage": "slow"},
+    {"start": "10:30:00", "end": "23:59:59", "stage": "slow"}
+  ],
+  "fast": {
+    "timeout_s": 120,
+    "effort": "low",
+    "deferred_queries": false,
+    "max_format_retries": 1
+  },
+  "slow": {
+    "timeout_s": 300,
+    "effort": "medium",
+    "deferred_queries": true,
+    "max_format_retries": 1
+  },
+  "auto": {
+    "continue_slow_if_fast_fails": true,
+    "mechanical_fallback_on_timeout": true
+  }
+}

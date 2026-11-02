@@ -79,10 +79,12 @@ def write_summary(c):
     rows = c.execute("select source,kind,context from predictions where late=0 and hit is not null group by source,kind,context order by source,kind,context").fetchall()
     for s, k, ctx in rows:
         r = calib(c, s, k, ctx)
-        L.append(f"| {s} | {k} | {ctx or '全体'} | {r['n']} | {r['hit']:.1%} | {r['delta']:+.1%} | {r['delta_prev']:+.1%} |")
+        fmt = lambda x: "-" if x is None else f"{x:+.1%}"
+        L.append(f"| {s} | {k} | {ctx or '全体'} | {r['n']} | {r['hit']:.1%} | {fmt(r['delta'])} | {fmt(r['delta_prev'])} |")
     L += ["", "## 汇总(不限情境)", ""]
     for s, k in c.execute("select source,kind from predictions where late=0 and hit is not null group by source,kind").fetchall():
         r = calib(c, s, k)
-        L.append(f"- **{s} / {k}**: n={r['n']} · 命中 {r['hit']:.1%} · 比震荡 {r['delta']:+.1%} · 比同昨 {r['delta_prev']:+.1%}")
+        fmt = lambda x: "-" if x is None else f"{x:+.1%}"
+        L.append(f"- **{s} / {k}**: n={r['n']} · 命中 {r['hit']:.1%} · 比震荡 {fmt(r['delta'])} · 比同昨 {fmt(r['delta_prev'])}")
     (OUT / "summary.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     return len(rows)

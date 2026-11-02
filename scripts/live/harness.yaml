@@ -176,7 +176,12 @@ signals:
   S4a: {name: 炸板,          rule: "封住后开板, 且开板持续 >= N 秒(N = 近 3 日全市场开板时长 P25, 每天重算, 排除秒开秒封)"}   # 10/25 用户批: S4 拆两条, 动作发生时就提醒
   S4b: {name: 回封动作,      rule: "开板期间卖一挂在涨停价、卖一量从这次开板的最大值降掉 >= DROP(近 3 日真回封前的降幅中位)", params: {N: 10}}   # N = 开板超过 N 分钟不再等
   S5: {name: 尾盘拉升,       rule: "14:25~14:45 最低点后 10 分钟内涨 >= 1.5%"}
-  S6: {name: 竞价抢筹,       rule: "09:20 后撮合价比 09:20 抬高 >= 3% 且未匹配买 > 未匹配卖"}
+  S6: {name: 竞价抢筹, rule: "09:20 后撮合价比 09:20 抬高 >= 本票历史抬高 P90 且未匹配买 > 未匹配卖、金额过本票流动性地板"}
+  S16: {name: 竞价抢跑, rule: "09:20 后撮合价比 09:20 压低 >= 本票历史压低 P90 且未匹配卖 > 未匹配买、金额过本票流动性地板(S6 镜像)"}
+  S17: {name: 竞价低吸, rule: "09:24:30 后仍低开 >= max(0.5%,0.15×30日振幅中位), 09:20 后拉回 >= 本票历史抬高 P90 且未匹配买占优"}
+  S18: {name: 竞价高抛, rule: "09:24:30 后仍高开 >= max(0.5%,0.15×30日振幅中位), 09:20 后回落 >= 本票历史压低 P90 且未匹配卖占优"}
+  S19: {name: 首次冲板候选, rule: "T日尚未触板，60秒涨幅>=max(2价位,σ5×√(60/300)，价格进入动态冲板带且成交额>=2倍或买方占优；预测不是事实"}
+  S20: {name: 首次跌停候选, rule: "T日尚未跌停，60秒跌幅>=max(2价位,σ5×√(60/300)，价格进入动态跌停带且成交额>=2倍或卖方占优；预测不是事实"}
   S7: {name: 开盘冲高到位,   rule: "开盘后 30 分钟内到 开盘价 × (1 + x%); x = 本票近 30 日开盘 30 分钟最高的 P80(10/25 起动态, 下面的 6 只是算不出来时的兜底)", params: {x: 6}}   # 你的澳弘观点, 未核销
   # 👤 你来加; 写不成机械规则的不能进(模型会拿来搪塞)
 
@@ -235,7 +240,8 @@ behavior:
   #   S6 竞价抢筹: 09:20:30 后撮合价比 09:20 基准抬高 ≥3% 且未匹配买 > 未匹配卖
   #   S7 开盘冲高到位: 开盘后 30 分钟内涨到 开盘价 × (1 + 6%)
   #   到价 / 破位: 计划里写的价位 / 失效价被碰到
-  wake_without_model: [S1, S2, S3, S4, S5, S6, S7, 到价, 破位]   # 只推提醒, 不叫模型
+  wake_without_model: [S1, S2, S3, S4, S5, S6, S7, S16, S17, S18, S19, S20, 到价, 破位]   # 只推提醒, 不叫模型
+
   token_gate:                         # 每分钟 token 预算闸(10/25 你定: 预留, 先不启用 —— 周一还是 Claude Opus 5.5; 10/25 白天你切 kimi 压测后再定)
     enabled: false                    # true = 滚动 60 秒 token 超 tpm × ratio 就排队到下一分钟(代码还没接, 打开前我先接好再自测)
     tpm: 4000000                      # 模型的每分钟 token 上限(K3 Tier4 = 400 万)
@@ -247,6 +253,67 @@ behavior:
     keys:                             # 👤 盘中实盘线和交互会话分开用
       live_line: kimi-code
       interactive: kimi-xhj
+
+chain_v2:
+  "01": {name: 机械增量事实与真实账户, source: chain_steps.build_01, model: false}
+  "02": {name: 公共情境与实时市况, source: knowledge+market_state+live02, shared_by: [fast, slow]}
+  "03": {name: 独立多空辩论与skill适用性审查, fork_before_fast: true, independent: true}
+  "04": {name: 指定导师方向选择, fast: merge_with_06, slow: independent}
+  "05": {name: 机械风控与置信上限, model_can_only_lower: true, low_confidence_push: true}
+  "06": {name: 候选操作版本与硬闸, gate: [fresh_3s_book, G1, G2, G3, G4, G5, G6, G7], auto_execute: false}
+  fast: {skip: ["03"], merge: ["04", "06"]}
+  slow: {stages: ["02", "03", "04", "06"], fork_before_fast: true, independent_03: true}
+  realtime:
+    index_mood_book: rolling_local_files
+    topology_relations: previous_completed_day_precompute
+    topology_membership_prices: realtime
+    order_book_max_age_sec: 15
+
+live_v2:
+  model_trigger_env: LIVE_V2_MODEL   # 默认 0；=1 且非 dry 才启动模型 worker，不随 signals 默认花 token
+  input: passed_non_stale_signals    # 原 signals.py 已过名单、节流和统计期望闸的事件
+  sessions_per_day: 1                # 单队列顺序处理；首轮 --session-id，后续仅 --resume
+  model_cooldown_sec: 180            # 同票模型复核最小间隔，机械 signal 不受影响
+  tools: none                        # 不读 skill、不读文件、不联网、不执行交易
+  result: candidate_case             # 只回写待核案例，不直接升规则、不生成自动订单
+
+mentor_consult:
+  entry: scripts/live/v2/mentor_consult.py
+  retrieval: scripts/live/v2/decision_pack.py
+  required_queries: [levels, peers, themeof, cases, events, pattern, cbpath_or_similar, themetop]
+  required_context: [linkage_dynamic_5_20, current_position, current_auction, previous_decision_and_invalid_if]
+  slow_required_queries: [window]  # 重计算放慢版；fast不被window超时拖住，失败写missing_slow
+  missing_data: explicit_pending    # 必要查询失败写 missing；缺情境加待核销，不伪造
+  kb_cap: false                     # 不按固定KB截断；按当前标的和情境精准取，额外数据按需查询
+  tools: ["Bash(./q:*)"]            # 只允许只读命名查询，禁自由Bash/联网/写文件/自动交易
+  fast_slow_same_session: true
+  stage_config: scripts/live/v2/consult_config.json
+  auto_stage:
+    "09:15-10:30": fast_slow
+    other_periods: slow_only
+  fast_timeout_sec: 120
+  slow_timeout_sec: 300
+  on_timeout: mechanical_fallback_then_slow
+  slow_mode: full_chain               # 无fast_review；slow从fast前的01+02会话分叉，独立03→04→06
+  slow_fork_before_fast: true         # 共享01/02缓存但不被fast答案锚定
+  heartbeat: false                    # 纯用户触发，无定时心跳
+  confidence:
+    script: scripts/live/v2/confidence.py
+    model_can_only_lower: true
+    high_requires: [independent_n>=60, edge_vs_same_pool>=0.10, net_after_actual_cost>0, out_of_sample, counterexample_reviewed, exit_ok, required_coverage]
+  patterns: [连板中, 首板, 断板, 趋势, 转强候选, 转债, ETF, 普通]   # 趋势中军/预先转强不套连板模板
+
+mechanical_radar:
+  enabled_env: LIVE_V2_RADAR         # 默认1；零token，无人询问也运行，不自动交易
+  script: scripts/live/v2/radar.py
+  input: passed_non_stale_signals
+  context_fallback: previous_completed_day_only
+  missing_context: pending_review
+  dynamic_pool_file: scripts/temp/collect_book_extra.txt
+  max_candidates_per_day: 6
+  cooldown_per_code_sec: 1800
+  low_confidence_push: true           # 低/候选也可推，必须带缺失证据，供复盘研究
+  execution: observe_only
 
 # ─────────────────────────── 3.7b 推送闸 ───────────────────────────
 push:
@@ -274,3 +341,30 @@ review:
   case_feedback: true                 # 核销结果回写案例正负标签
 
 # 3.9(Claude Code 自己的 settings / hooks)不放这里, 你在 ~/.claude/settings.json 里自己配
+
+# ─────────────────────────── 3.11 distill 结构化输出契约（与 scripts/knowledge/schema.py 同步） ───────────────────────────
+# 输出仍由 harness 规定格式；证据、关系和审核由 scripts/knowledge/schema.py 机械校验。
+distill_contract:
+  file: scripts/live/distill_contract.json
+  required: [id, owner, version, context_id, trigger, action, evidence, relations, confidence, epistemic, review]
+  relations: [supports, refines, conflicts, restructures]
+  review_states: [candidate, active, watch, rejected, restructured]
+  epistemic_states: [verified, candidate, prior]
+  citation_gate: verified_only       # 04/06/live/signal 无标记、候选、纯先验一律不得引用
+  verified_source: mechanical        # 模型不得自封已核销；必须带 n/hit_rate/as_of/evidence
+  dimensions_file: scripts/knowledge/dimensions.json
+  dimensions_generator: mechanical_only
+  evidence_min_items: 1
+  required_relation_fields: [type, target]
+  failure_policy: observation_pool  # 结构/证据不通过 -> 观察池，不允许 chain 反复回炉
+  time_fields: [issued_at, available_at, target_start, target_end]  # 支持盘后、跨日、未来猜想
+
+rule_context_gate:
+  script: scripts/md/rules_lint.py
+  old_rules: mark_only
+  new_rules_flag: --strict
+  context_required: [情境卡或至少三层维度]
+  recent_required: 统计结论必须有近期窗口+全期对照
+  epistemic_required: true
+  analog_not_identical: true         # 相似案例允许不同K线，必须带shared/different，不强行supports
+
